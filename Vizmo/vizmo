@@ -2,10 +2,10 @@
 system=`uname -s`
 if [ $system = "Linux" ]
 then
-   export VIZMO_DIR=/users/burchanb/blackwidowers/Vizmo
+   export VIZMO_DIR=/share/Vizmo
    export VIZMO_SO=VizmoLibLinux
-   export LD_LIBRARY_PATH=$VIZMO_DIR/lib:$LD_LIBRARY_PATH
-   export VTK=/usr/local/bin/vtk
+   export LD_LIBRARY_PATH=$VIZMO_DIR/lib:/share/lib:/research/sunburn/dsmft/CD-libs/linux/VCLIP/lib:$LD_LIBRARY_PATH
+   export VTK=/share/bin/vtk
 fi
 if [ $system = "IRIX" ]
 then
