@@ -294,6 +294,25 @@ void vizmo::ChangeNodesShape(string s){
     }
 }
 
+void vizmo::ChangeNodesColor(double r, double g, double b, string s){
+
+    if( m_obj.m_Robot==NULL ) return;
+    
+    if( m_obj.m_Map==NULL ) return;
+
+    typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
+    typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
+    typedef vector<CC>::iterator CCIT;    
+
+    CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
+    vector<CC>& cc=mmodel->GetCCModels();
+    for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+        CC::Shape shape=CC::Robot;
+	ic->newColor = true;
+        ic->changeColor(r, g, b, shape);
+    }
+}
+
 double vizmo::GetEnvRadius(){ 
     if(m_obj.m_Env!=NULL ){
         CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();

@@ -93,7 +93,8 @@ public:
     void ShowRoadMap( bool bShow=true );
     void ChangeNodesSize(float s, string str);
     void ChangeNodesShape(string s);
-	bool IsRoadMapLoaded(){ return m_obj.m_Map!=NULL; }
+    bool IsRoadMapLoaded(){ return m_obj.m_Map!=NULL; }
+    void ChangeNodesColor(double r, double g, double b, string s);
     
     //////////////////////////////////////////////////////////////////////
     // Path Related Function
@@ -124,7 +125,7 @@ public:
 
     vector<gliObj>& GetSelectedItem(){return m_Plum.GetSelectedItem();}
     
-	vector<PlumObject*>& GetPlumObjects(){ return m_Plum.GetPlumObjects(); }
+    vector<PlumObject*>& GetPlumObjects(){ return m_Plum.GetPlumObjects(); }
 
     double GetEnvRadius();
     

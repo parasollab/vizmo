@@ -21,6 +21,10 @@ namespace plum{
         
         //type for the shape of node representation
         enum Shape { Robot, Box, Point };
+
+	// to know if change color of CC's
+	bool newColor;
+
         
         //////////////////////////////////////////////////////////////////////
         // Constructor/Destructor
@@ -57,6 +61,13 @@ namespace plum{
         }
         
         void changeNode(Shape s) {m_sNodeShape=s;}
+
+	/// Allow to change color of CC's
+	void changeColor(double r, double g, double b, Shape s){
+	  m_sNodeShape=s;
+	  m_R = r; m_G = g; m_B = b;
+
+	}
         
     private:
         
@@ -68,6 +79,8 @@ namespace plum{
         void BuildBoxNodes();
         void BuildPointNodes();
         void BuildEdges();
+
+	void ChangeColor();
         
         vector< Cfg > m_Nodes;
         vector< WEIGHT> m_Edges;
@@ -85,6 +98,9 @@ namespace plum{
         int m_DID_ROBOT; //id for original robots
         int m_DID_Box;   //id for box
         int m_DID_PT;    //id for points
+
+	//to store colors for CC's
+	float m_R, m_G, m_B;
     };
     
     
@@ -167,6 +183,8 @@ namespace plum{
     template <class Cfg, class WEIGHT>
         void CCModel<Cfg, WEIGHT>::BuildNodeModels()
     {
+        newColor = false;
+
         switch( m_sNodeShape ){
         case Robot: BuildRobotNodes(); break;
         case Box: BuildBoxNodes(); break;
@@ -250,6 +268,42 @@ namespace plum{
         }   
         glEndList();
     }
+
+    template <class Cfg, class WEIGHT>
+      void CCModel<Cfg, WEIGHT>::ChangeColor(){
+
+ ////////////////////////////////////////////////////////////////////////////////
+        //backup
+        double oldscale=m_pRobot->size;
+        Quaternion q=m_pRobot->q();
+        double x=m_pRobot->tx();
+        double y=m_pRobot->ty();
+        double z=m_pRobot->tz();
+        m_pRobot->size=m_fRobotScale;
+        double R=m_pRobot->GetColor()[0];
+        double G=m_pRobot->GetColor()[1];
+        double B=m_pRobot->GetColor()[2];
+        
+        m_DID_ROBOT = glGenLists(1);
+        m_pRobot->SetColor(m_R,m_G,m_B,m_pRobot->GetColor()[3]);
+        glNewList( m_DID_ROBOT, GL_COMPILE );
+        {
+            glEnable(GL_LIGHTING);
+            int nSize=m_Nodes.size();
+            for( int iN=0; iN<nSize; iN++ )
+                m_Nodes[iN].DrawRobot();//draw robot;
+        }
+        glEndList();
+        
+        //restore values of robot color, size and position.
+        m_pRobot->size=oldscale;
+        m_pRobot->tx()=x;
+        m_pRobot->ty()=y;
+        m_pRobot->tz()=z;
+        m_pRobot->q(q);
+        m_pRobot->SetColor(R,G,B,m_pRobot->GetColor()[3]);
+    }
+
     
     ////////////////////////////////////////////////////////////////////////////////////
     template <class Cfg, class WEIGHT>
@@ -268,13 +322,17 @@ namespace plum{
         switch( m_sNodeShape ){
         case Robot: 
             if(m_DID_ROBOT==-1) BuildNodeModels();
-            list=m_DID_ROBOT; break;
+            list=m_DID_ROBOT; 
+	    if(newColor) ChangeColor();
+	    break;
         case Box: 
             if(m_DID_Box==-1) BuildNodeModels();
-            list=m_DID_Box; break;
+            list=m_DID_Box; 
+	    break;
         case Point: 
             if(m_DID_PT==-1) BuildNodeModels();
-            list=m_DID_PT; break;
+            list=m_DID_PT; 
+	    break;
         }
         
         glCallList(list);
