@@ -36,3 +36,4 @@ fi
 
 #run vtk
    $VTK $VIZMO_DIR/vizmo.exe $*
+#exit
