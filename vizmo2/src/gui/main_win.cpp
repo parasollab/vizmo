@@ -574,9 +574,9 @@ void VizmoMainWin::CreateMenubar()
     
     showHideRoadmapAction->addTo(roadmapMenu);
     roadmapMenu->insertSeparator();
-	roadmapGUI->editAction->addTo(roadmapMenu);
-	roadmapGUI->addNodeAction->addTo(roadmapMenu);
-	roadmapGUI->addEdgeAction->addTo(roadmapMenu);
+    //roadmapGUI->editAction->addTo(roadmapMenu);
+    //roadmapGUI->addNodeAction->addTo(roadmapMenu);
+    //roadmapGUI->addEdgeAction->addTo(roadmapMenu);
     roadmapMenu->insertSeparator();
     roadmapMenu->insertItem( "Set parameters", param);
     roadmapMenu->insertSeparator();
