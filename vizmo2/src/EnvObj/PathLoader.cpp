@@ -72,20 +72,12 @@ double * CPathLoader::GetConfigure( bool bOutputFrameNumber, int & index )
 {
   int dof=CCfg::dof;
   double * currentCfg=new double[dof];
-  static double TwoPI=3.1415926535*2.0;
-  for(int i=0;i<dof;i++){
-    if((i==0) || (i==1)|| (i==2)){
-      currentCfg[i]=m_pList[index][i];
-    }
-    else{
-      currentCfg[i]=m_pList[index][i]*TwoPI;
-    }
-  }
+  for(int i=0;i<dof;i++) currentCfg[i]=m_pList[index][i];
 
   if( bOutputFrameNumber )
     cout<< "- ChainMaiViewer Mag : Current Frame # = " << index
         << "/"<< m_pList.size()-1 <<endl;
-  
+
   return currentCfg;
 }
 

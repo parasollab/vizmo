@@ -193,6 +193,7 @@ void OBPRMView_Robot::Restore(){
 
 
 void OBPRMView_Robot::Configure( double * cfg) { 
+
   const CMultiBodyInfo * MBInfo = m_pEnvLoader->GetMultiBodyInfo();
   int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
   int robIndx = 0;
@@ -202,26 +203,35 @@ void OBPRMView_Robot::Configure( double * cfg) {
   Vector3d position;
   Orientation orientation;
 
-  double TwoPI=3.1415926535*2.0;
+  static double TwoPI=3.1415926535*2.0;
 
 
+  /////////////////////////////////////////////////////////////////////////////
   for( int iM=0; iM<numMBody; iM++ ){
     if( MBInfo[iM].m_active )
       robIndx = iM;
   }
 
+  bool fixedBase=MBInfo[robIndx].m_pBodyInfo[0].m_bIsFixed;
+  int myDOF=m_pEnvLoader->getDOF();
+  /////////////////////////////////////////////////////////////////////////////
+  // convert cfg
+  for( int id=0;id<myDOF;id++ )
+	if( fixedBase || id>=3 ) cfg[id]*=TwoPI;
+  /////////////////////////////////////////////////////////////////////////////
+
   int numBody=MBInfo[robIndx].m_cNumberOfBody;
 
   //to keep Cfgs. for bodies other than FirstLink
-  RotFstBody = new double[m_pEnvLoader->getDOF() - 3];
+  RotFstBody = new double[ myDOF - 3];
 
-  for( int iM=0; iM<numBody; iM++ ){
+  {for( int iM=0; iM<numBody; iM++ ){
     MBInfo[robIndx].m_pBodyInfo[iM].m_currentTransform.ResetTransformation();
     MBInfo[robIndx].m_pBodyInfo[iM].m_prevTransform.ResetTransformation();
     MBInfo[robIndx].m_pBodyInfo[iM].m_transformDone = false;
-  }
+  }}
 
-  if(MBInfo[robIndx].m_pBodyInfo[0].m_bIsFixed){
+  if(fixedBase){
 
     pPoly[0].tx()=MBInfo[robIndx].m_pBodyInfo[0].m_X; 
     pPoly[0].ty()=MBInfo[robIndx].m_pBodyInfo[0].m_Y; 

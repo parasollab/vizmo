@@ -36,28 +36,19 @@ namespace plum{
 	m_CC=cc;
   }
   
-    void CCfg::DrawRobot(){
-      
-      static double TwoPI=3.1415926535*2.0;
-  
+  void CCfg::DrawRobot(){
+      	  
       if( m_robot==NULL ) return;
       //Dump();
       int dof=CCfg::dof;
-      double cfg[dof];
-      for(int i=0; i<dof;i++){
-	if((i==0) || (i==1)|| (i==2)){
-	  cfg[i]=dofs[i];
-	}
-	else{
-	  cfg[i]=dofs[i]*TwoPI;
-	}
-      }
-      //CopyCfg();    
+      double * cfg=new double[dof];
+      for(int i=0;i<dof;i++) cfg[i]=dofs[i];
+      //CopyCfg();
       m_robot->Scale(sx(),sy(),sz());
       m_robot->Configure(cfg);
+	  delete [] cfg;
       m_robot->Draw(GL_RENDER);
-
-    }
+  }
   
     void CCfg::DrawBox(){
       //Dump();
@@ -100,18 +91,10 @@ namespace plum{
     switch(m_Shape){
     case Robot: 
       if( m_robot!=NULL ){
-	
-	static double TwoPI=3.1415926535*2.0;
+
 	int dof=CCfg::dof;
-	double cfg[dof];
-	for(int i=0; i<dof;i++){
-	  if((i==0) || (i==1)|| (i==2)){
-	    cfg[i]=dofs[i];
-	  }
-	  else{
-	    cfg[i]=dofs[i]*TwoPI;
-	  }
-	}
+	double * cfg=new double[dof];
+	for(int i=0; i<dof;i++) cfg[i]=dofs[i];
 	//CopyCfg();
 	
 	//backUp
@@ -121,6 +104,7 @@ namespace plum{
 	m_robot->SetColor(1,1,0,0);
 	m_robot->Scale(sx(),sy(),sz());
 	m_robot->Configure(cfg);
+	delete [] cfg;
 	m_robot->DrawSelect();
 	m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);	
 	//restore

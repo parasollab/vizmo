@@ -216,12 +216,12 @@ void VizmoRoadmapGUI::changeColorOfCCselected(){
     }
 
   string s;
-  for ( unsigned int i = 0; i < l->count(); i++ ) {
+  {for ( unsigned int i = 0; i < l->count(); i++ ) {
     QListBoxItem *item = l->item( i );
     // if the item is selected...
     if ( item->selected() )
       s = (string)item->text().ascii();
-  }
+  }}
   
   GetVizmo().ChangeNodesColor(R, G, B, s);
   emit callUpdate(); //set an updat event
