@@ -30,6 +30,11 @@ inline vector<gliObj> vizmo_select(const gliBox& box){
 
 void VizGLWin::initializeGL()
 {
+
+  // BSS - trying to make shadeing smooth
+    glShadeModel(GL_SMOOTH);
+
+
     /*Setup light and material properties*/
     SetLight();
 

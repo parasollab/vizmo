@@ -58,18 +58,21 @@ OBJECTS_DIR = ./
 
 HEADERS = gui.h \
 		main_win.h \
-		scene_win.h
+		scene_win.h \
+		animation_gui.h
 SOURCES = gui.cpp \
 		main_win.cpp \
-		scene_win.cpp
+		scene_win.cpp \
+		animation_gui.cpp
 OBJECTS = gui.o \
 		main_win.o \
-		scene_win.o
+		scene_win.o \
+		animation_gui.o
 FORMS = 
 UICDECLS = 
 UICIMPLS = 
-SRCMOC   = moc_main_win.cpp moc_scene_win.cpp
-OBJMOC = moc_main_win.o moc_scene_win.o
+SRCMOC   = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp
+OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o
 DIST	   = 
 QMAKE_TARGET = gui
 DESTDIR  = 
@@ -126,10 +129,12 @@ FORCE:
 ####### Compile
 
 gui.o: gui.cpp gui.h \
-		main_win.h
+		main_win.h \
+		animation_gui.h
 
 main_win.o: main_win.cpp main_win.h \
 		scene_win.h \
+		animation_gui.h \
 		icon/Eye.xpm \
 		icon/Folder.xpm \
 		icon/Pen.xpm \
@@ -140,9 +145,13 @@ main_win.o: main_win.cpp main_win.h \
 scene_win.o: scene_win.cpp scene_win.h \
 		main_win.h
 
+animation_gui.o: animation_gui.cpp animation_gui.h  
+
 moc_main_win.o: moc_main_win.cpp main_win.h 
 
 moc_scene_win.o: moc_scene_win.cpp scene_win.h 
+
+moc_animation_gui.o: moc_animation_gui.cpp animation_gui.h
 
 moc_main_win.cpp: $(MOC) main_win.h
 	$(MOC) main_win.h -o moc_main_win.cpp
@@ -150,4 +159,21 @@ moc_main_win.cpp: $(MOC) main_win.h
 moc_scene_win.cpp: $(MOC) scene_win.h
 	$(MOC) scene_win.h -o moc_scene_win.cpp
 
+moc_animation_gui.cpp:  $(MOC) animation_gui.h
+	$(MOC) animation_gui.h -o moc_animation_gui.cpp
+
 include Dependencies
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -88,6 +88,18 @@ public:
      */
     void Animate( bool bForward=true );
 
+    /* Get a particular configuration
+     *
+     */
+
+    void GetConfiguration(int);
+
+    int GetCurrentCfg();
+
+
+    /* return the number of frames*/
+    int getTimer();
+
     //////////////////////////////////////////////////////////////////////
     // Roadmap Related Function
     void ShowRoadMap( bool bShow=true );

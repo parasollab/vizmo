@@ -162,6 +162,8 @@ m_Plum.DumpSelected();
 */
 
 
+
+
 void vizmo::refreshEnv()
 {
   if(m_obj.m_Env==NULL) return;
@@ -252,9 +254,65 @@ void vizmo::Animate(bool bForward){
         dCfg=ploader->GetPreviousConfigure(true);
     rmodel->Configure(dCfg);
     delete dCfg;
-
-    cout<< "In Animate"<<endl;
+   
 }
+
+
+void vizmo::GetConfiguration(int index)
+{
+
+  if(m_obj.m_Robot==NULL || m_obj.m_Path==NULL)
+  {
+    cout<<"Exiting here";
+    return;
+  }
+
+  CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
+  OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+
+  double * dCfg; 
+
+  dCfg=ploader->GetParticularConfiguration(index);
+  rmodel->Configure(dCfg);
+  delete dCfg;
+
+}
+
+
+
+// BSS returns the number of frames
+int vizmo::getTimer()
+{
+  int size;
+  if(m_obj.m_Path==NULL) 
+    {
+    return 0;
+    cout<<flush<<endl<<size<<endl;
+    }
+   
+   CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
+   size=(signed int)ploader->GetPathSize();
+   
+  
+  return size-1;
+   
+}
+
+int vizmo::GetCurrentCfg()
+{
+  int cfg;
+  if(m_obj.m_Path==NULL) 
+    {
+      return 0;
+    
+    }
+   CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
+   cfg=(signed int)ploader->GetCurrentCfg();
+   
+   return cfg;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Protected Functions
@@ -286,6 +344,8 @@ bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
         pmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
     obj.m_Path=new PlumObject(pmodel,ploader);
     return (obj.m_Path!=NULL);
+
+
 }
 
 bool vizmo::CreateQueryObj( vizmo_obj& obj, const string& fname )

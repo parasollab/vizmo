@@ -1,6 +1,7 @@
 #include "vizmo2.h"
-#include "main_win.h"
+#include "main_win.h"  
 #include "scene_win.h"
+#include "animation_gui.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //Include Qt Headers
@@ -20,6 +21,9 @@
 #include <qmenubar.h>
 #include <qmessagebox.h>
 #include <qcolordialog.h> 
+#include <qslider.h>
+#include <qlcdnumber.h>
+#include <qtimer.h>
 
 #include "icon/Eye.xpm"
 #include "icon/Folder.xpm"
@@ -50,6 +54,8 @@ bool VizmoMainWin::Init()
     
     statusBar()->message("Ready");
     return true;
+
+   
 }
 
 bool VizmoMainWin::InitVizmo()
@@ -67,6 +73,19 @@ bool VizmoMainWin::InitVizmo()
     }
     m_Args.clear();
     reset(); //reset camera
+
+
+    // First delete the old animation bar and then create a new one
+    if(animationGUI)
+      {
+	delete animationGUI;
+	animationGUI=0;
+      }
+
+    animationGUI=new VizmoAnimationGUI(this,"test");
+    
+    connect(animationGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
+
     return true;
 }
 
@@ -81,7 +100,10 @@ bool VizmoMainWin::CreateGUI()
     SetTips();
     CreateToolbar();
     CreateMenubar();
-    
+
+    //delete    CreateAnimationbar();
+    // animation bar is launched only after a file is loaded.
+
     return true;
 }
 
@@ -108,6 +130,10 @@ void VizmoMainWin::load()
         m_bVizmoInit=false;
         setCaption("Environment : "+fi.baseName());
         statusBar()->message( "File Loaded : "+fn );
+	
+     
+
+
     }
     else statusBar()->message( "Loading aborted" );
 }
@@ -116,6 +142,11 @@ void VizmoMainWin::reset()
 {
     m_GL->resetCamera();
     m_GL->updateGL();
+}
+
+void VizmoMainWin::updateScreen()
+{
+  m_GL->updateGL();
 }
 
 void VizmoMainWin::showmap()          //show roadmap
@@ -203,11 +234,40 @@ void VizmoMainWin::refreshEnv()
   m_GL->updateGL();
 }
 
+/*
 void VizmoMainWin::animate()
 {
-  GetVizmo().Animate(true);
   
+  unsigned int timer=GetVizmo().getTimer();
+  //  emit movieSliderLimit(timer);
+    setMovieSliderLimit(timer);
+    QTtimer = new QTimer(this);
+    connect(QTtimer,SIGNAL(timeout()),this,SLOT(timeout()));
+    QTtimer->start(500);
+    /*
+
+ 
+
+  for(int i=0;i<timer;i++)
+    {
+      GetVizmo().Animate(true);
+      m_GL->updateGL();
+      
+       updateMovieSlider(i);
+       for(int j=0;j<1000;j++);
+    }
+    
+
 }
+    */
+/*
+void VizmoMainWin::timeout()
+{
+  GetVizmo().Animate(true);
+  m_GL->updateGL();
+}
+
+*/
 
 void VizmoMainWin::about()
 {
@@ -302,6 +362,16 @@ bool VizmoMainWin::CreateActions()
     changeColorAction = new QAction("ColorPalette", QPixmap( pallet ), " Color Pale&tte", CTRL+Key_T, this, "color palette");
     connect(changeColorAction, SIGNAL(activated()), this, SLOT(changecolor()));
 
+
+    /*  delete
+    ///////////////////////////////////////////////////////////////////////////////
+    // The play button!
+   
+    playPathAction=new QAction("Play",QPixmap(Camera),"&Play",CTRL+Key_P,this,"play");
+   // connect(playPathAction,SIGNAL(activated()),this,SLOT(animate()));
+    //  pausePathAction=new QAction("Pause",QPixmap(Board),"&Pause",CTRL+Key_M,this,"Pause");
+    */
+
     return true;
 }
 
@@ -329,6 +399,67 @@ void VizmoMainWin::SetTips()
 
     changeColorAction->setWhatsThis(changeColorText);
 }
+
+/*
+void VizmoMainWin::setMovieSliderLimit(unsigned int limit)
+{
+    slider->setRange(0,limit);
+  
+}
+
+void VizmoMainWin::updateMovieSlider(unsigned int value)
+{
+  slider->setValue(value);
+  
+}
+
+void VizmoMainWin::updateConfiguration(unsigned int value)
+{
+  
+  if(slider->value()==value)
+    return;
+  for(int i=0;i<=value;i++)
+    {
+      GetVizmo().Animate(true);
+    }
+  m_GL->updateGL();
+}
+
+
+void VizmoMainWin::CreateAnimationbar()
+{
+  QToolBar *AnimationBar = new QToolBar(this,"vizmo animation");
+
+  AnimationBar->setLabel("Vizmo animation");
+   
+  
+  lcd  = new QLCDNumber( 2, AnimationBar, "lcd" );
+  lcd->setNumDigits(6);
+  slider=new QSlider(Horizontal,AnimationBar,"slider");
+  slider->setRange(0,100000);
+  slider->setValue(100);
+  connect(slider,SIGNAL(valueChanged(int)),lcd,SLOT(display(int)));
+  //  connect(slider,SIGNAL(valueChanged(int)),this,SLOT(updateConfiguration(unsigned int)));
+
+  playPathAction->addTo(AnimationBar);
+
+
+
+  //connect(this,SIGNAL(movieSliderValueChanged(unsigned int)),this,SLOT(updateMovieSlider(unsigned int)));
+  //connect(this,SIGNAL(movieSliderLimit(unsigned int)),this,SLOT(setMovieSliderLimit(unsigned int)));
+
+
+  // pausePathAction->addTo(AnimationBar);
+
+  //  QPushButton *play = new QPushButton(">",AnimationBar);
+  //QPushButton *pause = new QPushButton("||",AnimationBar);
+
+
+
+
+}
+
+*/
 
 void VizmoMainWin::CreateToolbar()
 {
@@ -404,7 +535,7 @@ void VizmoMainWin::CreateMenubar()
     pathMenu->insertItem( "&Optimization", opt, CTRL+Key_O );
     pathMenu->insertSeparator();
     pathMenu->insertItem( "Re&cord animation", this, SLOT(notimp()),  CTRL+Key_C );
-    pathMenu->insertItem( "&Animate", this, SLOT(animate()),  CTRL+Key_C );
+    //pathMenu->insertItem( "&Animate", this, SLOT(animate()),  CTRL+Key_C );
     pathMenu->insertSeparator();
     
     ///////////////////////////////////////////////
@@ -459,6 +590,8 @@ void VizmoMainWin::CreateMenubar()
     help->insertItem( "&About Qt",this,SLOT(aboutQt()));
     help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1 );  
 }
+
+
 
 
 

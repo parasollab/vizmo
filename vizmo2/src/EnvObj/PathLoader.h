@@ -28,15 +28,20 @@ public:
     virtual ~CPathLoader();
     virtual bool ParseFile();
     
-    //////////////////////////////////////////////////////////////////////
+    /////////////////////////x/////////////////////////////////////////////
     //    Access Methods
     ///////////////////////////////////////////////////////////////////////
     virtual double * GetNextConfigure(bool bOutputFrameNumber=false );
-    virtual double * GetPreviousConfigure(bool bOutputFrameNumber=false );
+    virtual double * GetPreviousConfigure(bool bOutputFrameNumber=false ); 
+   
+
+    // BSS Get a particular configuration
+    virtual double * GetParticularConfiguration(int);
+
     
     virtual unsigned int GetPathSize(){ return m_pList.size(); }
     virtual bool IsFirstStep(){ return (m_iCurrent_CfgIndex==0); }
-    
+    virtual int GetCurrentCfg(){return m_iCurrent_CfgIndex;}
 
     bool notExists;  // to know if there is .path file
 
@@ -56,3 +61,5 @@ private:
 };
 
 #endif // !defined(_PATH_LOADER_H_)
+
+

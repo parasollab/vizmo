@@ -6,11 +6,13 @@
 #pragma warning(disable : 4786)
 #endif
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Qt Headers
 #include <qmainwindow.h>
 class QAction;
 
+class VizmoAnimationGUI;
 ///////////////////////////////////////////////////////////////////////////////
 // std Headers
 #include <vector>
@@ -19,6 +21,8 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VizGLWin;
+
+
 class VizmoMainWin : public QMainWindow 
 {
     Q_OBJECT
@@ -31,10 +35,14 @@ public:
     void SetArgs( vector<string> args ){ m_Args=args; }
 
     double R, G, B;
+
+public slots:
+ void updateScreen();
     
 protected:
 
     bool CreateGUI();      //create tool bars
+
     void keyPressEvent ( QKeyEvent * e );
 
 private slots:
@@ -49,15 +57,20 @@ private slots:
     void aboutQt();       //about Qt dialog
     void contexmenu();    //create contex menu when right mouse clicked
     void notimp();        //not implemented yet.
-    //<<<<<<< main_win.h
     void changecolor();   //to change the background color for vizmo++
-    //=======
     void refreshEnv();    // refresh!!!
-    void animate();
-    void setSolid();
-    void setWire();
-    void setInvisible();
-    //>>>>>>> 1.3
+   
+
+    /*
+    void animate();       // show animation
+
+    */
+
+
+    void setSolid();      // turn object into solidMode
+    void setWire();       // turn object into wire mode
+    void setInvisible();  // turn the object invisible
+   
 
 private:
   
@@ -65,6 +78,7 @@ private:
     void SetTips();         //Set Tip/Info about actions.
     void CreateToolbar();   //Create Qt Toolbar
     void CreateMenubar();   //Create Qt Menu
+    
 
     QAction *showHideRoadmapAction, 
             *showHidePathAction, 
@@ -74,11 +88,20 @@ private:
             *cameraResetAction, 
             *wireFrameAction,
             *changeColorAction;
+     
+
+    VizmoAnimationGUI *animationGUI;
 
     vector<string> m_Args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.
+   
+
+
+ protected:
     VizGLWin * m_GL;       //the scene window which displays environment..
 };
+
+
 
 
 

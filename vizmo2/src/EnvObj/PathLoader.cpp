@@ -78,6 +78,21 @@ double * CPathLoader::GetPreviousConfigure( bool bOutputFrameNumber )
     return currentCfg;
 }
 
+double * CPathLoader::GetParticularConfiguration(int index)
+{
+  
+  if((index>=m_pList.size() || index<0))
+     return GetConfigure(false,index);
+
+    m_iCurrent_CfgIndex=index;
+
+    double * currentCfg = GetConfigure(true, m_iCurrent_CfgIndex);
+   
+    
+    
+    return currentCfg;
+}
+
 double * CPathLoader::GetConfigure( bool bOutputFrameNumber, int & index )
 {
     double * currentCfg=new double[6];
