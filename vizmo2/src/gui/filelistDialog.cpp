@@ -84,3 +84,4 @@ void FileListDialog::changeQry()
         Query_label->setText(GetVizmo().getQryFileName().c_str());
     }
 }
+

@@ -15,3 +15,4 @@ public:
 };
 
 #endif //_VIZMO2_OBJ_PROPERTY_H_
+

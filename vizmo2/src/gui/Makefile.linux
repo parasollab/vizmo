@@ -1,3 +1,4 @@
+INCPATH = -I..
 VIZMO_DIR = ../..
 include $(VIZMO_DIR)/M_incl
 
@@ -7,8 +8,8 @@ TARGET   = ../../lib/libvgui.a
 ####### Output directory
 
 OBJECTS = gui.o	main_win.o scene_win.o animation_gui.o \
-		snapshot_gui.o itemselection_gui.o filelistDialog.o \
-		obj_property.o roadmap.o
+          snapshot_gui.o itemselection_gui.o filelistDialog.o \
+	  obj_property.o roadmap.o
 
 SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp \
          moc_itemselection_gui.cpp moc_roadmap.cpp moc_filelistDialog.cpp moc_obj_property.cpp

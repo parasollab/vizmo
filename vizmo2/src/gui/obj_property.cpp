@@ -65,3 +65,4 @@ BasicPropertyDialog::BasicPropertyDialog
     QPushButton *go = new QPushButton("Done",controls);
     connect(go,SIGNAL(clicked()),this,SLOT(accept()));
 }
+
