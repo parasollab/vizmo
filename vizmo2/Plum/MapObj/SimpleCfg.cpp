@@ -22,10 +22,11 @@ namespace plum{
         m_Unknow1 = LONG_MAX; m_Unknow2 = LONG_MAX; m_Unknow3 = LONG_MAX;
         
         m_DisplayListIndex = -1;
+	m_DisplayListIndexPoint = -1;
         m_index = -1;
         m_bSelected = false;
         m_RenderMode=CPlumState::MV_SOLID_MODE;
-
+	scaleBox = 0.3; scalePoint = 0.1;
     }
 
     CSimpleCfg::~CSimpleCfg()
@@ -46,22 +47,24 @@ namespace plum{
     m_index = index;
     m_robot = robot;
 
-    cube();
-    point();
-
     return true;
   }
 	
   void CSimpleCfg::Draw( GLenum mode ) 
   {
+
     if( m_RenderMode==CPlumState::MV_INVISIBLE_MODE ) return;
 
-    if(m_NodeShape == "Box"){
+ //     cube();
+//      point();
+    //cout << " CURRENT SHAPE: "<< m_NodeShape<<endl;
 
+    if(m_NodeShape == "Box"){
+      cube();
     ///////////////////////////////////////////////////////////////////////////    
     // draw solid part
       if( m_RenderMode==CPlumState::MV_SOLID_MODE ){
-	glLineWidth(4);
+	glLineWidth(2);
 	glPolygonMode( GL_FRONT, GL_FILL );
 	glEnable( GL_POLYGON_OFFSET_FILL );
         #ifdef WIN32
@@ -75,7 +78,7 @@ namespace plum{
       glPolygonMode( GL_FRONT, GL_LINE );
       glCallList(m_DisplayListIndex);
     }
-    else if(m_NodeShape == "Point"){
+    else if(m_NodeShape == "Point"){ point();
       glCallList(m_DisplayListIndexPoint);
     }
     else{
@@ -126,7 +129,7 @@ namespace plum{
     glRotated( m_Alpha*360, 1, 0, 0 );
     glRotated( m_Beta*360,  0, 1, 0 );
     glRotated( m_Gamma*360, 0, 0, 1 );
-    SolidCube( 0.3f );
+    SolidCube( scaleBox );
     glPopMatrix();
     glEndList();
   }
@@ -139,7 +142,7 @@ namespace plum{
     glRotated( m_Alpha*360, 1, 0, 0 );
     glRotated( m_Beta*360,  0, 1, 0 );
     glRotated( m_Gamma*360, 0, 0, 1 );
-    glutSolidSphere( 0.1f, 10, 8 );
+    glutSolidSphere( scalePoint, 10, 8 );
     glPopMatrix();
     glEndList();
   }
