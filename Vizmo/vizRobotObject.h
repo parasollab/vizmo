@@ -34,7 +34,7 @@
     	void setGoalName(int goalPos,char *newname);
 	void setNoOfGoalPositions(int num);
       	void setGoalPosition( int index,  float x, float y, float z,
-			float or, float op, float oy);
+			float orx, float op, float oy);
 	void addGoalPosition(int indx);
 	void addGoalPosition();
 	void deleteGoalPosition( int index);

@@ -1,6 +1,7 @@
 #ifndef _vizRoadmap_h
 #define _vizRoadmap_h
 #include "OBPRM.h"
+#include "Environment.h"
 #include "Roadmap.h"
 #include "vtkActor.h"
 #include "vtkRenderWindow.h"

@@ -60,10 +60,10 @@ void vizRobotObject::setNoOfGoalPositions(int num)
 	noOfGoalPositions = num;
 }
 void  vizRobotObject::setGoalPosition( int index,  float x, float y, float z,
-			float or, float op, float oy)
+			float orx, float op, float oy)
 {
 	if ( index <  noOfGoalPositions)
-		goalPositions[index]->setInfo( x, y, z,or, op, oy);
+		goalPositions[index]->setInfo( x, y, z,orx, op, oy);
 }
 void  vizRobotObject::addGoalPosition(int indx )
 {

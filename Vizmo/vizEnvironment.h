@@ -43,6 +43,7 @@
 //typedef vector <vtkActor *> ActorList;
 
 
+class vizEnvironment;
 class vizEnvironment
 {
 	public:

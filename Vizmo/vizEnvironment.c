@@ -13,18 +13,20 @@
 #include "Contact.h"
 #include "FreeBody.h"
 #include "FixedBody.h"
+#include "MultiBody.h"
                        
 #include <Cfg.h>
  
 #include "CfgManager.h"
 #include "Cfg_free.h"
 #include "Cfg_fixed_PRR.h"
-#include "Cfg_free_serial.h"
+#include "Cfg_free_tree.h"
                                   
 #include "vizEnvironment.h"
 //#include "read_byu.h"
 //#include "fk.h"
 #include "BasicDefns.h"
+#include "util.h"
 #define LINEMAX 256
 
 
@@ -231,7 +233,7 @@ int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XVi
             cout << "LinkCount = " << linkCount << endl;
             if(linkCount>1)
             {
-             Cfg::CfgHelper = new Cfg_free_serial(linkCount-1);
+             Cfg::CfgHelper = new Cfg_free_tree(linkCount-1);
             }
             else
              Cfg::CfgHelper = new Cfg_free();

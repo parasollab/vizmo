@@ -50,11 +50,11 @@ vtkActor* vizRoadmap::CreateCCEdgeActor(vector <pair <Cfg,Cfg> >edges)
                        
 }
 void vizRoadmap::CreateCCEdges() {
-   //numCC = roadmap.ccstats.size();
+   //numCC = m_pRoadmap->ccstats.size();
    int ccnum = 1;
    int i;
   vector< vector< pair<Cfg,Cfg> > > ccList;
-   ccList=roadmap.GetEdgesByCCVDataOnly();
+   ccList=m_pRoadmap->GetEdgesByCCVDataOnly();
     numCC==ccList.size();
   cout << "Creating actors for  " << numCC << endl;
   if(ccEdges.size())

@@ -1,4 +1,3 @@
-#!/usr/local/bin/vtk
 set dir .
 lappend auto_path $dir 
 set VIZMOLIB $env(VIZMO_SO)

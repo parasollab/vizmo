@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include "Path.h"
 #include "OBPRM.h"
+#include "MultiBody.h"
 #include "util.h"
 //#include "collision_check.h"
 
