@@ -53,7 +53,7 @@ VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
 :QMainWindow(parent, name), m_bVizmoInit(false)
 { 
     setMinimumSize( 800, 600 );
-    setCaption("vizmo2"); 
+    setCaption("Vizmo++"); 
     m_GL=NULL;
     animationGUI=NULL;
     move(0,0);
@@ -195,7 +195,7 @@ void VizmoMainWin::load()
     if ( !fn.isEmpty() ){
         m_Args.push_back(fn.latin1());
         m_bVizmoInit=false;
-        setCaption("Environment : "+fi.baseName());
+        setCaption("Vizmo++ - "+fi.baseName()+ " environment");
         statusBar()->message( "File Loaded : "+fn );
     }
     else statusBar()->message( "Loading aborted" );
@@ -220,6 +220,59 @@ void VizmoMainWin::updatefiles()
     roadmapGUI->reset();
 
     reset();
+}
+
+void VizmoMainWin::saveEnv()
+{
+  QString fn = QFileDialog::getSaveFileName( QString::null, 
+					     "Files (*.env)" ,
+					     this,
+					     "save file dialog",
+					     "Choose a filename to save under" );
+  
+  QFileInfo fi(fn);
+  if ( !fn.isEmpty() ) {
+    string filename = fn;
+    const char* f;
+    f = filename.c_str();
+    GetVizmo().SaveEnv(f);
+  } else {
+    statusBar()->message( "Saving aborted", 2000 );
+  }
+  m_GL->updateGL();
+
+}
+
+void VizmoMainWin::saveQryFile()
+{
+  QString fn = QFileDialog::getSaveFileName( QString::null, 
+					     "Files (*.query)" ,
+					     this,
+					     "save file dialog",
+					     "Choose a filename to save under" );
+  
+  QFileInfo fi(fn);
+  if ( !fn.isEmpty() ) {
+    string filename = fn;
+    const char* f;
+    f = filename.c_str();
+    GetVizmo().SaveQry(f);
+  } else {
+    statusBar()->message( "Saving aborted", 2000 );
+  }
+  m_GL->updateGL();
+
+}
+
+void VizmoMainWin::saveQryStart(){
+
+  GetVizmo().SaveQryStart();
+
+}
+
+void VizmoMainWin::saveQryGoal(){
+
+  GetVizmo().SaveQryGoal();
 }
 
 void VizmoMainWin::resetCamera()
@@ -269,8 +322,32 @@ void VizmoMainWin::obj_contexmenu()
     cm.insertItem("Wire", this,SLOT(setWire()));
     cm.insertItem("Invisible",this,SLOT(setInvisible()));
     cm.insertItem(QIconSet(icon_pallet),"Color", this, SLOT(setNewColor()));
-	cm.insertSeparator();
-	//cm.insertItem("Edit...", this,SLOT(objectEdit()));
+    cm.insertSeparator();
+    cm.insertItem("Edit...", this,SLOT(objectEdit()));
+
+    //Create submenu to set start and goal configs.
+    //create it just if Robot has been selected
+    string m_s;
+    typedef vector<gliObj>::iterator GIT;
+    
+    for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++)
+    {
+        CGLModel * gl=(CGLModel *)(*ig);
+        list<string> info=gl->GetInfo();
+	cout<<"************NAME:: "<<gl->GetName()<<endl;
+	m_s = info.front();
+	//m_s = gl->GetName();
+    }
+    
+    if(m_s == "Robot"){
+      QPopupMenu * cfgs = new QPopupMenu( this );
+      cfgs->insertTearOffHandle();
+      cfgs->insertItem( "Save start", this, SLOT(saveQryStart()) );
+      cfgs->insertItem( "Save goal", this, SLOT(saveQryGoal()) );
+
+      cm.insertItem( "Set query", cfgs);
+    }
+	
 
     if( cm.exec(QCursor::pos())!=-1 ) m_GL->updateGL();    
 }
@@ -375,6 +452,15 @@ void VizmoMainWin::changeBGcolor(){
     }
 }
 
+
+void VizmoMainWin::resetRobotPosition(){
+
+  GetVizmo().ResetRobot();
+  m_GL->updateGL();
+}
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // GUI creation 
@@ -392,6 +478,14 @@ bool VizmoMainWin::CreateActions()
     // Update Files  
 	fileUpdateAction=new QAction("Update File", QPixmap(icon_folder), "&Update", CTRL+Key_R, this);
     connect(fileUpdateAction,SIGNAL(activated()), this, SLOT(updatefiles()) );
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Save File
+    fileSaveAction=new QAction("Save Environment", QPixmap(icon_folder), "&Save Env.", CTRL+Key_S,  this);
+    connect(fileSaveAction,SIGNAL(activated()), this, SLOT(saveEnv()));
+
+    fileSaveQryAction=new QAction("Save Query", QPixmap(icon_folder), "&Save Query", CTRL+Key_Q,  this);
+    connect(fileSaveQryAction,SIGNAL(activated()), this, SLOT(saveQryFile()));
 
     ///////////////////////////////////////////////////////////////////////////////
     // Show/Hide Roadmap
@@ -443,6 +537,11 @@ bool VizmoMainWin::CreateActions()
 	showGridAction->setOn(true);
 	connect(showGridAction, SIGNAL(activated()), m_GL, SLOT(showGrid()));
     
+    ///////////////////////////////////////////////////////////////////////////////
+    // Robot: set robot to initial Cfg.
+    resetRobotPosAction=new QAction("Reset", QPixmap(icon_folder), "Reset&X", CTRL+Key_X,  this);
+    connect(resetRobotPosAction,SIGNAL(activated()), this, SLOT(resetRobotPosition()));
+
     return true;
 }
 
@@ -554,6 +653,8 @@ void VizmoMainWin::CreateMenubar()
     
     fileOpenAction->addTo( file );
 	fileUpdateAction->addTo( file );
+	fileSaveAction->addTo( file );
+	fileSaveQryAction->addTo( file );
     quitAction->addTo( file );
     
     ////////////////////////////////////////////// 
@@ -574,9 +675,9 @@ void VizmoMainWin::CreateMenubar()
     
     showHideRoadmapAction->addTo(roadmapMenu);
     roadmapMenu->insertSeparator();
-    //roadmapGUI->editAction->addTo(roadmapMenu);
-    //roadmapGUI->addNodeAction->addTo(roadmapMenu);
-    //roadmapGUI->addEdgeAction->addTo(roadmapMenu);
+    roadmapGUI->editAction->addTo(roadmapMenu);
+    roadmapGUI->addNodeAction->addTo(roadmapMenu);
+    roadmapGUI->addEdgeAction->addTo(roadmapMenu);
     roadmapMenu->insertSeparator();
     roadmapMenu->insertItem( "Set parameters", param);
     roadmapMenu->insertSeparator();
@@ -622,6 +723,8 @@ void VizmoMainWin::CreateMenubar()
     robotMenu->insertSeparator();
     robotMenu->insertItem( "Articulated", robotArt);
     robotMenu->insertSeparator();
+
+    resetRobotPosAction->addTo(robotMenu);
     
     /////////////////////////////////////////////  
     // ENVIRONMENT menu
@@ -630,8 +733,9 @@ void VizmoMainWin::CreateMenubar()
     QPopupMenu * envMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Environment", envMenu );
     changeBGcolorAction->addTo( envMenu );
-	randObjcolorAction->addTo( envMenu );
+    randObjcolorAction->addTo( envMenu );
     envMenu->insertItem( "&Bounding Box", this, SLOT(showBBox()),  CTRL+Key_B );   
+    //envMenu->insertItem("Save Environment", this, SLOT(saveEnv()));
     envMenu->insertItem( "&Refresh", this, SLOT(refreshEnv()));   
     
     envMenu->insertSeparator();

@@ -48,21 +48,21 @@ void VizmoRoadmapGUI::createGUI()
     colorAction->addTo(this);
     colorAction->setEnabled(false);
     
-//     editAction = new QAction
-//     ("Edit",QPixmap(icon_make),"Edit &Map",CTRL+Key_E,this,"",true);
-//     connect(editAction,SIGNAL(activated()), this, SLOT(editMap()) );
-//     editAction->addTo(this);
-//     editAction->setEnabled(false);
+    editAction = new QAction
+    ("Edit",QPixmap(icon_make),"Edit &Map",CTRL+Key_E,this,"",true);
+    connect(editAction,SIGNAL(activated()), this, SLOT(editMap()) );
+    editAction->addTo(this);
+    editAction->setEnabled(false);
     
-//     addNodeAction = new QAction
-//     ("New Node",QPixmap(icon_make),"Add &Node",CTRL+Key_E,this,"",true);
-//     connect(addNodeAction,SIGNAL(activated()), this, SLOT(addNode()) );
-//     addNodeAction->setEnabled(false);
+    addNodeAction = new QAction
+    ("New Node",QPixmap(icon_make),"Add &Node",CTRL+Key_E,this,"",true);
+    connect(addNodeAction,SIGNAL(activated()), this, SLOT(addNode()) );
+    addNodeAction->setEnabled(false);
 
-//     addEdgeAction = new QAction
-//     ("New Edge",QPixmap(icon_make),"Add &Edge",CTRL+Key_E,this,"",true);
-//     connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()) );
-//     addEdgeAction->setEnabled(false);
+    addEdgeAction = new QAction
+    ("New Edge",QPixmap(icon_make),"Add &Edge",CTRL+Key_E,this,"",true);
+    connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()) );
+    addEdgeAction->setEnabled(false);
 
   
   l =  new QListBox( this );
@@ -82,7 +82,7 @@ void VizmoRoadmapGUI::createGUI()
 //   nodesColor->setEnabled(false);
   
  nodesSameColor= new QToolButton
-   (QPixmap(icon_shapes1), "CC's one color", "Change roadmap node's to same color", this,
+   (QPixmap(icon_shapes1), "CC's one color", "Set all CC's (or just one if selected) to one color", this,
     SLOT(setSameColor()), this, "node");
  nodesSameColor->setUsesTextLabel ( true );
  nodesSameColor->setEnabled(false);
@@ -107,7 +107,7 @@ void VizmoRoadmapGUI::reset()
       //nodesColor->setEnabled(true);
       nodesSameColor->setEnabled(true);
 
-      //editAction->setEnabled(true);
+      editAction->setEnabled(true);
       sizeAction->setEnabled(true);
       colorAction->setEnabled(true);
     }
@@ -116,7 +116,7 @@ void VizmoRoadmapGUI::reset()
       //nodesColor->setEnabled(false);
       nodesSameColor->setEnabled(false);
 
-      //editAction->setEnabled(false);
+      editAction->setEnabled(false);
       sizeAction->setEnabled(false);
       colorAction->setEnabled(false);
     }
@@ -275,7 +275,8 @@ void VizmoRoadmapGUI::handleSelect()
     typedef vector<gliObj>::iterator OIT;
     for(OIT i=sel.begin();i!=sel.end();i++){
         if( ((CGLModel*)(*i))->GetName()=="Node" ) {
-			m_Nodes.push_back((CGLModel*)(*i));
+	  m_Nodes.push_back((CGLModel*)(*i));
+	  
         }//end if
     }//end for
 
@@ -338,9 +339,11 @@ void VizmoRoadmapGUI::handleEditMap()
     }
     */
     if( m_Nodes.empty()==false ){
-		CGLModel * n=m_Nodes.front();
-        old_T[0]=n->tx(); old_T[1]=n->ty(); old_T[2]=n->tz();
-        old_R[0]=n->rx(); old_R[1]=n->ry(); old_R[2]=n->rz();     
+      CGLModel * n=m_Nodes.front();
+      old_T[0]=n->tx(); old_T[1]=n->ty(); old_T[2]=n->tz();
+      old_R[0]=n->rx(); old_R[1]=n->ry(); old_R[2]=n->rz();     
+      printf("** Node Pos: %2f, %2f, %2f\n",n->tx(),n->ty(), n->tz() );
+      //((CCfg*)n)->CopyCfg();
     }
 }
 
@@ -355,9 +358,10 @@ void VizmoRoadmapGUI::MoveNode()
                 fabs(old_R[1]-n->ry())+
                 fabs(old_R[2]-n->rz());
     if( diff>1e-10 ){
-        m_Map_Changed=true;
-        ((CCfg*)n)->GetCC()->ReBuildAll();
-		emit callUpdate();
+      cout<<"Move Node"<<endl;
+      m_Map_Changed=true;
+      ((CCfg*)n)->GetCC()->ReBuildAll();
+      emit callUpdate();
     }   
 }
 

@@ -46,7 +46,7 @@ protected:
     void mouseMoveEvent ( QMouseEvent * );
     void keyPressEvent ( QKeyEvent * e );
 	
-    void drawText(); //this should not be here by it is here for now
+    void drawText(); //this should not be here but it is here for now
 
 public slots:
 	void showGrid();

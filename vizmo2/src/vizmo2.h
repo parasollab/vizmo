@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 using namespace std;
-
+#include<stdio.h>
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
 #include <Plum.h>
@@ -113,6 +113,8 @@ public:
     // Robot Related Functions
     void ShowRobot( bool bShow=true ){ m_bShowRobot=bShow; }
     
+    void ResetRobot();
+
     /////////////////////////////////////////////////////////////////////
     // Bounding Box Related Function
     void ShowBBox(bool bShow=true);
@@ -124,6 +126,10 @@ public:
     void ChangeAppearance(int );   
     void RefreshEnv();
     void envObjsRandomColor();
+    bool SaveEnv(const char *filename); //save env. file
+    bool SaveQry(const char *filename); //save query file
+    void SaveQryStart(); //save start cfg
+    void SaveQryGoal(); //save goal cfg.
 
     //Miscelaneous
 

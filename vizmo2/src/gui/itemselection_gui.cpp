@@ -120,9 +120,9 @@ void VizmoItemSelectionGUI::select()
     }//end s
 
     //select
-	{for( IIT i=selected.begin();i!=selected.end();i++ )
-    listview->setSelected((*i), true);}
-	GetVizmo().GetSelectedItem()=sel;
+    for( IIT i=selected.begin();i!=selected.end();i++ )
+      listview->setSelected((*i), true);
+    GetVizmo().GetSelectedItem()=sel;
 }
 
 

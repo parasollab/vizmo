@@ -1,10 +1,16 @@
-// OBPRMView.cpp: implementation of the vizmo class.
+// vizmo2.cpp: implementation of the vizmo class.
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "vizmo2.h"
 #include <limits.h>
 
+#include <ctype.h>
+#include <stdlib.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+using namespace std;
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
 #include <MapObj/Cfg.h>
@@ -200,6 +206,611 @@ void vizmo::RefreshEnv()
     m->SetRenderMode(CPlumState::MV_SOLID_MODE);
 }
 
+bool vizmo::SaveEnv(const char *filename)
+{
+  CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
+  const CMultiBodyInfo* MBI = envLoader->GetMultiBodyInfo();
+
+//   vector<CPolyhedronModel *> pPoly; 
+
+//   pPoly = env->getPoly();
+
+//   int numPoly=pPoly.size();
+//   cout<<"Number of Polys: "<<numPoly<<endl;
+//   for(int iP=0; iP<numPoly; iP++ ){
+//     printf("Position:: %1f, %1f, %1f\n ",pPoly[iP]->tx(), 
+// 	   pPoly[iP]->ty(), pPoly[iP]->tz());
+    //printf("Orientation:: %1f, %1f, %1f\n ",pPoly[iP]->rx(), 
+    // pPoly[iP]->ry(),pPoly[iP]->rz());
+    //pPoly[iP].tx()
+    //pPoly[iP].ty();
+    //pPoly[iP].tz();
+    //pPoly[iP].rx();
+    //pPoly[iP].ry();
+    //pPoly[iP].rz();
+
+    // }
+
+  //get polyhedron for
+
+  //CMultiBodyModel * m_Model = rmodel->getRobotModel();;
+  //CPolyhedronModel * pPoly = m_Model ->GetPolyhedron();
+
+  FILE *envFile;
+  if((envFile = fopen(filename, "a")) == NULL){
+    cout<<"Couldn't open the file"<<endl;
+    return 0;
+  }
+  int MBnum = envLoader->GetNumberOfMultiBody();//number of objects in env.
+  //write num. of Bodies
+  fprintf(envFile,"%d\n\n", MBnum );
+
+  CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+
+  //getMBody() and then current position and orientation
+  vector<CMultiBodyModel *> MBmodel = env->getMBody();
+  //  int numMB = MBmodel.size();
+  //cout<<"Number of MBodies: "<<MBmodel.size()<<endl;
+  //cout<<"----------------------------------------------------"<<endl;
+//   for(int iMB=0; iMB<numMB; iMB++ ){
+
+//     printf("\nX: %1f\t", MBmodel[iMB]->tx());
+//     printf("Y: %1f\t", MBmodel[iMB]->ty());
+//     printf("Z: %1f\n", MBmodel[iMB]->tz());
+//     printf("A: %1f\t", MBmodel[iMB]->rx());
+//     printf("B: %1f\t", MBmodel[iMB]->ry());
+//     printf("G: %1f\n", MBmodel[iMB]->rz());
+//     printf("=========================================");
+
+//   }
+
+  for(int i = 0; i<MBnum; i++){ //for each body in *.env
+
+    if(MBI[i].m_active)
+      fprintf(envFile,"Multibody   Active\n");
+    else
+      fprintf(envFile,"Multibody   Passive\n");
+
+    if(MBI[i].m_cNumberOfBody != 0){
+      int nB = MBI[i].m_cNumberOfBody;
+      //write Num. of Bodies in the current MultiBody
+      fprintf(envFile,"%d\n", nB);
+      for(int j = 0; j<nB; j++){
+	
+	if(MBI[i].m_pBodyInfo[j].m_bIsFixed)
+	  fprintf(envFile,"FixedBody    "); 
+	else
+	  fprintf(envFile,"FreeBody    ");
+
+	fprintf(envFile,"%d  ",MBI[i].m_pBodyInfo[j].m_Index);
+	string s_tmp = MBI[i].m_pBodyInfo[j].m_strModelDataFileName;
+	const char* st;
+	st = s_tmp.c_str();
+	char *pos = strrchr(st, '/');
+	int position = pos-st+1;
+	string sub_string = s_tmp.substr(position);
+
+	const char* f;
+	f = sub_string.c_str();
+
+	if(!MBI[i].m_active){
+	  string sub = "./BYUdata/" + sub_string;
+	  f = sub.c_str();
+	  fprintf(envFile,"%s  ",f);
+	}
+	else
+	  fprintf(envFile,"%s  ",f);
+// 	fprintf(envFile,"%.1f %.1f %.1f %.1f %.1f %.1f\n",
+// 		MBI[i].m_pBodyInfo[j].m_X, MBI[i].m_pBodyInfo[j].m_Y,
+// 		MBI[i].m_pBodyInfo[j].m_Z, MBI[i].m_pBodyInfo[j].m_Alpha,
+// 		MBI[i].m_pBodyInfo[j].m_Beta, MBI[i].m_pBodyInfo[j].m_Gamma);
+
+	fprintf(envFile,"%.1f %.1f %.1f %.1f %.1f %.1f\n",
+		MBmodel[i]->tx(), MBmodel[i]->ty(), MBmodel[i]->tz(),
+		MBmodel[i]->rx()*57.29578, 
+		MBmodel[i]->ry()*57.29578, 
+		MBmodel[i]->rz()*57.29578);	
+      }
+      //write Connection tag
+      if(MBI[i].m_NumberOfConnections !=0)
+	fprintf(envFile,"\nConnection\n"); 
+      else
+	fprintf(envFile,"Connection\n"); 
+
+      fprintf(envFile,"%d\n", MBI[i].m_NumberOfConnections); 	  
+
+      //write Connection info.
+      if(MBI[i].m_NumberOfConnections !=0){
+	const char* str;
+	int numConn = MBI[i].listConnections.size();
+
+	for(int l=0; l<numConn; l++){
+	  int indexList = MBI[i].listConnections[l].first;
+	  if(MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo->m_actuated)
+	    str= "Actuated";
+	  else
+	    str = "NonActuated";
+
+	  fprintf(envFile,"%d %d  %s\n",MBI[i].listConnections[l].first,
+		  MBI[i].listConnections[l].second, str);
+
+	  //get info. from current Body and current connection
+	  int index;
+	  for(int b=0; 
+	      b<MBI[i].m_pBodyInfo[indexList].m_cNumberOfConnection; b++){
+	    
+	    int n = MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[b].m_nextIndex;
+
+	    if( MBI[i].listConnections[l].second == n){
+	      index = b;
+	      break;
+	    }
+	  }
+
+	  string s_tmp = MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_articulation;
+	  const char* f = s_tmp.c_str();
+	  
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_posX);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_posY);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_posZ);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_orientX*57.29578);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_orientY* 57.29578);
+	  fprintf(envFile, "%.1f\t",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_orientZ* 57.29578);
+
+	  fprintf(envFile, "%.1f ", 
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].alpha);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].a);
+	  fprintf(envFile, "%.1f ",
+		    MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].d);
+	  fprintf(envFile, "%.1f        ",
+		    MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_theta);
+	  fprintf(envFile, "%s        ", f);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_pos2X);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_pos2Y);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_pos2Z);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_orient2X* 57.29578);
+	  fprintf(envFile, "%.1f ",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_orient2Y* 57.29578);
+	  fprintf(envFile, "%.1f\n\n",
+		  MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_orient2Z* 57.29578);
+	}
+	
+      }
+
+    }
+    fprintf(envFile,"\n");
+  }
+  
+  fclose(envFile);
+
+}
+
+void vizmo::SaveQryStart(){
+
+  int dof = CCfg::dof;
+  //to store a single cfg
+  vector<double *> cfg;
+  //to store actual cfg
+  double *currCfg = new double[dof];
+  //to store cfg. to be sent to Robot
+  vector<double *> vCfg;
+
+  typedef vector<gliObj>::iterator GIT;
+  string name;
+  CGLModel * gl;
+  CGLModel * rl;
+
+  double TwoPI=3.1415926535*2.0;
+
+  OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+
+  list<CGLModel*> robotList,modelList;
+  //obtain robot model	  
+  robot->GetChildren(modelList);
+  CMultiBodyModel * robotModel = (CMultiBodyModel*)modelList.front();
+  //get robot polyhedron
+  robotModel->GetChildren(robotList);
+
+  for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
+  {
+    gl=(CGLModel *)(*ig);
+    list<string> info=gl->GetInfo();
+    cout<<"TYPE:: "<<info.front()<<", "<<gl->GetName()<<endl;
+    name = info.front();
+  }
+
+  if(name == "Robot"){
+    
+    //get original Cfgs from QueryLoader
+    CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
+    unsigned int iQSize = q->GetQuerySize();
+    
+    for( unsigned int iQ=0; iQ<iQSize; iQ++ ){
+      double * Cfg = new double[dof];
+      Cfg = q->GetStartGoal(iQ); 
+      cfg.push_back(Cfg);
+    }
+    
+    int dof_left = dof - 6;
+    if(dof_left == 0){ //rigid body
+      
+      //if user didn't move robot by hand, this means
+      //the animation tool was used
+      if(gl->tx() == 0 && gl->ty() == 0 && gl->tz() == 0){
+	cout<<"+++++++ user used ToolBar to move robot +++++++++"<<endl;
+	typedef list<CGLModel *>::iterator RI;
+	
+	for(RI i=robotList.begin(); i!=robotList.end(); i++){
+	  rl = (CGLModel*)(*i);
+	  currCfg[0] = rl->tx();
+	  currCfg[1] = rl->ty();
+	  currCfg[2] = rl->tz();
+	  currCfg[3] = rl->rx();
+	  currCfg[4] = rl->ry();
+	  currCfg[5] = rl->rz();
+	}
+      }
+      else{ //user moved robot by hand
+	cout<<"+++++++ user moved robot by hand +++++++++"<<endl;
+	Matrix3x3 m = gl->getMatrix();
+	Vector3d vRot;
+	vRot = gl->MatrixToEuler(m);
+
+	if(gl->m_PosPoly[0] != -1){
+	  //robot has been moved
+	currCfg[0] = gl->tx() + gl->m_PosPoly[0];
+	currCfg[1] = gl->ty() + gl->m_PosPoly[1];
+	currCfg[2] = gl->tz() + gl->m_PosPoly[2];
+
+	//Need to compute rotation from Quaternion
+	
+	CGLModel* rm = robotList.front();
+	//get current quaternion from polyhedron0
+	Quaternion qt0;
+	qt0 = rm->q();
+	Matrix3x3 pm = qt0.getMatrix();
+	Vector3d pv = qt0.MatrixToEuler(pm);
+
+	//get new rotation from GL
+	Quaternion qrm;
+	qrm = gl->q();
+
+	//multiply polyhedron0 and multiBody quaternions
+	//to get new rotation
+	Quaternion finalQ;
+	finalQ = qrm * qt0;
+
+	//set new rotation angles to multiBody rx(), ry(), and rz()
+
+	Matrix3x3 mFinal; Vector3d vFinal;
+	mFinal = finalQ.getMatrix();
+	vFinal = finalQ.MatrixToEuler(mFinal);
+
+	robotModel->rx() = vFinal[0]/TwoPI;
+	robotModel->ry() = vFinal[1]/TwoPI;
+	robotModel->rz() = vFinal[2]/TwoPI;
+	
+	//set new angles for first polyhedron
+	//NOTE:: This works for **FREE** robots
+
+	currCfg[3] =  robotModel->rx();
+	currCfg[4] =  robotModel->ry();
+	currCfg[5] =  robotModel->rz();
+ 
+	}
+	else{
+	  //robot has not been moved before
+	  currCfg[0] = gl->tx() + cfg[0][0];
+	  currCfg[1] = gl->ty() + cfg[0][1];
+	  currCfg[2] = gl->tz() + cfg[0][2];
+	  currCfg[3] = vRot[0]/TwoPI;
+	  currCfg[4] = vRot[1]/TwoPI;
+	  currCfg[5] = vRot[2]/TwoPI;
+	}
+
+      }
+      
+      vCfg.push_back(currCfg);
+      robot->storeCfg(vCfg, 's', dof);
+    }
+    
+    else{//articulated
+
+      //if robot is moved using the animation bar
+      //then get Cfg. from robot->Configure
+      //and add current displacement tx(), ty() and tz()
+      if(gl->tx() == 0 && gl->ty() == 0 && gl->tz() == 0){
+	currCfg = robot->returnCurrCfg(dof);
+
+      }
+
+      //if robot is moved by hand, gl->tx(), gl->ty(), and gl->tz()
+      //have translation of polyhedron0
+ 
+     else{
+
+	currCfg = robot->returnCurrCfg(dof);
+	//add translation of MBody
+	currCfg[0] = currCfg[0] + gl->tx();
+	currCfg[1] = currCfg[1] + gl->ty();
+	currCfg[2] = currCfg[2] + gl->tz();
+
+	//Need to compute rotation from Quaternion
+	
+	CGLModel* rm = robotList.front();
+	//get current quaternion from polyhedron0
+	Quaternion qt0;
+	qt0 = rm->q();
+	Matrix3x3 pm = qt0.getMatrix();
+	Vector3d pv = qt0.MatrixToEuler(pm);
+
+	//get new rotation from multiBody 
+	Quaternion qrm;
+	qrm = robotModel->q();
+
+	//multiply polyhedron0 and multiBody quaternions
+	//to get new rotation
+	Quaternion finalQ;
+	finalQ = qrm * qt0;
+
+	//set new rotation angles to multiBody rx(), ry(), and rz()
+
+	Matrix3x3 mFinal; Vector3d vFinal;
+	mFinal = finalQ.getMatrix();
+	vFinal = finalQ.MatrixToEuler(mFinal);
+
+	robotModel->rx() = vFinal[0]/TwoPI;
+	robotModel->ry() = vFinal[1]/TwoPI;
+	robotModel->rz() = vFinal[2]/TwoPI;
+	
+	//set new angles for first polyhedron
+	//NOTE:: This works for **FREE** robots
+
+	currCfg[3] =  robotModel->rx();
+	currCfg[4] =  robotModel->ry();
+	currCfg[5] =  robotModel->rz();
+ 
+	
+      }
+
+      vCfg.push_back(currCfg);
+      robot->storeCfg(vCfg, 's', dof);
+
+    }//else articulated
+    
+  }//if Robot
+  
+}
+
+void vizmo::SaveQryGoal(){
+  
+  int dof = CCfg::dof;
+  //to store a single cfg
+  vector<double *> cfg;
+  //to store actual cfg
+  double *currCfg = new double[dof];
+  //to store cfg. to be sent to Robot
+  vector<double *> vCfg;
+
+  typedef vector<gliObj>::iterator GIT;
+  string name;
+  CGLModel * gl;
+  CGLModel * rl;
+
+  double TwoPI=3.1415926535*2.0;
+
+  OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+
+  list<CGLModel*> robotList, modelList;
+  robot->GetChildren(modelList);
+  CMultiBodyModel * robotModel = (CMultiBodyModel*)modelList.front();
+  //get robot polyhedron
+  robotModel->GetChildren(robotList);
+
+  for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
+  {
+    gl=(CGLModel *)(*ig);
+    list<string> info=gl->GetInfo();
+    cout<<"TYPE:: "<<info.front()<<", "<<gl->GetName()<<endl;
+    name = info.front();
+  }
+  if(name == "Robot"){
+    
+    //get original Cfgs from QueryLoader
+    CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
+    unsigned int iQSize = q->GetQuerySize();
+    
+    for( unsigned int iQ=0; iQ<iQSize; iQ++ ){
+      double * Cfg = new double[dof];
+      Cfg = q->GetStartGoal(iQ); 
+      cfg.push_back(Cfg);
+    }
+    
+    int dof_left = dof - 6;
+    if(dof_left == 0){ //rigid body
+      
+      //if user didn't move robot by hand
+      if(gl->tx() == 0 && gl->ty() == 0 && gl->tz() == 0){
+	typedef list<CGLModel *>::iterator RI;
+	
+	for(RI i=robotList.begin(); i!=robotList.end(); i++){
+	  rl = (CGLModel*)(*i);
+	  currCfg[0] = rl->tx();
+	  currCfg[1] = rl->ty();
+	  currCfg[2] = rl->tz();
+	  currCfg[3] = rl->rx();
+	  currCfg[4] = rl->ry();
+	  currCfg[5] = rl->rz();
+	}
+      }
+      else{ //user moved robot by hand
+	Matrix3x3 m = gl->getMatrix();
+	Vector3d vRot;
+	vRot = gl->MatrixToEuler(m);
+
+	if(gl->m_PosPoly[0] != -1){
+	  //robot has been moved
+	currCfg[0] = gl->tx() + gl->m_PosPoly[0];
+	currCfg[1] = gl->ty() + gl->m_PosPoly[1];
+	currCfg[2] = gl->tz() + gl->m_PosPoly[2];
+
+	//Need to compute rotation from Quaternion
+	
+	CGLModel* rm = robotList.front();
+	//get current quaternion from polyhedron0
+	Quaternion qt0;
+	qt0 = rm->q();
+	Matrix3x3 pm = qt0.getMatrix();
+	Vector3d pv = qt0.MatrixToEuler(pm);
+
+	//get new rotation from GL
+	Quaternion qrm;
+	qrm = gl->q();
+
+	//multiply polyhedron0 and multiBody quaternions
+	//to get new rotation
+	Quaternion finalQ;
+	finalQ = qrm * qt0;
+
+	//set new rotation angles to multiBody rx(), ry(), and rz()
+
+	Matrix3x3 mFinal; Vector3d vFinal;
+	mFinal = finalQ.getMatrix();
+	vFinal = finalQ.MatrixToEuler(mFinal);
+
+	robotModel->rx() = vFinal[0]/TwoPI;
+	robotModel->ry() = vFinal[1]/TwoPI;
+	robotModel->rz() = vFinal[2]/TwoPI;
+	
+	//set new angles for first polyhedron
+	//NOTE:: This works for **FREE** robots
+
+	currCfg[3] =  robotModel->rx();
+	currCfg[4] =  robotModel->ry();
+	currCfg[5] =  robotModel->rz();
+ 
+	}
+	else{//robot has not been moved before
+	currCfg[0] = gl->tx() + cfg[0][0];
+	currCfg[1] = gl->ty() + cfg[0][1];
+	currCfg[2] = gl->tz() + cfg[0][2];
+
+	currCfg[3] = vRot[0]/TwoPI;
+	currCfg[4] = vRot[1]/TwoPI;
+	currCfg[5] = vRot[2]/TwoPI;
+	}
+      }
+     
+      vCfg.push_back(currCfg);
+      robot->storeCfg(vCfg, 'g', dof);
+    }
+    
+    else{//articulated
+
+      //if robot is moved using the animation bar
+      //then get Cfg. from robot->Configure
+      //and add current displacement tx(), ty() and tz()
+      if(gl->tx() == 0 && gl->ty() == 0 && gl->tz() == 0){
+	currCfg = robot->returnCurrCfg(dof);
+      }
+
+      //if robot is moved by hand, gl->tx(), gl->ty(), and gl->tz()
+      //have translation of polyhedron0
+ 
+     else{
+
+	currCfg = robot->returnCurrCfg(dof);
+	//add translation of MBody
+	currCfg[0] = currCfg[0] + gl->tx();
+	currCfg[1] = currCfg[1] + gl->ty();
+	currCfg[2] = currCfg[2] + gl->tz();
+
+	//Need to compute rotation from Quaternion
+	CGLModel* rm = robotList.front();
+
+	//get current quaternion from polyhedron0
+	Quaternion qt0;
+	qt0 = rm->q();
+	Matrix3x3 pm = qt0.getMatrix();
+	Vector3d pv = qt0.MatrixToEuler(pm);
+
+	//get new rotation from multiBody 
+	Quaternion qrm;
+	qrm = robotModel->q();
+
+	//multiply polyhedron0 and multiBody quaternions
+	//to get new rotation
+	Quaternion finalQ;
+	finalQ = qrm * qt0;
+
+	//set new rotation angles to multiBody rx(), ry(), and rz()
+
+	Matrix3x3 mFinal; Vector3d vFinal;
+	mFinal = finalQ.getMatrix();
+	vFinal = finalQ.MatrixToEuler(mFinal);
+
+	robotModel->rx() = vFinal[0]/TwoPI;
+	robotModel->ry() = vFinal[1]/TwoPI;
+	robotModel->rz() = vFinal[2]/TwoPI;
+	
+	//set new angles for first polyhedron
+	//NOTE:: This works for **FREE** robots
+
+	currCfg[3] =  robotModel->rx();
+	currCfg[4] =  robotModel->ry();
+	currCfg[5] =  robotModel->rz();
+
+     }
+
+      vCfg.push_back(currCfg);
+      robot->storeCfg(vCfg, 'g', dof);
+
+    }//else articulated
+
+  }//if Robot
+    
+}
+
+bool vizmo::SaveQry(const char *filename){
+  int dof = CCfg::dof;
+  vector<double *> cfg;
+  FILE *qryFile;
+  
+  OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+  vector<double *> vSG = robot->getNewStartAndGoal();
+  
+  if(!vSG.empty()){
+    //open file
+    if((qryFile = fopen(filename, "a")) == NULL){
+      cout<<"Couldn't open the file"<<endl;
+      return 0;
+    }
+    //get values
+    typedef vector<double *>::iterator IC;
+    for(IC ic=vSG.begin(); ic!=vSG.end(); ic++){
+      double * c = (double *)(*ic);
+      for(int i=0; i<dof; i++){
+	printf("%2f ", c[i]);
+	fprintf(qryFile, "%2f ", c[i]);
+      }
+      fprintf(qryFile, "\n");
+    }
+    fclose(qryFile);
+  }
+  
+}
+
 void vizmo::ShowRoadMap( bool bShow ){
     m_obj.m_show_Map=bShow;
     if( m_obj.m_Map==NULL ) return;
@@ -276,10 +887,15 @@ void vizmo::Animate(int frame){
         return;
     CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
     OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
-    
+   
     double * dCfg;
     //Get Cfg
+
     dCfg=ploader->GetConfiguration(frame);
+
+    //reset robot's original position
+    ResetRobot();
+
     rmodel->Configure(dCfg);
     delete dCfg;
 }
@@ -546,27 +1162,38 @@ void vizmo::PlaceRobot()
         }
         if( cfg!=NULL){
             r->Configure(cfg);
+	    //copy initial cfg. to OBPRMView_Robot
+	    r->InitialCfg(cfg);
             delete [] cfg;
         }
     }
 }
 
+void vizmo::ResetRobot(){
+
+  OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+  if( r!=NULL )
+    r->RestoreInitCfg();
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Private Functions
 ///////////////////////////////////////////////////////////////////////////////
 /*
+
 string vizmo::FindName
 (const string & ext, const vector<string> & names) const
-{
-    typedef vector<string>::const_iterator SIT;
-    for( SIT is=names.begin();is!=names.end();is++ ){
-        int pos=is->rfind(".");
-        if(pos==string::npos) continue; //not . found
-        if( is->substr(pos+1,is->length())==ext )
-            return *is;
-    }
-    return "";
-}
+ {
+ typedef vector<string>::const_iterator SIT;
+ for( SIT is=names.begin();is!=names.end();is++ ){
+ int pos=is->rfind(".");
+ if(pos==string::npos) continue; //not . found
+ if( is->substr(pos+1,is->length())==ext )
+ return *is;
+ }
+ return "";
+ }
 */
 
 bool vizmo::FileExits(const string& filename) const

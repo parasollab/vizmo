@@ -27,6 +27,7 @@ class VizmoRoadmapGUI;
 #include <string>
 using namespace std;
 
+
 ///////////////////////////////////////////////////////////////////////////////
 class VizGLWin;
 
@@ -68,6 +69,10 @@ private slots:
     void refreshEnv();      // refresh!!!
     void changeBGcolor();     //to change the background color for vizmo++
     void envObjsRandomColor();
+    void saveEnv();           // save environment file
+    void saveQryFile();           //save query file (preliminary work)
+    void saveQryStart();      //save start cfg
+    void saveQryGoal();      //save goal cfg
 
     void setSolid();      // turn object into solidMode
     void setWire();       // turn object into wire mode
@@ -76,6 +81,8 @@ private slots:
     void updateScreen();  // redraw GL scene
     void getOpenglSize(int *,int *);
 	void objectEdit();    // change object property
+
+	void resetRobotPosition(); //reset Robot to initial Cfg.
 
 private:
   
@@ -94,12 +101,15 @@ private:
             *quitAction,
             *fileOpenAction, 
 			*fileUpdateAction,
+                   *fileSaveAction,
+                   *fileSaveQryAction,
             *cameraResetAction, 
             *wireFrameAction,
             *changeBGcolorAction,
 			*randObjcolorAction,
 			*showAxisAction,
-			*showGridAction;
+      *showGridAction,
+    *resetRobotPosAction;
      
 
     VizmoAnimationGUI *animationGUI;
