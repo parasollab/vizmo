@@ -1,6 +1,5 @@
 #include "vizmo2.h"
 #include "roadmap.h"
-#include "MapObj/SimpleCfg.h"
 
 ///////////////////////////////////////////////////////////////////////////////// 
 //// Include Qt Headers
@@ -26,9 +25,9 @@
 
 VizmoRoadmapGUI::VizmoRoadmapGUI(QMainWindow *parent,char *name)
 :QToolBar(parent, name){
-    
-    setLabel("CC's features");
-    createGUI();
+
+  this->setLabel("CC's features");
+  createGUI();
     m_bEditModel=false;
     m_addNode=false;
     m_addEdge=false;
@@ -36,7 +35,7 @@ VizmoRoadmapGUI::VizmoRoadmapGUI(QMainWindow *parent,char *name)
 
 void VizmoRoadmapGUI::createGUI()
 {
-    
+
     sizeAction = new QAction
     ("Size",QPixmap(icon_shapes1),"&Size",CTRL+Key_S,this);
     connect(sizeAction,SIGNAL(activated()), this, SLOT(changeSize()) );
@@ -65,39 +64,64 @@ void VizmoRoadmapGUI::createGUI()
     connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()) );
     addEdgeAction->setEnabled(false);
 
-    l =  new QListBox( this );
-    l->setFocusPolicy( QWidget::StrongFocus ); 
-    l->insertItem( QString::fromLatin1( "Robot" ));
-    l->insertItem( QString::fromLatin1( "Box" ));
-    l->insertItem( QString::fromLatin1( "Point" ));
-    l->setSelected(2,true);
-    connect(l,SIGNAL(clicked(QListBoxItem *)),this,SLOT(getSelectedItem()));
-    size=0.5;
+  
+  l =  new QListBox( this );
+  l->setFocusPolicy( QWidget::StrongFocus ); 
+  l->insertItem( QString::fromLatin1( "Robot" ));
+  l->insertItem( QString::fromLatin1( "Box" ));
+  l->insertItem( QString::fromLatin1( "Point" ));
+  l->setSelected(2,true);
+  connect(l,SIGNAL(clicked(QListBoxItem *)),this,SLOT(getSelectedItem()));
+  l->setEnabled(false);
+  size=0.5;
+  
+  nodesColor= new QToolButton
+    (QPixmap(icon_shapes1), "CC's color", "Change roadmap node's color", this,
+     SLOT(changeColorOfCCselected()), this, "node");
+  nodesColor->setUsesTextLabel ( true );
+  nodesColor->setEnabled(false);
+  
+ nodesSameColor= new QToolButton
+   (QPixmap(icon_shapes1), "CC's one color", "Change roadmap node's to same color", this,
+    SLOT(setSameColor()), this, "node");
+ nodesSameColor->setUsesTextLabel ( true );
+ nodesSameColor->setEnabled(false);
+ 
 
-    //Find all toolbar button and show text
-    QObjectList * l = queryList( "QToolButton" );
-    QObjectListIt it( *l );             // iterate over the buttons
-    QObject * obj;
-    while ( (obj=it.current()) != 0 ) { // for each found object...
-        ++it;
-        ((QToolButton*)obj)->setUsesTextLabel ( true );
-    }
+ //Find all toolbar button and show text
+ QObjectList * l = queryList( "QToolButton" );
+ QObjectListIt it( *l );             // iterate over the buttons
+ QObject * obj;
+ while ( (obj=it.current()) != 0 ) { // for each found object...
+   ++it;
+   ((QToolButton*)obj)->setUsesTextLabel ( true );
+ }
+  
 }
 
 void VizmoRoadmapGUI::reset()
 {
-    if( GetVizmo().IsRoadMapLoaded() && 
+    if( GetVizmo().IsRoadMapLoaded() &&
         GetVizmo().isRoadMapShown() ){
-        editAction->setEnabled(true);
-        sizeAction->setEnabled(true);
-        colorAction->setEnabled(true);
+      l->setEnabled(true);
+      nodesColor->setEnabled(true);
+      nodesSameColor->setEnabled(true);
+
+      editAction->setEnabled(true);
+      sizeAction->setEnabled(true);
+      colorAction->setEnabled(true);
     }
     else{
-        editAction->setEnabled(false);
-        sizeAction->setEnabled(false);
-        colorAction->setEnabled(false);
+      l->setEnabled(false);
+      nodesColor->setEnabled(false);
+      nodesSameColor->setEnabled(false);
+
+      editAction->setEnabled(false);
+      sizeAction->setEnabled(false);
+      colorAction->setEnabled(false);
     }
 }
+
 
 void VizmoRoadmapGUI::getSelectedItem()
 {
@@ -108,10 +132,12 @@ void VizmoRoadmapGUI::getSelectedItem()
         if ( item->selected() )
             s = (string)item->text().ascii();
     }
+
     m_shapeString = s;
     GetVizmo().ChangeNodesShape(s);
     emit callUpdate(); //set an update event
 }
+
 
 void VizmoRoadmapGUI::changeSize(){
     
@@ -133,11 +159,73 @@ void VizmoRoadmapGUI::changeSize(){
 
 }
 
+void VizmoRoadmapGUI::setSameColor(){
+  double R, G, B;
+  R=G=B=1;
+  string s = "all";
+  GetVizmo().oneColor = true;
+  QColor color = QColorDialog::getColor( white, this, "color dialog" );
+  if ( color.isValid() ){
+    R = (double)(color.red()) / 255.0;
+    G = (double)(color.green()) / 255.0;
+    B = (double)(color.blue()) / 255.0;
+  }
+   
+  string shape;
+  for ( unsigned int i = 0; i < l->count(); i++ ){
+    QListBoxItem *item = l->item( i );
+    // if the item is selected...
+    if ( item->selected() )
+      shape = (string)item->text().ascii();
+  }
+  
+  GetVizmo().ChangeNodesColor(R, G, B, shape);
+  emit callUpdate(); //set an updat event
+}
+
 void VizmoRoadmapGUI::changeColor(){
     GetVizmo().ChangeNodesRandomColor();
     emit callUpdate(); //set an updat event
 }
 
+void VizmoRoadmapGUI::changeColorOfCCselected(){
+
+  double R, G, B;
+  R=G=B=1;
+
+  //Check first if there is a CC selected
+ 
+    vector<gliObj>& sel = GetVizmo().GetSelectedItem();
+    typedef vector<gliObj>::iterator SI;
+    int m_i;
+    string m_sO;
+    for(SI i = sel.begin(); i!= sel.end(); i++){
+      CGLModel *gl = (CGLModel*)(*i);
+      m_sO = gl->GetName();
+    }
+    string m_s="NULL";
+    int position = -10;
+    position = m_sO.find("CC",0);
+    if(position != string::npos){
+      QColor color = QColorDialog::getColor( white, this, "color dialog" );
+      if ( color.isValid() ){
+	R = (double)(color.red()) / 255.0;
+	G = (double)(color.green()) / 255.0;
+	B = (double)(color.blue()) / 255.0;
+      }
+    }
+
+  string s;
+  for ( unsigned int i = 0; i < l->count(); i++ ) {
+    QListBoxItem *item = l->item( i );
+    // if the item is selected...
+    if ( item->selected() )
+      s = (string)item->text().ascii();
+  }
+  
+  GetVizmo().ChangeNodesColor(R, G, B, s);
+  emit callUpdate(); //set an updat event
+}
 void VizmoRoadmapGUI::editMap()
 {
     m_bEditModel=!m_bEditModel;
@@ -268,7 +356,10 @@ void VizmoRoadmapGUI::MoveNode()
                 fabs(old_R[2]-n->rz());
     if( diff>1e-10 ){
         m_Map_Changed=true;
-        ((CSimpleCfg*)n)->GetCC()->ReBuildAll();
+        ((CCfg*)n)->GetCC()->ReBuildAll();
 		emit callUpdate();
     }   
 }
+
+
+

@@ -34,40 +34,45 @@ public:
     void createGUI();
 
 public slots:
+    void changeSize();      //Changes road map node's size
+    void changeColor();      //Changes CC's color
+    void changeColorOfCCselected(); //Changes CC's color when one is selected
+    void setSameColor();     // set all CC to the same color
+
     void handleSelect();
-	void MoveNode();
+    void MoveNode();
 
 signals:
     void callUpdate();
 
 private slots:
-    void getSelectedItem();
-    void changeSize();      //Changes road map node's size
-    void changeColor();     //Changes CC's color
-    void editMap();         //add/delete nodes and edges 
-    void addNode();
-    void addEdge();
-    void handleAddEdge();
-    void handleAddNode();
-    void handleEditMap();
+   void getSelectedItem();
+   void editMap();         //add/delete nodes and edges 
+   void addNode();
+   void addEdge();
+   void handleAddEdge();
+   void handleAddNode();
+   void handleEditMap();
 
-public:
+ public:
     QAction * editAction,
             * addNodeAction,
             * addEdgeAction,
             * sizeAction,
             * colorAction;
-private:
-
+ private:
+ 
     // private:
     QListBox *l;
     double size;
+    QToolButton *nodesColor, *nodesSameColor;
+
     string m_shapeString;
     bool m_bEditModel;
     bool m_addNode;
     bool m_addEdge;
 
-	list<CGLModel*> m_Nodes;  //selected nodes
-	double old_T[3], old_R[3];
-	bool m_Map_Changed;
+    list<CGLModel*> m_Nodes;  //selected nodes
+    double old_T[3], old_R[3];
+    bool m_Map_Changed;
 };
