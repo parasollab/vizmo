@@ -342,8 +342,6 @@ void VizmoRoadmapGUI::handleEditMap()
       CGLModel * n=m_Nodes.front();
       old_T[0]=n->tx(); old_T[1]=n->ty(); old_T[2]=n->tz();
       old_R[0]=n->rx(); old_R[1]=n->ry(); old_R[2]=n->rz();     
-      printf("** Node Pos: %2f, %2f, %2f\n",n->tx(),n->ty(), n->tz() );
-      //((CCfg*)n)->CopyCfg();
     }
 }
 
@@ -358,7 +356,6 @@ void VizmoRoadmapGUI::MoveNode()
                 fabs(old_R[1]-n->ry())+
                 fabs(old_R[2]-n->rz());
     if( diff>1e-10 ){
-      cout<<"Move Node"<<endl;
       m_Map_Changed=true;
       ((CCfg*)n)->GetCC()->ReBuildAll();
       emit callUpdate();

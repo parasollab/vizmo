@@ -145,25 +145,6 @@ namespace plum{
         }
         m_Graph->ReadGraph( fin ); 
         fin.close();      
-
-	m_Graph->WriteGraph("MapFileTest.map");
-	cout<<"file wrote"<<endl;
-	FILE *f;
-	if((f = fopen("MapFileTest.map", "r+")) == NULL){
-	  cout<<"Couldn't open the file"<<endl;
-	  return 0;
-	}
-	cout<<"file opened"<<endl;
-/*         string  m_strVersionNumber; */
-/*         string  m_strPreamble; */
-/*         string  m_strEnvFileName; */
-/*         string  m_strFileDir; */
-	cout<<"To write in file"<<endl;
-	fprintf(f, "TEXTO DE PRUEBA1\n");
-	fprintf(f, "TEXTO DE PRUEBA2\n");
-	cout<<"file wrote"<<endl;
-	fclose(f);
-	cout<<"file closed"<<endl;
  
         return true;
     }

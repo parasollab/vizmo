@@ -60,13 +60,6 @@ public:
     // Access Functions
     //////////////////////////////////////////////////////////////////////
     void Configure( double * cfg );
-    
-/*     void Configure( double * cfg ) { //assum this is rigid */
-/*         //setup rotation and translation */
-/*         tx()=cfg[0]; ty()=cfg[1]; tz()=cfg[2]; */
-/*         rx()=cfg[3]; ry()=cfg[4]; rz()=cfg[5]; */
-/*         Euiler2Quaternion(); */
-/*     } */
         
     CEnvLoader * getEnvLoader() const;
     CMultiBodyModel * getRobotModel() const;
@@ -76,45 +69,6 @@ public:
     //Keep initial Cfg. 
     void InitialCfg(double * cfg);
     void RestoreInitCfg();
-
- /*    ///Translation */
-/*     //@{ */
-/*     double& tx(){ ObjName="Robot"; */
-/*       m_poly = m_RobotModel->GetPolyhedron(); */
-/*       //printf("x = %.2f", m_poly[1].tx()); */
-/*       return m_poly[0].tx(); */
-/*     } */
-/*     double& ty(){ */
-/*       //m_poly = m_RobotModel->GetPolyhedron(); */
-/*       // printf("y = %.2f", m_poly[1].ty()); */
-/*       return m_poly[0].ty(); */
-/*       } */
-/*     double& tz(){ ObjName="Robot"; */
-/*     m_poly = m_RobotModel->GetPolyhedron(); */
-/*     //printf("z = %.2f", m_poly[1].tz()); */
-/*     //m_poly = m_RobotModel->GetPolyhedron(); */
-/*     return m_poly[0].tz(); */
-/*     } */
-   
-    //@}
-
-/*     ///Sacle */
-/*     ///@{ */
-/*     const double& sx() const { return m_Scale[0]; } */
-/*     const double& sy() const { return m_Scale[1]; } */
-/*     const double& sz() const { return m_Scale[2]; } */
-/*     ///@} */
-
-    ///Rotation
-    ///@{
-/*     double& rx(){ m_poly = m_RobotModel->GetPolyhedron(); */
-/*     cout<<"RX: "<<m_poly[0].rx()<<endl; return m_poly[0].rx();} */
-/*     double& ry(){  m_poly = m_RobotModel->GetPolyhedron(); */
-/*     cout<<"RY: "<<m_poly[0].ry()<<endl;  */
-/*     return m_poly[0].ry(); } */
-/*     double& rz(){ m_poly = m_RobotModel->GetPolyhedron(); */
-/*     cout<<"RZ: "<<m_poly[0].rz()<<endl; return m_poly[0].rz(); } */
-/*     //@} */
 
     //variable used to change the size of the robot
     float size; 
@@ -141,21 +95,14 @@ public:
     void storeCfg( vector<double *> cfg, char c, int dof){
       typedef vector<double*>::iterator IC;
       double * iCfg;
-
-      printf("Cfg inRobot::");
-
+      
       if(c == 's'){
 	StartCfg.clear();
 	for(IC ic=cfg.begin(); ic!=cfg.end(); ic++){
 	  iCfg = (double *)(*ic);
 	  StartCfg.push_back(iCfg);
 	}
-
-      for(int i=0; i<dof; i++){
-	printf("%2f ",StartCfg[0][i]);
-      }
-      cout<<endl;
-
+	
       }
       
       else{
@@ -164,16 +111,11 @@ public:
 	  iCfg = (double *)(*ic);
 	  GoalCfg.push_back(iCfg);
 	}
-
-      for(int i=0; i<dof; i++){
-	printf("%2f ",GoalCfg[0][i]);
-      }
-      cout<<endl;
+	
       }  
-     
-
+      
     }
-
+    
 
     vector<double *> getNewStartAndGoal(){
 
@@ -183,7 +125,7 @@ public:
       if(!GoalCfg.empty())
 	v.push_back(GoalCfg[0]);
       return v;
-
+      
     }
 
     double *returnCurrCfg(int dof);

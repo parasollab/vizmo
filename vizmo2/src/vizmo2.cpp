@@ -211,31 +211,6 @@ bool vizmo::SaveEnv(const char *filename)
   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
   const CMultiBodyInfo* MBI = envLoader->GetMultiBodyInfo();
 
-//   vector<CPolyhedronModel *> pPoly; 
-
-//   pPoly = env->getPoly();
-
-//   int numPoly=pPoly.size();
-//   cout<<"Number of Polys: "<<numPoly<<endl;
-//   for(int iP=0; iP<numPoly; iP++ ){
-//     printf("Position:: %1f, %1f, %1f\n ",pPoly[iP]->tx(), 
-// 	   pPoly[iP]->ty(), pPoly[iP]->tz());
-    //printf("Orientation:: %1f, %1f, %1f\n ",pPoly[iP]->rx(), 
-    // pPoly[iP]->ry(),pPoly[iP]->rz());
-    //pPoly[iP].tx()
-    //pPoly[iP].ty();
-    //pPoly[iP].tz();
-    //pPoly[iP].rx();
-    //pPoly[iP].ry();
-    //pPoly[iP].rz();
-
-    // }
-
-  //get polyhedron for
-
-  //CMultiBodyModel * m_Model = rmodel->getRobotModel();;
-  //CPolyhedronModel * pPoly = m_Model ->GetPolyhedron();
-
   FILE *envFile;
   if((envFile = fopen(filename, "a")) == NULL){
     cout<<"Couldn't open the file"<<endl;
@@ -249,20 +224,6 @@ bool vizmo::SaveEnv(const char *filename)
 
   //getMBody() and then current position and orientation
   vector<CMultiBodyModel *> MBmodel = env->getMBody();
-  //  int numMB = MBmodel.size();
-  //cout<<"Number of MBodies: "<<MBmodel.size()<<endl;
-  //cout<<"----------------------------------------------------"<<endl;
-//   for(int iMB=0; iMB<numMB; iMB++ ){
-
-//     printf("\nX: %1f\t", MBmodel[iMB]->tx());
-//     printf("Y: %1f\t", MBmodel[iMB]->ty());
-//     printf("Z: %1f\n", MBmodel[iMB]->tz());
-//     printf("A: %1f\t", MBmodel[iMB]->rx());
-//     printf("B: %1f\t", MBmodel[iMB]->ry());
-//     printf("G: %1f\n", MBmodel[iMB]->rz());
-//     printf("=========================================");
-
-//   }
 
   for(int i = 0; i<MBnum; i++){ //for each body in *.env
 
@@ -300,10 +261,6 @@ bool vizmo::SaveEnv(const char *filename)
 	}
 	else
 	  fprintf(envFile,"%s  ",f);
-// 	fprintf(envFile,"%.1f %.1f %.1f %.1f %.1f %.1f\n",
-// 		MBI[i].m_pBodyInfo[j].m_X, MBI[i].m_pBodyInfo[j].m_Y,
-// 		MBI[i].m_pBodyInfo[j].m_Z, MBI[i].m_pBodyInfo[j].m_Alpha,
-// 		MBI[i].m_pBodyInfo[j].m_Beta, MBI[i].m_pBodyInfo[j].m_Gamma);
 
 	fprintf(envFile,"%.1f %.1f %.1f %.1f %.1f %.1f\n",
 		MBmodel[i]->tx(), MBmodel[i]->ty(), MBmodel[i]->tz(),
@@ -426,7 +383,6 @@ void vizmo::SaveQryStart(){
   {
     gl=(CGLModel *)(*ig);
     list<string> info=gl->GetInfo();
-    cout<<"TYPE:: "<<info.front()<<", "<<gl->GetName()<<endl;
     name = info.front();
   }
 
@@ -448,7 +404,6 @@ void vizmo::SaveQryStart(){
       //if user didn't move robot by hand, this means
       //the animation tool was used
       if(gl->tx() == 0 && gl->ty() == 0 && gl->tz() == 0){
-	cout<<"+++++++ user used ToolBar to move robot +++++++++"<<endl;
 	typedef list<CGLModel *>::iterator RI;
 	
 	for(RI i=robotList.begin(); i!=robotList.end(); i++){
@@ -462,7 +417,6 @@ void vizmo::SaveQryStart(){
 	}
       }
       else{ //user moved robot by hand
-	cout<<"+++++++ user moved robot by hand +++++++++"<<endl;
 	Matrix3x3 m = gl->getMatrix();
 	Vector3d vRot;
 	vRot = gl->MatrixToEuler(m);
@@ -622,7 +576,6 @@ void vizmo::SaveQryGoal(){
   {
     gl=(CGLModel *)(*ig);
     list<string> info=gl->GetInfo();
-    cout<<"TYPE:: "<<info.front()<<", "<<gl->GetName()<<endl;
     name = info.front();
   }
   if(name == "Robot"){
@@ -909,7 +862,6 @@ int vizmo::GetPathSize(){
 //void vizmo::ChangeNodesSize(float s){
 void vizmo::ChangeNodesSize(float s, string str){
     
-    //cout<<"Size parameter: "<<s<<endl;
     if( m_obj.m_Robot==NULL ) return;
     
     if( m_obj.m_Map==NULL ) return;
@@ -930,7 +882,6 @@ void vizmo::ChangeNodesSize(float s, string str){
 
 void vizmo::ChangeNodesShape(string s){
 
-  //cout<<"S RECEIVED IN VIZMO2::"<<s<<endl;
     if( m_obj.m_Robot==NULL ) return;
     
     if( m_obj.m_Map==NULL ) return;
@@ -1071,9 +1022,6 @@ bool vizmo::CreateEnvObj( vizmo_obj& obj, const string& fname )
     ///////////////////////////////////////////////////////////////////////
     //create environment
     obj.m_Env=createEnvObj(fname , dir);
-
-    cout<<"ENV created"<<endl;
-
     return (obj.m_Env!=NULL);
 }
 

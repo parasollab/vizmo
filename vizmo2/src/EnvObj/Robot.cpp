@@ -295,11 +295,6 @@ void OBPRMView_Robot::Configure( double * cfg) {
     m_RobotModel->m_RotPoly[1] = pPoly[0].ry();
     m_RobotModel->m_RotPoly[2] = pPoly[0].rz();
 
-//     printf("Position of Robot:: %1f, %1f, %1f \n", 
-// 	   m_RobotModel->m_PosPoly[0],m_RobotModel->m_PosPoly[1],m_RobotModel->m_PosPoly[2]);
-//     printf("Orientation of Robot:: %1f, %1f, %1f \n", 
-// 	   RotFstBody[0],RotFstBody[1],RotFstBody[2]);
-
   }
 
   Transformation b(orientation, position);
@@ -318,20 +313,6 @@ void OBPRMView_Robot::Configure( double * cfg) {
    Vector3d v;
    v = pPoly[0].MatrixToEuler(m);
  
-  //  cout<<"######################################################"<<endl;
-  
-  //   printf("Original X, Y, Z:: %2f, %2f, %2f \n",cfg[3]/TwoPI, cfg[4]/TwoPI, cfg[5]/TwoPI);
-  //   printf("To radians X, Y, Z:: %2f, %2f, %2f \n",cfg[3], cfg[4], cfg[5]);
-  //   printf("MatToEuler X, Y, Z:: %2f, %2f, %2f \n", v[0], v[1], v[2]);
-  
-  //   cout<<"######################################################"<<endl;
-  
-  //set rx(), ry(), and rz() of RobotMBModel
-  //for robot's base
-//   m_RobotModel->rx() = v[0]/TwoPI;
-//   m_RobotModel->ry() = v[1]/TwoPI;
-//   m_RobotModel->rz() = v[2]/TwoPI;
-
     m_RobotModel->m_RotPoly[0] = v[0]/TwoPI;
     m_RobotModel->m_RotPoly[1] = v[1]/TwoPI;
     m_RobotModel->m_RotPoly[2] = v[2]/TwoPI;

@@ -334,7 +334,6 @@ void VizmoMainWin::obj_contexmenu()
     {
         CGLModel * gl=(CGLModel *)(*ig);
         list<string> info=gl->GetInfo();
-	cout<<"************NAME:: "<<gl->GetName()<<endl;
 	m_s = info.front();
 	//m_s = gl->GetName();
     }
