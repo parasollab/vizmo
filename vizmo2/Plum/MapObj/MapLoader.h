@@ -125,7 +125,7 @@ namespace plum{
     //////////////////////////////////////////////////////////////////////
     template< class Cfg, class WEIGHT > bool 
     CMapLoader<Cfg, WEIGHT>::ParseFile()
-    {        
+      {      
         if( CheckCurrentStatus()==false )
             return false;
         
@@ -138,12 +138,11 @@ namespace plum{
         fin.getline(strData, MAX_LINE_LENGTH);
         m_Graph =new WG();
         if( m_Graph==NULL ){ 
+            cout<<"Graph null ..."<<endl;
             return false; 
-            //cout<<"Nop ..."<<endl;
         }
-        m_Graph->ReadGraph( fin ); //cout<<"Yes!"<<endl;
-        
-        fin.close();        
+        m_Graph->ReadGraph( fin ); 
+        fin.close();       
         return true;
     }
 

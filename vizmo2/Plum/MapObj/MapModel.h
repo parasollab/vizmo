@@ -95,6 +95,7 @@ namespace plum{
     template <class Cfg, class WEIGHT>
     bool CMapModel<Cfg, WEIGHT>::BuildModels()
     {
+
         //get graph
         if( m_mapLoader==NULL ) return false;
 		typename Loader::WG * graph = m_mapLoader->GetGraph();
@@ -113,6 +114,7 @@ namespace plum{
             m_CCModels.push_back(cc);
         }
         
+
         return true;
     }
     

@@ -33,8 +33,7 @@ namespace plum {
     //      Protected Member Functions
     //////////////////////////////////////////////////////////////////////
 	
-    bool 
-		CMapHeaderLoader::ParseHeader( istream & in )
+    bool CMapHeaderLoader::ParseHeader( istream & in )
     {
         //get path name
         m_strFileDir=getPathName(m_strFileName);

@@ -41,6 +41,8 @@ namespace plum{
         m_robot->Scale(sx(),sy(),sz());
         m_robot->Configure(cfg);
         m_robot->Draw(GL_RENDER);
+
+	Dump();
     }
     
     void CSimpleCfg::DrawBox(){

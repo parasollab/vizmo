@@ -3,13 +3,15 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "MapModel.h"
-#include "SimpleCfg.h"
+/*#include "SimpleCfg.h"*/
+#include "Cfg.h"
 
 namespace plum{
 
 	void testMapModel()
 	{
-		CMapModel<CSimpleCfg,CSimpleEdge> model;
+	  //CMapModel<CSimpleCfg,CSimpleEdge> model;
+	  CMapModel<CCfg,CSimpleEdge> model;
 		
 	}
 
