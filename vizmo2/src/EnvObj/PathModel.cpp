@@ -19,7 +19,7 @@ CPathModel::CPathModel()
     m_DLIndex=-1;
     m_pPathLoader=NULL;
     m_pRobot=NULL;
-        m_RenderMode=CPlumState::MV_INVISIBLE_MODE;
+    m_RenderMode=CPlumState::MV_INVISIBLE_MODE;
 }
 
 CPathModel::~CPathModel()
@@ -38,23 +38,25 @@ bool CPathModel::BuildModels(){
     //can't build model without model loader
     if( m_pRobot==NULL || m_pPathLoader==NULL ) return false;
 
+
     ///////////////////////////////////////////////////////
     //Build Path Model
     unsigned int iPathSize = m_pPathLoader->GetPathSize();
+    unsigned int dof =  m_pPathLoader->GetDOF();
     m_pRobot->SetRenderMode(CPlumState::MV_WIRE_MODE);
     const float * col=m_pRobot->GetColor(); //old color
     float oldcol[4]; memcpy(oldcol,col,4*sizeof(float));
     
     glMatrixMode( GL_MODELVIEW );
     m_DLIndex=glGenLists(1);
-    glNewList( m_DLIndex, GL_COMPILE );
+    glNewList( m_DLIndex, GL_COMPILE ); 
       for( unsigned int iP=0; iP<iPathSize; iP++ ){
       double percent=((double)iP)/iPathSize;
       m_pRobot->SetColor(percent,0.8f,1-percent,1.0);
           double * Cfg = m_pPathLoader->GetConfiguration(iP);
           if( iP%3==0 ){
-              m_pRobot->Configure(Cfg);
-              m_pRobot->Draw(GL_RENDER);
+	    m_pRobot->Configure(Cfg);
+	    m_pRobot->Draw(GL_RENDER);
           }
           delete [] Cfg;
       }
@@ -63,6 +65,8 @@ bool CPathModel::BuildModels(){
     //set back
     m_pRobot->SetRenderMode(CPlumState::MV_SOLID_MODE);
     m_pRobot->SetColor(oldcol[0],oldcol[1],oldcol[2],oldcol[3]);
+
+
     return true;
 }
 
@@ -82,13 +86,13 @@ void CPathModel::Draw( GLenum mode ){
 
 list<string> CPathModel::GetInfo() const 
 { 
-	list<string> info; 
-	info.push_back(m_pPathLoader->GetFileName());
-	{
-		ostringstream temp;
-		temp<<"There are "<<m_pPathLoader->GetPathSize()<<" path frames";
-		info.push_back(temp.str());
-    }	
-	return info;
+  list<string> info; 
+  info.push_back(m_pPathLoader->GetFileName());
+  {
+    ostringstream temp;
+    temp<<"There are "<<m_pPathLoader->GetPathSize()<<" path frames";
+    info.push_back(temp.str());
+  }	
+  return info;
 }
 
