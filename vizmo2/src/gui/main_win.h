@@ -36,9 +36,6 @@ public:
 
     double R, G, B;
 
-public slots:
- void updateScreen();
-    
 protected:
 
     bool CreateGUI();      //create tool bars
@@ -59,18 +56,11 @@ private slots:
     void notimp();        //not implemented yet.
     void changecolor();   //to change the background color for vizmo++
     void refreshEnv();    // refresh!!!
-   
-
-    /*
-    void animate();       // show animation
-
-    */
-
 
     void setSolid();      // turn object into solidMode
     void setWire();       // turn object into wire mode
     void setInvisible();  // turn the object invisible
-   
+    void updateScreen();  // redraw GL scene
 
 private:
   

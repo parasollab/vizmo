@@ -86,19 +86,18 @@ public:
     /**
      * Animate Robot motion.
      */
-    void Animate( bool bForward=true );
+    void Animate( int frame );
+	int GetPathSize();
 
-    /* Get a particular configuration
-     *
-     */
-
+    /*
     void GetConfiguration(int);
 
     int GetCurrentCfg();
 
 
-    /* return the number of frames*/
+    //return the number of frames
     int getTimer();
+     */
 
     //////////////////////////////////////////////////////////////////////
     // Roadmap Related Function
@@ -123,14 +122,12 @@ public:
     // Change the appearance of an object - Hidden/ Wire / Soid
     void ChangeAppearance(int );
     
-    void refreshEnv();
+    void RefreshEnv();
     
-
 
     //////////////////////////////////////////////////////////////////////
     // Access
     vector<gliObj>& GetSelectedItem(){return m_Plum.GetSelectedItem();}
-
 
     double GetEnvRadius(){ 
         if(m_obj.m_Env!=NULL ){
@@ -139,9 +136,6 @@ public:
         }
         return 200;
     }
-
-
-   
 
     //////////////////////////////////////////////////////////////////////
     // Protected Function

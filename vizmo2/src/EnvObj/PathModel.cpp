@@ -50,12 +50,12 @@ bool CPathModel::BuildModels(){
     m_DLIndex=glGenLists(1);
     glNewList( m_DLIndex, GL_COMPILE );
       for( unsigned int iP=0; iP<iPathSize; iP++ ){
-          double * Cfg = m_pPathLoader->GetNextConfigure();
+          double * Cfg = m_pPathLoader->GetConfiguration(iP);
           if( iP%3==0 ){
               m_pRobot->Configure(Cfg);
               m_pRobot->Draw(GL_RENDER);
           }
-	  delete [] Cfg;
+	      delete [] Cfg;
       }
     glEndList();
     

@@ -10,7 +10,7 @@
 VizGLWin::VizGLWin(QWidget * parent, const char * name)
 : QGLWidget(parent,name)
 { 
-    setMinimumSize( 500, 500 ); 
+    setMinimumSize( 850, 850 );
     setFocusPolicy(QWidget::StrongFocus);
 
     R = G = B = 1;

@@ -87,6 +87,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\src\gui\animation_gui.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\EnvObj\BoundingBoxModel.cpp
 # End Source File
 # Begin Source File
@@ -104,6 +108,10 @@ SOURCE=..\src\main.cpp
 # Begin Source File
 
 SOURCE=..\src\gui\main_win.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\gui\moc_animation_gui.cpp
 # End Source File
 # Begin Source File
 
@@ -145,6 +153,39 @@ SOURCE=..\src\vizmo2.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\src\gui\animation_gui.h
+
+!IF  "$(CFG)" == "vizmo2 - Win32 Release"
+
+# PROP Ignore_Default_Tool 1
+# Begin Custom Build - Moc'ing $(InputName).h ...
+InputDir=\vizmo2\src\gui
+InputPath=..\src\gui\animation_gui.h
+InputName=animation_gui
+
+"$(InputDir)\moc_$(InputName).cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	%qtdir%\bin\moc.exe $(InputDir)\$(InputName).h -o $(InputDir)\moc_$(InputName).cpp
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "vizmo2 - Win32 Debug"
+
+# PROP Ignore_Default_Tool 1
+# Begin Custom Build - Moc'ing $(InputName).h ...
+InputDir=\vizmo2\src\gui
+InputPath=..\src\gui\animation_gui.h
+InputName=animation_gui
+
+"$(InputDir)\moc_$(InputName).cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	%qtdir%\bin\moc.exe $(InputDir)\$(InputName).h -o $(InputDir)\moc_$(InputName).cpp
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # Begin Source File
 
 SOURCE=..\src\EnvObj\BoundingBoxModel.h

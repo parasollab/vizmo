@@ -14,8 +14,6 @@ using namespace std;
 
 CPathLoader::CPathLoader()
 {
-    m_iCurrent_CfgIndex=0;
-    notExists = false;  // used to know if there is .path file available -- 
 }
 
 CPathLoader::~CPathLoader()
@@ -27,15 +25,13 @@ bool CPathLoader::ParseFile()
 {
     //check input
     if( CheckCurrentStatus()==false ){
-      notExists=true;
-      return true;
+		return true;
     }
 
     ifstream fin(m_strFileName.c_str(), ios::in);
 
     //reset every thing
     FreePathList();
-    m_iCurrent_CfgIndex=0;
     
     /////////////////////////////////////////////////////////////////////////////////////////
     //Read file info
@@ -58,53 +54,27 @@ bool CPathLoader::ParseFile()
     return true;
 }
 
-double * CPathLoader::GetNextConfigure( bool bOutputFrameNumber )
+double * CPathLoader::GetConfiguration(int frame)
 {
-    double * currentCfg = GetConfigure(bOutputFrameNumber, m_iCurrent_CfgIndex);
-    m_iCurrent_CfgIndex++;
-    if( (unsigned int)m_iCurrent_CfgIndex>=m_pList.size() )
-        m_iCurrent_CfgIndex=0;
-    
-    return currentCfg;
-}
-
-double * CPathLoader::GetPreviousConfigure( bool bOutputFrameNumber )
-{
-    double * currentCfg = GetConfigure(bOutputFrameNumber, m_iCurrent_CfgIndex);
-    m_iCurrent_CfgIndex--;
-    if( m_iCurrent_CfgIndex<0 )
-        m_iCurrent_CfgIndex=m_pList.size()-1;
-    
-    return currentCfg;
-}
-
-double * CPathLoader::GetParticularConfiguration(int index)
-{
-  
-  if((index>=m_pList.size() || index<0))
-     return GetConfigure(false,index);
-
-    m_iCurrent_CfgIndex=index;
-
-    double * currentCfg = GetConfigure(true, m_iCurrent_CfgIndex);
-   
-    
-    
+	if(frame>=m_pList.size()) frame=m_pList.size()-1;
+	if(frame<0 ) frame=0;
+		
+    double * currentCfg = GetConfigure(false, frame);    
     return currentCfg;
 }
 
 double * CPathLoader::GetConfigure( bool bOutputFrameNumber, int & index )
 {
     double * currentCfg=new double[6];
-    currentCfg[0]=m_pList[m_iCurrent_CfgIndex][0];
-    currentCfg[1]=m_pList[m_iCurrent_CfgIndex][1];
-    currentCfg[2]=m_pList[m_iCurrent_CfgIndex][2];
-    currentCfg[3]=m_pList[m_iCurrent_CfgIndex][3]*6.2831852;
-    currentCfg[4]=m_pList[m_iCurrent_CfgIndex][4]*6.2831852;
-    currentCfg[5]=m_pList[m_iCurrent_CfgIndex][5]*6.2831852;
+    currentCfg[0]=m_pList[index][0];
+    currentCfg[1]=m_pList[index][1];
+    currentCfg[2]=m_pList[index][2];
+    currentCfg[3]=m_pList[index][3]*6.2831852;
+    currentCfg[4]=m_pList[index][4]*6.2831852;
+    currentCfg[5]=m_pList[index][5]*6.2831852;
     
     if( bOutputFrameNumber )
-        cout<< "- ChainMaiViewer Mag : Currnet Frame # = " << m_iCurrent_CfgIndex
+        cout<< "- ChainMaiViewer Mag : Currnet Frame # = " << index
         << "/"<< m_pList.size()-1 <<endl;
     
     return currentCfg;

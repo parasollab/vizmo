@@ -164,7 +164,7 @@ m_Plum.DumpSelected();
 
 
 
-void vizmo::refreshEnv()
+void vizmo::RefreshEnv()
 {
   if(m_obj.m_Env==NULL) return;
   CGLModel *m=m_obj.m_Env->getModel();
@@ -217,7 +217,6 @@ void vizmo::ShowBBox(bool bShow){
  
 // Code To change the appearance of the env.. 
 // BSS
-
 void vizmo::ChangeAppearance(int status)
 {
     // status 0 = solid
@@ -240,7 +239,7 @@ void vizmo::ChangeAppearance(int status)
 }
 
 
-void vizmo::Animate(bool bForward){
+void vizmo::Animate(int frame){
     if( m_obj.m_Robot==NULL || m_obj.m_Path==NULL )
         return;
     CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
@@ -248,16 +247,17 @@ void vizmo::Animate(bool bForward){
 
     double * dCfg;
     //Get Cfg
-    if( bForward )
-        dCfg=ploader->GetNextConfigure(true);
-    else
-        dCfg=ploader->GetPreviousConfigure(true);
+    dCfg=ploader->GetConfiguration(frame);
     rmodel->Configure(dCfg);
     delete dCfg;
-   
 }
 
-
+int vizmo::GetPathSize(){ 
+	if(m_obj.m_Path==NULL) return 0; 
+	CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
+	return ploader->GetPathSize();
+}
+/*
 void vizmo::GetConfiguration(int index)
 {
 
@@ -278,24 +278,20 @@ void vizmo::GetConfiguration(int index)
 
 }
 
-
-
 // BSS returns the number of frames
 int vizmo::getTimer()
 {
-  int size;
-  if(m_obj.m_Path==NULL) 
+	int size;
+	if(m_obj.m_Path==NULL) 
     {
-    return 0;
-    cout<<flush<<endl<<size<<endl;
+		return 0;
     }
-   
-   CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
-   size=(signed int)ploader->GetPathSize();
-   
-  
-  return size-1;
-   
+	
+	CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
+	size=(signed int)ploader->GetPathSize();
+	
+	
+	return size-1;
 }
 
 int vizmo::GetCurrentCfg()
@@ -311,8 +307,7 @@ int vizmo::GetCurrentCfg()
    
    return cfg;
 }
-
-
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // Protected Functions
