@@ -206,9 +206,15 @@ namespace plum{
     }
     BodyInfo.m_strModelDataFileName+=strData;
     
-    //get orientation and position
+    //if Body0 then read orientation and position 
+    //else put 0's for the rest of the Bodies if they exist
+    if(BodyInfo.m_Index ==0){
     fin >> BodyInfo.m_X >> BodyInfo.m_Y >> BodyInfo.m_Z;
     fin >> BodyInfo.m_Alpha >> BodyInfo.m_Beta >> BodyInfo.m_Gamma;
+    }
+    else{
+      BodyInfo.m_X = BodyInfo.m_Y = BodyInfo.m_Z = BodyInfo.m_Alpha = BodyInfo.m_Beta = BodyInfo.m_Gamma = 0;
+    }
           
     //convert to radians	 
     BodyInfo.m_Alpha=BodyInfo.m_Alpha*PI_180;
