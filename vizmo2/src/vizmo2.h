@@ -119,15 +119,22 @@ public:
     
     void RefreshEnv();
     
-    
+  //Miscelaneous
+
+    bool StringToInt(const string &s, int &i);
+   
     //////////////////////////////////////////////////////////////////////
     // Access
 
-    vector<gliObj>& GetSelectedItem(){return m_Plum.GetSelectedItem();}
+    vector<gliObj>& GetSelectedItem(){ return m_Plum.GetSelectedItem();}
     
     vector<PlumObject*>& GetPlumObjects(){ return m_Plum.GetPlumObjects(); }
 
     double GetEnvRadius();
+
+    ////////////////////////////////////////////////////////////////
+    // Variables used to change color of objects in the environment.
+    float mR, mG, mB;
     
     //////////////////////////////////////////////////////////////////////
     // Protected Function
