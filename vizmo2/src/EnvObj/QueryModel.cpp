@@ -99,3 +99,4 @@ list<string> CQueryModel::GetInfo() const
     }	
 	return info;
 }
+

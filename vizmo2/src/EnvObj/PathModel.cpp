@@ -91,3 +91,4 @@ list<string> CPathModel::GetInfo() const
     }	
 	return info;
 }
+
