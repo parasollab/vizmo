@@ -95,6 +95,7 @@ public:
     void ChangeNodesSize(float s, string str);
     void ChangeNodesShape(string s);
     bool IsRoadMapLoaded(){ return m_obj.m_Map!=NULL; }
+    void ChangeNodesColor(double r, double g, double b, string s);
     void ChangeNodesRandomColor();
 	PlumObject * GetMap() const { return m_obj.m_Map; }
     
@@ -123,6 +124,11 @@ public:
     void ChangeAppearance(int );   
     void RefreshEnv();
     void envObjsRandomColor();
+
+    //Miscelaneous
+
+    bool StringToInt(const string &s, int &i);
+    bool oneColor; 
       
     //////////////////////////////////////////////////////////////////////
     // Access
@@ -185,7 +191,7 @@ protected:
     bool CreateRobotObj( vizmo_obj& obj );
     
     /**
-    * Put robot in start configuration is possible
+    * Put robot in start configuration if possible
     */
     void PlaceRobot();
     //////////////////////////////////////////////////////////////////////
