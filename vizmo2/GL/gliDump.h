@@ -55,3 +55,4 @@ bool dump
 #ifdef _WIN32
 void setConvert(const string& file);
 #endif
+

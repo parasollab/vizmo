@@ -72,3 +72,4 @@ private:
     bool takingSnapShot;
 	bool m_bShowGrid, m_bShowAxis;
 };
+

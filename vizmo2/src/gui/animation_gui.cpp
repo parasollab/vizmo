@@ -263,3 +263,4 @@ void VizmoAnimationGUI::timeout()
     UpdateCurValue(cur_value);
     slider->setValue(cur_value);
 }
+
