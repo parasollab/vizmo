@@ -11,7 +11,10 @@ using namespace std;
 
 #include <qgl.h>
 
-//Handle the camera control
+/** 
+ * Handle camera control
+ */
+
 class gliCamera
 {
 public:
@@ -19,14 +22,14 @@ public:
     gliCamera( const string& name, const Point3d& pos, const Vector3d& up );
     
     ///////////////////////////////////////////////////////////////////////////
-    // Core
+    /// Core
     void Draw( void );
-    bool MP( QMouseEvent * e ); //mouse button press 
-    bool MR( QMouseEvent * e ); //mouse button release
-    bool MM( QMouseEvent * e );  //mouse motion
+    bool MP( QMouseEvent * e ); /// mouse button press 
+    bool MR( QMouseEvent * e ); /// mouse button release
+    bool MM( QMouseEvent * e ); /// mouse motion
 
     ///////////////////////////////////////////////////////////////////////////
-    // Access
+    /// Access
     double getCameraAzim() const { return m_currentAzim+m_deltaAzim; }
     double getCameraElev() const { return m_currentElev+m_deltaElev; }
     Point3d getCameraPos() const { return m_CameraPos+m_deltaDis; }
@@ -39,7 +42,7 @@ public:
 private:
 
     Point3d m_CameraPos;
-    Vector3d m_deltaDis; //displacement caused by user
+    Vector3d m_deltaDis; /// displacement caused by user
     Vector3d m_Up;
 
     double m_currentAzim, m_deltaAzim;
@@ -51,11 +54,15 @@ private:
     Vector3d m_WindowX;
     Vector3d m_WindowY;
 
-    string m_CamName; //camera name
+    string m_CamName; /// camera name
 };
 
-///////////////////////////////////////////////////////////////////////////////
-//Camera Factory
+/////////////////////////////////////////////////////////////////////////////
+
+/** 
+ * Camera Factory creates an instance of camera
+ */
+
 class gliCameraFactory
 {
 public:
@@ -63,7 +70,7 @@ public:
     gliCameraFactory();
 
     ///////////////////////////////////////////////////////////////////////////
-    // Access
+    /// Access
     void addCamera( const gliCamera& camera );
     gliCamera* getCurrentCamera();
     bool setCurrentCamera(const string& name);
@@ -74,7 +81,7 @@ protected:
     gliCamera* findCamera(const string& name);
 
 private:
-    //default cameras
+    /// default cameras
     list<gliCamera> m_Cameras;
     gliCamera * m_CurrentCam;
 };

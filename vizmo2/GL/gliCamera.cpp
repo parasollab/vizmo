@@ -1,5 +1,8 @@
 #include "gliCamera.h"
 
+/**
+ *  Constructor
+ */
 gliCamera::gliCamera
 ( const string& name, const Point3d& pos, const Vector3d& up )
 {
@@ -12,6 +15,10 @@ gliCamera::gliCamera
     m_WindowX.set(1,0,0);
     m_WindowY.set(0,1,0);
 }
+
+/**
+ *  Draw: Translate and Rotate camera
+ */
 
 void gliCamera::Draw( void )
 {
@@ -30,8 +37,11 @@ void gliCamera::Draw( void )
     */
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//Handle Mouse Movement
+///////////////////////////////////////////////////////////////////////
+//**
+//** Handle Mouse Movement
+///////////////////////////////////////////////////////////////////////
+
 bool gliCamera::MP( QMouseEvent * e )
 {
     if( e->state()&Qt::ControlButton ){
@@ -45,7 +55,7 @@ bool gliCamera::MP( QMouseEvent * e )
 bool gliCamera::MR( QMouseEvent * e )
 {
     if( !m_MousePressed ) 
-        return false; //mouse is not pressed
+        return false; /// mouse is not pressed
 
     m_MousePressed=false;
     for( int iD=0;iD<3;iD++ ){
@@ -62,10 +72,16 @@ bool gliCamera::MR( QMouseEvent * e )
     return true;
 }
 
-//defined later
+/// defined later
 void RotateY(Vector3d& v, double degree);
 void RotateX(Vector3d& v, double degree);
-bool gliCamera::MM( QMouseEvent * e )  //mouse motion
+
+//////////////////////////////////////
+//**
+//** Mouse motion
+//////////////////////////////////////
+
+bool gliCamera::MM( QMouseEvent * e )  
 {       
 
     if( !m_MousePressed ) return false; //mouse is not pressed
@@ -97,8 +113,11 @@ bool gliCamera::MM( QMouseEvent * e )  //mouse motion
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Help Function
+////////////////////////////////////////////////////////////////////////////
+//**
+//** Help Function: handle x, y rotation
+////////////////////////////////////////////////////////////////////////////
+
 void RotateX(Vector3d& v, double degree){
     double c=cos(3.1415926*degree/180);
     double s=sin(3.1415926*degree/180);
@@ -117,9 +136,12 @@ void RotateY(Vector3d& v, double degree){
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// gliCameraFactory
+/// gliCameraFactory
 
-//create default cameras
+/**
+ * create default cameras
+ */
+
 gliCameraFactory::gliCameraFactory()
 {
     createDefaultCameras();

@@ -61,4 +61,3 @@ void gliPickBox::MM( QMouseEvent * e )  //mouse motion
 //Singleton
 gliPickBox g_PickBox;
 gliPickBox & gliGetPickBox(){ return g_PickBox; }
-

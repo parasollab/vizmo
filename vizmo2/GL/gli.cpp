@@ -29,8 +29,8 @@ void gliDraw(int option){
 
 bool gliMP(QMouseEvent * e)
 {
-    if( gliGetCameraFactory().getCurrentCamera()->MP(e) ){
-        gliCM(); //camera moved 
+    if( gliGetCameraFactory().getCurrentCamera()->MP(e) ){ 
+       gliCM(); //camera moved 
         return true;
     }
     if( gliGetTransformTool().MP(e) ) return true;
@@ -65,7 +65,7 @@ bool gliMR(QMouseEvent * e, bool drawonly)
     return false; //need further process
 }
 
-//mouse movement evenet, return true if handled
+/// mouse movement event, return true if handled
 bool gliMM( QMouseEvent * e )
 {
     if( gliGetCameraFactory().getCurrentCamera()->MM(e) ){
@@ -78,21 +78,21 @@ bool gliMM( QMouseEvent * e )
     return false; //need further process
 }
 
-//key evenet, return true if handled
+/// key event, return true if handled
 bool gliKEY( QKeyEvent * e )
 {
     if( gliGetTransformTool().KEY(e) ) return true;
     return false;
 }
 
-//window resize event
+/// window resize event
 void gliWS( int w, int h )
 {
     gliGetTransformTool().setWinSize(w,h);
     gliGetPickBox().setWinSize(w,h);
 }
 
-//camera move event
+/// camera move event
 void gliCM()
 {
     gliGetTransformTool().CM();

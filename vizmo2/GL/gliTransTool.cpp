@@ -8,6 +8,7 @@ using namespace mathtool;
 
 ///////////////////////////////////////////////////////////////////////////////
 // gliTToolBase
+///////////////////////////////////////////////////////////////////////////////
 
 gliObj  gliTToolBase::m_pSObj=NULL;
 Point3d gliTToolBase::m_SObjPrj;
@@ -26,7 +27,9 @@ void gliTToolBase::Draw(void)
     glPushMatrix(); 
     glLoadIdentity();
     glOrtho(0,m_W,0,m_H,-100,100);
-
+//     printf("- Obj Pos: %1f, %1f, %1f\n",m_pSObj->tx(),m_pSObj->ty(),m_pSObj->tz());
+//     printf("- Obj Rot: %1f, %1f, %1f\n",m_pSObj->rx(),m_pSObj->ry(),m_pSObj->rz());
+//     printf("- Obj Prj.: %1f, %1f, %1f\n",m_SObjPrj[0],m_SObjPrj[1],m_SObjPrj[2]);
     Draw(false);
 
     //pop GL_PROJECTION
@@ -35,9 +38,66 @@ void gliTToolBase::Draw(void)
     glMatrixMode(GL_MODELVIEW);
 }
 
-void gliTToolBase::Project2Win(){    
+void gliTToolBase::Project2Win(){   
+
     if( m_pSObj==NULL ) return;
-    double x=m_pSObj->tx(); double y=m_pSObj->ty(); double z=m_pSObj->tz();
+
+    double x, y, z;
+    //cout<<"Calling Project2Win()"<<endl;
+
+    cout<<"+++ Obj Name:"<<m_pSObj->GetObjName()<<endl;
+    if(m_pSObj->GetObjName() == "Node"){
+
+      vector<double> cfg = m_pSObj->GetCfg();
+      cout<<"Vector size::"<<cfg.size()<<endl;
+         x=cfg[0];
+         y=cfg[1];
+         z=cfg[2];
+	 printf("Curr.NODE.Pos. X, Y, Z:: %1f,%1f,%1f\n",
+		x, y, z);
+    }
+
+    else if( m_pSObj->m_PosPoly[0] != -1){
+      printf("Current Position of robot1 X, Y, Z:: %1f,%1f,%1f\n",
+      m_pSObj->m_PosPoly[0],m_pSObj->m_PosPoly[1],m_pSObj->m_PosPoly[2]);
+
+      printf("Current Orient. of robot1 X, Y, Z:: %1f,%1f,%1f\n",
+      m_pSObj->m_RotPoly[0],m_pSObj->m_RotPoly[1],m_pSObj->m_RotPoly[2]);
+
+
+      printf("Current Position of robot2 X, Y, Z:: %1f,%1f,%1f\n",
+      m_pSObj->tx(),m_pSObj->ty(),m_pSObj->tz());
+
+     printf("Current Position of robot2 X, Y, Z:: %1f,%1f,%1f\n",
+      m_pSObj->rx(),m_pSObj->ry(),m_pSObj->rz());
+
+
+      Vector3d v;
+      v = m_pSObj->MatrixToEuler(m_pSObj->getMatrix());
+      double TwoPI=3.1415926535*2.0;
+      printf("MatToEuler1 X, Y, Z:: %2f, %2f, %2f \n", v[0]/TwoPI, v[1]/TwoPI, v[2]/TwoPI);
+
+      x=m_pSObj->tx() + m_pSObj->m_PosPoly[0]; 
+      y=m_pSObj->ty() + m_pSObj->m_PosPoly[1]; 
+      z=m_pSObj->tz() + m_pSObj->m_PosPoly[2];
+    }
+    
+    else{
+      printf("Current Position of object X, Y, Z:: %1f,%1f,%1f\n",
+      m_pSObj->tx(),m_pSObj->ty(),m_pSObj->tz());
+
+      printf("Current Position of poly  X, Y, Z:: %1f,%1f,%1f\n",
+      m_pSObj->m_PosPoly[0],m_pSObj->m_PosPoly[1],m_pSObj->m_PosPoly[2]);
+
+      Vector3d v;
+      v = m_pSObj->MatrixToEuler(m_pSObj->getMatrix());
+      double TwoPI=3.1415926535*2.0;
+      printf("MatToEuler2 X, Y, Z:: %2f, %2f, %2f \n", v[0]/TwoPI, v[1]/TwoPI, v[2]/TwoPI);
+
+
+      x=m_pSObj->tx(); y=m_pSObj->ty(); z=m_pSObj->tz(); 
+    }
+    
     Point3d pts[4]={Point3d(x,y,z),Point3d(x+0.1,y,z),
                     Point3d(x,y+0.1,z),Point3d(x,y,z+0.1)};
     gliProject2Window(pts,4);
@@ -45,12 +105,15 @@ void gliTToolBase::Project2Win(){
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// class gliMoveTool
+///////////////////////////////////////////////////////////////////////////////
 
 void gliMoveTool::Draw(bool bSelect)
 {
     glDisable(GL_LIGHTING);
     //draw reference axis
     double ox=m_SObjPrj[0]; double oy=m_SObjPrj[1];
+    //printf("============\nox, oy: %1f, %1f\n", ox, oy);
     Point3d x_dir=m_SObjPrj+(m_XPrj-m_SObjPrj).normalize()*50;
     Point3d y_dir=m_SObjPrj+(m_YPrj-m_SObjPrj).normalize()*50;
     Point3d z_dir=m_SObjPrj+(m_ZPrj-m_SObjPrj).normalize()*50;
@@ -77,6 +140,7 @@ void gliMoveTool::Draw(bool bSelect)
     if( !bSelect ) glColor3f(1,0,0); 
     glVertex2d(ox,oy);
     glVertex2d(x_dir[0],x_dir[1]);
+    //printf("X AXE: %1f, %1f\n",x_dir[0],x_dir[1] );
     //glVertex2d(m_XPrj[0],m_XPrj[1]);
     glEnd();
 
@@ -86,6 +150,7 @@ void gliMoveTool::Draw(bool bSelect)
     if( !bSelect ) glColor3f(0,1,0);
     glVertex2d(ox,oy);
     glVertex2d(y_dir[0],y_dir[1]);
+    //printf("Y AXE: %1f, %1f\n",y_dir[0],y_dir[1] );
     //glVertex2d(m_YPrj[0],m_YPrj[1]);
     glEnd();
 
@@ -95,6 +160,7 @@ void gliMoveTool::Draw(bool bSelect)
     if( !bSelect ) glColor3f(0,0,1);
     glVertex2d(ox,oy);
     glVertex2d(z_dir[0],z_dir[1]);
+    //printf("Z AXE: %1f, %1f\n=================\n",z_dir[0],z_dir[1] );
     //glVertex2d(m_ZPrj[0],m_ZPrj[1]);
     glEnd();
 
@@ -113,7 +179,7 @@ void gliMoveTool::Draw(bool bSelect)
 }
 
 
-//Handle Mouse Movement
+//Handle Mouse
 bool gliMoveTool::MP( QMouseEvent * e ) //mouse button pressed
 {
     m_SelType=NON;
@@ -129,7 +195,7 @@ bool gliMoveTool::MP( QMouseEvent * e ) //mouse button pressed
     return false;
 }
 
-bool gliMoveTool::MR( QMouseEvent * e ) //mouse button pressed
+bool gliMoveTool::MR( QMouseEvent * e ) //mouse button released
 {
     SelType oldSelT=m_SelType; m_SelType=NON;
     return oldSelT!=NON;
@@ -178,7 +244,7 @@ bool gliMoveTool::Select(int x, int y)
     glInitNames();
     glPushName(0);
     
-    // change view volum
+    // change view volume
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
@@ -293,7 +359,7 @@ bool gliScaleTool::MP( QMouseEvent * e ) //mouse button pressed
     return false;
 }
 
-bool gliScaleTool::MR( QMouseEvent * e ) //mouse button pressed
+bool gliScaleTool::MR( QMouseEvent * e ) //mouse button released
 {
     SelType oldSelT=m_SelType; m_SelType=NON;
     return oldSelT!=NON;
@@ -366,6 +432,8 @@ bool gliScaleTool::Select(int x, int y)
 
 ///////////////////////////////////////////////////////////////////////////////
 // class gliRotateTool
+///////////////////////////////////////////////////////////////////////////////
+
 void gliRotateTool::Draw(bool bSelect)
 {
     glDisable(GL_LIGHTING);
@@ -448,7 +516,7 @@ Point3d gliRotateTool::UnProj2World
     return p;
 }
 
-bool gliRotateTool::MP( QMouseEvent * e ) //mouse button
+bool gliRotateTool::MP( QMouseEvent * e ) //mouse button pressed
 {
     //SelType oldSelT=m_SelType; m_SelType=NON;
     if( m_pSObj==NULL ) return false; 
@@ -487,7 +555,7 @@ bool gliRotateTool::MP( QMouseEvent * e ) //mouse button
     return false;
 }
 
-bool gliRotateTool::MR( QMouseEvent * e ) //mouse button
+bool gliRotateTool::MR( QMouseEvent * e ) //mouse button released
 {
     SelType oldSelT=m_SelType; m_SelType=NON;
     return oldSelT!=NON;
@@ -522,14 +590,33 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
     Vector3d tmp=prj-m_SObjPosC;
     m_CurAngle=ComputAngle(tmp,v1,v2);
 
+    cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
+    cout<<"AXIS:: "<<axis[0]<<", "<<axis[1]<<", "<<axis[2]<<endl;
+    cout<<"m_LAC[1] "<<v1[0]<<", "<<v1[1]<<", "<<v1[2]<<endl;
+    cout<<"m_LAC[2] "<<v2[0]<<", "<<v2[1]<<", "<<v2[2]<<endl;
+    printf("m_CurAngle: %2f\n", m_CurAngle);
+    cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
+
     double da=(m_CurAngle-m_HitAngle); //displacement angle
     //clamp between PI and -PI
     if( da>PI ) da-=PI2; 
     else if( da<-PI ) da+=PI2;
 
+    printf("AngleToComputeQuaternion: %2f\n", da);
+    cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
+
     //compute new q
     Quaternion q(cos(da/2),sin(da/2)*axis);
     m_pSObj->q((q*m_SObjQC).normalize());
+
+    //update rotation variables for this body
+    //m_pSObj->Quaternion2Euler();  
+    Matrix3x3 m;
+    m = m_pSObj->getMatrix();
+    Vector3d v;
+    v = m_pSObj->MatrixToEuler(m);
+    double TwoPI=3.1415926535*2.0;
+    printf("GLIMatToEuler X, Y, Z:: %2f, %2f, %2f \n", v[0]/TwoPI, v[1]/TwoPI, v[2]/TwoPI);
 
     ComputLocalAxis();
     ComputAngles();
@@ -640,13 +727,13 @@ void gliTransformTool::Draw(void)
     if( m_pTool!=NULL ) m_pTool->Draw();
 }
 
-bool gliTransformTool::MP( QMouseEvent * e ) //mouse button
+bool gliTransformTool::MP( QMouseEvent * e ) //mouse button pressed
 {
     if( m_pTool!=NULL ) return m_pTool->MP(e);
     return false;
 }
 
-bool gliTransformTool::MR( QMouseEvent * e ) //mouse button
+bool gliTransformTool::MR( QMouseEvent * e ) //mouse button released
 {
     if( m_pTool!=NULL ) return m_pTool->MR(e);
     return false;
