@@ -16,16 +16,17 @@ public:
     gliTransform(){ 
         m_Pos[0]=m_Pos[1]=m_Pos[2]=
         m_Rot[0]=m_Rot[1]=m_Rot[2]=0;
-		m_Scale[0]=m_Scale[1]=m_Scale[2]=1;
+	m_Scale[0]=m_Scale[1]=m_Scale[2]=1;
     }
     
     void glTransform();
     void Euiler2Quaternion();
+    void glScale();
 
     //Access
     
     ///Translation
-    ///@{
+    //@{
     double& tx(){ return m_Pos[0]; }
     double& ty(){ return m_Pos[1]; }
     double& tz(){ return m_Pos[2]; }
@@ -33,7 +34,7 @@ public:
     const double& ty() const { return m_Pos[1]; }
     const double& tz() const { return m_Pos[2]; }
     ///@}
-    
+
     ///Sacle
     ///@{
     double& sx(){ return m_Scale[0]; }
@@ -52,7 +53,7 @@ public:
     const double& rx() const { return m_Rot[0]; }
     const double& ry() const { return m_Rot[1]; }
     const double& rz() const { return m_Rot[2]; }
-    ///@}
+    //@}
     
     //Get&Set Quaternion
     ///@{

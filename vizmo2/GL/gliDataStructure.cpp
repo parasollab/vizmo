@@ -16,7 +16,7 @@ void gliTransform::glTransform(){
     double s_2=v.norm();
     double t=atan2(s_2,c_2)*2*r2a;
     glRotated(t,v[0],v[1],v[2]);
-	glScaled(m_Scale[0],m_Scale[1],m_Scale[2]);
+    glScaled(m_Scale[0],m_Scale[1],m_Scale[2]);
 }
 
 void gliTransform::Euiler2Quaternion()
@@ -31,3 +31,6 @@ void gliTransform::Euiler2Quaternion()
 	q(nq.normalize()); //set new q
 }
 
+void gliTransform::glScale(){
+  glScaled(m_Scale[0],m_Scale[1],m_Scale[2]);
+}
