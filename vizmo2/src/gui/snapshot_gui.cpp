@@ -41,6 +41,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //Icons
 #include "icon/tapes.xpm"
+#include "icon/video_camera2.xpm"
+#include "icon/Camera.xpm"
 
 inline QStringList& Filters()
 {
@@ -106,7 +108,11 @@ void VizmoScreenShotGUI::reset() //reset every thing
     if( animation!=NULL ){
         //disable/enable this toolbar
         if( GetVizmo().GetPathSize()==0 ) animation->setEnabled(false);
-        else animation->setEnabled(true);
+        else{
+	  animation->setEnabled(true);
+	  takeBoxPicture->setEnabled(true);
+	  takePicture->setEnabled(true);
+	}
     }
 }
 
@@ -119,16 +125,17 @@ bool VizmoScreenShotGUI::CreateGUI()
 
 void VizmoScreenShotGUI::CreateActions()
 {
-    takePicture= new QToolButton(QPixmap(tapes), "Picture", "Take a snap shot of whole window", this,
+    takePicture= new QToolButton(QPixmap(Camera), "Picture", "Take a snap shot of whole window", this,
                                  SLOT(takeSnapshot()), this, "picture");
     takePicture->setUsesTextLabel ( true );
+    takePicture->setEnabled(false);
     
     takeBoxPicture= new QToolButton(QPixmap(tapes), "Crop", "Take a snap shot of the selected region", this,
                                     SLOT(takeBoxSnapshot()), this, "selected");
     takeBoxPicture->setUsesTextLabel ( true );
     takeBoxPicture->setToggleButton(true);
-    
-    animation= new QToolButton(QPixmap(tapes), "Movie", "Save Image Sequence", this,
+    takeBoxPicture->setEnabled(false);
+    animation= new QToolButton(QPixmap(video_camera2), "Movie", "Save Image Sequence", this,
                                SLOT(takeMoviePictures()), this, "movie");
     animation->setEnabled(false);
 

@@ -21,6 +21,8 @@ class VizmoItemSelectionGUI;
 class VizmoAttributeSelectionGUI;
 class VizmoRoadmapNodesShapeGUI;
 
+class VizmoRoadmapColorGUI;
+
 ///////////////////////////////////////////////////////////////////////////////
 // std Headers
 #include <vector>
@@ -81,7 +83,9 @@ private:
     void CreateScreenCapture(); // Create the screenshot gui
     void CreateObjectSelection(); // create object selection
     void CreateAttributeSelection(); // create object selection
-    void CreateShapeSelection(); // Create listbox selection to change   
+    void CreateShapeSelection(); // Create listbox selection to change  
+
+    void CreateColorSelection(); //Create color box for CC's 
 
     QAction *showHideRoadmapAction, 
             *showHidePathAction, 
@@ -99,6 +103,7 @@ private:
     VizmoAttributeSelectionGUI *attributeSelection;
  
     VizmoRoadmapNodesShapeGUI *shapeSelection;
+    VizmoRoadmapColorGUI *colorSelection;  //for CC's
 
     vector<string> m_Args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.

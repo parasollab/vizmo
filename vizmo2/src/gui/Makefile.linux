@@ -21,6 +21,7 @@ HEADERS = gui.h \
 		GL_Dump.h \
 		itemselection_gui.h \
 		roadmapShape.h \
+		roadmapColor.h \
 		_gui.h
 
 SOURCES = gui.cpp \
@@ -31,7 +32,8 @@ SOURCES = gui.cpp \
 		GL_Dump.cpp \
 		itemselection_gui.cpp \
 		roadmapShape.cpp \
-		attributeselectio_gui.cpp
+		attributeselectio_gui.cpp \
+		roadmapColor.cpp
 
 OBJECTS = gui.o \
 		main_win.o \
@@ -41,13 +43,15 @@ OBJECTS = gui.o \
 		GL_Dump.o \
 		itemselection_gui.o \
 		roadmapShape.o \
-		attributeselectio_gui.o
+		attributeselectio_gui.o \
+		roadmapColor.o
 	
 FORMS = 
 UICDECLS = 
 UICIMPLS = 
-SRCMOC   = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp moc_itemselection_gui.cpp moc_attributeselectio_gui.cpp moc_roadmapShape.cpp
-OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o moc_attributeselectio_gui.o moc_roadmapShape.o
+SRCMOC   = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp moc_itemselection_gui.cpp moc_attributeselectio_gui.cpp moc_roadmapShape.cpp moc_roadmapColor.cpp
+OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o moc_attributeselectio_gui.o moc_roadmapShape.o moc_roadmapColor.o
+
 DIST	   = 
 QMAKE_TARGET = gui
 DESTDIR  = 
@@ -85,6 +89,43 @@ FORCE:
 
 ####### Compile
 
+gui.o: gui.cpp gui.h \
+		main_win.h \
+	
+
+main_win.o: main_win.cpp main_win.h \
+		scene_win.h \
+		animation_gui.h \
+		itemselection_gui.h \
+		roadmapShape.h \
+		roadmapColor.h \
+		attributeselectio_gui.h \
+		snapshot_gui.h \
+		GL_Dump.h \
+		icon/Eye.xpm \
+		icon/Folder.xpm \
+		icon/Pen.xpm \
+		icon/Camera.xpm \
+		icon/Board.xpm \
+		icon/Flag.xpm
+
+scene_win.o: scene_win.cpp scene_win.h \
+		main_win.h
+
+animation_gui.o: animation_gui.cpp animation_gui.h 
+
+itemselection_gui.o: itemselection_gui.cpp itemselection_gui.h
+
+roadmapShape.o: roadmapShape.cpp roadmapShape.h
+
+roadmapColor.o: roadmapColor.cpp roadmapColor.h
+
+attributeselectio_gui.o: attributeselectio_gui.cpp attributeselectio_gui.h
+
+snapshot_gui.o: snapshot_gui.cpp snapshot_gui.h GL_Dump.h
+
+GL_Dump.h: GL_Dump.cpp GL_Dump.h
+
 moc_main_win.o: moc_main_win.cpp main_win.h 
 
 moc_scene_win.o: moc_scene_win.cpp scene_win.h 
@@ -94,6 +135,8 @@ moc_animation_gui.o: moc_animation_gui.cpp animation_gui.h
 moc_itemselection_gui.o: moc_itemselection_gui.cpp itemselection_gui.h
 
 moc_roadmapShape.o: moc_roadmapShape.cpp roadmapShape.h
+
+moc_roadmapColor.o: moc_roadmapColor.cpp roadmapColor.h
 
 moc_attributeselectio_gui.o: moc_attributeselectio_gui.cpp attributeselectio_gui.h
 
@@ -113,6 +156,9 @@ moc_itemselection_gui.cpp: $(MOC) itemselection_gui.h
 
 moc_roadmapShape.cpp: $(MOC) roadmapShape.h
 	$(MOC) roadmapShape.h -o moc_roadmapShape.cpp
+
+moc_roadmapColor.cpp: $(MOC) roadmapColor.h
+	$(MOC) roadmapColor.h -o moc_roadmapColor.cpp
 
 moc_attributeselectio_gui.cpp: $(MOC) attributeselectio_gui.h
 	$(MOC) attributeselectio_gui.h -o moc_attributeselectio_gui.cpp

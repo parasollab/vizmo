@@ -8,15 +8,27 @@
 
 VizmoItemSelectionGUI::VizmoItemSelectionGUI(QMainWindow *parent,char *name)
 :QToolBar("ItemSelection",parent,QMainWindow::Left,true,name)
+//VizmoItemSelectionGUI::VizmoItemSelectionGUI(QWidget * parent, char * name)
+//:QToolBar("ItemSelection",QMainWindow::Left, parent,true,name)
 {
+
+
+  //QSplitter *split = new QSplitter( parent);
+
     setLabel("Outline View");
     maxNoModels=0;
     listview=NULL;
     listview=new QListView(this,"");
+
+    //listview=new QListView(split, "");
+
     listview->addColumn("Objects");
     listview->setColumnWidthMode(0,QListView::Maximum);
     listview->setRootIsDecorated( TRUE );
     listview->setMinimumHeight(parent->height()*2/3);
+
+    listview->setResizeMode(QListView::AllColumns);
+
     connect(listview,SIGNAL(selectionChanged(QListViewItem *)),
             this,SLOT(selectionChanged(QListViewItem *)));
     setEnabled(false);

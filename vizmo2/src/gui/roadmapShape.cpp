@@ -13,16 +13,17 @@
 #include <qtoolbutton.h>
 #include <qwidget.h>
 #include <qinputdialog.h>
+#include <qcolordialog.h> 
 
 ///////////////////////////////////////////////////////////////////////////////
 //Icons
-#include "icon/tapes.xpm"
+#include "icon/shapes1.xpm"
 
 VizmoRoadmapNodesShapeGUI::VizmoRoadmapNodesShapeGUI(QMainWindow *parent,char *name)
 :QToolBar("ChangeNodesShape",parent,QMainWindow::Right,true,name){
 
     QToolButton * nodesize= new QToolButton
-    (QPixmap(tapes), "Node Size", "Change roadmap node size", this,
+    (QPixmap(shapes1), "Node Size", "Change roadmap node size", this,
      SLOT(changeSize()), this, "node");
     nodesize->setUsesTextLabel ( true );
 
@@ -36,6 +37,7 @@ VizmoRoadmapNodesShapeGUI::VizmoRoadmapNodesShapeGUI(QMainWindow *parent,char *n
     connect(l,SIGNAL(clicked(QListBoxItem *)),this,SLOT(getSelectedItem()));
     setEnabled(false);
     size=0.5;
+
 }
 
 void VizmoRoadmapNodesShapeGUI::reset()
@@ -55,7 +57,7 @@ void VizmoRoadmapNodesShapeGUI::getSelectedItem()
             s = (string)item->text().ascii();
     }
     GetVizmo().ChangeNodesShape(s);
-    emit callUpdate(); //set an updat event
+    emit callUpdate(); //set an update event
 }
 
 
@@ -63,8 +65,8 @@ void VizmoRoadmapNodesShapeGUI::changeSize(){
     
     bool ok = false;
     size = QInputDialog::getDouble(tr("Change Roadmap Node Size"), 
-                                       tr("Enter a positive number scale the nodes"),
-                                       size, 0, 1, (int)1e10,  &ok,  this);
+                 tr("Enter a positive number to scale the nodes"),
+                 size, 0, 1, 2,  &ok,  this);
     if(ok){
         string shape;
         for ( unsigned int i = 0; i < l->count(); i++ ){
@@ -76,4 +78,7 @@ void VizmoRoadmapNodesShapeGUI::changeSize(){
         GetVizmo().ChangeNodesSize(size, shape);
         emit callUpdate(); //set an updat event
     }
+
 }
+
+

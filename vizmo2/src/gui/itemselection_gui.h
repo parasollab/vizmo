@@ -19,6 +19,7 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qlistview.h> 
+#include <qsplitter.h> 
 
 class QAction;
 class QLineEdit;
@@ -47,9 +48,13 @@ class VizmoItemSelectionGUI: public QToolBar
 public:
     
     VizmoItemSelectionGUI(QMainWindow * parent=NULL,char *name=NULL);
+
+    //VizmoItemSelectionGUI(QWidget * parent, char * name=NULL);
+
     void reset();
     void fillTree(vector<PlumObject*>& objs);
-	VizmoListViewItem * createItem(VizmoListViewItem * p, CGLModel * model);
+    VizmoListViewItem * createItem(VizmoListViewItem * p, CGLModel * model);
+
 public slots:
 	void select();
 
@@ -62,11 +67,12 @@ private slots:
 
 private:
 
-	void clear();
+ void clear();
+ 
+ QListView * listview;
+ int maxNoModels;
+ list<VizmoListViewItem*> items;
 
-    QListView * listview;
-    int maxNoModels;
-	list<VizmoListViewItem*> items;
 };
 
 
