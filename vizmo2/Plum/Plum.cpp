@@ -52,10 +52,14 @@ namespace plum{
         /////////////////////////////////////////////////////
         int objSize=m_ObjList.size();
         for( int iCM=0; iCM<objSize; iCM++ ){
+
             CGLModel * model=m_ObjList[iCM]->getModel();
             if( model==NULL ) continue;
-            if( model->BuildModels()==false ) return CPlumState::BUILD_CLIENT_MODEL_ERROR;
-        }
+            if( model->BuildModels()==false ){
+	      cout<<"Couldn't build model..."<<endl;
+	      return CPlumState::BUILD_CLIENT_MODEL_ERROR;
+	    }
+       }
         
         return CPlumState::BUILD_MODEL_OK;
     }
@@ -96,7 +100,7 @@ namespace plum{
 
         // change view volum
         glMatrixMode( GL_PROJECTION );
-		double pm[16]; //currewnt projection matrix
+		double pm[16]; //current projection matrix
 		glGetDoublev(GL_PROJECTION_MATRIX,pm);
 
         glPushMatrix();
@@ -130,7 +134,7 @@ namespace plum{
     void CPlum::SearchSelectedItem(int hits, void * buffer, bool all)
     {
         /////////////////////////////////////////////////////
-        // unselect every thing first
+        // unselect everything first
         m_SelectedItem.clear();
 
         //init local data
