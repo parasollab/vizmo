@@ -13,6 +13,10 @@
 class QAction;
 
 class VizmoAnimationGUI;
+class VizmoScreenShotGUI;
+class VizmoItemSelectionGUI;
+class VizmoAttributeSelectionGUI;
+
 ///////////////////////////////////////////////////////////////////////////////
 // std Headers
 #include <vector>
@@ -48,7 +52,7 @@ private slots:
     void reset();
     void showmap();       //show roadmap
     void showpath();      //show path frame
-    void showstartgoal(); //show start and goal position
+    void showstartgoal(); //show start and goal positionx
     void showBBox();      //show Bounding Box
     void about();         //about dialog
     void aboutQt();       //about Qt dialog
@@ -61,6 +65,8 @@ private slots:
     void setWire();       // turn object into wire mode
     void setInvisible();  // turn the object invisible
     void updateScreen();  // redraw GL scene
+    void getOpenglSize(int *,int *);
+   
 
 private:
   
@@ -68,6 +74,9 @@ private:
     void SetTips();         //Set Tip/Info about actions.
     void CreateToolbar();   //Create Qt Toolbar
     void CreateMenubar();   //Create Qt Menu
+    void CreateScreenCapture(); // Create the screenshot gui
+    void CreateObjectSelection(); // create object selection
+    void CreateAttributeSelection(); // create object selection
     
 
     QAction *showHideRoadmapAction, 
@@ -81,6 +90,9 @@ private:
      
 
     VizmoAnimationGUI *animationGUI;
+    VizmoScreenShotGUI *screenShotGUI;
+    VizmoItemSelectionGUI *objectSelection;
+    VizmoAttributeSelectionGUI *attributeSelection;
 
     vector<string> m_Args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.

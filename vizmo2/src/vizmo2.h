@@ -99,6 +99,11 @@ public:
     int getTimer();
      */
 
+     /* functions for the tree view display */
+      int GetNoEnvObjects();
+      const CMultiBodyInfo * GetMultiBodyInfo(string &) const;
+      
+
     //////////////////////////////////////////////////////////////////////
     // Roadmap Related Function
     void ShowRoadMap( bool bShow=true );

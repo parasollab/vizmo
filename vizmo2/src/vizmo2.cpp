@@ -29,7 +29,7 @@ using namespace plum;
 vizmo g_vizmo2;
 vizmo& GetVizmo(){ return g_vizmo2; }
 
-//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // vizmo_obj
 
 void vizmo_obj::Clean(){
@@ -257,6 +257,29 @@ int vizmo::GetPathSize(){
 	CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
 	return ploader->GetPathSize();
 }
+
+
+int vizmo::GetNoEnvObjects(){
+  if(m_obj.m_Env==NULL) return 0;
+  CEnvLoader *envLoader=(CEnvLoader *)m_obj.m_Env->getLoader();
+  return envLoader->GetNumberOfMultiBody();
+
+
+}
+
+const CMultiBodyInfo *vizmo::GetMultiBodyInfo(string &dirstring) const{
+  if(m_obj.m_Env==NULL) return 0;
+   CEnvLoader *envLoader=(CEnvLoader *)m_obj.m_Env->getLoader();
+   dirstring=envLoader->getModelDirString();
+  return envLoader->GetMultiBodyInfo();
+  
+
+
+}
+
+
+
+
 /*
 void vizmo::GetConfiguration(int index)
 {

@@ -20,6 +20,8 @@ public:
     // BSS
     vector<gliObj> *objs2;
 
+    void getWidthHeight(int *,int *);
+
     double R, G, B;
 
 signals:
@@ -36,6 +38,13 @@ protected:
     void mouseMoveEvent ( QMouseEvent * );
     void keyPressEvent ( QKeyEvent * e );
 
+private slots:
+      
+      void togleSlectionSlot();
+      void getBoxDimensions(int *,int *,int *,int *); 
+      void simulateMouseUpSlot();
+
+
 private:
 
     void SetLight();
@@ -45,6 +54,10 @@ private:
         static GLfloat light_position2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
         glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
     }
+    
+
+    bool takingSnapShot;
+    
 };
 
 

@@ -31,9 +31,16 @@ VizmoAnimationGUI::VizmoAnimationGUI(QMainWindow *parent,char *name)
 :QToolBar("Animation",parent,QMainWindow::Bottom,true,name)
 
 {
+
+ 
+   this->setLabel("Vizmo animation");
+   
+
+
 	//  this->setLabel("Vizmo animation");
 	CreateGUI();
 	setEnabled(false);
+
 
 	// Initialize the timer
 	QTtimer=new QTimer(this);

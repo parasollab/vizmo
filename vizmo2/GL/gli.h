@@ -15,7 +15,7 @@ void gliDraw();
 bool gliMP( QMouseEvent * e );
 
 //mouse button release event, return true if handled
-bool gliMR( QMouseEvent * e );
+bool gliMR( QMouseEvent * e,bool );
 
 //mouse movement evenet, return true if handled
 bool gliMM( QMouseEvent * e );
@@ -28,6 +28,13 @@ void gliWS( int w, int h );
 
 //camera move event
 void gliCM();
+
+// Get the picking box dimensions
+bool gliPickBoxDim(int *xOffset,int *yOffset,int *w,int *h);
+
+// simulate mouse up
+void gliSimMouseUp();
+
 
 //set select method
 class gliBox;

@@ -23,7 +23,7 @@ void gliDraw(){
 
 bool gliMP(QMouseEvent * e)
 {
-    if( gliGetCameraFactory().getCurrentCamera()->MP(e) ){
+   if( gliGetCameraFactory().getCurrentCamera()->MP(e) ){
         gliCM(); //camera moved 
         return true;
     }
@@ -32,7 +32,80 @@ bool gliMP(QMouseEvent * e)
     return false; //need further process
 }
 
-bool gliMR(QMouseEvent * e)
+
+
+
+bool gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h)
+{
+  /*
+
+    P4 --------------- P3
+    |                   | 
+    |                   |
+    |                   | 
+    |                   |
+    |                   |
+    |                   |
+    P1 --------------- P2
+
+   */
+
+
+
+  
+  gliPickBox& pick=gliGetPickBox();
+
+
+
+  const gliBox box=pick.getPickBox();
+
+  
+
+  // handle all the ways the box can be drawn
+
+  if(box.l<box.r)
+    *xOffset=box.l;
+  else
+    *xOffset=box.r;
+  
+  if(box.b<box.t)
+    *yOffset=box.b;
+  else
+    *yOffset=box.t;
+
+  *w=(box.r-box.l);
+  *h=(box.b-box.t);
+
+  if(*w<0)
+    *w=-*w;
+  
+  if(*h<0)
+    *h=-*h;
+
+
+  
+  // Dummy
+  //QMouseEvent *e;
+
+  //  pick.MR(e); /* simulate pick mouse */  
+
+}
+  
+void gliSimMouseUp()
+{
+
+  gliPickBox& pick=gliGetPickBox();
+  // Dummy
+  QMouseEvent *e;
+
+  pick.MR(e); /* simulate pick mouse */  
+  
+  // delete box;
+
+}
+
+
+bool gliMR(QMouseEvent * e,bool takingSnapShot)
 {
     if( gliGetCameraFactory().getCurrentCamera()->MR(e) ){
         gliCM(); //camera moved
@@ -42,16 +115,23 @@ bool gliMR(QMouseEvent * e)
 
     //select
     gliPickBox& pick=gliGetPickBox();
-    if( pick.isPicking() ){
-        pick.MR(e);
-        if( g_pick!=NULL ){
+    
+    //BSS
+    if(!takingSnapShot)
+      {
+	if( pick.isPicking() ){
+	  pick.MR(e);
+	  if( g_pick!=NULL ){
             vector<gliObj>& objs=gliGetPickedSceneObjs();
             objs.clear();
             vector<gliObj> newobjs=g_pick(pick.getPickBox());
             objs.insert(objs.end(),newobjs.begin(),newobjs.end());
             gliGetTransformTool().CheckSelectObject();
-        }
-    }
+	  }
+	}
+      }
+   
+    
 
     return false; //need further process
 }

@@ -33,7 +33,7 @@
  INCLUDE = -I. -I/usr/local/include $(QT_INC) $(PLUM_INCL) $(GLI_INCL)
  LIB = $(LIB_DIR) $(QT_LIBS) $(GLI_LIB) $(GL_LIB) $(X_LIB) $(PLUM_LIB)
 
- CFLAGS     = $(OPTS) $(INCLUDE)
+ CFLAGS     = $(OPTS) $(INCLUDE) -g
  CXXFLAGS   = $(CFLAGS)
 
 #--------------------------------------------------------------------
@@ -56,7 +56,7 @@ OBJS =  main.o vizmo2.o
 EnvOBJ = ${Env_DIR}/BoundingBoxModel.o  ${Env_DIR}/BoundingBoxParser.o  ${Env_DIR}/PathLoader.o  \
          ${Env_DIR}/PathModel.o  ${Env_DIR}/QueryLoader.o \
          ${Env_DIR}/QueryModel.o  ${Env_DIR}/Robot.o
-GUIOBJ = ${GUI_DIR}/gui.o  ${GUI_DIR}/main_win.o  ${GUI_DIR}/scene_win.o ${GUI_DIR}/moc_main_win.o ${GUI_DIR}/moc_scene_win.o $(GUI_DIR)/animation_gui.o $(GUI_DIR)/moc_animation_gui.o
+GUIOBJ = ${GUI_DIR}/gui.o  ${GUI_DIR}/main_win.o  ${GUI_DIR}/scene_win.o ${GUI_DIR}/moc_main_win.o ${GUI_DIR}/moc_scene_win.o $(GUI_DIR)/animation_gui.o $(GUI_DIR)/moc_animation_gui.o ${GUI_DIR}/snapshot_gui.o ${GUI_DIR}/moc_snapshot_gui.o ${GUI_DIR}/itemselection_gui.o ${GUI_DIR}/moc_itemselection_gui.o ${GUI_DIR}/attributeselectio_gui.o ${GUI_DIR}/moc_attributeselectio_gui.o
 
 #--------------------------------------------------------------------
 

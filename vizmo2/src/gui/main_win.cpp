@@ -2,6 +2,9 @@
 #include "main_win.h"  
 #include "scene_win.h"
 #include "animation_gui.h"
+#include "snapshot_gui.h"
+#include "itemselection_gui.h"
+#include "attributeselectio_gui.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //Include Qt Headers
@@ -76,9 +79,11 @@ bool VizmoMainWin::InitVizmo()
 
 	//if path is found
 	animationGUI->reset();
+	objectSelection->reset();
 	
     return true;
 }
+
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -87,13 +92,18 @@ bool VizmoMainWin::InitVizmo()
 /////////////////////////////////////////////////////////////////////
 bool VizmoMainWin::CreateGUI()
 {
-	animationGUI=new VizmoAnimationGUI(this);    
+    animationGUI=new VizmoAnimationGUI(this);    
     connect(animationGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
-	
+  
     CreateActions();
     SetTips();
     CreateToolbar();
     CreateMenubar();
+    CreateScreenCapture();
+    CreateObjectSelection();
+    CreateAttributeSelection();
+    
+
 
     return true;
 }
@@ -195,6 +205,7 @@ void VizmoMainWin::setInvisible()
 
 void VizmoMainWin::refreshEnv()
 {
+
 	// GetVizmo().InitVizmoObject(files);
 	GetVizmo().RefreshEnv();
 	m_GL->updateGL();
@@ -204,6 +215,13 @@ void VizmoMainWin::updateScreen()
 {
 	m_GL->updateGL();
 }
+
+void VizmoMainWin::getOpenglSize(int *w,int *h)
+{
+  m_GL->getWidthHeight(w,h);
+}
+
+
 
 void VizmoMainWin::about()
 {
@@ -232,7 +250,7 @@ void VizmoMainWin::notimp()
 		"This function will be implemented very soon!!!!",QMessageBox::Ok,QMessageBox::NoButton);
 }
 
-#include <GL/glut.h>
+
 void VizmoMainWin::changecolor(){
 	
 	QColor color = QColorDialog::getColor( white, this, "color dialog" );
@@ -297,6 +315,7 @@ bool VizmoMainWin::CreateActions()
 	
     changeColorAction = new QAction("ColorPalette", QPixmap( pallet ), " Color Pale&tte", CTRL+Key_T, this, "color palette");
     connect(changeColorAction, SIGNAL(activated()), this, SLOT(changecolor()));
+
 	
 	
     /*  delete
@@ -308,6 +327,7 @@ bool VizmoMainWin::CreateActions()
 	  //  pausePathAction=new QAction("Pause",QPixmap(Board),"&Pause",CTRL+Key_M,this,"Pause");
     */
 	
+
     return true;
 }
 
@@ -335,6 +355,7 @@ void VizmoMainWin::SetTips()
 	
     changeColorAction->setWhatsThis(changeColorText);
 }
+
 
 void VizmoMainWin::CreateToolbar()
 {
@@ -468,10 +489,28 @@ void VizmoMainWin::CreateMenubar()
 
 
 
+void VizmoMainWin::CreateScreenCapture()
+{
+  
+  screenShotGUI=new VizmoScreenShotGUI(this,"Screen Shot");
+  connect(screenShotGUI,SIGNAL(getScreenSize(int *,int *)),this,SLOT(getOpenglSize(int *,int *)));
+  connect(screenShotGUI,SIGNAL(togleSelectionSignal()),m_GL,SLOT(togleSlectionSlot()));
+  connect(screenShotGUI,SIGNAL(getBoxDimensions(int *,int *,int *,int *)),m_GL,SLOT(getBoxDimensions(int *,int *,int *,int *)));
+connect(screenShotGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
+
+}
+
+void VizmoMainWin::CreateObjectSelection()
+{
+  objectSelection= new VizmoItemSelectionGUI(this,"ObjectSelection");
+  //connect(objectSelectionGUI,SIGNAL(clicked
+}
 
 
-
-
+void VizmoMainWin::CreateAttributeSelection()
+{
+  attributeSelection= new VizmoAttributeSelectionGUI(this,"AttributeSelection");
+}
 
 
 

@@ -59,20 +59,35 @@ OBJECTS_DIR = ./
 HEADERS = gui.h \
 		main_win.h \
 		scene_win.h \
-		animation_gui.h
+		animation_gui.h \
+		snapshot_gui.h \
+		GL_Dump.h \
+		itemselection_gui.h \
+		_gui.h
+
 SOURCES = gui.cpp \
 		main_win.cpp \
 		scene_win.cpp \
-		animation_gui.cpp
+		animation_gui.cpp \
+		snapshot_gui.cpp \
+		GL_Dump.cpp \
+		itemselection_gui.cpp \
+		attributeselectio_gui.cpp
+
 OBJECTS = gui.o \
 		main_win.o \
 		scene_win.o \
-		animation_gui.o
+		animation_gui.o \
+		snapshot_gui.o \
+		GL_Dump.o \
+		itemselection_gui.o \
+		attributeselectio_gui.o
+	
 FORMS = 
 UICDECLS = 
 UICIMPLS = 
-SRCMOC   = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp
-OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o
+SRCMOC   = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp moc_itemselection_gui.cpp moc_attributeselectio.cpp
+OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o moc_attributeselectio_gui.o
 DIST	   = 
 QMAKE_TARGET = gui
 DESTDIR  = 
@@ -130,11 +145,15 @@ FORCE:
 
 gui.o: gui.cpp gui.h \
 		main_win.h \
-		animation_gui.h
+	
 
 main_win.o: main_win.cpp main_win.h \
 		scene_win.h \
 		animation_gui.h \
+		itemselection_gui.h \
+		attributeselectio_gui.h \
+		snapshot_gui.h \
+		GL_Dump.h \
 		icon/Eye.xpm \
 		icon/Folder.xpm \
 		icon/Pen.xpm \
@@ -145,13 +164,27 @@ main_win.o: main_win.cpp main_win.h \
 scene_win.o: scene_win.cpp scene_win.h \
 		main_win.h
 
-animation_gui.o: animation_gui.cpp animation_gui.h  
+animation_gui.o: animation_gui.cpp animation_gui.h 
+
+itemselection_gui.o: itemselection_gui.cpp itemselection_gui.h
+
+attributeselectio_gui.o: attributeselectio_gui.cpp attributeselectio_gui.h
+
+snapshot_gui.o: snapshot_gui.cpp snapshot_gui.h GL_Dump.h
+
+GL_Dump.h: GL_Dump.cpp GL_Dump.h
 
 moc_main_win.o: moc_main_win.cpp main_win.h 
 
 moc_scene_win.o: moc_scene_win.cpp scene_win.h 
 
 moc_animation_gui.o: moc_animation_gui.cpp animation_gui.h
+
+moc_itemselection_gui.o: moc_itemselection_gui.cpp itemselection_gui.h
+
+moc_attributeselectio_gui.o: moc_attributeselectio_gui.cpp attributeselectio_gui.h
+
+moc_snapshot_gui.o: moc_snapshot_gui.cpp snapshot_gui.h
 
 moc_main_win.cpp: $(MOC) main_win.h
 	$(MOC) main_win.h -o moc_main_win.cpp
@@ -161,6 +194,16 @@ moc_scene_win.cpp: $(MOC) scene_win.h
 
 moc_animation_gui.cpp:  $(MOC) animation_gui.h
 	$(MOC) animation_gui.h -o moc_animation_gui.cpp
+
+moc_itemselection_gui.cpp: $(MOC) itemselection_gui.h
+	$(MOC) itemselection_gui.h -o moc_itemselection_gui.cpp
+
+moc_attributeselectio_gui.cpp: $(MOC) attributeselectio_gui.h
+	$(MOC) attributeselectio_gui.h -o moc_attributeselectio_gui.cpp
+
+
+moc_snapshot_gui.cpp:  $(MOC) snapshot_gui.h
+	$(MOC) snapshot_gui.h -o moc_snapshot_gui.cpp
 
 include Dependencies
 

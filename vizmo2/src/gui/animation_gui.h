@@ -23,9 +23,9 @@ class QTimer;
 class QSlider;
 class QAction;
 class QLineEdit;
-class QBoxLayout;
 class QLabel;
 class QWidget;
+
 
 #include <vector>
 #include <string>

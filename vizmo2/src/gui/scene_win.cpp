@@ -4,6 +4,8 @@
 #include <GL/gli.h>
 #include <GL/gliCamera.h>
 
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
 
@@ -14,7 +16,24 @@ VizGLWin::VizGLWin(QWidget * parent, const char * name)
     setFocusPolicy(QWidget::StrongFocus);
 
     R = G = B = 1;
+
+    takingSnapShot=false;
 }
+
+void VizGLWin::getWidthHeight(int *w,int *h)
+{
+  *w=width();
+  *h=height();
+
+}
+
+void VizGLWin::togleSlectionSlot()
+{
+  takingSnapShot=!takingSnapShot;
+}
+
+
+
 
 void VizGLWin::resetCamera()
 {
@@ -91,13 +110,28 @@ void VizGLWin::SetLight()
 
 void VizGLWin::mousePressEvent( QMouseEvent * e )
 {
+
     if( gliMP(e) ){ updateGL(); return; }//handled by gli
     updateGL();
 }
 
+
+void VizGLWin::simulateMouseUpSlot()
+{
+  gliSimMouseUp();
+  //  updateGL();
+}
+
+void VizGLWin::getBoxDimensions(int *xOffset, int *yOffset,int *w,int *h)
+{
+  gliPickBoxDim(xOffset,yOffset,w,h);
+
+}
+
 void VizGLWin::mouseReleaseEvent( QMouseEvent * e )
 {
-    if( gliMR(e) ){ updateGL(); return; }//handled by gli
+
+    if( gliMR(e,takingSnapShot) ){ updateGL(); return; }//handled by gli
     updateGL();
     if( e->button()==Qt::RightButton ){
       vector<gliObj>& objs=gliGetPickedSceneObjs();
