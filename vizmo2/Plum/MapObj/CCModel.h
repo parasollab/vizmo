@@ -21,7 +21,7 @@ namespace plum{
     public:
         
         //type for the shape of node representation
-        enum Shape { Robot, Box, Point };
+        enum Shape { Robot, Box, Point};
 
 	// to know if change color of CC's
 	bool newColor;
@@ -67,11 +67,9 @@ namespace plum{
 	/// Allow to change color of CC's
 	void changeColor(double r, double g, double b, Shape s){
 	  m_sNodeShape=s;
-	  m_R = r; m_G = g; m_B = b;
-	  m_RGBA[0]=m_R;
-	  m_RGBA[1]=m_G;
-	  m_RGBA[2]=m_B;
-	  
+	  m_RGBA[0]=r;
+	  m_RGBA[1]=g;
+	  m_RGBA[2]=b;	  
 	}
 /*
 	void DrawSelect()
@@ -115,8 +113,6 @@ namespace plum{
         int m_DID_Box;   //id for box
         int m_DID_PT;    //id for points
 
-	//to store colors for CC's
-	float m_R, m_G, m_B;
     };
     
     
@@ -307,7 +303,7 @@ namespace plum{
         double B=m_pRobot->GetColor()[2];	
         
         m_DID_ROBOT = glGenLists(1);
-        m_pRobot->SetColor(m_R,m_G,m_B,m_pRobot->GetColor()[3]);
+        m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],m_pRobot->GetColor()[3]);
         glNewList( m_DID_ROBOT, GL_COMPILE );
         {
             glEnable(GL_LIGHTING);
