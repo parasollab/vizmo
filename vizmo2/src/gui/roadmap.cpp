@@ -48,21 +48,21 @@ void VizmoRoadmapGUI::createGUI()
     colorAction->addTo(this);
     colorAction->setEnabled(false);
     
-    editAction = new QAction
-    ("Edit",QPixmap(icon_make),"Edit &Map",CTRL+Key_E,this,"",true);
-    connect(editAction,SIGNAL(activated()), this, SLOT(editMap()) );
-    editAction->addTo(this);
-    editAction->setEnabled(false);
+//     editAction = new QAction
+//     ("Edit",QPixmap(icon_make),"Edit &Map",CTRL+Key_E,this,"",true);
+//     connect(editAction,SIGNAL(activated()), this, SLOT(editMap()) );
+//     editAction->addTo(this);
+//     editAction->setEnabled(false);
     
-    addNodeAction = new QAction
-    ("New Node",QPixmap(icon_make),"Add &Node",CTRL+Key_E,this,"",true);
-    connect(addNodeAction,SIGNAL(activated()), this, SLOT(addNode()) );
-    addNodeAction->setEnabled(false);
+//     addNodeAction = new QAction
+//     ("New Node",QPixmap(icon_make),"Add &Node",CTRL+Key_E,this,"",true);
+//     connect(addNodeAction,SIGNAL(activated()), this, SLOT(addNode()) );
+//     addNodeAction->setEnabled(false);
 
-    addEdgeAction = new QAction
-    ("New Edge",QPixmap(icon_make),"Add &Edge",CTRL+Key_E,this,"",true);
-    connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()) );
-    addEdgeAction->setEnabled(false);
+//     addEdgeAction = new QAction
+//     ("New Edge",QPixmap(icon_make),"Add &Edge",CTRL+Key_E,this,"",true);
+//     connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()) );
+//     addEdgeAction->setEnabled(false);
 
   
   l =  new QListBox( this );
@@ -75,11 +75,11 @@ void VizmoRoadmapGUI::createGUI()
   l->setEnabled(false);
   size=0.5;
   
-  nodesColor= new QToolButton
-    (QPixmap(icon_shapes1), "CC's color", "Change roadmap node's color", this,
-     SLOT(changeColorOfCCselected()), this, "node");
-  nodesColor->setUsesTextLabel ( true );
-  nodesColor->setEnabled(false);
+//   nodesColor= new QToolButton
+//     (QPixmap(icon_shapes1), "CC's color", "Change roadmap node's color", this,
+//      SLOT(changeColorOfCCselected()), this, "node");
+//   nodesColor->setUsesTextLabel ( true );
+//   nodesColor->setEnabled(false);
   
  nodesSameColor= new QToolButton
    (QPixmap(icon_shapes1), "CC's one color", "Change roadmap node's to same color", this,
@@ -104,19 +104,19 @@ void VizmoRoadmapGUI::reset()
     if( GetVizmo().IsRoadMapLoaded() &&
         GetVizmo().isRoadMapShown() ){
       l->setEnabled(true);
-      nodesColor->setEnabled(true);
+      //nodesColor->setEnabled(true);
       nodesSameColor->setEnabled(true);
 
-      editAction->setEnabled(true);
+      //editAction->setEnabled(true);
       sizeAction->setEnabled(true);
       colorAction->setEnabled(true);
     }
     else{
       l->setEnabled(false);
-      nodesColor->setEnabled(false);
+      //nodesColor->setEnabled(false);
       nodesSameColor->setEnabled(false);
 
-      editAction->setEnabled(false);
+      //editAction->setEnabled(false);
       sizeAction->setEnabled(false);
       colorAction->setEnabled(false);
     }
