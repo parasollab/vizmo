@@ -5,6 +5,7 @@
 #include "snapshot_gui.h"
 #include "itemselection_gui.h"
 #include "attributeselectio_gui.h"
+#include "roadmapShape.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //Include Qt Headers
@@ -27,14 +28,21 @@
 #include <qslider.h>
 #include <qlcdnumber.h>
 #include <qtimer.h>
+#include <qinputdialog.h>
+#include <qlistbox.h>
+#include <qlayout.h>
+#include <qvbox.h>
+
 
 #include "icon/Eye.xpm"
 #include "icon/Folder.xpm"
 #include "icon/Pen.xpm"
 #include "icon/Camera.xpm"
-#include "icon/Board.xpm"
+/*#include "icon/Board.xpm"*/
+#include "icon/navigate.xpm"
 #include "icon/Flag.xpm"
 #include "icon/pallet.xpm"
+#include "icon/tapes.xpm"
 
 VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
 :QMainWindow(parent, name), m_bVizmoInit(false)
@@ -80,7 +88,11 @@ bool VizmoMainWin::InitVizmo()
 	//if path is found
 	animationGUI->reset();
 	objectSelection->reset();
-	
+
+	shapeSelection->setEnabled(true);
+	//cout<<endl<<"NEW LINE? "<<shapeSelection->newLine()<<endl;;
+	shapeSelection->show();	
+
     return true;
 }
 
@@ -96,13 +108,13 @@ bool VizmoMainWin::CreateGUI()
     connect(animationGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
   
     CreateActions();
-    SetTips();
     CreateToolbar();
+    SetTips();
     CreateMenubar();
     CreateScreenCapture();
     CreateObjectSelection();
     CreateAttributeSelection();
-    
+    CreateShapeSelection();
 
 
     return true;
@@ -267,6 +279,34 @@ void VizmoMainWin::changecolor(){
 	
 }
 
+void VizmoMainWin::changeSize(){
+  bool ok = false;
+  double s = QInputDialog::getDouble(tr("vizmo++"), 
+				     tr("Enter a number to scale the robot"),
+				     0.5, 0, 1, 2,  &ok,  this);
+  if(ok){
+    cout << "Scale by: "<<s<<endl;
+    GetVizmo().ChangeNodesSize(s);
+    m_GL->updateGL();
+
+
+  }
+
+}
+
+void VizmoMainWin::getSelectedItem(){
+  string s;
+  for ( unsigned int i = 0; i < (shapeSelection->l)->count(); i++ ) {
+    QListBoxItem *item = (shapeSelection->l)->item( i );
+    // if the item is selected...
+    if ( item->isSelected() )
+      s = (string)item->text();
+  }
+  GetVizmo().ChangeNodesShape(s);
+  m_GL->updateGL();
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // GUI creation 
@@ -282,7 +322,8 @@ bool VizmoMainWin::CreateActions()
 	
     ///////////////////////////////////////////////////////////////////////////////
     // Show/Hide Roadmap
-    showHideRoadmapAction = new QAction( "Show/Hide Roadmap", QPixmap(Board), "&Show/Hide",  CTRL+Key_S, this, "show hide road",true);
+    //showHideRoadmapAction = new QAction( "Show/Hide Roadmap", QPixmap(Board), "&Show/Hide",  CTRL+Key_S, this, "show hide road",true);
+    showHideRoadmapAction = new QAction( "Show/Hide Roadmap", QPixmap(navigate), "&Show/Hide",  CTRL+Key_S, this, "show hide road",true);
     connect(showHideRoadmapAction, SIGNAL(activated()), this, SLOT(showmap()) );
 	
     ///////////////////////////////////////////////////////////////////////////////
@@ -316,7 +357,9 @@ bool VizmoMainWin::CreateActions()
     changeColorAction = new QAction("ColorPalette", QPixmap( pallet ), " Color Pale&tte", CTRL+Key_T, this, "color palette");
     connect(changeColorAction, SIGNAL(activated()), this, SLOT(changecolor()));
 
-	
+    /// Change nodes in the roadmap
+//      QAction *changeShapeAction = new QAction(this, "Change Shape",);
+//      connect(changeShapeAction,SIGNAL(clicked(QListBoxItem *)),this,SLOT(getSelectedItem()));
 	
     /*  delete
     ///////////////////////////////////////////////////////////////////////////////
@@ -326,58 +369,126 @@ bool VizmoMainWin::CreateActions()
 	  // connect(playPathAction,SIGNAL(activated()),this,SLOT(animate()));
 	  //  pausePathAction=new QAction("Pause",QPixmap(Board),"&Pause",CTRL+Key_M,this,"Pause");
     */
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Record an animation
+    recordAction = new QAction("Record", QPixmap(tapes), "Re&cord animation",  CTRL+Key_C, this, "record");
+    connect(recordAction, SIGNAL(activated()), this, SLOT(notimp()));
+
+
+///////////////////////////////////////////////////////////////////////////////
+    // Change robot's size
+	
+    changeRobotSizeAction = new QAction("Change size", QPixmap( pallet ), " Change Si&ze", CTRL+Key_Z, this, "change size");
+    connect(changeRobotSizeAction, SIGNAL(activated()), this, SLOT(changeSize()));
+	
 	
 
     return true;
 }
 
-void VizmoMainWin::SetTips()
-{
-    const char * roadmapText = "<p>Click this button to visualize the <em>Roadmap</em>. <br>"
-        "You can also select the <b>Show/Hide</b> option "
-        "from the <b>Roadmap</b> menu.</p>";
+void VizmoMainWin::SetTips(){
+
+  (void)QWhatsThis::whatsThisButton( vizmoTools );
+  
+  const char * roadmapText = "<p>Click this button to visualize the <em>Roadmap</em>. <br>"
+    "You can also select the <b>Show/Hide</b> option "
+    "from the <b>Roadmap</b> menu.</p>";
+  QWhatsThis::add( roadmapButton, roadmapText );   
+  
+  const char * pathText = "<p>Click this button to visualize the <em>Path</em>. <br>"
+    "You can also select the <b>Show/Hide</b> option  "
+    "from the <b>Path</b> menu.</p>";
+  
+  QWhatsThis::add( pathButton, pathText );
+  
+  const char * startGoalText = "<p>Click this button to visualize the <em>Start and Goal cfgs.</em><br> "
+    "You can also select the <b>Show/Hide</b> option "
+    "from the <b>Path</b> menu.";
     
-    showHideRoadmapAction->setWhatsThis(roadmapText); 
-    
-    const char * pathText = "<p>Click this button to visualize the <em>Path</em>. <br>"
-        "You can also select the <b>Show/Hide</b> option  "
-        "from the <b>Path</b> menu.</p>";
-    
-    showHidePathAction->setWhatsThis(pathText);
-    
-    const char * startGoalText = "<p>Click this button to visualize the <em>Start and Goal cfgs.</em><br> "
-        "You can also select the <b>Show/Hide</b> option "
-        "from the <b>Path</b> menu.";
-    
-    showHideSGaction->setWhatsThis(startGoalText);  
-	
-    const char * changeColorText = "<p>Click this button to change the background color";
-	
-    changeColorAction->setWhatsThis(changeColorText);
+  QWhatsThis::add( strtGoalButton, startGoalText );
+  
+  const char * changeColorText = "<p>Click this button to change the background color";
+  
+  QWhatsThis::add( palletButton, changeColorText );
 }
 
+void VizmoMainWin::CreateToolbar(){
 
-void VizmoMainWin::CreateToolbar()
-{
-    ///////////////////////////////////////////////////////////
-    // Create the toolbar
-    /////////////////////////////////////////////////////////// 
+  QPixmap folderIcon, pathIcon, cameraIcon, roadmapIcon, strtGoalIcon, palletIcon;
+
+  vizmoTools = new QToolBar( this, "vizmo operations" );
+  vizmoTools->setLabel( "Vizmo Operations" );
+
+  //////////////////////////
+  /// create buttons
+  //////////////////////////
+  folderIcon = QPixmap( Folder );
+  folderButton = new QToolButton(folderIcon, "File", "Open File", this,
+				 SLOT(load()), vizmoTools, "file");
+  //folderButton->setToggleButton(true);
+  folderButton->setUsesTextLabel ( true );
+
+  vizmoTools->addSeparator();
+
+  //roadmapIcon = QPixmap(Board);
+  roadmapIcon = QPixmap(navigate);
+  roadmapButton = new QToolButton(roadmapIcon, "Roadmap", "Load Roadmap",
+			   this, SLOT(showmap()), vizmoTools, "roadmap");
+  roadmapButton->setToggleButton(true);
+  roadmapButton->setUsesTextLabel ( true );
+
+  pathIcon = QPixmap( Pen);
+  pathButton = new QToolButton( pathIcon, "Path", "Load Path",
+			   this, SLOT(showpath()), vizmoTools, "path" );
+  pathButton->setToggleButton(true);
+  pathButton->setUsesTextLabel ( true );
+
+  strtGoalIcon = QPixmap( Flag);
+  strtGoalButton = new QToolButton( strtGoalIcon, "Start/Goal", "Load Start/Goal posotions",this, SLOT(showstartgoal()), vizmoTools, "start goal" );
+  strtGoalButton->setToggleButton(true);
+  strtGoalButton->setUsesTextLabel ( true );
+
+  vizmoTools->addSeparator(); 
+
+  cameraIcon = QPixmap(Camera);
+  cameraButton = new QToolButton(cameraIcon, "Camera", " Reset Camera", this,
+				 SLOT(reset()), vizmoTools, "Camera");
+  //cameraButton->setToggleButton(true);
+  cameraButton->setUsesTextLabel ( true );
+
+  palletIcon = QPixmap(pallet);
+  palletButton = new QToolButton(palletIcon, "BgColor", "Change Backgroundg Color", this,SLOT(changecolor()), vizmoTools, "background color");
+  //palletButton->setToggleButton(true);
+  palletButton->setUsesTextLabel ( true );
+
+  vizmoTools->addSeparator(); 
+
+//  <<<<<<< main_win.cpp
+//  =======
+
+//  void VizmoMainWin::CreateToolbar()
+//  {
+//      ///////////////////////////////////////////////////////////
+//      // Create the toolbar
+//      /////////////////////////////////////////////////////////// 
     
-    QToolBar * vizmoTools = new QToolBar( this, "vizmo operations" );
-    vizmoTools->setLabel( "Vizmo Operations" );
+//      QToolBar * vizmoTools = new QToolBar( this, "vizmo operations" );
+//      vizmoTools->setLabel( "Vizmo Operations" );
 	
-    fileOpenAction->addTo(vizmoTools);
-    vizmoTools->addSeparator();
+//      fileOpenAction->addTo(vizmoTools);
+//      vizmoTools->addSeparator();
 	
-    showHideRoadmapAction->addTo(vizmoTools);
-    showHidePathAction->addTo(vizmoTools);
-    showHideSGaction->addTo(vizmoTools);
+//      showHideRoadmapAction->addTo(vizmoTools);
+//      showHidePathAction->addTo(vizmoTools);
+//      showHideSGaction->addTo(vizmoTools);
 	
-    vizmoTools->addSeparator();
-    cameraResetAction->addTo(vizmoTools);   
-    changeColorAction->addTo(vizmoTools);
+//      vizmoTools->addSeparator();
+//      cameraResetAction->addTo(vizmoTools);   
+//      changeColorAction->addTo(vizmoTools);
     
-    (void)QWhatsThis::whatsThisButton( vizmoTools );
+//      (void)QWhatsThis::whatsThisButton( vizmoTools );
+//  >>>>>>> 1.7
 }
 
 void VizmoMainWin::CreateMenubar()
@@ -397,6 +508,7 @@ void VizmoMainWin::CreateMenubar()
     
     QPopupMenu * param = new QPopupMenu( this );
     param->insertTearOffHandle();
+    param->insertItem(  "Change size of nodes", this, SLOT(changeSize()));
     int numberId = param->insertItem( "Number of &nodes", this, SLOT(notimp()) );
     int defId =param->insertItem( "&Define start/goal", this, SLOT(notimp()) );
     param->setItemEnabled( numberId, FALSE );
@@ -411,7 +523,7 @@ void VizmoMainWin::CreateMenubar()
     roadmapMenu->setItemEnabled( genId, FALSE );
     roadmapMenu->insertSeparator();
     int setparamId = roadmapMenu->insertItem( "S&et parameters", param, CTRL+Key_E );
-    roadmapMenu->setItemEnabled( setparamId, FALSE );
+    //roadmapMenu->setItemEnabled( setparamId, FALSE );
     roadmapMenu->insertSeparator();
     
     /////////////////////////////////////////////////
@@ -430,7 +542,8 @@ void VizmoMainWin::CreateMenubar()
     pathMenu->insertSeparator();
     pathMenu->insertItem( "&Optimization", opt, CTRL+Key_O );
     pathMenu->insertSeparator();
-    pathMenu->insertItem( "Re&cord animation", this, SLOT(notimp()),  CTRL+Key_C );
+    recordAction->addTo( pathMenu );
+    //pathMenu->insertItem( "Re&cord animation", this, SLOT(notimp()),  CTRL+Key_C );
     //pathMenu->insertItem( "&Animate", this, SLOT(animate()),  CTRL+Key_C );
     pathMenu->insertSeparator();
     
@@ -512,7 +625,12 @@ void VizmoMainWin::CreateAttributeSelection()
   attributeSelection= new VizmoAttributeSelectionGUI(this,"AttributeSelection");
 }
 
+void VizmoMainWin::CreateShapeSelection(){
 
+  shapeSelection = new VizmoRoadmapNodesShapeGUI(this, "ShapeSelection");
+
+  connect(shapeSelection->l,SIGNAL(clicked(QListBoxItem *)),this,SLOT(getSelectedItem()));
+}
 
 
 

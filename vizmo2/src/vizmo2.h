@@ -107,6 +107,10 @@ public:
     //////////////////////////////////////////////////////////////////////
     // Roadmap Related Function
     void ShowRoadMap( bool bShow=true );
+    //nov. 2002 Aimee
+    void ChangeNodesSize(float s);
+    //jan. 2003 Aimee
+    void ChangeNodesShape(string s);
 
     //////////////////////////////////////////////////////////////////////
     // Path Related Function
@@ -117,8 +121,9 @@ public:
     void ShowQueryFrame( bool bshow = true );   // to know if the Query has to be showed
 
     //////////////////////////////////////////////////////////////////////
-    // Robot Related Function
+    // Robot Related Functions
     void ShowRobot( bool bShow=true ){ m_bShowRobot=bShow; }
+
 
     /////////////////////////////////////////////////////////////////////
     // Bounding Box Related Function

@@ -10,12 +10,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Qt Headers
 #include <qmainwindow.h>
+#include <qtoolbutton.h>
+#include <qdialog.h>
+
 class QAction;
 
 class VizmoAnimationGUI;
 class VizmoScreenShotGUI;
 class VizmoItemSelectionGUI;
 class VizmoAttributeSelectionGUI;
+class VizmoRoadmapNodesShapeGUI;
 
 ///////////////////////////////////////////////////////////////////////////////
 // std Headers
@@ -50,16 +54,18 @@ private slots:
 
     void load();
     void reset();
-    void showmap();       //show roadmap
-    void showpath();      //show path frame
-    void showstartgoal(); //show start and goal positionx
-    void showBBox();      //show Bounding Box
-    void about();         //about dialog
-    void aboutQt();       //about Qt dialog
-    void contexmenu();    //create contex menu when right mouse clicked
-    void notimp();        //not implemented yet.
-    void changecolor();   //to change the background color for vizmo++
-    void refreshEnv();    // refresh!!!
+    void showmap();         //show roadmap
+    void showpath();        //show path frame
+    void showstartgoal();   //show start and goal positionx
+    void showBBox();        //show Bounding Box
+    void about();           //about dialog
+    void aboutQt();         //about Qt dialog
+    void contexmenu();      //create contex menu when right mouse clicked
+    void notimp();          //not implemented yet.
+    void refreshEnv();      // refresh!!!
+    void changecolor();     //to change the background color for vizmo++
+    void changeSize();      //Changes Robot's size
+    void getSelectedItem(); //reads the index on the ListBox
 
     void setSolid();      // turn object into solidMode
     void setWire();       // turn object into wire mode
@@ -77,7 +83,7 @@ private:
     void CreateScreenCapture(); // Create the screenshot gui
     void CreateObjectSelection(); // create object selection
     void CreateAttributeSelection(); // create object selection
-    
+    void CreateShapeSelection(); // Create listbox selection to change   
 
     QAction *showHideRoadmapAction, 
             *showHidePathAction, 
@@ -86,18 +92,24 @@ private:
             *fileOpenAction, 
             *cameraResetAction, 
             *wireFrameAction,
-            *changeColorAction;
+            *changeColorAction,
+            *recordAction,
+            *changeRobotSizeAction;
      
 
     VizmoAnimationGUI *animationGUI;
     VizmoScreenShotGUI *screenShotGUI;
     VizmoItemSelectionGUI *objectSelection;
     VizmoAttributeSelectionGUI *attributeSelection;
+ 
+    VizmoRoadmapNodesShapeGUI *shapeSelection;
 
     vector<string> m_Args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.
    
-
+    QToolBar *vizmoTools;
+    QToolButton *folderButton, *roadmapButton, *pathButton, *strtGoalButton;
+    QToolButton  *cameraButton, *palletButton; 
 
  protected:
     VizGLWin * m_GL;       //the scene window which displays environment..

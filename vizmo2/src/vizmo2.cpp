@@ -114,15 +114,15 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
         cout<<"Load Environment File : "<<name<<endl;
     }
 
+    //create robot
+    if( !CreateRobotObj(m_obj) ) return false;
+
     //create map
     name=FindName("map",filenames);
     if( !name.empty() ){
         if( !CreateMapObj(m_obj,name) ) return false;
         cout<<"Load Map File : "<<name<<endl;
     }
-
-    //create robot
-    if( !CreateRobotObj(m_obj) ) return false;
 
     //create path
     name=FindName("path",filenames);
@@ -160,8 +160,6 @@ void vizmo::DumpSelected(){
 m_Plum.DumpSelected();
 }
 */
-
-
 
 
 void vizmo::RefreshEnv()
@@ -258,27 +256,54 @@ int vizmo::GetPathSize(){
 	return ploader->GetPathSize();
 }
 
+void vizmo::ChangeNodesSize(float s){
+	
+    cout<<"Size parameter: "<<s<<endl;
+    if( m_obj.m_Robot==NULL ) return;
+
+    typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
+    typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
+    typedef vector<CC>::iterator CCIT;
+    
+    CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
+    vector<CC>& cc=mmodel->GetCCModels();
+    for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+      ic->scaleNode(s);
+    }
+    /*
+      OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+      rmodel->change = true;
+      rmodel->size = s;
+    */	
+}
+
+void vizmo::ChangeNodesShape(string s){
+  if( m_obj.m_Robot==NULL ) return;
+
+  typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
+  typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
+  typedef vector<CC>::iterator CCIT;
+  
+  CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
+  vector<CC>& cc=mmodel->GetCCModels();
+  for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+    ic->changeNode(s);
+  }
+ 
+}
 
 int vizmo::GetNoEnvObjects(){
-  if(m_obj.m_Env==NULL) return 0;
-  CEnvLoader *envLoader=(CEnvLoader *)m_obj.m_Env->getLoader();
-  return envLoader->GetNumberOfMultiBody();
-
-
+	if(m_obj.m_Env==NULL) return 0;
+	CEnvLoader *envLoader=(CEnvLoader *)m_obj.m_Env->getLoader();
+	return envLoader->GetNumberOfMultiBody();
 }
 
 const CMultiBodyInfo *vizmo::GetMultiBodyInfo(string &dirstring) const{
-  if(m_obj.m_Env==NULL) return 0;
-   CEnvLoader *envLoader=(CEnvLoader *)m_obj.m_Env->getLoader();
-   dirstring=envLoader->getModelDirString();
-  return envLoader->GetMultiBodyInfo();
-  
-
-
+	if(m_obj.m_Env==NULL) return 0;
+	CEnvLoader *envLoader=(CEnvLoader *)m_obj.m_Env->getLoader();
+	dirstring=envLoader->getModelDirString();
+	return envLoader->GetMultiBodyInfo();
 }
-
-
-
 
 /*
 void vizmo::GetConfiguration(int index)
@@ -347,8 +372,23 @@ bool vizmo::CreateEnvObj( vizmo_obj& obj, const string& fname )
 
 bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
 {
-    obj.m_Map=createMapObj<CSimpleCfg,CSimpleEdge>(fname);
-    return (obj.m_Map!=NULL);
+//    obj.m_Map=createMapObj<CSimpleCfg,CSimpleEdge>(fname);
+//        return (obj.m_Map!=NULL);
+//    cout<<"MAP OBJ"<<endl;
+
+  CMapLoader<CSimpleCfg,CSimpleEdge> * mloader=new CMapLoader<CSimpleCfg,CSimpleEdge>();
+  CMapModel<CSimpleCfg,CSimpleEdge> * mmodel = new CMapModel<CSimpleCfg,CSimpleEdge>();
+  if (mloader==NULL || mmodel==NULL) 
+    return false;
+  mloader->SetDataFileName(fname);
+  mmodel->SetMapLoader(mloader);
+  if(obj.m_Robot != NULL){
+      mmodel->SetRobotModel( (OBPRMView_Robot*)obj.m_Robot->getModel() );
+      cout<<"IF CUMPLIDO"<<endl;
+   }
+  obj.m_Map = new PlumObject(mmodel, mloader);
+  
+  return (obj.m_Map != NULL);
 }
 
 bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
@@ -396,7 +436,7 @@ bool vizmo::CreateBBoxObj( vizmo_obj& obj )
 }
 
 bool vizmo::CreateRobotObj( vizmo_obj& obj )
-{
+{ cout<<"ROBOT"<<endl;
     if( m_obj.m_Env==NULL ) return true; //can't build
 
     CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
