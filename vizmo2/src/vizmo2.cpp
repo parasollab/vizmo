@@ -7,7 +7,7 @@
 
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
-#include <MapObj/SimpleCfg.h>
+#include <MapObj/Cfg.h>
 #include <MapObj/MapLoader.h>
 #include <EnvObj/MovieBYULoader.h>
 #include <PlumObject.h>
@@ -144,7 +144,7 @@ bool vizmo::InitVizmoObject()
         if( !CreateMapObj(m_obj,name) ) return false;
         cout<<"Load Map File : "<<name<<endl;
     }
-    
+
     //create path
     name=m_obj.m_PathFile;//FindName("path",filenames);
     if( !name.empty() ){
@@ -163,16 +163,22 @@ bool vizmo::InitVizmoObject()
     if( !CreateBBoxObj(m_obj) ) return false;
     
     //add all of them into plum
+    
     m_Plum.AddPlumObject(m_obj.m_BBox);
-    m_Plum.AddPlumObject(m_obj.m_Env);
     m_Plum.AddPlumObject(m_obj.m_Robot);
+    m_Plum.AddPlumObject(m_obj.m_Env);
     m_Plum.AddPlumObject(m_obj.m_Path);
     m_Plum.AddPlumObject(m_obj.m_Qry);
+    //m_Plum.AddPlumObject(m_obj.m_Env);
     m_Plum.AddPlumObject(m_obj.m_Map);
-    
+
+
     //let plum do what he needs to do
-    if( m_Plum.ParseFile()==CPlumState::PARSE_ERROR ) return false;
-    if( m_Plum.BuildModels()!=CPlumState::BUILD_MODEL_OK ) return false;
+    if( m_Plum.ParseFile()==CPlumState::PARSE_ERROR ){return false;}
+
+    if( m_Plum.BuildModels()!=CPlumState::BUILD_MODEL_OK ){return false;}
+
+    cout<<endl<<"Models built"<<endl;
 
     //put robot in start cfg, if availiable
     PlaceRobot();
@@ -262,10 +268,9 @@ void vizmo::ChangeAppearance(int status)
             model->SetRenderMode(CPlumState::MV_WIRE_MODE);
         else if(status==2)
             model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
-	    else if(status == 3)
-	        model->SetColor( mR, mG, mB, 1 );
+	else if(status == 3)
+	  model->SetColor( mR, mG, mB, 1 );
     }
-    
 }
 
 
@@ -296,17 +301,17 @@ void vizmo::ChangeNodesSize(float s, string str){
     
     if( m_obj.m_Map==NULL ) return;
     
-    typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
-    typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
+    typedef CMapModel<CCfg,CSimpleEdge> MM;
+    typedef CCModel<CCfg,CSimpleEdge> CC;
     typedef vector<CC*>::iterator CCIT;
-    
-    MM* mmodel =(MM*)m_obj.m_Map->getModel();
+
+    CMapModel<CCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
         CC::Shape shape=CC::Point;
         if( str=="Robot" ) shape=CC::Robot;
         else if( str=="Box" ) shape=CC::Box;
-        (*ic)->scaleNode(s, shape);
+          (*ic)->scaleNode(s, shape);
     }
 }
 
@@ -317,39 +322,115 @@ void vizmo::ChangeNodesShape(string s){
     
     if( m_obj.m_Map==NULL ) return;
     
-    typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
-    typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
+
+    typedef CMapModel<CCfg,CSimpleEdge> MM;
+    typedef CCModel<CCfg,CSimpleEdge> CC;
     typedef vector<CC*>::iterator CCIT;
-    
-    CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
+
+    CMapModel<CCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
     vector<CC*>& cc=mmodel->GetCCModels();
+
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
         CC::Shape shape=CC::Point;
         if( s=="Robot" ) shape=CC::Robot;
         else if( s=="Box" ) shape=CC::Box;
-        (*ic)->changeShape(shape);
+          (*ic)->changeShape(shape);
+    }
+}
+
+void vizmo::ChangeNodesColor(double r, double g, double b, string s){
+
+    if( m_obj.m_Robot==NULL ) return;
+    
+    if( m_obj.m_Map==NULL ) return;
+
+    typedef CMapModel<CCfg,CSimpleEdge> MM;
+    typedef CCModel<CCfg,CSimpleEdge> CC;
+    typedef vector<CC*>::iterator CCIT; 
+
+  //change color of one CC at a time
+    vector<gliObj>& sel = GetVizmo().GetSelectedItem();
+    typedef vector<gliObj>::iterator SI;
+    int m_i;
+    string m_sO;
+    for(SI i = sel.begin(); i!= sel.end(); i++){
+      CGLModel *gl = (CGLModel*)(*i);
+      m_sO = gl->GetName();
+    }
+    string m_s="NULL";
+    int position = m_sO.find("CC",0);
+    if(position != string::npos){
+      m_s = m_sO.substr(position+2, m_sO.length());
+    }   
+
+    CMapModel<CCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
+    vector<CC*>& cc=mmodel->GetCCModels();
+    if(m_s != "NULL"){
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+	CC::Shape shape=CC::Point;
+	if( s=="Robot" ) shape=CC::Robot;
+       	else if( s=="Box" ) shape=CC::Box;
+	if(StringToInt(m_s, m_i)){
+	  if(m_i == (*ic)->id){
+	    (*ic)->DrawSelect();
+	    (*ic)->newColor = true;
+	    (*ic)->changeColor(r, g, b, shape);
+	  }
+	}
+      }
+    }
+    else if(m_s == "NULL" && oneColor){
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+	CC::Shape shape=CC::Point;
+	if( s=="Robot" ) shape=CC::Robot;
+	else if( s=="Box" ) shape=CC::Box;
+	(*ic)->newColor = true;
+	(*ic)->changeColor(r, g, b, shape);
+      }
+      oneColor = false;
+    }
+    else{
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+	CC::Shape shape=CC::Point;
+	if( s=="Robot" ) shape=CC::Robot;
+	else if( s=="Box" ) shape=CC::Box;
+	(*ic)->newColor = true;
+	r = ((float)rand())/RAND_MAX; 
+	g = ((float)rand())/RAND_MAX; 
+        b = ((float)rand())/RAND_MAX; 
+	(*ic)->changeColor(r, g, b, shape);
+      }
     }
 }
 
 void vizmo::ChangeNodesRandomColor(){
 	
-    if( m_obj.m_Robot==NULL ) return;
-    if( m_obj.m_Map==NULL ) return;
-	
-    typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
-    typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
-    typedef vector<CC*>::iterator CCIT;  
-	
-	//change color
-    CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
-    vector<CC*>& cc=mmodel->GetCCModels();
-	
-	for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){//random color
-		float r = ((float)rand())/RAND_MAX; 
-		float g = ((float)rand())/RAND_MAX; 
-		float b = ((float)rand())/RAND_MAX; 
-		(*ic)->SetColor(r,g,b,1);
-	}
+  if( m_obj.m_Robot==NULL ) return;
+  if( m_obj.m_Map==NULL ) return;
+
+  typedef CMapModel<CCfg,CSimpleEdge> MM;
+  typedef CCModel<CCfg,CSimpleEdge> CC;
+  typedef vector<CC*>::iterator CCIT; 
+  
+  //change color
+  CMapModel<CCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
+  vector<CC*>& cc=mmodel->GetCCModels();
+
+  for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+    float r = ((float)rand())/RAND_MAX; 
+    float g = ((float)rand())/RAND_MAX; 
+    float b = ((float)rand())/RAND_MAX; 
+    (*ic)->SetColor(r,g,b,1);
+  }
+}
+
+bool vizmo::StringToInt(const string &s, int &i){
+  istringstream myStream(s);
+  
+  if (myStream>>i)
+    return true;
+  else
+    return false;
 }
 
 void vizmo::envObjsRandomColor(){
@@ -377,13 +458,18 @@ bool vizmo::CreateEnvObj( vizmo_obj& obj, const string& fname )
     ///////////////////////////////////////////////////////////////////////
     //create environment
     obj.m_Env=createEnvObj(fname , dir);
+
+    cout<<"ENV created"<<endl;
+
     return (obj.m_Env!=NULL);
 }
 
 bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
 {
-    CMapLoader<CSimpleCfg,CSimpleEdge> * mloader=new CMapLoader<CSimpleCfg,CSimpleEdge>();
-    CMapModel<CSimpleCfg,CSimpleEdge> * mmodel = new CMapModel<CSimpleCfg,CSimpleEdge>();
+  //CMapLoader<CSimpleCfg,CSimpleEdge> * mloader=new CMapLoader<CSimpleCfg,CSimpleEdge>();
+  //CMapModel<CSimpleCfg,CSimpleEdge> * mmodel = new CMapModel<CSimpleCfg,CSimpleEdge>();
+    CMapLoader<CCfg,CSimpleEdge> * mloader=new CMapLoader<CCfg,CSimpleEdge>();
+    CMapModel<CCfg,CSimpleEdge> * mmodel = new CMapModel<CCfg,CSimpleEdge>();
     if (mloader==NULL || mmodel==NULL) 
         return false;
     mloader->SetDataFileName(fname);
@@ -391,8 +477,7 @@ bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
     if(obj.m_Robot != NULL){
         mmodel->SetRobotModel( (OBPRMView_Robot*)obj.m_Robot->getModel() );
     }
-    obj.m_Map = new PlumObject(mmodel, mloader);
-    
+    obj.m_Map = new PlumObject(mmodel, mloader); 
     return (obj.m_Map != NULL);
 }
 
@@ -446,7 +531,7 @@ bool vizmo::CreateRobotObj( vizmo_obj& obj )
     OBPRMView_Robot * r=new OBPRMView_Robot(envLoader);
     if( r==NULL ) return false;
     obj.m_Robot=new PlumObject(r,NULL);
-    return (obj.m_Robot!=NULL);
+   return (obj.m_Robot!=NULL);
 }
 
 void vizmo::PlaceRobot()
