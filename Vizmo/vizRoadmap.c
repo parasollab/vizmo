@@ -78,6 +78,15 @@ float* vizRoadmap::project(Cfg coord)
  
 }
  
+void vizRoadmap::displayCC(vtkRenderer *ren,vtkActor *act)
+{
+     ren->AddActor(act);
+}
+void vizRoadmap::hideCC(vtkRenderer *ren,vtkActor *act)
+{
+     ren->RemoveActor(act);
+}
+                                            
                                             
  
 int vizRoadmap::Display(char *file,char *Rend,Tcl_Interp *interp)
@@ -93,7 +102,7 @@ int vizRoadmap::Display(char *file,char *Rend,Tcl_Interp *interp)
                 (Rend, "vtkRenderer", interp,err);
    cout << "Adding actors for size " << ccEdges.size()<< endl;
    for(i=0;i<ccEdges.size();i++)
-     ren->AddActor(ccEdges[i]);
+      displayCC(ren,ccEdges[i]);
    return TCL_OK;
  
 }
@@ -106,7 +115,7 @@ int vizRoadmap::Hide(char *Rend,Tcl_Interp *interp)
    if(!roadmapRead) return TCL_OK;
    ren = (vtkRenderer *) vtkTclGetPointerFromObject
                 (Rend, "vtkRenderer", interp,err);
-   for(i=0;i<ccEdges.size();i++) ren->RemoveActor(ccEdges[i]);
+   for(i=0;i<ccEdges.size();i++) hideCC(ren,ccEdges[i]);
    roadmapRead=0;
    return TCL_OK;
 }

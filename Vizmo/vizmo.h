@@ -25,7 +25,13 @@
 //****************************************************************
 // my exported functions 
 //****************************************************************
-EXTERN EXPORT(int, Vizmolib_Init) _ANSI_ARGS_((Tcl_Interp *interp));
+#ifdef SGI
+EXTERN EXPORT(int, Vizmolibsgi_Init) _ANSI_ARGS_((Tcl_Interp *interp));
+#endif
+
+#ifdef LINUX
+EXTERN EXPORT(int, Vizmoliblinux_Init) _ANSI_ARGS_((Tcl_Interp *interp));
+#endif
 
 
 //***************************************************************

@@ -13,8 +13,16 @@
 #include "Stat_Class.h"
 #include "CollisionDetection.h"
 
+#ifdef LINUX
+#define VIZMO_LIBRARY "VizmoLibLinux"
+#endif
+#ifdef SGI
+#define VIZMO_LIBRARY "VizmoLibSgi"
+#endif
+
 Stat_Class Stats;
 CollisionDetection cd;
+
 
 
 int lengthPtr;
@@ -82,7 +90,12 @@ void cleanupObjects()
 // invokes startup script.
 //*****************************************************************
 
-EXPORT(int,Vizmolib_Init)(Tcl_Interp *interp)
+#ifdef LINUX
+EXPORT(int,Vizmoliblinux_Init)(Tcl_Interp *interp)
+#endif
+#ifdef SGI
+EXPORT(int,Vizmolibsgi_Init)(Tcl_Interp *interp)
+#endif
 {
 
 
@@ -93,18 +106,18 @@ EXPORT(int,Vizmolib_Init)(Tcl_Interp *interp)
 
 	/* register the dll entry point */
 	/*
-	Tcl_CreateCommand(interp, "VizmoLib",
+	Tcl_CreateCommand(interp, LIBRARY,
    		VizmoLibCmd,
 		NULL,
 		NULL);
 
 	*/
-	Tcl_CreateObjCommand(interp, "VizmoLib",
+	Tcl_CreateObjCommand(interp, VIZMO_LIBRARY,
    		VizmoLibObjCmd,
 		NULL,
 		NULL);
 
-	return Tcl_PkgProvide(interp, "VizmoLib", "1.0");
+	return Tcl_PkgProvide(interp, VIZMO_LIBRARY, "1.0");
 }
 
 static int VizmoLibObjCmd( ClientData clientData,

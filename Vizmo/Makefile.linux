@@ -67,7 +67,6 @@ TCLLIBS	 = -L$(TCL81LIB) -ltcl8.0
 # -- for dynamic shared object library libmp.so
 
    OBPRM_DIR  = /home/dsmft/OBPRM/BASELINE/OBPRM
-#   OBPRM_DIR  = /home/user/irr5509/dsmft/OBPRM
    OBPRMINCS  = -I${OBPRM_DIR}
    OBPRM_LIB      = -L${OBPRM_DIR} -lobprm
 
@@ -100,25 +99,12 @@ LIBS	 = $(LDFLAGS) $(VTKLIBS) $(TCLLIBS) $(TKLIBS) $(XLIBS) -lm -lGL
 REQ_OBJS = Path.o Query.o vizEnvironment.o vizObject.o vizRobotObject.o vizRoadmap.o
 REQ_SRCS = Path.c Query.c vizEnvironment.c vizList.c vizRobotObject.c vizObject.c vizRoadmap.c
 
-all: pkgIndex.tcl
-
-test: pkgIndex.tcl
-	@echo 'set dir .'
-	@echo "Testing example..."
-	@echo 'lappend auto_path .; package require $(PROJECT); \
-		if ![catch {$(PROJECT)}] { \
-		    exit 0 \
-		} else { \
-		    puts "$(PROJECT) failed to load and run"; \
-		    exit 1 \
-		}' | ${SRC_DIR}/unix/tclsh
-	@echo "Test passed."
-
-pkgIndex.tcl: $(PROJECT)${SHLIB_SUFFIX}
-	@echo 'pkg_mkIndex . $(PROJECT)${SHLIB_SUFFIX}' | \
-		${TCL_BIN_DIR}/tclsh8.0
-
 	
+lib/VizmoLibLinux.so: VizmoLib.o $(REQ_OBJS)
+	$(SHLIB_LD) $(SRC_DIR)/$(PROJECT).o $(REQ_OBJS) \
+	-o lib/$(PROJECT)Linux$(SHLIB_SUFFIX) \
+	$(OBPRM_LIB) ${VCLIPLIB} $(RAPIDLIB) \
+	$(LDFLAGS) $(VTKLIBS) $(XLIBS) -lGL
 VizmoLib.o: VizmoLib.c
 	$(CC) $(CC_SWITCHES) $(CXXFLAGS) -c VizmoLib.c -o VizmoLib.o   
 
@@ -143,11 +129,6 @@ Query.o: Query.c
 Path.o: Path.c
 	$(CC) $(CC_SWITCHES) $(CXXFLAGS) -c Path.c -o Path.o   
 
-VizmoLib.so: VizmoLib.o $(REQ_OBJS)
-	$(SHLIB_LD) $(SRC_DIR)/$(PROJECT).o $(REQ_OBJS) \
-	-o $(PROJECT)$(SHLIB_SUFFIX) \
-	$(OBPRM_LIB) ${VCLIPLIB} $(RAPIDLIB) \
-	$(LDFLAGS) $(VTKLIBS) $(XLIBS) -lGL
 
 clean:
 	rm -f *.o *$(SHLIB_SUFFIX) config.cache config.log config.status \

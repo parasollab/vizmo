@@ -57,7 +57,9 @@
     unsigned long itsCount;
  };
 
-//#include "vizList.c"
+#ifdef LINUX
+#include "vizList.c"
+#endif
 
 #endif vizList
 

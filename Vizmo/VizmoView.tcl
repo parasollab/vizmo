@@ -4,7 +4,7 @@
 
 #! /pub/sphere1/vtk/bin/vtk.exe
 
-set DISTRIBUTION_DIR "/pub/dsmft/VIZMO/Vizmo-1.601"
+set DISTRIBUTION_DIR $env(VIZMO_DIR)
 #set  filename "$DISTRIBUTION_DIR"
 #append filename actrprop.tcl
 #puts stdout $filename

@@ -22,6 +22,8 @@ class vizRoadmap: Roadmap{
     public:
     vizRoadmap();
     vtkActor* CreateCCEdgeActor(vector <pair <Cfg,Cfg> >edges);
+    void displayCC(vtkRenderer *ren,vtkActor *act);                     
+    void hideCC(vtkRenderer *ren,vtkActor *act);      
     int Display(char *file,char *Rend,Tcl_Interp *interp);
     int Hide(char *Rend,Tcl_Interp *interp)  ;
     void CreateCCEdges(); 
