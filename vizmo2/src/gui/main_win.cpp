@@ -167,6 +167,7 @@ void VizmoMainWin::reset()
     }
     cameraButton->setEnabled(true);
     palletButton->setEnabled(true);
+    envButton->setEnabled(true);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -270,6 +271,12 @@ void VizmoMainWin::setNewColor()
     GetVizmo().ChangeAppearance(3);
 }
 
+void VizmoMainWin::envObjsRandomColor(){
+
+  GetVizmo().envObjsRandomColor();
+  m_GL->updateGL();
+}
+
 void VizmoMainWin::refreshEnv()
 {
     GetVizmo().RefreshEnv();
@@ -366,7 +373,7 @@ bool VizmoMainWin::CreateActions()
 
     ///////////////////////////////////////////////////////////////////////////////
     // Change background Color
-    changeColorAction = new QAction("ColorPalette", QPixmap( pallet ), " &Color Palette", CTRL+Key_C, this, "color palette");
+    changeColorAction = new QAction("ColorPalette", QPixmap( pallet ), " Bg &Color", CTRL+Key_C, this, "color palette");
     connect(changeColorAction, SIGNAL(activated()), this, SLOT(changecolor()));
     
     ///////////////////////////////////////////////////////////////////////////////
@@ -405,7 +412,12 @@ void VizmoMainWin::SetTips(){
     
     QWhatsThis::add( palletButton, changeColorText );
 
-    const char * resetCamText = "Click this button to reset camera position";
+
+    const char * envObjsColor = "<P>Changes randomly the colors of the environment's objects";
+
+    QWhatsThis::add( envButton, envObjsColor );
+    
+    const char * resetCamText = "<p>Click this button to reset camera position";
 
     QWhatsThis::add( cameraButton, resetCamText );
 
@@ -416,7 +428,7 @@ void VizmoMainWin::SetTips(){
 
 void VizmoMainWin::CreateToolbar(){
     
-    QPixmap folderIcon, pathIcon, cameraIcon, roadmapIcon, strtGoalIcon, palletIcon;
+    QPixmap folderIcon, pathIcon, cameraIcon, roadmapIcon, strtGoalIcon, palletIcon, envIcon;
     
     vizmoTools = new QToolBar( this, "vizmo operations" );
     vizmoTools->setLabel( "Vizmo Operations" );
@@ -448,7 +460,7 @@ void VizmoMainWin::CreateToolbar(){
     pathButton->setEnabled(false);
     
     strtGoalIcon = QPixmap( Flag);
-    strtGoalButton = new QToolButton(strtGoalIcon, "Start/Goal", "Load Start/Goal posotions",this, SLOT(showstartgoal()), vizmoTools, "start goal" );
+    strtGoalButton = new QToolButton(strtGoalIcon, "Start/Goal", "Load Start/Goal positions",this, SLOT(showstartgoal()), vizmoTools, "start goal" );
     strtGoalButton->setToggleButton(true);
     strtGoalButton->setUsesTextLabel ( true );
     strtGoalButton->setEnabled(false);
@@ -462,9 +474,16 @@ void VizmoMainWin::CreateToolbar(){
     cameraButton->setEnabled(false);
 
     palletIcon = QPixmap(pallet);
-    palletButton = new QToolButton(palletIcon, "BgColor", "Change Backgroundg Color", this,SLOT(changecolor()), vizmoTools, "background color");
+    palletButton = new QToolButton(palletIcon, "BgColor", "Change Background Color", this,SLOT(changecolor()), vizmoTools, "background color");
     palletButton->setUsesTextLabel ( true );
     palletButton->setEnabled(false);
+
+    envIcon = QPixmap(pallet);
+    envButton = new QToolButton(envIcon, "Random Color", "Changes randomly Env.obj. color", this, 
+				SLOT(envObjsRandomColor()), 
+				vizmoTools, "Env.");
+    envButton->setUsesTextLabel ( true );
+    envButton->setEnabled(false);
 }
 
 void VizmoMainWin::CreateMenubar()
