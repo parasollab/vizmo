@@ -45,4 +45,4 @@ void mydisplay();
 void myidle();
 void myvisible(int iState);
 bool dump(const char * filename); //dump image to guven filename
-bool dump(char const * filename,char const  *extension,int xOffset,int yOffset,int width,int height);
+bool dump(const char * filename,const char *extension,int xOffset,int yOffset,int width,int height);

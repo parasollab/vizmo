@@ -47,7 +47,6 @@ public slots:
     void takeSnapshot();
     void takeBoxSnapshot(); 
     void takeMoviePictures();
-    void takeCampusSnapshot(char *,char *);
 
 signals:
     void getScreenSize(int *w,int *h);

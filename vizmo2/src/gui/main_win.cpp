@@ -43,9 +43,6 @@
 #include "icon/pallet.xpm"
 #include "icon/tapes.xpm"
 
-
-
-
 VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
 :QMainWindow(parent, name), m_bVizmoInit(false)
 { 
@@ -74,7 +71,7 @@ bool VizmoMainWin::Init()
 
 bool VizmoMainWin::InitVizmo()
 {
-if( m_bVizmoInit ) return true;
+    if( m_bVizmoInit ) return true;
     m_bVizmoInit=true;
     if( m_Args.empty() ) return true; //nothing to init...
     /*
@@ -93,16 +90,10 @@ if( m_bVizmoInit ) return true;
     objectSelection->reset();
     screenShotGUI->reset();
     shapeSelection->reset(); 
-	reset();
+    reset();
     
     return true;
-  
-
 }
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -577,10 +568,8 @@ void VizmoMainWin::CreateAttributeSelection()
 
 void VizmoMainWin::CreateShapeSelection()
 {   
-
-  //    shapeSelection = new VizmoRoadmapNodesShapeGUI(this, "ShapeSelection");
-  //  connect(shapeSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
-
+    shapeSelection = new VizmoRoadmapNodesShapeGUI(this, "ShapeSelection");
+    connect(shapeSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 }
 
 

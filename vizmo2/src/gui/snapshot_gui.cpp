@@ -117,18 +117,6 @@ bool VizmoScreenShotGUI::CreateGUI()
 }
 
 
-void VizmoScreenShotGUI::takeCampusSnapshot(char  *fname,char  *fext)
-{
-  int w,h,xOffset,yOffset;
-  emit getScreenSize(&w,&h);
-  xOffset=0;
-  yOffset=0;
-
-  dump(fname,fext,xOffset,yOffset,w,h);
-
-}
-
-
 void VizmoScreenShotGUI::CreateActions()
 {
     takePicture= new QToolButton(QPixmap(tapes), "Picture", "Take a snap shot of whole window", this,

@@ -179,7 +179,7 @@ bool imagewrite(const char *filename, Image image)
     return(true); 
 }
 
-bool dump(char const *  filename, char  const *extension,int xOffset,int yOffset,int width,int height)
+bool dump(const char * filename,const char *extension,int xOffset,int yOffset,int width,int height)
 {
     //Guess filename
     char ppmFilename[100]="";
