@@ -64,6 +64,7 @@ set COPYING_OBJECT_FILES 8
 set INVALID_FILE 1
 set NO_WRITE_PERMISSION 2
 set INVALID_ACTION_WHEN_PATH_OPEN 3
+set DISABLED_OPTION 4
 
 # cursor shapes
 set NORMAL 0
@@ -229,7 +230,7 @@ proc UpdateCursor {msgID} {
 # common routines to display messages
 #-------------------------------------------------------------------------
 proc SendUserMessage {msgID} {
-	global mainwindow NO_WRITE_PERMISSION INVALID_FILE INVALID_ACTION_WHEN_PATH_OPEN
+	global mainwindow NO_WRITE_PERMISSION INVALID_FILE INVALID_ACTION_WHEN_PATH_OPEN DISABLED_OPTION
 	set dispMessage "Error! msg ID is $msgID"
         #puts "In SenduserMessage\n"
 	if { [string compare $msgID $INVALID_FILE] == 0} {
@@ -238,7 +239,8 @@ proc SendUserMessage {msgID} {
 		set dispMessage "Invalid Operation. Check Write Permissions" 
 	} elseif  { [string compare $msgID $INVALID_ACTION_WHEN_PATH_OPEN] == 0} {
 		set dispMessage "Path loaded. Cannot delete robot" 
-	}
+	} elseif  { [string compare $msgID $DISABLED_OPTION] == 0}  {
+               set dispMessage "Currently this option disabled" }
 	set choice [tk_messageBox -title "Vizmo 3D Error" \
 		-parent $mainwindow -type ok -default ok \
 		-message $dispMessage \
@@ -1121,8 +1123,11 @@ XViewRenderer ResetCamera
 proc SaveEnvironment {} {
 	global mainwindow SUCCESS FAILURE SAVING_FILE WAIT READY NORMAL
 	global NO_WRITE_PERMISSION
+	global DISABLED_OPTION
    	global EnvironmentFileName EnvironmentFileTypes WorkingDir  ObjFileDir PathDir
 	set result $SUCCESS
+         SendUserMessage $DISABLED_OPTION
+         return $SUCCESS
 	set filepath $EnvironmentFileName
 	set filename [file tail $filepath]
 	if { $filename == "Untitled.env" } {
