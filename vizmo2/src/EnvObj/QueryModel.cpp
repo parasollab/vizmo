@@ -45,6 +45,9 @@ bool CQueryModel::BuildModels(){
     
     ///////////////////////////////////////////////////////
     //Build Model
+
+    int dof =0; //just for now, I'll deleted latter
+
     unsigned int iQSize = m_pQueryLoader->GetQuerySize();
     
     glMatrixMode( GL_MODELVIEW );
@@ -62,7 +65,7 @@ bool CQueryModel::BuildModels(){
         m_pRobot->Configure(Cfg);
         if(iQ==1) m_pRobot->SetColor(1,0.6,0,0);
         m_pRobot->Draw(GL_RENDER);
-        //draw text for start abd goal
+        //draw text for start and goal
         glColor3d(0.1,0.1,0.1);
         if( iQ==0 ) drawstr(Cfg[0]-0.5,Cfg[1]-0.5,Cfg[2],"S");
         else drawstr(Cfg[0]-0.2,Cfg[1]-0.2,Cfg[2],"G");
@@ -73,6 +76,7 @@ bool CQueryModel::BuildModels(){
     //set back
     m_pRobot->SetColor(oldcol[0],oldcol[1],oldcol[2],oldcol[3]);
     m_pRobot->SetRenderMode(CPlumState::MV_SOLID_MODE);
+
     return true;
 }
 
@@ -90,13 +94,14 @@ void CQueryModel::Draw( GLenum mode ){
 
 list<string> CQueryModel::GetInfo() const 
 { 
-	list<string> info; 
-	info.push_back(m_pQueryLoader->GetFileName());
-	{
-		ostringstream temp;
-		temp<<"There are "<<m_pQueryLoader->GetQuerySize()-1<<" goals";
-		info.push_back(temp.str());
-    }	
-	return info;
+  list<string> info; 
+  info.push_back(m_pQueryLoader->GetFileName());
+  {
+    ostringstream temp;
+    temp<<"There are "<<m_pQueryLoader->GetQuerySize()-1<<" goals";
+    info.push_back(temp.str());
+  }	
+  return info;
+
 }
 
