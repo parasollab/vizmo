@@ -12,6 +12,7 @@ namespace plum{
     {
         m_cNumberOfBody = 0;
         m_pBodyInfo = NULL;
+	m_active = false;
     }
 
     CMultiBodyInfo::CMultiBodyInfo( const CMultiBodyInfo & other )
@@ -53,6 +54,7 @@ namespace plum{
     {
         m_bIsFixed = false;
 	m_IsBase = false;
+	m_transformDone= false;
         m_Index    = -1;
         m_X=0;     m_Y=0;    m_Z=0;
         m_Alpha=0; m_Beta=0; m_Gamma=0;

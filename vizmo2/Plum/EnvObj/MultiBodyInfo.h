@@ -33,6 +33,8 @@ namespace plum{
       
       int m_cNumberOfBody; //Total number of bodies
       int m_NumberOfConnections; //how many connections there are
+      bool m_active; //Active or passive?
+
       CBodyInfo * m_pBodyInfo;
       vector< pair<int, int> > listConnections;     
     };
@@ -72,6 +74,7 @@ namespace plum{
       
       bool m_bIsFixed;
       bool m_IsBase;
+      bool m_transformDone;
       int  m_Index;
       string m_strModelDataFileName;
       double m_X, m_Y, m_Z;

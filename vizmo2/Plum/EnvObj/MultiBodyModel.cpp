@@ -41,10 +41,10 @@ namespace plum{
 	//only build fixed, free body will not be built (when m_bFixed is set)
 	if( !info.m_bIsFixed && m_bFixed==true )
 	  continue;
-	
+
 	m_pPoly[iM].SetBody(info);
 	
-	if( m_pPoly[iM].BuildModels()==false ){
+	if( m_pPoly[iM].BuildModels()==false) {
 	  cout<<"Couldn't build models in Polyhedron class"<<endl;
 	  return false;
 	}
@@ -65,6 +65,7 @@ namespace plum{
 	//only build fixed, free body will not be build (when m_bFixed is set)
 	if( !info.m_bIsFixed && m_bFixed==true )
 	  continue;
+
 	double dist=(Point3d(info.m_X,info.m_Y,info.m_Z)-m_COM).norm()
 	  +m_pPoly[iM].GetRadius();
 	if( m_R<dist ) m_R=dist;

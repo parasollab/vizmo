@@ -106,7 +106,12 @@ namespace plum{
     GoToNext(fin);
     fin >> strData; /*Tag, "MultiBody"*/ 
     fin >> strData; //Tag, "Active/Passive"
-    if( strData[0]=='A'||strData[0]=='a') bActive=true;
+
+    if( strData[0]=='A'||strData[0]=='a'){
+      bActive=true;
+      MBInfo.m_active = true;
+    }
+
     fin >> MBInfo.m_cNumberOfBody;  /* number of body in this multibody */
     
     MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
@@ -117,16 +122,20 @@ namespace plum{
 	if( ParseBody(fin, MBInfo.m_pBodyInfo[iB])==false )
 	  return false;
 	
-	if( !MBInfo.m_pBodyInfo[iB].m_bIsFixed )
-	  dof++;
+// 	if( !MBInfo.m_pBodyInfo[iB].m_bIsFixed )
+// 	  dof++;
+
+	if((iB == 0)&&(!MBInfo.m_pBodyInfo[0].m_bIsFixed))
+	  dof = 6;
+     
       }
     
     
-    if( bActive ){ //if is robot
-      dof+=5;
-      CCfg::dof=dof;
-      cout<< "DOF's: "<<CCfg::dof<<endl;
-    }
+//     if( bActive ){ //if is robot
+//       dof+=5;
+//       CCfg::dof=dof;
+//       cout<< "DOF's: "<<CCfg::dof<<endl;
+//     }
     
     ////////////////////////////////////////////////////////
     //get connection info
@@ -137,6 +146,12 @@ namespace plum{
     int numberOfRobotConnections;
     fin >> numberOfRobotConnections; /* Number of Connections (links) */
     MBInfo.m_NumberOfConnections = numberOfRobotConnections;
+
+    if( bActive ){ //if is robot
+      dof+=numberOfRobotConnections;
+      CCfg::dof=dof;
+      cout<< "DOF's: "<<CCfg::dof<<endl; 
+   }
 
     //Each body can have more than one connection
     //Get connection info if numberOfRobotConnection != 0 
@@ -235,7 +250,7 @@ namespace plum{
     int conn = 0;
     
     fin >> preIndx >> nextIndx;
-  
+ 
     // Tag, "Actuated/NonActuated"
     fin >> strData; 
     
@@ -294,6 +309,8 @@ namespace plum{
     BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Z =
       BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Z*PI_180;
     
+    //cout<<"BodyInfo["<<preIndx<<"]"<<BodyInfo[preIndx]<<endl;
+
     return true;
   }
 

@@ -40,14 +40,17 @@ namespace plum{
 
         virtual list<string> GetInfo() const;
 
-		virtual	void Scale(double x, double y, double z);
+	virtual	void Scale(double x, double y, double z);
 
         //////////////////////////////////////////////////////////////////////
         // Access
         //////////////////////////////////////////////////////////////////////
         void setAsFree( bool free=true ){ m_bFixed=!free; }
-        double GetRadius() const { return m_R; }
-        const Point3d& GetCOM() const { return m_COM; }
+        
+	double GetRadius() const { return m_R; }
+        
+	const Point3d& GetCOM() const { return m_COM; }
+	
 	CPolyhedronModel* GetPolyhedron()  {return m_pPoly;}
 
 
