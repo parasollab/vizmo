@@ -47,8 +47,8 @@ SRC_DIR =		.
 CFLAGS = -g
 CC_SWITCHES = $(CFLAGS) -I${TCL_GENERIC_DIR} ${SHLIB_CFLAGS}
 
-VTKINC	=	/usr/local/include/vtk/
-VTKLIB	=	/usr/local/lib
+VTKINC	=	/share/include/vtk
+VTKLIB	=	/share/lib
 TCL81LIB =  	/usr/lib
 TCL81INC =	/usr/include 
 TK81LIB =	/usr/lib
@@ -66,12 +66,12 @@ TCLLIBS	 = -L$(TCL81LIB) -ltcl8.0
 
 # -- for dynamic shared object library libmp.so
 
-   OBPRM_DIR  = /home/dsmft/OBPRM/BASELINE/OBPRM
+   OBPRM_DIR  = /research/drwatson/dsmft/OBPRM/BASELINE/OBPRM
    OBPRMINCS  = -I${OBPRM_DIR}
    OBPRM_LIB      = -L${OBPRM_DIR} -lobprm
 
 
-RAPIDLIB_DIR  = /home/dsmft/CD-libs/RAPID
+RAPIDLIB_DIR  = /research/drwatson/dsmft/CD-libs/RAPID
 RAPIDLIB      = -L${RAPIDLIB_DIR} -lRAPID 
 RAPID_INCL    = -I${RAPIDLIB_DIR}
 
