@@ -95,15 +95,21 @@ bool CBoundingBoxModel::BuildModels(){
 }
 
 void CBoundingBoxModel::Draw( GLenum mode ){
-    if( mode==GL_RENDER ){
-        //Draw bbx
+  
+     if( mode==GL_RENDER ){
+       if(m_RenderMode==CPlumState::CPlumState::MV_INVISIBLE_MODE) return;
+
+       //Draw bbx
+       
         if( m_DisplayID!=-1 ){
             glPolygonMode( GL_FRONT, GL_FILL );
             glDisable(GL_LIGHTING);
             glCallList(m_DisplayID);
             glEnable(GL_LIGHTING);
         }
+      
     }
+   
 }
 
 ////////////////////////////////////////////////////////
@@ -162,3 +168,10 @@ double CBoundingBoxModel::returnMax(){
    return maxR;
 
 }
+
+
+
+
+
+
+

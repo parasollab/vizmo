@@ -42,7 +42,9 @@ private slots:
     void showmap();       //show roadmap
     void showpath();      //show path frame
     void showstartgoal(); //show start and goal position
+    void showBBox();      //show Bounding Box
     void about();         //about dialog
+    void aboutQt();       //about Qt dialog
     void contexmenu();    //create contex menu when right mouse clicked
     void notimp();        //not implemented yet.
 
@@ -65,3 +67,7 @@ private:
     bool m_bVizmoInit;     //true if vizmo is init.
     VizGLWin * m_GL;       //the scene window which displays environment..
 };
+
+
+
+

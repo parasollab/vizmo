@@ -104,6 +104,12 @@ public:
     // Robot Related Function
     void ShowRobot( bool bShow=true ){ m_bShowRobot=bShow; }
 
+    /////////////////////////////////////////////////////////////////////
+    // Bounding Box Related Function
+    void ShowBBox(bool bShow=true);
+
+
+
     //////////////////////////////////////////////////////////////////////
     // Access
     vector<gliObj>& GetSelectedItem(){ return m_Plum.GetSelectedItem();}

@@ -136,27 +136,56 @@ void VizmoMainWin::showstartgoal() //show start and goal position
 {
     static bool show=false;
     show=!show;
+    
     GetVizmo().ShowQueryFrame(show);
     m_GL->updateGL();
 }
 
+
+//BSS - Bounding Bos
+void VizmoMainWin::showBBox()
+{
+  static bool show=true;  // The box is shown when the file is loaded
+  show=!show;
+  GetVizmo().ShowBBox(show);
+  m_GL->updateGL();
+}
+
+
 void VizmoMainWin::contexmenu()
 {
+
     QPopupMenu cm(this,"contex");
-    cm.insertItem( "Wire/Solid", this, SLOT(notimp()) );
+    cm.insertItem( "Wire/Solid", this, SLOT(notimp));
     cm.exec(QCursor::pos());
+    
 }
 
 void VizmoMainWin::about()
 {
+
+ QMessageBox::about
+    (this,"Vizmo++\n",
+     "A 3D Vizualiztion tool\n"
+     "Authors:\n"
+     "Jyh-Ming Lein\n"
+     "Aimee Vargas Estrada\n"
+     "Bharatinder Singh Sandhu\n"
+     );
     //pop up an about dialog
+}
+
+
+void VizmoMainWin::aboutQt()
+{
+    QMessageBox::aboutQt( this, "Vizmo++ has been developed using Qt" );
 }
 
 void VizmoMainWin::notimp()
 {
     QMessageBox::information
-    (this,"Not Implemented Yet",
-     "This Function will be available soon",QMessageBox::Ok,QMessageBox::NoButton);
+    (this,"Ouch!!",
+     "This function will be implemented very soon!!!!",QMessageBox::Ok,QMessageBox::NoButton);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -330,7 +359,7 @@ void VizmoMainWin::CreateMenubar()
     
     QPopupMenu * envMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Environment", envMenu );
-    envMenu->insertItem( "&Bounding Box", this, SLOT(notimp()),  CTRL+Key_B );
+    envMenu->insertItem( "&Bounding Box", this, SLOT(showBBox()),  CTRL+Key_B );
     envMenu->insertSeparator();
     
     /////////////////////////////////////////////  
@@ -345,5 +374,23 @@ void VizmoMainWin::CreateMenubar()
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertItem( "&Help", help );
     help->insertItem( "&About", this, SLOT(about()), Key_F1 );
+    help->insertItem( "&About Qt",this,SLOT(aboutQt()));
     help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1 );  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

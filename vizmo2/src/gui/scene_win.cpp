@@ -89,8 +89,13 @@ void VizGLWin::mouseReleaseEvent( QMouseEvent * e )
     if( gliMR(e) ){ updateGL(); return; }//handled by gli
     updateGL();
     if( e->button()==Qt::RightButton ){
-        vector<gliObj>& objs=gliGetPickedSceneObjs();
+      vector<gliObj>& objs=gliGetPickedSceneObjs();
+	
+      objs2=&objs;
+
         if( !objs.empty() ){
+
+
 	  emit selectByRMB();
         }//empty
     }//not RMB
@@ -107,3 +112,17 @@ void VizGLWin::keyPressEvent ( QKeyEvent * e )
     if( gliKEY(e) ){ updateGL(); return; }//handled by gli
     e->ignore(); //not handled
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

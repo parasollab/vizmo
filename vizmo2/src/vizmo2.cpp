@@ -190,6 +190,23 @@ void vizmo::ShowQueryFrame( bool bShow){
         m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
 } 
 
+// Code to show or hide bouding box!!!!
+// BSS
+
+void vizmo::ShowBBox(bool bShow){
+  
+  if(m_obj.m_BBox==NULL) return;
+  CGLModel * m=m_obj.m_BBox->getModel();
+  if(bShow)
+    m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+  else
+    m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+}
+ 
+
+
+
+
 void vizmo::Animate(bool bForward){
     if( m_obj.m_Robot==NULL || m_obj.m_Path==NULL )
         return;
@@ -301,3 +318,12 @@ bool vizmo::FileExits(const string& filename) const
     fin.close();
     return result;
 }
+
+
+
+
+
+
+
+
+

@@ -5,6 +5,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 #include <qgl.h>
+// BSS
+#include <GL/gli.h>
 
 class VizGLWin : public QGLWidget
 {
@@ -14,6 +16,9 @@ public:
 
     VizGLWin( QWidget * parent=0, const char * name=0 );
     void resetCamera();
+    
+    // BSS
+    vector<gliObj> *objs2;
 
 signals:
     
