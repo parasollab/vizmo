@@ -25,6 +25,22 @@ using namespace plum;
 #include "EnvObj/QueryModel.h"
 
 //////////////////////////////////////////////////////////////////////
+// Qt header to change CC's color
+#include <qmainwindow.h>
+#include <qtoolbar.h>
+#include <qapplication.h>
+#include <qaction.h>
+#include <qlabel.h>
+#include <qlistbox.h>
+#include <qhbox.h>
+#include <qpushbutton.h>
+#include <qstring.h>
+#include <qtoolbutton.h>
+#include <qwidget.h>
+#include <qinputdialog.h>
+#include <qcolordialog.h> 
+
+//////////////////////////////////////////////////////////////////////
 //Define singleton
 vizmo g_vizmo2;
 vizmo& GetVizmo(){ return g_vizmo2; }
@@ -221,7 +237,7 @@ void vizmo::ChangeAppearance(int status)
     // status 1 = wire
     // status 2 = invisible
     // status 3 = change color
-    
+
     typedef vector<gliObj>::iterator GIT;
     
     for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
@@ -233,9 +249,8 @@ void vizmo::ChangeAppearance(int status)
             model->SetRenderMode(CPlumState::MV_WIRE_MODE);
         else if(status==2)
             model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
-	else if(status == 3){
+	else if(status == 3)
 	  model->SetColor( mR, mG, mB, 1 );
-	}
     }
     
 }
@@ -305,8 +320,6 @@ void vizmo::ChangeNodesShape(string s){
 
 void vizmo::ChangeNodesColor(double r, double g, double b, string s){
 
-  //cout<<"S value in vizmo2:: "<<s<<endl;
-
     if( m_obj.m_Robot==NULL ) return;
     
     if( m_obj.m_Map==NULL ) return;
@@ -318,34 +331,54 @@ void vizmo::ChangeNodesColor(double r, double g, double b, string s){
   //change color of one CC at a time
     vector<gliObj>& sel = GetVizmo().GetSelectedItem();
     typedef vector<gliObj>::iterator SI;
-    int id = -1;
     int m_i;
     string m_sO;
     for(SI i = sel.begin(); i!= sel.end(); i++){
       CGLModel *gl = (CGLModel*)(*i);
       m_sO = gl->GetName();
     }
-    string m_s;
+    string m_s="NULL";
     int position = m_sO.find("CC",0);
     if(position != string::npos){
       m_s = m_sO.substr(position+2, m_sO.length());
     }
 
-    //cout<<"string found: "<<m_s<<endl;
-
     CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
     vector<CC>& cc=mmodel->GetCCModels();
-    for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-      CC::Shape shape=CC::Point;
-        if( s=="Robot" ) shape=CC::Robot;
-        else if( s=="Box" ) shape=CC::Box;
+    if(m_s != "NULL"){
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+	CC::Shape shape=CC::Point;
+	if( s=="Robot" ) shape=CC::Robot;
+	else if( s=="Box" ) shape=CC::Box;
 	if(StringToInt(m_s, m_i)){
 	  if(m_i == ic->id){
 	    ic->newColor = true;
-	    //cout<<"SHAPE IN vizmo2.cpp ::"<<shape<<endl;
 	    ic->changeColor(r, g, b, shape);
 	  }
 	}
+      }
+    }
+    else if(m_s == "NULL" && oneColor){
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+	CC::Shape shape=CC::Point;
+	if( s=="Robot" ) shape=CC::Robot;
+	else if( s=="Box" ) shape=CC::Box;
+	ic->newColor = true;
+	ic->changeColor(r, g, b, shape);
+      }
+      oneColor = false;
+    }
+    else{
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+	CC::Shape shape=CC::Point;
+	if( s=="Robot" ) shape=CC::Robot;
+	else if( s=="Box" ) shape=CC::Box;
+	ic->newColor = true;
+	r = ((float)rand())/RAND_MAX; 
+	g = ((float)rand())/RAND_MAX; 
+        b = ((float)rand())/RAND_MAX; 
+	ic->changeColor(r, g, b, shape);
+      }
     }
 }
 
@@ -356,6 +389,13 @@ bool vizmo::StringToInt(const string &s, int &i){
     return true;
   else
     return false;
+}
+
+void vizmo::envObjsRandomColor(){
+
+ CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+  env->ChangeColor();
+    
 }
 
 double vizmo::GetEnvRadius(){ 
