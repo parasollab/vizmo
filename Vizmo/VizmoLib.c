@@ -12,6 +12,7 @@
 #include "RoadmapGraph.h"
 #include "Stat_Class.h"
 #include "CollisionDetection.h"
+#include <fstream.h>
 
 #ifdef LINUX
 #define VIZMO_LIBRARY "VizmoLibLinux"
@@ -1092,20 +1093,15 @@ int GetFileNames( ClientData clientData,
 /*    CheckValidFile - safety feature for use in opening files         */
 /* 	used by vizEnvironments, Paths, Queries				     */
 /***********************************************************************/
-
-int CheckValidFile(char *filename) 
+bool CheckValidFile(char *filename) 
 {
-	FILE *fileptr;
-	int returnVal;
-	if ( (fileptr = fopen(filename,"r")) == NULL)
-		returnVal = 0;
-	else 
-	{
-		returnVal = 1;
-		fclose(fileptr);
-	}
+	bool returnVal=true;
+	ifstream fin(filename);
+	if( !fin.good() ) returnVal = false;
+	fin.close();
 	return returnVal;
 }
+
 /***********************************************************************/
 /*    updateStatus - used by modules wishing to change status message  */
 /***********************************************************************/

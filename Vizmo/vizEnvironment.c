@@ -99,7 +99,6 @@ template <class T> bool vizReadField (istream &_is, T *fred) {
   return false;
 }
 
-
 int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XViewRend, Tcl_Interp *interp)
 {
         int i ,j, tempi, invalidFile = FALSE;
@@ -113,13 +112,15 @@ int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XVi
         noOfActors=0;
         printf ("\nvizEnvironment::ReadFromFile->begin %s %s\n",Rend,XViewRend);
         ifstream _is(filename);
-/*
+
+        /*
         if (!_is) {
            //cout << "Can't open \"" << filename << "\"." << endl;
                 sendUserMessage(INVALID_FILE);
                 return TCL_ERROR;
         }
-        input.Read(_is,ENV_VER_LEGACY); */
+        input.Read(_is,ENV_VER_LEGACY); 
+	*/
         input.envFile.PutValue(filename);
         input.Read(RETURN);
         printf("Body =%d\n",input.multibodyCount);
@@ -150,23 +151,30 @@ int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XVi
                    }
                       
                }
+
                if(input.isFree[m][i]) {
                   strcpy(temps,input.freebodyFileName[m][i]);
                   cout << "Loading  FreeBody  " ;
                   linkCount=input.BodyCount[m];
-
                   
                } else {
                   strcpy(temps,input.fixedbodyFileName[m][i]);
                   cout << "Loading  FixedBody ";
-                }
+               }
+
                if(  temps[0]=='/')
                     sprintf(objectFile,"%s",temps);
                else
                     sprintf(objectFile,"%s/%s",path,temps);
-                  cout <<  objectFile << endl<<flush;
+               cout <<  objectFile << endl<<flush;
+	       if( input.isFree[m][i] )
+		       strcpy(input.freebodyFileName[m][i],objectFile);
+	       else    strcpy(input.fixedbodyFileName[m][i],objectFile);
+	       
                if (!CheckValidFile(objectFile))
-                {invalidFile = TRUE; break;}
+               {
+		       invalidFile = TRUE; break;
+	       }
 
                if (!invalidFile) {
  
@@ -216,6 +224,7 @@ int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XVi
                 
             }
        }
+
         if (!invalidFile)
         {
                 /* first element added */
@@ -238,12 +247,11 @@ int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XVi
             else
              Cfg::CfgHelper = new Cfg_free();
          }
-         obprmEnv.Get(&input);
-         cout << "Robot Index=" <<obprmEnv.GetRobotIndex() << endl << flush;
-         cout << "Num links =" <<obprmEnv.GetMultiBody(obprmEnv.GetRobotIndex() )->GetFreeBodyCount() << endl << flush;
-        return TCL_OK;
-                           
 
+        obprmEnv.Get(&input);
+        cout << "Robot Index=" <<obprmEnv.GetRobotIndex() << endl << flush;
+        cout << "Num links =" <<obprmEnv.GetMultiBody(obprmEnv.GetRobotIndex() )->GetFreeBodyCount() << endl << flush;
+        return TCL_OK;
 }
 
 int vizEnvironment::ReadFromModFile(char *modfilename, char *inifilename,
@@ -259,6 +267,8 @@ int vizEnvironment::ReadFromModFile(char *modfilename, char *inifilename,
 	int noOfRobots,  robotIndex;
    	vizObject *tempActor;
    	//printf ("\nvizEnvironment::ReadFromMODFile->begin");
+	
+
 	if ( (modFile = fopen(modfilename, "r")) == NULL)
 	{
 		sendUserMessage(INVALID_FILE);

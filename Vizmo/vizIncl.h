@@ -48,7 +48,7 @@
 
 
 
-int CheckValidFile(char *filename) ;
+bool CheckValidFile(char *filename) ;
 int updateStatus(int messageNo);
 int updateCursor(int cursorType);
 int sendUserMessage(int messageNo);

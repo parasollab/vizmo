@@ -11,8 +11,10 @@ vizObject::vizObject(char *byufile)
         float dummy=1.0;
 
   	// Initialize instance variables
-  	strncpy(name,"Noname",99);
-  	strncpy(byuFileName,byufile,99);
+  	strcpy(name,"Noname");
+  	strcpy(byuFileName,byufile);
+cout<<" this --------------->" <<byuFileName<<endl;
+
 	//printf("\n vizObject::vizObject -> Actor created from file %s",byuFileName);
   	robotFlag = 0;
   	solidFlag= 1;

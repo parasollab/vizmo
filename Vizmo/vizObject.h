@@ -75,7 +75,7 @@ typedef struct {
  protected:
         int collisionFlag;
     	char name[100];
-    	char byuFileName[100];
+    	char byuFileName[1024];
     	int  robotFlag;
     	int  solidFlag;
     	float scaleFactor[3];
