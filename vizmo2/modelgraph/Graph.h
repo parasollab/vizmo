@@ -4821,7 +4821,7 @@ GetCCStats () const {
     typedef bool (*Compare_Fun_Ptr)(const pair<int,VID>& , const pair<int,VID>&);
     sort ( ccstats.begin(), ccstats.end(), ptr_fun( (Compare_Fun_Ptr)CCVID_Compare ) );
 #else
-    sort ( ccstats.begin(), ccstats.end(), ptr_fun( CCVID_Compare ) );
+    sort ( ccstats.begin(), ccstats.end(),  CCVID_Compare );
 #endif
     
     return ccstats;

@@ -36,14 +36,29 @@ namespace plum{
 			m_pRobot=pRobot;
 		}
 
-		void scaleNode( float scale ) { m_fNodeScale=scale; }
+		//void scaleNode( float scale ) { m_fNodeScale=scale;}
+		void scaleNode( float scale, string s ) { 
+		  m_fNodeScale=scale; 
+		  shape=s;
+		  if(shape == "Original"){
+		    change = true;
+		    m_fRobotNodeSize = scale;
+		  }
+		}
 		void changeNode(string s) {m_sNodeShape = s;}
 
     private:
         vector< Cfg > m_Nodes;
         vector< pair< pair<VID,VID>, WEIGHT> > m_Edges;
+	// variables used to manage the size of the robot
+	float m_fRobotNodeSize;
+	bool change;
+	//to store the node size of the current selection
 	float m_fNodeScale;
+	//to store the "name" of the item selected
 	string m_sNodeShape;
+	string shape;
+
     };
 
 
@@ -62,6 +77,8 @@ namespace plum{
         m_RGBA[2]=((float)rand())/RAND_MAX;
 	//size
 	m_fNodeScale=0.5;
+	m_fRobotNodeSize = 0.5;
+	change = false;
     }
 
     template <class Cfg, class WEIGHT>
@@ -130,11 +147,29 @@ namespace plum{
         
 	////////////////////////////////////////////////////////////////////////////////
         // Draw vertex
-	
-	m_pRobot->size=m_fNodeScale;
-        
+	//m_pRobot->size=m_fNodeScale;
+
+/*  	if((shape != "Box") && (shape != "Point")&& (shape != "Original")){ */
+/*  	  m_pRobot->size=0.5; */
+/*  	} */
+
+	if (change){
+	  m_pRobot->size=m_fNodeScale;
+	}
+	else
+	  m_pRobot->size=m_fRobotNodeSize;
+
+       
 	for( int iN=0; iN<m_Nodes.size(); iN++ ){
 	  m_Nodes[iN].m_NodeShape = m_sNodeShape;
+	  if(shape == "Box"){
+	    m_Nodes[iN].scaleBox = m_fNodeScale;
+	  }
+	  else if(shape == "Point"){
+	    m_Nodes[iN].scalePoint = m_fNodeScale;
+	  }
+
+
 	  if( mode==GL_SELECT ) glPushName( iN );
 	  m_Nodes[iN].Draw( mode );			
 	  if( mode==GL_SELECT ) glPopName();
@@ -146,6 +181,8 @@ namespace plum{
 	m_pRobot->ty()=y;
 	m_pRobot->tz()=z;
 	m_pRobot->q(q);
+
+	change = false;
 
         ////////////////////////////////////////////////////////////////////////////////
         // Draw edge
