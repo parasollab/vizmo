@@ -59,6 +59,19 @@ namespace plum {
         }
     }
     
+
+  void CEnvModel::ChangeColor(){
+        int MBSize=m_pMBModel.size();
+	float R, G, B;
+        
+	for( int iP=0; iP<MBSize; iP++ ){
+	  R  = ((float)rand())/RAND_MAX;
+	  G = ((float)rand())/RAND_MAX;
+	  B = ((float)rand())/RAND_MAX;
+	  m_pMBModel[iP]->SetColor( R, G, B, 1);
+	}
+
+  }
     void CEnvModel::Select( unsigned int * index, vector<gliObj>& sel )
     {      
         //unselect old one       
