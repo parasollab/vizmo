@@ -10,7 +10,12 @@
 #endif
 
 #include <GL/gl.h>
+#include <GL/glut.h>
 #include <iostream>
+#include <string>
+
+#include "src/EnvObj/Robot.h"
+
 using namespace std;
 
 namespace plum{
@@ -36,7 +41,8 @@ namespace plum{
         virtual ~CSimpleCfg();
         
         bool operator==( const CSimpleCfg & other );
-        virtual bool BuildModel( int index );
+        //virtual bool BuildModel( int index );
+	    virtual bool BuildModel( int index , OBPRMView_Robot* robot);
         virtual void Draw( GLenum mode );
         
         //////////////////////////////////////////////////////////////////////
@@ -57,21 +63,36 @@ namespace plum{
         virtual void Dump();
         virtual void SetRenderMode( int mode ){ m_RenderMode=mode; }
         
+	double GetAlpha() const {return m_Alpha*360;}
+	double GetBeta() const {return m_Beta*360;}
+	double GetGamma() const {return m_Gamma*360;}
+	
+	//////////////////////////////////////////////////////////////////////
+        //      Variables
         //////////////////////////////////////////////////////////////////////
+	string m_NodeShape;
+		
+	//////////////////////////////////////////////////////////////////////
         //      Protected Method & Data
         //////////////////////////////////////////////////////////////////////
     protected:
 
         void SolidCube( float size );
+	void cube( void );
+	void point( void );
+	void RobotModel();
 
         bool m_bSelected; //is this node selected
         int m_RenderMode; //render mode , wire or solid
-        int m_DisplayListIndex;
+        int m_DisplayListIndex, m_DisplayListIndexPoint ;
         
         double m_X, m_Y, m_Z;
         double m_Alpha, m_Beta, m_Gamma;
         double m_Unknow1, m_Unknow2, m_Unknow3;
         int m_index;
+
+	    OBPRMView_Robot* m_robot;
+	   
         
         //////////////////////////////////////////////////////////////////////
         //      Private Method & Data
@@ -125,7 +146,8 @@ namespace plum{
         
         int    m_LP;
         double m_Weight;
-    };
+
+   };
 
 }//namespace plum
 

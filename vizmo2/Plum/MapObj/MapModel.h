@@ -10,17 +10,22 @@
 #endif
 
 #include "MapLoader.h"
-#include "GLModel.h"
+#include "CCModel.h"
 #include "PlumState.h"
 
-namespace plum{
+#include <math.h>
+#include "mathtool/Gauss.h"
 
+#include "src/EnvObj/Robot.h"
+
+namespace plum{
+    
     template <class Cfg, class WEIGHT>
-    class CMapModel : public CGLModel
+        class CMapModel : public CGLModel
     {
-        
+		typedef CCModel<Cfg,WEIGHT> myCCModel;
     public:
-        void DumpSelected();
+
         //////////////////////////////////////////////////////////////////////
         // Constructor/Destructor
         //////////////////////////////////////////////////////////////////////
@@ -32,148 +37,155 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
         void SetMapLoader( CMapLoader<Cfg,WEIGHT>  * mapLoader ){ m_mapLoader=mapLoader; }
         
-        vector< Cfg > & GetMapNodes(){ return m_Nodes; }
-        vector< pair< pair<VID,VID>, WEIGHT> > & GetMapEdges(){ return m_Edges; }
-        
+
+	void SetRobotModel( OBPRMView_Robot* pRobot ){ 
+	  //cout<<"SetRobotMOdel in MapModel.h"<<endl;
+	  m_pRobot = pRobot;//new OBPRMView_Robot(*pRobot); 
+	}
+	
+	vector< myCCModel >& GetCCModels() { return m_CCModels; }
+
         //////////////////////////////////////////////////////////////////////
         // Action functions
         //////////////////////////////////////////////////////////////////////
         
-        bool BuildModels();
-        void Draw( GLenum mode );
-        //void Select( unsigned int * index );
-        
+        virtual bool BuildModels();
+        virtual void Draw( GLenum mode );
+        //set wire/solid/hide
+        virtual void SetRenderMode( int mode );
+
     private:
+
+	OBPRMView_Robot* m_pRobot;
+        vector< myCCModel > m_CCModels;
         CMapLoader<Cfg,WEIGHT> * m_mapLoader;
-        vector< Cfg > m_Nodes;
-        vector< pair< pair<VID,VID>, WEIGHT> > m_Edges;
-        
+
     protected:
         //virtual void DumpNode();
         //virtual void SelectNode( bool bSel );
     };
-
+    
     /*********************************************************************
     *
-    *      Implementation of CMapLoader
+    *      Implementation of CMapModel
     *
     *********************************************************************/
-
+    
     //////////////////////////////////////////////////////////////////////
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
-
+    
     template <class Cfg, class WEIGHT>
-    CMapModel<Cfg, WEIGHT>::CMapModel()
+        CMapModel<Cfg, WEIGHT>::CMapModel()
     {
         m_mapLoader = NULL;
         //m_SelectedID=-1;
         m_RenderMode = CPlumState::MV_INVISIBLE_MODE;
+		m_pRobot=NULL;
     }
-
+    
     template <class Cfg, class WEIGHT>
-    CMapModel<Cfg, WEIGHT>::~CMapModel()
+        CMapModel<Cfg, WEIGHT>::~CMapModel()
     {
         //m_SelectedID=-1;
     }
-
+    
     template <class Cfg, class WEIGHT>
-    bool CMapModel<Cfg, WEIGHT>::BuildModels()
+        bool CMapModel<Cfg, WEIGHT>::BuildModels()
     {
+        //get graph
         if( m_mapLoader==NULL ) return false;
-        
-        //create Model for nodes and edges
-        WeightedMultiDiGraph< Cfg, WEIGHT> * graph = m_mapLoader->GetGraph();
+        WeightedGraph<Cfg, WEIGHT> * graph = m_mapLoader->GetGraph();
         if( graph==NULL ) return false;
-        
-        m_Nodes = graph->GetVerticesData();
-        int nSize=m_Nodes.size();
-        for( int iN=0; iN<nSize; iN++ ){
-            if( m_Nodes[iN].BuildModel( graph->GetVID(m_Nodes[iN]) )==false )
-                return false;
-        }
-        
-        m_Edges = graph->GetEdges();
-        int eSize=m_Edges.size();
-        for( int iE=0; iE<eSize; iE++ ){
-            if( m_Edges[iE].first.first > m_Edges[iE].first.second ){
-                Cfg start = graph->GetData(m_Edges[iE].first.first);
-                Cfg end = graph->GetData(m_Edges[iE].first.second);
-                if( m_Edges[iE].second.BuildModel(start, end)==false )
-                    return false;
-            }
+
+        //Get CCs
+        typedef vector< pair<int,VID> >::iterator CIT;//CC iterator
+        vector< pair<int,VID> > CCs = graph->GetCCStats();
+        int CCSize=CCs.size();
+        m_CCModels.reserve(CCSize);
+        for( CIT ic=CCs.begin();ic!=CCs.end();ic++ ){
+            myCCModel cc;
+
+	    ///// new
+	    cc.RobotModel(m_pRobot);
+	    /////////
+
+            cc.BuildModels(ic->second,graph);
+
+            m_CCModels.push_back(cc);
         }
 
-        m_mapLoader->KillGraph();
+	
+
+        //release graph, not used
+        //m_mapLoader->KillGraph();
+
         return true;
     }
-
+    
     template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::Draw( GLenum mode ) {
+        void CMapModel<Cfg, WEIGHT>::Draw( GLenum mode ) {
         
         if( m_RenderMode == CPlumState::MV_INVISIBLE_MODE ) return;
         if( mode==GL_SELECT && !m_EnableSeletion ) return;
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // Draw vertex
-        for( int iN=0; iN<m_Nodes.size(); iN++ ){
-            if( mode==GL_SELECT ) glPushName( iN );
-            m_Nodes[iN].Draw( mode );
+        //Draw each CC
+        typedef vector< myCCModel >::iterator CIT;//CC iterator
+        for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
+            if( mode==GL_SELECT ) glPushName( ic-m_CCModels.begin() );
+            ic->Draw(GL_RENDER); //not select node, just select CC first
             if( mode==GL_SELECT ) glPopName();
         }
-        
-        ////////////////////////////////////////////////////////////////////////////////
-        // Draw edge
-        if( mode==GL_SELECT ) return; //no selection for edge
-        glLineWidth(2);
-        glColor3f(0.3f,0.3f,0.3f);
-        for( int iE=0; iE<m_Edges.size(); iE++ ){
-            if( m_Edges[iE].first.first > m_Edges[iE].first.second ){
-                m_Edges[iE].second.Draw( mode );
-            }
-        }
-        glLineWidth(1);
+	//m_pRobot->size = 1;
     }
 
+    template <class Cfg, class WEIGHT>
+    void CMapModel<Cfg, WEIGHT>::SetRenderMode( int mode ){ 
+        m_RenderMode=mode;
+        typedef vector< myCCModel >::iterator CIT;//CC iterator
+        for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
+            ic->SetRenderMode(mode);
+        }
+    }
+    
     /*
     template <class Cfg, class WEIGHT>
     void CMapModel<Cfg, WEIGHT>::Select( unsigned int * index )
     {
-        if( m_mapLoader==NULL ) return; //status error
-        
-        //unselect first
-        if( m_SelectedID!=-1 ){
-            SelectNode(false);
-            m_SelectedID=-1;
-        }
-        
+    if( m_mapLoader==NULL ) return; //status error
+    
+      //unselect first
+      if( m_SelectedID!=-1 ){
+      SelectNode(false);
+      m_SelectedID=-1;
+      }
+      
         if( index==NULL ) return;
         m_SelectedID = index[0];
         SelectNode(true);
-    }
-
-    template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::SelectNode(bool bSel)
-    {
-        if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
-        m_Nodes[m_SelectedID].Select( bSel );
-    }
-
-    template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::DumpSelected()
-    {
-        if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
-        DumpNode();
-    }
-
-    template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::DumpNode()
-    {
-        if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
-        m_Nodes[m_SelectedID].Dump();
-    }
+        }
+        
+          template <class Cfg, class WEIGHT>
+          void CMapModel<Cfg, WEIGHT>::SelectNode(bool bSel)
+          {
+          if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
+          m_Nodes[m_SelectedID].Select( bSel );
+          }
+          
+            template <class Cfg, class WEIGHT>
+            void CMapModel<Cfg, WEIGHT>::DumpSelected()
+            {
+            if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
+            DumpNode();
+            }
+            
+              template <class Cfg, class WEIGHT>
+              void CMapModel<Cfg, WEIGHT>::DumpNode()
+              {
+              if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
+              m_Nodes[m_SelectedID].Dump();
+              }
     */
-
+    
 }//namespace plum
 
 #endif // !defined(_MAPMODEL_H_)

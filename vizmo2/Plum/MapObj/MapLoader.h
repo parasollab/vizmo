@@ -78,14 +78,17 @@ namespace plum{
         // Access function
         //////////////////////////////////////////////////////////////////////
         //these two functions are only accessed from CMapModeler
-        WeightedMultiDiGraph<Cfg,WEIGHT> * GetGraph() { return m_Graph; }
+        //WeightedMultiDiGraph<Cfg,WEIGHT> * GetGraph() { return m_Graph; }
+	//new
+	WeightedGraph< Cfg, WEIGHT> * GetGraph() { return m_Graph; }
         void KillGraph(){ delete m_Graph; m_Graph=NULL; }
         
         //////////////////////////////////////////////////////////////////////
         //      Protected Methods and data members
         //////////////////////////////////////////////////////////////////////
     protected:        
-        WeightedMultiDiGraph< Cfg, WEIGHT> * m_Graph;
+        WeightedGraph< Cfg, WEIGHT> * m_Graph;
+	//WeightedMultiDiGraph< Cfg, WEIGHT > * m_Graph;
     };
 
     /*********************************************************************
@@ -126,9 +129,12 @@ namespace plum{
         //Get Graph Data
         char strData[MAX_LINE_LENGTH];
         fin.getline(strData, MAX_LINE_LENGTH);
-        m_Graph =new WeightedMultiDiGraph< Cfg, WEIGHT>();
-        if( m_Graph==NULL ) return false;
-        m_Graph->ReadGraph( fin );
+        m_Graph =new WeightedGraph< Cfg, WEIGHT>();
+        if( m_Graph==NULL ){ 
+	  return false; 
+	  //cout<<"Nop ..."<<endl;
+	}
+        m_Graph->ReadGraph( fin ); //cout<<"Yes!"<<endl;
         
         fin.close();        
         return true;
