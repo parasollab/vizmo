@@ -66,9 +66,9 @@ TCLLIBS	 = -L$(TCL81LIB) -ltcl8.0
 
 # -- for dynamic shared object library libmp.so
 
-   OBPRM_DIR  = /research/drwatson/dsmft/OBPRM/BASELINE/OBPRM
+   OBPRM_DIR  = /users/burchanb/blackwidowers/OBPRM
    OBPRMINCS  = -I${OBPRM_DIR}
-   OBPRM_LIB      = -L${OBPRM_DIR} -lobprm
+   OBPRM_LIB      = -L. -lobprm
 
 
 RAPIDLIB_DIR  = /research/drwatson/dsmft/CD-libs/RAPID

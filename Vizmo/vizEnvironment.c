@@ -9,6 +9,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <Input.h>
+#include "Environment.h"
+#include "Contact.h"
+#include "FreeBody.h"
+#include "FixedBody.h"
+                       
+#include <Cfg.h>
+ 
+#include "CfgManager.h"
+#include "Cfg_free.h"
+#include "Cfg_fixed_PRR.h"
+#include "Cfg_free_serial.h"
+                                  
 #include "vizEnvironment.h"
 //#include "read_byu.h"
 //#include "fk.h"
@@ -96,16 +108,139 @@ int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XVi
         char string[255],objectName[255]="Noname";
         char objectFile[1024];
         vizObject *tempActor;
-        //printf("Path==%s\n",path);
-        int bc;
+        noOfActors=0;
         printf ("\nvizEnvironment::ReadFromFile->begin %s %s\n",Rend,XViewRend);
         ifstream _is(filename);
+/*
         if (!_is) {
            //cout << "Can't open \"" << filename << "\"." << endl;
                 sendUserMessage(INVALID_FILE);
                 return TCL_ERROR;
         }
+        input.Read(_is,ENV_VER_LEGACY); */
+        input.envFile.PutValue(filename);
+        input.Read(RETURN);
+        printf("Body =%d\n",input.multibodyCount);
+        for(int m=0;m<input.multibodyCount;m++)
+        {
+           for(i=0;i<input.BodyCount[m]; i++){   
+               noOfActors++;
+               sprintf(objectName,"Noname");                                
+               color[0]=color[1]=color[2]=0.9;
+               solidFlag=1;      
+               for(j=0;j<input.comments[m][i].size();j++)
+               {
+                   printf("Comment=%s \n",input.comments[m][i][j]);
+                   if( !strncmp(input.comments[m][i][j],"VIZMO_COLOR",11))
+                   {
+                   sscanf(input.comments[m][i][j],"%s %f %f %f",temps,
+                                        &color[0],&color[1],&color[2]);
+                   cout << "Color " << color[0] << " " << color[1] << " " << color[2] << endl<< flush;
+                   }     else 
+                   if( !strncmp(input.comments[m][i][j],"VIZMO_NAME",10))
+                   {
+                    sscanf(input.comments[m][i][j],"%s %s",temps,objectName);
+                    cout << "ObjectName " << objectName<< endl;
+                   } else 
+                   if( !strncmp(input.comments[m][i][j],"VIZMO_SOLID",11))
+                   {
+                      sscanf(input.comments[m][i][j],"%s %d",temps,&solidFlag);
+                   }
+                      
+               }
+               if(input.isFree[m][i]) {
+                  strcpy(temps,input.freebodyFileName[m][i]);
+                  cout << "Loading  FreeBody  " ;
+                  linkCount=input.BodyCount[m];
 
+                  
+               } else {
+                  strcpy(temps,input.fixedbodyFileName[m][i]);
+                  cout << "Loading  FixedBody ";
+                }
+               if(  temps[0]=='/')
+                    sprintf(objectFile,"%s",temps);
+               else
+                    sprintf(objectFile,"%s/%s",path,temps);
+                  cout <<  objectFile << endl<<flush;
+               if (!CheckValidFile(objectFile))
+                {invalidFile = TRUE; break;}
+
+               if (!invalidFile) {
+ 
+                  tempActor = new vizObject(objectFile);
+                  Actors.Insert(tempActor);
+                  if(input.isFree[m][i])  {
+                        tempActor->setRobot();
+                        tempActor->part.conf[0]=input.freebodyPosition[m][0];    
+                        tempActor->part.conf[1]=input.freebodyPosition[m][1];    
+                        tempActor->part.conf[2]=input.freebodyPosition[m][2];    
+                  }
+                  else {
+                        tempActor->setObstacle();
+                        tempActor->part.conf[0]=input.fixedbodyPosition[m][i][0];
+                        tempActor->part.conf[1]=input.fixedbodyPosition[m][i][1];
+                        tempActor->part.conf[2]=input.fixedbodyPosition[m][i][2];
+
+                        tempActor->part.conf[3]=input.bodyOrientation[m][i][0];  
+                        tempActor->part.conf[4]=input.bodyOrientation[m][i][1]; 
+                        tempActor->part.conf[5]=input.bodyOrientation[m][i][2];   
+                  }
+              
+                  tempActor->setSolid();
+    
+   
+              //_is >> tempActor->part.conf[5];
+    
+              tempActor->setPosition(tempActor->part.conf[0],
+                  tempActor->part.conf[1],
+                  tempActor->part.conf[2]);
+               tempActor->setOrientation(tempActor->part.conf[3],
+                                         tempActor->part.conf[4],
+                                  tempActor->part.conf[5]);
+               tempActor->setName(objectName);
+    
+    
+               tempActor->setScaleFactor(1,1,1);
+               tempActor->setColor(color[0],color[1],color[2]);
+               tempActor->setRenderer(Rend,XViewRend, interp);
+               tempActor->saveCurrentLocation();
+               if(solidFlag) tempActor->setSolid();
+                     else tempActor->setWired();
+ 
+ 
+             }
+                                  
+                
+            }
+       }
+        if (!invalidFile)
+        {
+                /* first element added */
+                //cout << "salak burada" << endl;
+                setPickedActorIndex(0);
+                strncpy(DataFileName, filename, MAX_FILENAME-1);
+        }
+        else
+        {
+                Close();
+                sendUserMessage(INVALID_FILE);
+        }
+        //printf("\nvizEnvironment::ReadFromFile-> ended" );
+        if(!input.cfgSet) {
+            cout << "LinkCount = " << linkCount << endl;
+            if(linkCount>1)
+            {
+             Cfg::CfgHelper = new Cfg_free_serial(linkCount-1);
+            }
+            else
+             Cfg::CfgHelper = new Cfg_free();
+         }
+         obprmEnv.Get(&input);
+         cout << "Robot Index=" <<obprmEnv.GetRobotIndex() << endl << flush;
+         cout << "Num links =" <<obprmEnv.GetMultiBody(obprmEnv.GetRobotIndex() )->GetFreeBodyCount() << endl << flush;
+        return TCL_OK;
+                           
        _is >> initString;
        if(initString[0]=='#')  {
         _is >> initString;
@@ -129,14 +264,6 @@ int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XVi
         vizReadField(_is, &string);              // Tag, "Active/Passive"
         cout << "Activity " << string << endl;
 
-        _is >> bc;   // Tag, "FreeBody" or "FixedBody"
-        cout << "bc " << bc << endl;
-        if(bc!=1) {
-           //cout << "Currently on one body can be set in a Multibody" << endl;
-                sendUserMessage(INVALID_FILE);
-                return TCL_ERROR;
-
-        }
         vizReadField(_is, &string);          // Tag for fixed body (FixedBody or FreeBody
          //cout << "esit=" << string << "++++\n";
         if( !strncmp(string,"#VIZMO_COLOR",12))
@@ -203,13 +330,6 @@ int vizEnvironment::ReadFromFile(char *filename, char *path,char *Rend,char *XVi
                                tempActor->part.conf[5]);
             tempActor->setName(objectName);
 
-/*
-            if(!tempActor->isRobot()) {
-              RPY_Config_To_Transform(tempActor->part.conf,
-                                              tempActor->part.T);
-                              Transform_Local_Vertices(&tempActor->part);
-                           Reset_T(tempActor->part.T);
-                        } */
 
           tempActor->setScaleFactor(1,1,1);
           tempActor->setColor(color[0],color[1],color[2]);

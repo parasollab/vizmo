@@ -14,29 +14,32 @@
 #include <string.h>
 #include <stdio.h>
 #include "Path.h"
+#include "OBPRM.h"
 #include "util.h"
 //#include "collision_check.h"
 
+typedef double t44[4][4];                                                       
+
 void
 RPY_Config_To_Transform(double Q[6], t44 T) {
-
+ 
   double a,b,c,tmp1,tmp2;
   double ca,cb,cc,sa,sb,sc;
-
+ 
   c=Q[3]*TWOPI;
   b=Q[4]*TWOPI;
   a=Q[5]*TWOPI;
-
+ 
   ca=cos(a);
   cb=cos(b);
   cc=cos(c);
   sa=sin(a);
   sb=sin(b);
   sc=sin(c);
-
+ 
   tmp1=ca*sb;
   tmp2=sa*sb;
-
+ 
   T[0][0] = ca*cb;
   T[0][1] = tmp1*sc - sa*cc;
   T[0][2] = tmp1*cc + sa*sc;
@@ -52,18 +55,17 @@ RPY_Config_To_Transform(double Q[6], t44 T) {
   T[3][0] = T[3][1] = T[3][2] = 0.0;
   T[3][3] = 1.0;
 }
-
+                         
 void
 RPY_Config_To_Transform(double Q[6], double T[12]) {
-
+ 
     t44 Tmp;
     RPY_Config_To_Transform(Q, Tmp);
-
+ 
     T[0] = Tmp[0][0]; T[1] = Tmp[0][1]; T[2] = Tmp[0][2];  T[3] = Q[0];
     T[4] = Tmp[1][0]; T[5] = Tmp[1][1]; T[6] = Tmp[1][2];  T[7] = Q[1];
     T[8] = Tmp[2][0]; T[9] = Tmp[2][1]; T[10] = Tmp[2][2]; T[11] = Q[2];
-}
-
+}   
 Path::Path()
 {
         noOfFrames = 0;
@@ -140,6 +142,10 @@ int Path::ReadFromFile(char *filename)
 	int i,j,row,col, actualNumRobots;
 	char buffer[MAX_ANY_NAME];
 	float *startConfig;
+        vector <Vector6D> linkPos;
+        Cfg cfg;
+        int  version;
+         char tmpLine[256];
 
 	//printf ("\n Path::ReadFromFile->begin");
 	if (( pathFile = fopen(filename, "r")) == NULL )
@@ -157,6 +163,8 @@ int Path::ReadFromFile(char *filename)
         {
           //printf("Using Vizmo format \n");
           fscanf(pathFile,"%d",&noOfRobots);
+          noOfRobots=theEnv->obprmEnv.GetMultiBody(
+                          theEnv->obprmEnv.GetRobotIndex())->GetFreeBodyCount();
           actualNumRobots = 0;
           for( i = 0; i < theEnv->getNumberActors(); i++)
           {
@@ -170,45 +178,77 @@ int Path::ReadFromFile(char *filename)
                         theEnv->Actors[i]->setOrientation(startConfig[3],
 				startConfig[4],startConfig[5]);
                 }
-        }
-        if ( actualNumRobots != noOfRobots)
-        {
-                printf("\nInconsistent path file - incorrect number robots");
+         }
+        sscanf(buffer,"%s %s  %s %d",tmpLine,tmpLine,tmpLine,&version);
+        if(version==20001125) {
+          fclose(pathFile);
+            ifstream _is(filename);        
+              _is.getline(line,256,'\n'); // read header
+              _is.getline(line,256,'\n'); // read number of robots
+              _is >> noOfFrames; 
+        cout << "NumFrames = " << noOfFrames << endl;
+         cout << "Num Links= " << theEnv->obprmEnv.GetMultiBody(0)->GetFreeBodyCount() << endl;               
+              for ( i = 0; i < noOfFrames; i++)
+              {
+                 cfg.Read(_is); 
+                 cfg.printLinkConfigurations(&(theEnv->obprmEnv),linkPos);
+                 for(j=0;j<linkPos.size();j++)
+                      printf("%lf %lf %lf %lf %lf %lf\n",
+                                linkPos[j][0],linkPos[j][1],linkPos[j][2],
+                                linkPos[j][3],linkPos[j][4],linkPos[j][5]);
+
+                 for(j=0;j<linkPos.size();j++) {
+                    tempConfig=new goalPosition("noname",
+                           linkPos[j][0],linkPos[j][1],linkPos[j][2],
+                           linkPos[j][3]*360,linkPos[j][4]*360,
+                           linkPos[j][5]*360);
+                    Configurations.Insert(tempConfig);
+                 }
+              }
+              cout << "Finished\n";
+            _is.close();
+            return TCL_OK;
+           } 
+        else {
+           if ( actualNumRobots != noOfRobots)
+           {
+                   printf("\nInconsistent path file - incorrect number robots");
                 return 0;
-        }
-        /* reads two lines of junk if a PV path file */
-        //printf("\n Reading configurations from file :");
+           }
+           /* reads two lines of junk if a PV path file */
+           //printf("\n Reading configurations from file :");
 
-        /*should read noOfFrames */
-        fscanf(pathFile, "%d", &noOfFrames);
-        //printf("No# frames =%d\n", noOfFrames);
-        for ( i = 0; i < noOfFrames; i++)
-        {
-                for ( j = 0; j < noOfRobots; j++)
-                {
-                        fscanf(pathFile, "%f %f %f %f %f %f\n", &conf[0],
-				&conf[1],&conf[2],&conf[3],&conf[4],&conf[5]);
-                        //printf( "%f %f %f %f %f %f\n", conf[0],
-			//	conf[1],conf[2],conf[3],conf[4],conf[5]);
-/*
-                          conf[3]=conf[3]*180/M_PI;
-                          conf[4]=conf[4]*180/M_PI;
-                          conf[5]=conf[5]*180/M_PI;
-*/
-                         conf[3]=conf[3]*360;
-                          conf[4]=conf[4]*360;
-                          conf[5]=conf[5]*360;
-                         tempConfig=new goalPosition( "noname",
-				conf[0],conf[1],conf[2],conf[3],conf[4],
- 				conf[5]);
-
-                        Configurations.Insert(tempConfig);
-
-                        /* read in the three zeros!!! PV quirk*/
-                }
-
-        }
-        fclose(pathFile);
+           /*should read noOfFrames */
+           fscanf(pathFile, "%d", &noOfFrames);
+           //printf("No# frames =%d\n", noOfFrames);
+           for ( i = 0; i < noOfFrames; i++)
+           {
+                   for ( j = 0; j < noOfRobots; j++)
+                   {
+                           fscanf(pathFile, "%f %f %f %f %f %f\n", &conf[0],
+				   &conf[1],&conf[2],&conf[3],&conf[4],&conf[5]);
+                           //printf( "%f %f %f %f %f %f\n", conf[0],
+			   //	conf[1],conf[2],conf[3],conf[4],conf[5]);
+   /*
+                             conf[3]=conf[3]*180/M_PI;
+                             conf[4]=conf[4]*180/M_PI;
+                             conf[5]=conf[5]*180/M_PI;
+   */
+                            conf[3]=conf[3]*360;
+                             conf[4]=conf[4]*360;
+                             conf[5]=conf[5]*360;
+                            tempConfig=new goalPosition( "noname",
+				   conf[0],conf[1],conf[2],conf[3],conf[4],
+ 				   conf[5]);
+   
+                           Configurations.Insert(tempConfig);
+   
+                           /* read in the three zeros!!! PV quirk*/
+                   }
+   
+           }
+           fclose(pathFile);
+         }
         /* reset to start position */
         currentFrame = 0;
         GoToStep(currentFrame);

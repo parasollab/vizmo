@@ -53,6 +53,7 @@ class vizEnvironment
 		List<vizObject> Actors;
  		vizRoadmap rdmp;
 
+                int linkCount;
 
 
 		vizEnvironment();
@@ -92,6 +93,7 @@ class vizEnvironment
          	int DisplayRoadmap(char *file,int value,char *Rend,Tcl_Interp *interp);
 		int HideRoadmap(char *Rend,Tcl_Interp *interp);
 		int ReadRoadmap(char *file,int value);
+                Environment obprmEnv;
 
 	private:
  
