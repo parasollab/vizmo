@@ -34,17 +34,17 @@ CQueryModel::~CQueryModel()
 // Action Methods
 //////////////////////////////////////////////////////////////////////
 bool CQueryModel::BuildModels(){
-
+	
     //can't build model without model loader
-
-  if( m_pRobot==NULL || m_pQueryLoader==NULL )
-
-    return false;
-     
-  ///////////////////////////////////////////////////////
-  //Build Model
+	
+	if( m_pRobot==NULL || m_pQueryLoader==NULL )
+		
+		return false;
+	
+	///////////////////////////////////////////////////////
+	//Build Model
     unsigned int iPathSize = m_pQueryLoader->GetPathSize();
- 
+	
     glMatrixMode( GL_MODELVIEW );
     m_DLIndex=glGenLists(1);
     m_pRobot->SetRenderMode(CPlumState::MV_WIRE_MODE);
@@ -55,13 +55,14 @@ bool CQueryModel::BuildModels(){
     //create list
     glNewList( m_DLIndex, GL_COMPILE );
     for( unsigned int iQ=0; iQ<iPathSize; iQ++ ){
-      double * Cfg = m_pQueryLoader->GetStartGoal(iQ);  
-      m_pRobot->Configure(Cfg);
-      m_pRobot->Draw(GL_RENDER);
-      delete [] Cfg;
+		double * Cfg = m_pQueryLoader->GetStartGoal(iQ);  
+		m_pRobot->Configure(Cfg);
+		if(iQ==1) m_pRobot->SetColor(1,0,0,0);
+		m_pRobot->Draw(GL_RENDER);
+		delete [] Cfg;
     }
     glEndList();
-
+	
     //set back
     m_pRobot->SetColor(oldcol[0],oldcol[1],oldcol[2],oldcol[3]);
     m_pRobot->SetRenderMode(CPlumState::MV_SOLID_MODE);
