@@ -211,12 +211,12 @@ void VizmoAnimationGUI::goToFrame()
 
 void VizmoAnimationGUI::gotoFirst()
 {
-  // slider->setValue(0);
+   slider->setValue(0);
 
   // think of a better way to go to a frame
-  GetVizmo().GetConfiguration(0);
+  //GetVizmo().GetConfiguration(0);
   
-  emit callUpdate();
+  //emit callUpdate();
   
 }
 
