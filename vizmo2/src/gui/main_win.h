@@ -65,6 +65,7 @@ private slots:
     void notimp();          //not implemented yet.
     void refreshEnv();      // refresh!!!
     void changecolor();     //to change the background color for vizmo++
+    void envObjsRandomColor();
 
     void setSolid();      // turn object into solidMode
     void setWire();       // turn object into wire mode
@@ -106,7 +107,7 @@ private:
    
     QToolBar *vizmoTools;
     QToolButton *folderButton, *roadmapButton, *pathButton, *strtGoalButton;
-    QToolButton  *cameraButton, *palletButton; 
+    QToolButton  *cameraButton, *palletButton, *envButton; 
 
  protected:
     VizGLWin * m_GL;       //the scene window which displays environment..
