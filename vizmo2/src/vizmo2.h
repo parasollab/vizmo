@@ -114,15 +114,18 @@ public:
     // Bounding Box Related Function
     void ShowBBox(bool bShow=true);
     
+    /////////////////////////////////////////////////////////////////////
+    // Environment Related Functions
+
     // Change the appearance of an object - Hidden/ Wire / Soid
-    void ChangeAppearance(int );
-    
+    void ChangeAppearance(int );   
     void RefreshEnv();
+    void envObjsRandomColor();
     
   //Miscelaneous
 
     bool StringToInt(const string &s, int &i);
-   
+    bool oneColor;   
     //////////////////////////////////////////////////////////////////////
     // Access
 
