@@ -36,6 +36,7 @@ public:
 public slots:
     void changeSize();      //Changes road map node's size
     void changeColor();      //Changes CC's color
+    void setSameColor();     //Set all CC's to the same color
 
 signals:
     void callUpdate();
@@ -48,6 +49,6 @@ private:
     // private:
     QListBox *l;
     double size;
-    QToolButton *nodesize, *nodesColor;
+    QToolButton *nodesize, *nodesColor, *nodesSameColor;
     string m_shapeString;
 };

@@ -51,7 +51,13 @@ void VizmoRoadmapGUI::createGUI()
      SLOT(changeColor()), this, "node");
   nodesColor->setUsesTextLabel ( true );
   nodesColor->setEnabled(false);
-  
+ 
+  nodesSameColor= new QToolButton
+    (QPixmap(shapes1), "CC's one color", "Change roadmap node's to same color", this,
+     SLOT(setSameColor()), this, "node");
+  nodesSameColor->setUsesTextLabel ( true );
+  nodesSameColor->setEnabled(false);
+
 }
 
 void VizmoRoadmapGUI::reset()
@@ -60,11 +66,13 @@ void VizmoRoadmapGUI::reset()
       nodesize->setEnabled(true);
       l->setEnabled(true);
       nodesColor->setEnabled(true);
+      nodesSameColor->setEnabled(true);
     }
     else{
       nodesize->setEnabled(false);
       l->setEnabled(false);
       nodesColor->setEnabled(false);
+      nodesSameColor->setEnabled(false);
     }
 }
 
@@ -79,12 +87,7 @@ void VizmoRoadmapGUI::getSelectedItem()
             s = (string)item->text().ascii();
     }
     m_shapeString = s;
-//      cout<<"--------";
-//      cout<<"S::"<<s<<endl;
-//      cout<<"m_shapeString::"<<m_shapeString<<endl;
-//      cout<<"--------";
     GetVizmo().ChangeNodesShape(s);
-
     emit callUpdate(); //set an update event
 }
 
@@ -108,22 +111,68 @@ void VizmoRoadmapGUI::changeSize(){
     }
 
 }
+
+void VizmoRoadmapGUI::setSameColor(){
+  double R, G, B;
+  R=G=B=1;
+  string s = "all";
+  GetVizmo().oneColor = true;
+  QColor color = QColorDialog::getColor( white, this, "color dialog" );
+  if ( color.isValid() ){
+    R = (double)(color.red()) / 255.0;
+    G = (double)(color.green()) / 255.0;
+    B = (double)(color.blue()) / 255.0;
+  }
+
+  string shape;
+  for ( unsigned int i = 0; i < l->count(); i++ ){
+    QListBoxItem *item = l->item( i );
+    // if the item is selected...
+    if ( item->selected() )
+      shape = (string)item->text().ascii();
+  }
+
+  GetVizmo().ChangeNodesColor(R, G, B, shape);
+  emit callUpdate(); //set an updat event
+}
+
 void VizmoRoadmapGUI::changeColor(){
 
-  double R, G, B;
+    double R, G, B;
+    R=G=B=1;
   
- QColor color = QColorDialog::getColor( white, this, "color dialog" );
-    if ( color.isValid() ){
-        R = (double)(color.red()) / 255.0;
-        G = (double)(color.green()) / 255.0;
-        B = (double)(color.blue()) / 255.0;
-
-	//string shape;
-	//shape = "Robot";
-
-        GetVizmo().ChangeNodesColor(R, G, B, m_shapeString);
-        emit callUpdate(); //set an updat event
+//Check first if there is a CC selected
+ 
+    vector<gliObj>& sel = GetVizmo().GetSelectedItem();
+    typedef vector<gliObj>::iterator SI;
+    int m_i;
+    string m_sO;
+    for(SI i = sel.begin(); i!= sel.end(); i++){
+      CGLModel *gl = (CGLModel*)(*i);
+      m_sO = gl->GetName();
     }
+    string m_s="NULL";
+    int position = -10;
+    position = m_sO.find("CC",0);
+    if(position != string::npos){
+      QColor color = QColorDialog::getColor( white, this, "color dialog" );
+      if ( color.isValid() ){
+	R = (double)(color.red()) / 255.0;
+	G = (double)(color.green()) / 255.0;
+	B = (double)(color.blue()) / 255.0;
+      }
+    }
+    
+    string s;
+    for ( unsigned int i = 0; i < l->count(); i++ ) {
+      QListBoxItem *item = l->item( i );
+      // if the item is selected...
+        if ( item->selected() )
+	  s = (string)item->text().ascii();
+    }
+    
+    GetVizmo().ChangeNodesColor(R, G, B, s);
+    emit callUpdate(); //set an updat event
 }
 
 
