@@ -64,6 +64,47 @@ namespace mathtool{
                              zx-sy, yz+sx, 1-x_2-y_2);
         }
 
+	Quaternion getQuaternionFromMatrix(Matrix3x3 mat){
+
+	  double X, Y, Z, W, S;
+	  double T = 1 + mat[0][0] + mat[1][1] + mat[2][2];
+
+	  if ( T > 0.00000001 ){
+	    S = 0.5 / sqrt(T);
+	    X = ( mat[2][1] - mat[1][2] ) * S;
+	    Y = ( mat[0][2] - mat[2][0] ) * S;
+	    Z = ( mat[1][0] - mat[0][1] ) * S;
+	    W = 0.25 / S;
+	  }
+	  else{ //if(T <= 0)
+	    if ( (mat[0][0] > mat[1][1]) && (mat[0][0] > mat[2][2]) )  {	// Column 0: 
+	      S  = sqrt( 1.0 + mat[0][0] - mat[1][1] - mat[2][2] ) * 2;
+	      X = 0.25 * S;
+	      Y = (mat[0][1] + mat[1][0] ) / S;
+	      Z = (mat[2][0] + mat[0][2] ) / S;
+	      W = (mat[1][2] - mat[2][1] ) / S;
+	    } else if ( mat[1][1] > mat[2][2] ) {			// Column 1: 
+	      S  = sqrt( 1.0 + mat[1][1] - mat[0][0] - mat[2][2] ) * 2;
+	      X = (mat[0][1] + mat[1][0] ) / S;
+	      Y = 0.25 * S;
+	      Z = (mat[1][2] + mat[2][1] ) / S;
+	      W = (mat[0][2] - mat[2][0] ) / S;
+	    } else {						// Column 2:
+	      S  = sqrt( 1.0 + mat[2][2] - mat[0][0] - mat[1][1] ) * 2;
+	      X = (mat[2][0] + mat[0][2] ) / S;
+	      Y = (mat[1][2] + mat[2][1] ) / S;
+	      Z = 0.25 * S;
+	      W = (mat[0][1] - mat[1][0] ) / S;
+	    }
+	  }
+
+	  //The quaternion is then defined as: Q = | X Y Z W |
+	  Vector3d v;
+	  v.set(X, Y, Z);	
+	  Quaternion qt(W,v);  
+	  return qt;
+	}
+
         void set(double s,const Vector3d & v){ m_v=v; m_s=s; }
         const Vector3d& getComplex() const { return m_v; }
         double getReal() const { return m_s; }
