@@ -47,9 +47,14 @@ private slots:
     void aboutQt();       //about Qt dialog
     void contexmenu();    //create contex menu when right mouse clicked
     void notimp();        //not implemented yet.
+    void refreshEnv();    // refresh!!!
+    void animate();
+    void setSolid();
+    void setWire();
+    void setInvisible();
 
 private:
-
+  
     bool CreateActions();   //Create Qt Actions
     void SetTips();         //Set Tip/Info about actions.
     void CreateToolbar();   //Create Qt Toolbar

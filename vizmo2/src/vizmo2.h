@@ -108,11 +108,18 @@ public:
     // Bounding Box Related Function
     void ShowBBox(bool bShow=true);
 
+    // Change the appearance of an object - Hidden/ Wire / Soid
+    void ChangeAppearance(int );
+    
+    void refreshEnv();
+    
 
 
     //////////////////////////////////////////////////////////////////////
     // Access
-    vector<gliObj>& GetSelectedItem(){ return m_Plum.GetSelectedItem();}
+    vector<gliObj>& GetSelectedItem(){return m_Plum.GetSelectedItem();}
+
+
     double GetEnvRadius(){ 
         if(m_obj.m_Env!=NULL ){
             CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
@@ -120,6 +127,9 @@ public:
         }
         return 200;
     }
+
+
+   
 
     //////////////////////////////////////////////////////////////////////
     // Protected Function
@@ -175,9 +185,16 @@ private:
     bool FileExits(const string& filename) const;
     bool m_bShowRobot;
 
-    //list<vizmo_obj> m_objs; //for future reference
+    // list<vizmo_obj> m_objs; //for future reference
+
     vizmo_obj m_obj;
+
     CPlum m_Plum;
 };
 
 #endif // !defined(_VIZMO2_H_)
+
+
+
+
+

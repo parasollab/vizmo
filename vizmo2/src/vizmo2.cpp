@@ -160,6 +160,16 @@ void vizmo::DumpSelected(){
 m_Plum.DumpSelected();
 }
 */
+
+
+void vizmo::refreshEnv()
+{
+  if(m_obj.m_Env==NULL) return;
+  CGLModel *m=m_obj.m_Env->getModel();
+
+  m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+}
+
 void vizmo::ShowRoadMap( bool bShow ){
 
     if( m_obj.m_Map==NULL ) return;
@@ -203,8 +213,29 @@ void vizmo::ShowBBox(bool bShow){
     m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
 }
  
+// Code To change the appearance of the env.. 
+// BSS
 
+void vizmo::ChangeAppearance(int status)
+{
+    // status 0 = solid
+    // status 1 = wire
+    // status 2 = invisible
 
+    typedef vector<gliObj>::iterator GIT;
+
+    for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
+      {
+	CGLModel *model=(CGLModel *)(*ig);
+	if(status==0)
+	  model->SetRenderMode(CPlumState::MV_SOLID_MODE);
+	else if(status==1)
+	  model->SetRenderMode(CPlumState::MV_WIRE_MODE);
+	else if(status==2)
+	  model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+      }
+
+}
 
 
 void vizmo::Animate(bool bForward){
@@ -221,6 +252,8 @@ void vizmo::Animate(bool bForward){
         dCfg=ploader->GetPreviousConfigure(true);
     rmodel->Configure(dCfg);
     delete dCfg;
+
+    cout<< "In Animate"<<endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -318,6 +351,7 @@ bool vizmo::FileExits(const string& filename) const
     fin.close();
     return result;
 }
+
 
 
 

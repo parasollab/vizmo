@@ -155,10 +155,56 @@ void VizmoMainWin::showBBox()
 void VizmoMainWin::contexmenu()
 {
 
+    static int status=0;
+    status=(status+1)%3;
+    // status 0 = solid
+    // status 1 = wire
+    // status 2 = invisible
+
+   
     QPopupMenu cm(this,"contex");
-    cm.insertItem( "Wire/Solid", this, SLOT(notimp));
+    cm.insertItem( "Solid",this,SLOT(setSolid()) );
+    cm.insertItem( "Wire", this,SLOT(setWire()));
+    cm.insertItem( "Invisible",this,SLOT(setInvisible()));
+
     cm.exec(QCursor::pos());
+ 
     
+    m_GL->updateGL();    
+}
+
+void VizmoMainWin::setSolid()
+{
+   GetVizmo().ChangeAppearance(0); 
+
+}
+
+void VizmoMainWin::setWire()
+{
+   GetVizmo().ChangeAppearance(1); 
+
+}
+
+void VizmoMainWin::setInvisible()
+{
+   GetVizmo().ChangeAppearance(2); 
+
+}
+
+
+
+void VizmoMainWin::refreshEnv()
+{
+ 
+  // GetVizmo().InitVizmoObject(files);
+  GetVizmo().refreshEnv();
+  m_GL->updateGL();
+}
+
+void VizmoMainWin::animate()
+{
+  GetVizmo().Animate(true);
+  
 }
 
 void VizmoMainWin::about()
@@ -326,6 +372,7 @@ void VizmoMainWin::CreateMenubar()
     pathMenu->insertItem( "&Optimization", opt, CTRL+Key_O );
     pathMenu->insertSeparator();
     pathMenu->insertItem( "Re&cord animation", this, SLOT(notimp()),  CTRL+Key_C );
+    pathMenu->insertItem( "&Animate", this, SLOT(animate()),  CTRL+Key_C );
     pathMenu->insertSeparator();
     
     ///////////////////////////////////////////////
@@ -359,7 +406,9 @@ void VizmoMainWin::CreateMenubar()
     
     QPopupMenu * envMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Environment", envMenu );
-    envMenu->insertItem( "&Bounding Box", this, SLOT(showBBox()),  CTRL+Key_B );
+    envMenu->insertItem( "&Bounding Box", this, SLOT(showBBox()),  CTRL+Key_B );   
+    envMenu->insertItem( "&Refresh", this, SLOT(refreshEnv()));   
+ 
     envMenu->insertSeparator();
     
     /////////////////////////////////////////////  
@@ -369,6 +418,7 @@ void VizmoMainWin::CreateMenubar()
     QPopupMenu * sceneMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Scene", sceneMenu );
     cameraResetAction->addTo( sceneMenu );
+    
 
     //create HELP menu
     QPopupMenu * help = new QPopupMenu( this );
