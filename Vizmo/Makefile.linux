@@ -76,7 +76,7 @@ RAPIDLIB      = -L${RAPIDLIB_DIR} -lRAPID
 RAPID_INCL    = -I${RAPIDLIB_DIR}
 
 
-VCLIP_DIR     = /home/user/irr5509/dsmft/VCLIP
+VCLIP_DIR     = /research/drwatson/dsmft/CD-libs/VCLIP
 VCLIPLIB_DIR  = ${VCLIP_DIR}/lib
 VCLIPLIB      = -L${VCLIPLIB_DIR} -lvclip
 VCLIP_INCL    = -I${VCLIP_DIR}/include
