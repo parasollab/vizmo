@@ -1,4 +1,5 @@
 #!/bin/sh 
+#find the system
 system=`uname -s`
 if [ $system = "Linux" ]
 then
