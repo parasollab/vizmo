@@ -12,7 +12,7 @@
 VizGLWin::VizGLWin(QWidget * parent, const char * name)
 : QGLWidget(parent,name)
 { 
-    setMinimumSize( 700, 700 );
+    setMinimumSize( 300, 300 );
     setFocusPolicy(QWidget::StrongFocus);
     
     R = G = B = 1;
@@ -67,7 +67,9 @@ void VizGLWin::initializeGL()
 void VizGLWin::resizeGL( int w, int h)
 {
     gliWS(w,h);
-    glViewport( 0, 0, (GLsizei)w, (GLsizei)h );
+    if( w>h ) glViewport( 0, 0, w, w );
+    else  glViewport( 0, 0, h, h );
+
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     gluPerspective( 60, 1, 1, 1500 );
