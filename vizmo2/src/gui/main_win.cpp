@@ -4,7 +4,6 @@
 #include "animation_gui.h"
 #include "snapshot_gui.h"
 #include "itemselection_gui.h"
-#include "attributeselectio_gui.h"
 #include "roadmapShape.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -563,7 +562,7 @@ void VizmoMainWin::CreateObjectSelection()
 
 void VizmoMainWin::CreateAttributeSelection()
 {
-    attributeSelection= new VizmoAttributeSelectionGUI(this,"AttributeSelection");
+    //attributeSelection= new VizmoAttributeSelectionGUI(this,"AttributeSelection");
 }
 
 void VizmoMainWin::CreateShapeSelection()

@@ -116,6 +116,7 @@ namespace plum{
         CEnvLoader::ParseBody( ifstream & fin, CBodyInfo & BodyInfo )
     {
         char strData[150];
+		static double PI_180=3.1415926/180;
 #ifdef WIN32
         string sep="\\"; //path seperator
 #else
@@ -144,7 +145,11 @@ namespace plum{
         //get orientation and position
         fin >> BodyInfo.m_X >> BodyInfo.m_Y >> BodyInfo.m_Z;
         fin >> BodyInfo.m_Alpha >> BodyInfo.m_Beta >> BodyInfo.m_Gamma;
-        
+		//convert to radian
+        BodyInfo.m_Alpha=BodyInfo.m_Alpha*PI_180;
+		BodyInfo.m_Beta=BodyInfo.m_Beta*PI_180;
+		BodyInfo.m_Gamma=BodyInfo.m_Gamma*PI_180;
+
         //get connection info
         GoToNext(fin);
         fin.getline(strData, MAX_LINE_LENGTH ); //tag Connection

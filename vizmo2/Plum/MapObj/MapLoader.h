@@ -5,8 +5,14 @@
 #if !defined(_MAPLOADER_H_)
 #define _MAPLOADER_H_
 
+#ifdef WIN32
+#pragma warning( disable: 4018 )
+#define _STL_PORT
+#endif
+
 #include "ILoadable.h"
 #include <Graph.h>
+#include <GraphAlgo.h>
 #include <string>
 using namespace std;
 
@@ -79,16 +85,16 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
         //these two functions are only accessed from CMapModeler
         //WeightedMultiDiGraph<Cfg,WEIGHT> * GetGraph() { return m_Graph; }
-    //new
-    WeightedGraph< Cfg, WEIGHT> * GetGraph() { return m_Graph; }
+        typedef 
+        Graph<UG<Cfg,WEIGHT>,NMG<Cfg,WEIGHT>,WG<Cfg,WEIGHT>,Cfg,WEIGHT> WG;
+        WG * GetGraph() { return m_Graph; }
         void KillGraph(){ delete m_Graph; m_Graph=NULL; }
         
         //////////////////////////////////////////////////////////////////////
         //      Protected Methods and data members
         //////////////////////////////////////////////////////////////////////
     protected:        
-        WeightedGraph< Cfg, WEIGHT> * m_Graph;
-    //WeightedMultiDiGraph< Cfg, WEIGHT > * m_Graph;
+        WG * m_Graph;
     };
 
     /*********************************************************************
@@ -121,19 +127,19 @@ namespace plum{
     {        
         if( CheckCurrentStatus()==false )
             return false;
-
+        
         ifstream fin(m_strFileName.c_str(), ios::in);
         if( CMapHeaderLoader::ParseHeader( fin )==false ) 
             return false;
-
+        
         //Get Graph Data
         char strData[MAX_LINE_LENGTH];
         fin.getline(strData, MAX_LINE_LENGTH);
-        m_Graph =new WeightedGraph< Cfg, WEIGHT>();
+        m_Graph =new WG();
         if( m_Graph==NULL ){ 
-      return false; 
-      //cout<<"Nop ..."<<endl;
-    }
+            return false; 
+            //cout<<"Nop ..."<<endl;
+        }
         m_Graph->ReadGraph( fin ); //cout<<"Yes!"<<endl;
         
         fin.close();        

@@ -1,40 +1,9 @@
-#-----------------------------------------------------------------------------
-# Choose a compiler & its options
-#--------------------------------------------------------------------------
- g++ = g++
+VIZMO_DIR = ..
+include $(VIZMO_DIR)/M_incl
 
- CXX = g++
-
- OPTS = -O2 -MMD #-Wall
-
-#--------------------------------------------------------------------
-# X lib & OpenGL Stuff
-#--------------------------------------------------------------------
- LIB_DIR = -L/usr/X11R6/lib -L/usr/local/lib
-
- X_LIB =   -lX11 -lXmu -lXi
- GL_LIB = -lglut -lGLU -lGL -lm
-
- GLI_DIR = ..
- GLI_INCL = -I$(GLI_DIR)
- GLI_LIB = -L$(GLI_DIR)/lib -lgli
-
- PLUM_DIR = ..
- PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/mathtool -I$(PLUM_DIR)/modelgraph
- PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
-
- QT_INC  = -I$(QTDIR)/include -I$(QTDIR)/mkspecs/default
- QT_LIBS = $(SUBLIBS) -Wl,-rpath,$(QTDIR)/lib -L$(QTDIR)/lib  -lqt-mt -lpthread -lXext 
-
- Env_DIR = EnvObj
- Map_DIR = MapObj
- GUI_DIR = gui
-
- INCLUDE = -I. -I/usr/local/include $(QT_INC) $(PLUM_INCL) $(GLI_INCL)
- LIB = $(LIB_DIR) $(QT_LIBS) $(GLI_LIB) $(GL_LIB) $(X_LIB) $(PLUM_LIB)
-
- CFLAGS     = $(OPTS) $(INCLUDE)
- CXXFLAGS   = $(CFLAGS)
+Env_DIR = EnvObj
+Map_DIR = MapObj
+GUI_DIR = gui
 
 #--------------------------------------------------------------------
 
@@ -42,13 +11,6 @@ target = ../vizmo2
 alias = ../vizmo++
 
 all: $(target) $(alias)
-
-#--------------------------------------------------------------------
-.SUFFIXES: .cpp
-.cpp.o:
-	${CXX} ${CFLAGS} -c $< -o $@
-	cat $*.d >> Dependencies
-	rm -f $*.d
 
 #--------------------------------------------------------------------
 OBJS =  main.o vizmo2.o

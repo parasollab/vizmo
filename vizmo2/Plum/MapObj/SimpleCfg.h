@@ -40,7 +40,7 @@ namespace plum{
         CSimpleCfg();
         ~CSimpleCfg();
         
-        bool operator==( const CSimpleCfg & other );
+        bool operator==( const CSimpleCfg & other ) const;
         void Set( int index , OBPRMView_Robot* robot);
 
         void DrawRobot();

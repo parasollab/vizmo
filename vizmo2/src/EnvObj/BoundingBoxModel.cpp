@@ -88,10 +88,11 @@ bool CBoundingBoxModel::BuildModels(){
 }
 
 void CBoundingBoxModel::Draw( GLenum mode ){
-    
+
     if( mode==GL_RENDER ){
         if(m_RenderMode==CPlumState::MV_INVISIBLE_MODE) return;
-        
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
         //Draw bbx
         if( m_DisplayID!=-1 ){
             glPolygonMode( GL_FRONT, GL_FILL );
@@ -99,6 +100,7 @@ void CBoundingBoxModel::Draw( GLenum mode ){
             glCallList(m_DisplayID);
             glEnable(GL_LIGHTING);
         }
+		glDisable(GL_CULL_FACE);
     }
 }
 

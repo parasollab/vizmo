@@ -5,18 +5,13 @@
 #if !defined(_MAPMODEL_H_)
 #define _MAPMODEL_H_
 
-#ifdef WIN32
-#pragma warning( disable: 4018 )
-#endif
+#include <math.h>
+#include "mathtool/Gauss.h"
+#include "src/EnvObj/Robot.h"
 
 #include "MapLoader.h"
 #include "CCModel.h"
 #include "PlumState.h"
-
-#include <math.h>
-#include "mathtool/Gauss.h"
-
-#include "src/EnvObj/Robot.h"
 
 namespace plum{
     
@@ -24,6 +19,7 @@ namespace plum{
         class CMapModel : public CGLModel
     {
         typedef CCModel<Cfg,WEIGHT> myCCModel;
+	typedef CMapLoader<Cfg,WEIGHT> Loader;
     public:
         
         //////////////////////////////////////////////////////////////////////
@@ -35,7 +31,7 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
         // Access functions
         //////////////////////////////////////////////////////////////////////
-        void SetMapLoader( CMapLoader<Cfg,WEIGHT>  * mapLoader ){ m_mapLoader=mapLoader; }
+        void SetMapLoader( Loader * mapLoader ){ m_mapLoader=mapLoader; }
         void SetRobotModel( OBPRMView_Robot* pRobot ){ m_pRobot = pRobot; }     
         vector< myCCModel >& GetCCModels() { return m_CCModels; }
         
@@ -49,7 +45,7 @@ namespace plum{
         virtual void SetRenderMode( int mode );
         virtual const string GetName() const { return "Map"; }
         virtual void GetChildren( list<CGLModel*>& models ){
-            typedef vector< myCCModel >::iterator CIT;
+            typedef typename vector< myCCModel >::iterator CIT;
             for(CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ )
                 models.push_back(&(*ic));
         }
@@ -59,7 +55,7 @@ namespace plum{
         
         OBPRMView_Robot* m_pRobot;
         vector< myCCModel > m_CCModels;
-        CMapLoader<Cfg,WEIGHT> * m_mapLoader;
+        Loader * m_mapLoader;
         
     protected:
         //virtual void DumpNode();
@@ -92,16 +88,17 @@ namespace plum{
     }
     
     template <class Cfg, class WEIGHT>
-        bool CMapModel<Cfg, WEIGHT>::BuildModels()
+    bool CMapModel<Cfg, WEIGHT>::BuildModels()
     {
         //get graph
         if( m_mapLoader==NULL ) return false;
-        WeightedGraph<Cfg, WEIGHT> * graph = m_mapLoader->GetGraph();
+		typename Loader::WG * graph = m_mapLoader->GetGraph();
         if( graph==NULL ) return false;
         
         //Get CCs
-        typedef vector< pair<int,VID> >::iterator CIT;//CC iterator
-        vector< pair<int,VID> > CCs = graph->GetCCStats();
+        typedef typename vector< pair<int,VID> >::iterator CIT;//CC iterator
+        vector< pair<int,VID> > CCs;
+		GetCCStats(*graph,CCs);
         int CCSize=CCs.size();
         m_CCModels.reserve(CCSize);
         for( CIT ic=CCs.begin();ic!=CCs.end();ic++ ){
@@ -123,7 +120,7 @@ namespace plum{
         if( m_RenderMode == CPlumState::MV_INVISIBLE_MODE ) return;
         if( mode==GL_SELECT && !m_EnableSeletion ) return;
         //Draw each CC
-        typedef vector< myCCModel >::iterator CIT;//CC iterator
+        typedef typename vector< myCCModel >::iterator CIT;//CC iterator
         for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
             if( mode==GL_SELECT ) glPushName( ic-m_CCModels.begin() );
             ic->Draw(GL_RENDER); //not select node, just select CC first
@@ -135,7 +132,7 @@ namespace plum{
     template <class Cfg, class WEIGHT>
         void CMapModel<Cfg, WEIGHT>::SetRenderMode( int mode ){ 
         m_RenderMode=mode;
-        typedef vector< myCCModel >::iterator CIT;//CC iterator
+        typedef typename vector< myCCModel >::iterator CIT;//CC iterator
         for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
             ic->SetRenderMode(mode);
         }

@@ -16,7 +16,7 @@ public:
     // Constructor/Destructor
     //////////////////////////////////////////////////////////////////////
     OBPRMView_Robot(CEnvLoader * pEnv);
-    OBPRMView_Robot(OBPRMView_Robot &other_robot);
+    OBPRMView_Robot(const OBPRMView_Robot &other_robot);
     ~OBPRMView_Robot();
     
     //////////////////////////////////////////////////////////////////////
@@ -37,10 +37,14 @@ public:
         if(m_RobotModel!=NULL) m_RobotModel->SetColor(r,g,b,a);
     }
 
-	virtual const string GetName() const { return "Robot"; }
+	virtual const string GetName() const { 
+		if( m_RobotModel!=NULL ) return "Robot";
+		return "No Robot"; 
+	}
 
 	virtual void GetChildren( list<CGLModel*>& models ){ 
-		models.push_back(m_RobotModel);
+		if( m_RobotModel!=NULL )
+			models.push_back(m_RobotModel);
 	}
 
     //////////////////////////////////////////////////////////////////////
@@ -64,8 +68,8 @@ public:
     bool change;
     char come;
     
-    CEnvLoader * getEnvLoader();
-    CMultiBodyModel * getRobotModel();
+    CEnvLoader * getEnvLoader() const;
+    CMultiBodyModel * getRobotModel() const;
     
     //////////////////////////////////////////////////////////////////////
     // Private Stuff

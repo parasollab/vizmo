@@ -18,6 +18,12 @@ public:
             m_Rot[0]=m_Rot[1]=m_Rot[2]=0;
     }
     
+    gliTransform(const gliTransform& other){
+        memcpy(m_Pos,other.m_Pos,3*sizeof(double));   
+        memcpy(m_Rot,other.m_Rot,3*sizeof(double));
+        m_q=other.m_q;
+    }
+    
     void glTransform();
     
     //Access

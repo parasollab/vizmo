@@ -10,7 +10,8 @@ OBPRMView_Robot::OBPRMView_Robot(CEnvLoader * pEnv)
     come='r';
 }
 
-OBPRMView_Robot::OBPRMView_Robot(OBPRMView_Robot &other_robot)
+OBPRMView_Robot::OBPRMView_Robot(const OBPRMView_Robot &other_robot)
+:CGLModel(other_robot)
 {
     
     m_pEnvLoader=other_robot.getEnvLoader();
@@ -21,11 +22,11 @@ OBPRMView_Robot::OBPRMView_Robot(OBPRMView_Robot &other_robot)
     come= other_robot.come;
 }
 
-CEnvLoader * OBPRMView_Robot::getEnvLoader() {
+CEnvLoader * OBPRMView_Robot::getEnvLoader() const {
     return m_pEnvLoader;
 }
 
-CMultiBodyModel * OBPRMView_Robot::getRobotModel() {
+CMultiBodyModel * OBPRMView_Robot::getRobotModel() const {
     return m_RobotModel;
 }
 
@@ -38,14 +39,19 @@ bool OBPRMView_Robot::BuildModels(){
     
     //find robot name
     const CMultiBodyInfo * pMInfo = m_pEnvLoader->GetMultiBodyInfo();
-    
-    int iM;
-    for( iM=0; iM<pMInfo->m_cNumberOfBody; iM++ ){
+    int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
+
+    int iM=0;
+    for( ; iM<numMBody; iM++ ){
         //cout<<"DATA IFO: "<<pMInfo->m_pBodyInfo[iM]<<endl;
-        if( !pMInfo->m_pBodyInfo[iM].m_bIsFixed ){
+        if( !pMInfo[iM].m_pBodyInfo[0].m_bIsFixed ){
             break;
         }
     }
+
+	//no robot info found
+	if( iM==numMBody ) 
+		return true; //no need to build
     
     //create MB for robot.
     m_RobotModel=new CMultiBodyModel(iM,pMInfo[iM]);
@@ -56,7 +62,7 @@ bool OBPRMView_Robot::BuildModels(){
 }
 
 void OBPRMView_Robot::Draw(GLenum mode){
-    if( GL_RENDER!=mode ) return;
+	if( m_RobotModel==NULL || GL_RENDER!=mode ) return;
     static double rate = 360/(3.1415926*2);
     glPushMatrix();
     glTransform();

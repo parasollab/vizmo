@@ -28,6 +28,13 @@ namespace plum{
             m_EnableSeletion=true; 
             m_RenderMode=CPlumState::MV_SOLID_MODE; 
         }
+
+        CGLModel(const CGLModel& other) : gliTransform(other)
+        {
+            m_EnableSeletion=other.m_EnableSeletion;
+            m_RenderMode=other.m_RenderMode;
+            memcpy(m_RGBA,other.m_RGBA,4*sizeof(float));
+        }
         
         virtual ~CGLModel(){/*do nothing*/}
         

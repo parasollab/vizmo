@@ -52,7 +52,7 @@ void VizmoRoadmapNodesShapeGUI::getSelectedItem()
         QListBoxItem *item = l->item( i );
         // if the item is selected...
         if ( item->selected() )
-            s = (string)item->text();
+            s = (string)item->text().ascii();
     }
     GetVizmo().ChangeNodesShape(s);
     emit callUpdate(); //set an updat event
@@ -64,14 +64,14 @@ void VizmoRoadmapNodesShapeGUI::changeSize(){
     bool ok = false;
     size = QInputDialog::getDouble(tr("Change Roadmap Node Size"), 
                                        tr("Enter a positive number scale the nodes"),
-                                       size, 0, 1, 1e10,  &ok,  this);
+                                       size, 0, 1, (int)1e10,  &ok,  this);
     if(ok){
         string shape;
         for ( unsigned int i = 0; i < l->count(); i++ ){
             QListBoxItem *item = l->item( i );
             // if the item is selected...
             if ( item->selected() )
-                shape = (string)item->text();
+                shape = (string)item->text().ascii();
         }
         GetVizmo().ChangeNodesSize(size, shape);
         emit callUpdate(); //set an updat event

@@ -56,7 +56,7 @@ bool CPathLoader::ParseFile()
 
 double * CPathLoader::GetConfiguration(int frame)
 {
-	if(frame>=m_pList.size()) frame=m_pList.size()-1;
+	if(frame>=(int)m_pList.size()) frame=m_pList.size()-1;
 	if(frame<0 ) frame=0;
 		
     double * currentCfg = GetConfigure(false, frame);    

@@ -1,0 +1,48 @@
+#-----------------------------------------------------------------------------
+# Choose a compiler & its options
+#--------------------------------------------------------------------------
+ g++ = g++
+
+ CXX = g++
+
+ OPTS = -O2 -MMD -W #-Wall
+
+#--------------------------------------------------------------------
+# Xlib
+#--------------------------------------------------------------------
+
+ X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi
+ GL_LIB = -lglut -lGLU -lGL -lm
+
+ GLI_DIR = $(VIZMO_DIR)
+ GLI_INCL = -I$(GLI_DIR)
+ GLI_LIB = -L$(GLI_DIR)/lib -lgli
+#--------------------------------------------------------------------
+
+ PLUM_DIR = $(VIZMO_DIR)
+ PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/mathtool -I$(PLUM_DIR)/modelgraph
+ PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
+
+ QT_INC  = -I$(QTDIR)/include -I$(QTDIR)/mkspecs/default
+ QT_LIBS = $(SUBLIBS) -Wl,-rpath,$(QTDIR)/lib -L$(QTDIR)/lib  -lqt-mt -lpthread -lXext 
+
+ GRAPH_DIR = $(VIZMO_DIR)/graph
+ GRAPH_INCL = -I$(GRAPH_DIR)
+
+#--------------------------------------------------------------------
+
+ INCLUDE = -I. -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(GRAPH_INCL) $(QT_INC) $(INCPATH)
+ LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(LIBS)
+
+#--------------------------------------------------------------------
+
+ CFLAGS     = $(OPTS) $(INCLUDE)
+ CXXFLAGS   = $(CFLAGS)
+
+#--------------------------------------------------------------------
+.SUFIXES: .cpp
+	.cpp.o:
+		${CC} ${C_FLAGS} ${INCL} -c $< -o $@
+		cat $*.d >> Dependencies
+		rm -f $*.d
+

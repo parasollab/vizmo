@@ -2,18 +2,21 @@
 #define _PLUM_CCMODEL_H_
 
 #include <Graph.h>
-#include "GLModel.h"
 #include <iostream>
 #include <vector> 
 #include <string>
 using namespace std;
 
+#include "GLModel.h"
+#include "MapLoader.h"
 #include "src/EnvObj/Robot.h"
 
 namespace plum{
     
     template <class Cfg, class WEIGHT> class CCModel : public CGLModel
     {
+        typedef typename CMapLoader<Cfg,WEIGHT>::WG WG;
+
     public:
         
         //type for the shape of node representation
@@ -31,11 +34,10 @@ namespace plum{
         bool BuildModels(); //not used, should not call this
         void Draw( GLenum mode );
         void Select( unsigned int * index );
-        bool BuildModels(VID id,WeightedGraph<Cfg,WEIGHT>* g); //call this instread
+        bool BuildModels(VID id,WG * g); //call this instread
         const string GetName() const;
         virtual list<string> GetInfo() const;
         
-        ////////////////////////////////////////////////////////////////////// 
         void RobotModel(OBPRMView_Robot* pRobot){
             m_pRobot=pRobot;
         }
@@ -68,8 +70,7 @@ namespace plum{
         void BuildEdges();
         
         vector< Cfg > m_Nodes;
-        vector< pair< pair<VID,VID>, WEIGHT> > m_Edges;
-        
+        vector< WEIGHT> m_Edges;
         OBPRMView_Robot* m_pRobot;
         
         //to store the node size of the current selection
@@ -129,26 +130,35 @@ namespace plum{
     }
     
     template <class Cfg, class WEIGHT>
-        bool CCModel<Cfg, WEIGHT>::BuildModels(VID id,WeightedGraph<Cfg,WEIGHT>* g)
+    bool CCModel<Cfg, WEIGHT>::BuildModels(VID id,WG* g)
     {
         if( g==NULL ) return false;
         
         //Setup cc nodes
-        Cfg cfg = g->GetData(id);      
-        m_Nodes = g->GetCC(cfg);
-        int nSize=m_Nodes.size();
-        for( int iN=0; iN<nSize; iN++ )
-            m_Nodes[iN].Set(g->GetVID(m_Nodes[iN]), m_pRobot);
-        
+		vector<int> ccnid; //node id in this cc
+        GetCC(*g,id,ccnid);
+        int nSize=ccnid.size();
+		m_Nodes.reserve(nSize);
+        for( int iN=0; iN<nSize; iN++ ){
+			int nid=ccnid[iN];
+			m_Nodes.push_back(g->GetData(nid));
+            m_Nodes[iN].Set(nid, m_pRobot);
+		}
+
         //Setup edges
-        m_Edges = g->GetCCEdges(id);
-        int eSize=m_Edges.size();
+        //m_Edges = g->GetCCEdges(id);
+		vector< pair<VID,VID> > ccedges;
+		GetCCEdges(*g,ccedges,id);
+        int eSize=ccedges.size();
+		m_Edges.reserve(eSize);
         for( int iE=0; iE<eSize; iE++ ){
-            Cfg cfg1=g->GetData(m_Edges[iE].first.first);
-            Cfg cfg2=g->GetData(m_Edges[iE].first.second);
+            Cfg cfg1=g->GetData(ccedges[iE].first);
+            Cfg cfg2=g->GetData(ccedges[iE].second);
             Point3d p1(cfg1.GetX(),cfg1.GetY(),cfg1.GetZ());
             Point3d p2(cfg2.GetX(),cfg2.GetY(),cfg2.GetZ());
-            m_Edges[iE].second.Set(p1,p2);
+	    WEIGHT w=g->GetEdgeWeight(ccedges[iE].first,ccedges[iE].second);
+	    w.Set(p1,p2);
+	    m_Edges.push_back(w);
         }
         
         return true;
@@ -236,7 +246,7 @@ namespace plum{
         {
             int eSize=m_Edges.size();
             for( int iE=0; iE<eSize; iE++ )
-                m_Edges[iE].second.Draw();
+                m_Edges[iE].Draw();
         }   
         glEndList();
     }
