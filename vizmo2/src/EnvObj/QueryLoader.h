@@ -8,6 +8,8 @@
 #include <vector>
 using namespace std;
 
+#include "MapObj/Cfg.h"
+
 #include <ILoadable.h>
 using namespace plum;
 

@@ -45,11 +45,14 @@ bool CQueryLoader::ParseFile()
     
     //Build  Model
     double rate = 360/(3.1415926*2);
+    int dof =CCfg::dof;
     for( unsigned int iF=0;iF<iFileSize;iF++ )
     {
-        dCfg=new double[6];
-        fin>>dCfg[0]>>dCfg[1]>>dCfg[2]>>dCfg[3]>>dCfg[4]>>dCfg[5];        
-        m_sgList.push_back(dCfg); //here is stored the query
+      dCfg=new double[dof];
+      for(int j=0; j<dof; j++){
+	fin>>dCfg[j];
+      }
+      m_sgList.push_back(dCfg); //here is stored the query
     }
     
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -59,17 +62,20 @@ bool CQueryLoader::ParseFile()
 }
 
 double * CQueryLoader::GetStartGoal( int Index){
-    
-    double * currentCfg=new double[6];
-    
-    currentCfg[0]=m_sgList[Index][0];
-    currentCfg[1]=m_sgList[Index][1];
-    currentCfg[2]=m_sgList[Index][2];
-    currentCfg[3]=m_sgList[Index][3]*6.2831852;
-    currentCfg[4]=m_sgList[Index][4]*6.2831852;
-    currentCfg[5]=m_sgList[Index][5]*6.2831852;
-    
-    return currentCfg;
+
+  int dof =CCfg::dof;
+  double * currentCfg=new double[dof]; 
+  double TwoPI=3.1415926535*2.0;
+  for(int i=0;i<dof;i++){
+    if((i==0) || (i==1)|| (i==2)){
+      currentCfg[i]=m_sgList[Index][i];
+    }
+    else{
+      currentCfg[i]=m_sgList[Index][i]*TwoPI;
+    }
+  }
+
+  return currentCfg;
 }
 
 void CQueryLoader::FreePathList()
