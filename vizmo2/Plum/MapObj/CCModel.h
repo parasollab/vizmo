@@ -66,6 +66,9 @@ namespace plum{
 	void changeColor(double r, double g, double b, Shape s){
 	  m_sNodeShape=s;
 	  m_R = r; m_G = g; m_B = b;
+	  m_RGBA[0]=r;
+          m_RGBA[1]=g;
+          m_RGBA[2]=b;
 
 	}
         
@@ -124,6 +127,9 @@ namespace plum{
         m_sNodeShape = Point;
         //display id
         m_DID_Edges=m_DID_ROBOT=m_DID_Box=m_DID_PT=-1;
+
+	//initialize variable for color
+	newColor = false;
     }
     
     template <class Cfg, class WEIGHT>
@@ -183,7 +189,7 @@ namespace plum{
     template <class Cfg, class WEIGHT>
         void CCModel<Cfg, WEIGHT>::BuildNodeModels()
     {
-        newColor = false;
+        
 
         switch( m_sNodeShape ){
         case Robot: BuildRobotNodes(); break;
