@@ -11,6 +11,7 @@ using namespace std;
 #include "MapLoader.h"
 #include "src/EnvObj/Robot.h"
 
+
 namespace plum{
     
     template <class Cfg, class WEIGHT> class CCModel : public CGLModel
@@ -24,7 +25,8 @@ namespace plum{
 
 	// to know if change color of CC's
 	bool newColor;
-
+	int id;
+	char m_shape; //'r' robot, 'b' box, 'p' point
         
         //////////////////////////////////////////////////////////////////////
         // Constructor/Destructor
@@ -66,11 +68,22 @@ namespace plum{
 	void changeColor(double r, double g, double b, Shape s){
 	  m_sNodeShape=s;
 	  m_R = r; m_G = g; m_B = b;
-	  m_RGBA[0]=r;
-          m_RGBA[1]=g;
-          m_RGBA[2]=b;
-
+	  m_RGBA[0]=m_R;
+	  m_RGBA[1]=m_G;
+	  m_RGBA[2]=m_B;
+	  
 	}
+/*
+	void DrawSelect()
+	{
+        glLineWidth(2);
+        glPushMatrix();
+        glTransform();
+        glColor3d(1,1,0);
+        glCallList(m_WiredID);
+        glPopMatrix();
+       }
+*/   
         
     private:
         
@@ -117,6 +130,9 @@ namespace plum{
     {
         m_RenderMode = CPlumState::MV_INVISIBLE_MODE;
         m_ID=ID;
+
+	id = ID;
+
         //Set random Color
         m_RGBA[0]=((float)rand())/RAND_MAX;
         m_RGBA[1]=((float)rand())/RAND_MAX;
@@ -288,7 +304,7 @@ namespace plum{
         m_pRobot->size=m_fRobotScale;
         double R=m_pRobot->GetColor()[0];
         double G=m_pRobot->GetColor()[1];
-        double B=m_pRobot->GetColor()[2];
+        double B=m_pRobot->GetColor()[2];	
         
         m_DID_ROBOT = glGenLists(1);
         m_pRobot->SetColor(m_R,m_G,m_B,m_pRobot->GetColor()[3]);
@@ -296,8 +312,15 @@ namespace plum{
         {
             glEnable(GL_LIGHTING);
             int nSize=m_Nodes.size();
-            for( int iN=0; iN<nSize; iN++ )
-                m_Nodes[iN].DrawRobot();//draw robot;
+	    //cout<<"SHAPE in ChangeColor():: "<<m_shape<<endl;
+            for( int iN=0; iN<nSize; iN++ ){
+	      if(m_shape == 'r')
+                m_Nodes[iN].DrawRobot();//draw robot
+	      else if(m_shape == 'b')
+		m_Nodes[iN].DrawBox(m_fBoxScale);//draw box
+	      else if(m_shape == 'p')
+		m_Nodes[iN].DrawPoint();//draw point
+	    }
         }
         glEndList();
         
@@ -329,24 +352,36 @@ namespace plum{
         case Robot: 
             if(m_DID_ROBOT==-1) BuildNodeModels();
             list=m_DID_ROBOT; 
-	    if(newColor) ChangeColor();
+	    m_shape='r';
 	    break;
         case Box: 
             if(m_DID_Box==-1) BuildNodeModels();
             list=m_DID_Box; 
+	    m_shape = 'b';
 	    break;
         case Point: 
             if(m_DID_PT==-1) BuildNodeModels();
             list=m_DID_PT; 
+	    m_shape = 'p';
 	    break;
         }
+
+/*  	cout<<"**************"<<endl; */
+/*  	cout<<"SHAPE::"<<m_sNodeShape<<endl; */
+/*  	cout<<"m_shape in Draw():: "<<m_shape<<endl; */
+/*  	cout<<"newColor value in draw():: "<<newColor<<endl; */
+/*  	cout<<"**************"<<endl; */
+
+	if(newColor) ChangeColor();
+	//DrawSelect();
         
         glCallList(list);
         
         ////////////////////////////////////////////////////////////////////////////////
         // Draw edge
         if( mode==GL_SELECT ) return; //no selection for edge
-        glColor3f(0.1f,0.1f,0.1f);
+        //glColor3f(0.1f,0.1f,0.1f);
+	glColor3f(m_RGBA[0],m_RGBA[1],m_RGBA[2]);
         if( m_DID_Edges==-1 ) BuildEdges();
         glCallList(m_DID_Edges);
     }
@@ -368,6 +403,8 @@ namespace plum{
     template <class Cfg, class WEIGHT>
         list<string> CCModel<Cfg, WEIGHT>::GetInfo() const 
     { 
+      //changeStatus();
+
         list<string> info; 
         {
             ostringstream temp;
@@ -385,3 +422,5 @@ namespace plum{
 }//end of namespace plum
 
 #endif //_PLUM_CCMODEL_H_
+
+
