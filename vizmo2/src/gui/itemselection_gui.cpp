@@ -6,6 +6,8 @@
 #include <qvalidator.h>
 #include <qstring.h>
 
+#include "Plum/MapObj/CCModel.h"
+
 VizmoItemSelectionGUI::VizmoItemSelectionGUI(QMainWindow *parent,char *name)
 :QToolBar("ItemSelection",parent,QMainWindow::Left,true,name)
 //VizmoItemSelectionGUI::VizmoItemSelectionGUI(QWidget * parent, char * name)
@@ -97,6 +99,7 @@ void VizmoItemSelectionGUI::clear()
 
 void VizmoItemSelectionGUI::select()
 {
+
     vector<gliObj>& sel=GetVizmo().GetSelectedItem();
     int size=sel.size();
     typedef list<VizmoListViewItem*>::iterator IIT;
