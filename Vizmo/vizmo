@@ -4,7 +4,7 @@ if [ $system = "Linux" ]
 then
    export VIZMO_DIR=/users/burchanb/blackwidowers/Vizmo
    export VIZMO_SO=VizmoLibLinux
-   export LD_LIBRARY_PATH=$VIZMO_DIR/lib
+   export LD_LIBRARY_PATH=$VIZMO_DIR/lib:$LD_LIBRARY_PATH
    export VTK=/usr/local/bin/vtk
 fi
 if [ $system = "IRIX" ]
