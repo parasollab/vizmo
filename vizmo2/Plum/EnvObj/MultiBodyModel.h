@@ -48,9 +48,12 @@ namespace plum{
         void setAsFree( bool free=true ){ m_bFixed=!free; }
         double GetRadius() const { return m_R; }
         const Point3d& GetCOM() const { return m_COM; }
+	CPolyhedronModel* GetPolyhedron()  {return m_pPoly;}
+
 
     private:
         CPolyhedronModel * m_pPoly;
+
         int m_PolySize;
         int m_index; //the index of this multibody
         const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo

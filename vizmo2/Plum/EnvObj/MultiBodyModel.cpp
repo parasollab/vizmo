@@ -15,6 +15,7 @@ namespace plum{
         SetColor(0.4f,0.4f,0.4f,1);
         m_bFixed=true;
         m_R=0;
+	//cout<<"MBI in MBModel Constructor::"<<m_MBInfo<<endl;
     }
     
     CMultiBodyModel::~CMultiBodyModel()
@@ -28,45 +29,52 @@ namespace plum{
     //////////////////////////////////////////////////////////////////////
     bool CMultiBodyModel::BuildModels()
     {
-        m_PolySize=m_MBInfo.m_cNumberOfBody;
-        if( (m_pPoly=new CPolyhedronModel[m_PolySize])==NULL )
-            return false; //Out of memory
-        int iM=0;
-        //build for each body and compute com
-        for( iM=0; iM<m_PolySize; iM++ ){
-            CBodyInfo & info=m_MBInfo.m_pBodyInfo[iM];
-            //only build fixed, free body will not be build (when m_bFixed is set)
-            if( !info.m_bIsFixed && m_bFixed==true )
-                continue;
+      m_PolySize=m_MBInfo.m_cNumberOfBody;
+      	
+      if( (m_pPoly=new CPolyhedronModel[m_PolySize])==NULL )
+	return false; //Out of memory
+	
+      int iM=0;
+      //build for each body and compute com
+      for( iM=0; iM<m_PolySize; iM++ ){
+	CBodyInfo & info=m_MBInfo.m_pBodyInfo[iM];
+	//only build fixed, free body will not be built (when m_bFixed is set)
+	if( !info.m_bIsFixed && m_bFixed==true )
+	  continue;
+	
+	m_pPoly[iM].SetBody(info);
+	
+	if( m_pPoly[iM].BuildModels()==false ){
+	  cout<<"Couldn't build models in Polyhedron class"<<endl;
+	  return false;
+	}
+	
+	m_COM[0]+=info.m_X;
+	m_COM[1]+=info.m_Y;
+	m_COM[2]+=info.m_Z;
+      }
             
-            m_pPoly[iM].SetBody(info);
-            if( m_pPoly[iM].BuildModels()==false )
-                return false;
-            m_COM[0]+=info.m_X;
-            m_COM[1]+=info.m_Y;
-            m_COM[2]+=info.m_Z;
-        }
-        for( int id=0;id<3;id++ ) m_COM[id]/=m_PolySize;
-        //set position of multi-body as com
-        tx()=m_COM[0]; ty()=m_COM[1]; tz()=m_COM[2];
-
-        //compute radius
-        m_R=0; //set radius to 0 and compute it later
-        for( iM=0; iM<m_PolySize; iM++ ){
-            CBodyInfo & info=m_MBInfo.m_pBodyInfo[iM];
-            //only build fixed, free body will not be build (when m_bFixed is set)
-            if( !info.m_bIsFixed && m_bFixed==true )
-                continue;
-            double dist=(Point3d(info.m_X,info.m_Y,info.m_Z)-m_COM).norm()
-                        +m_pPoly[iM].GetRadius();
-            if( m_R<dist ) m_R=dist;
-            //change to local coorindate of multibody
-            m_pPoly[iM].tx()-=tx(); m_pPoly[iM].ty()-=ty(); m_pPoly[iM].tz()-=tz();
-        }
-
-        return true;
+      for( int id=0;id<3;id++ ) m_COM[id]/=m_PolySize;
+      //set position of multi-body as com
+	tx()=m_COM[0]; ty()=m_COM[1]; tz()=m_COM[2];
+      
+      //compute radius
+      m_R=0; //set radius to 0 and compute it later
+      for( iM=0; iM<m_PolySize; iM++ ){
+	CBodyInfo & info=m_MBInfo.m_pBodyInfo[iM];
+	//only build fixed, free body will not be build (when m_bFixed is set)
+	if( !info.m_bIsFixed && m_bFixed==true )
+	  continue;
+	double dist=(Point3d(info.m_X,info.m_Y,info.m_Z)-m_COM).norm()
+	  +m_pPoly[iM].GetRadius();
+	if( m_R<dist ) m_R=dist;
+	//change to local coorindate of multibody
+	m_pPoly[iM].tx()-=tx(); m_pPoly[iM].ty()-=ty(); m_pPoly[iM].tz()-=tz();
+      }
+      
+      return true;
     }
-    
+  
     void CMultiBodyModel::Select( unsigned int * index, vector<gliObj>& sel )
     {
         if(index!=NULL)
@@ -78,7 +86,9 @@ namespace plum{
     {
         glColor4fv(m_RGBA);
         glPushMatrix();
+	glTranslated(m_pPoly[0].tx(), m_pPoly[0].ty(), m_pPoly[0].tz());
         glTransform();
+	glTranslated(-m_pPoly[0].tx(), -m_pPoly[0].ty(), -m_pPoly[0].tz());
         for( int i=0;i<m_PolySize;i++ )
             m_pPoly[i].Draw( mode );
         glPopMatrix();
@@ -87,7 +97,9 @@ namespace plum{
     void CMultiBodyModel::DrawSelect()
     {
         glPushMatrix();
+	glTranslated(m_pPoly[0].tx(), m_pPoly[0].ty(), m_pPoly[0].tz());
         glTransform();
+	glTranslated(-m_pPoly[0].tx(), -m_pPoly[0].ty(), -m_pPoly[0].tz());
         for( int i=0;i<m_PolySize;i++ )
             m_pPoly[i].DrawSelect();
         glPopMatrix();
@@ -107,11 +119,12 @@ namespace plum{
             m_pPoly[i].SetColor(r,g,b,a);
     }
     
-	void CMultiBodyModel::Scale(double x, double y, double z)
-	{
-        for( int i=0;i<m_PolySize;i++ )
-            m_pPoly[i].Scale(x,y,z);
-	}
+  void CMultiBodyModel::Scale(double x, double y, double z)
+  {
+    CGLModel::Scale(x,y,z);
+    // for( int i=0;i<m_PolySize;i++ )
+    //             m_pPoly[i].Scale(x,y,z);
+  }
 
     list<string> CMultiBodyModel::GetInfo() const 
     { 

@@ -33,16 +33,19 @@ namespace plum{
     bool CPolyhedronModel::
         BuildModels()
     {
+
         CMovieBYULoader loader;
         loader.SetDataFileName(m_BodyInfo.m_strModelDataFileName);
         if( loader.ParseFile()==false ) return false;
         
+
         //compute center of mass
         const PtVector& points=loader.GetVertices();
         const TriVector& tris=loader.GetTriangles();
         Point3d com=COM(points); m_COM=com;
         m_R=Radius(com,points);
         
+       
         //set point for opengl
         int psize=points.size();
         GLdouble * vertice=new GLdouble[3*psize];
@@ -78,6 +81,8 @@ namespace plum{
             return false;
         }
         delete [] vertice; delete [] normal;
+
+	if (m_BodyInfo.m_bIsFixed){
         
         //setup rotation and translation
         tx()=m_BodyInfo.m_X; ty()=m_BodyInfo.m_Y; tz()=m_BodyInfo.m_Z;
@@ -90,8 +95,9 @@ namespace plum{
         Quaternion qz(cz_2,sz_2*Vector3d(0,0,1));
         Quaternion nq=qz*qy*qx; //new q
         this->q(nq.normalize()); //set new q
-        
-        return true;
+	}	
+	
+	return true;
     }
     
     //Build solid mode
@@ -172,6 +178,8 @@ namespace plum{
         glColor4fv(m_RGBA);
         glPushMatrix();
         glTransform();
+	//new May-24-04
+	glScale();
         if( m_RenderMode==CPlumState::MV_SOLID_MODE ){           
             glEnable( GL_POLYGON_OFFSET_FILL );
             glPolygonOffset( 2.0, 2.0 );

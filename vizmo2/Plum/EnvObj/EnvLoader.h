@@ -9,69 +9,70 @@
 
 namespace plum{
 
-    class CMultiBodyInfo;
-    class CBodyInfo;
-    class CConnectionInfo;
-
-    /**
-     * This class load env file.
-     */
-    class CEnvLoader : public I_Loadable
+  class CMultiBodyInfo;
+  class CBodyInfo;
+  class CConnectionInfo;
+  
+  /**
+   * This class load env file.
+   */
+  class CEnvLoader : public I_Loadable
     {
-            //////////////////////////////////////////////////////////////////////
-            //
-            // Constructor/Destructor
-            //
-            //////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////
+      //
+      // Constructor/Destructor
+      //
+      //////////////////////////////////////////////////////////////////////
     public:
-            CEnvLoader();
-            virtual ~CEnvLoader();
-
-            //////////////////////////////////////////////////////////////////////
-            // Core function
-            //////////////////////////////////////////////////////////////////////
-            virtual bool ParseFile();
-            virtual void SetModelDataDir( const string strModelDataDir );
-
-            //////////////////////////////////////////////////////////////////////
-            // Access function
-            //////////////////////////////////////////////////////////////////////
-            virtual int GetNumberOfMultiBody() const{ return m_cNumberOfMultiBody; }
-            virtual const CMultiBodyInfo * GetMultiBodyInfo() const { return m_pMBInfo; }
-
-
-        // function for the tree control... returns the CBodyInfo for the ith body
-
-        string getModelDirString(){return  m_strModelDataDir;}
-
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    //      Protected Methods and data members
-    //
-    ////////////////////////////////////////////////////////////////////////////
+      CEnvLoader();
+      virtual ~CEnvLoader();
+      
+      //////////////////////////////////////////////////////////////////////
+      // Core function
+      //////////////////////////////////////////////////////////////////////
+      virtual bool ParseFile();
+      virtual void SetModelDataDir( const string strModelDataDir );
+      
+      //////////////////////////////////////////////////////////////////////
+      // Access function
+      //////////////////////////////////////////////////////////////////////
+      virtual int GetNumberOfMultiBody() const{ return m_cNumberOfMultiBody; }
+      virtual const CMultiBodyInfo * GetMultiBodyInfo() const { return m_pMBInfo; }
+      
+      
+      // function for the tree control... returns the CBodyInfo for the ith body
+      
+      string getModelDirString(){return  m_strModelDataDir;}
+      
+      ////////////////////////////////////////////////////////////////////////////
+      //
+      //      Protected Methods and data members
+      //
+      ////////////////////////////////////////////////////////////////////////////
     protected:
-            void Free_Memory();
-
-            virtual bool ParseFileHeader( ifstream & fin );
-            virtual bool ParseFileBody( ifstream & fin );
-            virtual bool ParseMultiBody( ifstream & fin, CMultiBodyInfo & MBInfo );
-            virtual bool ParseBody( ifstream & fin, CBodyInfo & BodyInfo );
-            virtual bool ParseConnection(ifstream & fin, CConnectionInfo & ConnectionInfo );
-
-            ////////////////////////////////////////////////////////////////////////////
-            //
-            //      Private Methods and data members
-            //
-            ////////////////////////////////////////////////////////////////////////////
-        
-
+      void Free_Memory();
+      
+      virtual bool ParseFileHeader( ifstream & fin );
+      virtual bool ParseFileBody( ifstream & fin );
+      virtual bool ParseMultiBody( ifstream & fin, CMultiBodyInfo & MBInfo );
+      virtual bool ParseBody( ifstream & fin, CBodyInfo & BodyInfo );
+      virtual bool ParseConnections(ifstream & fin, CBodyInfo *BodyInfo );
+      
+      ////////////////////////////////////////////////////////////////////////////
+      //
+      //      Private Methods and data members
+      //
+      ////////////////////////////////////////////////////////////////////////////
+      
+      
     private:
-
-            string m_strModelDataDir;
-            int m_cNumberOfMultiBody;
-            CMultiBodyInfo * m_pMBInfo;
+      
+      string m_strModelDataDir;
+      int m_cNumberOfMultiBody;
+      CMultiBodyInfo * m_pMBInfo;
+      int preIndx, nextIndx;
     };
-
+  
 }//namespace plum
 
 #endif // !defined(_ENVLOADER_H_)

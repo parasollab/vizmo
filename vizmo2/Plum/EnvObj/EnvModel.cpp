@@ -42,8 +42,8 @@ namespace plum {
                 +m_pMBModel[iP]->GetRadius();
             if( m_R<dist ) m_R=dist;
         }
-        
-        return true;
+
+       return true;
     }
     
     void CEnvModel::Draw( GLenum mode )
