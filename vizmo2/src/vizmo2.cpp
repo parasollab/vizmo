@@ -263,6 +263,8 @@ void vizmo::ChangeNodesSize(float s, string str){
   //cout<<"Size parameter: "<<s<<endl;
     if( m_obj.m_Robot==NULL ) return;
 
+    if( m_obj.m_Map==NULL ) return;
+
     typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
     typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
     typedef vector<CC>::iterator CCIT;
@@ -282,6 +284,8 @@ void vizmo::ChangeNodesSize(float s, string str){
 
 void vizmo::ChangeNodesShape(string s){
   if( m_obj.m_Robot==NULL ) return;
+
+  if( m_obj.m_Map==NULL ) return;
 
   typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
   typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
