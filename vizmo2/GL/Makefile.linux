@@ -1,6 +1,26 @@
 VIZMO_DIR=..
 include $(VIZMO_DIR)/M_incl
 
+####### Compiler, tools and options
+
+CC       = gcc
+CXX      = g++
+CFLAGS   = -pipe -W -O2 -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -MMD
+CXXFLAGS = ${CFLAGS}
+
+MATH_DIR = ..
+MATH_INCL = -I$(MATH_DIR)/mathtool 
+
+
+INCPATH  = -I$(QTDIR)/include -I/usr/X11R6/include -I$(QTDIR)/mkspecs/default $(MATH_INCL) 
+LIBS     = $(SUBLIBS) -Wl,-rpath,$(QTDIR)/lib -L$(QTDIR)/lib -L/usr/X11R6/lib -lqt-mt -lpthread -lGLU -lGL -lXmu
+
+####### Output directory
+
+OBJECTS_DIR = ./
+
+####### Files
+
 TARGET=$(VIZMO_DIR)/lib/libgli.a
 
 OBJECTS = gli.o gliCamera.o gliDataStructure.o gliPickBox.o gliTransTool.o gliFont.o gliDump.o
