@@ -41,11 +41,17 @@ bool CPathLoader::ParseFile()
     
     unsigned int iPathSize=0;
     fin>>iPathSize;
+    
+    int dof=CCfg::dof;
+
     for( unsigned int iF=0;iF<iPathSize;iF++ )
     {
-        double * dCfg=new double[6];
-        fin>>dCfg[0]>>dCfg[1]>>dCfg[2]>>dCfg[3]>>dCfg[4]>>dCfg[5];
-        m_pList.push_back(dCfg);
+      double * dCfg=new double[dof];
+
+      for(int j=0; j<dof; j++){
+	fin>>dCfg[j];
+      }
+      m_pList.push_back(dCfg);
     }
     
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -58,26 +64,29 @@ double * CPathLoader::GetConfiguration(int frame)
 {
 	if(frame>=(int)m_pList.size()) frame=m_pList.size()-1;
 	if(frame<0 ) frame=0;
-		
-    double * currentCfg = GetConfigure(false, frame);    
-    return currentCfg;
+	double * currentCfg = GetConfigure(false, frame);    
+	return currentCfg;
 }
 
 double * CPathLoader::GetConfigure( bool bOutputFrameNumber, int & index )
 {
-    double * currentCfg=new double[6];
-    currentCfg[0]=m_pList[index][0];
-    currentCfg[1]=m_pList[index][1];
-    currentCfg[2]=m_pList[index][2];
-    currentCfg[3]=m_pList[index][3]*6.2831852;
-    currentCfg[4]=m_pList[index][4]*6.2831852;
-    currentCfg[5]=m_pList[index][5]*6.2831852;
-    
-    if( bOutputFrameNumber )
-        cout<< "- ChainMaiViewer Mag : Currnet Frame # = " << index
+  int dof=CCfg::dof;
+  double * currentCfg=new double[dof];
+  static double TwoPI=3.1415926535*2.0;
+  for(int i=0;i<dof;i++){
+    if((i==0) || (i==1)|| (i==2)){
+      currentCfg[i]=m_pList[index][i];
+    }
+    else{
+      currentCfg[i]=m_pList[index][i]*TwoPI;
+    }
+  }
+
+  if( bOutputFrameNumber )
+    cout<< "- ChainMaiViewer Mag : Current Frame # = " << index
         << "/"<< m_pList.size()-1 <<endl;
-    
-    return currentCfg;
+  
+  return currentCfg;
 }
 
 void CPathLoader::FreePathList()

@@ -8,11 +8,13 @@
 #include <vector>
 using namespace std;
 
+#include "MapObj/Cfg.h"
+
 #include <ILoadable.h>
 using namespace plum;
 
 /**
-* This class read path. OBPRM style path.
+* This class reads path. OBPRM style path.
 * Client how wants to retrive path could call LoadPath to
 * read path form given file name and get individal cfg from 
 * GetNextConfigure.
@@ -34,6 +36,7 @@ public:
     //Get a particular configuration
     virtual double * GetConfiguration(int frame);
     virtual unsigned int GetPathSize(){ return m_pList.size(); }
+    virtual unsigned int GetDOF(){ return CCfg::dof; }
 
     //////////////////////////////////////////////////////////////////////
     //    Protected Methods and Data
