@@ -4,8 +4,7 @@
 #include "animation_gui.h"
 #include "snapshot_gui.h"
 #include "itemselection_gui.h"
-#include "roadmapShape.h"
-#include "roadmapColor.h"
+#include "roadmap.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //Include Qt Headers
@@ -90,8 +89,7 @@ bool VizmoMainWin::InitVizmo()
     animationGUI->reset();
     objectSelection->reset();
     screenShotGUI->reset();
-    shapeSelection->reset(); 
-    colorSelection->reset();
+    roadmapGUI->reset();
 
     reset();
     
@@ -110,7 +108,6 @@ bool VizmoMainWin::CreateGUI()
     connect(animationGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 
     ///////////////////////////////////////////////////////////////////////////
-    CreateShapeSelection();
     CreateActions();
     CreateMenubar();
     CreateToolbar();
@@ -119,7 +116,7 @@ bool VizmoMainWin::CreateGUI()
     CreateObjectSelection();
     //CreateAttributeSelection();
 
-    CreateColorSelection();
+    CreateRoadmapToolbar();
 
     connect(m_GL, SIGNAL(selectByRMB()), this, SLOT(contexmenu()));
     connect(m_GL, SIGNAL(selected()), objectSelection, SLOT(select()));
@@ -240,6 +237,7 @@ void VizmoMainWin::contexmenu()
     cm.insertItem( "Solid",this,SLOT(setSolid()) );
     cm.insertItem( "Wire", this,SLOT(setWire()));
     cm.insertItem( "Invisible",this,SLOT(setInvisible()));
+    cm.insertItem( "Change Color", this, SLOT(setNewColor()));
     
     cm.exec(QCursor::pos());
     m_GL->updateGL();    
@@ -258,6 +256,18 @@ void VizmoMainWin::setWire()
 void VizmoMainWin::setInvisible()
 {
     GetVizmo().ChangeAppearance(2); 
+}
+
+void VizmoMainWin::setNewColor()
+{
+    double r, g, b;
+    QColor color = QColorDialog::getColor( white, this, "color dialog" );
+    if ( color.isValid() ){
+      GetVizmo().mR = (double)(color.red()) / 255.0;
+      GetVizmo().mG = (double)(color.green()) / 255.0;
+      GetVizmo().mB = (double)(color.blue()) / 255.0;
+    }
+    GetVizmo().ChangeAppearance(3);
 }
 
 void VizmoMainWin::refreshEnv()
@@ -584,19 +594,11 @@ void VizmoMainWin::CreateAttributeSelection()
     //attributeSelection= new VizmoAttributeSelectionGUI(this,"AttributeSelection");
 }
 
-void VizmoMainWin::CreateShapeSelection()
-{   
-    shapeSelection = new VizmoRoadmapNodesShapeGUI(this, "ShapeSelection");
-    connect(shapeSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 
+void VizmoMainWin::CreateRoadmapToolbar(){
+  roadmapGUI = new VizmoRoadmapGUI (this, "MapSelection");
+  connect(roadmapGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 }
-
-void VizmoMainWin::CreateColorSelection()
-{
-  colorSelection = new VizmoRoadmapColorGUI(this, "ColorSelection");
-  connect(colorSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
-}
-
 
 
 
