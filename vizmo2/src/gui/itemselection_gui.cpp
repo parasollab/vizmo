@@ -27,7 +27,7 @@ VizmoItemSelectionGUI::VizmoItemSelectionGUI(QMainWindow *parent,char *name)
   this->setLabel("Item Selection");
   list=new QListView(this,"blah");
   list->addColumn("Object");
-  list->addColumn("tempNo");
+  // list->addColumn("tempNo");
 
   setEnabled(false);
 
@@ -54,6 +54,16 @@ void VizmoItemSelectionGUI::fillTree()
   string dirstring;
   int dirstringlen;
 
+
+  if(list)
+  {
+    delete list;
+    list=new QListView(this,"blah");
+    list->addColumn("Object");
+
+  }
+
+
   multiBodyInfo=GetVizmo().GetMultiBodyInfo(dirstring);
   dirstringlen=dirstring.length();
   char *name2 = new char[100];
@@ -74,7 +84,7 @@ void VizmoItemSelectionGUI::fillTree()
       //      index[0]=(char)i;
       c='1';
       QString *temp = new QString(c);
-      parent=new QListViewItem(list,name2,c);
+      parent=new QListViewItem(list,name2);
     }
 
 }

@@ -180,7 +180,7 @@ bool imagewrite(const char *filename, Image image)
 	return(true); 
 }
 
-bool dump(const char * filename,int xOffset,int yOffset,int width,int height)
+bool dump(const char * filename,const char *extension,int xOffset,int yOffset,int width,int height)
 {
    //Guess filename
    char * index=strrchr(filename, '.');
@@ -191,7 +191,7 @@ bool dump(const char * filename,int xOffset,int yOffset,int width,int height)
    // strncpy(ppmFilename,filename,index-filename+1);
    strcat(ppmFilename,".ppm");
    // BSS
-   strcat(file2,".jpg");
+   strcat(file2,extension);
 
    Image new_image;
 
