@@ -46,8 +46,6 @@ bool CQueryModel::BuildModels(){
     ///////////////////////////////////////////////////////
     //Build Model
 
-    int dof =0; //just for now, I'll deleted latter
-
     unsigned int iQSize = m_pQueryLoader->GetQuerySize();
     
     glMatrixMode( GL_MODELVIEW );

@@ -175,10 +175,7 @@ bool vizmo::InitVizmoObject()
 
     //let plum do what he needs to do
     if( m_Plum.ParseFile()==CPlumState::PARSE_ERROR ){return false;}
-
     if( m_Plum.BuildModels()!=CPlumState::BUILD_MODEL_OK ){return false;}
-
-    cout<<endl<<"Models built"<<endl;
 
     //put robot in start cfg, if availiable
     PlaceRobot();

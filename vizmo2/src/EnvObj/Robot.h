@@ -96,7 +96,7 @@ private:
     CMultiBodyModel * m_RobotModel;
     CMultiBodyInfo * m_RobotInfo;
 
-    CPolyhedronModel * m_Poly, * pPolyBackUp, * Poly;
+    CPolyhedronModel * pPolyBackUp, * Poly;
 
 };
 

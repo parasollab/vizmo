@@ -31,10 +31,10 @@ public:
 signals:
     
     void selectByRMB();
-	void clickByRMB();
+    void clickByRMB();
     void selectByLMB();
     void clickByLMB();
-	void MRbyGLI();
+    void MRbyGLI();
 
 protected:
     
@@ -46,7 +46,7 @@ protected:
     void mouseMoveEvent ( QMouseEvent * );
     void keyPressEvent ( QKeyEvent * e );
 	
-	void drawText(); //this should not be here by it is here for now
+    void drawText(); //this should not be here by it is here for now
 
 public slots:
 	void showGrid();
@@ -70,6 +70,7 @@ private:
 	
     void drawText(list<string>& info);
     bool takingSnapShot;
-	bool m_bShowGrid, m_bShowAxis;
-};
 
+    bool m_bShowGrid, m_bShowAxis;
+
+};

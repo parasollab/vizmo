@@ -34,20 +34,19 @@ bool OBPRMView_Robot::BuildModels(){
     //find robot name
     const CMultiBodyInfo * pMInfo = m_pEnvLoader->GetMultiBodyInfo();
     int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
-    int iM=0;
-    for( ; iM<numMBody; iM++ ){
-        if( !pMInfo[iM].m_pBodyInfo[0].m_bIsFixed ){
-            break;
-        }
-    }
-
-    //no robot info found
-    if( iM==numMBody ) 
-      return true; //no need to build
     
     //create MB for robot.
-    m_RobotModel=new CMultiBodyModel(iM,pMInfo[iM]);
-    if( m_RobotModel==NULL ) return false;
+    int iM=0;
+    for( ; iM<numMBody; iM++ ){
+      if( pMInfo[iM].m_active ){
+	if(pMInfo[iM].m_pBodyInfo[0].m_bIsFixed)
+	  m_RobotModel=new CMultiBodyModel(iM,pMInfo[0]);
+	else
+	  m_RobotModel=new CMultiBodyModel(iM,pMInfo[iM]);
+      }
+    }
+    
+    if( m_RobotModel==NULL ){return false;}
     m_RobotModel->setAsFree(); //set as free body
     SetColor(1,0,0,1);
     return m_RobotModel->BuildModels();
@@ -55,7 +54,6 @@ bool OBPRMView_Robot::BuildModels(){
 
 void OBPRMView_Robot::Draw(GLenum mode){
   if( m_RobotModel==NULL || GL_RENDER!=mode ) return;
-  //static double rate = 360/(3.1415926*2);
   glPushMatrix();
   glTransform();
   m_RobotModel->Draw(GL_RENDER);
@@ -105,64 +103,105 @@ void OBPRMView_Robot::Restore(){
 
 
 void OBPRMView_Robot::Configure( double * cfg) { 
-  
   const CMultiBodyInfo * MBInfo = m_pEnvLoader->GetMultiBodyInfo();
-  int numMBody=MBInfo[0].m_cNumberOfBody;
+  int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
+  int robIndx = 0;
+  
   CPolyhedronModel * pPoly = m_RobotModel->GetPolyhedron();
 
+  Vector3d position;
+  Orientation orientation;
+
   for( int iM=0; iM<numMBody; iM++ ){
-    MBInfo[0].m_pBodyInfo[iM].m_currentTransform.ResetTransformation();
-    MBInfo[0].m_pBodyInfo[iM].m_prevTransform.ResetTransformation();
+    if( MBInfo[iM].m_active )
+      robIndx = iM;
   }
 
-  pPoly[0].tx()=cfg[0]; 
-  pPoly[0].ty()=cfg[1]; 
-  pPoly[0].tz()=cfg[2];
+  int numBody=MBInfo[robIndx].m_cNumberOfBody;
 
-  Vector3d position;
-  position.set(cfg[0], cfg[1], cfg[2]);
-  Orientation orientation(Orientation::FixedXYZ, cfg[3], cfg[4], cfg[5]);
+  for( int iM=0; iM<numBody; iM++ ){
+    MBInfo[robIndx].m_pBodyInfo[iM].m_currentTransform.ResetTransformation();
+    MBInfo[robIndx].m_pBodyInfo[iM].m_prevTransform.ResetTransformation();
+    MBInfo[robIndx].m_pBodyInfo[iM].m_transformDone = false;
+  }
+
+  if(MBInfo[robIndx].m_pBodyInfo[0].m_bIsFixed){
+
+    pPoly[0].tx()=MBInfo[robIndx].m_pBodyInfo[0].m_X; 
+    pPoly[0].ty()=MBInfo[robIndx].m_pBodyInfo[0].m_Y; 
+    pPoly[0].tz()=MBInfo[robIndx].m_pBodyInfo[0].m_Z;
+
+    position.set(MBInfo[robIndx].m_pBodyInfo[0].m_X,
+		 MBInfo[robIndx].m_pBodyInfo[0].m_Y,
+		 MBInfo[robIndx].m_pBodyInfo[0].m_Z );
+
+    Orientation orientation_tmp(Orientation::FixedXYZ,
+			    MBInfo[robIndx].m_pBodyInfo[0].m_Alpha,
+			    MBInfo[robIndx].m_pBodyInfo[0].m_Beta,
+			    MBInfo[robIndx].m_pBodyInfo[0].m_Gamma);
+    orientation = orientation_tmp;
+  }
+
+  else{
+
+    pPoly[0].tx()=cfg[0]; 
+    pPoly[0].ty()=cfg[1]; 
+    pPoly[0].tz()=cfg[2];
+    
+    position.set(cfg[0], cfg[1], cfg[2]);
+    Orientation orientation_tmp(Orientation::FixedXYZ, cfg[3], cfg[4], cfg[5]);
+    orientation = orientation_tmp;
+  }
+
   Transformation b(orientation, position);
-  MBInfo[0].m_pBodyInfo[0].m_currentTransform = b;
-
+  MBInfo[robIndx].m_pBodyInfo[0].m_currentTransform = b;
+  
   //compute rotation
   Quaternion q1, q2;
   q2 = q1.getQuaternionFromMatrix(
-  MBInfo[0].m_pBodyInfo[0].m_currentTransform.m_orientation.matrix);
+	  MBInfo[robIndx].m_pBodyInfo[0].m_currentTransform.m_orientation.matrix);
   pPoly[0].q(q2.normalize()); //set new q
   
+  MBInfo[robIndx].m_pBodyInfo[0].m_transformDone = true;
+  
   //configuration of links after the base
-
-  for( int iM=1; iM<numMBody; iM++ ){
-    if( MBInfo[0].m_NumberOfConnections!=0 ){
+  if( MBInfo[robIndx].m_NumberOfConnections!=0 ){
+    //Compute position and orientation for all of the links left
+    for( int iM=0; iM<MBInfo[robIndx].m_NumberOfConnections; iM++ ){
       
-      //Compute position and orientation for all of the links left
-
       int currentBody = 0; //index of current Body
       int nextBody = 0; //indext of next Body
-      double theta = cfg[5+iM];
-
-      currentBody = MBInfo[0].listConnections[iM-1].first;
-      nextBody = MBInfo[0].listConnections[iM-1].second;
-      Transformation t = MBInfo[0].m_pBodyInfo[currentBody].getTransform();    
-      MBInfo[0].m_pBodyInfo[nextBody].setPrevTransform(t);
-      MBInfo[0].m_pBodyInfo[nextBody].computeTransform(
-                 MBInfo[0].m_pBodyInfo[currentBody], nextBody, theta);
-      pPoly[iM].tx()=MBInfo[0].m_pBodyInfo[nextBody].m_currentTransform.m_position[0]; 
-      pPoly[iM].ty()=MBInfo[0].m_pBodyInfo[nextBody].m_currentTransform.m_position[1]; 
-      pPoly[iM].tz()=MBInfo[0].m_pBodyInfo[nextBody].m_currentTransform.m_position[2];  
+      double theta; //to keep angle of current Cfg.
       
-      //compute rotation
-      Quaternion q1, q2;
-      q2 = q1.getQuaternionFromMatrix(
-	   MBInfo[0].m_pBodyInfo[nextBody].m_currentTransform.m_orientation.matrix);
-      pPoly[iM].q(q2.normalize()); //set new q
+      if(MBInfo[robIndx].m_pBodyInfo[0].m_bIsFixed)
+	theta = cfg[iM];
+      else
+	theta = cfg[6+iM]; //base already computed from cfg0,...,cfg5
+      
+      currentBody = MBInfo[robIndx].listConnections[iM].first;
+      nextBody = MBInfo[robIndx].listConnections[iM].second;
+      
+      if(!MBInfo[robIndx].m_pBodyInfo[nextBody].m_transformDone){
 	
+	Transformation t = MBInfo[robIndx].m_pBodyInfo[currentBody].getTransform(); 
+	MBInfo[robIndx].m_pBodyInfo[nextBody].setPrevTransform(t); 
+	MBInfo[robIndx].m_pBodyInfo[nextBody].computeTransform(
+	      MBInfo[robIndx].m_pBodyInfo[currentBody], nextBody, theta);
+	
+	pPoly[nextBody].tx()=MBInfo[robIndx].m_pBodyInfo[nextBody].m_currentTransform.m_position[0]; 
+	pPoly[nextBody].ty()=MBInfo[robIndx].m_pBodyInfo[nextBody].m_currentTransform.m_position[1]; 
+	pPoly[nextBody].tz()=MBInfo[robIndx].m_pBodyInfo[nextBody].m_currentTransform.m_position[2];  
+	  
+	//compute rotation
+	Quaternion q1, q2;
+	q2 = q1.getQuaternionFromMatrix(
+	       MBInfo[robIndx].m_pBodyInfo[nextBody].m_currentTransform.m_orientation.matrix);
+	pPoly[nextBody].q(q2.normalize()); //set new q
+	
+	MBInfo[robIndx].m_pBodyInfo[nextBody].m_transformDone = true;
+      }    
     }
   }
-
-  m_Poly = m_RobotModel->GetPolyhedron();
-
 }
 
 void OBPRMView_Robot::DrawSelect()

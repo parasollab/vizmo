@@ -16,6 +16,7 @@ SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_g
 OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o \
          moc_roadmap.o moc_filelistDialog.o moc_obj_property.o
 
+
 first: all
 
 ####### Build rules

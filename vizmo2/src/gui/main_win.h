@@ -106,8 +106,8 @@ private:
     VizmoScreenShotGUI *screenShotGUI;
     VizmoItemSelectionGUI *objectSelection;
     VizmoAttributeSelectionGUI *attributeSelection;
- 
-    VizmoRoadmapGUI *roadmapGUI;  //for CC's
+
+     VizmoRoadmapGUI *roadmapGUI;  //for CC's
 
     vector<string> m_Args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.

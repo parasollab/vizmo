@@ -47,13 +47,13 @@ void VizmoRoadmapGUI::createGUI()
     connect(colorAction,SIGNAL(activated()), this, SLOT(changeColor()) );
     colorAction->addTo(this);
     colorAction->setEnabled(false);
-
+    
     editAction = new QAction
     ("Edit",QPixmap(icon_make),"Edit &Map",CTRL+Key_E,this,"",true);
     connect(editAction,SIGNAL(activated()), this, SLOT(editMap()) );
     editAction->addTo(this);
     editAction->setEnabled(false);
-
+    
     addNodeAction = new QAction
     ("New Node",QPixmap(icon_make),"Add &Node",CTRL+Key_E,this,"",true);
     connect(addNodeAction,SIGNAL(activated()), this, SLOT(addNode()) );

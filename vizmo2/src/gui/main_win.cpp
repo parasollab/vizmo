@@ -127,7 +127,7 @@ bool VizmoMainWin::CreateGUI()
     SetTips();
 
     connect(m_GL, SIGNAL(selectByRMB()), this, SLOT(obj_contexmenu()));
-	connect(m_GL, SIGNAL(clickByRMB()), this, SLOT(gen_contexmenu()));
+    connect(m_GL, SIGNAL(clickByRMB()), this, SLOT(gen_contexmenu()));
     connect(m_GL, SIGNAL(selectByLMB()), objectSelection, SLOT(select()));
     connect(m_GL, SIGNAL(selectByLMB()), roadmapGUI, SLOT(handleSelect()));
     connect(m_GL, SIGNAL(MRbyGLI()), roadmapGUI, SLOT(MoveNode()));
@@ -270,20 +270,22 @@ void VizmoMainWin::obj_contexmenu()
     cm.insertItem("Invisible",this,SLOT(setInvisible()));
     cm.insertItem(QIconSet(icon_pallet),"Color", this, SLOT(setNewColor()));
 	cm.insertSeparator();
-	cm.insertItem("Edit...", this,SLOT(objectEdit()));
+	//cm.insertItem("Edit...", this,SLOT(objectEdit()));
 
     if( cm.exec(QCursor::pos())!=-1 ) m_GL->updateGL();    
 }
 
 void VizmoMainWin::gen_contexmenu()
 {
-    QPopupMenu cm(this);
-    changeBGcolorAction->addTo(&cm);
-    cameraResetAction->addTo(&cm);
-	showGridAction->addTo(&cm);
-	showAxisAction->addTo(&cm);
 
-    if( cm.exec(QCursor::pos())!=-1 ) m_GL->updateGL();    
+  QPopupMenu cm(this);
+  changeBGcolorAction->addTo(&cm);
+  cameraResetAction->addTo(&cm);
+  showGridAction->addTo(&cm);
+  showAxisAction->addTo(&cm);
+
+  if( cm.exec(QCursor::pos())!=-1 ) m_GL->updateGL();    
+
 }
 
 void VizmoMainWin::setSolid()
@@ -303,7 +305,6 @@ void VizmoMainWin::setInvisible()
 
 void VizmoMainWin::setNewColor()
 {
-    //double r, g, b;
     QColor color = QColorDialog::getColor( white, this, "color dialog" );
     if ( color.isValid() ){
       GetVizmo().mR = (double)(color.red()) / 255.0;
@@ -318,6 +319,7 @@ void VizmoMainWin::envObjsRandomColor()
 	GetVizmo().envObjsRandomColor();
 	m_GL->updateGL();
 }
+
 
 void VizmoMainWin::refreshEnv()
 {
@@ -425,7 +427,7 @@ bool VizmoMainWin::CreateActions()
     connect(changeBGcolorAction, SIGNAL(activated()), this, SLOT(changeBGcolor()));
 
     ///////////////////////////////////////////////////////////////////////////////
-    // Change background Color
+    // Change Color randomly
     randObjcolorAction = new QAction("Random Color", QPixmap( icon_pallet ), "Randomly Changes Obstacle Colors", ALT+Key_C, this);
     connect(randObjcolorAction,SIGNAL(activated()),this,SLOT(envObjsRandomColor()));
 
@@ -679,6 +681,5 @@ void VizmoMainWin::CreateRoadmapToolbar(){
   roadmapGUI = new VizmoRoadmapGUI (this, "MapSelection");
   connect(roadmapGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 }
-
 
 
