@@ -67,7 +67,7 @@ CXXOPTS	=	-o32 -O2 -DVERBOSE=0 -DINTERMEDIATE_FILES=1
 
 # -- for dynamic shared object library libgms.so
    OBPRM_DIR = /pub/rlab4/burc/OBPRM
-   OBPRMLIB     = -L. -lobprm
+   OBPRMLIB     = -Llib -lobprm
 
 CSTKLIB_DIR  = /pub/dsmft/CD-libs/sgi/CSTK/CSTK-1.22/cstk
 CSTKLIB      = -L${CSTKLIB_DIR}/lib -lcstk
@@ -101,8 +101,8 @@ REQ_OBJS = Path.o Query.o vizEnvironment.o vizList.o  vizRobotObject.o \
 REQ_SRCS = Path.c Query.c vizEnvironment.c vizList.c vizRobotObject.c vizObject.c vizRoadmap.c
 
 
-VizmoLib.so: VizmoLib.o $(REQ_OBJS) 
-	$(SHLIB_LD) $(SRC_DIR)/$(PROJECT).o $(REQ_OBJS)  -o $(PROJECT)$(SHLIB_SUFFIX) \
+lib/VizmoLibSgi.so: VizmoLib.o $(REQ_OBJS) 
+	$(SHLIB_LD) $(SRC_DIR)/$(PROJECT).o $(REQ_OBJS)  -o $(PROJECT)Sgi$(SHLIB_SUFFIX) \
 	-rpath $(PWD):$(CSTKLIB_DIR):${VCLIPLIB_DIR}:$(RAPIDLIB_DIR) \
 	$(OBPRMLIB)  $(CSTKLIB) ${VCLIPLIB} $(RAPIDLIB)\
 	$(LDFLAGS) $(VTKLIBS) $(XLIBS) -lGL

@@ -8,3 +8,7 @@ if  [ $system = "IRIX" ]
 then
 make -f Makefile.sgi $*
 fi  
+if  [ $system = "IRIX64" ]
+then
+make -f Makefile.sgi $*
+fi    
