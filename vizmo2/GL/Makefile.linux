@@ -1,7 +1,7 @@
 VIZMO_DIR=..
 include $(VIZMO_DIR)/M_incl
 
-TARGET=$(VIZMO_DIR)/lib/libPlum.a
+TARGET=$(VIZMO_DIR)/lib/libgli.a
 
 OBJECTS = gli.o gliCamera.o gliDataStructure.o gliPickBox.o gliTransTool.o gliFont.o gliDump.o
 
