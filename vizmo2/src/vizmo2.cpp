@@ -156,6 +156,9 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
     //put robot in start cfg, if availiable
     PlaceRobot();
 
+    // Init. variables used to change color of env. objects
+    mR = mG = mB = 0;
+
     return true;
 }
 
@@ -217,6 +220,7 @@ void vizmo::ChangeAppearance(int status)
     // status 0 = solid
     // status 1 = wire
     // status 2 = invisible
+    // status 3 = change color
     
     typedef vector<gliObj>::iterator GIT;
     
@@ -229,6 +233,9 @@ void vizmo::ChangeAppearance(int status)
             model->SetRenderMode(CPlumState::MV_WIRE_MODE);
         else if(status==2)
             model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+	else if(status == 3){
+	  model->SetColor( mR, mG, mB, 1 );
+	}
     }
     
 }
@@ -276,6 +283,8 @@ void vizmo::ChangeNodesSize(float s, string str){
 }
 
 void vizmo::ChangeNodesShape(string s){
+
+  //cout<<"S RECEIVED IN VIZMO2::"<<s<<endl;
     if( m_obj.m_Robot==NULL ) return;
     
     if( m_obj.m_Map==NULL ) return;
@@ -296,21 +305,57 @@ void vizmo::ChangeNodesShape(string s){
 
 void vizmo::ChangeNodesColor(double r, double g, double b, string s){
 
+  //cout<<"S value in vizmo2:: "<<s<<endl;
+
     if( m_obj.m_Robot==NULL ) return;
     
     if( m_obj.m_Map==NULL ) return;
 
     typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
     typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
-    typedef vector<CC>::iterator CCIT;    
+    typedef vector<CC>::iterator CCIT;  
+
+  //change color of one CC at a time
+    vector<gliObj>& sel = GetVizmo().GetSelectedItem();
+    typedef vector<gliObj>::iterator SI;
+    int id = -1;
+    int m_i;
+    string m_sO;
+    for(SI i = sel.begin(); i!= sel.end(); i++){
+      CGLModel *gl = (CGLModel*)(*i);
+      m_sO = gl->GetName();
+    }
+    string m_s;
+    int position = m_sO.find("CC",0);
+    if(position != string::npos){
+      m_s = m_sO.substr(position+2, m_sO.length());
+    }
+
+    //cout<<"string found: "<<m_s<<endl;
 
     CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
     vector<CC>& cc=mmodel->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        CC::Shape shape=CC::Robot;
-	ic->newColor = true;
-        ic->changeColor(r, g, b, shape);
+      CC::Shape shape=CC::Point;
+        if( s=="Robot" ) shape=CC::Robot;
+        else if( s=="Box" ) shape=CC::Box;
+	if(StringToInt(m_s, m_i)){
+	  if(m_i == ic->id){
+	    ic->newColor = true;
+	    //cout<<"SHAPE IN vizmo2.cpp ::"<<shape<<endl;
+	    ic->changeColor(r, g, b, shape);
+	  }
+	}
     }
+}
+
+bool vizmo::StringToInt(const string &s, int &i){
+  istringstream myStream(s);
+  
+  if (myStream>>i)
+    return true;
+  else
+    return false;
 }
 
 double vizmo::GetEnvRadius(){ 
