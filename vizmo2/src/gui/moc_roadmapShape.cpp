@@ -1,14 +1,14 @@
 /****************************************************************************
-** VizmoAttributeSelectionGUI meta object code from reading C++ file 'attributeselectio_gui.h'
+** VizmoRoadmapNodesShapeGUI meta object code from reading C++ file 'roadmapShape.h'
 **
-** Created: Fri Jan 24 15:24:44 2003
+** Created: Mon Feb 3 15:26:58 2003
 **      by: The Qt MOC ($Id$)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
 #undef QT_NO_COMPAT
-#include "attributeselectio_gui.h"
+#include "roadmapShape.h"
 #include <qmetaobject.h>
 #include <qapplication.h>
 
@@ -19,27 +19,27 @@
 #error "(The moc has changed too much.)"
 #endif
 
-const char *VizmoAttributeSelectionGUI::className() const
+const char *VizmoRoadmapNodesShapeGUI::className() const
 {
-    return "VizmoAttributeSelectionGUI";
+    return "VizmoRoadmapNodesShapeGUI";
 }
 
-QMetaObject *VizmoAttributeSelectionGUI::metaObj = 0;
-static QMetaObjectCleanUp cleanUp_VizmoAttributeSelectionGUI;
+QMetaObject *VizmoRoadmapNodesShapeGUI::metaObj = 0;
+static QMetaObjectCleanUp cleanUp_VizmoRoadmapNodesShapeGUI;
 
 #ifndef QT_NO_TRANSLATION
-QString VizmoAttributeSelectionGUI::tr( const char *s, const char *c )
+QString VizmoRoadmapNodesShapeGUI::tr( const char *s, const char *c )
 {
     if ( qApp )
-	return qApp->translate( "VizmoAttributeSelectionGUI", s, c, QApplication::DefaultCodec );
+	return qApp->translate( "VizmoRoadmapNodesShapeGUI", s, c, QApplication::DefaultCodec );
     else
 	return QString::fromLatin1( s );
 }
 #ifndef QT_NO_TRANSLATION_UTF8
-QString VizmoAttributeSelectionGUI::trUtf8( const char *s, const char *c )
+QString VizmoRoadmapNodesShapeGUI::trUtf8( const char *s, const char *c )
 {
     if ( qApp )
-	return qApp->translate( "VizmoAttributeSelectionGUI", s, c, QApplication::UnicodeUTF8 );
+	return qApp->translate( "VizmoRoadmapNodesShapeGUI", s, c, QApplication::UnicodeUTF8 );
     else
 	return QString::fromUtf8( s );
 }
@@ -47,13 +47,13 @@ QString VizmoAttributeSelectionGUI::trUtf8( const char *s, const char *c )
 
 #endif // QT_NO_TRANSLATION
 
-QMetaObject* VizmoAttributeSelectionGUI::staticMetaObject()
+QMetaObject* VizmoRoadmapNodesShapeGUI::staticMetaObject()
 {
     if ( metaObj )
 	return metaObj;
     QMetaObject* parentObject = QToolBar::staticMetaObject();
     metaObj = QMetaObject::new_metaobject(
-	"VizmoAttributeSelectionGUI", parentObject,
+	"VizmoRoadmapNodesShapeGUI", parentObject,
 	0, 0,
 	0, 0,
 #ifndef QT_NO_PROPERTIES
@@ -61,28 +61,28 @@ QMetaObject* VizmoAttributeSelectionGUI::staticMetaObject()
 	0, 0,
 #endif // QT_NO_PROPERTIES
 	0, 0 );
-    cleanUp_VizmoAttributeSelectionGUI.setMetaObject( metaObj );
+    cleanUp_VizmoRoadmapNodesShapeGUI.setMetaObject( metaObj );
     return metaObj;
 }
 
-void* VizmoAttributeSelectionGUI::qt_cast( const char* clname )
+void* VizmoRoadmapNodesShapeGUI::qt_cast( const char* clname )
 {
-    if ( !qstrcmp( clname, "VizmoAttributeSelectionGUI" ) ) return (VizmoAttributeSelectionGUI*)this;
+    if ( !qstrcmp( clname, "VizmoRoadmapNodesShapeGUI" ) ) return (VizmoRoadmapNodesShapeGUI*)this;
     return QToolBar::qt_cast( clname );
 }
 
-bool VizmoAttributeSelectionGUI::qt_invoke( int _id, QUObject* _o )
+bool VizmoRoadmapNodesShapeGUI::qt_invoke( int _id, QUObject* _o )
 {
     return QToolBar::qt_invoke(_id,_o);
 }
 
-bool VizmoAttributeSelectionGUI::qt_emit( int _id, QUObject* _o )
+bool VizmoRoadmapNodesShapeGUI::qt_emit( int _id, QUObject* _o )
 {
     return QToolBar::qt_emit(_id,_o);
 }
 #ifndef QT_NO_PROPERTIES
 
-bool VizmoAttributeSelectionGUI::qt_property( int _id, int _f, QVariant* _v)
+bool VizmoRoadmapNodesShapeGUI::qt_property( int _id, int _f, QVariant* _v)
 {
     return QToolBar::qt_property( _id, _f, _v);
 }

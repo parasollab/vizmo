@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////// QT Headhers
 #include <qmainwindow.h>
 #include <qnamespace.h>
-
+#include <qtoolbar.h>
 
 class QToolBar;
 class QAction;

@@ -16,9 +16,8 @@
 #include <qmessagebox.h>
 #include <qlistview.h>
 #include <qgrid.h>
-#include <qchar.h>
+//#include <qchar.h>
 
-#include "/research/sunburn/dsmft/users/bss5793/allnewVizmo/src/EnvObj/EnvLoader.h"
 
 
 VizmoItemSelectionGUI::VizmoItemSelectionGUI(QMainWindow *parent,char *name)

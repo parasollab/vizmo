@@ -6,7 +6,7 @@
 
 #include "snapshot_gui.h"
 
-#include "GL_Dump.cpp"
+#include "GL_Dump.h"
 #include <GL/gliPickBox.h>
 
 
@@ -102,5 +102,5 @@ void VizmoScreenShotGUI::takeSnapshot()
   const char *fname=fileName.data();
 
        
-  dump(fname,xOffset,yOffset,w,h);
+  //dump(fname,xOffset,yOffset,w,h);
 }

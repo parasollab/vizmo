@@ -1,7 +1,7 @@
 /****************************************************************************
 ** VizmoScreenShotGUI meta object code from reading C++ file 'snapshot_gui.h'
 **
-** Created: Mon Dec 2 15:17:10 2002
+** Created: Mon Feb 3 15:25:48 2003
 **      by: The Qt MOC ($Id$)
 **
 ** WARNING! All changes made in this file will be lost!

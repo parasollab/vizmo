@@ -1,7 +1,7 @@
 /****************************************************************************
 ** VizmoItemSelectionGUI meta object code from reading C++ file 'itemselection_gui.h'
 **
-** Created: Mon Dec 2 15:17:21 2002
+** Created: Mon Feb 3 15:26:10 2003
 **      by: The Qt MOC ($Id$)
 **
 ** WARNING! All changes made in this file will be lost!
