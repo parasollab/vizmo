@@ -1,5 +1,5 @@
 /* XPM */
-static const char *tapes[] = {
+static const char * icon_tapes[] = {
 /* width height ncolors chars_per_pixel */
 "32 32 8 1",
 /* colors */
@@ -8,7 +8,7 @@ static const char *tapes[] = {
 "X c green",
 "o c DarkSlateGrey",
 "O c SeaGreen",
-"+ c white",
+"+ c none",
 "@ c SlateGrey",
 "# c PaleGreen",
 /* pixels */

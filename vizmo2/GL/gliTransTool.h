@@ -91,6 +91,41 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+//  gliScaleTool : Tool for salce
+//
+///////////////////////////////////////////////////////////////////////////////
+
+class gliScaleTool : public gliTToolBase
+{
+    enum SelType{ NON, X_AXIS, Y_AXIS, Z_AXIS, VIEW_PLANE }; //move along
+public:
+
+    gliScaleTool():gliTToolBase(){ m_SelType=NON; }
+    virtual ~gliScaleTool() { /*do nothing*/ }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Core
+    bool MP( QMouseEvent * e ); //mouse button pressed
+    bool MR( QMouseEvent * e ); //mouse button released
+    bool MM( QMouseEvent * e );  //mouse motion
+    virtual void Enable(){}   //called when this tool is activated
+    virtual void Disable(){}  //called when this tool is unactivated
+
+protected:
+    void Draw(bool bSel);
+    bool Select(int x, int y);
+
+private:
+    Vector3d m_deltaDis;       //displacement caused by user
+    SelType  m_SelType;        //which axis is selected
+    Point3d  m_HitUnPrj;       //unproject(m_W, m_H)
+    Point3d  m_SObjPosC;       //catch for m_pSObj->pos
+    Point3d  m_SObjPrjC;       //catch for m_SObjPrj
+	double   m_osX,m_osY,m_osZ; //old scale
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
 //  gliRotateTool : Tool for rotation
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -110,7 +145,7 @@ public:
     bool MM( QMouseEvent * e );  //mouse motion
 
     virtual void setSObject( gliObj obj ){
-		gliTToolBase::setSObject(obj);
+        gliTToolBase::setSObject(obj);
         ComputLocalAxis();
         ComputAngles();
     }
@@ -132,7 +167,7 @@ protected:
     double ComputAngle(Vector3d& s, Vector3d& v1,Vector3d& v2){
         return atan2(s*v2,s*v1);
     }
-	Point3d UnProj2World(const Point3d& ref,const Vector3d& n,int x, int y);
+    Point3d UnProj2World(const Point3d& ref,const Vector3d& n,int x, int y);
 
 private:
     Vector3d m_LA[3];          //axis of sel object
@@ -168,18 +203,23 @@ public:
     void CheckSelectObject();
     void CM(){ //camera move event
         m_MT.Project2Win(); 
+		m_ST.Project2Win(); 
         if( &m_RT==m_pTool ) m_RT.ComputAngles(); //view angle changed...
     } 
 
     ///////////////////////////////////////////////////////////////////////////
     // Access
-    void setWinSize(int W, int H) { m_MT.setWinSize(W,H); }
+    void setWinSize(int W, int H) { 
+		m_MT.setWinSize(W,H); 
+		m_ST.setWinSize(W,H); 
+	}
 
 private:
     //current tool, m_MT or m_RT or NULL
     gliTToolBase * m_pTool;
     gliMoveTool    m_MT;
     gliRotateTool  m_RT;
+	gliScaleTool   m_ST;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -28,11 +28,11 @@ VizmoItemSelectionGUI::VizmoItemSelectionGUI(QMainWindow *parent,char *name)
     listview->setColumnWidthMode(0,QListView::Maximum);
     listview->setRootIsDecorated( TRUE );
     listview->setMinimumHeight(parent->height()*2/3);
+	listview->setMultiSelection(true);
+	listview->setSelectionMode(QListView::Extended);
+//    listview->setResizeMode(QListView::AllColumns);
 
-    listview->setResizeMode(QListView::AllColumns);
-
-    connect(listview,SIGNAL(selectionChanged(QListViewItem *)),
-            this,SLOT(selectionChanged(QListViewItem *)));
+    connect(listview,SIGNAL(selectionChanged()),this,SLOT(selectionChanged()));
     setEnabled(false);
 }
 
@@ -82,12 +82,15 @@ VizmoItemSelectionGUI::createItem(VizmoListViewItem * p, CGLModel * model)
     return item;
 }
 
-void VizmoItemSelectionGUI::selectionChanged(QListViewItem * item)
+void VizmoItemSelectionGUI::selectionChanged()
 {
-    VizmoListViewItem * myitem=(VizmoListViewItem *)item;
     vector<gliObj>& sel=GetVizmo().GetSelectedItem();
     sel.clear();
-    sel.push_back(myitem->model);
+    typedef list<VizmoListViewItem*>::iterator IIT;
+    for( IIT i=items.begin();i!=items.end();i++ ){
+        if( !listview->isSelected((*i)) ) continue;
+		GetVizmo().GetSelectedItem().push_back((*i)->model);
+	}
     emit callUpdate();
 }
 
@@ -100,21 +103,26 @@ void VizmoItemSelectionGUI::clear()
 void VizmoItemSelectionGUI::select()
 {
 
-    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
+    vector<gliObj> sel=GetVizmo().GetSelectedItem();
     int size=sel.size();
     typedef list<VizmoListViewItem*>::iterator IIT;
     //unselect everything
-    for( IIT i=items.begin();i!=items.end();i++ )
-        listview->setSelected((*i), false);
-    //select
+    {for( IIT i=items.begin();i!=items.end();i++ )
+        listview->setSelected((*i), false);}
+    //find select
+	list<VizmoListViewItem*> selected;
     for( int s=0;s<size;s++ ){
         for( IIT i=items.begin();i!=items.end();i++ ){
             if( sel[s]==(*i)->model ) {
-                listview->setSelected( (*i), true );
-                break;
+                selected.push_back(*i);
             }
         }//end i
     }//end s
+
+    //select
+	{for( IIT i=selected.begin();i!=selected.end();i++ )
+    listview->setSelected((*i), true);}
+	GetVizmo().GetSelectedItem()=sel;
 }
 
 

@@ -4,7 +4,7 @@
 #include <GL/gli.h>
 #include <GL/gliCamera.h>
 #include <GL/gliFont.h>
-
+#include <GL/glut.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
@@ -15,8 +15,8 @@ VizGLWin::VizGLWin(QWidget * parent, const char * name)
     setMinimumSize( 300, 200 );
     setFocusPolicy(QWidget::StrongFocus);
     
-    R = G = B = 1;
     takingSnapShot=false;
+	m_bShowGrid=m_bShowAxis=true;
 }
 
 void VizGLWin::getWidthHeight(int *w,int *h)
@@ -37,7 +37,7 @@ void VizGLWin::resetCamera()
 }
 
 //used as callback for gli
-inline vector<gliObj> vizmo_select(const gliBox& box){
+inline vector<gliObj>& vizmo_select(const gliBox& box){
     GetVizmo().Select(box);
     return GetVizmo().GetSelectedItem();
 }
@@ -50,8 +50,7 @@ void VizGLWin::initializeGL()
     /*others*/
     glEnable( GL_DEPTH_TEST);
 
-    // glClearColor( 1 , 1, 1, 0 );
-    glClearColor( R , G, B, 0 );
+    glClearColor( 1 , 1, 1, 0 );
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     glLineStipple(2,0xAAAA);
@@ -70,19 +69,19 @@ void VizGLWin::resizeGL( int w, int h)
     gluPerspective( 60, ((GLfloat)w)/((GLfloat)h), 1, 1500 );
 }
 
-#include <GL/glut.h>
 void VizGLWin::paintGL()
 {
     //Init Draw
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
-    glClearColor( R , G, B, 0 );
-    
     ((VizmoMainWin*)parentWidget())->InitVizmo();
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gliDraw();
+	int param=GLI_SHOW_PICKBOX|GLI_SHOW_TRANSFORMTOOL;
+	if( m_bShowGrid ) param=param|GLI_SHOW_GRID;
+	if( m_bShowAxis ) param=param|GLI_SHOW_AXIS;
+    gliDraw(param);
     SetLightPos();
     GetVizmo().Display();
     drawText();
@@ -103,7 +102,6 @@ void VizGLWin::SetLight()
 
 void VizGLWin::mousePressEvent( QMouseEvent * e )
 {
-    
     if( gliMP(e) ){ updateGL(); return; }//handled by gli
     updateGL();
 }
@@ -118,23 +116,33 @@ void VizGLWin::simulateMouseUpSlot()
 void VizGLWin::getBoxDimensions(int *xOffset, int *yOffset,int *w,int *h)
 {
     gliPickBoxDim(xOffset,yOffset,w,h);
-    
 }
 
 void VizGLWin::mouseReleaseEvent( QMouseEvent * e )
 {
     if( gliMR(e,takingSnapShot) ){ //handled by gli
-        updateGL(); return; }
+        updateGL(); 
+		emit MRbyGLI();
+		return; 
+	}
 
-    updateGL();
+    //updateGL();
+
+    vector<gliObj>& objs=GetVizmo().GetSelectedItem();
     if( e->button()==Qt::RightButton ){
-        vector<gliObj>& objs=GetVizmo().GetSelectedItem();
-        objs2=&objs;
-        if( !objs.empty() ){
-            emit selectByRMB();
-        }//empty
+        if( !objs.empty() ) 
+			emit selectByRMB();
+		else //empty
+			emit clickByRMB();
     }//not RMB
-    emit selected();
+    else if( e->button()==Qt::LeftButton ){ 
+		if( !objs.empty() ) 
+			emit selectByLMB();
+		else
+			emit clickByLMB();
+	}//if
+
+	updateGL();
 }
 
 void VizGLWin::mouseMoveEvent ( QMouseEvent * e )
@@ -196,6 +204,17 @@ void VizGLWin::drawText(list<string>& info)
     }
 }
 
+void VizGLWin::showGrid() 
+{ 
+	m_bShowGrid=!m_bShowGrid; 
+	updateGL();
+}
+
+void VizGLWin::showAxis() 
+{ 
+	m_bShowAxis=!m_bShowAxis; 
+	updateGL();
+}
 
 
 

@@ -6,7 +6,7 @@
 
 #include "snapshot_gui.h"
 
-#include "GL_Dump.h"
+#include <GL/gliDump.h>
 #include <GL/gliPickBox.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@
 //Icons
 #include "icon/tapes.xpm"
 #include "icon/video_camera2.xpm"
-#include "icon/Camera.xpm"
+#include "icon/camera.xpm"
 
 inline QStringList& Filters()
 {
@@ -109,10 +109,10 @@ void VizmoScreenShotGUI::reset() //reset every thing
         //disable/enable this toolbar
         if( GetVizmo().GetPathSize()==0 ) animation->setEnabled(false);
         else{
-	  animation->setEnabled(true);
-	  takeBoxPicture->setEnabled(true);
-	  takePicture->setEnabled(true);
-	}
+			animation->setEnabled(true);
+			takeBoxPicture->setEnabled(true);
+			takePicture->setEnabled(true);
+		}
     }
 }
 
@@ -125,21 +125,23 @@ bool VizmoScreenShotGUI::CreateGUI()
 
 void VizmoScreenShotGUI::CreateActions()
 {
-    takePicture= new QToolButton(QPixmap(Camera), "Picture", "Take a snap shot of whole window", this,
+	//
+    takePicture= new QToolButton(QPixmap(icon_camera), "Picture", "Take a snap shot of whole window", this,
                                  SLOT(takeSnapshot()), this, "picture");
     takePicture->setUsesTextLabel ( true );
     takePicture->setEnabled(false);
-    
-    takeBoxPicture= new QToolButton(QPixmap(tapes), "Crop", "Take a snap shot of the selected region", this,
+	//
+    animation= new QToolButton(QPixmap(icon_video_camera), "Movie", "Save Image Sequence", this,
+                               SLOT(takeMoviePictures()), this, "movie");
+    animation->setEnabled(false);
+    animation->setUsesTextLabel ( true );
+	//
+    takeBoxPicture= new QToolButton(QPixmap(icon_tapes), "Crop", "Take a snap shot of the selected region", this,
                                     SLOT(takeBoxSnapshot()), this, "selected");
     takeBoxPicture->setUsesTextLabel ( true );
     takeBoxPicture->setToggleButton(true);
     takeBoxPicture->setEnabled(false);
-    animation= new QToolButton(QPixmap(video_camera2), "Movie", "Save Image Sequence", this,
-                               SLOT(takeMoviePictures()), this, "movie");
-    animation->setEnabled(false);
-
-    animation->setUsesTextLabel ( true );
+	//
     mDialog=new MovieSaveDialog(this,"",true);
 }
 
@@ -153,30 +155,45 @@ void VizmoScreenShotGUI::takeMoviePictures()
     result=mDialog->exec();
     if(!result) return;
     
-    
     ///////////////////////////////////////////////////////////////////////////
     //Save
     int startFrame=mDialog->startIntFrame;
     int endFrame=mDialog->endIntFrame;
     int stepSize=mDialog->stepIntSize;
     const char * ExtName=mDialog->sFileExt.data();  
-    
-    int w,h;
-    emit getScreenSize(&w,&h);
-    
+
+    ///////////////////////////////////////////////////////////////////////////
+    int w,h,xOffset,yOffset;
+    if(!boxPicture){
+        emit getScreenSize(&w,&h);
+        xOffset=0;
+        yOffset=0;
+    }
+    else{
+        emit getBoxDimensions(&xOffset,&yOffset,&w,&h);
+    }
+    ///////////////////////////////////////////////////////////////////////////
+
     QString temp;
     QString qfname;
-    QProgressDialog progress( "Saving images...", "Abort", endFrame-startFrame,this, "progress", TRUE );
-    for(int i=startFrame;i<=endFrame;i+=stepSize)
+	char number[32];
+	char cmd[32];
+	sprintf(cmd,"%s%d%s","%0",mDialog->frame_digit,"d");
+
+    QProgressDialog progress
+	("Saving images...","Abort",endFrame-startFrame,this,"progress",TRUE);
+	int FID=0;
+    for(int i=startFrame;i<=endFrame;i+=stepSize,FID++)
     {
         progress.setProgress(i-startFrame);
         qApp->processEvents();
         if ( progress.wasCancelled() ) break;
         // dump the image
         emit goToFrame(i);
-        temp=temp.setNum(i);
-        qfname=mDialog->sFileName+temp;
-        dump(qfname.data(),ExtName,0,0,w,h);
+		// 
+        sprintf(number,cmd,FID);
+        qfname=mDialog->sFileName+number;
+        dump(qfname.data(),ExtName,xOffset+1,yOffset+1,w-2,h-2);
     }
     progress.setProgress( endFrame-startFrame );
 }
@@ -188,10 +205,9 @@ void VizmoScreenShotGUI::takeBoxSnapshot()
     if(!boxPicture)
     {
         emit simulateMouseUp();
-        emit callUpdate();
     }
-    emit togleSelectionSignal();
-    
+    emit callUpdate();
+    emit togleSelectionSignal();   
 }
 
 void VizmoScreenShotGUI::takeSnapshot()
@@ -218,7 +234,7 @@ void VizmoScreenShotGUI::takeSnapshot()
         fileName=fd->selectedFile();
         const char *fname=fileName.data();
         string ext=Filter2Ext(fd->selectedFilter().data());
-        dump(fname,ext.c_str(),xOffset,yOffset,w,h);
+        dump(fname,ext.c_str(),xOffset+1,yOffset+1,w-2,h-2);
     }
 }
 
@@ -232,6 +248,10 @@ void VizmoScreenShotGUI::takeSnapshot()
 MovieSaveDialog::MovieSaveDialog(QWidget *parent, const char *name, WFlags f):
 QDialog(parent,name,f)
 {
+	sFileName="vizmo_movie";
+	sFileExt="jpg";
+	frame_digit=5;
+
     QVBoxLayout* vbox = new QVBoxLayout(this,8);
     vbox->setAutoAdd(TRUE);
     QGrid* controls = new QGrid(2,QGrid::Horizontal,this);
@@ -251,7 +271,8 @@ QDialog(parent,name,f)
     stepSize->setValidator(new QIntValidator(stepSize));    
     
     QPushButton *fileNameButton = new QPushButton("Select Name",controls);  
-    fnameLabel=new QLabel("File Name",controls); l->setAlignment(AlignCenter);
+    fnameLabel=new QLabel((sFileName+"#####."+sFileExt),controls); 
+	l->setAlignment(AlignCenter);
     
     QPushButton *go = new QPushButton("Go",controls);
     QPushButton *cancel = new QPushButton("Cancel",controls);
@@ -260,7 +281,6 @@ QDialog(parent,name,f)
     connect(cancel,SIGNAL(clicked()),this,SLOT(reject()));
     connect(go,SIGNAL(clicked()),this,SLOT(saveImages()));
 }
-
 
 void MovieSaveDialog::saveImages()
 {
@@ -307,5 +327,12 @@ void MovieSaveDialog::showFileDialog()
         sFileName=fd->selectedFile();
         sFileExt=Filter2Ext(fd->selectedFilter().data()).c_str();
         fnameLabel->setText(sFileName+sFileExt); 
+
+		//find digit
+		int _s=sFileName.find('#');
+		int _g=sFileName.findRev('#');
+		frame_digit=_g-_s;
+		if( _s==_g ) frame_digit=4;
+		sFileName=sFileName.left(_s);
     }
 }

@@ -8,14 +8,19 @@ using namespace std;
 
 #include "gliDataStructure.h"
 
+extern int GLI_SHOW_AXIS;
+extern int GLI_SHOW_PICKBOX;
+extern int GLI_SHOW_TRANSFORMTOOL;
+extern int GLI_SHOW_GRID;
+
 //draw
-void gliDraw();
+void gliDraw(int option=0);
 
 //mouse button presse event, return true if handled
 bool gliMP( QMouseEvent * e );
 
 //mouse button release event, return true if handled
-bool gliMR( QMouseEvent * e,bool );
+bool gliMR( QMouseEvent * e, bool drawonly=false );
 
 //mouse movement evenet, return true if handled
 bool gliMM( QMouseEvent * e );
@@ -29,16 +34,15 @@ void gliWS( int w, int h );
 //camera move event
 void gliCM();
 
-// Get the picking box dimensions
-bool gliPickBoxDim(int *xOffset,int *yOffset,int *w,int *h);
+//set select method
+class gliBox;
+typedef vector<gliObj>& (*pick_func)(const gliBox&);
+void gliSetPickingFunction(pick_func func);
 
 // simulate mouse up
 void gliSimMouseUp();
 
-
-//set select method
-class gliBox;
-typedef vector<gliObj> (*pick_func)(const gliBox&);
-void gliSetPickingFunction(pick_func func);
+// Get the picking box dimensions
+bool gliPickBoxDim(int *xOffset,int *yOffset,int *w,int *h);
 
 #endif //_GLI_H_

@@ -1,5 +1,5 @@
 /* XPM */
-static const char * Folder[] = {
+static const char * icon_folder[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 6 1",
 "  c black",

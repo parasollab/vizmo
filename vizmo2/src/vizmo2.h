@@ -36,12 +36,12 @@ private:
     ~vizmo_obj(){Clean();}
     void Clean();
     
-    PlumObject * m_Robot;
-    PlumObject * m_BBox;
-    PlumObject * m_Qry;
-    PlumObject * m_Path;
-    PlumObject * m_Env;
-    PlumObject * m_Map;
+    PlumObject * m_Robot;   
+    PlumObject * m_BBox;    bool m_show_BBox;
+    PlumObject * m_Qry;     bool m_show_Qry;  string m_QryFile;
+    PlumObject * m_Path;    bool m_show_Path; string m_PathFile;
+    PlumObject * m_Env;                       string m_EnvFile;
+    PlumObject * m_Map;     bool m_show_Map;  string m_MapFile;
 };
 
 /**
@@ -66,12 +66,12 @@ public:
     * This file locates all possible filename related to OBPRM.
     * For example, *.path, *.env, *.query...etc.
     */
-    vector<string> GetAccessFiles(const string& filename);
+    void GetAccessFiles(const string& filename);
     
     /**
     * Create vizmo_obj.
     */
-    bool InitVizmoObject( const vector<string>& filenames );
+    bool InitVizmoObject();
     
     /**
     * Display OpenGL Scene
@@ -79,9 +79,9 @@ public:
     void Display(){ m_Plum.Draw();}
     
     /**
-    * Display OpenGL Scene
+    * Select Objects in OpenGL Scene
     */
-    void Select(const gliBox& box){ m_Plum.Select(box);}
+    void Select(const gliBox& box){ m_Plum.Select(box); }
     
     /**
     * Animate Robot motion.
@@ -91,10 +91,12 @@ public:
     //////////////////////////////////////////////////////////////////////
     // Roadmap Related Function
     void ShowRoadMap( bool bShow=true );
+	bool isRoadMapShown() const { return m_obj.m_show_Map; }
     void ChangeNodesSize(float s, string str);
     void ChangeNodesShape(string s);
     bool IsRoadMapLoaded(){ return m_obj.m_Map!=NULL; }
-    void ChangeNodesColor(double r, double g, double b, string s);
+    void ChangeNodesRandomColor();
+	PlumObject * GetMap() const { return m_obj.m_Map; }
     
     //////////////////////////////////////////////////////////////////////
     // Path Related Function
@@ -121,11 +123,7 @@ public:
     void ChangeAppearance(int );   
     void RefreshEnv();
     void envObjsRandomColor();
-    
-  //Miscelaneous
-
-    bool StringToInt(const string &s, int &i);
-    bool oneColor;   
+      
     //////////////////////////////////////////////////////////////////////
     // Access
 
@@ -138,7 +136,19 @@ public:
     ////////////////////////////////////////////////////////////////
     // Variables used to change color of objects in the environment.
     float mR, mG, mB;
-    
+
+    /////////////////////////////////////////////////////////////////////
+    // Filenames
+    const string& getMapFileName() const { return m_obj.m_MapFile; }
+    const string& getEnvFileName() const { return m_obj.m_EnvFile; }
+    const string& getPathFileName() const { return m_obj.m_PathFile; }
+    const string& getQryFileName() const { return m_obj.m_QryFile; }
+
+    void setMapFileName(const string& name){ m_obj.m_MapFile=name; }
+    void setEnvFileName(const string& name){ m_obj.m_EnvFile=name; }
+    void setPathFileName(const string& name) { m_obj.m_PathFile=name; }
+    void setQryFileName(const string& name){ m_obj.m_QryFile=name; }
+
     //////////////////////////////////////////////////////////////////////
     // Protected Function
     //////////////////////////////////////////////////////////////////////
@@ -183,12 +193,12 @@ protected:
     //////////////////////////////////////////////////////////////////////
 private:
     
-/** 
-* Find filename in name with certain extension.
-* @param ext extention
-* @param names filenames
+    /** 
+    * Find filename in name with certain extension.
+    * @param ext extention
+    * @param names filenames
     */
-    string FindName(const string& ext, const vector<string>& names)const;
+    //string FindName(const string& ext, const vector<string>& names)const;
     
     /**
     * Check if given filename exists.

@@ -100,4 +100,5 @@ public:
     int stepIntSize;
     QString sFileName;
 	QString sFileExt;
+	int frame_digit;
 };

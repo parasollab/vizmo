@@ -1,11 +1,11 @@
 /* XPM */
-static char *video_camera2[] = {
+static const char * icon_video_camera[] = {
 /* width height ncolors chars_per_pixel */
 "32 32 5 1",
 /* colors */
 "  c black",
 ". c grey",
-"X c white",
+"X c none",
 "o c yellow",
 "O c SlateGrey",
 /* pixels */

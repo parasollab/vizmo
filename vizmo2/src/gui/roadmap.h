@@ -21,7 +21,7 @@ class QListBox;
 class QToolButton;
 
 #include <qwidget.h>
-
+#include <qaction.h>
 
 class VizmoRoadmapGUI: public QToolBar
 {
@@ -34,21 +34,40 @@ public:
     void createGUI();
 
 public slots:
-    void changeSize();      //Changes road map node's size
-    void changeColor();      //Changes CC's color
-    void setSameColor();     //Set all CC's to the same color
+    void handleSelect();
+	void MoveNode();
 
 signals:
     void callUpdate();
 
 private slots:
-	void getSelectedItem();
+    void getSelectedItem();
+    void changeSize();      //Changes road map node's size
+    void changeColor();     //Changes CC's color
+    void editMap();         //add/delete nodes and edges 
+    void addNode();
+    void addEdge();
+    void handleAddEdge();
+    void handleAddNode();
+    void handleEditMap();
 
+public:
+    QAction * editAction,
+            * addNodeAction,
+            * addEdgeAction,
+            * sizeAction,
+            * colorAction;
 private:
 
     // private:
     QListBox *l;
     double size;
-    QToolButton *nodesize, *nodesColor, *nodesSameColor;
     string m_shapeString;
+    bool m_bEditModel;
+    bool m_addNode;
+    bool m_addEdge;
+
+	list<CGLModel*> m_Nodes;  //selected nodes
+	double old_T[3], old_R[3];
+	bool m_Map_Changed;
 };

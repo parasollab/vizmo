@@ -1,5 +1,5 @@
 /* XPM */
-static const char *navigate[] = {
+static const char * icon_navigate[] = {
 /* width height ncolors chars_per_pixel */
 "32 32 4 1",
 /* colors */

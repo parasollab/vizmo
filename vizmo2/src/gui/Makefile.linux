@@ -1,64 +1,26 @@
-SRC_DIR = ..
-SRC_INC = -I$(SRC_DIR)
-INCPATH  = $(SRC_INC)
-
 VIZMO_DIR = ../..
 include $(VIZMO_DIR)/M_incl
 
 MOC      = $(QTDIR)/bin/moc
+TARGET   = ../../lib/libvgui.a
 
 ####### Output directory
 
-OBJECTS_DIR = ./
+OBJECTS = gui.o	main_win.o scene_win.o animation_gui.o \
+		snapshot_gui.o itemselection_gui.o filelistDialog.o \
+		obj_property.o roadmap.o
 
-####### Files
-
-HEADERS = gui.h \
-		main_win.h \
-		scene_win.h \
-		animation_gui.h \
-		snapshot_gui.h \
-		GL_Dump.h \
-		itemselection_gui.h \
-		roadmap.h \
-		_gui.h
-
-SOURCES = gui.cpp \
-		main_win.cpp \
-		scene_win.cpp \
-		animation_gui.cpp \
-		snapshot_gui.cpp \
-		GL_Dump.cpp \
-		itemselection_gui.cpp \
-		attributeselectio_gui.cpp \
-		roadmap.cpp
-
-OBJECTS = gui.o \
-		main_win.o \
-		scene_win.o \
-		animation_gui.o \
-		snapshot_gui.o \
-		GL_Dump.o \
-		itemselection_gui.o \
-		attributeselectio_gui.o \
-		roadmap.o
-	
-FORMS = 
-UICDECLS = 
-UICIMPLS = 
-SRCMOC   = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp moc_itemselection_gui.cpp moc_attributeselectio_gui.cpp moc_roadmap.cpp
-OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o moc_attributeselectio_gui.o  moc_roadmap.o
-
-DIST	   = 
-QMAKE_TARGET = gui
-DESTDIR  = 
-TARGET   = gui
+SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp \
+         moc_itemselection_gui.cpp moc_roadmap.cpp moc_filelistDialog.cpp moc_obj_property.cpp
+OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o \
+         moc_roadmap.o moc_filelistDialog.o moc_obj_property.o
 
 first: all
 
 ####### Build rules
 
 all: $(OBJECTS) $(OBJMOC)
+	ar ruv $(TARGET) ${OBJECTS} $(OBJMOC)
 
 $(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) 
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
@@ -73,7 +35,7 @@ mocclean:
 
 clean: mocclean
 	-rm -f $(OBJECTS) Dependencies
-	-rm -f *~ core *.core
+	-rm -f *~ core *.core $(TARGET)
 	touch Dependencies
 
 
@@ -84,55 +46,7 @@ distclean: clean
 
 FORCE:
 
-####### Compile
-
-gui.o: gui.cpp gui.h \
-		main_win.h \
-	
-
-main_win.o: main_win.cpp main_win.h \
-		scene_win.h \
-		animation_gui.h \
-		itemselection_gui.h \
-		roadmap.h \
-		attributeselectio_gui.h \
-		snapshot_gui.h \
-		GL_Dump.h \
-		icon/Eye.xpm \
-		icon/Folder.xpm \
-		icon/Pen.xpm \
-		icon/Camera.xpm \
-		icon/Board.xpm \
-		icon/Flag.xpm
-
-scene_win.o: scene_win.cpp scene_win.h \
-		main_win.h
-
-animation_gui.o: animation_gui.cpp animation_gui.h 
-
-itemselection_gui.o: itemselection_gui.cpp itemselection_gui.h
-
-roadmap.o: roadmap.cpp roadmap.h
-
-attributeselectio_gui.o: attributeselectio_gui.cpp attributeselectio_gui.h
-
-snapshot_gui.o: snapshot_gui.cpp snapshot_gui.h GL_Dump.h
-
-GL_Dump.h: GL_Dump.cpp GL_Dump.h
-
-moc_main_win.o: moc_main_win.cpp main_win.h 
-
-moc_scene_win.o: moc_scene_win.cpp scene_win.h 
-
-moc_animation_gui.o: moc_animation_gui.cpp animation_gui.h
-
-moc_itemselection_gui.o: moc_itemselection_gui.cpp itemselection_gui.h
-
-moc_roadmap.o: moc_roadmap.cpp roadmap.h
-
-moc_attributeselectio_gui.o: moc_attributeselectio_gui.cpp attributeselectio_gui.h
-
-moc_snapshot_gui.o: moc_snapshot_gui.cpp snapshot_gui.h
+####### MOC
 
 moc_main_win.cpp: $(MOC) main_win.h
 	$(MOC) main_win.h -o moc_main_win.cpp
@@ -149,10 +63,13 @@ moc_itemselection_gui.cpp: $(MOC) itemselection_gui.h
 moc_roadmap.cpp: $(MOC) roadmap.h
 	$(MOC) roadmap.h -o moc_roadmap.cpp
 
-moc_attributeselectio_gui.cpp: $(MOC) attributeselectio_gui.h
-	$(MOC) attributeselectio_gui.h -o moc_attributeselectio_gui.cpp
-
 moc_snapshot_gui.cpp:  $(MOC) snapshot_gui.h
 	$(MOC) snapshot_gui.h -o moc_snapshot_gui.cpp
+
+moc_filelistDialog.cpp: $(MOC) filelistDialog.h
+	$(MOC) filelistDialog.h -o moc_filelistDialog.cpp
+
+moc_obj_property.cpp: $(MOC) obj_property.h
+	$(MOC) obj_property.h -o moc_obj_property.cpp
 
 include Dependencies

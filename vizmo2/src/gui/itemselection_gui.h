@@ -48,31 +48,31 @@ class VizmoItemSelectionGUI: public QToolBar
 public:
     
     VizmoItemSelectionGUI(QMainWindow * parent=NULL,char *name=NULL);
-
+	
     //VizmoItemSelectionGUI(QWidget * parent, char * name=NULL);
-
+	
     void reset();
     void fillTree(vector<PlumObject*>& objs);
     VizmoListViewItem * createItem(VizmoListViewItem * p, CGLModel * model);
-
+	
 public slots:
 	void select();
-
+	
 signals:
+	void itemSelected();
 	void callUpdate();
-
+	
 private slots:
-
-	void selectionChanged(QListViewItem *);
-
+	void selectionChanged();
+	
 private:
-
- void clear();
- 
- QListView * listview;
- int maxNoModels;
- list<VizmoListViewItem*> items;
-
+	
+	void clear();
+	
+	QListView * listview;
+	int maxNoModels;
+	list<VizmoListViewItem*> items;
+	
 };
 
 

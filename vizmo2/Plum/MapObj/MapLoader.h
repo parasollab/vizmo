@@ -88,7 +88,7 @@ namespace plum{
         typedef 
         Graph<UG<Cfg,WEIGHT>,NMG<Cfg,WEIGHT>,WG<Cfg,WEIGHT>,Cfg,WEIGHT> WG;
         WG * GetGraph() { return m_Graph; }
-        void KillGraph(){ delete m_Graph; m_Graph=NULL; }
+        //void KillGraph(){ delete m_Graph; m_Graph=NULL; }
         
         //////////////////////////////////////////////////////////////////////
         //      Protected Methods and data members
@@ -116,7 +116,8 @@ namespace plum{
     template< class Cfg, class WEIGHT >
     CMapLoader<Cfg, WEIGHT>::~CMapLoader()
     {
-        KillGraph();
+        //KillGraph();
+		delete m_Graph; m_Graph=NULL;
     }
 
     //////////////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@
  PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
 
  QT_INC  = -I$(QTDIR)/include -I$(QTDIR)/mkspecs/default
- QT_LIBS = $(SUBLIBS) -Wl,-rpath,$(QTDIR)/lib -L$(QTDIR)/lib  -lqt-mt -lpthread -lXext 
+ QT_LIBS = $(SUBLIBS) -Wl,-rpath,$(QTDIR)/lib -L$(QTDIR)/lib  -lqt -lpthread -lXext 
 
  GRAPH_DIR = $(VIZMO_DIR)/graph
  GRAPH_INCL = -I$(GRAPH_DIR)
@@ -42,8 +42,9 @@
 
 #--------------------------------------------------------------------
 .SUFIXES: .cpp
-	.cpp.o:
-		${CC} ${C_FLAGS} ${INCL} -c $< -o $@
-		cat $*.d >> Dependencies
-		rm -f $*.d
+
+.cpp.o:
+	${CXX} ${CXXFLAGS} -c $< -o $@
+	cat $*.d >> Dependencies
+	rm -f $*.d
 

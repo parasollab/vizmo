@@ -4,22 +4,13 @@ OBPRMView_Robot::OBPRMView_Robot(CEnvLoader * pEnv)
 {
     m_pEnvLoader=pEnv;
     m_RobotModel=NULL;
-    
-    size = 1.0;
-    change = false;
-    come='r';
 }
 
 OBPRMView_Robot::OBPRMView_Robot(const OBPRMView_Robot &other_robot)
 :CGLModel(other_robot)
 {
-    
     m_pEnvLoader=other_robot.getEnvLoader();
     m_RobotModel = other_robot.getRobotModel();
-    
-    size = other_robot.size;
-    change = other_robot.change;
-    come= other_robot.come;
 }
 
 CEnvLoader * OBPRMView_Robot::getEnvLoader() const {
@@ -63,10 +54,18 @@ bool OBPRMView_Robot::BuildModels(){
 
 void OBPRMView_Robot::Draw(GLenum mode){
 	if( m_RobotModel==NULL || GL_RENDER!=mode ) return;
-    static double rate = 360/(3.1415926*2);
+    //static double rate = 360/(3.1415926*2);
     glPushMatrix();
     glTransform();
-    glScalef(size, size, size);    
     m_RobotModel->Draw(GL_RENDER);
+    glPopMatrix();
+}
+
+void OBPRMView_Robot::DrawSelect()
+{
+	if( m_RobotModel==NULL ) return;
+    glPushMatrix();
+    glTransform();
+    m_RobotModel->DrawSelect();
     glPopMatrix();
 }

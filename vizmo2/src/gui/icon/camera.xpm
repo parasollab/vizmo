@@ -1,5 +1,5 @@
 /* XPM */
-static char *camera[] = {
+static const char * icon_camera[] = {
 "32 32 5 1",
 " 	c peru",
 ".	c black",

@@ -81,6 +81,10 @@ void vizmo_obj::Clean(){
 
 vizmo::vizmo()
 {
+	m_obj.m_show_BBox=true;
+	m_obj.m_show_Qry=false; 
+	m_obj.m_show_Path=false;       
+	m_obj.m_show_Map=false; 
 }
 
 vizmo::~vizmo()
@@ -90,33 +94,34 @@ vizmo::~vizmo()
 //////////////////////////////////////////////////////////////////////
 // Core 
 //////////////////////////////////////////////////////////////////////
-vector<string> vizmo::GetAccessFiles(const string& filename)
+void vizmo::GetAccessFiles(const string& filename)
 {
-    vector<string> names; //the result, empty now
     int pos=filename.rfind('.');
-    if( pos==string::npos ) return names;
     string name=filename.substr(0,pos);
     //test if files exist
     string envname; //env file name
     string mapname=name+".map";
     if( FileExits(mapname) ){ //check map and get env file name
-        names.push_back(mapname);
+		m_obj.m_MapFile=mapname;
         //parse header of map to get env filename
         CMapHeaderLoader maploader;
         maploader.SetDataFileName(mapname);
         maploader.ParseFile();
         envname=maploader.GetEnvFileName();
     }
+	else m_obj.m_MapFile="";
+
     if( envname.empty() ) envname=name+".env";
-    if( FileExits(envname) ) names.push_back(envname);
+    if( FileExits(envname) ){ m_obj.m_EnvFile=envname; }
+	else m_obj.m_EnvFile="";
     //guess path and query file name
-    if( FileExits(name+".path") ) names.push_back(name+".path");
-    if( FileExits(name+".query") ) names.push_back(name+".query");
-    
-    return names;
+    if( FileExits(name+".path") ){m_obj.m_PathFile=name+".path";}
+	else m_obj.m_PathFile="";
+    if( FileExits(name+".query") ){m_obj.m_QryFile=name+".query";}
+	else m_obj.m_QryFile="";
 }
 
-bool vizmo::InitVizmoObject( const vector<string>& filenames )
+bool vizmo::InitVizmoObject()
 {
     //delete old stuff
     m_Plum.Clean();
@@ -124,7 +129,7 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
     
     //create env first
     string name;
-    name=FindName("env",filenames);
+    name=m_obj.m_EnvFile; //FindName("env",filenames);
     if( !name.empty() ){
         if( !CreateEnvObj(m_obj,name) ) return false;
         cout<<"Load Environment File : "<<name<<endl;
@@ -134,21 +139,21 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
     if( !CreateRobotObj(m_obj) ) return false;
     
     //create map
-    name=FindName("map",filenames);
+    name=m_obj.m_MapFile;//FindName("map",filenames);
     if( !name.empty() ){
         if( !CreateMapObj(m_obj,name) ) return false;
         cout<<"Load Map File : "<<name<<endl;
     }
     
     //create path
-    name=FindName("path",filenames);
+    name=m_obj.m_PathFile;//FindName("path",filenames);
     if( !name.empty() ){
         if( !CreatePathObj(m_obj,name) ) return false;
         cout<<"Load Path File : "<<name<<endl;
     }
     
     //create qry
-    name=FindName("query",filenames);
+    name=m_obj.m_QryFile;//FindName("query",filenames);
     if( !name.empty() ){
         if( !CreateQueryObj(m_obj,name) ) return false;
         cout<<"Load Query File : "<<name<<endl;
@@ -175,6 +180,12 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
     // Init. variables used to change color of env. objects
     mR = mG = mB = 0;
 
+	//setup visibility
+	ShowRoadMap(m_obj.m_show_Map);
+	ShowPathFrame(m_obj.m_show_Path);
+	ShowQueryFrame(m_obj.m_show_Qry);
+	ShowBBox(m_obj.m_show_BBox);
+
     return true;
 }
 
@@ -187,7 +198,7 @@ void vizmo::RefreshEnv()
 }
 
 void vizmo::ShowRoadMap( bool bShow ){
-    
+    m_obj.m_show_Map=bShow;
     if( m_obj.m_Map==NULL ) return;
     CGLModel * m=m_obj.m_Map->getModel();
     
@@ -198,6 +209,7 @@ void vizmo::ShowRoadMap( bool bShow ){
 }
 
 void vizmo::ShowPathFrame( bool bShow ){
+	m_obj.m_show_Path=bShow;
     if( m_obj.m_Path==NULL ) return;
     CGLModel * m=m_obj.m_Path->getModel();
     
@@ -207,7 +219,8 @@ void vizmo::ShowPathFrame( bool bShow ){
         m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
 }
 
-void vizmo::ShowQueryFrame( bool bShow){
+void vizmo::ShowQueryFrame(bool bShow){
+	m_obj.m_show_Qry=bShow;
     if( m_obj.m_Qry==NULL ) return;
     CGLModel * m=m_obj.m_Qry->getModel();
     if ( bShow )
@@ -220,7 +233,7 @@ void vizmo::ShowQueryFrame( bool bShow){
 // BSS
 
 void vizmo::ShowBBox(bool bShow){
-    
+    m_obj.m_show_BBox=bShow;
     if(m_obj.m_BBox==NULL) return;
     CGLModel * m=m_obj.m_BBox->getModel();
     if(bShow)
@@ -249,8 +262,8 @@ void vizmo::ChangeAppearance(int status)
             model->SetRenderMode(CPlumState::MV_WIRE_MODE);
         else if(status==2)
             model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
-	else if(status == 3)
-	  model->SetColor( mR, mG, mB, 1 );
+	    else if(status == 3)
+	        model->SetColor( mR, mG, mB, 1 );
     }
     
 }
@@ -285,15 +298,15 @@ void vizmo::ChangeNodesSize(float s, string str){
     
     typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
     typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
-    typedef vector<CC>::iterator CCIT;
+    typedef vector<CC*>::iterator CCIT;
     
     MM* mmodel =(MM*)m_obj.m_Map->getModel();
-    vector<CC>& cc=mmodel->GetCCModels();
+    vector<CC*>& cc=mmodel->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
         CC::Shape shape=CC::Point;
         if( str=="Robot" ) shape=CC::Robot;
         else if( str=="Box" ) shape=CC::Box;
-        ic->scaleNode(s, shape);
+        (*ic)->scaleNode(s, shape);
     }
 }
 
@@ -306,95 +319,43 @@ void vizmo::ChangeNodesShape(string s){
     
     typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
     typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
-    typedef vector<CC>::iterator CCIT;
+    typedef vector<CC*>::iterator CCIT;
     
     CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
-    vector<CC>& cc=mmodel->GetCCModels();
+    vector<CC*>& cc=mmodel->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
         CC::Shape shape=CC::Point;
         if( s=="Robot" ) shape=CC::Robot;
         else if( s=="Box" ) shape=CC::Box;
-        ic->changeNode(shape);
+        (*ic)->changeShape(shape);
     }
 }
 
-void vizmo::ChangeNodesColor(double r, double g, double b, string s){
-
+void vizmo::ChangeNodesRandomColor(){
+	
     if( m_obj.m_Robot==NULL ) return;
-    
     if( m_obj.m_Map==NULL ) return;
-
+	
     typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
     typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
-    typedef vector<CC>::iterator CCIT;  
-
-  //change color of one CC at a time
-    vector<gliObj>& sel = GetVizmo().GetSelectedItem();
-    typedef vector<gliObj>::iterator SI;
-    int m_i;
-    string m_sO;
-    for(SI i = sel.begin(); i!= sel.end(); i++){
-      CGLModel *gl = (CGLModel*)(*i);
-      m_sO = gl->GetName();
-    }
-    string m_s="NULL";
-    int position = m_sO.find("CC",0);
-    if(position != string::npos){
-      m_s = m_sO.substr(position+2, m_sO.length());
-    }
-
+    typedef vector<CC*>::iterator CCIT;  
+	
+	//change color
     CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
-    vector<CC>& cc=mmodel->GetCCModels();
-    if(m_s != "NULL"){
-      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-	CC::Shape shape=CC::Point;
-	if( s=="Robot" ) shape=CC::Robot;
-	else if( s=="Box" ) shape=CC::Box;
-	if(StringToInt(m_s, m_i)){
-	  if(m_i == ic->id){
-	    ic->newColor = true;
-	    ic->changeColor(r, g, b, shape);
-	  }
+    vector<CC*>& cc=mmodel->GetCCModels();
+	
+	for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){//random color
+		float r = ((float)rand())/RAND_MAX; 
+		float g = ((float)rand())/RAND_MAX; 
+		float b = ((float)rand())/RAND_MAX; 
+		(*ic)->SetColor(r,g,b,1);
 	}
-      }
-    }
-    else if(m_s == "NULL" && oneColor){
-      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-	CC::Shape shape=CC::Point;
-	if( s=="Robot" ) shape=CC::Robot;
-	else if( s=="Box" ) shape=CC::Box;
-	ic->newColor = true;
-	ic->changeColor(r, g, b, shape);
-      }
-      oneColor = false;
-    }
-    else{
-      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-	CC::Shape shape=CC::Point;
-	if( s=="Robot" ) shape=CC::Robot;
-	else if( s=="Box" ) shape=CC::Box;
-	ic->newColor = true;
-	r = ((float)rand())/RAND_MAX; 
-	g = ((float)rand())/RAND_MAX; 
-        b = ((float)rand())/RAND_MAX; 
-	ic->changeColor(r, g, b, shape);
-      }
-    }
-}
-
-bool vizmo::StringToInt(const string &s, int &i){
-  istringstream myStream(s);
-  
-  if (myStream>>i)
-    return true;
-  else
-    return false;
 }
 
 void vizmo::envObjsRandomColor(){
-
- CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
-  env->ChangeColor();
+	
+	CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+	env->ChangeColor();
     
 }
 
@@ -511,6 +472,7 @@ void vizmo::PlaceRobot()
 ///////////////////////////////////////////////////////////////////////////////
 // Private Functions
 ///////////////////////////////////////////////////////////////////////////////
+/*
 string vizmo::FindName
 (const string & ext, const vector<string> & names) const
 {
@@ -523,6 +485,7 @@ string vizmo::FindName
     }
     return "";
 }
+*/
 
 bool vizmo::FileExits(const string& filename) const
 {

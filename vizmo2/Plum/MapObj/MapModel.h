@@ -33,7 +33,7 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
         void SetMapLoader( Loader * mapLoader ){ m_mapLoader=mapLoader; }
         void SetRobotModel( OBPRMView_Robot* pRobot ){ m_pRobot = pRobot; }     
-        vector< myCCModel >& GetCCModels() { return m_CCModels; }
+        vector<myCCModel*>& GetCCModels() { return m_CCModels; }
         
         //////////////////////////////////////////////////////////////////////
         // Action functions
@@ -41,20 +41,22 @@ namespace plum{
         
         virtual bool BuildModels();
         virtual void Draw( GLenum mode );
+		void Select( unsigned int * index, vector<gliObj>& sel );
+
         //set wire/solid/hide
         virtual void SetRenderMode( int mode );
         virtual const string GetName() const { return "Map"; }
         virtual void GetChildren( list<CGLModel*>& models ){
-            typedef typename vector< myCCModel >::iterator CIT;
+            typedef typename vector<myCCModel*>::iterator CIT;
             for(CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ )
-                models.push_back(&(*ic));
+                models.push_back(*ic);
         }
         virtual list<string> GetInfo() const;
         
     private:
         
         OBPRMView_Robot* m_pRobot;
-        vector< myCCModel > m_CCModels;
+        vector< myCCModel* > m_CCModels;
         Loader * m_mapLoader;
         
     protected:
@@ -76,15 +78,18 @@ namespace plum{
         CMapModel<Cfg, WEIGHT>::CMapModel()
     {
         m_mapLoader = NULL;
-        //m_SelectedID=-1;
         m_RenderMode = CPlumState::MV_INVISIBLE_MODE;
         m_pRobot=NULL;
+		m_EnableSeletion=false; //disable selection
     }
     
     template <class Cfg, class WEIGHT>
         CMapModel<Cfg, WEIGHT>::~CMapModel()
     {
-        //m_SelectedID=-1;
+        typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
+        for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
+			delete *ic;
+		}//end for
     }
     
     template <class Cfg, class WEIGHT>
@@ -102,14 +107,11 @@ namespace plum{
         int CCSize=CCs.size();
         m_CCModels.reserve(CCSize);
         for( CIT ic=CCs.begin();ic!=CCs.end();ic++ ){
-            myCCModel cc(ic-CCs.begin());
-            cc.RobotModel(m_pRobot);    
-            cc.BuildModels(ic->second,graph);   
+            myCCModel * cc=new myCCModel(ic-CCs.begin());
+            cc->RobotModel(m_pRobot);    
+            cc->BuildModels(ic->second,graph);   
             m_CCModels.push_back(cc);
         }
-        
-        //release graph, not used
-        m_mapLoader->KillGraph();
         
         return true;
     }
@@ -120,10 +122,10 @@ namespace plum{
         if( m_RenderMode == CPlumState::MV_INVISIBLE_MODE ) return;
         if( mode==GL_SELECT && !m_EnableSeletion ) return;
         //Draw each CC
-        typedef typename vector< myCCModel >::iterator CIT;//CC iterator
+        typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
         for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
-            if( mode==GL_SELECT ) glPushName( ic-m_CCModels.begin() );
-            ic->Draw(GL_RENDER); //not select node, just select CC first
+            if( mode==GL_SELECT ) glPushName( (*ic)->ID() );
+            (*ic)->Draw(mode);
             if( mode==GL_SELECT ) glPopName();
         }
         //m_pRobot->size = 1;
@@ -132,9 +134,9 @@ namespace plum{
     template <class Cfg, class WEIGHT>
         void CMapModel<Cfg, WEIGHT>::SetRenderMode( int mode ){ 
         m_RenderMode=mode;
-        typedef typename vector< myCCModel >::iterator CIT;//CC iterator
+        typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
         for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
-            ic->SetRenderMode(mode);
+            (*ic)->SetRenderMode(mode);
         }
     }
     
@@ -151,44 +153,13 @@ namespace plum{
         return info;
     }
     
-    /*
     template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::Select( unsigned int * index )
+		void CMapModel<Cfg, WEIGHT>::Select( unsigned int * index, vector<gliObj>& sel )
     {
-    if( m_mapLoader==NULL ) return; //status error
-    
-      //unselect first
-      if( m_SelectedID!=-1 ){
-      SelectNode(false);
-      m_SelectedID=-1;
-      }
-      
+		if( m_mapLoader==NULL ) return; //status error
         if( index==NULL ) return;
-        m_SelectedID = index[0];
-        SelectNode(true);
-        }
-        
-          template <class Cfg, class WEIGHT>
-          void CMapModel<Cfg, WEIGHT>::SelectNode(bool bSel)
-          {
-          if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
-          m_Nodes[m_SelectedID].Select( bSel );
-          }
-          
-            template <class Cfg, class WEIGHT>
-            void CMapModel<Cfg, WEIGHT>::DumpSelected()
-            {
-            if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
-            DumpNode();
-            }
-            
-              template <class Cfg, class WEIGHT>
-              void CMapModel<Cfg, WEIGHT>::DumpNode()
-              {
-              if( m_SelectedID<0 || m_SelectedID>=m_Nodes.size() ) return;
-              m_Nodes[m_SelectedID].Dump();
-              }
-    */
+        m_CCModels[index[0]]->Select(&index[1],sel);
+	}
     
 }//namespace plum
 

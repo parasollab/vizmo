@@ -19,6 +19,7 @@ void gliPickBox::Draw( void )
 
     glDisable(GL_LIGHTING);
     glEnable(GL_LINE_STIPPLE);
+	glLineWidth(1);
     glBegin(GL_LINE_LOOP);
     glColor3f(0,0,0);
     glVertex2f(m_PickBox.l,m_PickBox.b);
@@ -60,3 +61,4 @@ void gliPickBox::MM( QMouseEvent * e )  //mouse motion
 //Singleton
 gliPickBox g_PickBox;
 gliPickBox & gliGetPickBox(){ return g_PickBox; }
+

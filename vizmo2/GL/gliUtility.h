@@ -12,7 +12,7 @@ inline void gliDrawRotateAxis( const gliCamera& camera )
         gid=glGenLists(1);
         glNewList(gid,GL_COMPILE);
 
-		//create lines
+        //create lines
         glLineWidth(2);
         glDisable(GL_LIGHTING);
         glBegin(GL_LINES);
@@ -27,13 +27,13 @@ inline void gliDrawRotateAxis( const gliCamera& camera )
         glVertex3f(0,0,1);
         glEnd();
 
-		//create letters
-		glColor3f(1,0,0);
-		drawstr(1.2f,0,0,"x");
-		glColor3f(0,1,0);
-		drawstr(0,1.2f,0,"y");
-		glColor3f(0,0,1);
-		drawstr(0,0,1.4f,"z");
+        //create letters
+        glColor3f(1,0,0);
+        drawstr(1.2f,0,0,"x");
+        glColor3f(0,1,0);
+        drawstr(0,1.2f,0,"y");
+        glColor3f(0,0,1);
+        drawstr(0,0,1.4f,"z");
 
         glEndList();
     }
@@ -154,29 +154,29 @@ inline Point3d gliUnProj2World
     double base=((e-s)*n);
 
     if( fabs(base)/(s-e).norm()<1e-2 ){
-		Vector3d s_e=(s-e).normalize();
-		Vector3d v=n%s_e;
-		Point3d proj=gliProject2Window(ref);
+        Vector3d s_e=(s-e).normalize();
+        Vector3d v=n%s_e;
+        Point3d proj=gliProject2Window(ref);
 
-		//find d1 and d2
-		double d1=sqrt((proj[0]-x)*(proj[0]-x)+(proj[1]-y)*(proj[1]-y));
-		Vector3d g=refv+0.1*v;
-		Point3d proj_g=gliProject2Window(Point3d(0,0,0)+g);
-		Point3d x_y(x,y,0);
-		if( (proj_g-proj)*(x_y-proj)<0 ) d1=-d1;
-		d1=fmod(d1,200);
-		if( d1>100 ) d1=d1-200;
-		else if( d1<-100 ) d1=200+d1;
-		
-		double d2;
-		if( d1>50 ){ d1=100-d1; d2=-sqrt(2500-d1*d1); }
-		else if (d1<-50 ){ d1=-100-d1; d2=-sqrt(2500-d1*d1); }
-		else d2=sqrt(2500-d1*d1);
-     	g=refv+d1*v;
-		return Point3d(0,0,0)+(g+d2*s_e);
+        //find d1 and d2
+        double d1=sqrt((proj[0]-x)*(proj[0]-x)+(proj[1]-y)*(proj[1]-y));
+        Vector3d g=refv+0.1*v;
+        Point3d proj_g=gliProject2Window(Point3d(0,0,0)+g);
+        Point3d x_y(x,y,0);
+        if( (proj_g-proj)*(x_y-proj)<0 ) d1=-d1;
+        d1=fmod(d1,200);
+        if( d1>100 ) d1=d1-200;
+        else if( d1<-100 ) d1=200+d1;
+        
+        double d2;
+        if( d1>50 ){ d1=100-d1; d2=-sqrt(2500-d1*d1); }
+        else if (d1<-50 ){ d1=-100-d1; d2=-sqrt(2500-d1*d1); }
+        else d2=sqrt(2500-d1*d1);
+        g=refv+d1*v;
+        return Point3d(0,0,0)+(g+d2*s_e);
     }
-	else
-		t=(refv*n-s*n)/base;
+    else
+        t=(refv*n-s*n)/base;
 
     return Point3d(0,0,0)+((1-t)*s+t*e);
 }

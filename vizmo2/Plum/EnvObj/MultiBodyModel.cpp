@@ -107,6 +107,12 @@ namespace plum{
             m_pPoly[i].SetColor(r,g,b,a);
     }
     
+	void CMultiBodyModel::Scale(double x, double y, double z)
+	{
+        for( int i=0;i<m_PolySize;i++ )
+            m_pPoly[i].Scale(x,y,z);
+	}
+
     list<string> CMultiBodyModel::GetInfo() const 
     { 
         list<string> info; 

@@ -24,13 +24,18 @@ public:
     
     void getWidthHeight(int *,int *);
     
-    double R, G, B;
+    void setClearColor(double r, double g, double b) const {
+		glClearColor( r , g, b, 0 );
+	}
     
 signals:
     
     void selectByRMB();
-    void selected();
-    
+	void clickByRMB();
+    void selectByLMB();
+    void clickByLMB();
+	void MRbyGLI();
+
 protected:
     
     void initializeGL();
@@ -40,15 +45,18 @@ protected:
     void mouseReleaseEvent ( QMouseEvent * );
     void mouseMoveEvent ( QMouseEvent * );
     void keyPressEvent ( QKeyEvent * e );
-
+	
 	void drawText(); //this should not be here by it is here for now
+
+public slots:
+	void showGrid();
+	void showAxis();
     
 private slots:
     
     void togleSlectionSlot();
     void getBoxDimensions(int *,int *,int *,int *); 
     void simulateMouseUpSlot();
-    
     
 private:
     
@@ -59,9 +67,8 @@ private:
         static GLfloat light_position2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
         glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
     }
-
+	
     void drawText(list<string>& info);
-    
     bool takingSnapShot;
-    
+	bool m_bShowGrid, m_bShowAxis;
 };

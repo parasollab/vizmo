@@ -198,6 +198,173 @@ bool gliMoveTool::Select(int x, int y)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Scale Tool
+void gliScaleTool::Draw(bool bSelect)
+{
+    glDisable(GL_LIGHTING);
+    //draw reference axis
+    double ox=m_SObjPrj[0]; double oy=m_SObjPrj[1];
+    Point3d x_dir=m_SObjPrj+(m_XPrj-m_SObjPrj).normalize()*50;
+    Point3d y_dir=m_SObjPrj+(m_YPrj-m_SObjPrj).normalize()*50;
+    Point3d z_dir=m_SObjPrj+(m_ZPrj-m_SObjPrj).normalize()*50;
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    //draw x axis
+    if( bSelect ) glLoadName(X_AXIS);
+    glBegin(GL_LINE_LOOP);
+    glColor3f(1,0,0);
+    glVertex2d(x_dir[0]-3,x_dir[1]-3);
+	glVertex2d(x_dir[0]+3,x_dir[1]-3);
+	glVertex2d(x_dir[0]+3,x_dir[1]+3);
+	glVertex2d(x_dir[0]-3,x_dir[1]+3);
+    //glVertex2d(m_XPrj[0],m_XPrj[1]);
+    glEnd();
+
+    //draw y axis
+    if( bSelect ) glLoadName(Y_AXIS);
+    glBegin(GL_LINE_LOOP);
+    glColor3f(0,1,0);
+    glVertex2d(y_dir[0]-3,y_dir[1]-3);
+	glVertex2d(y_dir[0]+3,y_dir[1]-3);
+	glVertex2d(y_dir[0]+3,y_dir[1]+3);
+	glVertex2d(y_dir[0]-3,y_dir[1]+3);    //glVertex2d(m_YPrj[0],m_YPrj[1]);
+    glEnd();
+
+    //draw z axis
+    if( bSelect ) glLoadName(Z_AXIS);
+    glBegin(GL_LINE_LOOP);
+    glColor3f(0,0,1);
+    glVertex2d(z_dir[0]-3,z_dir[1]-3);
+	glVertex2d(z_dir[0]+3,z_dir[1]-3);
+	glVertex2d(z_dir[0]+3,z_dir[1]+3);
+	glVertex2d(z_dir[0]-3,z_dir[1]+3);
+    glEnd();
+
+    //draw axis and center
+    if( !bSelect ){
+
+		glBegin(GL_LINES);
+		//x
+		glColor3f(1,0,0);
+		glVertex2d(ox,oy);
+		glVertex2d(x_dir[0],x_dir[1]);
+		//y
+		glColor3f(0,1,0);
+		glVertex2d(ox,oy);
+        glVertex2d(y_dir[0],y_dir[1]);
+		//z
+		glColor3f(0,0,1);
+        glVertex2d(ox,oy);
+        glVertex2d(z_dir[0],z_dir[1]);
+		glEnd();
+		//center
+        glBegin(GL_LINE_LOOP);
+        glColor3f(0.9f,0.9f,0);
+        glVertex2d(ox-5,oy+5);
+        glVertex2d(ox+5,oy+5);
+        glVertex2d(ox+5,oy-5);
+        glVertex2d(ox-5,oy-5);
+        glEnd();
+    }
+
+    glPopMatrix();
+}
+
+
+//Handle Mouse Movement
+bool gliScaleTool::MP( QMouseEvent * e ) //mouse button pressed
+{
+    m_SelType=NON;
+    if( m_pSObj==NULL ) return false; 
+    if( e->state()&Qt::LeftButton ) return false; //not LMB
+    if( Select(e->pos().x(),e->pos().y()) ){
+        m_SObjPosC.set(m_pSObj->tx(),m_pSObj->ty(),m_pSObj->tz()); //store old pos
+        m_SObjPrjC=m_SObjPrj;
+        m_HitX=e->pos().x(); m_HitY=m_H-e->pos().y();
+        m_HitUnPrj=gliUnProj2World(m_SObjPosC,m_HitX,m_HitY);   
+		m_osX=m_pSObj->sx();
+		m_osY=m_pSObj->sy();
+		m_osZ=m_pSObj->sz();
+        return true;
+    }
+    return false;
+}
+
+bool gliScaleTool::MR( QMouseEvent * e ) //mouse button pressed
+{
+    SelType oldSelT=m_SelType; m_SelType=NON;
+    return oldSelT!=NON;
+}
+
+bool gliScaleTool::MM( QMouseEvent * e )  //mouse motion
+{
+    if( m_SelType==NON ) return false; //nothing selected
+    int x=e->pos().x();
+    int y=m_H-e->pos().y();
+
+    Point3d cur_pos=gliUnProj2World(m_SObjPosC,x,y);
+    Vector3d v=(cur_pos-m_HitUnPrj)/10;
+
+    if( m_SelType==X_AXIS ){ if(m_osX+v[0]>0) m_pSObj->sx()=m_osX+v[0]; }
+    if( m_SelType==Y_AXIS ){ if(m_osY+v[1]>0) m_pSObj->sy()=m_osY+v[1]; }
+    if( m_SelType==Z_AXIS ){ if(m_osZ+v[2]>0) m_pSObj->sz()=m_osZ+v[2]; }
+    if( m_SelType==VIEW_PLANE ){ 
+        if(m_osX+v[0]>0 && m_osY+v[0]>0 && m_osZ+v[0]>0){
+			m_pSObj->sx()=m_osX+v[0]; 
+			 m_pSObj->sy()=m_osY+v[0]; 
+			 m_pSObj->sz()=m_osZ+v[0];
+		}
+    }
+
+    Project2Win();
+    return true;
+}
+
+bool gliScaleTool::Select(int x, int y)
+{
+    y=m_H-y;
+    if( fabs(x-m_SObjPrj[0])<10 && fabs(y-m_SObjPrj[1])<10 ){
+        m_SelType=VIEW_PLANE; return true;
+    }
+
+    //do selection buffer
+    GLuint hitBuffer[10];
+    GLint viewport[4];
+    
+    // prepare for selection mode
+    glSelectBuffer( 10, hitBuffer);
+    glRenderMode( GL_SELECT );
+    
+    // get view port
+    glGetIntegerv( GL_VIEWPORT, viewport);
+    
+    // number stact 
+    glInitNames();
+    glPushName(0);
+    
+    // change view volum
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadIdentity();
+    gluPickMatrix( x, y, 10, 10, viewport);
+    glOrtho(0,m_W,0,m_H,-100,100);
+    
+    //draw
+    Draw(true);
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+    glFlush();
+    
+    //check result
+    if( glRenderMode( GL_RENDER )==0 ) return false;
+    m_SelType=(SelType)(hitBuffer[3]);
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // class gliRotateTool
 void gliRotateTool::Draw(bool bSelect)
 {
@@ -274,11 +441,11 @@ Point3d gliRotateTool::UnProj2World
     glPushMatrix();
     glLoadIdentity();
     glOrtho(0,m_W,0,m_H,-100,100);
-	Point3d p=gliUnProj2World(ref,n,x,y);
-	glMatrixMode( GL_PROJECTION );
+    Point3d p=gliUnProj2World(ref,n,x,y);
+    glMatrixMode( GL_PROJECTION );
     glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
-	return p;
+    glMatrixMode( GL_MODELVIEW );
+    return p;
 }
 
 bool gliRotateTool::MP( QMouseEvent * e ) //mouse button
@@ -310,7 +477,7 @@ bool gliRotateTool::MP( QMouseEvent * e ) //mouse button
             v1=pcam->getWindowX(); 
             v2=pcam->getWindowY();
         }
-		
+        
         Point3d prj=gliUnProj2World(m_SObjPosC,axis,x,y);
         Vector3d tmp=prj-m_SObjPosC;
         m_CurAngle=m_HitAngle=ComputAngle(tmp,v1,v2);
@@ -460,8 +627,8 @@ void gliRotateTool::ComputLocalAxis()
 
 void gliTransformTool::CheckSelectObject()
 {
-	m_RT.setSObject(NULL);
-
+    m_RT.setSObject(NULL);
+	
     //get selected objects
     const vector<gliObj>& sobjs=gliGetPickedSceneObjs();
     if( sobjs.empty() ) return;
@@ -503,6 +670,9 @@ bool gliTransformTool::KEY( QKeyEvent * e ) //Key
         case 'e': case 'E': 
             if(m_pTool!=NULL) m_pTool->Disable();
             m_pTool=&m_RT; m_pTool->Enable(); return true;
+        case 'r': case 'R': 
+            if(m_pTool!=NULL) m_pTool->Disable();
+            m_pTool=&m_ST; m_pTool->Enable(); return true;
         default: return false; //not handled
     }
 }

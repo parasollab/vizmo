@@ -1,5 +1,5 @@
 #include "gliFont.h"
-#include <GL/glut.h>
+#include <string.h>
 GLvoid *font_style = GLUT_BITMAP_HELVETICA_12;
 
 /**
@@ -19,7 +19,7 @@ drawstr(GLfloat x, GLfloat y, GLfloat z, const char* str)
 * Set font type
 */
 void
-setfont(char* name, int size)
+setfont(const char* name, int size)
 {
     font_style = GLUT_BITMAP_HELVETICA_10;
     if (strcmp(name, "helvetica") == 0) {

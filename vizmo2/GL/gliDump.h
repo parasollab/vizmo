@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <GL/glut.h>
+#include <string>
+using namespace std;
 
 #ifndef _WIN32
 #define TRUE        1
@@ -44,5 +46,12 @@ void myreshape(int iW, int iH);
 void mydisplay();
 void myidle();
 void myvisible(int iState);
-bool dump(const char * filename); //dump image to guven filename
-bool dump(const char * filename,const char *extension,int xOffset,int yOffset,int width,int height);
+
+//dump image to guven filename
+bool dump
+(const char * filename,const char *extension,
+ int xOffset,int yOffset,int width,int height);
+
+#ifdef _WIN32
+void setConvert(const string& file);
+#endif

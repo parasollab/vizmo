@@ -25,14 +25,16 @@ namespace plum{
     //      CSimpleCfg
     //
     //////////////////////////////////////////////////////////////////////
-    
-    class CSimpleCfg  
+    class CCModelBase;
+    class CSimpleCfg : public CGLModel
     {
         friend ostream & operator<<( ostream & out, const CSimpleCfg & cfg );
         friend istream & operator>>( istream &  in, CSimpleCfg & cfg );
         
     public:
-        
+        //type for the shape of node representation
+        enum Shape { Robot, Box, Point};
+
         //////////////////////////////////////////////////////////////////////
         //      Constructor/Destructor
         //////////////////////////////////////////////////////////////////////
@@ -41,39 +43,51 @@ namespace plum{
         ~CSimpleCfg();
         
         bool operator==( const CSimpleCfg & other ) const;
-        void Set( int index , OBPRMView_Robot* robot);
+        void Set(int index, OBPRMView_Robot* robot, CCModelBase* cc);
 
         void DrawRobot();
-        void DrawBox(double size);
+        void DrawBox();
         void DrawPoint();
-        
+
+        //////////////////////////////////////////////////////////////////////
+		bool BuildModels(){ /*do nothing*/ return true; }
+        void Draw( GLenum mode );
+		void DrawSelect();
+		const string GetName() const { return "Node"; }
+		list<string> GetInfo() const;
+		
         //////////////////////////////////////////////////////////////////////
         //      Access Method
         //////////////////////////////////////////////////////////////////////
         static CSimpleCfg & InvalidData(){return m_InvalidCfg;}
         int GetIndex() const {return m_index;}
+
+		/*
         double GetX() const {return m_X;}
         double GetY() const {return m_Y;}
         double GetZ() const {return m_Z;}
+		*/
         
-        virtual void Dump();
-
+        //virtual void Dump();
+/*
         double GetAlpha() const {return m_Alpha*360;}
         double GetBeta() const {return m_Beta*360;}
         double GetGamma() const {return m_Gamma*360;}
-        
+ */      
+		void SetShape(Shape shape){ m_Shape=shape; }
+		CCModelBase * GetCC() const { return m_CC; }
         //////////////////////////////////////////////////////////////////////
         //      Protected Method & Data
         //////////////////////////////////////////////////////////////////////
     protected:
                 
-        double m_X, m_Y, m_Z;
-        double m_Alpha, m_Beta, m_Gamma;
         double m_Unknow1, m_Unknow2, m_Unknow3;
         int m_index;
         
         OBPRMView_Robot* m_robot;
-        
+        Shape m_Shape;
+		CCModelBase * m_CC;
+
         //////////////////////////////////////////////////////////////////////
         //      Private Method & Data
         //////////////////////////////////////////////////////////////////////
@@ -87,7 +101,7 @@ namespace plum{
     //
     //////////////////////////////////////////////////////////////////////
     
-    class CSimpleEdge
+    class CSimpleEdge : public CGLModel
     {
         friend ostream & operator<<( ostream & out, const CSimpleEdge & edge );
         friend istream & operator>>( istream &  in, CSimpleEdge & edge );
@@ -103,9 +117,17 @@ namespace plum{
         ~CSimpleEdge();
         
         bool operator==( const CSimpleEdge & other );
-        void Set(const Point3d& p1, const Point3d& p2){ m_s=p1; m_e=p2; }
-        void Draw();
-        
+        void Set(int id, CSimpleCfg * c1, CSimpleCfg * c2)
+		{ m_ID=id; m_s=c1; m_e=c2; }
+
+        //////////////////////////////////////////////////////////////////////
+        bool BuildModels(){ /*do nothing*/ return true; }
+        void Draw( GLenum mode );
+		void DrawSelect();
+
+        const string GetName() const { return "Edge"; }
+		list<string> GetInfo() const;
+
         //////////////////////////////////////////////////////////////////////
         //      Access Method
         //////////////////////////////////////////////////////////////////////
@@ -117,10 +139,11 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
     protected:
         
-        Point3d m_s, m_e;
+        CSimpleCfg * m_s, * m_e;
 
         int    m_LP;
         double m_Weight;
+		int m_ID;
     };
     
 }//namespace plum

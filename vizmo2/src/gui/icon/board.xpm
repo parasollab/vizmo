@@ -1,5 +1,5 @@
 /* XPM */
-static const char * Board[] = {
+static const char * icon_board[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 9 1",
 "  c black",

@@ -48,7 +48,11 @@ namespace plum{
         virtual void Select( unsigned int * index, vector<gliObj>& sel ){/*nothing*/}
         virtual bool BuildModels() =0;
         virtual void Draw( GLenum mode ) =0;
-        
+
+		//the scale may be difficult for some models....
+        virtual void Scale( double x, double y, double z )
+		{ m_Scale[0]=x; m_Scale[1]=y; m_Scale[2]=z; };
+
         //this function is called when this obj is selected
         virtual void DrawSelect(){/*nothing*/} 
         

@@ -1,5 +1,5 @@
 /* XPM */
-static const char *Eye[] = {
+static const char * icon_eye[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 8 1",
 "  c black",

@@ -175,7 +175,9 @@ namespace plum{
         if( m_RenderMode==CPlumState::MV_SOLID_MODE ){           
             glEnable( GL_POLYGON_OFFSET_FILL );
             glPolygonOffset( 2.0, 2.0 );
+			glEnable(GL_NORMALIZE);
             glCallList(m_SolidID);          
+			glDisable(GL_NORMALIZE);
             glDisable( GL_POLYGON_OFFSET_FILL ); 
         }
         else

@@ -42,7 +42,7 @@ public:
     bool InitVizmo();
     void SetArgs( vector<string> args ){ m_Args=args; }
 
-    double R, G, B;
+    //double R, G, B;
 
 protected:
 
@@ -55,16 +55,18 @@ protected:
 private slots:
 
     void load();
+	void updatefiles();     //update opened/reopen files
     void resetCamera();     //reset camera
     void showmap();         //show roadmap
     void showpath();        //show path frame
     void showstartgoal();   //show start and goal positionx
     void showBBox();        //show Bounding Box
     void about();           //about dialog
-    void contexmenu();      //create contex menu when right mouse clicked
+    void obj_contexmenu();  //create contex menu when right mouse clicked on objs
+	void gen_contexmenu();  //create contex menu when right moise clicked on nothing
     void notimp();          //not implemented yet.
     void refreshEnv();      // refresh!!!
-    void changecolor();     //to change the background color for vizmo++
+    void changeBGcolor();     //to change the background color for vizmo++
     void envObjsRandomColor();
 
     void setSolid();      // turn object into solidMode
@@ -73,6 +75,7 @@ private slots:
     void setNewColor();   // change the object's color
     void updateScreen();  // redraw GL scene
     void getOpenglSize(int *,int *);
+	void objectEdit();    // change object property
 
 private:
   
@@ -90,9 +93,13 @@ private:
             *showHideSGaction,
             *quitAction,
             *fileOpenAction, 
+			*fileUpdateAction,
             *cameraResetAction, 
             *wireFrameAction,
-            *changeColorAction;
+            *changeBGcolorAction,
+			*randObjcolorAction,
+			*showAxisAction,
+			*showGridAction;
      
 
     VizmoAnimationGUI *animationGUI;
@@ -109,7 +116,6 @@ private:
     QToolButton *folderButton, *roadmapButton, *pathButton, *strtGoalButton;
     QToolButton  *cameraButton, *palletButton, *envButton; 
 
- protected:
     VizGLWin * m_GL;       //the scene window which displays environment..
 };
 

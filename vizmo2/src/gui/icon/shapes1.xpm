@@ -1,5 +1,5 @@
 /* XPM */
-static const char *shapes1[] = {
+static const char * icon_shapes1[] = {
 /* width height ncolors chars_per_pixel */
 "32 32 16 1",
 /* colors */
@@ -18,7 +18,7 @@ static const char *shapes1[] = {
 "- c #00000000ff00",
 ". c #ff000000ff00",
 "/ c #0000ff00ff00",
-"0 c #ff00ff00ff00",
+"0 c none",
 /* pixels */
 "                                ",
 "00000000000000000000000000000000",
