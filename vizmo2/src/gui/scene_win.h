@@ -20,6 +20,8 @@ public:
     // BSS
     vector<gliObj> *objs2;
 
+    double R, G, B;
+
 signals:
     
     void selectByRMB();

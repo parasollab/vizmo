@@ -12,6 +12,8 @@ VizGLWin::VizGLWin(QWidget * parent, const char * name)
 { 
     setMinimumSize( 500, 500 ); 
     setFocusPolicy(QWidget::StrongFocus);
+
+    R = G = B = 1;
 }
 
 void VizGLWin::resetCamera()
@@ -33,7 +35,8 @@ void VizGLWin::initializeGL()
 
     /*others*/
     glEnable( GL_DEPTH_TEST);
-    glClearColor( 1 , 1, 1, 0 );
+    // glClearColor( 1 , 1, 1, 0 );
+    glClearColor( R , G, B, 0 );
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glLineStipple(2,0xAAAA);
@@ -56,6 +59,9 @@ void VizGLWin::paintGL()
 {
     //Init Draw
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    glClearColor( R , G, B, 0 );
+
     ((VizmoMainWin*)parentWidget())->InitVizmo();
 
     glMatrixMode(GL_MODELVIEW);

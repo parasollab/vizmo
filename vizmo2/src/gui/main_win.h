@@ -29,6 +29,8 @@ public:
     bool Init();
     bool InitVizmo();
     void SetArgs( vector<string> args ){ m_Args=args; }
+
+    double R, G, B;
     
 protected:
 
@@ -47,11 +49,15 @@ private slots:
     void aboutQt();       //about Qt dialog
     void contexmenu();    //create contex menu when right mouse clicked
     void notimp();        //not implemented yet.
+    //<<<<<<< main_win.h
+    void changecolor();   //to change the background color for vizmo++
+    //=======
     void refreshEnv();    // refresh!!!
     void animate();
     void setSolid();
     void setWire();
     void setInvisible();
+    //>>>>>>> 1.3
 
 private:
   
@@ -66,7 +72,8 @@ private:
             *quitAction,
             *fileOpenAction, 
             *cameraResetAction, 
-            *wireFrameAction;
+            *wireFrameAction,
+            *changeColorAction;
 
     vector<string> m_Args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.

@@ -19,6 +19,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qmessagebox.h>
+#include <qcolordialog.h> 
 
 #include "icon/Eye.xpm"
 #include "icon/Folder.xpm"
@@ -26,6 +27,7 @@
 #include "icon/Camera.xpm"
 #include "icon/Board.xpm"
 #include "icon/Flag.xpm"
+#include "icon/pallet.xpm"
 
 VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
 :QMainWindow(parent, name), m_bVizmoInit(false)
@@ -234,6 +236,23 @@ void VizmoMainWin::notimp()
      "This function will be implemented very soon!!!!",QMessageBox::Ok,QMessageBox::NoButton);
 }
 
+#include <GL/glut.h>
+void VizmoMainWin::changecolor(){
+
+  QColor color = QColorDialog::getColor( white, this, "color dialog" );
+  if ( color.isValid() ){
+    R = (double)(color.red()) / 255.0;
+    G = (double)(color.green()) / 255.0;
+    B = (double)(color.blue()) / 255.0;
+
+    m_GL->R = R;
+    m_GL->G = G;
+    m_GL->B  = B;
+    m_GL->updateGL();
+  }
+
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // GUI creation 
@@ -275,6 +294,14 @@ bool VizmoMainWin::CreateActions()
     connect(m_GL, SIGNAL(selectByRMB()), this, SLOT(contexmenu()));
 
     //fileOpenAction->setText("Open");
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Change background Color
+
+    changeColorAction = new QAction("ColorPalette", QPixmap( pallet ), " Color Pale&tte", CTRL+Key_T, this, "color palette");
+    connect(changeColorAction, SIGNAL(activated()), this, SLOT(changecolor()));
+
     return true;
 }
 
@@ -297,6 +324,10 @@ void VizmoMainWin::SetTips()
         "from the <b>Path</b> menu.";
     
     showHideSGaction->setWhatsThis(startGoalText);  
+
+    const char * changeColorText = "<p>Click this button to change the background color";
+
+    changeColorAction->setWhatsThis(changeColorText);
 }
 
 void VizmoMainWin::CreateToolbar()
@@ -317,6 +348,7 @@ void VizmoMainWin::CreateToolbar()
 
     vizmoTools->addSeparator();
     cameraResetAction->addTo(vizmoTools);   
+    changeColorAction->addTo(vizmoTools);
     
     (void)QWhatsThis::whatsThisButton( vizmoTools );
 }
