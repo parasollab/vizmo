@@ -11,7 +11,8 @@
 # Xlib
 #--------------------------------------------------------------------
 
- X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi
+ X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt
+
  GL_LIB = -lglut -lGLU -lGL -lm
 
  GLI_DIR = $(VIZMO_DIR)
