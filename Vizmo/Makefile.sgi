@@ -1,4 +1,4 @@
-# Somehow this make file only works on the 02's 
+# somehow this make file only works on the 02's 
 # compiling on visual 9 gives the error 
 # warning: error while loading VizmoLib.so: 
 # couldn't load file "./VizmoLib.so": 
@@ -35,7 +35,7 @@ TCL_BIN_DIR = /pub/dsmft1/Software/sgi/tcl8.3.2/unix
 # modify any of this stuff by hand.
 #----------------------------------------------------------------
 
-CC = CC -woff 3262 -o32   -exceptions
+CC = CC -woff 3262 -o32   -O2 -exceptions
 SHLIB_CFLAGS =		
 SHLIB_LD =	 CC -shared -rdata_shared  -o32 -exceptions
 SHLIB_SUFFIX =		.so
@@ -43,7 +43,7 @@ SHLIB_VERSION =
 SRC_DIR =		.
 
 
-CFLAGS = -g
+CFLAGS = 
 CC_SWITCHES = $(CFLAGS) -I${TCL_GENERIC_DIR} ${SHLIB_CFLAGS}
 
 TCLINCS  = -I/pub/dsmft1/Software/sgi/tcl8.3.2/generic
@@ -102,7 +102,7 @@ REQ_SRCS = Path.c Query.c vizEnvironment.c vizList.c vizRobotObject.c vizObject.
 
 
 lib/VizmoLibSgi.so: VizmoLib.o $(REQ_OBJS) 
-	$(SHLIB_LD) $(SRC_DIR)/$(PROJECT).o $(REQ_OBJS)  -o $(PROJECT)Sgi$(SHLIB_SUFFIX) \
+	$(SHLIB_LD) $(SRC_DIR)/$(PROJECT).o $(REQ_OBJS)  -o lib/$(PROJECT)Sgi$(SHLIB_SUFFIX) \
 	-rpath $(PWD):$(CSTKLIB_DIR):${VCLIPLIB_DIR}:$(RAPIDLIB_DIR) \
 	$(OBPRMLIB)  $(CSTKLIB) ${VCLIPLIB} $(RAPIDLIB)\
 	$(LDFLAGS) $(VTKLIBS) $(XLIBS) -lGL

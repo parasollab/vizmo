@@ -1,9 +1,11 @@
 #!/usr/local/bin/vtk
 set dir .
 lappend auto_path $dir 
-load VizmoLibLinux.so
+set VIZMOLIB $env(VIZMO_SO)
+append VIZMOLIB ".so"
+load $VIZMOLIB
 puts stdout "Please wait: Vizmo 3D initializing..."
-VizmoLibLinux
+$env(VIZMO_SO)
 set SOURCE_FILE $env(VIZMO_DIR) 
 append SOURCE_FILE "/VizmoView.tcl" 
 source $SOURCE_FILE

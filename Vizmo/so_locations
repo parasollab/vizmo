@@ -1,3 +1,6 @@
 VizmoLib.so \
 		:st = .text 0x5fde0000, 0x00090000:\
 		:st = .data 0x5fe70000, 0x00190000:
+VizmoLibSgi.so \
+		:st = .text 0x5fbd0000, 0x00080000:\
+		:st = .data 0x5fc50000, 0x00190000:
