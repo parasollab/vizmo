@@ -1,0 +1,10 @@
+../../kbprm_km -f 2loop_13con \
+	-cd RAPID -cfg Cfg_free_cc 13\
+	-gNodes BasicPRM nodes 30 \
+	-bbox [-4.0,4.0,-4.0,4.0,-14.0,14.0] \
+	-bbox_scale 1 \
+	-lp straightline \
+	-outDegree 1 \
+	-numofCopies 20 \
+	-cNodes closest 20 \
+	-posres 0.2
