@@ -54,6 +54,7 @@ void VizGLWin::initializeGL()
     
     /*others*/
     glEnable( GL_DEPTH_TEST);
+
     // glClearColor( 1 , 1, 1, 0 );
     glClearColor( R , G, B, 0 );
     glEnable(GL_CULL_FACE);
@@ -67,8 +68,7 @@ void VizGLWin::initializeGL()
 void VizGLWin::resizeGL( int w, int h)
 {
     gliWS(w,h);
-    if( w>h ) glViewport( 0, 0, w, w );
-    else  glViewport( 0, 0, h, h );
+    glViewport( 0, 0, w, h );
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();

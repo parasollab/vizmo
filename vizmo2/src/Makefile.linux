@@ -5,7 +5,7 @@
 
  CXX = g++
 
- OPTS = -g -MMD #-Wall
+ OPTS = -O2 -MMD #-Wall
 
 #--------------------------------------------------------------------
 # X lib & OpenGL Stuff
@@ -33,7 +33,7 @@
  INCLUDE = -I. -I/usr/local/include $(QT_INC) $(PLUM_INCL) $(GLI_INCL)
  LIB = $(LIB_DIR) $(QT_LIBS) $(GLI_LIB) $(GL_LIB) $(X_LIB) $(PLUM_LIB)
 
- CFLAGS     = $(OPTS) $(INCLUDE) -g
+ CFLAGS     = $(OPTS) $(INCLUDE)
  CXXFLAGS   = $(CFLAGS)
 
 #--------------------------------------------------------------------

@@ -20,7 +20,7 @@ INCL = -I. -I../mathtool -I../modelgraph -I../GL $(GLI_INCL)
 
 LIB = $(LIB_DIR) $(GLI_LIB) $(GL_LIB) $(X_LIB)
 
-C_FLAGS = -g -Wall -MMD $(INCL)
+C_FLAGS = -O2 -W -MMD $(INCL)
 
 .SUFFIXES: .cpp
 
