@@ -1,15 +1,13 @@
 
 // GUI for screen shot toolbar
 
-#include "vizmo2.h"
-#include "main_win.h"  
+//#include "vizmo2.h"
+//#include "main_win.h"  
 
 #include "snapshot_gui.h"
 
 #include "GL_Dump.h"
 #include <GL/gliPickBox.h>
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //Include Qt Headers
@@ -36,189 +34,203 @@
 #include <qlistbox.h>
 #include <qpushbutton.h>
 #include <qvalidator.h>
+#include <qtoolbutton.h>
+#include <qstringlist.h> 
+#include <qprogressdialog.h> 
 
+///////////////////////////////////////////////////////////////////////////////
+//Icons
+#include "icon/tapes.xpm"
 
-
-VizmoScreenShotGUI::VizmoScreenShotGUI(QMainWindow *parent, char *name) :QToolBar(parent,name)
+inline QStringList& Filters()
 {
+    static QStringList filters;
+    
+    filters+="JPEG (*.jpg)";
+    filters+="GIF (*.gif)";
+    filters+="Encapsulated PostScript file (*.eps)";
+    filters+="targa (*.tga)";
+    filters+="Portable Network Graphics (*.png)";
+    filters+="Microsoft Bitmap (*.bmp)";
+    filters+="Computer Graphics Metafile (*.cgm)";
+    filters+="PostScript Interchange (*.epi)";
+    filters+="Microsoft Icon (*.ico)";
+    filters+="Paintbrush File (*.pcx)";
+    filters+="Portable Pixmap (*.ppm)";
+    filters+="Adobe Portable Document Format (*.pdf)";
 
-  this->setLabel("Vizmo ScrenCapture");
-
-  CreateGUI();
-
-  boxPicture=false;
+    return filters;
 }
 
+inline string Filter2Ext( const string filter )
+{
+    if( filter.find("jpg")!=string::npos ) return ".jpg";
+    if( filter.find("gif")!=string::npos ) return ".gif";
+    if( filter.find("eps")!=string::npos ) return ".eps";
+    if( filter.find("tga")!=string::npos ) return ".tga";
+    if( filter.find("png")!=string::npos ) return ".png";
+    if( filter.find("pdf")!=string::npos ) return ".pdf";
+    if( filter.find("bmp")!=string::npos ) return ".bmp";
+    if( filter.find("epi")!=string::npos ) return ".epi";
+    if( filter.find("cgm")!=string::npos ) return ".cgm";
+    if( filter.find("ico")!=string::npos ) return ".ico";
+    if( filter.find("pcx")!=string::npos ) return ".pcx";
+    if( filter.find("ppm")!=string::npos ) return ".ppm";
+    if( filter.find("pdf")!=string::npos ) return ".pdf";
+    return "";
+}
+
+///////////////////////////////////////////////////////////////////////////////
+VizmoScreenShotGUI::VizmoScreenShotGUI(QMainWindow *parent, char *name) :QToolBar(parent,name)
+{
+    this->setLabel("Vizmo ScrenCapture");
+    mDialog=NULL;
+    CreateGUI();
+    boxPicture=false;
+}
+
+VizmoScreenShotGUI::~VizmoScreenShotGUI()
+{
+    delete mDialog;
+}
+
+void VizmoScreenShotGUI::reset() //reset every thing
+{
+    if( mDialog!=NULL ){
+        mDialog->endIntFrame=GetVizmo().GetPathSize()-1;
+        mDialog->startIntFrame=0;
+        mDialog->stepIntSize=10;
+		mDialog->updateAttributes();
+    }
+    
+	if( animation!=NULL ){
+		//disable/enable this toolbar
+		if( GetVizmo().GetPathSize()==0 ) animation->setEnabled(false);
+		else animation->setEnabled(true);
+	}
+}
 
 bool VizmoScreenShotGUI::CreateGUI()
 {
-  CreateActions();
- 
-  return true;
+    CreateActions();
+    return true;
 }
 
 
 void VizmoScreenShotGUI::CreateActions()
 {
-  takePictureAction=new QAction("Picture","&Picture",Qt::CTRL+Qt::Key_I,this,"picture");
-  
-  takePictureAction->addTo(this);
-  connect(takePictureAction,SIGNAL(activated()),SLOT(takeSnapshot()));
+    takePicture= new QToolButton(QPixmap(tapes), "Picture", "Take a snap shot of whole window", this,
+                                 SLOT(takeSnapshot()), this, "picture");
+    takePicture->setUsesTextLabel ( true );
+    
+    takeBoxPicture= new QToolButton(QPixmap(tapes), "Crop", "Take a snap shot of the selected region", this,
+                                    SLOT(takeBoxSnapshot()), this, "selected");
+    takeBoxPicture->setUsesTextLabel ( true );
+    takeBoxPicture->setToggleButton(true);
+    
+    animation= new QToolButton(QPixmap(tapes), "Movie", "Save Image Sequence", this,
+                               SLOT(takeMoviePictures()), this, "movie");
+	animation->setEnabled(false);
 
-  takeBoxPictureAction=new QAction("BoxPicture","&BoxPicture",Qt::CTRL+Qt::Key_I,this,"BoxPicture");
-
-  takeBoxPictureAction->addTo(this);
-
-  connect(takeBoxPictureAction,SIGNAL(activated()),SLOT(takeBoxSnapshot()));
-
-  takeMoviePicturesAction=new QAction("MoviePicture","&MoviePicture",Qt::CTRL+Qt::Key_I,this,"MoviePicture");
-
-  takeMoviePicturesAction->addTo(this);
-
-  connect(takeMoviePicturesAction,SIGNAL(activated()),SLOT(takeMoviePictures()));
-  
-
+    animation->setUsesTextLabel ( true );
+    mDialog=new MovieSaveDialog(this,"",true);
 }
 
 
 void VizmoScreenShotGUI::takeMoviePictures()
 {
-
-  // local variables
-
-  int startFrame;
-  int endFrame;
-  int stepSize;
-  
-  int result;
-  QString localFileName;
-
-  mDialog=new MovieSaveDialog(this,"blah",0);
-  result=mDialog->exec();
-
-
-  if(!result)
-    return;
-
-
-      startFrame=mDialog->startIntFrame;
-      endFrame=mDialog->endIntFrame;
-      stepSize=mDialog->stepIntSize;
-      
-      localFileName=mDialog->sFileName.data();  
+	///////////////////////////////////////////////////////////////////////////
+	//Pop up the dialog
+    int result;
+    QString localFileName;
+    result=mDialog->exec();
+    if(!result) return;
     
-      // Check for Ranges
- 
     
-      const char *fext=mDialog->sFilter.data();
-
-      fext++;      // get rid of the *
-      
-  int w,h;
-  
-  
-  emit getScreenSize(&w,&h);
-  
-  QString temp;
-  QString qfname;
-
-  for(int i=startFrame;i<=endFrame;i+=stepSize)
+	///////////////////////////////////////////////////////////////////////////
+	//Save
+    int startFrame=mDialog->startIntFrame;
+    int endFrame=mDialog->endIntFrame;
+    int stepSize=mDialog->stepIntSize;
+	const char * ExtName=mDialog->sFileExt.data();  
+    
+    int w,h;
+    emit getScreenSize(&w,&h);
+    
+    QString temp;
+    QString qfname;
+	QProgressDialog progress( "Saving images...", "Abort", endFrame-startFrame,this, "progress", TRUE );
+    for(int i=startFrame;i<=endFrame;i+=stepSize)
     {
-      // dump the image
-      emit goToFrame(i);
-      temp=temp.setNum(i);
-      qfname=localFileName+temp;
-      //  cout<<flush<<qfname;
-      const char *fname=qfname.data();
-      dump(fname,fext,0,0,w,h);
-    }  
-
-    
-
+		progress.setProgress(i-startFrame);
+		qApp->processEvents();
+		if ( progress.wasCancelled() ) break;
+        // dump the image
+        emit goToFrame(i);
+        temp=temp.setNum(i);
+        qfname=mDialog->sFileName+temp;
+        dump(qfname.data(),ExtName,0,0,w,h);
+    }
+	progress.setProgress( endFrame-startFrame );
 }
-
-
-
 
 void VizmoScreenShotGUI::takeBoxSnapshot()
 {
-  boxPicture=!boxPicture;
- 
-  if(!boxPicture)
-  {
-    emit simulateMouseUp();
-    emit callUpdate();
-  }
- emit togleSelectionSignal();
-
+    boxPicture=!boxPicture;
+    
+    if(!boxPicture)
+    {
+        emit simulateMouseUp();
+        emit callUpdate();
+    }
+    emit togleSelectionSignal();
+    
 }
 
 void VizmoScreenShotGUI::takeSnapshot()
 {
-  int w,h,xOffset,yOffset;
-  if(!boxPicture)
-    {
-       emit getScreenSize(&w,&h);
-       xOffset=0;
-       yOffset=0;
+    int w,h,xOffset,yOffset;
+    if(!boxPicture){
+        emit getScreenSize(&w,&h);
+        xOffset=0;
+        yOffset=0;
     }
-  else
-    {
-      emit getBoxDimensions(&xOffset,&yOffset,&w,&h);
-      
+    else{
+        emit getBoxDimensions(&xOffset,&yOffset,&w,&h);
     }
-
-
-  QFileDialog *fd=new QFileDialog(this,"file dialog",TRUE);
-  fd->setMode(QFileDialog::AnyFile);
-
-  
-  fd->addFilter("Microsoft Bitmap (*.bmp)");
-  fd->addFilter("Computer Graphics Metafile (*.CGM)");
-  fd->addFilter("Bitmap Image File (*.DIB)");
-  fd->addFilter("PostScript Interchange (*.EPI)");
-  fd->addFilter("Encapsulated PostScript file (*.EPS)");
-  fd->addFilter("Microsoft Icon (*.ico)");
-  fd->addFilter("Paintbrush File (*.pcx)");
-  fd->addFilter("*.pdf");
-  fd->addFilter("*.png");
-  fd->addFilter("*.html");
-  fd->addFilter("*.tga");
-  fd->addFilter("*.gif");
-  fd->addFilter("*.jpeg");
-
-
-  
-  QString fileName;
-  QString fileExt;
-  if(fd->exec()==QDialog::Accepted)
+    
+    ///////////////////////////////////////////////////////////////////////////////
+    QFileDialog *fd=new QFileDialog(this,"file dialog",TRUE);
+    //fd->setMode(QFileDialog::ExistingFile);
+    fd->setMode(QFileDialog::AnyFile);
+    fd->setFilters(Filters());    
+    QString fileName;
+    QString fileExt;
+    if(fd->exec()==QDialog::Accepted)
     {
-    fileName=fd->selectedFile();
-    fileExt=fd->selectedFilter();
-  const char *fname=fileName.data();
-  const char *fext=fileExt.data();
-
-      fext++;
-
-       
-
-  dump(fname,fext,xOffset,yOffset,w,h);
+        fileName=fd->selectedFile();
+        const char *fname=fileName.data();
+        string ext=Filter2Ext(fd->selectedFilter().data());
+        dump(fname,ext.c_str(),xOffset,yOffset,w,h);
     }
 }
 
 
-
+///////////////////////////////////////////////////////////////////////////////
+//
 // MovieSaveDialog class functions
+//
+///////////////////////////////////////////////////////////////////////////////
 
 MovieSaveDialog::MovieSaveDialog(QWidget *parent, const char *name, WFlags f):
-  QDialog(parent,name,f)
+QDialog(parent,name,f)
 {
     QVBoxLayout* vbox = new QVBoxLayout(this,8);
     vbox->setAutoAdd(TRUE);
     QGrid* controls = new QGrid(2,QGrid::Horizontal,this);
     controls->setSpacing(8);
     QLabel* l;
-
+    
     l=new QLabel("StartFrame",controls); l->setAlignment(AlignCenter);
     startFrame=new QLineEdit(controls);
     startFrame->setValidator(new QIntValidator(startFrame));
@@ -226,93 +238,67 @@ MovieSaveDialog::MovieSaveDialog(QWidget *parent, const char *name, WFlags f):
     l=new QLabel("EndFrame",controls); l->setAlignment(AlignCenter);
     endFrame = new QLineEdit(controls);
     endFrame->setValidator(new QIntValidator(endFrame));
-
+    
     l=new QLabel("Step Size",controls); l->setAlignment(AlignCenter);
     stepSize = new QLineEdit(controls);
-    stepSize->setValidator(new QIntValidator(stepSize));
-
-
+    stepSize->setValidator(new QIntValidator(stepSize));    
     
-  
     QPushButton *fileNameButton = new QPushButton("Select Name",controls);  
     fnameLabel=new QLabel("File Name",controls); l->setAlignment(AlignCenter);
-   
-
+    
     QPushButton *go = new QPushButton("Go",controls);
     QPushButton *cancel = new QPushButton("Cancel",controls);
     
     connect(fileNameButton,SIGNAL(clicked()),this,SLOT(showFileDialog()));
     connect(cancel,SIGNAL(clicked()),this,SLOT(reject()));
     connect(go,SIGNAL(clicked()),this,SLOT(saveImages()));
-    
-  
 }
 
 
 void MovieSaveDialog::saveImages()
 {
-  storeAttributes();
-  QDialog::accept();
+    storeAttributes();
+    QDialog::accept();
+}
 
+void MovieSaveDialog::updateAttributes()
+{
+    QString tempStorage;
+    
+    tempStorage.setNum(startIntFrame);
+	startFrame->setText(tempStorage);
+    
+	tempStorage.setNum(endIntFrame);
+	endFrame->setText(tempStorage);
+    
+    tempStorage.setNum(stepIntSize);
+	stepSize->setText(tempStorage);
 }
 
 void MovieSaveDialog::storeAttributes()
 {
-  QString tempStorage;
-  bool conv;
-  
-  tempStorage=startFrame->text();
-  startIntFrame=tempStorage.toInt(&conv,10);
-  
-  tempStorage=endFrame->text();
-  endIntFrame=tempStorage.toInt(&conv,10);
-  
-  tempStorage=stepSize->text();
-  stepIntSize=tempStorage.toInt(&conv,10);
-  
- 
-  
-  
-  
-
+    QString tempStorage;
+    bool conv;
+    
+    tempStorage=startFrame->text();
+    startIntFrame=tempStorage.toInt(&conv,10);
+    
+    tempStorage=endFrame->text();
+    endIntFrame=tempStorage.toInt(&conv,10);
+    
+    tempStorage=stepSize->text();
+    stepIntSize=tempStorage.toInt(&conv,10);    
 }
-
-
 
 void MovieSaveDialog::showFileDialog()
 {
-
-  QFileDialog *fd=new QFileDialog(this,"file dialog",TRUE);
-  fd->setMode(QFileDialog::AnyFile);
-  
-  QString fileName;
-  
-  fd->addFilter("Microsoft Bitmap (*.bmp)");
-  fd->addFilter("Computer Graphics Metafile (*.CGM)");
-  fd->addFilter("Bitmap Image File (*.DIB)");
-  fd->addFilter("PostScript Interchange (*.EPI)");
-  fd->addFilter("Encapsulated PostScript file (*.EPS)");
-  fd->addFilter("Microsoft Icon (*.ico)");
-  fd->addFilter("Paintbrush File (*.pcx)");
-  fd->addFilter("*.pdf");
-  fd->addFilter("*.png");
-  fd->addFilter("*.html");
-  fd->addFilter("*.tga");
-  fd->addFilter("*.gif");
-  fd->addFilter("*.jpeg");
-
-
-  if(fd->exec()==QDialog::Accepted)
-  {
-    sFileName=fd->selectedFile();
-    sFilter=fd->selectedFilter();
-    
-    
-    fnameLabel->setText(sFileName+sFilter);
-  
-
-  }
-
-
-
+    QFileDialog *fd=new QFileDialog(this,"file dialog",TRUE);
+    fd->setMode(QFileDialog::AnyFile);  
+    fd->setFilters(Filters());
+    if(fd->exec()==QDialog::Accepted)
+    {
+        sFileName=fd->selectedFile();
+        sFileExt=Filter2Ext(fd->selectedFilter().data()).c_str();
+        fnameLabel->setText(sFileName+sFileExt); 
+    }
 }

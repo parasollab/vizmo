@@ -6,9 +6,9 @@ GLvoid *font_style = GLUT_BITMAP_HELVETICA_12;
 * Draw a string on given (x,y)
 */
 void 
-drawstr(GLfloat x, GLfloat y, GLfloat z, char* str)
+drawstr(GLfloat x, GLfloat y, GLfloat z, const char* str)
 {
-    char *s;
+    const char *s;
     
     glRasterPos3f(x, y, z);
     for(s = str; *s; s++)

@@ -26,21 +26,10 @@ using namespace std;
 class QListView;
 class VizmoAttributeSelectionGUI: public QToolBar
 {
-  Q_OBJECT
-
+    Q_OBJECT 
 public:
-
-  VizmoAttributeSelectionGUI(QMainWindow * parent=NULL,char *name=NULL);
-  void reset();
- 
- 
-
- private:
-  QListView *list;
- 
-
+    VizmoAttributeSelectionGUI(QMainWindow * parent=NULL,char *name=NULL);
+    void reset();
+private:
+    QListView *list;  
 };
-
-
-  
-

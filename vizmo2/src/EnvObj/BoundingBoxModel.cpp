@@ -86,8 +86,6 @@ bool CBoundingBoxModel::BuildModels(){
     // find out the biggest Z coord. to set up the camera
     // 07/2002
     ///////////////////////////////////////////////////////
-    max = 0;
-    max = returnMax();
     
     glDisableClientState(GL_VERTEX_ARRAY);
 	

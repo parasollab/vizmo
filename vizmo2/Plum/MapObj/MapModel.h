@@ -25,7 +25,7 @@ namespace plum{
     {
 		typedef CCModel<Cfg,WEIGHT> myCCModel;
     public:
-
+		
         //////////////////////////////////////////////////////////////////////
         // Constructor/Destructor
         //////////////////////////////////////////////////////////////////////
@@ -36,15 +36,9 @@ namespace plum{
         // Access functions
         //////////////////////////////////////////////////////////////////////
         void SetMapLoader( CMapLoader<Cfg,WEIGHT>  * mapLoader ){ m_mapLoader=mapLoader; }
-        
-
-	void SetRobotModel( OBPRMView_Robot* pRobot ){ 
-	  //cout<<"SetRobotMOdel in MapModel.h"<<endl;
-	  m_pRobot = pRobot;//new OBPRMView_Robot(*pRobot); 
-	}
-	
-	vector< myCCModel >& GetCCModels() { return m_CCModels; }
-
+		void SetRobotModel( OBPRMView_Robot* pRobot ){ m_pRobot = pRobot; }		
+		vector< myCCModel >& GetCCModels() { return m_CCModels; }
+		
         //////////////////////////////////////////////////////////////////////
         // Action functions
         //////////////////////////////////////////////////////////////////////
@@ -53,13 +47,29 @@ namespace plum{
         virtual void Draw( GLenum mode );
         //set wire/solid/hide
         virtual void SetRenderMode( int mode );
+		virtual const string GetName() const { return "Map"; }
+		virtual void GetChildren( list<CGLModel*>& models ){
+			typedef vector< myCCModel >::iterator CIT;
+			for(CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ )
+				models.push_back(&(*ic));
+		}
+
+		virtual list<string> GetInfo() const { 
+			list<string> info; 
+			info.push_back(string(m_mapLoader->GetFileName()));
+			int ccsize=m_CCModels.size();
+			char strsize[256]=""; 
+			sprintf(strsize,"There are %d connected components",ccsize);
+			info.push_back(string(strsize));
+			return info;
+		}
 
     private:
-
-	OBPRMView_Robot* m_pRobot;
+		
+		OBPRMView_Robot* m_pRobot;
         vector< myCCModel > m_CCModels;
         CMapLoader<Cfg,WEIGHT> * m_mapLoader;
-
+		
     protected:
         //virtual void DumpNode();
         //virtual void SelectNode( bool bSel );
@@ -97,7 +107,7 @@ namespace plum{
         if( m_mapLoader==NULL ) return false;
         WeightedGraph<Cfg, WEIGHT> * graph = m_mapLoader->GetGraph();
         if( graph==NULL ) return false;
-
+		
         //Get CCs
         typedef vector< pair<int,VID> >::iterator CIT;//CC iterator
         vector< pair<int,VID> > CCs = graph->GetCCStats();
@@ -105,21 +115,14 @@ namespace plum{
         m_CCModels.reserve(CCSize);
         for( CIT ic=CCs.begin();ic!=CCs.end();ic++ ){
             myCCModel cc;
-
-	    ///// new
-	    cc.RobotModel(m_pRobot);
-	    /////////
-
-            cc.BuildModels(ic->second,graph);
-
+			cc.RobotModel(m_pRobot);	
+            cc.BuildModels(ic->second,graph);	
             m_CCModels.push_back(cc);
         }
-
-	
-
+				
         //release graph, not used
-        //m_mapLoader->KillGraph();
-
+        m_mapLoader->KillGraph();
+		
         return true;
     }
     
@@ -135,11 +138,11 @@ namespace plum{
             ic->Draw(GL_RENDER); //not select node, just select CC first
             if( mode==GL_SELECT ) glPopName();
         }
-	//m_pRobot->size = 1;
+		//m_pRobot->size = 1;
     }
-
+	
     template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::SetRenderMode( int mode ){ 
+		void CMapModel<Cfg, WEIGHT>::SetRenderMode( int mode ){ 
         m_RenderMode=mode;
         typedef vector< myCCModel >::iterator CIT;//CC iterator
         for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){

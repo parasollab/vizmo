@@ -14,8 +14,12 @@
 #include <GL/gliDataStructure.h>
 
 #include "PlumState.h"
-namespace plum{
+#include <list>
+#include <string>
+#include <stdio.h> ///tmp --> used for sprintf in subclasses, sould be removed
 
+namespace plum{
+    
     class CGLModel : public gliTransform
     {
     public:
@@ -26,37 +30,45 @@ namespace plum{
         }
         
         virtual ~CGLModel(){/*do nothing*/}
-
+        
         //////////////////////////////////////////////////////////////////////
         // Action functions
         //////////////////////////////////////////////////////////////////////
         virtual void EnableSelection( bool enable=true ){ 
             m_EnableSeletion=enable; 
         }
-
+        
         virtual void Select( unsigned int * index, vector<gliObj>& sel ){/*nothing*/}
         virtual bool BuildModels() =0;
         virtual void Draw( GLenum mode ) =0;
+        
         //this function is called when this obj is selected
         virtual void DrawSelect(){/*nothing*/} 
         
         //set wire/solid/hide
         virtual void SetRenderMode( int mode ){ m_RenderMode=mode; }
-
-        //set color
+        
+        //get/set color
         virtual void SetColor( float r, float g, float b, float a ){
             m_RGBA[0]=r; m_RGBA[1]=g; m_RGBA[2]=b; m_RGBA[3]=a;
         }
-	virtual const float * GetColor() const { return m_RGBA; }
-                
-        //output info to std ouput
-        //virtual void DumpSelected() =0;
-        
+        virtual const float * GetColor() const { return m_RGBA; }
+
+        //Get the name information
+		virtual const string GetName() const =0;//{ return "unknow"; }
+
+		//get the contained children if any
+		virtual void GetChildren( list<CGLModel*>& models )
+		{ /*do nothing as default*/ }
+
+		//Get more detailde information
+		virtual list<string> GetInfo() const { return list<string>(); }
+
     protected:
         bool  m_EnableSeletion;
         int   m_RenderMode;     //wire or solid or hide
         float m_RGBA[4];        //Color
     };
-
+    
 }//namespace plum
 #endif // !defined(_GLMODEL_H_)

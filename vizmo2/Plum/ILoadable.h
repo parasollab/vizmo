@@ -28,7 +28,7 @@ namespace plum{
          * Constructor/Destructor
          */
         I_Loadable(){ m_strFileName=""; }
-    virtual ~I_Loadable(){}
+        virtual ~I_Loadable(){}
 
         /**
          * The filename that is going to be load in
@@ -60,6 +60,8 @@ namespace plum{
             
             return true;
         }
+
+		string GetFileName() const { return m_strFileName; }
         
     protected:
 

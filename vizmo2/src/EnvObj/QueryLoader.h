@@ -50,9 +50,6 @@ private:
     
     int m_iCurrent_CfgIndex;        ///current index for path retrival
     vector<double *> m_sgList;       ///path storage
-
-    int m_RenderMode;
-    int m_DLIndex;           //Display list index
     double * dCfg;
 };
 

@@ -178,7 +178,8 @@ namespace plum{
             glCallList(m_SolidID);          
             glDisable( GL_POLYGON_OFFSET_FILL ); 
         }
-        glCallList(m_WiredID);
+        else
+			glCallList(m_WiredID);
         glPopMatrix();
     }
 
@@ -222,5 +223,18 @@ namespace plum{
         }
         return sqrt(R);
     }    
+
+	const string CPolyhedronModel::GetName() const { 
+		string sep="/";
+#ifdef WIN32
+		sep="\\";
+#endif
+		string filename=m_BodyInfo.m_strModelDataFileName;
+		int pos=0;
+		if( (pos=filename.find(sep))!=string::npos )
+			filename=filename.substr(pos+1);
+		return filename; 
+	}
+
 }//namespace plum
 

@@ -8,7 +8,9 @@
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
 #include <Plum.h>
-#include<GL/glut.h>
+#include <GL/glut.h>
+#include <GL/gliFont.h>
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -54,11 +56,16 @@ bool CQueryModel::BuildModels(){
     m_pRobot->SetColor(0,1,0,0);
     //create list
     glNewList( m_DLIndex, GL_COMPILE );
+	glLineWidth(0.5);
     for( unsigned int iQ=0; iQ<iPathSize; iQ++ ){
 		double * Cfg = m_pQueryLoader->GetStartGoal(iQ);  
 		m_pRobot->Configure(Cfg);
-		if(iQ==1) m_pRobot->SetColor(1,0,0,0);
+		if(iQ==1) m_pRobot->SetColor(1,0.6,0,0);
 		m_pRobot->Draw(GL_RENDER);
+		//draw text for start abd goal
+		glColor3d(0.1,0.1,0.1);
+		if( iQ==0 ) drawstr(Cfg[0]-0.5,Cfg[1]-0.5,Cfg[2],"S");
+		else drawstr(Cfg[0]-0.2,Cfg[1]-0.2,Cfg[2],"G");
 		delete [] Cfg;
     }
     glEndList();

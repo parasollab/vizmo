@@ -29,9 +29,8 @@ namespace plum{
 
     void CPlum::Clean()
     {
-        //delete [] m_SelectedName;
         m_ObjList.clear();
-	m_SelectedItem.clear();
+	    m_SelectedItem.clear();
     }
 
     int 
@@ -67,6 +66,7 @@ namespace plum{
         for( int iCM=0; iCM<objSize; iCM++ ){
             CGLModel * model=m_ObjList[iCM]->getModel();
             if( model==NULL ) continue;
+			glEnable(GL_LIGHTING);
             model->Draw( GL_RENDER );
         }
         typedef vector<gliObj>::iterator GIT;
@@ -181,16 +181,6 @@ namespace plum{
         }
         delete [] selName;
     }
-
-    /*
-    void CPlum::DumpSelected()
-    {
-        if( m_SelectedName[0]>m_ObjList.size() ) return;
-        cout<<"--------------------------------------------"<<endl;
-        CGLModel * model=m_ObjList[m_SelectedName[0]]->getModel();
-        if( model!=NULL )   model->DumpSelected();
-    }
-    */
 
 }//namespace plum
 

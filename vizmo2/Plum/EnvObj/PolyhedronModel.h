@@ -10,56 +10,60 @@
 #include "MultiBodyInfo.h"
 
 namespace plum{
-
-class CMultiBodyInfo;
-
+    
+    class CMultiBodyInfo;
+    
     //a class construct a polyhedron body
     class CPolyhedronModel : public CGLModel
     {
     public:
-            //////////////////////////////////////////////////////////////////////
-            // Constructor/Destructor
-            //////////////////////////////////////////////////////////////////////
-            CPolyhedronModel();
-            virtual ~CPolyhedronModel();
-
-            //////////////////////////////////////////////////////////////////////
-            // Core
-            //////////////////////////////////////////////////////////////////////
-            bool BuildModels();
-            void Draw( GLenum mode );
-            virtual void DrawSelect();
-
-            void Select( unsigned int * index, vector<gliObj>& sel ){
-            }
+        //////////////////////////////////////////////////////////////////////
+        // Constructor/Destructor
+        //////////////////////////////////////////////////////////////////////
+        CPolyhedronModel();
+        virtual ~CPolyhedronModel();
         
-            //output info to std ouput
-            //virtual void DumpSelected();
+        //////////////////////////////////////////////////////////////////////
+        // Core
+        //////////////////////////////////////////////////////////////////////
+        bool BuildModels();
+        void Draw( GLenum mode );
+        virtual void DrawSelect();
+        
+        void Select( unsigned int * index, vector<gliObj>& sel ){
+        }
+        
+        virtual const string GetName() const;
+        virtual list<string> GetInfo() const { 
+			list<string> info; 
+			info.push_back(m_BodyInfo.m_strModelDataFileName);
+			return info;
+		}
 
-            //////////////////////////////////////////////////////////////////////
-            // Access
-            //////////////////////////////////////////////////////////////////////
-            void SetBody( const CBodyInfo& bodyinfo ){ m_BodyInfo=bodyinfo; }
-            void SetSelected( bool bSel=true );
-            double GetRadius() const { return m_R; }
-            const Point3d& GetCOM() const { return m_COM; }
-
+        //////////////////////////////////////////////////////////////////////
+        // Access
+        //////////////////////////////////////////////////////////////////////
+        void SetBody( const CBodyInfo& bodyinfo ){ m_BodyInfo=bodyinfo; }
+        void SetSelected( bool bSel=true );
+        double GetRadius() const { return m_R; }
+        const Point3d& GetCOM() const { return m_COM; }
+        
     protected:
-            //build model, given points and triangles
-            bool BuildGLModel_Solid( const PtVector& points, const TriVector& tris, 
-                                     const Point3d& com, const Vector3d * n );
-            bool BuildGLModel_Wired( const PtVector& points, const TriVector& tris,
-                                     const Point3d& com, const Vector3d * n );
-            Point3d COM(const PtVector& points);
-            double Radius(const Point3d& com,const PtVector& points);
-
+        //build model, given points and triangles
+        bool BuildGLModel_Solid( const PtVector& points, const TriVector& tris, 
+            const Point3d& com, const Vector3d * n );
+        bool BuildGLModel_Wired( const PtVector& points, const TriVector& tris,
+            const Point3d& com, const Vector3d * n );
+        Point3d COM(const PtVector& points);
+        double Radius(const Point3d& com,const PtVector& points);
+        
     private:
-            CBodyInfo m_BodyInfo;
-            int m_SolidID; //the compiled model id for solid model
-            int m_WiredID; //the compiled model id for wire frame
-
-            double m_R; //radius
-            Point3d m_COM; //Center of Mass
+        CBodyInfo m_BodyInfo;
+        int m_SolidID; //the compiled model id for solid model
+        int m_WiredID; //the compiled model id for wire frame
+        
+        double m_R; //radius
+        Point3d m_COM; //Center of Mass
     };
 }//namespace plum
 

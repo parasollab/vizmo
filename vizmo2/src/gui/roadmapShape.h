@@ -25,15 +25,25 @@ class QListBox;
 class VizmoRoadmapNodesShapeGUI: public QToolBar
 //class VizmoRoadmapNodesShapeGUI: public QWidget
 {
-  Q_OBJECT
-
+    Q_OBJECT
+        
 public:
+    
+    VizmoRoadmapNodesShapeGUI(QMainWindow * parent=NULL,char *name=NULL);
+	void reset();
 
-  VizmoRoadmapNodesShapeGUI(QMainWindow * parent=NULL,char *name=NULL);
+public slots:
+    void changeSize();      //Changes road map node's size
 
-  // private:
-  QListBox *l;
+signals:
+    void callUpdate();
 
+private slots:
+	void getSelectedItem();
+
+private:
+
+    // private:
+    QListBox *l;
+	double size;
 };
-
-

@@ -1,90 +1,105 @@
-#include "vizmo2.h"
-#include "main_win.h"
-
-
 #include "itemselection_gui.h"
 
 ///////////////////////////////////////////////////////////////////////////////// 
 //// Include Qt Headers
-#include <qapplication.h>
-#include <qpixmap.h>
-#include <qaction.h>
-#include <qlineedit.h>
 #include <qlabel.h>
 #include <qvalidator.h>
 #include <qstring.h>
-#include <qmessagebox.h>
-#include <qlistview.h>
-#include <qgrid.h>
-//#include <qchar.h>
-
-
 
 VizmoItemSelectionGUI::VizmoItemSelectionGUI(QMainWindow *parent,char *name)
 :QToolBar("ItemSelection",parent,QMainWindow::Left,true,name)
 {
-
-  this->setLabel("Item Selection");
-  list=new QListView(this,"blah");
-  list->addColumn("Object");
-  // list->addColumn("tempNo");
-
-  setEnabled(false);
-
-
-  maxNoModels=0;
-  
-
+    setLabel("Outline View");
+    maxNoModels=0;
+	listview=NULL;
+    listview=new QListView(this,"");
+    listview->addColumn("Objects");
+	listview->setColumnWidthMode(0,QListView::Maximum);
+	listview->setRootIsDecorated( TRUE );
+	listview->setMinimumHeight(parent->height()*2/3);
+	connect(listview,SIGNAL(selectionChanged(QListViewItem *)),
+		    this,SLOT(selectionChanged(QListViewItem *)));
+	setEnabled(false);
 }
 
 void VizmoItemSelectionGUI::reset()
 {
-  maxNoModels=GetVizmo().GetNoEnvObjects();
-  
-  fillTree();
-  
-  //disable/enable the toolbar
-  if(maxNoModels==0) setEnabled(false);
-  else setEnabled(true);
+	vector<PlumObject*>& objs=GetVizmo().GetPlumObjects();
+
+	//remove everything
+	clear();
+    fillTree(objs);
+
+    //disable/enable the toolbar
+    if(objs.empty() ) setEnabled(false);
+    else setEnabled(true);
 }
 
-void VizmoItemSelectionGUI::fillTree()
+void VizmoItemSelectionGUI::fillTree(vector<PlumObject*>& obj)
 {
-  const CMultiBodyInfo *multiBodyInfo;
-  string dirstring;
-  int dirstringlen;
-
-
-  if(list)
-  {
-    delete list;
-    list=new QListView(this,"blah");
-    list->addColumn("Object");
-
-  }
-
-
-  multiBodyInfo=GetVizmo().GetMultiBodyInfo(dirstring);
-  dirstringlen=dirstring.length();
-  char *name2 = new char[100];
-
-  char index[1];
-  
-   QChar c;
-  
-  for(int i=0;i<maxNoModels;i++)
-    {
-      QListViewItem *parent;
-      string name =multiBodyInfo[i].m_pBodyInfo[0].m_strModelDataFileName;
-      cout<<name.length();
-      for(int j=0;j<name.length()-dirstringlen;j++)
-	name2[j]=name[j+dirstringlen+1];
-      name2[name.length()-dirstringlen-1]='\0';
-      
-      //      index[0]=(char)i;
-      c='1';
-      QString *temp = new QString(c);
-      parent=new QListViewItem(list,name2);
-    }
-
+	typedef vector<PlumObject*>::iterator PIT;
+	for(PIT i=obj.begin();i!=obj.end();i++){
+		CGLModel * m=(*i)->getModel();
+		if( m==NULL ) continue;
+		createItem(NULL,m);
+	}//end for
 }
+
+VizmoListViewItem *
+VizmoItemSelectionGUI::createItem(VizmoListViewItem * p, CGLModel * model)
+{
+	VizmoListViewItem * item=NULL;
+	if( p==NULL ){
+		item=new VizmoListViewItem(listview);
+		item->setOpen(true);
+	}
+	else item=new VizmoListViewItem(p);
+
+	item->model=model;
+	item->setText(0,model->GetName().c_str());
+	items.push_back(item);
+
+	list<CGLModel *> objlist;
+	model->GetChildren(objlist);
+	if( objlist.empty() ) return item;
+	typedef list<CGLModel *>::iterator OIT;
+	for(OIT i=objlist.begin();i!=objlist.end();i++)
+		createItem(item,*i);
+	return item;
+}
+
+void VizmoItemSelectionGUI::selectionChanged(QListViewItem * item)
+{
+	VizmoListViewItem * myitem=(VizmoListViewItem *)item;
+	vector<gliObj>& sel=GetVizmo().GetSelectedItem();
+	sel.clear();
+	sel.push_back(myitem->model);
+	emit callUpdate();
+}
+
+void VizmoItemSelectionGUI::clear()
+{
+	if( listview!=NULL ) listview->clear();
+	items.clear();
+}
+
+void VizmoItemSelectionGUI::select()
+{
+	vector<gliObj>& sel=GetVizmo().GetSelectedItem();
+	int size=sel.size();
+	typedef list<VizmoListViewItem*>::iterator IIT;
+	//unselect everything
+	for( IIT i=items.begin();i!=items.end();i++ )
+		listview->setSelected((*i), false);
+	//select
+	for( int s=0;s<size;s++ ){
+		for( IIT i=items.begin();i!=items.end();i++ ){
+			if( sel[s]==(*i)->model ) {
+				listview->setSelected( (*i), true );
+				break;
+			}
+		}//end i
+	}//end s
+}
+
+

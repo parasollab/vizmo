@@ -19,13 +19,13 @@
 using namespace std;
 
 namespace plum{
-
+    
     //////////////////////////////////////////////////////////////////////
     //
     //      CSimpleCfg
     //
     //////////////////////////////////////////////////////////////////////
-
+    
     class CSimpleCfg  
     {
         friend ostream & operator<<( ostream & out, const CSimpleCfg & cfg );
@@ -38,77 +38,55 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
         
         CSimpleCfg();
-        virtual ~CSimpleCfg();
+        ~CSimpleCfg();
         
         bool operator==( const CSimpleCfg & other );
-        //virtual bool BuildModel( int index );
-	    virtual bool BuildModel( int index , OBPRMView_Robot* robot);
-        virtual void Draw( GLenum mode );
+        void Set( int index , OBPRMView_Robot* robot);
+
+		void DrawRobot();
+		void DrawBox(double size);
+		void DrawPoint();
         
         //////////////////////////////////////////////////////////////////////
         //      Access Method
         //////////////////////////////////////////////////////////////////////
-        
-        static CSimpleCfg & InvalidData(){
-            return m_InvalidCfg;
-        }
-        
+        static CSimpleCfg & InvalidData(){return m_InvalidCfg;}
         int GetIndex() const {return m_index;}
         double GetX() const {return m_X;}
         double GetY() const {return m_Y;}
         double GetZ() const {return m_Z;}
-        virtual void Select(bool bSel){ m_bSelected=bSel; }
-        virtual bool isSelect() const { return m_bSelected; }
         
         virtual void Dump();
-        virtual void SetRenderMode( int mode ){ m_RenderMode=mode; }
+
+        double GetAlpha() const {return m_Alpha*360;}
+        double GetBeta() const {return m_Beta*360;}
+        double GetGamma() const {return m_Gamma*360;}
         
-	double GetAlpha() const {return m_Alpha*360;}
-	double GetBeta() const {return m_Beta*360;}
-	double GetGamma() const {return m_Gamma*360;}
-	
-	//////////////////////////////////////////////////////////////////////
-        //      Variables
         //////////////////////////////////////////////////////////////////////
-	string m_NodeShape;
-	float scaleBox, scalePoint;
-		
-	//////////////////////////////////////////////////////////////////////
         //      Protected Method & Data
         //////////////////////////////////////////////////////////////////////
     protected:
-
-        void SolidCube( float size );
-	void cube( void );
-	void point( void );
-	void RobotModel();
-
-        bool m_bSelected; //is this node selected
-        int m_RenderMode; //render mode , wire or solid
-        int m_DisplayListIndex, m_DisplayListIndexPoint ;
-        
+                
         double m_X, m_Y, m_Z;
         double m_Alpha, m_Beta, m_Gamma;
         double m_Unknow1, m_Unknow2, m_Unknow3;
         int m_index;
-
-	    OBPRMView_Robot* m_robot;
-	   
+        
+        OBPRMView_Robot* m_robot;
         
         //////////////////////////////////////////////////////////////////////
         //      Private Method & Data
         //////////////////////////////////////////////////////////////////////
     private:
-
         static CSimpleCfg m_InvalidCfg;
     };
-
+    
     //////////////////////////////////////////////////////////////////////
     //
     //      CSimpleEdge
     //
     //////////////////////////////////////////////////////////////////////
-
+    
     class CSimpleEdge
     {
         friend ostream & operator<<( ostream & out, const CSimpleEdge & edge );
@@ -122,34 +100,29 @@ namespace plum{
         
         CSimpleEdge();
         CSimpleEdge(double weight);
-        virtual ~CSimpleEdge();
+        ~CSimpleEdge();
         
         bool operator==( const CSimpleEdge & other );
-        
-        virtual bool BuildModel( CSimpleCfg & start, CSimpleCfg & end );
-        virtual void Draw( GLenum mode );
+		void Set(const Point3d& p1, const Point3d& p2){ m_s=p1; m_e=p2; }
+        void Draw();
         
         //////////////////////////////////////////////////////////////////////
         //      Access Method
         //////////////////////////////////////////////////////////////////////
-        virtual int & GetLP(){ return m_LP; }
-        virtual double & GetWeight(){ return m_Weight; }
+        int & GetLP(){ return m_LP; }
+        double & GetWeight(){ return m_Weight; }
         
         //////////////////////////////////////////////////////////////////////
         //      Protected Method & Data
         //////////////////////////////////////////////////////////////////////
     protected:
         
-        int  m_StartIndex;
-        int  m_EndIndex;
+		Point3d m_s, m_e;
 
-        int m_DisplayListIndex;
-        
         int    m_LP;
         double m_Weight;
-
-   };
-
+    };
+    
 }//namespace plum
 
 #endif 

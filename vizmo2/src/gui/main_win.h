@@ -50,29 +50,27 @@ protected:
 
     void keyPressEvent ( QKeyEvent * e );
 
+	void reset(); //reset when new vizmo files are loaded
+
 private slots:
 
     void load();
-    void reset();
+    void resetCamera();     //reset camera
     void showmap();         //show roadmap
     void showpath();        //show path frame
     void showstartgoal();   //show start and goal positionx
     void showBBox();        //show Bounding Box
     void about();           //about dialog
-    void aboutQt();         //about Qt dialog
     void contexmenu();      //create contex menu when right mouse clicked
     void notimp();          //not implemented yet.
     void refreshEnv();      // refresh!!!
     void changecolor();     //to change the background color for vizmo++
-    void changeSize();      //Changes Robot's size
-    void getSelectedItem(); //reads the index on the ListBox
 
     void setSolid();      // turn object into solidMode
     void setWire();       // turn object into wire mode
     void setInvisible();  // turn the object invisible
     void updateScreen();  // redraw GL scene
     void getOpenglSize(int *,int *);
-   
 
 private:
   
@@ -92,9 +90,7 @@ private:
             *fileOpenAction, 
             *cameraResetAction, 
             *wireFrameAction,
-            *changeColorAction,
-            *recordAction,
-            *changeRobotSizeAction;
+            *changeColorAction;
      
 
     VizmoAnimationGUI *animationGUI;

@@ -45,7 +45,7 @@ namespace plum {
         //get version comment
         GoToNext( in );
         in >> strData >> strData >> strData >> strData; //Roadmap Version Number 061300
-        m_strVersionNumber=strData; cout<<"Version: "<<m_strVersionNumber<<endl;
+        m_strVersionNumber=strData;
         
         //get preamble info
         GoToNext( in );

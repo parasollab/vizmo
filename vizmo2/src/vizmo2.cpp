@@ -12,7 +12,6 @@
 #include <EnvObj/MovieBYULoader.h>
 #include <PlumObject.h>
 #include <PlumUtil.h>
-//#include <MapObj/CCModel.h>
 using namespace plum;
 
 //////////////////////////////////////////////////////////////////////
@@ -37,23 +36,23 @@ void vizmo_obj::Clean(){
     if(m_Robot!=NULL){
         delete m_Robot->getModel(); delete m_Robot->getLoader(); delete m_Robot;
     }
-
+    
     if( m_BBox!=NULL ){
         delete m_BBox->getModel(); delete m_BBox->getLoader(); delete m_BBox;
     }
-
+    
     if( m_Qry!=NULL ){
         delete m_Qry->getModel(); delete m_Qry->getLoader(); delete m_Qry;
     }
-
+    
     if( m_Path!=NULL ){
         delete m_Path->getModel(); delete m_Path->getLoader(); delete m_Path;
     }
-
+    
     if( m_Env!=NULL ){
         delete m_Env->getModel(); delete m_Env->getLoader(); delete m_Env;
     }
-
+    
     if( m_Map!=NULL ){
         delete m_Map->getModel(); delete m_Map->getLoader(); delete m_Map;
     }
@@ -97,7 +96,7 @@ vector<string> vizmo::GetAccessFiles(const string& filename)
     //guess path and query file name
     if( FileExits(name+".path") ) names.push_back(name+".path");
     if( FileExits(name+".query") ) names.push_back(name+".query");
-
+    
     return names;
 }
 
@@ -106,7 +105,7 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
     //delete old stuff
     m_Plum.Clean();
     m_obj.Clean();
-
+    
     //create env first
     string name;
     name=FindName("env",filenames);
@@ -114,34 +113,34 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
         if( !CreateEnvObj(m_obj,name) ) return false;
         cout<<"Load Environment File : "<<name<<endl;
     }
-
+    
     //create robot
     if( !CreateRobotObj(m_obj) ) return false;
-
+    
     //create map
     name=FindName("map",filenames);
     if( !name.empty() ){
         if( !CreateMapObj(m_obj,name) ) return false;
         cout<<"Load Map File : "<<name<<endl;
     }
-
+    
     //create path
     name=FindName("path",filenames);
     if( !name.empty() ){
         if( !CreatePathObj(m_obj,name) ) return false;
         cout<<"Load Path File : "<<name<<endl;
     }
-
+    
     //create qry
     name=FindName("query",filenames);
     if( !name.empty() ){
         if( !CreateQueryObj(m_obj,name) ) return false;
         cout<<"Load Query File : "<<name<<endl;
     }
-
+    
     //create bbx
     if( !CreateBBoxObj(m_obj) ) return false;
-
+    
     //add all of them into plum
     m_Plum.AddPlumObject(m_obj.m_BBox);
     m_Plum.AddPlumObject(m_obj.m_Env);
@@ -149,33 +148,30 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
     m_Plum.AddPlumObject(m_obj.m_Path);
     m_Plum.AddPlumObject(m_obj.m_Qry);
     m_Plum.AddPlumObject(m_obj.m_Map);
-
+    
     //let plum do what he needs to do
     if( m_Plum.ParseFile()==CPlumState::PARSE_ERROR ) return false;
     if( m_Plum.BuildModels()!=CPlumState::BUILD_MODEL_OK ) return false;
+
+	//put robot in start cfg, if availiable
+	PlaceRobot();
+
     return true;
 }
 
-/*
-void vizmo::DumpSelected(){
-m_Plum.DumpSelected();
-}
-*/
-
-
 void vizmo::RefreshEnv()
 {
-  if(m_obj.m_Env==NULL) return;
-  CGLModel *m=m_obj.m_Env->getModel();
-
-  m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+    if(m_obj.m_Env==NULL) return;
+    CGLModel *m=m_obj.m_Env->getModel();
+    
+    m->SetRenderMode(CPlumState::MV_SOLID_MODE);
 }
 
 void vizmo::ShowRoadMap( bool bShow ){
-
+    
     if( m_obj.m_Map==NULL ) return;
     CGLModel * m=m_obj.m_Map->getModel();
-
+    
     if( bShow )
         m->SetRenderMode(CPlumState::MV_SOLID_MODE);
     else
@@ -185,7 +181,7 @@ void vizmo::ShowRoadMap( bool bShow ){
 void vizmo::ShowPathFrame( bool bShow ){
     if( m_obj.m_Path==NULL ) return;
     CGLModel * m=m_obj.m_Path->getModel();
-
+    
     if( bShow )
         m->SetRenderMode(CPlumState::MV_SOLID_MODE);
     else
@@ -205,15 +201,15 @@ void vizmo::ShowQueryFrame( bool bShow){
 // BSS
 
 void vizmo::ShowBBox(bool bShow){
-  
-  if(m_obj.m_BBox==NULL) return;
-  CGLModel * m=m_obj.m_BBox->getModel();
-  if(bShow)
-    m->SetRenderMode(CPlumState::MV_SOLID_MODE);
-  else
-    m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+    
+    if(m_obj.m_BBox==NULL) return;
+    CGLModel * m=m_obj.m_BBox->getModel();
+    if(bShow)
+        m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+    else
+        m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
 }
- 
+
 // Code To change the appearance of the env.. 
 // BSS
 void vizmo::ChangeAppearance(int status)
@@ -221,20 +217,20 @@ void vizmo::ChangeAppearance(int status)
     // status 0 = solid
     // status 1 = wire
     // status 2 = invisible
-
+    
     typedef vector<gliObj>::iterator GIT;
-
+    
     for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
-      {
-	CGLModel *model=(CGLModel *)(*ig);
-	if(status==0)
-	  model->SetRenderMode(CPlumState::MV_SOLID_MODE);
-	else if(status==1)
-	  model->SetRenderMode(CPlumState::MV_WIRE_MODE);
-	else if(status==2)
-	  model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
-      }
-
+    {
+        CGLModel *model=(CGLModel *)(*ig);
+        if(status==0)
+            model->SetRenderMode(CPlumState::MV_SOLID_MODE);
+        else if(status==1)
+            model->SetRenderMode(CPlumState::MV_WIRE_MODE);
+        else if(status==2)
+            model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+    }
+    
 }
 
 
@@ -243,7 +239,7 @@ void vizmo::Animate(int frame){
         return;
     CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
     OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
-
+    
     double * dCfg;
     //Get Cfg
     dCfg=ploader->GetConfiguration(frame);
@@ -252,19 +248,38 @@ void vizmo::Animate(int frame){
 }
 
 int vizmo::GetPathSize(){ 
-	if(m_obj.m_Path==NULL) return 0; 
-	CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
-	return ploader->GetPathSize();
+    if(m_obj.m_Path==NULL) return 0; 
+    CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
+    return ploader->GetPathSize();
 }
 
 //void vizmo::ChangeNodesSize(float s){
 void vizmo::ChangeNodesSize(float s, string str){
-	
-  //cout<<"Size parameter: "<<s<<endl;
+    
+    //cout<<"Size parameter: "<<s<<endl;
     if( m_obj.m_Robot==NULL ) return;
-
+    
     if( m_obj.m_Map==NULL ) return;
+    
+    typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
+    typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
+    typedef vector<CC>::iterator CCIT;
+    
+    MM* mmodel =(MM*)m_obj.m_Map->getModel();
+    vector<CC>& cc=mmodel->GetCCModels();
+    for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+        CC::Shape shape=CC::Point;
+        if( str=="Robot" ) shape=CC::Robot;
+        else if( str=="Box" ) shape=CC::Box;
+        ic->scaleNode(s, shape);
+    }
+}
 
+void vizmo::ChangeNodesShape(string s){
+    if( m_obj.m_Robot==NULL ) return;
+    
+    if( m_obj.m_Map==NULL ) return;
+    
     typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
     typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
     typedef vector<CC>::iterator CCIT;
@@ -272,97 +287,20 @@ void vizmo::ChangeNodesSize(float s, string str){
     CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
     vector<CC>& cc=mmodel->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-      //ic->scaleNode(s);
-      ic->scaleNode(s, str);
+        CC::Shape shape=CC::Point;
+        if( s=="Robot" ) shape=CC::Robot;
+        else if( s=="Box" ) shape=CC::Box;
+        ic->changeNode(shape);
     }
-    /*
-      OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
-      rmodel->change = true;
-      rmodel->size = s;
-    */	
 }
 
-void vizmo::ChangeNodesShape(string s){
-  if( m_obj.m_Robot==NULL ) return;
-
-  if( m_obj.m_Map==NULL ) return;
-
-  typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
-  typedef CCModel<CSimpleCfg,CSimpleEdge> CC;
-  typedef vector<CC>::iterator CCIT;
-  
-  CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
-  vector<CC>& cc=mmodel->GetCCModels();
-  for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-    ic->changeNode(s);
-  }
- 
+double vizmo::GetEnvRadius(){ 
+	if(m_obj.m_Env!=NULL ){
+		CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+		return env->GetRadius();
+	}
+	return 200;
 }
-
-int vizmo::GetNoEnvObjects(){
-	if(m_obj.m_Env==NULL) return 0;
-	CEnvLoader *envLoader=(CEnvLoader *)m_obj.m_Env->getLoader();
-	return envLoader->GetNumberOfMultiBody();
-}
-
-const CMultiBodyInfo *vizmo::GetMultiBodyInfo(string &dirstring) const{
-	if(m_obj.m_Env==NULL) return 0;
-	CEnvLoader *envLoader=(CEnvLoader *)m_obj.m_Env->getLoader();
-	dirstring=envLoader->getModelDirString();
-	return envLoader->GetMultiBodyInfo();
-}
-
-/*
-void vizmo::GetConfiguration(int index)
-{
-
-  if(m_obj.m_Robot==NULL || m_obj.m_Path==NULL)
-  {
-    cout<<"Exiting here";
-    return;
-  }
-
-  CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
-  OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
-
-  double * dCfg; 
-
-  dCfg=ploader->GetParticularConfiguration(index);
-  rmodel->Configure(dCfg);
-  delete dCfg;
-
-}
-
-// BSS returns the number of frames
-int vizmo::getTimer()
-{
-	int size;
-	if(m_obj.m_Path==NULL) 
-    {
-		return 0;
-    }
-	
-	CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
-	size=(signed int)ploader->GetPathSize();
-	
-	
-	return size-1;
-}
-
-int vizmo::GetCurrentCfg()
-{
-  int cfg;
-  if(m_obj.m_Path==NULL) 
-    {
-      return 0;
-    
-    }
-   CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
-   cfg=(signed int)ploader->GetCurrentCfg();
-   
-   return cfg;
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // Protected Functions
@@ -379,23 +317,18 @@ bool vizmo::CreateEnvObj( vizmo_obj& obj, const string& fname )
 
 bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
 {
-//    obj.m_Map=createMapObj<CSimpleCfg,CSimpleEdge>(fname);
-//        return (obj.m_Map!=NULL);
-//    cout<<"MAP OBJ"<<endl;
-
-  CMapLoader<CSimpleCfg,CSimpleEdge> * mloader=new CMapLoader<CSimpleCfg,CSimpleEdge>();
-  CMapModel<CSimpleCfg,CSimpleEdge> * mmodel = new CMapModel<CSimpleCfg,CSimpleEdge>();
-  if (mloader==NULL || mmodel==NULL) 
-    return false;
-  mloader->SetDataFileName(fname);
-  mmodel->SetMapLoader(mloader);
-  if(obj.m_Robot != NULL){
-      mmodel->SetRobotModel( (OBPRMView_Robot*)obj.m_Robot->getModel() );
-      cout<<"IF CUMPLIDO"<<endl;
-   }
-  obj.m_Map = new PlumObject(mmodel, mloader);
-  
-  return (obj.m_Map != NULL);
+    CMapLoader<CSimpleCfg,CSimpleEdge> * mloader=new CMapLoader<CSimpleCfg,CSimpleEdge>();
+    CMapModel<CSimpleCfg,CSimpleEdge> * mmodel = new CMapModel<CSimpleCfg,CSimpleEdge>();
+    if (mloader==NULL || mmodel==NULL) 
+        return false;
+    mloader->SetDataFileName(fname);
+    mmodel->SetMapLoader(mloader);
+    if(obj.m_Robot != NULL){
+        mmodel->SetRobotModel( (OBPRMView_Robot*)obj.m_Robot->getModel() );
+    }
+    obj.m_Map = new PlumObject(mmodel, mloader);
+    
+    return (obj.m_Map != NULL);
 }
 
 bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
@@ -409,8 +342,6 @@ bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
         pmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
     obj.m_Path=new PlumObject(pmodel,ploader);
     return (obj.m_Path!=NULL);
-
-
 }
 
 bool vizmo::CreateQueryObj( vizmo_obj& obj, const string& fname )
@@ -443,14 +374,34 @@ bool vizmo::CreateBBoxObj( vizmo_obj& obj )
 }
 
 bool vizmo::CreateRobotObj( vizmo_obj& obj )
-{ cout<<"ROBOT"<<endl;
+{
     if( m_obj.m_Env==NULL ) return true; //can't build
-
+    
     CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
     OBPRMView_Robot * r=new OBPRMView_Robot(envLoader);
     if( r==NULL ) return false;
     obj.m_Robot=new PlumObject(r,NULL);
     return (obj.m_Robot!=NULL);
+}
+
+void vizmo::PlaceRobot()
+{
+	OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+	if( r!=NULL ){
+		double * cfg=NULL;
+		if( m_obj.m_Qry!=NULL ){//check query loader
+			CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
+			cfg=q->GetStartGoal(0);
+		}
+		else if( m_obj.m_Path!=NULL ){//check path loader
+			CPathLoader * p=(CPathLoader*)m_obj.m_Path->getLoader();
+			cfg=p->GetConfiguration(0);
+		}
+		if( cfg!=NULL){
+			r->Configure(cfg);
+			delete [] cfg;
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -476,13 +427,3 @@ bool vizmo::FileExits(const string& filename) const
     fin.close();
     return result;
 }
-
-
-
-
-
-
-
-
-
-

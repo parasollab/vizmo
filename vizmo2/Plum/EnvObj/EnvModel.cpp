@@ -12,7 +12,6 @@ namespace plum {
     CEnvModel::CEnvModel()
     {
         m_envLoader=NULL;
-        m_MBSize=0;
         m_R=0;
     }
     
@@ -20,25 +19,25 @@ namespace plum {
         if( m_envLoader==NULL ) return false;
         
         //create MutileBody Model
-        m_MBSize = m_envLoader->GetNumberOfMultiBody();
-        m_pMBModel=(CMultiBodyModel**)calloc(m_MBSize,sizeof(CMultiBodyModel*));
-        if( m_pMBModel==NULL ) return false;
-        
+        int MBSize = m_envLoader->GetNumberOfMultiBody();
+		m_pMBModel.reserve(MBSize);
+
         //Build each
         Vector3d com;
         int iP;
-        for( iP=0; iP<m_MBSize; iP++ ) {
-            m_pMBModel[iP]=new CMultiBodyModel(iP,m_envLoader->GetMultiBodyInfo()[iP]);
-            if( m_pMBModel[iP]==NULL ) return false;
-            if( m_pMBModel[iP]->BuildModels()==false )
+        for( iP=0; iP<MBSize; iP++ ) {
+            CMultiBodyModel * pMBModel=new CMultiBodyModel(iP,m_envLoader->GetMultiBodyInfo()[iP]);
+            if( pMBModel==NULL ) return false;
+            if( pMBModel->BuildModels()==false )
                 return false;
-            com=com+(m_pMBModel[iP]->GetCOM()-Point3d(0,0,0));
+            com=com+(pMBModel->GetCOM()-Point3d(0,0,0));
+			m_pMBModel.push_back(pMBModel);
         }
-        for( int id=0;id<3;id++ ) m_COM[id]=com[id]/m_MBSize;
+        for( int id=0;id<3;id++ ) m_COM[id]=com[id]/MBSize;
 
         //compute radius
         m_R=0;
-        for( iP=0; iP<m_MBSize; iP++ ) {
+        for( iP=0; iP<MBSize; iP++ ) {
             double dist=(m_pMBModel[iP]->GetCOM()-m_COM).norm()
                         +m_pMBModel[iP]->GetRadius();
             if( m_R<dist ) m_R=dist;
@@ -52,7 +51,8 @@ namespace plum {
         if( mode==GL_SELECT && !m_EnableSeletion ) return;
         
         glLineWidth(1);
-        for( int iP=0; iP<m_MBSize; iP++ ) {
+		int MBSize=m_pMBModel.size();
+        for( int iP=0; iP<MBSize; iP++ ) {
             if( mode==GL_SELECT ) glPushName(iP);
             m_pMBModel[iP]->Draw( mode );
             if( mode==GL_SELECT ) glPopName();
@@ -63,7 +63,7 @@ namespace plum {
     {      
         //unselect old one       
         if( index==NULL ) return;
-        if( *index>=(unsigned int)m_MBSize ) //input error
+        if( *index>=m_pMBModel.size() ) //input error
             return;
         m_pMBModel[index[0]]->Select(index+1,sel);
     }

@@ -44,12 +44,13 @@ bool CPathModel::BuildModels(){
     m_pRobot->SetRenderMode(CPlumState::MV_WIRE_MODE);
     const float * col=m_pRobot->GetColor(); //old color
     float oldcol[4]; memcpy(oldcol,col,4*sizeof(float));
-    m_pRobot->SetColor(0.6f,0.4f,0.95f,1.0);
     
     glMatrixMode( GL_MODELVIEW );
     m_DLIndex=glGenLists(1);
     glNewList( m_DLIndex, GL_COMPILE );
       for( unsigned int iP=0; iP<iPathSize; iP++ ){
+	  double percent=((double)iP)/iPathSize;
+	  m_pRobot->SetColor(percent,0.8f,1-percent,1.0);
           double * Cfg = m_pPathLoader->GetConfiguration(iP);
           if( iP%3==0 ){
               m_pRobot->Configure(Cfg);

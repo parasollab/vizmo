@@ -40,7 +40,17 @@ public:
     //////////////////////////////////////////////////////////////////////
     virtual bool BuildModels();
     virtual void Draw( GLenum mode );
-    
+    virtual const string GetName() const { return "Path"; }
+
+	virtual list<string> GetInfo() const { 
+		list<string> info; 
+		char strsize[256]=""; 
+		sprintf(strsize,"There are %d path frames",m_pPathLoader->GetPathSize());
+		info.push_back(string(strsize));
+		
+		return info;
+	}
+
     //output info to std ouput
     //virtual void DumpSelected();
     
