@@ -43,6 +43,9 @@
 #include "icon/pallet.xpm"
 #include "icon/tapes.xpm"
 
+
+#include "sync.h"
+
 VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
 :QMainWindow(parent, name), m_bVizmoInit(false)
 { 
@@ -71,29 +74,76 @@ bool VizmoMainWin::Init()
 
 bool VizmoMainWin::InitVizmo()
 {
+
     if( m_bVizmoInit ) return true;
     m_bVizmoInit=true;
     if( m_Args.empty() ) return true; //nothing to init...
-    /*
-    Here we use the first argument, but in the future
-    we should use all of them to load files.
-    */
+	/*
+	  Here we use the first argument, but in the future
+	  we should use all of them to load files.
+	*/
+
+
+  Sync sync(MODULE_VIZMO);
+
+  reset();
+
+
+  while (1) {
+    char path_filename[SYNC_FILENAME_MAX_LEN];
+    sync.GetFileNameRead(path_filename);
+
+
+    char buffer[SYNC_FILENAME_MAX_LEN];
+    sprintf(buffer, "cp %s ./campus.path", path_filename);
+    int sr = system(buffer);
+    if ((sr == -1) || (sr == 127)) {   
+      cout << "cannot copy " << path_filename << "to campus.path\n" <<
+        flush;
+      return false;
+    }
+
+
+//    m_Args.push_back(path_filename);
     vector<string> files=GetVizmo().GetAccessFiles(m_Args[0]);
     if( GetVizmo().InitVizmoObject(files)==false ){
         return false;
     }
-    m_Args.clear();
-    resetCamera(); //reset camera
-    
-    //reset guis
-    animationGUI->reset();
-    objectSelection->reset();
-    screenShotGUI->reset();
-    shapeSelection->reset(); 
-    reset();
+
+    cout << "main_vizmo: opened  = " << path_filename << endl << flush;  
+     
+GetVizmo().ShowPathFrame(true);
+
+
+    cout << "main_vizmo: writing snapshot file" << endl << flush;  
+
+    // write snapshot file
+    char snapshot_filename[SYNC_FILENAME_MAX_LEN];
+    sync.GetFileNameWrite(snapshot_filename);
+
+    // remove extension
+    snapshot_filename[strlen(snapshot_filename) - 3] = 0;
+    cout << "main_vizmo: writing snapshot file = " << 
+      snapshot_filename << "\n" << flush;
+
+
+  resetCamera(); //reset camera
+    screenShotGUI->takeCampusSnapshot(snapshot_filename, MODULE_SNAPSHOT_EXT);
+  }
+
+   exit(0);
+
+   //m_Argdsf
+
+
     
     return true;
+
 }
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -568,8 +618,10 @@ void VizmoMainWin::CreateAttributeSelection()
 
 void VizmoMainWin::CreateShapeSelection()
 {   
-    shapeSelection = new VizmoRoadmapNodesShapeGUI(this, "ShapeSelection");
-    connect(shapeSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
+
+  //    shapeSelection = new VizmoRoadmapNodesShapeGUI(this, "ShapeSelection");
+  //  connect(shapeSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
+
 }
 
 
