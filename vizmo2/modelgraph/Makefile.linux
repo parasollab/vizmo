@@ -1,0 +1,40 @@
+# $Id$
+#------------------------------------------------------
+# Make your own and use it or use the one in BASELINE
+#------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Choose a compiler & its options
+#--------------------------------------------------------------------------
+ CC = g++
+
+ CXX = g++
+
+ OPTS = -O2 -MMD
+
+ INCLUDE = -I/usr/local/include -I. -I../mathtool 
+
+CFLAGS     = $(OPTS) $(INCLUDE) 
+CXXFLAGS   = $(CFLAGS) 
+TARGET = ../lib/libmodelgraph.a
+all: $(TARGET)
+
+#--------------------------------------------------------------------
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) ${CFLAGS} -c $<
+	cat $*.d >> Dependencies
+	rm -f $*.d
+
+#--------------------------------------------------------------------
+OBJS = ModelGraph.o ModelNode.o ModelEdge.o
+
+objs: ${OBJS}
+#--------------------------------------------------------------------
+$(TARGET): objs
+	ar cru $(TARGET) $(OBJS)
+clean:
+	rm -f *.o $(TARGET) Dependencies
+	touch Dependencies
+
+include Dependencies
