@@ -59,10 +59,19 @@ namespace mathtool{
             double x_2=2*sqr(m_v[0]); double y_2=2*sqr(m_v[1]); double z_2=2*sqr(m_v[2]);
             double xy=2*m_v[0]*m_v[1]; double yz=2*m_v[1]*m_v[2]; double zx=2*m_v[2]*m_v[0]; 
             double sx=2*m_s*m_v[0]; double sy=2*m_s*m_v[1]; double sz=2*m_s*m_v[2]; 
-            return Matrix3x3(1-y_2-z_2, xy-sz, zx+sy,
-                             xy+sz, 1-x_2-z_2, yz-sx,
-                             zx-sy, yz+sx, 1-x_2-y_2);
+
+/*             return Matrix3x3(1-y_2-z_2, xy-sz, zx+sy, */
+/*                              xy+sz, 1-x_2-z_2, yz-sx, */
+/*                              zx-sy, yz+sx, 1-x_2-y_2); */
+
+	    return Matrix3x3(1-y_2-z_2,  xy+sz,      zx-sy,
+                             xy-sz,      1-x_2-z_2,  yz+sx,
+                             zx+sy,      yz-sx,      1-x_2-y_2);
         }
+
+	/////////////////////////////////////////////////////////////
+	/////// Aimee Vargas june/2004
+	/////// given a rotation matrix, get the quaternion.
 
 	Quaternion getQuaternionFromMatrix(Matrix3x3 mat){
 
@@ -77,13 +86,13 @@ namespace mathtool{
 	    W = 0.25 / S;
 	  }
 	  else{ //if(T <= 0)
-	    if ( (mat[0][0] > mat[1][1]) && (mat[0][0] > mat[2][2]) )  {	// Column 0: 
+	    if ( (mat[0][0] > mat[1][1]) && (mat[0][0] > mat[2][2]) )  {  // Column 0: 
 	      S  = sqrt( 1.0 + mat[0][0] - mat[1][1] - mat[2][2] ) * 2;
 	      X = 0.25 * S;
 	      Y = (mat[0][1] + mat[1][0] ) / S;
 	      Z = (mat[2][0] + mat[0][2] ) / S;
 	      W = (mat[1][2] - mat[2][1] ) / S;
-	    } else if ( mat[1][1] > mat[2][2] ) {			// Column 1: 
+	    } else if ( mat[1][1] > mat[2][2] ) {		 // Column 1: 
 	      S  = sqrt( 1.0 + mat[1][1] - mat[0][0] - mat[2][2] ) * 2;
 	      X = (mat[0][1] + mat[1][0] ) / S;
 	      Y = 0.25 * S;
@@ -104,6 +113,54 @@ namespace mathtool{
 	  Quaternion qt(W,v);  
 	  return qt;
 	}
+
+	/////////////////////////////////////////////////////////////
+	/////// Aimee Vargas sept./2004
+	/////// given a rotation matrix, get the Euler angles
+	/////// returns a vector in the order: x, y, z
+	/////////////////////////////////////////////////////////////
+
+	Vector3d MatrixToEuler(Matrix3x3 mat){
+	  double sx, sy, sz, cx, cy, cz;
+
+	  sy = -mat[0][2];
+	  double s2y = sy * sy;
+	  cy = sqrt(1-s2y);
+
+	  if(cy !=0){
+	    sx = mat[1][2] / cy;
+	    cx = mat[2][2] / cy;
+
+	    sz = mat[0][1] / cy;
+	    cz = mat[0][0] / cy;
+	  }
+	  else{
+	    sx = -mat[2][1];
+	    cx = mat[1][1];
+	    sz = 0;
+	    cz = 1;
+	  }
+
+	  double x = atan2(sx, cx);
+	  double y = atan2(sy, cy);
+	  double z = atan2(sz, cz);
+
+	  double TwoPI=3.1415926535*2.0;
+
+	  if(x<0)
+	    x += TwoPI;
+	  if(y<0)
+	    y += TwoPI;
+	  if(z<0)
+	    z += TwoPI;
+
+	  Vector3d angles; 
+	  angles[0] = x;
+	  angles[1] = y;
+	  angles[2] = z;
+	  return angles;
+	}
+
 
         void set(double s,const Vector3d & v){ m_v=v; m_s=s; }
         const Vector3d& getComplex() const { return m_v; }

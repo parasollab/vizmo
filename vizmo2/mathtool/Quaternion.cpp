@@ -18,7 +18,10 @@ namespace mathtool{
 
     ostream& operator<<(ostream & out, Quaternion & q )
     {
-        return out;
+        
+      out<<"Angle: "<<q.m_s<<endl;
+      out<<"Vector: "<<q.m_v[0]<<", "<< q.m_v[1]<<", "<< q.m_v[2]<<endl;
+      return out;
     }
 
     Quaternion operator*(const Vector3d & v, const Quaternion & q2)
