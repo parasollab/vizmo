@@ -44,4 +44,5 @@ void myreshape(int iW, int iH);
 void mydisplay();
 void myidle();
 void myvisible(int iState);
-bool dump(const char * filename,int xOffset,int yOffset,int width,int height); //dump image to guven filename
+bool dump(const char * filename); //dump image to guven filename
+bool dump(const char * filename,const char *extension,int xOffset,int yOffset,int width,int height);

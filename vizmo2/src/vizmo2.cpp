@@ -12,6 +12,7 @@
 #include <EnvObj/MovieBYULoader.h>
 #include <PlumObject.h>
 #include <PlumUtil.h>
+//#include <MapObj/CCModel.h>
 using namespace plum;
 
 //////////////////////////////////////////////////////////////////////
