@@ -33,4 +33,6 @@ then
    export VIZMO_DIR LD_LIBRARY_PATH TCL_LIBRARY TK_LIBRARY VIZMO_SO VTK
    
 fi            
+
+#run vtk
    $VTK $VIZMO_DIR/vizmo.exe $*
