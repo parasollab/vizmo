@@ -19,9 +19,7 @@ class VizmoAnimationGUI;
 class VizmoScreenShotGUI;
 class VizmoItemSelectionGUI;
 class VizmoAttributeSelectionGUI;
-class VizmoRoadmapNodesShapeGUI;
-
-class VizmoRoadmapColorGUI;
+class VizmoRoadmapGUI;
 
 ///////////////////////////////////////////////////////////////////////////////
 // std Headers
@@ -71,6 +69,7 @@ private slots:
     void setSolid();      // turn object into solidMode
     void setWire();       // turn object into wire mode
     void setInvisible();  // turn the object invisible
+    void setNewColor();   // change the object's color
     void updateScreen();  // redraw GL scene
     void getOpenglSize(int *,int *);
 
@@ -83,9 +82,7 @@ private:
     void CreateScreenCapture(); // Create the screenshot gui
     void CreateObjectSelection(); // create object selection
     void CreateAttributeSelection(); // create object selection
-    void CreateShapeSelection(); // Create listbox selection to change  
-
-    void CreateColorSelection(); //Create color box for CC's 
+    void CreateRoadmapToolbar(); //Create color box for CC's 
 
     QAction *showHideRoadmapAction, 
             *showHidePathAction, 
@@ -102,8 +99,7 @@ private:
     VizmoItemSelectionGUI *objectSelection;
     VizmoAttributeSelectionGUI *attributeSelection;
  
-    VizmoRoadmapNodesShapeGUI *shapeSelection;
-    VizmoRoadmapColorGUI *colorSelection;  //for CC's
+    VizmoRoadmapGUI *roadmapGUI;  //for CC's
 
     vector<string> m_Args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.
