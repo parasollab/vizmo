@@ -18,22 +18,24 @@
 using namespace std;
 
 class QListBox;
+class QToolButton;
 
 #include <qwidget.h>
 
 
-class VizmoRoadmapNodesShapeGUI: public QToolBar
-//class VizmoRoadmapNodesShapeGUI: public QWidget
+class VizmoRoadmapGUI: public QToolBar
 {
     Q_OBJECT
         
 public:
     
-    VizmoRoadmapNodesShapeGUI(QMainWindow * parent=NULL,char *name=NULL);
-	void reset();
+    VizmoRoadmapGUI(QMainWindow * parent=NULL,char *name=NULL);
+    void reset();
+    void createGUI();
 
 public slots:
     void changeSize();      //Changes road map node's size
+    void changeColor();      //Changes CC's color
 
 signals:
     void callUpdate();
@@ -45,5 +47,7 @@ private:
 
     // private:
     QListBox *l;
-	double size;
+    double size;
+    QToolButton *nodesize, *nodesColor;
+    string m_shapeString;
 };
