@@ -108,7 +108,8 @@ public:
     // Roadmap Related Function
     void ShowRoadMap( bool bShow=true );
     //nov. 2002 Aimee
-    void ChangeNodesSize(float s);
+    //void ChangeNodesSize(float s);
+    void ChangeNodesSize(float s, string str);
     //jan. 2003 Aimee
     void ChangeNodesShape(string s);
 

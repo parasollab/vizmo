@@ -256,9 +256,10 @@ int vizmo::GetPathSize(){
 	return ploader->GetPathSize();
 }
 
-void vizmo::ChangeNodesSize(float s){
+//void vizmo::ChangeNodesSize(float s){
+void vizmo::ChangeNodesSize(float s, string str){
 	
-    cout<<"Size parameter: "<<s<<endl;
+  //cout<<"Size parameter: "<<s<<endl;
     if( m_obj.m_Robot==NULL ) return;
 
     typedef CMapModel<CSimpleCfg,CSimpleEdge> MM;
@@ -268,7 +269,8 @@ void vizmo::ChangeNodesSize(float s){
     CMapModel<CSimpleCfg,CSimpleEdge>* mmodel =(MM*)m_obj.m_Map->getModel();
     vector<CC>& cc=mmodel->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-      ic->scaleNode(s);
+      //ic->scaleNode(s);
+      ic->scaleNode(s, str);
     }
     /*
       OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();

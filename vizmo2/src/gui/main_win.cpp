@@ -282,11 +282,21 @@ void VizmoMainWin::changecolor(){
 void VizmoMainWin::changeSize(){
   bool ok = false;
   double s = QInputDialog::getDouble(tr("vizmo++"), 
-				     tr("Enter a number to scale the robot"),
+				     tr("Enter a number between 0 and 1 to scale the nodes"),
 				     0.5, 0, 1, 2,  &ok,  this);
   if(ok){
     cout << "Scale by: "<<s<<endl;
-    GetVizmo().ChangeNodesSize(s);
+    
+  string shape;
+  for ( unsigned int i = 0; i < (shapeSelection->l)->count(); i++ ) {
+    QListBoxItem *item = (shapeSelection->l)->item( i );
+    // if the item is selected...
+    if ( item->isSelected() )
+      shape = (string)item->text();
+  }
+
+    GetVizmo().ChangeNodesSize(s, shape);
+
     m_GL->updateGL();
 
 
