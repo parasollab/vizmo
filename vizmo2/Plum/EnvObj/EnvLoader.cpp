@@ -127,7 +127,6 @@ namespace plum{
 
 	if((iB == 0)&&(!MBInfo.m_pBodyInfo[0].m_bIsFixed))
 	  dof = 6;
-     
       }
     
     
@@ -151,6 +150,7 @@ namespace plum{
       dof+=numberOfRobotConnections;
       CCfg::dof=dof;
       cout<< "DOF's: "<<CCfg::dof<<endl; 
+      DoF = dof;
    }
 
     //Each body can have more than one connection
@@ -228,7 +228,7 @@ namespace plum{
     fin >> BodyInfo.m_Alpha >> BodyInfo.m_Beta >> BodyInfo.m_Gamma;
     }
     else{
-      BodyInfo.m_X = BodyInfo.m_Y = BodyInfo.m_Z = BodyInfo.m_Alpha = BodyInfo.m_Beta = BodyInfo.m_Gamma = 0;
+    BodyInfo.m_X = BodyInfo.m_Y = BodyInfo.m_Z = BodyInfo.m_Alpha = BodyInfo.m_Beta = BodyInfo.m_Gamma = 0;
     }
           
     //convert to radians	 
@@ -253,7 +253,7 @@ namespace plum{
  
     // Tag, "Actuated/NonActuated"
     fin >> strData; 
-    
+
     //Increment m_cNumberOfConnection for each body
     
     BodyInfo[preIndx].m_cNumberOfConnection++;
@@ -264,8 +264,15 @@ namespace plum{
     //set next and pre index
     BodyInfo[preIndx].m_pConnectionInfo[conn].m_preIndex = preIndx;
     BodyInfo[preIndx].m_pConnectionInfo[conn].m_nextIndex = nextIndx;
+
+    //set Actuated/NonActuated
+
+    if( strcmp(strData, "Actuated")==0 )
+      BodyInfo[preIndx].m_pConnectionInfo[conn].m_actuated = true;
+    else
+      BodyInfo[preIndx].m_pConnectionInfo[conn].m_actuated = false;
     
-    //poisiton
+    //poisition
     fin >> BodyInfo[preIndx].m_pConnectionInfo[conn].m_posX >>
       BodyInfo[preIndx].m_pConnectionInfo[conn].m_posY >> 
       BodyInfo[preIndx].m_pConnectionInfo[conn].m_posZ;
@@ -287,6 +294,9 @@ namespace plum{
     fin >> BodyInfo[preIndx].m_pConnectionInfo[conn].alpha >>
       BodyInfo[preIndx].m_pConnectionInfo[conn].a >>
       BodyInfo[preIndx].m_pConnectionInfo[conn].d >>
+      BodyInfo[preIndx].m_pConnectionInfo[conn].theta;
+    //save original theta   
+    BodyInfo[preIndx].m_pConnectionInfo[conn].m_theta =
       BodyInfo[preIndx].m_pConnectionInfo[conn].theta;
 
     // Tag, "Revolute" or "Prismatic"

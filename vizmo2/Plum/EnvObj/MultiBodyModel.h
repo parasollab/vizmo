@@ -42,6 +42,8 @@ namespace plum{
 
 	virtual	void Scale(double x, double y, double z);
 
+	double posX, posY, posZ;
+
         //////////////////////////////////////////////////////////////////////
         // Access
         //////////////////////////////////////////////////////////////////////
@@ -53,6 +55,7 @@ namespace plum{
 	
 	CPolyhedronModel* GetPolyhedron()  {return m_pPoly;}
 
+	list<CGLModel *> objlist; // to have access from glitransTool class
 
     private:
         CPolyhedronModel * m_pPoly;

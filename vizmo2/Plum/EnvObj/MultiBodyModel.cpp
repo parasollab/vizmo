@@ -84,7 +84,7 @@ namespace plum{
     
     //Draw
     void CMultiBodyModel::Draw( GLenum mode )
-    {
+    {   
         glColor4fv(m_RGBA);
         glPushMatrix();
 	glTranslated(m_pPoly[0].tx(), m_pPoly[0].ty(), m_pPoly[0].tz());
@@ -101,6 +101,7 @@ namespace plum{
 	glTranslated(m_pPoly[0].tx(), m_pPoly[0].ty(), m_pPoly[0].tz());
         glTransform();
 	glTranslated(-m_pPoly[0].tx(), -m_pPoly[0].ty(), -m_pPoly[0].tz());
+
         for( int i=0;i<m_PolySize;i++ )
             m_pPoly[i].DrawSelect();
         glPopMatrix();

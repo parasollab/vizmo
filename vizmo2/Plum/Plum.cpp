@@ -95,7 +95,7 @@ namespace plum{
         // get view port
         glGetIntegerv( GL_VIEWPORT, viewport);
         
-        // number stact 
+        // initialize stack
         glInitNames();
 
         // change view volum
@@ -168,7 +168,7 @@ namespace plum{
                     memcpy(selName,curName,sizeof(unsigned int)*NameSize);
                 }
             }
-            else{ //seletec all
+            else{ //select all
                 if( curName[0]>m_ObjList.size() ) return;
                 CGLModel * selectModel=m_ObjList[curName[0]]->getModel();
                 if( selectModel!=NULL ) 
@@ -179,12 +179,14 @@ namespace plum{
         }//end for each hit
 
         //only the closest
-        if( !all ){
+        if( !all ){ //
+	  //cout <<"Object: "<<selName[0]<<endl;
             // analyze selected item //not name which created in this lib
             if( selName[0]>m_ObjList.size() ) return;
             CGLModel * selectModel=m_ObjList[selName[0]]->getModel();
-            if( selectModel!=NULL ) 
+            if( selectModel!=NULL ){ 
                 selectModel->Select( &selName[1], m_SelectedItem );
+	    }
         }
         delete [] selName;
     }

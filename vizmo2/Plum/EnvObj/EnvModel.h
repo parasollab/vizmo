@@ -28,6 +28,8 @@ namespace plum{
             double GetRadius() const { return m_R; }
             const Point3d& GetCOM() const { return m_COM; }
 	    void ChangeColor(); //changes object's color randomly
+	    vector<CPolyhedronModel *> getPoly();
+	    vector<CMultiBodyModel *> getMBody();
 
             //////////////////////////////////////////////////////////////////////
             // Action functions

@@ -129,6 +129,10 @@ namespace plum{
       int m_DID_PT;    //id for points
     };
 
+  /////////////////////////////////////////////////////////////////
+  // CCModel
+  ////////////////////////////////////////////////////////////////
+
     template <class Cfg, class WEIGHT> class CCModel : public CCModelBase
     {
         typedef typename CMapLoader<Cfg,WEIGHT>::WG WG;
@@ -242,6 +246,8 @@ namespace plum{
       {
         switch( m_sNodeShape ){
         case Robot: 
+	  //m_DID_ROBOT = glGenLists(1);
+	  //glNewList( m_DID_ROBOT, GL_COMPILE );
 	            DrawRobotNodes(GL_RENDER); break;
         case Box: 
 	            m_DID_Box = glGenLists(1);
@@ -257,11 +263,12 @@ namespace plum{
     
     template <class Cfg, class WEIGHT>
       void CCModel<Cfg, WEIGHT>::DrawRobotNodes(GLenum mode) {
-
+        
+	
 	if( m_pRobot==NULL ) return; //no robot given
 
 	m_pRobot->BackUp();
-        
+
 	m_DID_ROBOT = glGenLists(1);
 	glNewList( m_DID_ROBOT, GL_COMPILE );
 
@@ -274,7 +281,7 @@ namespace plum{
 	for( int iN=0; iN<nSize; iN++ ){
 	  m_Nodes[iN]->Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
 	  m_Nodes[iN]->SetShape(CCfg::Robot);
-	  m_Nodes[iN]->Draw(mode);//draw robot;
+	  m_Nodes[iN]->Draw(mode);//draw robot;	
 	}
 
 	glEndList();	
@@ -326,33 +333,31 @@ namespace plum{
     template <class Cfg, class WEIGHT>
       void CCModel<Cfg, WEIGHT>::ChangeColor(GLenum mode){
      
-      m_pRobot->BackUp(); 
-      
       m_DID_ROBOT = glGenLists(1);
-        m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],m_pRobot->GetColor()[3]);
-        glNewList( m_DID_ROBOT, GL_COMPILE );
-        {
-	  glEnable(GL_LIGHTING);
-	  int nSize=m_Nodes.size();
-	  for( int iN=0; iN<nSize; iN++ ){
-	    if(m_shape == 'r'){
-	      m_Nodes[iN]->SetShape(CCfg::Robot);
-	      m_Nodes[iN]->Draw(mode);//draw robot;
-	    }
-	    else if(m_shape == 'b'){
-	      m_Nodes[iN]->SetShape(CCfg::Box);
-	      m_Nodes[iN]->Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
-	      m_Nodes[iN]->Draw(mode);//draw box
-	    }
-	    else if(m_shape == 'p'){
-	      m_Nodes[iN]->SetShape(CCfg::Point);
-	      m_Nodes[iN]->Draw(mode);//draw point
-	    }
+      
+      m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],m_pRobot->GetColor()[3]);
+      glNewList( m_DID_ROBOT, GL_COMPILE );
+      {
+	glEnable(GL_LIGHTING);
+	int nSize=m_Nodes.size();
+	for( int iN=0; iN<nSize; iN++ ){
+	  if(m_shape == 'r'){
+	    m_Nodes[iN]->SetShape(CCfg::Robot);
+	    m_Nodes[iN]->Draw(mode);//draw robot;
 	  }
-        }
-        glEndList();
-        
-	m_pRobot->Restore();
+	  else if(m_shape == 'b'){
+	    m_Nodes[iN]->SetShape(CCfg::Box);
+	    m_Nodes[iN]->Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
+	    m_Nodes[iN]->Draw(mode);//draw box
+	  }
+	  else if(m_shape == 'p'){
+	    m_Nodes[iN]->SetShape(CCfg::Point);
+	    m_Nodes[iN]->Draw(mode);//draw point
+	    }
+	}
+      }
+      glEndList();
+      
     }
     
     
@@ -403,7 +408,7 @@ namespace plum{
         ////////////////////////////////////////////////////////
 	// Draw edge
 	
-        if( mode==GL_SELECT ) return; //no selection for edge
+        //if( mode==GL_SELECT ) return; //no selection for edge
         //glColor3f(0.1f,0.1f,0.1f);
 	//glColor3f(m_RGBA[0],m_RGBA[1],m_RGBA[2]);
 
@@ -412,7 +417,7 @@ namespace plum{
 	glColor3f(m_RGBA[0],m_RGBA[1],m_RGBA[2]);
 	glLineWidth(1);
 
-	if( mode==GL_SELECT ) glPushName(2); //1 means edge
+	if( mode==GL_SELECT ) glPushName(2); //2 means edge
         glCallList(m_DID_Edges);
 	if( mode==GL_SELECT ) glPopName();
     }

@@ -61,7 +61,7 @@ namespace plum{
 	bool BuildModels(){ /*do nothing*/ return true; }
         void Draw( GLenum mode );
 	void DrawSelect();
-	const string GetName() const { return "Node"; }
+	const string GetName() const {return "Node";}
 	list<string> GetInfo() const;
         
         //////////////////////////////////////////////////////////////////////
@@ -74,10 +74,21 @@ namespace plum{
 	static int GetDof(void) { return dof; }
 	void SetShape(Shape shape){ m_Shape=shape; }
 	CCModelBase * GetCC() const { return m_CC; }
+	void CopyCfg() {
+	  //cout<<"Vector dofs size::"<<dofs.size()<<endl;
+	  ObjCfg.clear();
+/* 	  typedef vector<double>::iterator ID; */
+/* 	  for(ID i=dofs.begin(); i!=dofs.end(); i++) */
+/* 	    ObjCfg.push_back(*i); */
+
+	  ObjCfg.assign(dofs.begin(), dofs.end());
+	  //cout<<"Vector ObjCfg size::"<<ObjCfg.size()<<endl;
+	  //ObjCfg = dofs;
+	}
 
 	///Translation
 	//@{
-	double& tx(){ return dofs[0]; }
+	double& tx(){ ObjName="Node";  CopyCfg(); return dofs[0]; }
 	double& ty(){ return dofs[1]; }
 	double& tz(){ return dofs[2]; }
 	const double& tx() const { return dofs[0]; }

@@ -40,6 +40,8 @@ namespace plum{
         const string  GetPreamble()      const { return m_strPreamble; }
         const string  GetEnvFileName()   const { return m_strEnvFileName; }
         const string  GetFileDir()  const { return m_strFileDir; }
+
+	void WriteMapFile(const char *filename);
         
         const list<string> & GetLPs() const { return m_strLPs; }
         const list<string> & GetCDs() const { return m_strCDs; }
@@ -54,7 +56,7 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
         //      Private Methods and data members
         //////////////////////////////////////////////////////////////////////
-    private:
+	//private:
         string  m_strVersionNumber;
         string  m_strPreamble;
         string  m_strEnvFileName;
@@ -142,7 +144,27 @@ namespace plum{
             return false; 
         }
         m_Graph->ReadGraph( fin ); 
-        fin.close();       
+        fin.close();      
+
+	m_Graph->WriteGraph("MapFileTest.map");
+	cout<<"file wrote"<<endl;
+	FILE *f;
+	if((f = fopen("MapFileTest.map", "r+")) == NULL){
+	  cout<<"Couldn't open the file"<<endl;
+	  return 0;
+	}
+	cout<<"file opened"<<endl;
+/*         string  m_strVersionNumber; */
+/*         string  m_strPreamble; */
+/*         string  m_strEnvFileName; */
+/*         string  m_strFileDir; */
+	cout<<"To write in file"<<endl;
+	fprintf(f, "TEXTO DE PRUEBA1\n");
+	fprintf(f, "TEXTO DE PRUEBA2\n");
+	cout<<"file wrote"<<endl;
+	fclose(f);
+	cout<<"file closed"<<endl;
+ 
         return true;
     }
 

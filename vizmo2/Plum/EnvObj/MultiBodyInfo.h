@@ -116,7 +116,11 @@ namespace plum{
       double m_posX, m_posY, m_posZ;
       double m_orientX, m_orientY, m_orientZ;
       double alpha, theta, a, d;
-      string m_articulation;
+      // this will keep the original theta value read
+      //for Revolute joints, theta is variable
+      double m_theta; 
+      string m_articulation;      
+      bool m_actuated;
       double m_pos2X, m_pos2Y, m_pos2Z;
       double m_orient2X, m_orient2Y, m_orient2Z;
       

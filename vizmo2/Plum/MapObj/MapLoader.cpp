@@ -45,17 +45,20 @@ namespace plum {
         GoToNext( in );
         in >> strData >> strData >> strData >> strData; //Roadmap Version Number 061300
         m_strVersionNumber=strData;
+	cout<< m_strVersionNumber<<endl;
         
         //get preamble info
         GoToNext( in );
         in.getline(strData, MAX_LINE_LENGTH);
         m_strPreamble=strData;
-        
+	cout<< m_strPreamble <<endl;        
+
         //get env file name info
         GoToNext( in );
         in.getline(strData, MAX_LINE_LENGTH);
         m_strEnvFileName = m_strFileDir+strData;
-        
+	cout<<m_strEnvFileName <<endl;        
+
         int number=0;
         //get lp info
         GoToNext( in );
@@ -86,6 +89,16 @@ namespace plum {
 		
         return true;
     }
+
+  void  CMapHeaderLoader::WriteMapFile(const char *filename){
+
+
+    //m_Graph->WriteGraph(filename);
+
+
+
+
+}
 	
 }//end of namespace plum
 

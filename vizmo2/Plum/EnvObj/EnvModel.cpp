@@ -73,7 +73,7 @@ namespace plum {
 
   }
     void CEnvModel::Select( unsigned int * index, vector<gliObj>& sel )
-    {      
+    {    
         //unselect old one       
         if( index==NULL ) return;
         if( *index>=m_pMBModel.size() ) //input error
@@ -92,5 +92,23 @@ namespace plum {
         }
         return info;
     }
+
+  vector<CPolyhedronModel *> CEnvModel::getPoly(){
+
+    int MBSize=m_pMBModel.size();
+    vector<CPolyhedronModel *> pPoly; 
+
+    for(int iP=0; iP<MBSize; iP++ ){
+      pPoly.push_back(m_pMBModel[iP]->GetPolyhedron());
+      //cout<<"DATA: "<<pPoly[iP].tx()<<endl;;
+    }
+
+    return pPoly;
+  }
+
+  vector<CMultiBodyModel *> CEnvModel::getMBody(){
+
+    return m_pMBModel;
+  }
     
 }//namespace plum

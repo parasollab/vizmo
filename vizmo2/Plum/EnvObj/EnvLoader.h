@@ -43,6 +43,11 @@ namespace plum{
       // function for the tree control... returns the CBodyInfo for the ith body
       
       string getModelDirString(){return  m_strModelDataDir;}
+
+
+      //To get access to DOF var. from Robot
+      int DoF;
+      int getDOF(){return DoF;}
       
       ////////////////////////////////////////////////////////////////////////////
       //

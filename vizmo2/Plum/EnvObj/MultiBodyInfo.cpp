@@ -54,7 +54,7 @@ namespace plum{
     {
         m_bIsFixed = false;
 	m_IsBase = false;
-	m_transformDone= false;
+	m_transformDone= false;	
         m_Index    = -1;
         m_X=0;     m_Y=0;    m_Z=0;
         m_Alpha=0; m_Beta=0; m_Gamma=0;
@@ -189,6 +189,7 @@ namespace plum{
 	m_articulation="none";
 	m_pos2X=m_pos2Y=m_pos2Z=-1;
 	m_orient2X=m_orient2Y=m_orient2Z=-1;
+	m_actuated = true;
     }
 
     CConnectionInfo::CConnectionInfo( const CConnectionInfo & other )
@@ -240,9 +241,11 @@ namespace plum{
 	m_orientZ = other.m_orientZ;
 	alpha = other.alpha;
 	theta = other.theta;
+	m_theta = other.m_theta;
 	d = other.d;
 	a = other.a;
 	m_articulation = other.m_articulation;
+	m_actuated = other.m_actuated;
 	m_pos2X = other.m_pos2X;
 	m_pos2Y = other.m_pos2Y;
 	m_pos2Z = other.m_pos2Z;
@@ -252,9 +255,16 @@ namespace plum{
     }
 
     ostream & operator<<( ostream & out, const CConnectionInfo & con ){
-        
+
+      const char* s;;
+      if(con.m_actuated)
+	s = "Actuated";
+      else
+	s = "NonActuated";
+
         cout<<"-\t\t Pre Index = "<<con.m_preIndex<<endl
             <<"-\t\t Next Index = "<<con.m_nextIndex<<endl
+	    <<"-\t\t "<<s<<endl
 	    <<"-\t\t Position1 = "<<con.m_posX<<", "<<con.m_posY<<", "<< con.m_posZ<<endl
 	    <<"-\t\t Orient1 = "<<con.m_orientX<<", "<<con.m_orientY<<", "<<con.m_orientZ<<endl
 	    <<"-\t\t DH = "<<con.alpha<<", "<<con.a<<", "<<con.d<<", "<<con.theta<<endl

@@ -70,14 +70,14 @@ namespace plum{
         */
         void GoToNext(istream & in)
         {
-            char line[250];
+            char line[400];
             while( !in.eof() )
             {
-                char c=in.peek(); //read first charactor
+                char c=in.peek(); //read first character
                 if( !isCommentLine(c) ){ //if this line is not comment
                     return;
                 }
-                in.getline(line,249);
+                in.getline(line,399);
             }
         }
         

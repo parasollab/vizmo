@@ -19,7 +19,7 @@ namespace plum{
     CCfg::CCfg()
     {
       m_Unknow1 = LONG_MAX; m_Unknow2 = LONG_MAX; m_Unknow3 = LONG_MAX;
-      m_index = -1;
+      m_index = -1; m_Shape=Point;
     }
     
     CCfg::~CCfg()
@@ -37,7 +37,7 @@ namespace plum{
   }
   
     void CCfg::DrawRobot(){
-
+      
       static double TwoPI=3.1415926535*2.0;
   
       if( m_robot==NULL ) return;
@@ -52,11 +52,11 @@ namespace plum{
 	  cfg[i]=dofs[i]*TwoPI;
 	}
       }
-      
+      //CopyCfg();    
       m_robot->Scale(sx(),sy(),sz());
       m_robot->Configure(cfg);
       m_robot->Draw(GL_RENDER);
-	  
+
     }
   
     void CCfg::DrawBox(){
@@ -68,8 +68,8 @@ namespace plum{
       glRotated( dofs[5]*360, 0, 0, 1 );
       glRotated( dofs[4]*360,  0, 1, 0 );
       glRotated( dofs[3]*360, 1, 0, 0 );
-      //glScale();
-      glTransform();
+      glScale();
+      //glTransform();
       glEnable(GL_NORMALIZE);
       glutSolidCube(1);
       glDisable(GL_NORMALIZE);
@@ -100,22 +100,32 @@ namespace plum{
     switch(m_Shape){
     case Robot: 
       if( m_robot!=NULL ){
-	//backup
-	double cfg[6]={tx(),ty(),tz(),rx(),ry(),rz()};
-	double o_t[3]={m_robot->tx(),m_robot->ty(),m_robot->tz()};
-	double o_r[3]={m_robot->rx(),m_robot->ry(),m_robot->rz()};
-	double o_s[3]={m_robot->sx(),m_robot->sy(),m_robot->sz()};
+	
+	static double TwoPI=3.1415926535*2.0;
+	int dof=CCfg::dof;
+	double cfg[dof];
+	for(int i=0; i<dof;i++){
+	  if((i==0) || (i==1)|| (i==2)){
+	    cfg[i]=dofs[i];
+	  }
+	  else{
+	    cfg[i]=dofs[i]*TwoPI;
+	  }
+	}
+	//CopyCfg();
+	
+	//backUp
+	m_robot->BackUp();
 	float o_c[4]; memcpy(o_c,m_robot->GetColor(),4*sizeof(float));
 	//change
-	m_robot->Scale(sx(),sy(),sz());
 	m_robot->SetColor(1,1,0,0);
+	m_robot->Scale(sx(),sy(),sz());
 	m_robot->Configure(cfg);
 	m_robot->DrawSelect();
-	//put back
-	m_robot->tx()=o_t[0]; m_robot->ty()=o_t[1]; m_robot->tz()=o_t[2];
-	m_robot->rx()=o_r[0]; m_robot->ry()=o_r[1]; m_robot->rz()=o_r[2];
-	m_robot->sx()=o_s[0]; m_robot->sy()=o_s[1]; m_robot->sz()=o_s[2];
-	m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);
+	m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);	
+	//restore
+	m_robot->Restore();	
+
       }
       break;
     case Box:         
@@ -127,9 +137,10 @@ namespace plum{
       glRotated( dofs[3]*360, 1, 0, 0 );
 
       //glTransform();
-      //glScale();
+      glScale();
 
       glutWireCube(1.1);
+      //glScale();
       glPopMatrix(); 
       break;
     case Point: 
@@ -248,16 +259,29 @@ namespace plum{
   //////////////////////////////////////////////////////////////////////
   // Opers
   //////////////////////////////////////////////////////////////////////
+//   ostream & operator<<( ostream & out, const CCfg & cfg )
+//   {
+//     for( int iC=0; iC<cfg.dofs.size(); iC++ ){
+//       out<<"cfg["<<iC<<"]"<<cfg.dofs[iC]<<endl;
+//     }
+
+//     out << " " << cfg.m_Unknow1 << " " << cfg.m_Unknow2 << " " << cfg.m_Unknow3;
+    
+//     return out;
+//   }
+
   ostream & operator<<( ostream & out, const CCfg & cfg )
   {
     for( int iC=0; iC<cfg.dofs.size(); iC++ ){
-      out<<"cfg["<<iC<<"]"<<cfg.dofs[iC]<<endl;
+      out<<cfg.dofs[iC];
     }
+
 
     out << " " << cfg.m_Unknow1 << " " << cfg.m_Unknow2 << " " << cfg.m_Unknow3;
     
     return out;
   }
+    
     
   istream & operator>>( istream &  in, CCfg & cfg )  
     {
