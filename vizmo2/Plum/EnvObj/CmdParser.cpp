@@ -8,31 +8,31 @@
 #include <strstream>
 #include <iostream>
 namespace plum{
-
+    
     //////////////////////////////////////////////////////////////////////
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
-
+    
     CCmdParser::CCmdParser()
     {
         m_strModelDataDir="";
     }
     
     bool 
-    CCmdParser::ParseCmd( const string & dir, const string & cmd )
+        CCmdParser::ParseCmd( const string & dir, const string & cmd )
     {
         m_strModelDataDir=dir;
         //retrun true if found
         if( FindModelDataDir( cmd )==false ) return true;
-            
+        
         //combine map dir and model dir to a full path name
         m_strModelDataDir=dir+m_strModelDataDir;
-            
+        
         return true;
     }
-
+    
     bool
-    CCmdParser::FindModelDataDir( string cmd )
+        CCmdParser::FindModelDataDir( string cmd )
     {
         unsigned int pos = cmd.find("-descDir");
         if( pos==string::npos ) return false;
@@ -41,6 +41,6 @@ namespace plum{
         is>>m_strModelDataDir;
         return true;
     }
-
+    
 }//namespace plum{
 

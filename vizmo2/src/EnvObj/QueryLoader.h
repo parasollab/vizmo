@@ -31,7 +31,7 @@ public:
     //    Access Methods
     ///////////////////////////////////////////////////////////////////////
   
-    virtual unsigned int GetPathSize(){ return m_sgList.size(); }
+    virtual unsigned int GetQuerySize(){ return m_sgList.size(); }
     virtual double * GetStartGoal( int Index);
 
     /******** NEW Variables ********/

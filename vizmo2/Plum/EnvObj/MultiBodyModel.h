@@ -34,20 +34,11 @@ namespace plum{
         virtual const string GetName() const { return "MultiBody"; }
 
         virtual void GetChildren( list<CGLModel*>& models ){ 
-			for(int i=0;i<m_PolySize;i++ )
-				models.push_back(&m_pPoly[i]);
-		}
+            for(int i=0;i<m_PolySize;i++ )
+                models.push_back(&m_pPoly[i]);
+        }
 
-		virtual list<string> GetInfo() const { 
-			list<string> info; 
-			if( m_bFixed ) info.push_back(string("Obstacle"));
-			else info.push_back(string("Robot"));
-
-			char strsize[256]=""; 
-			sprintf(strsize,"There are %d bodies",m_PolySize);
-			info.push_back(string(strsize));
-			return info;
-		}
+        virtual list<string> GetInfo() const;
 
         //////////////////////////////////////////////////////////////////////
         // Access

@@ -40,9 +40,9 @@ namespace plum{
             virtual const CMultiBodyInfo * GetMultiBodyInfo() const { return m_pMBInfo; }
 
 
-	    // function for the tree control... returns the CBodyInfo for the ith body
+        // function for the tree control... returns the CBodyInfo for the ith body
 
-	    string getModelDirString(){return  m_strModelDataDir;}
+        string getModelDirString(){return  m_strModelDataDir;}
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -63,7 +63,7 @@ namespace plum{
             //      Private Methods and data members
             //
             ////////////////////////////////////////////////////////////////////////////
-	    
+        
 
     private:
 

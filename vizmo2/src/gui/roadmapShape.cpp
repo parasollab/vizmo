@@ -21,8 +21,8 @@
 VizmoRoadmapNodesShapeGUI::VizmoRoadmapNodesShapeGUI(QMainWindow *parent,char *name)
 :QToolBar("ChangeNodesShape",parent,QMainWindow::Right,true,name){
 
-	QToolButton * nodesize= new QToolButton
-	(QPixmap(tapes), "Node Size", "Change roadmap node size", this,
+    QToolButton * nodesize= new QToolButton
+    (QPixmap(tapes), "Node Size", "Change roadmap node size", this,
      SLOT(changeSize()), this, "node");
     nodesize->setUsesTextLabel ( true );
 
@@ -32,10 +32,10 @@ VizmoRoadmapNodesShapeGUI::VizmoRoadmapNodesShapeGUI(QMainWindow *parent,char *n
     l->insertItem( QString::fromLatin1( "Robot" ));
     l->insertItem( QString::fromLatin1( "Box" ));
     l->insertItem( QString::fromLatin1( "Point" ));
-	l->setSelected(2,true);
+    l->setSelected(2,true);
     connect(l,SIGNAL(clicked(QListBoxItem *)),this,SLOT(getSelectedItem()));
     setEnabled(false);
-	size=0.5;
+    size=0.5;
 }
 
 void VizmoRoadmapNodesShapeGUI::reset()
@@ -74,6 +74,6 @@ void VizmoRoadmapNodesShapeGUI::changeSize(){
                 shape = (string)item->text();
         }
         GetVizmo().ChangeNodesSize(size, shape);
-	    emit callUpdate(); //set an updat event
+        emit callUpdate(); //set an updat event
     }
 }

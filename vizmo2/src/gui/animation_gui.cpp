@@ -1,7 +1,4 @@
 #include "vizmo2.h"
-#include "main_win.h"
-
-
 #include "animation_gui.h"
 
 ///////////////////////////////////////////////////////////////////////////////// 
@@ -18,6 +15,7 @@
 #include <qstring.h>
 #include <qmessagebox.h>
 
+///////////////////////////////////////////////////////////////////////////////// 
 // Icons
 #include "icon/vcr/first.xpm"
 #include "icon/vcr/last.xpm"
@@ -27,9 +25,9 @@
 #include "icon/vcr/playback.xpm"
 #include "icon/vcr/pause.xpm"
 
+///////////////////////////////////////////////////////////////////////////////// 
 VizmoAnimationGUI::VizmoAnimationGUI(QMainWindow *parent,char *name)
 :QToolBar("Animation",parent,QMainWindow::Bottom,true,name)
-
 {
     this->setLabel("Vizmo animation");
     

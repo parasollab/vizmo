@@ -56,7 +56,7 @@ namespace plum{
         }
         
         vector<gliObj>& GetSelectedItem(){ return m_SelectedItem; }
-		vector<PlumObject *>& GetPlumObjects(){ return m_ObjList; }
+        vector<PlumObject *>& GetPlumObjects(){ return m_ObjList; }
 
         //////////////////////////////////////////////////////////////////////
         // Action functions

@@ -46,7 +46,7 @@
 VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
 :QMainWindow(parent, name), m_bVizmoInit(false)
 { 
-    setMinimumSize( 900, 700 );
+    setMinimumSize( 800, 600 );
     setCaption("vizmo2"); 
     m_GL=NULL;
     animationGUI=NULL;
@@ -90,7 +90,7 @@ bool VizmoMainWin::InitVizmo()
     objectSelection->reset();
     screenShotGUI->reset();
     shapeSelection->reset(); 
-	reset();
+    reset();
     
     return true;
 }
@@ -102,21 +102,21 @@ bool VizmoMainWin::InitVizmo()
 /////////////////////////////////////////////////////////////////////
 bool VizmoMainWin::CreateGUI()
 {
-	///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     animationGUI=new VizmoAnimationGUI(this);    
     connect(animationGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 
-	///////////////////////////////////////////////////////////////////////////
-	CreateShapeSelection();
-	CreateActions();
-	CreateMenubar();
-	CreateToolbar();
-	SetTips();
+    ///////////////////////////////////////////////////////////////////////////
+    CreateShapeSelection();
+    CreateActions();
+    CreateMenubar();
+    CreateToolbar();
+    SetTips();
     CreateScreenCapture();
     CreateObjectSelection();
     //CreateAttributeSelection();
 
-	connect(m_GL, SIGNAL(selectByRMB()), this, SLOT(contexmenu()));
+    connect(m_GL, SIGNAL(selectByRMB()), this, SLOT(contexmenu()));
     connect(m_GL, SIGNAL(selected()), objectSelection, SLOT(select()));
 
     return true;
@@ -131,38 +131,38 @@ void VizmoMainWin::keyPressEvent ( QKeyEvent * e )
 
 void VizmoMainWin::reset()
 {
-	if( showHideRoadmapAction!=NULL ){
-		if( !GetVizmo().IsRoadMapLoaded() ){
-			showHideRoadmapAction->setEnabled(false);
-			roadmapButton->setEnabled(false);
-		}
-		else {
-			showHideRoadmapAction->setEnabled(true);
-			roadmapButton->setEnabled(true);
-		}
-	}
+    if( showHideRoadmapAction!=NULL ){
+        if( !GetVizmo().IsRoadMapLoaded() ){
+            showHideRoadmapAction->setEnabled(false);
+            roadmapButton->setEnabled(false);
+        }
+        else {
+            showHideRoadmapAction->setEnabled(true);
+            roadmapButton->setEnabled(true);
+        }
+    }
 
-	if( showHidePathAction!=NULL ){
-		if( GetVizmo().GetPathSize()==0 ){
-			showHidePathAction->setEnabled(false);
-			pathButton->setEnabled(false);
-		}
-		else {
-			showHidePathAction->setEnabled(true);
-			pathButton->setEnabled(true);
-		}
-	}
+    if( showHidePathAction!=NULL ){
+        if( GetVizmo().GetPathSize()==0 ){
+            showHidePathAction->setEnabled(false);
+            pathButton->setEnabled(false);
+        }
+        else {
+            showHidePathAction->setEnabled(true);
+            pathButton->setEnabled(true);
+        }
+    }
 
-	if( showHideSGaction!=NULL ){
-		if( !GetVizmo().IsQueryLoaded() ){
-			showHideSGaction->setEnabled(false);
-			strtGoalButton->setEnabled(false);
-		}
-		else{
-			showHideSGaction->setEnabled(true);
-			strtGoalButton->setEnabled(true);
-		}
-	}
+    if( showHideSGaction!=NULL ){
+        if( !GetVizmo().IsQueryLoaded() ){
+            showHideSGaction->setEnabled(false);
+            strtGoalButton->setEnabled(false);
+        }
+        else{
+            showHideSGaction->setEnabled(true);
+            strtGoalButton->setEnabled(true);
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -335,7 +335,7 @@ bool VizmoMainWin::CreateActions()
     // Show/Hide Start and Goal
     showHideSGaction = new QAction("Show/Hide Start/Goal", QPixmap(Flag), "&Show/HIde", CTRL+Key_S, this, "show hide robot",true);
     connect(showHideSGaction, SIGNAL(activated()), this, SLOT(showstartgoal()));
-	showHideSGaction->setEnabled(false);
+    showHideSGaction->setEnabled(false);
 
     ///////////////////////////////////////////////////////////////////////////////
     // Reset Camera View
@@ -354,11 +354,11 @@ bool VizmoMainWin::CreateActions()
     
     ///////////////////////////////////////////////////////////////////////////////
     // Change robot's size
-	/*
+    /*
     changeRobotSizeAction = new QAction("Change size", QPixmap( pallet ), 
-		                    "Change Si&ze", CTRL+Key_Z, this, "change size");
+                            "Change Si&ze", CTRL+Key_Z, this, "change size");
     connect(changeRobotSizeAction, SIGNAL(activated()), shapeSelection, SLOT(changeSize()));
-	*/
+    */
     
     return true;
 }
@@ -413,20 +413,20 @@ void VizmoMainWin::CreateToolbar(){
         this, SLOT(showmap()), vizmoTools, "roadmap");
     roadmapButton->setToggleButton(true);
     roadmapButton->setUsesTextLabel ( true );
-	roadmapButton->setEnabled(false);
+    roadmapButton->setEnabled(false);
     
     pathIcon = QPixmap( Pen);
     pathButton = new QToolButton( pathIcon, "Path", "Load Path",
         this, SLOT(showpath()), vizmoTools, "path" );
     pathButton->setToggleButton(true);
     pathButton->setUsesTextLabel ( true );
-	pathButton->setEnabled(false);
+    pathButton->setEnabled(false);
     
     strtGoalIcon = QPixmap( Flag);
     strtGoalButton = new QToolButton(strtGoalIcon, "Start/Goal", "Load Start/Goal posotions",this, SLOT(showstartgoal()), vizmoTools, "start goal" );
     strtGoalButton->setToggleButton(true);
     strtGoalButton->setUsesTextLabel ( true );
-	strtGoalButton->setEnabled(false);
+    strtGoalButton->setEnabled(false);
     
     vizmoTools->addSeparator(); 
     
@@ -471,8 +471,7 @@ void VizmoMainWin::CreateMenubar()
     int genId = roadmapMenu->insertItem( "&Generate...", this, SLOT(notimp()),  CTRL+Key_G );
     roadmapMenu->setItemEnabled( genId, FALSE );
     roadmapMenu->insertSeparator();
-    int setparamId = roadmapMenu->insertItem( "S&et parameters", param, CTRL+Key_E );
-    //roadmapMenu->setItemEnabled( setparamId, FALSE );
+    roadmapMenu->insertItem( "S&et parameters", param, CTRL+Key_E );
     roadmapMenu->insertSeparator();
     
     /////////////////////////////////////////////////
@@ -553,13 +552,13 @@ void VizmoMainWin::CreateScreenCapture()
     connect(screenShotGUI,SIGNAL(togleSelectionSignal()),m_GL,SLOT(togleSlectionSlot()));
     connect(screenShotGUI,SIGNAL(getBoxDimensions(int *,int *,int *,int *)),m_GL,SLOT(getBoxDimensions(int *,int *,int *,int *)));
     connect(screenShotGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
-	connect(screenShotGUI,SIGNAL(goToFrame(int)),animationGUI,SLOT(goToFrame(int)));
+    connect(screenShotGUI,SIGNAL(goToFrame(int)),animationGUI,SLOT(goToFrame(int)));
 }
 
 void VizmoMainWin::CreateObjectSelection()
 {
     objectSelection= new VizmoItemSelectionGUI(this,"ObjectSelection");
-	connect(objectSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
+    connect(objectSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 }
 
 void VizmoMainWin::CreateAttributeSelection()
@@ -570,7 +569,7 @@ void VizmoMainWin::CreateAttributeSelection()
 void VizmoMainWin::CreateShapeSelection()
 {   
     shapeSelection = new VizmoRoadmapNodesShapeGUI(this, "ShapeSelection");
-	connect(shapeSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
+    connect(shapeSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 }
 
 

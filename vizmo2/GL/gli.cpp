@@ -64,17 +64,17 @@ bool gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h)
     // handle all the ways the box can be drawn
     
     if(box.l<box.r)
-        *xOffset=box.l;
+        *xOffset=(int)box.l;
     else
-        *xOffset=box.r;
+        *xOffset=(int)box.r;
     
     if(box.b<box.t)
-        *yOffset=box.b;
+        *yOffset=(int)box.b;
     else
-        *yOffset=box.t;
+        *yOffset=(int)box.t;
     
-    *w=(box.r-box.l);
-    *h=(box.b-box.t);
+    *w=(int)(box.r-box.l);
+    *h=(int)(box.b-box.t);
     
     if(*w<0)
         *w=-*w;

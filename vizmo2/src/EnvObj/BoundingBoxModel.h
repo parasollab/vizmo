@@ -35,11 +35,7 @@ public:
     virtual bool BuildModels();
     virtual void Draw( GLenum mode );
     virtual const string GetName() const { return "Bounding Box"; }
-	virtual list<string> GetInfo() const { 
-		list<string> info; 
-		info.push_back(string("I am Bounding Box"));		
-		return info;
-	}
+	virtual list<string> GetInfo() const;
     //////////////////// find the max coord. in Z
     double returnMax( void );
     double minVal(double x, double y);

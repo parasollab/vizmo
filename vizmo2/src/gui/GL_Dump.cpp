@@ -1,20 +1,20 @@
 # include "GL_Dump.h"
 
 
-/*
-*****************************************************************************
-*                                                                           *
-*   You shouldn't need to modify any of the functions below this point.     *
-*                                                                           *
-*****************************************************************************
-*/
+///*
+//*****************************************************************************
+//*                                                                           *
+//*   You shouldn't need to modify any of the functions below this point.     *
+//*                                                                           *
+//*****************************************************************************
+//*/
 
-/****************************************************************************
-Pack the 3 color components (red, green and blue) into one single number.
-Since the raster represents each pixel as a single number, packcolor
-needs to be used to convert your 3 components to a form imagesetpixel()
-can use.
-*****************************************************************************/
+//****************************************************************************
+//Pack the 3 color components (red, green and blue) into one single number.
+//Since the raster represents each pixel as a single number, packcolor
+//needs to be used to convert your 3 components to a form imagesetpixel()
+//can use.
+//*****************************************************************************/
 uint packcolors(uchar r, uchar g, uchar b)
 {
     return(r << 24 | g << 16 | b << 8);
@@ -33,13 +33,13 @@ uchar unpack_blue(uint rgb)
     return(0x000000ff & (rgb >> 8));
 }
 
-/****************************************************************************
-Initialize an image, takes the desired width and height and allocates
-space for it.  If you don't use this routine to initialize your
-image, imagesetpixel() and imagewritepixel() will return without
-doing anything.  imagereadpixel() automatically initializes the
-image itself.
-*****************************************************************************/
+//****************************************************************************
+//Initialize an image, takes the desired width and height and allocates
+//space for it.  If you don't use this routine to initialize your
+//image, imagesetpixel() and imagewritepixel() will return without
+//doing anything.  imagereadpixel() automatically initializes the
+//image itself.
+//*****************************************************************************/
 bool imagemake(int width, int height, Image *image)
 {
     image->comc = 0;
@@ -70,7 +70,6 @@ ppm file.
 *****************************************************************************/
 bool imageread(const char *filename, Image *image)
 {
-    int     i;
     char        str[100];
     uchar       *buf;
     uint        size;
@@ -122,7 +121,7 @@ bool imageread(const char *filename, Image *image)
     }
     if(fp != stdin)
         fclose(fp);
-    for(i=0; i < size; i++)
+    for(unsigned int i=0; i < size; i++)
         image->pixels[i] = packcolors(buf[i*3],buf[i*3+1],buf[i*3+2]);
     free((uchar*)buf);
     return(true); 
@@ -135,9 +134,9 @@ ppm file.
 *****************************************************************************/
 bool imagewrite(const char *filename, Image image)
 {
-    int     i,j, index, indexp;
+    int     index, indexp;
     uchar   *buf;
-    int     size;
+    unsigned int size;
     FILE    *fp;
     
     if(image.pixels == NULL)
@@ -153,9 +152,9 @@ bool imagewrite(const char *filename, Image image)
     fprintf(fp,"%i %i\n",image.width,image.height);
     fprintf(fp,"%i\n",image.samplesperprimary);
     
-    for(i=0; i < image.width; i++)
+    for(unsigned int i=0; i < image.width; i++)
     {
-        for(j=0; j < image.height; j++)
+        for(unsigned int j=0; j < image.height; j++)
         {
             index  = (i+j*image.width)*3;
             indexp = i+(image.height-j-1)*image.width;
@@ -183,17 +182,15 @@ bool imagewrite(const char *filename, Image image)
 bool dump(const char * filename,const char *extension,int xOffset,int yOffset,int width,int height)
 {
     //Guess filename
-    char * index=strrchr(filename, '.');
     char ppmFilename[100]="";
     char file2[100];
     strcpy(ppmFilename,filename);
     strcpy(file2,ppmFilename);
-    // strncpy(ppmFilename,filename,index-filename+1);
     strcat(ppmFilename,".ppm");
     // BSS
-	if( extension!=NULL ){
-		if( strlen(extension)>0 ) strcat(file2,extension);
-	}
+    if( extension!=NULL ){
+        if( strlen(extension)>0 ) strcat(file2,extension);
+    }
     Image new_image;
     
     //temp

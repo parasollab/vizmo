@@ -35,25 +35,13 @@ namespace plum{
             virtual bool BuildModels();
             virtual void Draw( GLenum mode );
             virtual void Select( unsigned int * index, vector<gliObj>& sel );
-			virtual const string GetName() const { return "Environment"; }
-
-			virtual void GetChildren( list<CGLModel*>& models ){ 
-				typedef vector<CMultiBodyModel *>::iterator MIT;
-				for(MIT i=m_pMBModel.begin();i!=m_pMBModel.end();i++)
-					models.push_back(*i);
-			}
-
-			virtual list<string> GetInfo() const { 
-				list<string> info; 
-				info.push_back(string(m_envLoader->GetFileName()));
-
-				char strsize[256]=""; 
-				sprintf(strsize,"There are %d multibodies",m_pMBModel.size());
-				info.push_back(string(strsize));
-
-
-				return info;
-			}
+            virtual const string GetName() const { return "Environment"; }
+            virtual void GetChildren( list<CGLModel*>& models ){ 
+                typedef vector<CMultiBodyModel *>::iterator MIT;
+                for(MIT i=m_pMBModel.begin();i!=m_pMBModel.end();i++)
+                    models.push_back(*i);
+            }
+            virtual list<string> GetInfo() const;
 
     private:
             CEnvLoader * m_envLoader;      //a pointer to CEnvLoader

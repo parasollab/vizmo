@@ -6,28 +6,28 @@
 #include "MultiBodyInfo.h"
 
 namespace plum{
-
+    
     //////////////////////////////////////////////////////////////////////
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
-
+    
     CEnvLoader::CEnvLoader()
     {
         m_cNumberOfMultiBody = 0;
         m_pMBInfo=NULL;
     }
-
+    
     CEnvLoader::~CEnvLoader()
     {
         Free_Memory();
     }
-
+    
     //////////////////////////////////////////////////////////////////////
     // Implemetation of core function
     //////////////////////////////////////////////////////////////////////
-
+    
     bool 
-    CEnvLoader::ParseFile( )
+        CEnvLoader::ParseFile( )
     {
         if( CheckCurrentStatus()==false )
             return false;
@@ -44,27 +44,27 @@ namespace plum{
         fin.close();
         return true;
     }
-
+    
     //////////////////////////////////////////////////////////////////////
     //      Protected Member Functions
     //////////////////////////////////////////////////////////////////////
-
+    
     void CEnvLoader::Free_Memory()
     {      
         delete [] m_pMBInfo;
         m_pMBInfo=NULL;
     }
-
+    
     void CEnvLoader::SetModelDataDir( const string strModelDataDir )
     {
         m_strModelDataDir=strModelDataDir;
         cout<<"- Geo Dir   : "<<m_strModelDataDir<<endl;
     }
-
+    
     bool CEnvLoader::ParseFileHeader( ifstream & fin )
     {
         char strLine[150]; //150 is max line length...
-
+        
         //parse
         while( !fin.eof() )
         {
@@ -78,7 +78,7 @@ namespace plum{
         
         return true;
     }
-
+    
     bool CEnvLoader::ParseFileBody( ifstream & fin )
     {
         m_pMBInfo = new CMultiBodyInfo[m_cNumberOfMultiBody];
@@ -91,9 +91,9 @@ namespace plum{
         }
         return true;
     }
-
+    
     bool
-    CEnvLoader::ParseMultiBody( ifstream & fin, CMultiBodyInfo & MBInfo )
+        CEnvLoader::ParseMultiBody( ifstream & fin, CMultiBodyInfo & MBInfo )
     {
         char strData[150];
         
@@ -111,9 +111,9 @@ namespace plum{
         }
         return true;
     }
-
+    
     bool
-    CEnvLoader::ParseBody( ifstream & fin, CBodyInfo & BodyInfo )
+        CEnvLoader::ParseBody( ifstream & fin, CBodyInfo & BodyInfo )
     {
         char strData[150];
 #ifdef WIN32
@@ -121,7 +121,7 @@ namespace plum{
 #else
         string sep="/";
 #endif
-
+        
         //Get Body Type
         GoToNext(fin);
         fin>>strData;
@@ -165,9 +165,9 @@ namespace plum{
         
         return true;
     }
-
+    
     bool
-    CEnvLoader::ParseConnection(ifstream & fin, CConnectionInfo & ConnectionInfo )
+        CEnvLoader::ParseConnection(ifstream & fin, CConnectionInfo & ConnectionInfo )
     {
         char strData[150];
         
@@ -184,6 +184,6 @@ namespace plum{
         
         return true;
     }
-
+    
 }//namespace plum
 

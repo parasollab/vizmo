@@ -153,8 +153,8 @@ bool vizmo::InitVizmoObject( const vector<string>& filenames )
     if( m_Plum.ParseFile()==CPlumState::PARSE_ERROR ) return false;
     if( m_Plum.BuildModels()!=CPlumState::BUILD_MODEL_OK ) return false;
 
-	//put robot in start cfg, if availiable
-	PlaceRobot();
+    //put robot in start cfg, if availiable
+    PlaceRobot();
 
     return true;
 }
@@ -295,11 +295,11 @@ void vizmo::ChangeNodesShape(string s){
 }
 
 double vizmo::GetEnvRadius(){ 
-	if(m_obj.m_Env!=NULL ){
-		CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
-		return env->GetRadius();
-	}
-	return 200;
+    if(m_obj.m_Env!=NULL ){
+        CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+        return env->GetRadius();
+    }
+    return 200;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -386,22 +386,22 @@ bool vizmo::CreateRobotObj( vizmo_obj& obj )
 
 void vizmo::PlaceRobot()
 {
-	OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
-	if( r!=NULL ){
-		double * cfg=NULL;
-		if( m_obj.m_Qry!=NULL ){//check query loader
-			CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
-			cfg=q->GetStartGoal(0);
-		}
-		else if( m_obj.m_Path!=NULL ){//check path loader
-			CPathLoader * p=(CPathLoader*)m_obj.m_Path->getLoader();
-			cfg=p->GetConfiguration(0);
-		}
-		if( cfg!=NULL){
-			r->Configure(cfg);
-			delete [] cfg;
-		}
-	}
+    OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+    if( r!=NULL ){
+        double * cfg=NULL;
+        if( m_obj.m_Qry!=NULL ){//check query loader
+            CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
+            cfg=q->GetStartGoal(0);
+        }
+        else if( m_obj.m_Path!=NULL ){//check path loader
+            CPathLoader * p=(CPathLoader*)m_obj.m_Path->getLoader();
+            cfg=p->GetConfiguration(0);
+        }
+        if( cfg!=NULL){
+            r->Configure(cfg);
+            delete [] cfg;
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

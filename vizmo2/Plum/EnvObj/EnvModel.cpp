@@ -20,8 +20,8 @@ namespace plum {
         
         //create MutileBody Model
         int MBSize = m_envLoader->GetNumberOfMultiBody();
-		m_pMBModel.reserve(MBSize);
-
+        m_pMBModel.reserve(MBSize);
+        
         //Build each
         Vector3d com;
         int iP;
@@ -31,18 +31,18 @@ namespace plum {
             if( pMBModel->BuildModels()==false )
                 return false;
             com=com+(pMBModel->GetCOM()-Point3d(0,0,0));
-			m_pMBModel.push_back(pMBModel);
+            m_pMBModel.push_back(pMBModel);
         }
         for( int id=0;id<3;id++ ) m_COM[id]=com[id]/MBSize;
-
+        
         //compute radius
         m_R=0;
         for( iP=0; iP<MBSize; iP++ ) {
             double dist=(m_pMBModel[iP]->GetCOM()-m_COM).norm()
-                        +m_pMBModel[iP]->GetRadius();
+                +m_pMBModel[iP]->GetRadius();
             if( m_R<dist ) m_R=dist;
         }
-
+        
         return true;
     }
     
@@ -51,7 +51,7 @@ namespace plum {
         if( mode==GL_SELECT && !m_EnableSeletion ) return;
         
         glLineWidth(1);
-		int MBSize=m_pMBModel.size();
+        int MBSize=m_pMBModel.size();
         for( int iP=0; iP<MBSize; iP++ ) {
             if( mode==GL_SELECT ) glPushName(iP);
             m_pMBModel[iP]->Draw( mode );
@@ -66,6 +66,18 @@ namespace plum {
         if( *index>=m_pMBModel.size() ) //input error
             return;
         m_pMBModel[index[0]]->Select(index+1,sel);
+    }
+    
+    list<string> CEnvModel::GetInfo() const { 
+        list<string> info; 
+        info.push_back(string(m_envLoader->GetFileName()));
+        
+        {
+            ostringstream temp;
+            temp<<"There are "<<m_pMBModel.size()<<" multibodies";
+            info.push_back(temp.str());
+        }
+        return info;
     }
     
 }//namespace plum

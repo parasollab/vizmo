@@ -34,12 +34,8 @@ namespace plum{
         }
         
         virtual const string GetName() const;
-        virtual list<string> GetInfo() const { 
-			list<string> info; 
-			info.push_back(m_BodyInfo.m_strModelDataFileName);
-			return info;
-		}
-
+        virtual list<string> GetInfo() const;
+        
         //////////////////////////////////////////////////////////////////////
         // Access
         //////////////////////////////////////////////////////////////////////
@@ -51,9 +47,9 @@ namespace plum{
     protected:
         //build model, given points and triangles
         bool BuildGLModel_Solid( const PtVector& points, const TriVector& tris, 
-            const Point3d& com, const Vector3d * n );
+                                 const Point3d& com, const Vector3d * n );
         bool BuildGLModel_Wired( const PtVector& points, const TriVector& tris,
-            const Point3d& com, const Vector3d * n );
+                                 const Point3d& com, const Vector3d * n );
         Point3d COM(const PtVector& points);
         double Radius(const Point3d& com,const PtVector& points);
         

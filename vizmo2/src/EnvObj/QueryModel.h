@@ -41,6 +41,7 @@ public:
     virtual bool BuildModels();
     virtual void Draw( GLenum mode );
     virtual const string GetName() const { return "Query"; }
+	virtual list<string> GetInfo() const;
 
     //////////////////////////////////////////////////////////////////////
     // Private functions and data

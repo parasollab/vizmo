@@ -12,7 +12,7 @@
 VizGLWin::VizGLWin(QWidget * parent, const char * name)
 : QGLWidget(parent,name)
 { 
-    setMinimumSize( 300, 300 );
+    setMinimumSize( 300, 200 );
     setFocusPolicy(QWidget::StrongFocus);
     
     R = G = B = 1;
@@ -72,7 +72,7 @@ void VizGLWin::resizeGL( int w, int h)
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-    gluPerspective( 60, 1, 1, 1500 );
+    gluPerspective( 60, ((GLfloat)w)/((GLfloat)h), 1, 1500 );
 }
 
 #include <GL/glut.h>
@@ -90,7 +90,7 @@ void VizGLWin::paintGL()
     gliDraw();
     SetLightPos();
     GetVizmo().Display();
-	drawText();
+    drawText();
 }
 
 void VizGLWin::SetLight()
@@ -129,17 +129,17 @@ void VizGLWin::getBoxDimensions(int *xOffset, int *yOffset,int *w,int *h)
 void VizGLWin::mouseReleaseEvent( QMouseEvent * e )
 {
     if( gliMR(e,takingSnapShot) ){ //handled by gli
-		updateGL();	return; }
+        updateGL(); return; }
 
     updateGL();
     if( e->button()==Qt::RightButton ){
-        vector<gliObj>& objs=gliGetPickedSceneObjs();
+        vector<gliObj>& objs=GetVizmo().GetSelectedItem();
         objs2=&objs;
         if( !objs.empty() ){
             emit selectByRMB();
         }//empty
     }//not RMB
-	emit selected();
+    emit selected();
 }
 
 void VizGLWin::mouseMoveEvent ( QMouseEvent * e )
@@ -156,8 +156,8 @@ void VizGLWin::keyPressEvent ( QKeyEvent * e )
 
 void VizGLWin::drawText()
 {
-	vector<gliObj>& sel=GetVizmo().GetSelectedItem();
-	typedef vector<gliObj>::iterator SIT;
+    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
+    typedef vector<gliObj>::iterator SIT;
 
     glPushAttrib(GL_CURRENT_BIT);
 
@@ -170,35 +170,35 @@ void VizGLWin::drawText()
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-	glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHTING);
     
     //Draw text
-	glTranslated(0,20,0);
-	for(SIT i=sel.begin();i!=sel.end();i++){
-		CGLModel * gl=(CGLModel *)(*i);
-		list<string> info=gl->GetInfo();
-		drawText(info);
-	}
+    glTranslated(0,20,0);
+    for(SIT i=sel.begin();i!=sel.end();i++){
+        CGLModel * gl=(CGLModel *)(*i);
+        list<string> info=gl->GetInfo();
+        drawText(info);
+    }
 
-	glPopMatrix();
+    glPopMatrix();
 
     //pop GL_PROJECTION
     glMatrixMode(GL_PROJECTION); //change to Pers view
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
-	glPopAttrib();
+    glPopAttrib();
 }
 
 void VizGLWin::drawText(list<string>& info)
 {
-	typedef list<string>::iterator SIT;
-	
-	for(SIT i=info.begin();i!=info.end();i++){
-		//////////////////////////////////////////////
-		glTranslated(0,-0.5,0);
-		glColor3f(0.2,0.2,0.5);
-		drawstr(0.2,0,0,i->c_str());
-	}
+    typedef list<string>::iterator SIT;
+    
+    for(SIT i=info.begin();i!=info.end();i++){
+        //////////////////////////////////////////////
+        glTranslated(0,-0.5,0);
+        glColor3f(0.2,0.2,0.5);
+        drawstr(0.2,0,0,i->c_str());
+    }
 }
 
 

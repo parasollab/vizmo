@@ -18,34 +18,34 @@ using namespace std;
 #define MAX_LINE_LENGTH 500
 
 namespace plum{
-
+    
     class
-    I_Loadable
+        I_Loadable
     {
     public:
         
-        /**
-         * Constructor/Destructor
-         */
+    /**
+    * Constructor/Destructor
+        */
         I_Loadable(){ m_strFileName=""; }
         virtual ~I_Loadable(){}
-
+        
         /**
-         * The filename that is going to be load in
-         */
+        * The filename that is going to be load in
+        */
         virtual void SetDataFileName( const string szFileName )
         {           
             m_strFileName=szFileName;
         }
         
         /**
-         * Parse given file.
-         */
+        * Parse given file.
+        */
         virtual bool ParseFile()=0;
         
         /**
-         * Check if given file name is valid
-         */
+        * Check if given file name is valid
+        */
         virtual bool CheckCurrentStatus()
         {           
             //Check if file exist
@@ -60,14 +60,14 @@ namespace plum{
             
             return true;
         }
-
-		string GetFileName() const { return m_strFileName; }
+        
+        string GetFileName() const { return m_strFileName; }
         
     protected:
-
-        /**
-         * discard all commanded lines util the umcommanded line found
-         */
+        
+    /**
+    * discard all commanded lines util the umcommanded line found
+        */
         void GoToNext(istream & in)
         {
             char line[250];
@@ -80,10 +80,10 @@ namespace plum{
                 in.getline(line,249);
             }
         }
-
+        
         /**
-         * is given char a start of command line?
-         */
+        * is given char a start of command line?
+        */
         bool isCommentLine( const char c) const
         {           
             //a line starts with #
@@ -97,27 +97,23 @@ namespace plum{
         }
         
         /**
-         * getPathName from given filename
-         */
+        * getPathName from given filename
+        */
         string getPathName( const string filename )
         {
- //       #ifdef _WIN32
- //           char sep='\\';
-//        #else
             char sep='/';
-//        #endif
             unsigned int pos=filename.rfind(sep);
             if( pos==string::npos ) return string(); //empty
             string pathname(filename.begin(),filename.begin()+pos+1);
-
+            
             return pathname;
         }
-
-
+        
+        
         //the file name that is going to be load
         string m_strFileName;
     };
-
+    
 }//namespace plum
 
 #endif //_I_LOADABLE_H_

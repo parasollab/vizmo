@@ -5,43 +5,43 @@
 #include "MapLoader.h"
 
 namespace plum {
-
-    /*********************************************************************
-    *
-    *      Implementation of CMapHeaderLoader
-    *
+	
+/*********************************************************************
+*
+*      Implementation of CMapHeaderLoader
+*
     *********************************************************************/
     CMapHeaderLoader::CMapHeaderLoader()
     {
         //do nothing yet
     }
-
-
+	
+	
     bool
-    CMapHeaderLoader::ParseHeader()
+		CMapHeaderLoader::ParseHeader()
     {
         if( CheckCurrentStatus()==false )
             return false;
-
+		
         ifstream fin(m_strFileName.c_str(), ios::in);
         bool result = ParseHeader( fin );
         fin.close();
         return result;
     }
-
+	
     //////////////////////////////////////////////////////////////////////
     //      Protected Member Functions
     //////////////////////////////////////////////////////////////////////
-
+	
     bool 
-    CMapHeaderLoader::ParseHeader( istream & in )
+		CMapHeaderLoader::ParseHeader( istream & in )
     {
         //get path name
         m_strFileDir=getPathName(m_strFileName);
-
+		
         //Open file for reading datat
         char strData[MAX_LINE_LENGTH+1]="";
-
+		
         //get version comment
         GoToNext( in );
         in >> strData >> strData >> strData >> strData; //Roadmap Version Number 061300
@@ -84,9 +84,9 @@ namespace plum {
             in.getline(strData, MAX_LINE_LENGTH);
             m_strDMs.push_back(strData);   
         }
-
+		
         return true;
     }
-
+	
 }//end of namespace plum
 

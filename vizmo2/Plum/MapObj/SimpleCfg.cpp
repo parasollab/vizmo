@@ -104,7 +104,7 @@ namespace plum{
         m_LP = INT_MAX;
         m_Weight = LONG_MAX;
     }
-
+    
     void CSimpleEdge::Draw() 
     {
         glBegin( GL_LINES );

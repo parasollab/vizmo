@@ -100,14 +100,14 @@ void VizmoScreenShotGUI::reset() //reset every thing
         mDialog->endIntFrame=GetVizmo().GetPathSize()-1;
         mDialog->startIntFrame=0;
         mDialog->stepIntSize=10;
-		mDialog->updateAttributes();
+        mDialog->updateAttributes();
     }
     
-	if( animation!=NULL ){
-		//disable/enable this toolbar
-		if( GetVizmo().GetPathSize()==0 ) animation->setEnabled(false);
-		else animation->setEnabled(true);
-	}
+    if( animation!=NULL ){
+        //disable/enable this toolbar
+        if( GetVizmo().GetPathSize()==0 ) animation->setEnabled(false);
+        else animation->setEnabled(true);
+    }
 }
 
 bool VizmoScreenShotGUI::CreateGUI()
@@ -130,7 +130,7 @@ void VizmoScreenShotGUI::CreateActions()
     
     animation= new QToolButton(QPixmap(tapes), "Movie", "Save Image Sequence", this,
                                SLOT(takeMoviePictures()), this, "movie");
-	animation->setEnabled(false);
+    animation->setEnabled(false);
 
     animation->setUsesTextLabel ( true );
     mDialog=new MovieSaveDialog(this,"",true);
@@ -139,39 +139,39 @@ void VizmoScreenShotGUI::CreateActions()
 
 void VizmoScreenShotGUI::takeMoviePictures()
 {
-	///////////////////////////////////////////////////////////////////////////
-	//Pop up the dialog
+    ///////////////////////////////////////////////////////////////////////////
+    //Pop up the dialog
     int result;
     QString localFileName;
     result=mDialog->exec();
     if(!result) return;
     
     
-	///////////////////////////////////////////////////////////////////////////
-	//Save
+    ///////////////////////////////////////////////////////////////////////////
+    //Save
     int startFrame=mDialog->startIntFrame;
     int endFrame=mDialog->endIntFrame;
     int stepSize=mDialog->stepIntSize;
-	const char * ExtName=mDialog->sFileExt.data();  
+    const char * ExtName=mDialog->sFileExt.data();  
     
     int w,h;
     emit getScreenSize(&w,&h);
     
     QString temp;
     QString qfname;
-	QProgressDialog progress( "Saving images...", "Abort", endFrame-startFrame,this, "progress", TRUE );
+    QProgressDialog progress( "Saving images...", "Abort", endFrame-startFrame,this, "progress", TRUE );
     for(int i=startFrame;i<=endFrame;i+=stepSize)
     {
-		progress.setProgress(i-startFrame);
-		qApp->processEvents();
-		if ( progress.wasCancelled() ) break;
+        progress.setProgress(i-startFrame);
+        qApp->processEvents();
+        if ( progress.wasCancelled() ) break;
         // dump the image
         emit goToFrame(i);
         temp=temp.setNum(i);
         qfname=mDialog->sFileName+temp;
         dump(qfname.data(),ExtName,0,0,w,h);
     }
-	progress.setProgress( endFrame-startFrame );
+    progress.setProgress( endFrame-startFrame );
 }
 
 void VizmoScreenShotGUI::takeBoxSnapshot()
@@ -266,13 +266,13 @@ void MovieSaveDialog::updateAttributes()
     QString tempStorage;
     
     tempStorage.setNum(startIntFrame);
-	startFrame->setText(tempStorage);
+    startFrame->setText(tempStorage);
     
-	tempStorage.setNum(endIntFrame);
-	endFrame->setText(tempStorage);
+    tempStorage.setNum(endIntFrame);
+    endFrame->setText(tempStorage);
     
     tempStorage.setNum(stepIntSize);
-	stepSize->setText(tempStorage);
+    stepSize->setText(tempStorage);
 }
 
 void MovieSaveDialog::storeAttributes()

@@ -15,7 +15,7 @@ namespace plum{
     //////////////////////////////////////////////////////////////////////
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
-        
+    
     CPolyhedronModel::CPolyhedronModel()
     {
         m_SolidID=-1;
@@ -42,7 +42,7 @@ namespace plum{
         const TriVector& tris=loader.GetTriangles();
         Point3d com=COM(points); m_COM=com;
         m_R=Radius(com,points);
-
+        
         //set point for opengl
         int psize=points.size();
         GLdouble * vertice=new GLdouble[3*psize];
@@ -78,19 +78,19 @@ namespace plum{
             return false;
         }
         delete [] vertice; delete [] normal;
-
+        
         //setup rotation and translation
         tx()=m_BodyInfo.m_X; ty()=m_BodyInfo.m_Y; tz()=m_BodyInfo.m_Z;
         double cx_2=cos(m_BodyInfo.m_Alpha/2); double sx_2=sin(m_BodyInfo.m_Alpha/2);
         double cy_2=cos(m_BodyInfo.m_Beta/2); double sy_2=sin(m_BodyInfo.m_Beta/2);
         double cz_2=cos(m_BodyInfo.m_Gamma/2); double sz_2=sin(m_BodyInfo.m_Gamma/2);
-
+        
         Quaternion qx(cx_2,sx_2*Vector3d(1,0,0));
         Quaternion qy(cy_2,sy_2*Vector3d(0,1,0));
         Quaternion qz(cz_2,sz_2*Vector3d(0,0,1));
         Quaternion nq=qz*qy*qx; //new q
         this->q(nq.normalize()); //set new q
-
+        
         return true;
     }
     
@@ -126,8 +126,8 @@ namespace plum{
     
     //build wire frame
     bool CPolyhedronModel::BuildGLModel_Wired
-    (const PtVector& points, const TriVector& tris, 
-     const Point3d& com, const Vector3d * n)
+        (const PtVector& points, const TriVector& tris, 
+        const Point3d& com, const Vector3d * n)
     {   
         CModelGraph mg;
         if( mg.doInit(points,tris)==false ) return false;
@@ -135,7 +135,7 @@ namespace plum{
         //build model
         m_WiredID=glGenLists(1);
         glNewList(m_WiredID,GL_COMPILE);
-
+        
         glDisable(GL_LIGHTING);
         glMatrixMode( GL_MODELVIEW );
         glPushMatrix();     
@@ -162,7 +162,7 @@ namespace plum{
         
         return true;
     }
-
+    
     void CPolyhedronModel::Draw( GLenum mode )
     {
         if( m_SolidID==-1 ) return;
@@ -179,10 +179,10 @@ namespace plum{
             glDisable( GL_POLYGON_OFFSET_FILL ); 
         }
         else
-			glCallList(m_WiredID);
+            glCallList(m_WiredID);
         glPopMatrix();
     }
-
+    
     void CPolyhedronModel::DrawSelect()
     {
         ////////////////////////////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ namespace plum{
         glCallList(m_WiredID);
         glPopMatrix();
     }
-
+    
     //compute center of mass
     Point3d CPolyhedronModel::COM(const PtVector& points)
     {
@@ -211,7 +211,7 @@ namespace plum{
         com[0]/=size; com[1]/=size; com[2]/=size;
         return com;
     }
-
+    
     double CPolyhedronModel::Radius(const Point3d& com,const PtVector& points)
     {
         double R=0;
@@ -223,18 +223,26 @@ namespace plum{
         }
         return sqrt(R);
     }    
-
-	const string CPolyhedronModel::GetName() const { 
-		string sep="/";
+    
+    const string CPolyhedronModel::GetName() const 
+    { 
+        string sep="/";
 #ifdef WIN32
-		sep="\\";
+        sep="\\";
 #endif
-		string filename=m_BodyInfo.m_strModelDataFileName;
-		int pos=0;
-		if( (pos=filename.find(sep))!=string::npos )
-			filename=filename.substr(pos+1);
-		return filename; 
-	}
-
+        string filename=m_BodyInfo.m_strModelDataFileName;
+        int pos=0;
+        if( (pos=filename.find(sep))!=string::npos )
+            filename=filename.substr(pos+1);
+        return filename; 
+    }
+    
+    list<string> CPolyhedronModel::GetInfo() const 
+    { 
+        list<string> info; 
+        info.push_back(m_BodyInfo.m_strModelDataFileName);
+        return info;
+    }
+    
 }//namespace plum
 

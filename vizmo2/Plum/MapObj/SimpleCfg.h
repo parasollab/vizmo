@@ -43,9 +43,9 @@ namespace plum{
         bool operator==( const CSimpleCfg & other );
         void Set( int index , OBPRMView_Robot* robot);
 
-		void DrawRobot();
-		void DrawBox(double size);
-		void DrawPoint();
+        void DrawRobot();
+        void DrawBox(double size);
+        void DrawPoint();
         
         //////////////////////////////////////////////////////////////////////
         //      Access Method
@@ -103,7 +103,7 @@ namespace plum{
         ~CSimpleEdge();
         
         bool operator==( const CSimpleEdge & other );
-		void Set(const Point3d& p1, const Point3d& p2){ m_s=p1; m_e=p2; }
+        void Set(const Point3d& p1, const Point3d& p2){ m_s=p1; m_e=p2; }
         void Draw();
         
         //////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
     protected:
         
-		Point3d m_s, m_e;
+        Point3d m_s, m_e;
 
         int    m_LP;
         double m_Weight;

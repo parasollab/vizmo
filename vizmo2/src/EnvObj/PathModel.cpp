@@ -49,14 +49,14 @@ bool CPathModel::BuildModels(){
     m_DLIndex=glGenLists(1);
     glNewList( m_DLIndex, GL_COMPILE );
       for( unsigned int iP=0; iP<iPathSize; iP++ ){
-	  double percent=((double)iP)/iPathSize;
-	  m_pRobot->SetColor(percent,0.8f,1-percent,1.0);
+      double percent=((double)iP)/iPathSize;
+      m_pRobot->SetColor(percent,0.8f,1-percent,1.0);
           double * Cfg = m_pPathLoader->GetConfiguration(iP);
           if( iP%3==0 ){
               m_pRobot->Configure(Cfg);
               m_pRobot->Draw(GL_RENDER);
           }
-	      delete [] Cfg;
+          delete [] Cfg;
       }
     glEndList();
     
@@ -75,7 +75,19 @@ void CPathModel::Draw( GLenum mode ){
         return;
 
     //set to line represnet
-	glLineWidth(0.5);
+    glLineWidth(0.5);
     glColor3f( 0.3f, 0.2f, 0.7f );
     glCallList( m_DLIndex );
+}
+
+list<string> CPathModel::GetInfo() const 
+{ 
+	list<string> info; 
+	info.push_back(m_pPathLoader->GetFileName());
+	{
+		ostringstream temp;
+		temp<<"There are "<<m_pPathLoader->GetPathSize()<<" path frames";
+		info.push_back(temp.str());
+    }	
+	return info;
 }

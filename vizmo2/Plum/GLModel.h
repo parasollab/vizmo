@@ -16,7 +16,7 @@
 #include "PlumState.h"
 #include <list>
 #include <string>
-#include <stdio.h> ///tmp --> used for sprintf in subclasses, sould be removed
+#include <sstream>
 
 namespace plum{
     
@@ -55,14 +55,14 @@ namespace plum{
         virtual const float * GetColor() const { return m_RGBA; }
 
         //Get the name information
-		virtual const string GetName() const =0;//{ return "unknow"; }
+        virtual const string GetName() const =0;//{ return "unknow"; }
 
-		//get the contained children if any
-		virtual void GetChildren( list<CGLModel*>& models )
-		{ /*do nothing as default*/ }
+        //get the contained children if any
+        virtual void GetChildren( list<CGLModel*>& models )
+        { /*do nothing as default*/ }
 
-		//Get more detailde information
-		virtual list<string> GetInfo() const { return list<string>(); }
+        //Get more detailde information
+        virtual list<string> GetInfo() const { return list<string>(); }
 
     protected:
         bool  m_EnableSeletion;

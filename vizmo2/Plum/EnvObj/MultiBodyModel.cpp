@@ -47,8 +47,8 @@ namespace plum{
             m_COM[2]+=info.m_Z;
         }
         for( int id=0;id<3;id++ ) m_COM[id]/=m_PolySize;
-		//set position of multi-body as com
-		tx()=m_COM[0]; ty()=m_COM[1]; tz()=m_COM[2];
+        //set position of multi-body as com
+        tx()=m_COM[0]; ty()=m_COM[1]; tz()=m_COM[2];
 
         //compute radius
         m_R=0; //set radius to 0 and compute it later
@@ -60,8 +60,8 @@ namespace plum{
             double dist=(Point3d(info.m_X,info.m_Y,info.m_Z)-m_COM).norm()
                         +m_pPoly[iM].GetRadius();
             if( m_R<dist ) m_R=dist;
-			//change to local coorindate of multibody
-			m_pPoly[iM].tx()-=tx();	m_pPoly[iM].ty()-=ty();	m_pPoly[iM].tz()-=tz();
+            //change to local coorindate of multibody
+            m_pPoly[iM].tx()-=tx(); m_pPoly[iM].ty()-=ty(); m_pPoly[iM].tz()-=tz();
         }
 
         return true;
@@ -95,7 +95,7 @@ namespace plum{
 
     void CMultiBodyModel::SetRenderMode(int mode)
     {
-	m_RenderMode=mode;
+    m_RenderMode=mode;
         for( int i=0;i<m_PolySize;i++ )
             m_pPoly[i].SetRenderMode(mode);
     }
@@ -105,6 +105,19 @@ namespace plum{
         CGLModel::SetColor(r,g,b,a);
         for( int i=0;i<m_PolySize;i++ )
             m_pPoly[i].SetColor(r,g,b,a);
+    }
+    
+    list<string> CMultiBodyModel::GetInfo() const 
+    { 
+        list<string> info; 
+        if( m_bFixed ) info.push_back(string("Obstacle"));
+        else info.push_back(string("Robot"));
+        {
+            ostringstream temp;
+            temp<<"There are "<<m_PolySize<<" bodies";
+            info.push_back(temp.str());
+        }
+        return info;
     }
     
 }//namespace plum

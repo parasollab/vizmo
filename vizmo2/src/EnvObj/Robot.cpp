@@ -51,7 +51,7 @@ bool OBPRMView_Robot::BuildModels(){
     m_RobotModel=new CMultiBodyModel(iM,pMInfo[iM]);
     if( m_RobotModel==NULL ) return false;
     m_RobotModel->setAsFree(); //set as free body
-	SetColor(1,0,0,1);
+    SetColor(1,0,0,1);
     return m_RobotModel->BuildModels();
 }
 

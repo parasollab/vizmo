@@ -30,7 +30,7 @@ namespace plum{
     void CPlum::Clean()
     {
         m_ObjList.clear();
-	    m_SelectedItem.clear();
+        m_SelectedItem.clear();
     }
 
     int 
@@ -66,7 +66,7 @@ namespace plum{
         for( int iCM=0; iCM<objSize; iCM++ ){
             CGLModel * model=m_ObjList[iCM]->getModel();
             if( model==NULL ) continue;
-			glEnable(GL_LIGHTING);
+            glEnable(GL_LIGHTING);
             model->Draw( GL_RENDER );
         }
         typedef vector<gliObj>::iterator GIT;
@@ -96,6 +96,9 @@ namespace plum{
 
         // change view volum
         glMatrixMode( GL_PROJECTION );
+		double pm[16]; //currewnt projection matrix
+		glGetDoublev(GL_PROJECTION_MATRIX,pm);
+
         glPushMatrix();
         glLoadIdentity();
         double x=(box.l+box.r)/2;
@@ -103,8 +106,8 @@ namespace plum{
         double w=abs(box.r-box.l); if( w<5 ) w=5;
         double h=abs(box.t-box.b); if( h<5 ) h=5;
         gluPickMatrix( x, y, w, h, viewport);
-        gluPerspective( 60, 1, 1, 1500 );
-        
+        glMultMatrixd(pm); //apply current proj matrix
+
         //draw
         glMatrixMode( GL_MODELVIEW );
         int objSize=m_ObjList.size();
