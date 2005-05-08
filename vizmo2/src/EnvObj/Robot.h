@@ -55,12 +55,15 @@ public:
 	models.push_back(m_RobotModel);
     }
     
+    //// Testing fucntion to save Qry start and Goal
+    void SaveQry(vector<double *> cfg, char ch);
+
 
     //////////////////////////////////////////////////////////////////////
     // Access Functions
     //////////////////////////////////////////////////////////////////////
     void Configure( double * cfg );
-        
+            
     CEnvLoader * getEnvLoader() const;
     CMultiBodyModel * getRobotModel() const;
 
@@ -70,10 +73,6 @@ public:
     void InitialCfg(double * cfg);
     void RestoreInitCfg();
 
-    //variable used to change the size of the robot
-    float size; 
-    bool change;
-    char come;
     double R, G, B, o_s[3], x, y, z, x1, y1, z1;
 
     Quaternion quat, q1, q2;
@@ -89,20 +88,20 @@ public:
     /////////////////////////////////////////////////////
     vector<double *> StartCfg;
     vector<double *> GoalCfg;
-    ////   storeCfg:: 
-    //           cfg the cfg. to store    
-    //           c tell if cfg. is start or goal     
+    //////////////////////////////////////////////
+    // storeCfg:: 
+    //    cfg the cfg. to store    
+    //    c tells if cfg. is start or goal   
+    //////////////////////////////////////////////  
     void storeCfg( vector<double *> cfg, char c, int dof){
       typedef vector<double*>::iterator IC;
       double * iCfg;
-      
       if(c == 's'){
 	StartCfg.clear();
 	for(IC ic=cfg.begin(); ic!=cfg.end(); ic++){
 	  iCfg = (double *)(*ic);
 	  StartCfg.push_back(iCfg);
 	}
-	
       }
       
       else{
@@ -111,11 +110,9 @@ public:
 	  iCfg = (double *)(*ic);
 	  GoalCfg.push_back(iCfg);
 	}
-	
       }  
-      
     }
-    
+
 
     vector<double *> getNewStartAndGoal(){
 
@@ -125,7 +122,7 @@ public:
       if(!GoalCfg.empty())
 	v.push_back(GoalCfg[0]);
       return v;
-      
+
     }
 
     double *returnCurrCfg(int dof);
@@ -158,6 +155,8 @@ public:
       vCfg.push_back(currCfg);
       
     }
+
+    double * RotFstBody; //keeps rot. angles of body0
     //////////////////////////////////////////////////////////////////////
     // Private Stuff
     //////////////////////////////////////////////////////////////////////
@@ -170,7 +169,7 @@ private:
     CPolyhedronModel * pPolyBackUp, * Poly;// * m_poly;
     //CMultiBodyModel * mbRobotBackUp;
     double * mbRobotBackUp;
-    double * RotFstBody; //keeps rot. angles of body0
+    //double * RotFstBody; //keeps rot. angles of body0
     Quaternion MBq; //keeps rot. for robotModel
 
     vector<double *> vCfg; //to store start/goal cfgs.
