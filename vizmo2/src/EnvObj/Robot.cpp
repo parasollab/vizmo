@@ -5,7 +5,6 @@ OBPRMView_Robot::OBPRMView_Robot(CEnvLoader * pEnv)
 {
     m_pEnvLoader=pEnv;
     m_RobotModel=NULL;
-    //size = 1.0;
 }
 
 OBPRMView_Robot::OBPRMView_Robot(const OBPRMView_Robot &other_robot)
@@ -13,7 +12,6 @@ OBPRMView_Robot::OBPRMView_Robot(const OBPRMView_Robot &other_robot)
 {
     m_pEnvLoader=other_robot.getEnvLoader();
     m_RobotModel = other_robot.getRobotModel();
-    //size = other_robot.size;
 }
 
 CEnvLoader * OBPRMView_Robot::getEnvLoader() const {
@@ -60,13 +58,9 @@ bool OBPRMView_Robot::BuildModels(){
 }
 
 void OBPRMView_Robot::Draw(GLenum mode){
-  // do not let select the robot:
-  // if( m_RobotModel==NULL || GL_RENDER!=mode ) return;
-
   if( m_RobotModel==NULL) return;
   glPushMatrix();
   glTransform();
-  // m_RobotModel->Draw(GL_RENDER);
   m_RobotModel->Draw(mode);
   glPopMatrix();
 
@@ -75,13 +69,7 @@ void OBPRMView_Robot::Draw(GLenum mode){
 void OBPRMView_Robot::Select( unsigned int * index, vector<gliObj>& sel ){
   //unselect old one       
   if( index==NULL ) return;
-  
   m_RobotModel->Select(index+1,sel);
-
-  //call InitialCfg
-  //BackUp();
-  
-  //sel.push_back(this);
 }
 
 
@@ -138,10 +126,11 @@ void OBPRMView_Robot::BackUp(){
   pPolyBackUp = new CPolyhedronModel[numMBody];
 
   for( int iM=0; iM<numMBody; iM++ ){
-      pPolyBackUp[iM].tx()=Poly[iM].tx();
-      pPolyBackUp[iM].ty()=Poly[iM].ty();
-      pPolyBackUp[iM].tz()=Poly[iM].tz();
-      pPolyBackUp[iM].q(Poly[iM].q());
+    pPolyBackUp[iM].tx()=Poly[iM].tx();
+    pPolyBackUp[iM].ty()=Poly[iM].ty();
+    pPolyBackUp[iM].tz()=Poly[iM].tz();
+    pPolyBackUp[iM].q(Poly[iM].q());
+
     }
 
    R=Poly[0].GetColor()[0];
@@ -164,7 +153,6 @@ void OBPRMView_Robot::BackUp(){
 }
 
 void OBPRMView_Robot::Restore(){
-  
   const CMultiBodyInfo * MBInfo = m_pEnvLoader->GetMultiBodyInfo();
   int numMBody=MBInfo[0].m_cNumberOfBody;
   
@@ -185,6 +173,11 @@ void OBPRMView_Robot::Restore(){
  m_RobotModel->tz() = mbRobotBackUp[2];
 
  m_RobotModel->q(MBq);
+
+ //The nex lines are to keep the translation Tool ON the object
+ m_RobotModel->m_PosPoly[0] = Poly[0].tx();
+ m_RobotModel->m_PosPoly[1] = Poly[0].ty();
+ m_RobotModel->m_PosPoly[2] = Poly[0].tz();
 
   //delete [] Poly;
   //delete [] pPolyBackUp;
@@ -211,9 +204,9 @@ void OBPRMView_Robot::Configure( double * cfg) {
     if( MBInfo[iM].m_active )
       robIndx = iM;
   }
-
   bool fixedBase=MBInfo[robIndx].m_pBodyInfo[0].m_bIsFixed;
   int myDOF=m_pEnvLoader->getDOF();
+
   /////////////////////////////////////////////////////////////////////////////
   // convert cfg
   for( int id=0;id<myDOF;id++ )
@@ -283,18 +276,13 @@ void OBPRMView_Robot::Configure( double * cfg) {
     RotFstBody[1] = cfg[4];
     RotFstBody[2] = cfg[5];
 
-    //update rotation vars.
-    //set rx(), ry(), and rz() of RobotPolyhedron
-    //with cfgs. of robot's base
-
-    pPoly[0].rx() = cfg[3]/TwoPI;
-    pPoly[0].ry() = cfg[4]/TwoPI;
-    pPoly[0].rz() = cfg[5]/TwoPI;
+    pPoly[0].rx() = cfg[3];
+    pPoly[0].ry() = cfg[4];
+    pPoly[0].rz() = cfg[5];
 
     m_RobotModel->m_RotPoly[0] = pPoly[0].rx();
     m_RobotModel->m_RotPoly[1] = pPoly[0].ry();
     m_RobotModel->m_RotPoly[2] = pPoly[0].rz();
-
   }
 
   Transformation b(orientation, position);
@@ -305,18 +293,6 @@ void OBPRMView_Robot::Configure( double * cfg) {
   q2 = q1.getQuaternionFromMatrix(
 	  MBInfo[robIndx].m_pBodyInfo[0].m_currentTransform.m_orientation.matrix);
   pPoly[0].q(q2.normalize()); //set new q
-
-
- //  //testing fucntion to convert Quat.to Euler
-   Matrix3x3 m;
-   m =  pPoly[0].getMatrix();
-   Vector3d v;
-   v = pPoly[0].MatrixToEuler(m);
- 
-    m_RobotModel->m_RotPoly[0] = v[0]/TwoPI;
-    m_RobotModel->m_RotPoly[1] = v[1]/TwoPI;
-    m_RobotModel->m_RotPoly[2] = v[2]/TwoPI;
-
 
   MBInfo[robIndx].m_pBodyInfo[0].m_transformDone = true;
    
@@ -355,15 +331,12 @@ void OBPRMView_Robot::Configure( double * cfg) {
 	pPoly[nextBody].tx()=MBInfo[robIndx].m_pBodyInfo[nextBody].m_currentTransform.m_position[0]; 
 	pPoly[nextBody].ty()=MBInfo[robIndx].m_pBodyInfo[nextBody].m_currentTransform.m_position[1]; 
 	pPoly[nextBody].tz()=MBInfo[robIndx].m_pBodyInfo[nextBody].m_currentTransform.m_position[2];  
-	  
+
 	//compute rotation
 	Quaternion q1, q2;
 	q2 = q1.getQuaternionFromMatrix(
 	       MBInfo[robIndx].m_pBodyInfo[nextBody].m_currentTransform.m_orientation.matrix);
 	pPoly[nextBody].q(q2.normalize()); //set new q
-
-	//update rotation vars.
-	//pPoly[nextBody].Quaternion2Euler();
 	
 	MBInfo[robIndx].m_pBodyInfo[nextBody].m_transformDone = true;
       }    
@@ -386,4 +359,192 @@ double *OBPRMView_Robot::returnCurrCfg( int dof){
       currentCfg[i] = RotFstBody[i-3]/TwoPI;
   }
   return currentCfg;
+}
+
+
+void OBPRMView_Robot::SaveQry(vector<double *> cfg, char ch){
+
+  int dof = m_pEnvLoader->getDOF();
+  //to store actual cfg
+  double *currCfg = new double[dof];
+  //to store cfg. to be sent to Robot::setStart
+  vector<double *> vCfg;
+
+  CGLModel * rl;
+
+  double TwoPI=3.1415926535*2.0;    
+    
+  list<CGLModel*> robotList;
+  m_RobotModel->GetChildren(robotList);
+
+  if(dof == 6){ //rigid body
+      
+    //if user didn't move robot by hand, this means
+    //the animation tool was used
+    if(m_RobotModel->tx() == 0 && m_RobotModel->ty() == 0 && m_RobotModel->tz() == 0){
+      typedef list<CGLModel *>::iterator RI;
+      
+      for(RI i=robotList.begin(); i!=robotList.end(); i++){
+	rl = (CGLModel*)(*i);
+	
+	currCfg[0] = rl->tx();
+	currCfg[1] = rl->ty();
+	currCfg[2] = rl->tz();
+
+
+	//Need to compute rotation from Quaternion
+	
+	CGLModel* rm = robotList.front();
+	//get current quaternion from polyhedron0
+	Quaternion qt0;
+	qt0 = rm->q();
+	Matrix3x3 pm = qt0.getMatrix();
+	Vector3d pv = qt0.MatrixToEuler(pm);
+	
+	//get new rotation from GL
+	Quaternion qrm;
+	qrm = m_RobotModel->q();
+
+	//multiply polyhedron0 and multiBody quaternions
+	//to get new rotation
+	Quaternion finalQ;
+	finalQ = qrm * qt0;
+
+	//set new rotation angles to multiBody rx(), ry(), and rz()
+
+	Matrix3x3 mFinal; Vector3d vFinal;
+	mFinal = finalQ.getMatrix();
+	vFinal = finalQ.MatrixToEuler(mFinal);
+
+	m_RobotModel->rx() = vFinal[0];
+	m_RobotModel->ry() = vFinal[1];
+	m_RobotModel->rz() = vFinal[2];
+	
+	//set new angles for first polyhedron
+	//NOTE:: This works for **FREE** robots
+
+	currCfg[3] =  m_RobotModel->rx()/TwoPI;
+	currCfg[4] =  m_RobotModel->ry()/TwoPI;
+	currCfg[5] =  m_RobotModel->rz()/TwoPI;
+
+
+	//currCfg[3] = rl->rx();
+	//currCfg[4] = rl->ry();
+	//currCfg[5] = rl->rz();
+      }
+    }
+    else{ //user moved robot by hand 
+      
+      Matrix3x3 m = m_RobotModel->getMatrix();
+      Vector3d vRot;
+      vRot = m_RobotModel->MatrixToEuler(m);
+      
+      if(m_RobotModel->m_PosPoly[0] != -1){
+	//robot has been moved
+	currCfg[0] = m_RobotModel->tx() + m_RobotModel->m_PosPoly[0];
+	currCfg[1] = m_RobotModel->ty() + m_RobotModel->m_PosPoly[1];
+	currCfg[2] = m_RobotModel->tz() + m_RobotModel->m_PosPoly[2];
+	
+	//Need to compute rotation from Quaternion
+	
+	CGLModel* rm = robotList.front();
+	//get current quaternion from polyhedron0
+	Quaternion qt0;
+	qt0 = rm->q();
+	Matrix3x3 pm = qt0.getMatrix();
+	Vector3d pv = qt0.MatrixToEuler(pm);
+	
+	//get new rotation from GL
+	Quaternion qrm;
+	qrm = m_RobotModel->q();
+
+	//multiply polyhedron0 and multiBody quaternions
+	//to get new rotation
+	Quaternion finalQ;
+	finalQ = qrm * qt0;
+
+	//set new rotation angles to multiBody rx(), ry(), and rz()
+
+	Matrix3x3 mFinal; Vector3d vFinal;
+	mFinal = finalQ.getMatrix();
+	vFinal = finalQ.MatrixToEuler(mFinal);
+
+	m_RobotModel->rx() = vFinal[0];
+	m_RobotModel->ry() = vFinal[1];
+	m_RobotModel->rz() = vFinal[2];
+	
+	//set new angles for first polyhedron
+	//NOTE:: This works for **FREE** robots
+
+	currCfg[3] =  m_RobotModel->rx()/TwoPI;
+	currCfg[4] =  m_RobotModel->ry()/TwoPI;
+	currCfg[5] =  m_RobotModel->rz()/TwoPI;
+ 
+      }
+      else{
+	//robot has not been moved before
+	currCfg[0] = m_RobotModel->tx() + cfg[0][0];
+	currCfg[1] = m_RobotModel->ty() + cfg[0][1];
+	currCfg[2] = m_RobotModel->tz() + cfg[0][2];
+	currCfg[3] = vRot[0]/TwoPI;
+	currCfg[4] = vRot[1]/TwoPI;
+	currCfg[5] = vRot[2]/TwoPI;
+      }
+
+    }
+      
+    vCfg.push_back(currCfg);
+    //this->storeCfg(vCfg, 's', dof);
+    this->storeCfg(vCfg, ch, dof);
+
+  }
+  
+  else{//articulated
+      
+    currCfg = this->returnCurrCfg(dof);
+    //add translation of MBody
+    currCfg[0] = currCfg[0] + m_RobotModel->tx();
+    currCfg[1] = currCfg[1] + m_RobotModel->ty();
+    currCfg[2] = currCfg[2] + m_RobotModel->tz();
+    
+    //Need to compute rotation from Quaternion
+    
+    CGLModel* rm = robotList.front();
+    //get current quaternion from polyhedron0
+    Quaternion qt0;
+    qt0 = rm->q();
+    Matrix3x3 pm = qt0.getMatrix();
+    Vector3d pv = qt0.MatrixToEuler(pm);
+    
+    //get new rotation from multiBody 
+    Quaternion qrm;
+    qrm = m_RobotModel->q();
+    
+    //multiply polyhedron0 and multiBody quaternions
+    //to get new rotation
+    Quaternion finalQ;
+    finalQ = qrm * qt0;
+    
+    //set new rotation angles to multiBody rx(), ry(), and rz()
+    
+    Matrix3x3 mFinal; Vector3d vFinal;
+    mFinal = finalQ.getMatrix();
+    vFinal = finalQ.MatrixToEuler(mFinal);
+    
+    m_RobotModel->rx() = vFinal[0];
+    m_RobotModel->ry() = vFinal[1];
+    m_RobotModel->rz() = vFinal[2];
+    
+    //set new angles for first polyhedron
+    //NOTE:: This works for **FREE** robots
+    
+    currCfg[3] =  m_RobotModel->rx()/TwoPI;
+    currCfg[4] =  m_RobotModel->ry()/TwoPI;
+    currCfg[5] =  m_RobotModel->rz()/TwoPI;	
+
+    vCfg.push_back(currCfg);
+    this->storeCfg(vCfg, ch, dof);
+
+  }//else articulated
+
 }
