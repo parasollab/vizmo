@@ -75,12 +75,6 @@ void VizmoRoadmapGUI::createGUI()
   l->setEnabled(false);
   size=0.5;
   
-//   nodesColor= new QToolButton
-//     (QPixmap(icon_shapes1), "CC's color", "Change roadmap node's color", this,
-//      SLOT(changeColorOfCCselected()), this, "node");
-//   nodesColor->setUsesTextLabel ( true );
-//   nodesColor->setEnabled(false);
-  
  nodesSameColor= new QToolButton
    (QPixmap(icon_shapes1), "CC's one color", "Set all CC's (or just one if selected) to one color", this,
     SLOT(setSameColor()), this, "node");
@@ -101,9 +95,13 @@ void VizmoRoadmapGUI::createGUI()
 
 void VizmoRoadmapGUI::reset()
 {
+  //Apr-05-2005
+  m_Nodes.clear();
+
     if( GetVizmo().IsRoadMapLoaded() &&
         GetVizmo().isRoadMapShown() ){
       l->setEnabled(true);
+      l->setSelected(2,true);
       //nodesColor->setEnabled(true);
       nodesSameColor->setEnabled(true);
 
@@ -233,14 +231,14 @@ void VizmoRoadmapGUI::editMap()
         m_Map_Changed=false;
         parentWidget()->setCursor(QCursor(crossCursor));
         GetVizmo().GetMap()->getModel()->EnableSelection(true);
-        addEdgeAction->setEnabled(true);
-        addNodeAction->setEnabled(true);
+        //addEdgeAction->setEnabled(true);
+        //addNodeAction->setEnabled(true);
     }
     else{
         parentWidget()->setCursor(QCursor(arrowCursor));
         GetVizmo().GetMap()->getModel()->EnableSelection(false);
-        addEdgeAction->setEnabled(false); addEdgeAction->setOn(false);
-        addNodeAction->setEnabled(false); addNodeAction->setOn(false);
+        //addEdgeAction->setEnabled(false); addEdgeAction->setOn(false);
+        //addNodeAction->setEnabled(false); addNodeAction->setOn(false);
         m_addNode=false;
         m_addEdge=false;
         if(m_Map_Changed){
@@ -342,13 +340,14 @@ void VizmoRoadmapGUI::handleEditMap()
       CGLModel * n=m_Nodes.front();
       old_T[0]=n->tx(); old_T[1]=n->ty(); old_T[2]=n->tz();
       old_R[0]=n->rx(); old_R[1]=n->ry(); old_R[2]=n->rz();     
+
     }
 }
 
 void VizmoRoadmapGUI::MoveNode()
 {
     if( m_Nodes.empty() ) return;
-	CGLModel * n=m_Nodes.front();
+    CGLModel * n=m_Nodes.front();
     double diff=fabs(old_T[0]-n->tx())+
                 fabs(old_T[1]-n->ty())+
                 fabs(old_T[2]-n->tz())+
@@ -356,11 +355,89 @@ void VizmoRoadmapGUI::MoveNode()
                 fabs(old_R[1]-n->ry())+
                 fabs(old_R[2]-n->rz());
     if( diff>1e-10 ){
-      m_Map_Changed=true;
-      ((CCfg*)n)->GetCC()->ReBuildAll();
-      emit callUpdate();
+
+       double *nodecfg;
+       vector<gliObj>& sel=GetVizmo().GetSelectedItem();
+       typedef vector<gliObj>::iterator OIT;
+       if(sel.size() !=0){
+	 for(OIT i=sel.begin();i!=sel.end();i++){
+	   vector<double> cfg = (*i)->GetCfg();
+	   nodecfg = new double[((CCfg*)n)->GetDof()];
+
+	   for(int k =0; k<cfg.size(); k++){
+	     nodecfg[k] = cfg[k];
+	     
+	   }	    
+	 }
+	 GetVizmo().Node_CD((CCfg*)n);
+       }
+       
+       m_Map_Changed=true;
+       ((CCfg*)n)->GetCC()->ReBuildAll();
+       emit callUpdate();
+
     }   
 }
 
+void VizmoRoadmapGUI::SaveNewRoadmap(const char *filename){
 
 
+  WriteHeader(filename);
+
+}
+
+
+bool VizmoRoadmapGUI::WriteHeader(const char *filename){
+
+  PlumObject * m_Map;
+  m_Map = GetVizmo().GetMap();
+  CMapHeaderLoader * maploader=(CMapHeaderLoader*)m_Map->getLoader();
+  if( maploader->ParseHeader()==false ) return false;
+
+  const string version = maploader->GetVersionNumber();
+  const string preamble = maploader->GetPreamble();
+  const string envFile = maploader->GetEnvFileName();
+  const list<string> lps = maploader->GetLPs();
+  const list<string> cds = maploader->GetCDs();
+  const list<string> dms = maploader-> GetDMs();
+
+  ofstream outfile (filename);
+  outfile<< "Roadmap Version Number "<< version<<"\n";
+  outfile<< "#####PREAMBLESTART##### \n";
+  outfile<<preamble<<"\n";
+  outfile<< "#####PREAMBLESTOP##### \n";
+  outfile<< "#####ENVFILESTART##### \n";
+  outfile<<envFile<<"\n";
+  outfile<< "#####ENVFILESTOP##### \n";
+  outfile<< "#####LPSTART##### \n";
+  outfile<<lps.size()<<endl;
+  list<string>::const_iterator it;
+  for(it=lps.begin(); it!=lps.end(); ++it){
+    outfile << *it << endl; // each element on a separate line
+  } 
+  outfile<< "#####LPSTOP##### \n";
+  outfile<< "#####CDSTART##### \n";
+  outfile<<cds.size()<<endl;
+  for(it=cds.begin(); it!=cds.end(); ++it){
+    outfile << *it << endl; // each element on a separate line
+  } 
+  outfile<< "#####CDSTOP##### \n";
+  outfile<< "#####DMSTART##### \n";
+  outfile<<dms.size()<<endl;
+  for(it=dms.begin(); it!=dms.end(); ++it){
+    outfile << *it << endl; // each element on a separate line
+  } 
+  outfile<< "#####DMSTOP#####";
+
+
+  typedef CMapLoader<CCfg,CSimpleEdge>::WG WG;
+  WG * graph;
+  CMapLoader<CCfg,CSimpleEdge> *m_loader=(CMapLoader<CCfg,CSimpleEdge>*)m_Map->getLoader();
+  graph = m_loader->GetGraph();
+
+  GetVizmo().WriteNodesInfo(outfile, graph);
+   
+  outfile.close();
+  return true;
+
+}
