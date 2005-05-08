@@ -40,20 +40,16 @@ void gliTToolBase::Project2Win(){
     if( m_pSObj==NULL ) return;
 
     double x, y, z;
-
     if(m_pSObj->GetObjName() == "Node"){
 
       vector<double> cfg = m_pSObj->GetCfg();
          x=cfg[0];
          y=cfg[1];
          z=cfg[2];
+
     }
 
     else if( m_pSObj->m_PosPoly[0] != -1){
-
-      Vector3d v;
-      v = m_pSObj->MatrixToEuler(m_pSObj->getMatrix());
-      double TwoPI=3.1415926535*2.0;
 
       x=m_pSObj->tx() + m_pSObj->m_PosPoly[0]; 
       y=m_pSObj->ty() + m_pSObj->m_PosPoly[1]; 
@@ -61,10 +57,6 @@ void gliTToolBase::Project2Win(){
     }
     
     else{
-
-      Vector3d v;
-      v = m_pSObj->MatrixToEuler(m_pSObj->getMatrix());
-      double TwoPI=3.1415926535*2.0;
 
       x=m_pSObj->tx(); y=m_pSObj->ty(); z=m_pSObj->tz(); 
     }
@@ -110,7 +102,6 @@ void gliMoveTool::Draw(bool bSelect)
     if( !bSelect ) glColor3f(1,0,0); 
     glVertex2d(ox,oy);
     glVertex2d(x_dir[0],x_dir[1]);
-    //glVertex2d(m_XPrj[0],m_XPrj[1]);
     glEnd();
 
     //draw y axis
@@ -119,7 +110,6 @@ void gliMoveTool::Draw(bool bSelect)
     if( !bSelect ) glColor3f(0,1,0);
     glVertex2d(ox,oy);
     glVertex2d(y_dir[0],y_dir[1]);
-    //glVertex2d(m_YPrj[0],m_YPrj[1]);
     glEnd();
 
     //draw z axis
@@ -128,7 +118,6 @@ void gliMoveTool::Draw(bool bSelect)
     if( !bSelect ) glColor3f(0,0,1);
     glVertex2d(ox,oy);
     glVertex2d(z_dir[0],z_dir[1]);
-    //glVertex2d(m_ZPrj[0],m_ZPrj[1]);
     glEnd();
 
     //draw center
@@ -567,7 +556,19 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
     m_pSObj->q((q*m_SObjQC).normalize());
 
     //update rotation variables for this body
- 
+    //m_pSObj->Quaternion2Euler();  
+    Matrix3x3 m;
+    m = m_pSObj->getMatrix();
+    Vector3d v;
+    v = m_pSObj->MatrixToEuler(m);
+    //double TwoPI=3.1415926535*2.0;
+    double PI_180=3.1415926535/180;
+
+    //values in radians
+    m_pSObj->m_RotPoly[0] = v[0];
+    m_pSObj->m_RotPoly[1] = v[1];
+    m_pSObj->m_RotPoly[2] = v[2];
+
     ComputLocalAxis();
     ComputAngles();
     return true;
@@ -691,7 +692,7 @@ bool gliTransformTool::MR( QMouseEvent * e ) //mouse button released
 
 bool gliTransformTool::MM( QMouseEvent * e )  //mouse motion
 {
-    if( m_pTool!=NULL ) return m_pTool->MM(e);
+  if( m_pTool!=NULL ) return m_pTool->MM(e);
     return false;
 }
 

@@ -41,7 +41,8 @@ namespace plum{
         const string  GetEnvFileName()   const { return m_strEnvFileName; }
         const string  GetFileDir()  const { return m_strFileDir; }
 
-	void WriteMapFile(const char *filename);
+	//void WriteMapFile(const char *filename);
+	bool WriteMapFile();
         
         const list<string> & GetLPs() const { return m_strLPs; }
         const list<string> & GetCDs() const { return m_strCDs; }
@@ -57,6 +58,7 @@ namespace plum{
         //      Private Methods and data members
         //////////////////////////////////////////////////////////////////////
 	//private:
+	public:
         string  m_strVersionNumber;
         string  m_strPreamble;
         string  m_strEnvFileName;
@@ -145,7 +147,41 @@ namespace plum{
         }
         m_Graph->ReadGraph( fin ); 
         fin.close();      
- 
+
+
+
+	ofstream outfile ("MapFileCopy.map");
+	outfile<< "Roadmap Version Number "<< m_strVersionNumber<<"\n";
+	outfile<< "#####PREAMBLESTART##### \n";
+	outfile<<m_strPreamble<<"\n";
+	outfile<< "#####PREAMBLESTOP##### \n";
+	outfile<< "#####ENVFILESTART##### \n";
+	outfile<< m_strEnvFileName<<"\n";
+	outfile<< "#####ENVFILESTOP##### \n";
+	outfile<< "#####LPSTART##### \n";
+	outfile<<m_strLPs.size()<<endl;
+	list<string>::const_iterator it;
+	for(it=m_strLPs.begin(); it!=m_strLPs.end(); ++it){
+	  outfile << *it << endl; // each element on a separate line
+	} 
+	outfile<< "#####LPSTOP##### \n";
+	outfile<< "#####CDSTART##### \n";
+	outfile<<m_strCDs.size()<<endl;
+	for(it=m_strCDs.begin(); it!=m_strCDs.end(); ++it){
+	  outfile << *it << endl; // each element on a separate line
+	} 
+	outfile<< "#####CDSTOP##### \n";
+	outfile<< "#####DMSTART##### \n";
+	outfile<<m_strDMs.size()<<endl;
+	for(it=m_strDMs.begin(); it!=m_strDMs.end(); ++it){
+	  outfile << *it << endl; // each element on a separate line
+	} 
+	outfile<< "#####DMSTOP#####";
+
+	m_Graph->WriteGraph(outfile);
+	
+	outfile.close();
+
         return true;
     }
 
