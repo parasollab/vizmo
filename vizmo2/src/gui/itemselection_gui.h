@@ -54,6 +54,7 @@ public:
     void reset();
     void fillTree(vector<PlumObject*>& objs);
     VizmoListViewItem * createItem(VizmoListViewItem * p, CGLModel * model);
+    void trim();
 	
 public slots:
 	void select();

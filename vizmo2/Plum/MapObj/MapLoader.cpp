@@ -45,59 +45,67 @@ namespace plum {
         GoToNext( in );
         in >> strData >> strData >> strData >> strData; //Roadmap Version Number 061300
         m_strVersionNumber=strData;
-	cout<< m_strVersionNumber<<endl;
+	//cout<< m_strVersionNumber<<endl;
         
         //get preamble info
         GoToNext( in );
         in.getline(strData, MAX_LINE_LENGTH);
         m_strPreamble=strData;
-	cout<< m_strPreamble <<endl;        
+	//cout<< m_strPreamble <<endl;        
 
         //get env file name info
         GoToNext( in );
         in.getline(strData, MAX_LINE_LENGTH);
         m_strEnvFileName = m_strFileDir+strData;
-	cout<<m_strEnvFileName <<endl;        
+	//cout<<m_strEnvFileName <<endl;        
 
         int number=0;
         //get lp info
         GoToNext( in );
         in >> number; //# of lps
-        for( int iLP=0; iLP<number; iLP++ ) {
-            GoToNext( in );
-            in.getline(strData, MAX_LINE_LENGTH);
-            m_strLPs.push_back(strData);   
-        }
+	for( int iLP=0; iLP<number; iLP++ ) {
+	  GoToNext( in );
+	  in.getline(strData, MAX_LINE_LENGTH);
+	  if( m_strLPs.size() != number){
+	    m_strLPs.push_back(strData);   
+	  }
+	}
         
         //get cd info
         GoToNext( in );
         in >> number; //# of lps
-        for( int iCD=0; iCD<number; iCD++ ) {
-            GoToNext( in );
-            in.getline(strData, MAX_LINE_LENGTH);
-            m_strCDs.push_back(strData);
-        }
+	for( int iCD=0; iCD<number; iCD++ ) {
+	  GoToNext( in );
+	  in.getline(strData, MAX_LINE_LENGTH);
+	  if( m_strCDs.size() != number){
+	    m_strCDs.push_back(strData);
+	  }
+	}
         
         //get dm info
         GoToNext( in );
         in >> number;
-        for( int iDM=0; iDM<number; iDM++ ) {
-            GoToNext( in );
-            in.getline(strData, MAX_LINE_LENGTH);
-            m_strDMs.push_back(strData);   
-        }
+	for( int iDM=0; iDM<number; iDM++ ) {
+	  GoToNext( in );
+	  in.getline(strData, MAX_LINE_LENGTH);
+	  if( m_strDMs.size() != number){
+	    m_strDMs.push_back(strData);   
+	  }
+	}
 		
         return true;
     }
 
-  void  CMapHeaderLoader::WriteMapFile(const char *filename){
+  //void  CMapHeaderLoader::WriteMapFile(const char *filename){
+
+bool CMapHeaderLoader::WriteMapFile(){
 
 
+ 
+ 
     //m_Graph->WriteGraph(filename);
 
-
-
-
+	return true;
 }
 	
 }//end of namespace plum

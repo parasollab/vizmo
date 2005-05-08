@@ -65,10 +65,17 @@ private:
     
     QToolButton * animation;
     QToolButton * takeBoxPicture;
-    QToolButton * takePicture;
+    //QToolButton * takePicture;
 
     bool boxPicture;
     MovieSaveDialog *mDialog;
+    
+    // QToolButton * takePicture set as public because I couldn't compile,
+    //this compiler didn't complain before with this instruction!
+public:
+
+    QToolButton * takePicture;
+
 };
 
 

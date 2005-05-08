@@ -46,7 +46,7 @@ namespace plum{
     alpha = _alpha;
     beta  = _beta;
     gamma = _gamma;
-    
+
     ToMatrix(alpha, beta, gamma);
     
   }
@@ -100,7 +100,7 @@ namespace plum{
     double sg = sin(alpha);
     double cg = cos(alpha);
 
-    //EULER ZYX    
+    //EULER ZYX    Craig (2.64)
     
     matrix.set(ca*cb, ca*sb*sg - sa*cg, ca*sb*cg + sa*sg,
 	       sa*cb, sa*sb*sg + ca*cg, sa*sb*cg - ca*sg,
@@ -119,6 +119,7 @@ namespace plum{
     
     ConvertType(Matrix);
   }
+
   
   //===================================================================
   //  Write
@@ -140,8 +141,8 @@ namespace plum{
 
   ostream & operator<<(ostream & out, const Orientation & o){
 
-    out<<"-\t Alpha Beta Gamma = ("<<o.alpha<<", "<<o.beta<<", "<<
-      o.gamma<<")"<<endl;
+    out<<"-\t Alpha Beta Gamma (deg.) = ("<<o.alpha*57.2957795<<", "<<o.beta*57.2957795<<", "<<
+      o.gamma*57.2957795<<")"<<endl;
 
       for (int i=0; i < 3; i++)
 	for (int j=0; j < 3; j++){

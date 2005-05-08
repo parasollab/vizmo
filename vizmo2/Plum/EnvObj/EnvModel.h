@@ -31,6 +31,15 @@ namespace plum{
 	    vector<CPolyhedronModel *> getPoly();
 	    vector<CMultiBodyModel *> getMBody();
 
+	    void DeleteMBModel(CMultiBodyModel *mbl);
+
+	    void AddMBModel(CMultiBodyInfo newMBI);
+
+	    //////////////////////////////////
+	    // TESTING to save Env. file
+	    /////////////////////////////////
+	    bool SaveFile(const char *filename);
+
             //////////////////////////////////////////////////////////////////////
             // Action functions
             //////////////////////////////////////////////////////////////////////

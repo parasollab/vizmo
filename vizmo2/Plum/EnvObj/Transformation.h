@@ -15,8 +15,6 @@
 
 namespace plum{
 
-class CMultiBodyInfo;
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 /** This class contains transformational information and operations.
   * Orientation and position of object are stored in the instance of this class.
@@ -106,6 +104,7 @@ class CMultiBodyInfo;
     //-----------------------------------------------------------
     Vector3d m_position;          ///<Translation
     Orientation m_orientation;    ///<Rotation
+    Vector3d originalPosition;
     
   };
   

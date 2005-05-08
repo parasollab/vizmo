@@ -32,6 +32,9 @@ public:
     VizmoRoadmapGUI(QMainWindow * parent=NULL,char *name=NULL);
     void reset();
     void createGUI();
+    //to handle the saving of new roadmap file
+    void SaveNewRoadmap(const char *filename);
+    bool WriteHeader(const char *filename);
 
 public slots:
     void changeSize();      //Changes road map node's size

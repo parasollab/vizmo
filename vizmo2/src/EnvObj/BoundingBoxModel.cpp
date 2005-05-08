@@ -57,8 +57,8 @@ bool CBoundingBoxModel::BuildModels(){
     m_DisplayID = glGenLists(1);
     glNewList(m_DisplayID, GL_COMPILE);
     
-    //glEnable( GL_POLYGON_OFFSET_FILL );
-    //glPolygonOffset( 1.0, 1.0 );
+    glEnable( GL_POLYGON_OFFSET_FILL );
+    glPolygonOffset( 2.0, 1.0 );
     //setup points
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_DOUBLE, 0, vertice);
@@ -74,7 +74,7 @@ bool CBoundingBoxModel::BuildModels(){
     glColor3d( 0.75, 0.75, 0.75 );
     glDrawElements( GL_QUADS, 4, GL_UNSIGNED_BYTE, id5 );
     glDrawElements( GL_QUADS, 4, GL_UNSIGNED_BYTE, id6 );
-    //glDisable( GL_POLYGON_OFFSET_FILL );
+    glDisable( GL_POLYGON_OFFSET_FILL );
     
     //Draw lines
     glLineWidth(1);

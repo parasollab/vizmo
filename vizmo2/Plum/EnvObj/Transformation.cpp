@@ -28,12 +28,13 @@ namespace plum{
   Transformation::Transformation(Orientation _orientation, Vector3d _position) 
   {
     m_position.set(_position);
+    originalPosition.set(_position);
+
     m_orientation.matrix = _orientation.matrix;
   }
   
   //==============================================================================
   // Function: Create a transformation corresponding to the given DH parameters
-  //           receives CMultiBody to access them
   // Refer Craig Eq 3.6
   //==============================================================================
   Transformation::Transformation(Vector4d dh){

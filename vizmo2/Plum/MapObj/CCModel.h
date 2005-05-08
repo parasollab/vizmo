@@ -159,7 +159,20 @@ namespace plum{
         void RobotModel(OBPRMView_Robot* pRobot){
 	  m_pRobot=pRobot;
         }
-        
+
+	///////////////////////////////////////////////////
+	// Access Functions
+	//////////////////////////////////////////////////
+
+	int GetNumNodes(){ return m_Nodes.size();}
+	double GetNodeData() { return m_Nodes[0]->tx();}
+	// Functions to be accessed to get nodes and edges info.
+	//to write a new *.map file (this functions are 
+	//currently accessed from vizmo2.ccp: vizmo::GetNodeInfo()
+	vector<Cfg*> GetNodesInfo() {return m_Nodes;}
+	vector<WEIGHT> GetEdgesInfo() { return m_Edges; }
+	WG * GetGraph(){ return m_Graph; }
+  
     private:
         
         void BuildNodeModels();
@@ -332,7 +345,9 @@ namespace plum{
     
     template <class Cfg, class WEIGHT>
       void CCModel<Cfg, WEIGHT>::ChangeColor(GLenum mode){
-     
+
+      m_pRobot->BackUp();
+      
       m_DID_ROBOT = glGenLists(1);
       
       m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],m_pRobot->GetColor()[3]);
@@ -357,6 +372,8 @@ namespace plum{
 	}
       }
       glEndList();
+
+      m_pRobot->Restore();
       
     }
     
@@ -401,9 +418,9 @@ namespace plum{
       
       if( mode==GL_SELECT ) glPushName(1); //1 means nodes
       
-        glCallList(list);
+      glCallList(list);
 	
-	if( mode==GL_SELECT ) glPopName();
+      if( mode==GL_SELECT ) glPopName();
         
         ////////////////////////////////////////////////////////
 	// Draw edge

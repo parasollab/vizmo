@@ -13,7 +13,7 @@
 
 #include "Matrix.h"
 #include "Vector.h"
-
+#include <math.h>
 namespace mathtool{
 
     class Quaternion {
@@ -116,7 +116,7 @@ namespace mathtool{
 
 	/////////////////////////////////////////////////////////////
 	/////// Aimee Vargas sept./2004
-	/////// given a rotation matrix, get the Euler angles
+	/////// given a rotation matrix, get the Euler angles (ZYX)
 	/////// returns a vector in the order: x, y, z
 	/////////////////////////////////////////////////////////////
 
@@ -145,14 +145,24 @@ namespace mathtool{
 	  double y = atan2(sy, cy);
 	  double z = atan2(sz, cz);
 
-	  double TwoPI=3.1415926535*2.0;
+	  //double TwoPI=3.1415926535*2.0;
 
-	  if(x<0)
+	  //NEW section jan/06/05
+	  //make sure x, y, and  are in correct range
+	  //between 0 and 2PI
+
+	    x = norm(x);
+	    y = norm(y);
+	    z = norm(z);
+
+	  /*
+	    if(x<0)
 	    x += TwoPI;
-	  if(y<0)
+	    if(y<0)
 	    y += TwoPI;
-	  if(z<0)
+	    if(z<0)
 	    z += TwoPI;
+	  */
 
 	  Vector3d angles; 
 	  angles[0] = x;
@@ -161,6 +171,28 @@ namespace mathtool{
 	  return angles;
 	}
 
+	double norm(double phi){
+
+	  //double TwoPI=3.1415926535*2.0;
+	  double TwoPI= M_PI * 2;
+	  double phi_n,n;
+	  //printf("PHI:: %2f \t", phi);
+	  if( (phi > TwoPI) || (phi < -TwoPI)){
+
+	    n = (int)(phi/TwoPI);
+	    phi_n = phi - (n*TwoPI);
+	  }
+	  else
+	    phi_n = phi;
+
+	  if(phi_n < 0)
+	    phi_n += TwoPI;
+
+	  //cout<<"PHI_N::"<<phi_n<<endl;
+
+	  return phi_n;
+
+	}
 
         void set(double s,const Vector3d & v){ m_v=v; m_s=s; }
         const Vector3d& getComplex() const { return m_v; }

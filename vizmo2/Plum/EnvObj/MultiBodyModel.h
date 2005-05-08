@@ -57,12 +57,17 @@ namespace plum{
 
 	list<CGLModel *> objlist; // to have access from glitransTool class
 
+	CMultiBodyInfo GetMBinfo() { CMultiBodyInfo m_MBI; m_MBI = m_MBInfo;
+	                             return m_MBI;}
+
+	const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
+
     private:
         CPolyhedronModel * m_pPoly;
 
         int m_PolySize;
         int m_index; //the index of this multibody
-        const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
+        //const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
         bool m_bFixed; //is this multibody fixed. i.e obstacle
         
         double m_R; //Radius

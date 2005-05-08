@@ -29,16 +29,6 @@ void gliTransform::Euiler2Quaternion()
 	Quaternion qz(cz_2,sz_2*Vector3d(0,0,1));
 	Quaternion nq=qz*qy*qx; //new q
 	q(nq.normalize()); //set new q
-
-// 	cout<<"++++++++++++++++++++++++++++++++"<<endl;
-// 	printf("Quaternion back::\n");
-// 	Vector3d v = nq.getComplex();
-// 	printf("Angle: %2f \t Vector: [%2f, %2f, %2f]\n ",nq.getReal(), v[0], v[1], v[2]);
-// 	cout<<"---------------------------------------------"<<endl;
-// 	printf("Quaternion back Normalized::\n");
-// 	Vector3d v1 = m_q.getComplex();
-// 	printf("Angle: %2f \t Vector: [%2f, %2f, %2f]\n ",m_q.getReal(), v1[0], v1[1], v1[2]);
-// 	cout<<"++++++++++++++++++++++++++++++++"<<endl;
 }
 
 void gliTransform::glScale(){

@@ -24,14 +24,13 @@ VizmoItemSelectionGUI::VizmoItemSelectionGUI(QMainWindow *parent,char *name)
 
     //listview=new QListView(split, "");
 
-    listview->addColumn("Objects");
-    listview->setColumnWidthMode(0,QListView::Maximum);
+    listview->addColumn("Environment Objects");
+    listview->setColumnWidthMode(0,QListView::Manual);
     listview->setRootIsDecorated( TRUE );
     listview->setMinimumHeight(parent->height()*2/3);
-	listview->setMultiSelection(true);
-	listview->setSelectionMode(QListView::Extended);
-//    listview->setResizeMode(QListView::AllColumns);
-
+    listview->setMultiSelection(true);
+    listview->setSelectionMode(QListView::Extended);
+    listview->setColumnWidth (0,100);
     connect(listview,SIGNAL(selectionChanged()),this,SLOT(selectionChanged()));
     setEnabled(false);
 }
@@ -51,23 +50,28 @@ void VizmoItemSelectionGUI::reset()
 
 void VizmoItemSelectionGUI::fillTree(vector<PlumObject*>& obj)
 {
+
     typedef vector<PlumObject*>::iterator PIT;
     for(PIT i=obj.begin();i!=obj.end();i++){
         CGLModel * m=(*i)->getModel();
-        if( m==NULL ) continue;
-        createItem(NULL,m);
+        if(m == NULL) continue;
+	createItem(NULL,m);
+	
     }//end for
+    trim();
 }
 
 VizmoListViewItem *
 VizmoItemSelectionGUI::createItem(VizmoListViewItem * p, CGLModel * model)
 {
+
     VizmoListViewItem * item=NULL;
     if( p==NULL ){
         item=new VizmoListViewItem(listview);
         item->setOpen(true);
     }
     else item=new VizmoListViewItem(p);
+
 
     item->model=model;
     item->setText(0,model->GetName().c_str());
@@ -77,8 +81,9 @@ VizmoItemSelectionGUI::createItem(VizmoListViewItem * p, CGLModel * model)
     model->GetChildren(objlist);
     if( objlist.empty() ) return item;
     typedef list<CGLModel *>::iterator OIT;
-    for(OIT i=objlist.begin();i!=objlist.end();i++)
+    for(OIT i=objlist.begin();i!=objlist.end();i++){
         createItem(item,*i);
+   }
     return item;
 }
 
@@ -125,4 +130,16 @@ void VizmoItemSelectionGUI::select()
     GetVizmo().GetSelectedItem()=sel;
 }
 
+void VizmoItemSelectionGUI::trim(){
 
+  typedef list<VizmoListViewItem*>::iterator IIT;
+  
+  for( IIT i=items.begin();i!=items.end();i++ ){
+    if((*i)->text(0) == "MultiBody"){      
+      if( ((*i)->firstChild())->text(0) == "")
+	(*i)->setVisible(FALSE);
+	//listview->takeItem((*i));	   
+    }
+  }
+    
+}

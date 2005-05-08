@@ -202,6 +202,8 @@ const Matrix3x3 IdentityMatrix;
     double alpha;
     double beta;
     double gamma;
+
+    double rx, ry, rz;
     //@}
     
     //@}

@@ -401,6 +401,8 @@ public:
           *@see DisplayEdgelist
           */
         void WriteEdgelist(ostream&,int wt) const;
+
+	void WriteEdgelist1(ostream&,int wt) const;
   //@}
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -3143,13 +3145,33 @@ WriteEdgelist(ostream& _myostream,int wt) const {
     
     _myostream << vid << " "; 
     _myostream << data << " "; 
-    _myostream << edgelist.size() << " "; 
+    _myostream <<edgelist.size() << " "; 
     
     for (CEI ei = edgelist.begin(); ei != edgelist.end(); ei++) { 
         ei->WriteEdge(_myostream,wt);
         _myostream << " "; 
     }
 }
+
+////////////////////////////////////////////////
+// JANUARY 27 2005
+// Aimee Vargas
+// Added to write a new map file
+// Node ID and Data are obtained from Cfg class
+/////////////////////////////////////////////////
+template<class VERTEX, class WEIGHT>
+void
+WtVertexType<VERTEX,WEIGHT>::
+WriteEdgelist1(ostream& _myostream,int wt) const {
+    
+  _myostream << edgelist.size() << " ";
+    
+  for (CEI ei = edgelist.begin(); ei != edgelist.end(); ei++) {
+    ei->WriteEdge(_myostream,wt);
+    _myostream << " ";
+  }
+}
+
 
 //==================================
 // Vertex class Predicate Utilities

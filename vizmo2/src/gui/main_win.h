@@ -12,6 +12,7 @@
 #include <qmainwindow.h>
 #include <qtoolbutton.h>
 #include <qdialog.h>
+#include <qtextedit.h> 
 
 class QAction;
 
@@ -21,6 +22,8 @@ class VizmoItemSelectionGUI;
 class VizmoAttributeSelectionGUI;
 class VizmoRoadmapGUI;
 
+#include<stdio.h>
+#include <stdlib.h>
 ///////////////////////////////////////////////////////////////////////////////
 // std Headers
 #include <vector>
@@ -51,39 +54,50 @@ protected:
 
     void keyPressEvent ( QKeyEvent * e );
 
-	void reset(); //reset when new vizmo files are loaded
+    void reset(); //reset when new vizmo files are loaded
 
 private slots:
 
     void load();
-	void updatefiles();     //update opened/reopen files
+    void updatefiles();     //update opened/reopen files
     void resetCamera();     //reset camera
+
     void showmap();         //show roadmap
     void showpath();        //show path frame
     void showstartgoal();   //show start and goal positionx
     void showBBox();        //show Bounding Box
+
     void about();           //about dialog
     void obj_contexmenu();  //create contex menu when right mouse clicked on objs
-	void gen_contexmenu();  //create contex menu when right moise clicked on nothing
+    void gen_contexmenu();  //create contex menu when right moise clicked on nothing
     void notimp();          //not implemented yet.
+
     void refreshEnv();      // refresh!!!
     void changeBGcolor();     //to change the background color for vizmo++
     void envObjsRandomColor();
+
     void saveEnv();           // save environment file
     void saveQryFile();           //save query file (preliminary work)
     void saveQryStart();      //save start cfg
     void saveQryGoal();      //save goal cfg
+    void saveRoadmap();     //save a new roadmap file with new info. about nodes
 
     void setSolid();      // turn object into solidMode
     void setWire();       // turn object into wire mode
-    void setInvisible();  // turn the object invisible
+    void setInvisible();  // delete the object (obstacle)
     void setNewColor();   // change the object's color
+
     void updateScreen();  // redraw GL scene
     void getOpenglSize(int *,int *);
-	void objectEdit();    // change object property
+    void objectEdit();    // change object property
 
-	void resetRobotPosition(); //reset Robot to initial Cfg.
+    void resetRobotPosition(); //reset Robot to initial Cfg.
+   
+    void enablDisablCD(); //Enable/disable collision detection
+    void runCode();  //Call obprm
+    void createEditor(); // create qry file for obprm
 
+    void addObstacle();
 private:
   
     bool CreateActions();   //Create Qt Actions
@@ -100,17 +114,18 @@ private:
             *showHideSGaction,
             *quitAction,
             *fileOpenAction, 
-			*fileUpdateAction,
-                   *fileSaveAction,
-                   *fileSaveQryAction,
+            *fileUpdateAction,
+            *fileSaveAction,
+            *fileSaveQryAction,
+            *fileSaveMapAction,
             *cameraResetAction, 
             *wireFrameAction,
             *changeBGcolorAction,
 			*randObjcolorAction,
 			*showAxisAction,
       *showGridAction,
-    *resetRobotPosAction;
-     
+      *resetRobotPosAction,
+      *addObstacleAction;
 
     VizmoAnimationGUI *animationGUI;
     VizmoScreenShotGUI *screenShotGUI;
@@ -124,7 +139,8 @@ private:
    
     QToolBar *vizmoTools;
     QToolButton *folderButton, *roadmapButton, *pathButton, *strtGoalButton;
-    QToolButton  *cameraButton, *palletButton, *envButton; 
+    QToolButton  *cameraButton, *palletButton, *envButton, *CDButton; 
+    QToolButton *editorButton;
 
     VizGLWin * m_GL;       //the scene window which displays environment..
 };

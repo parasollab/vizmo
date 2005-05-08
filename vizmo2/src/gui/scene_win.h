@@ -27,7 +27,13 @@ public:
     void setClearColor(double r, double g, double b) const {
 		glClearColor( r , g, b, 0 );
 	}
-    
+    //Collision Detection related vars.
+    bool CDOn;
+
+    // reset tranformation tool
+    // it calls class gli::gliReset()
+    void resetTransTool();
+
 signals:
     
     void selectByRMB();
@@ -72,5 +78,6 @@ private:
     bool takingSnapShot;
 
     bool m_bShowGrid, m_bShowAxis;
+
 
 };

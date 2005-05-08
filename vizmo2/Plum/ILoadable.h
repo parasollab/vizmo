@@ -109,6 +109,17 @@ namespace plum{
             return pathname;
         }
         
+	/**
+	 * get color
+	 */
+	void getColor(string s){
+	  cout<<"WORD:: "<<s<<endl;
+	  cout <<"SUB WORD: "<<s.substr(7, 5)<<endl;
+	  //if(s.substr(7, 5) == "COLOR"){
+	  //int i = s.length();
+	  //string sub = s.substr(13, i);
+	  //}
+	}
         
         //the file name that is going to be load
         string m_strFileName;

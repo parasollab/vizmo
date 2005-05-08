@@ -45,4 +45,7 @@ void gliSimMouseUp();
 // Get the picking box dimensions
 bool gliPickBoxDim(int *xOffset,int *yOffset,int *w,int *h);
 
+//Reset gliObj
+void gliReset();
+
 #endif //_GLI_H_

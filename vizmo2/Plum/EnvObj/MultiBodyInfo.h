@@ -77,6 +77,9 @@ namespace plum{
       bool m_transformDone;
       int  m_Index;
       string m_strModelDataFileName;
+      string m_strFileName;
+      string m_strDirectory;
+      bool m_isNew; // to detect whether this body has been added by the user
       double m_X, m_Y, m_Z;
       double m_Alpha, m_Beta, m_Gamma;
       

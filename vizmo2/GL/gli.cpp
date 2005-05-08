@@ -145,3 +145,9 @@ bool gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h)
     return true;
 }
 
+void gliReset(){
+
+  gliGetTransformTool().resetObj();
+
+}
+

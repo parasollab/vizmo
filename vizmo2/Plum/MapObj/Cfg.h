@@ -41,6 +41,15 @@ namespace plum{
 	/////////////////////////////////////////
 
 	static int dof;
+
+	/////////////////////////
+	// for collison detection 
+	//////////////////////////
+
+	bool coll;
+
+	//testing:
+	OBPRMView_Robot* m_robot;
         
         //////////////////////////////////////////////////////////////////////
         //      Constructor/Destructor
@@ -52,6 +61,10 @@ namespace plum{
         bool operator==( const CCfg & other ) const;
         void Set( int index , OBPRMView_Robot* robot, CCModelBase* cc);
 
+	virtual void SetColor( float r, float g, float b, float a ){
+	  CGLModel::SetColor(r,g,b,a);
+	  m_robot->SetColor(r,g,b,a);
+	}
         void DrawRobot();
         void DrawBox();
 	//void DrawBox(double scale);
@@ -74,6 +87,15 @@ namespace plum{
 	static int GetDof(void) { return dof; }
 	void SetShape(Shape shape){ m_Shape=shape; }
 	CCModelBase * GetCC() const { return m_CC; }
+	vector<double> GetDataCfg() {return dofs;}
+	//function accessed to write data into a new .map file
+	vector<double> GetUnknown(){
+	  vector<double> v;
+	  v.push_back(m_Unknow1); v.push_back(m_Unknow2); v.push_back(m_Unknow3);
+	  return v;
+	}
+
+	//function accessed from gliDataStructure
 	void CopyCfg() {
 	  //cout<<"Vector dofs size::"<<dofs.size()<<endl;
 	  ObjCfg.clear();
@@ -105,8 +127,8 @@ namespace plum{
         vector<double> dofs;
         int m_index;
 	double m_Unknow1, m_Unknow2, m_Unknow3;
- 
-	OBPRMView_Robot* m_robot;
+	//original declaration:
+	//	OBPRMView_Robot* m_robot;
 	Shape m_Shape;
 	CCModelBase * m_CC;       
         
@@ -151,13 +173,15 @@ namespace plum{
 	
         const string GetName() const { return "Edge"; }
 	list<string> GetInfo() const;
+	vector<int> GetEdgeNodes();
+	
         
         //////////////////////////////////////////////////////////////////////
         //      Access Method
         //////////////////////////////////////////////////////////////////////
         int & GetLP(){ return m_LP; }
         double & GetWeight(){ return m_Weight; }
-        
+        int GetID() { return m_ID; }
         //////////////////////////////////////////////////////////////////////
         //      Protected Method & Data
         //////////////////////////////////////////////////////////////////////

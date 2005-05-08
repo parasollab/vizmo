@@ -5,7 +5,8 @@
 
  CXX = g++
 
- OPTS = -O2 -MMD -W #-Wall
+ #OPTS = -O2 -MMD -W #-Wall
+ OPTS = -g -MMD -W
 
 #--------------------------------------------------------------------
 # Xlib
@@ -30,10 +31,28 @@
  GRAPH_DIR = $(VIZMO_DIR)/graph
  GRAPH_INCL = -I$(GRAPH_DIR)
 
-#--------------------------------------------------------------------
 
- INCLUDE = -I. -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(GRAPH_INCL) $(QT_INC) $(INCPATH)
- LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(LIBS)
+#--------------------------------------------------------------------------
+# collision detection
+#--------------------------------------------------------------------------
+ RCD_DIR = /research/umbrella/dsmft/CD-libs/linux
+ 
+                                                                                
+ RAPID_DIR     = ${RCD_DIR}/RAPID
+ RAPIDLIB_DIR  = ${RAPID_DIR}
+ RAPIDLIB      = -L${RAPIDLIB_DIR} -lRAPID
+ RAPID_INCL    = -I${RAPID_DIR}
+                                       
+ CD_DIR = $(VIZMO_DIR)
+ CD_INCL = -I$(CD_DIR)/CollisionDetection -I$(CD_DIR)/Plum
+ CD_LIB = -L$(CD_DIR)/lib -lCD -lPlum                     
+#-------------------------------------------------------------------------
+
+ INCLUDE = -I. -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(CD_INCL) $(GRAPH_INCL) $(QT_INC) $(INCPATH) $(RAPID_INCL)
+ LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPIDLIB} $(LIBS)
+
+# INCLUDE = -I. -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(GRAPH_INCL) $(QT_INC) $(INCPATH)
+# LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(LIBS)
 
 #--------------------------------------------------------------------
 

@@ -15,7 +15,6 @@ namespace plum{
         SetColor(0.4f,0.4f,0.4f,1);
         m_bFixed=true;
         m_R=0;
-	//cout<<"MBI in MBModel Constructor::"<<m_MBInfo<<endl;
     }
     
     CMultiBodyModel::~CMultiBodyModel()
@@ -84,13 +83,13 @@ namespace plum{
     
     //Draw
     void CMultiBodyModel::Draw( GLenum mode )
-    {   
+    {  
         glColor4fv(m_RGBA);
         glPushMatrix();
 	glTranslated(m_pPoly[0].tx(), m_pPoly[0].ty(), m_pPoly[0].tz());
         glTransform();
 	glTranslated(-m_pPoly[0].tx(), -m_pPoly[0].ty(), -m_pPoly[0].tz());
-        for( int i=0;i<m_PolySize;i++ )
+	for( int i=0;i<m_PolySize;i++ )
             m_pPoly[i].Draw( mode );
         glPopMatrix();
     }
@@ -109,9 +108,10 @@ namespace plum{
 
     void CMultiBodyModel::SetRenderMode(int mode)
     {
-    m_RenderMode=mode;
-        for( int i=0;i<m_PolySize;i++ )
-            m_pPoly[i].SetRenderMode(mode);
+      m_RenderMode=mode;
+      for( int i=0;i<m_PolySize;i++ )
+	m_pPoly[i].SetRenderMode(mode);
+      
     }
 
     void CMultiBodyModel::SetColor(float r, float g, float b, float a)
@@ -124,8 +124,7 @@ namespace plum{
   void CMultiBodyModel::Scale(double x, double y, double z)
   {
     CGLModel::Scale(x,y,z);
-    // for( int i=0;i<m_PolySize;i++ )
-    //             m_pPoly[i].Scale(x,y,z);
+
   }
 
     list<string> CMultiBodyModel::GetInfo() const 
@@ -135,7 +134,7 @@ namespace plum{
         else info.push_back(string("Robot"));
         {
             ostringstream temp;
-            temp<<"There are "<<m_PolySize<<" bodies";
+            temp<<"There are "<<m_PolySize<<" bodies"<<endl;
             info.push_back(temp.str());
         }
         return info;

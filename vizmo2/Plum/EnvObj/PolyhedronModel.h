@@ -10,6 +10,8 @@
 #include "MultiBodyInfo.h"
 #include "Transformation.h"
 
+#include <RAPID.H>
+
 namespace plum{
     
   class CMultiBodyInfo;
@@ -22,7 +24,9 @@ namespace plum{
       // Constructor/Destructor
       //////////////////////////////////////////////////////////////////////
       CPolyhedronModel();
-      virtual ~CPolyhedronModel();
+      virtual ~CPolyhedronModel( );
+
+      //virtual ~CPolyhedronModel( delete rapidModel; );
         
       //////////////////////////////////////////////////////////////////////
       // Core
@@ -45,7 +49,24 @@ namespace plum{
       void SetSelected( bool bSel=true );
       double GetRadius() const { return m_R; }
       const Point3d& GetCOM() const { return m_COM; }
-        
+
+      ///////////////////////////////////////////////////////////////////
+      // RAPID MODELS
+      //////////////////////////////////////////////////////////////////
+      
+      RAPID_model * rapidModel;
+      RAPID_model * GetRapidModel() {
+	return rapidModel;
+      }
+
+      void ConvertToDouble(Vector3d vp1, Vector3d vp2, Vector3d vp3, 
+			   double p1[], double p2[], double p3[]){
+
+	    p1[0] = vp1[0]; p1[1] = vp1[1]; p1[2] = vp1[2];
+	    p2[0] = vp2[0]; p2[1] = vp2[1]; p2[2] = vp2[2];
+	    p3[0] = vp3[0]; p3[1] = vp3[1]; p3[2] = vp3[2];
+     }
+
     protected:
       //build model, given points and triangles
       bool BuildGLModel_Solid( const PtVector& points, const TriVector& tris, 

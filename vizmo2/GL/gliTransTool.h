@@ -37,6 +37,8 @@ public:
         Project2Win();
     }
 
+    void resetSelObj(){m_pSObj=NULL;}
+
     //need be updated when window size changed
     void setWinSize(int W, int H) { 
         m_W=W; m_H=H; 
@@ -214,6 +216,7 @@ public:
 		m_ST.setWinSize(W,H); 
 	}
 
+    void resetObj() {m_pTool->resetSelObj();}
 private:
     //current tool, m_MT or m_RT or NULL
     gliTToolBase * m_pTool;

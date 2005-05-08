@@ -43,11 +43,20 @@ namespace plum{
       // function for the tree control... returns the CBodyInfo for the ith body
       
       string getModelDirString(){return  m_strModelDataDir;}
-
+      //used to set correct directory of the *.g file added
+      void newModelDir();
 
       //To get access to DOF var. from Robot
       int DoF;
       int getDOF(){return DoF;}
+
+      ////////////////////////////////
+      //Objects Deleted from Scene
+      ///////////////////////////////
+
+      void DecreaseNumMB(){m_cNumberOfMultiBody = m_cNumberOfMultiBody - 1;}
+      void IncreaseNumMB(){m_cNumberOfMultiBody = m_cNumberOfMultiBody + 1;}
+      void SetNewMultiBodyInfo(CMultiBodyInfo * mbi);
       
       ////////////////////////////////////////////////////////////////////////////
       //

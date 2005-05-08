@@ -16,7 +16,8 @@ VizGLWin::VizGLWin(QWidget * parent, const char * name)
     setFocusPolicy(QWidget::StrongFocus);
     
     takingSnapShot=false;
-	m_bShowGrid=m_bShowAxis=true;
+    m_bShowGrid=m_bShowAxis=true;
+    CDOn = false;
 }
 
 void VizGLWin::getWidthHeight(int *w,int *h)
@@ -130,25 +131,80 @@ void VizGLWin::mouseReleaseEvent( QMouseEvent * e )
 
     vector<gliObj>& objs=GetVizmo().GetSelectedItem();
     if( e->button()==Qt::RightButton ){
-        if( !objs.empty() ) 
+                if( !objs.empty() )
 			emit selectByRMB();
 		else //empty
 			emit clickByRMB();
     }//not RMB
     else if( e->button()==Qt::LeftButton ){ 
-		if( !objs.empty() ) 
+                if( !objs.empty() ) 
 			emit selectByLMB();
+
 		else
 			emit clickByLMB();
+
 	}//if
+
+
+    //Update rotation of object
+
+    if(objs.size()!=0){
+      vector<gliObj>& sel=GetVizmo().GetSelectedItem();
+      typedef vector<gliObj>::iterator OIT;
+      for(OIT i=sel.begin();i!=sel.end();i++){
+        if( ((CGLModel*)(*i))->GetName()!="Node" ) {
+
+	  typedef vector<gliObj>::iterator GIT;
+	  CMultiBodyModel * mbl;
+	  list<CGLModel*> modelList;
+	  CGLModel* gl;
+	  int i=0;
+	  for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++){
+	    i++;
+	    mbl=(CMultiBodyModel*)(*ig);
+	    //get Polyhedron
+	    mbl->GetChildren(modelList);
+	    gl = modelList.front();
+	    
+	    //get initial quaternion from polyhedron
+	    //Quaternion qt0;
+	    //qt0 = gl->q();
+	    Quaternion qt0(gl->q());
+
+	    //get current/new rotation from objs var.
+	    Quaternion qrm;
+	    qrm = objs[0]->q();
+	    
+	    //multiply polyhedron0 and multiBody quaternions
+	    //to get new rotation
+	    Quaternion finalQ;
+	    finalQ = qrm * qt0;
+	    
+	    Matrix3x3 fm = finalQ.getMatrix();
+	    Vector3d fv = finalQ.MatrixToEuler(fm);
+	    
+	    mbl->rx() = fv[0];
+	    mbl->ry() = fv[1];
+	    mbl->rz() = fv[2];
+	    
+	  }//end IF
+	}//end for
+      }
+   }
 
 	updateGL();
 }
 
 void VizGLWin::mouseMoveEvent ( QMouseEvent * e )
 {
-    if( gliMM(e) ){ updateGL(); return; }//handled by gli
-    updateGL();
+  if( gliMM(e) ){  
+    if(CDOn){
+      GetVizmo().TurnOn_CD(); 
+    }
+    updateGL(); 
+    return; }//handled by gli
+    
+  updateGL();
 }
 
 void VizGLWin::keyPressEvent ( QKeyEvent * e )
@@ -199,8 +255,14 @@ void VizGLWin::drawText(list<string>& info)
     for(SIT i=info.begin();i!=info.end();i++){
         //////////////////////////////////////////////
         glTranslated(0,-0.5,0);
-        glColor3f(0.2,0.2,0.5);
+	int pos = i->find("**", 0); 
+	if (pos == string::npos)
+	  glColor3f(0.2,0.2,0.5);
+	else
+	  glColor3f(1, 0, 0);
+	
         drawstr(0.2,0,0,i->c_str());
+	
     }
 }
 
@@ -216,7 +278,10 @@ void VizGLWin::showAxis()
 	updateGL();
 }
 
-
+void VizGLWin::resetTransTool()
+{
+  gliReset();
+}
 
 
 

@@ -14,7 +14,11 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
 #include <Plum.h>
+#include <EnvObj/MultiBodyModel.h>
 using namespace plum;
+
+
+#include <CollisionDetection.h>
 
 //Define singleton
 class vizmo;
@@ -97,8 +101,10 @@ public:
     bool IsRoadMapLoaded(){ return m_obj.m_Map!=NULL; }
     void ChangeNodesColor(double r, double g, double b, string s);
     void ChangeNodesRandomColor();
-	PlumObject * GetMap() const { return m_obj.m_Map; }
-    
+    PlumObject * GetMap() const { return m_obj.m_Map; }
+
+    void WriteNodesInfo(ostream& _myostream,CMapLoader<CCfg,CSimpleEdge>::WG * WG);
+   
     //////////////////////////////////////////////////////////////////////
     // Path Related Function
     void ShowPathFrame( bool bShow=true );
@@ -129,7 +135,22 @@ public:
     bool SaveEnv(const char *filename); //save env. file
     bool SaveQry(const char *filename); //save query file
     void SaveQryStart(); //save start cfg
-    void SaveQryGoal(); //save goal cfg.
+    //void SaveQryGoal(); //save goal cfg.
+    void SaveQryCfg(char ch); //save start or goal cfg.
+
+    void DeleteObject(CMultiBodyModel * mbl);
+    /////////////////////////////////////////////////////////////////////
+    // Collision Detection Related Functions
+
+    CollisionDetection CD;
+    void TurnOn_CD();
+    bool IsCDOn();
+    CCfg * m_cfg;
+
+    //void Node_CD(double *cfg);
+    void vizmo::Node_CD(CCfg * cfg);
+    double * m_nodeCfg;
+    bool m_IsNode;
 
     //Miscelaneous
 

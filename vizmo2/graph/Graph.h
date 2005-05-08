@@ -1770,6 +1770,55 @@ class Graph:public D, public M, public W{
     myofstream.close();
   }
 
+  /////////////////////////////////////////////////
+  //January 27 2005
+  //Aimee Vargas
+  //
+  // Testing function to write a new map file
+  // This function will just write edge information
+  ///////////////////////////////////////////////////
+
+  /**Write graph info to the given output stream.
+   *This method outputs Edge information
+   *to the output stream and calls 
+   *WtVertexType::WriteEdgelist1 for each vertex in 
+   *this graph.
+   *@see WtVertexType::WriteEdgelist1
+   */
+  void WriteNewGraph(ostream& _myostream, int id) const { 
+    // ofstream  _myostream (_fname);
+    // if (!_myostream ) {
+    //cout << "\nInWriteGraph: can't open outfile: " << _fname ; 
+    //}
+    
+/* #ifdef _ASCI_ */
+/*     _myostream << endl << "GRAPHSTART"; */
+/* #else */
+/*     _myostream << endl << "#####GRAPHSTART#####"; */
+/* #endif */
+/*     if(this->IsDirected()) */
+/*     _myostream << endl << this->numVerts << " " << this->numEdges << " " << this->vertIDs;  */
+/*     else  */
+/*     _myostream << endl << this->numVerts << " " << this->numEdges / 2 << " " << this->vertIDs;  */
+    
+    //format: VID VERTEX #edges VID WEIGHT VID WEIGHT ... 
+    //for (CVI vi = this->v.begin(); vi != this->v.end(); vi++) {
+      this->v[id].WriteEdgelist1(_myostream,W::check_weighted());
+    // } 
+    
+/* #ifdef _ASCI_ */
+/*     _myostream << endl << "GRAPHSTOP"; */
+/* #else */
+/*     _myostream << endl << "#####GRAPHSTOP#####"; */
+/* #endif */
+/*     _myostream << endl;  */
+
+/*     _myostream.close(); */
+ 
+  }
+
+
+
   void WriteMetis(ostream& _myostream) const {
     
     int ne =0;
@@ -1845,6 +1894,7 @@ class Graph:public D, public M, public W{
    *during processing.
    */
   void ReadGraph(istream& _myistream) {
+
     VID v1id, v2id, maxVID;
     VI  v1;
     VERTEX data;
@@ -1857,20 +1907,16 @@ class Graph:public D, public M, public W{
       cout << endl << "In ReadGraph: didn't read GRAPHSTART tag right";
       return;
     }
-    
     if (this->numVerts != 0) {
       this->EraseGraph(); // empty graph before filling it in
     }
-    
     _myistream >> nVerts >> nEdges >> maxVID;
-    
     for (int i = 0; i < nVerts; i++){
       _myistream >> v1id >> data;             // read and add vertex 
       AddVertex(data,v1id);
       if ( !IsVertex(v1id,&v1) ) {
 	cout << "\nIn ReadGraph: didn't add v1...";
       }
-      
       _myistream >> nedges;               // read and add its edges
       for (int j = 0; j < nedges; j++){
 	if(W::check_weighted())
@@ -1879,7 +1925,6 @@ class Graph:public D, public M, public W{
 	v1->AddEdge(v2id,weight);
       }
     }
-    
     this->numVerts = nVerts;
     //internally we keep trace to all the edges in the graph;
     //which for undirected is double
@@ -1887,10 +1932,9 @@ class Graph:public D, public M, public W{
     else this->numEdges = nEdges*2;
     this->vertIDs = maxVID; // set the maximum VID used so far...
     // should sort verts & find biggest used...
-    
     _myistream >> tagstring;
     if ( !strstr(tagstring,"GRAPHSTOP") ) {
-      cout << endl << "In ReadGraph: didn't read GRAPHSTOP tag right";
+      cout << endl << "In ReadGraph: didn't read GRAPHSTOP tag right: line 1890";
       return;
     }
   }

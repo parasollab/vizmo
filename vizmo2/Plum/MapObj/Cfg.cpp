@@ -1,6 +1,7 @@
 // Cfg.cpp: implementation of the CCfg class.
 //
 //////////////////////////////////////////////////////////////////////
+#include <stdlib.h>
 
 #include "Cfg.h"
 #include "Plum.h"
@@ -20,6 +21,7 @@ namespace plum{
     {
       m_Unknow1 = LONG_MAX; m_Unknow2 = LONG_MAX; m_Unknow3 = LONG_MAX;
       m_index = -1; m_Shape=Point;
+      coll = false;
     }
     
     CCfg::~CCfg()
@@ -28,7 +30,6 @@ namespace plum{
       m_Unknow1 = LONG_MAX; m_Unknow2 = LONG_MAX; m_Unknow3 = LONG_MAX;
     }
     
-  //void CCfg::Set( int index , OBPRMView_Robot* robot) 
   void CCfg::Set( int index , OBPRMView_Robot* robot, CCModelBase* cc) 
   {    
         m_index = index;
@@ -44,10 +45,18 @@ namespace plum{
       double * cfg=new double[dof];
       for(int i=0;i<dof;i++) cfg[i]=dofs[i];
       //CopyCfg();
+
+      //backUp
+      //m_robot->BackUp();
+
       m_robot->Scale(sx(),sy(),sz());
       m_robot->Configure(cfg);
 	  delete [] cfg;
       m_robot->Draw(GL_RENDER);
+
+      //restore
+      //m_robot->Restore();
+      
   }
   
     void CCfg::DrawBox(){
@@ -154,11 +163,30 @@ namespace plum{
   { 	
     list<string> info; 
     {
+      int dof=CCfg::dof;
+
       ostringstream temp;
-      temp<<"Node ID= "<<m_index;
+  
+      temp<<"Node ID = "<<m_index<< " ";
+      //info.push_back(temp.str());
+      temp << " Cfg ( ";
+
+      for(int i=0; i<dof;i++){
+	if(i < 3)
+	  temp << dofs[i];
+	else
+	  temp << dofs[i];
+	if(i == dof-1)
+	  temp << " )";
+	else
+	  temp << ", ";
+      }
       info.push_back(temp.str());
+
+      if(coll)
+	info.push_back("\t\t **** IS IN COLLISION!! ****");
     }
-    
+
     return info;
   }
 
@@ -239,6 +267,14 @@ namespace plum{
     
     return info;
   }
+
+  vector<int> CSimpleEdge::GetEdgeNodes(){
+
+    vector<int> v;
+    v.push_back(m_s->GetIndex());
+    v.push_back(m_e->GetIndex());
+    return v;
+  }
   
   //////////////////////////////////////////////////////////////////////
   // Opers
@@ -257,7 +293,7 @@ namespace plum{
   ostream & operator<<( ostream & out, const CCfg & cfg )
   {
     for( int iC=0; iC<cfg.dofs.size(); iC++ ){
-      out<<cfg.dofs[iC];
+      out<<cfg.dofs[iC]<<" ";
     }
 
 
@@ -289,7 +325,7 @@ namespace plum{
     
     ostream & operator<<( ostream & out, const CSimpleEdge & edge )
     {
-        out << edge.m_LP << " " << edge.m_Weight;
+      out <<edge.m_LP << " " << edge.m_Weight << " ";
         return out;
     }
     

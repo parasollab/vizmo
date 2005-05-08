@@ -30,6 +30,9 @@ namespace plum{
     void CMultiBodyInfo::operator=( const CMultiBodyInfo & other )
     {
         m_cNumberOfBody = other.m_cNumberOfBody;
+	m_NumberOfConnections = other.m_NumberOfConnections;
+	m_active = other.m_active;
+
         m_pBodyInfo = new  CBodyInfo[m_cNumberOfBody];
         
         for( int iM=0; iM<m_cNumberOfBody; iM++ )
@@ -37,7 +40,10 @@ namespace plum{
     }
 
     ostream & operator<<( ostream & out, const CMultiBodyInfo & mbody ){
-        out<< "- Number of bodies = " <<mbody.m_cNumberOfBody << endl;
+        out<< "- Number of bodies = " <<mbody.m_cNumberOfBody << endl 
+	   << "- Number of connections = "<< mbody.m_NumberOfConnections <<endl
+           << "- Active/Passive = "<<mbody.m_active<<endl;
+	
         for( int iM=0; iM<mbody.m_cNumberOfBody; iM++ )
             out << "- Body["<< iM <<"] "<< endl << mbody.m_pBodyInfo[iM];
         return out;
@@ -62,6 +68,7 @@ namespace plum{
         m_cNumberOfConnection =0;
         m_pConnectionInfo     =NULL;
         m_strModelDataFileName[0]='\0';
+	m_isNew = false;
 
     }
 
@@ -91,6 +98,7 @@ namespace plum{
 	Orientation orientation(Orientation::FixedXYZ, m_Alpha, m_Beta, m_Gamma);
 	Transformation m_currentTransform(orientation, position);
       }
+
 
     }
 
@@ -143,6 +151,10 @@ namespace plum{
         m_Alpha=other.m_Alpha; 
         m_Beta=other.m_Beta; 
         m_Gamma=other.m_Gamma; 
+
+	m_strFileName = other.m_strFileName;
+	m_strDirectory = other.m_strDirectory;
+	m_isNew = other.m_isNew;
         
         m_strModelDataFileName[0]='\0';
         m_strModelDataFileName=other.m_strModelDataFileName; 
@@ -163,9 +175,10 @@ namespace plum{
 
     ostream & operator<<( ostream & out, const CBodyInfo & body ){
         
-      out<<"-\t Data File = "<<body.m_strModelDataFileName<<endl
+      out<<"-\t File name (full pth) = "<<body.m_strModelDataFileName<<endl
+         <<"-\t File name (subDir and name) = "<<body.m_strFileName<<endl
 	 <<"-\t Location = ("<<body.m_X<<", "<<body.m_Y<<", "<<body.m_Z<<")"<<endl
-	 <<"-\t Orientation = ("<<body.m_Alpha*360<<", "<<body.m_Beta*360<<", "<<body.m_Gamma*360<<")"<<endl
+	 <<"-\t Orientation = ("<<body.m_Alpha<<", "<<body.m_Beta<<", "<<body.m_Gamma<<")"<<endl
 	 <<"-\t Number of Connection = "<< body.m_cNumberOfConnection <<endl
          <<"-\t Index = "<< body.m_Index<<endl;
         for( int iC=0; iC<body.m_cNumberOfConnection; iC++ )

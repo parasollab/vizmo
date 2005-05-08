@@ -49,9 +49,11 @@ namespace plum{
         //set point for opengl
         int psize=points.size();
         GLdouble * vertice=new GLdouble[3*psize];
+	double * Dpoints = new double[3*psize];
         if( vertice==NULL ) return false;
         for(int iP=0;iP<psize;iP++){
             points[iP].get(vertice+iP*3);    // here are read the points of every *.g file
+	    points[iP].get(Dpoints+iP*3);
         }
         glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(3, GL_DOUBLE, 0, vertice);
@@ -60,13 +62,32 @@ namespace plum{
         int tsize=tris.size();
         Vector3d * normal=new Vector3d[tsize];
         if( normal==NULL ) return false;
+    
+	//create RAPID model
+
+	rapidModel = new RAPID_model;
+	rapidModel->BeginModel();
+
         for( int t=0;t<tsize;t++ ){
             const Tri & tri=tris[t];
             Vector3d v1=points[tri[1]]-points[tri[0]];
             Vector3d v2=points[tri[2]]-points[tri[0]];
             normal[t]=(v1%v2).normalize(); //cross product
+
+	    //generate RAPID model with all the triangles
+	    // of THIS Polyhedron
+	    double p1[3], p2[3], p3[3];
+	    (points[tri[0]]-com).get(p1);
+	    (points[tri[1]]-com).get(p2);
+	    (points[tri[2]]-com).get(p3);
+
+	    rapidModel->AddTri(p1,p2,p3,t);
         }
         
+	//end RAPID model
+	
+	rapidModel->EndModel();
+
         //build solid model
         if( BuildGLModel_Solid(points,tris,com,normal)==false )
         {
@@ -95,6 +116,11 @@ namespace plum{
         Quaternion qz(cz_2,sz_2*Vector3d(0,0,1));
         Quaternion nq=qz*qy*qx; //new q
         this->q(nq.normalize()); //set new q
+
+
+	rx() = m_BodyInfo.m_Alpha;
+	ry() = m_BodyInfo.m_Beta;
+	rz() = m_BodyInfo.m_Gamma;
 	}	
 	
 	return true;

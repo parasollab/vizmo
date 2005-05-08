@@ -51,7 +51,7 @@ FileListDialog::FileListDialog
 
 void FileListDialog::changeMap()
 {
-    QString fn=QFileDialog::getOpenFileName(QString::null,"Env File (*.map)",this);
+    QString fn=QFileDialog::getOpenFileName(QString::null,"Map File (*.map)",this);
     if ( !fn.isEmpty() ){
 		GetVizmo().setMapFileName(fn.data());
         Map_label->setText(GetVizmo().getMapFileName().c_str());
@@ -60,7 +60,7 @@ void FileListDialog::changeMap()
 
 void FileListDialog::changeEnv()
 {
-    QString fn=QFileDialog::getOpenFileName(QString::null,"Path File (*.env)",this);
+    QString fn=QFileDialog::getOpenFileName(QString::null,"Env File (*.env)",this);
     if ( !fn.isEmpty() ){
 		GetVizmo().setEnvFileName(fn.data());
         Env_label->setText(GetVizmo().getEnvFileName().c_str());

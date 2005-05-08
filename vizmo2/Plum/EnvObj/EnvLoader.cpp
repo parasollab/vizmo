@@ -72,6 +72,7 @@ namespace plum{
       {
 	char c=fin.peek();
 	fin.getline(strLine, 149); //read a line
+
 	if( !isCommentLine(c) ){ //if this line is not comment
 	  m_cNumberOfMultiBody = atoi( strLine ); //total number of multiBodies
 	  break;
@@ -110,9 +111,22 @@ namespace plum{
     if( strData[0]=='A'||strData[0]=='a'){
       bActive=true;
       MBInfo.m_active = true;
+      
     }
 
+//     else{
+//       ///testing to read color
+//       string s;
+//       char c=fin.peek(); 
+//       cout<< "fin:: "<< fin << endl;        
+//       if(isCommentLine(c) ){
+// 	fin >> s;
+// 	getColor(s);
+//       }
+//    }
+
     fin >> MBInfo.m_cNumberOfBody;  /* number of body in this multibody */
+    //cout<<"number of body in this multibody "<< MBInfo.m_cNumberOfBody<<endl;
     
     MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
     if( MBInfo.m_pBodyInfo==NULL ) return false;
@@ -121,20 +135,11 @@ namespace plum{
       {
 	if( ParseBody(fin, MBInfo.m_pBodyInfo[iB])==false )
 	  return false;
-	
-// 	if( !MBInfo.m_pBodyInfo[iB].m_bIsFixed )
-// 	  dof++;
 
 	if((iB == 0)&&(!MBInfo.m_pBodyInfo[0].m_bIsFixed))
 	  dof = 6;
       }
     
-    
-//     if( bActive ){ //if is robot
-//       dof+=5;
-//       CCfg::dof=dof;
-//       cout<< "DOF's: "<<CCfg::dof<<endl;
-//     }
     
     ////////////////////////////////////////////////////////
     //get connection info
@@ -161,7 +166,7 @@ namespace plum{
 
     //Do transformation for body0, the base. This is always needed.	 
     MBInfo.m_pBodyInfo[currentBody].doTransform();
-
+ 
     if( numberOfRobotConnections!=0 ){
       
       //initialize the MBInfo.m_pBodyInfo[i].m_pConnectionInfo for each body
@@ -189,6 +194,7 @@ namespace plum{
     char strData[150];
     char tmp[150];
     static double PI_180=3.1415926535/180;
+    //static double PI_180 = 3.1415926535*2;
 #ifdef WIN32
     string sep="\\"; //path seperator
 #else
@@ -214,8 +220,13 @@ namespace plum{
     
     //get data file name
     fin >> strData;
+    //store name of *.g file and its subdirectory (if exists)
+    BodyInfo.m_strFileName = strData;
     
     if( !m_strModelDataDir.empty() ) {
+      //store just the path of the current directory
+      BodyInfo.m_strDirectory = m_strModelDataDir;
+
       BodyInfo.m_strModelDataFileName+=m_strModelDataDir;
       BodyInfo.m_strModelDataFileName+=sep;
     }
@@ -235,7 +246,7 @@ namespace plum{
     BodyInfo.m_Alpha=BodyInfo.m_Alpha*PI_180;
     BodyInfo.m_Beta=BodyInfo.m_Beta*PI_180;
     BodyInfo.m_Gamma=BodyInfo.m_Gamma*PI_180;
-    
+   
     GoToNext(fin);
     
     return true;
@@ -319,11 +330,17 @@ namespace plum{
     BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Z =
       BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Z*PI_180;
     
-    //cout<<"BodyInfo["<<preIndx<<"]"<<BodyInfo[preIndx]<<endl;
-
     return true;
   }
 
+
+  void CEnvLoader::SetNewMultiBodyInfo(CMultiBodyInfo * mbi){
+    for(int i=0; i<m_cNumberOfMultiBody; i++){
+     
+      m_pMBInfo[i] = mbi[i];
+    }
   
+  }
+
 }//namespace plum
 
