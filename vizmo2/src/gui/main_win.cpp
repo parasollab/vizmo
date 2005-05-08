@@ -9,6 +9,9 @@
 #include "roadmap.h"
 #include "filelistDialog.h"
 #include "obj_property.h"
+#include "obprmGUI.h"
+#include "addObjDialog.h"
+#include "vizmoEditor.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //Include Qt Headers
@@ -23,8 +26,8 @@
 #include <qfiledialog.h>
 #include <qstatusbar.h>
 #include <qpushbutton.h>
-#include <qcombobox.h>
 #include <qpopupmenu.h>
+#include <qcombobox.h>
 #include <qmenubar.h>
 #include <qmessagebox.h>
 #include <qcolordialog.h> 
@@ -46,7 +49,13 @@
 #include "icon/flag.xpm"
 #include "icon/pallet.xpm"
 #include "icon/tapes.xpm"
-
+#include "icon/crash_burn.xpm"
+#include "icon/edit.xpm"
+#include "icon/floppy2_green.xpm"
+#include "icon/3D_yellow.xpm"
+#include "icon/3D_blue.xpm"
+#include "icon/3D_green.xpm"
+#include "icon/update.xpm"
 ///////////////////////////////////////////////////////////////////////////////
 
 VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
@@ -88,6 +97,7 @@ bool VizmoMainWin::InitVizmo()
 	FileListDialog * flDialog=new FileListDialog(this,"Vizmo File List");
 	if( flDialog->exec()!=QDialog::Accepted )
 		return false;
+
 
     if( GetVizmo().InitVizmoObject()==false ){
         return false;
@@ -176,9 +186,14 @@ void VizmoMainWin::reset()
             strtGoalButton->setEnabled(true);
         }
     }
+
+    addObstacleAction->setEnabled(true);
+    
     cameraButton->setEnabled(true);
     palletButton->setEnabled(true);
     envButton->setEnabled(true);
+    CDButton->setEnabled(true);
+    editorButton->setEnabled(true);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -191,7 +206,7 @@ void VizmoMainWin::load()
     QString fn = QFileDialog::getOpenFileName( QString::null, 
         "OBPRM Files (*.map *.env)" , this);
     QFileInfo fi(fn);
-    
+
     if ( !fn.isEmpty() ){
         m_Args.push_back(fn.latin1());
         m_bVizmoInit=false;
@@ -199,7 +214,9 @@ void VizmoMainWin::load()
         statusBar()->message( "File Loaded : "+fn );
     }
     else statusBar()->message( "Loading aborted" );
-	m_GL->updateGL();
+
+    m_GL->resetTransTool();
+    m_GL->updateGL();
 }
 
 void VizmoMainWin::updatefiles()
@@ -218,12 +235,37 @@ void VizmoMainWin::updatefiles()
     objectSelection->reset();
     screenShotGUI->reset();
     roadmapGUI->reset();
-
     reset();
+
+    m_GL->resetTransTool();
+
+}
+
+void VizmoMainWin::saveRoadmap()
+{
+  QString fn = QFileDialog::getSaveFileName( QString::null, 
+					     "Files (*.map)" ,
+					     this,
+					     "save file dialog",
+					     "Choose a filename to save under" );
+  
+  QFileInfo fi(fn);
+  if ( !fn.isEmpty() ) {
+    string filename = fn;
+    const char* f;
+    f = filename.c_str();
+    //GetVizmo().SaveMap(f);
+    roadmapGUI->SaveNewRoadmap(f);
+  } else {
+    statusBar()->message( "Saving aborted", 2000 );
+  }
+  m_GL->updateGL();
+
 }
 
 void VizmoMainWin::saveEnv()
 {
+  
   QString fn = QFileDialog::getSaveFileName( QString::null, 
 					     "Files (*.env)" ,
 					     this,
@@ -266,13 +308,12 @@ void VizmoMainWin::saveQryFile()
 
 void VizmoMainWin::saveQryStart(){
 
-  GetVizmo().SaveQryStart();
-
+  GetVizmo().SaveQryCfg('s');
 }
 
 void VizmoMainWin::saveQryGoal(){
 
-  GetVizmo().SaveQryGoal();
+  GetVizmo().SaveQryCfg('g');
 }
 
 void VizmoMainWin::resetCamera()
@@ -320,10 +361,7 @@ void VizmoMainWin::obj_contexmenu()
     QPopupMenu cm(this);
     cm.insertItem("Solid",this,SLOT(setSolid()) );
     cm.insertItem("Wire", this,SLOT(setWire()));
-    cm.insertItem("Invisible",this,SLOT(setInvisible()));
-    cm.insertItem(QIconSet(icon_pallet),"Color", this, SLOT(setNewColor()));
-    cm.insertSeparator();
-    cm.insertItem("Edit...", this,SLOT(objectEdit()));
+
 
     //Create submenu to set start and goal configs.
     //create it just if Robot has been selected
@@ -334,10 +372,11 @@ void VizmoMainWin::obj_contexmenu()
     {
         CGLModel * gl=(CGLModel *)(*ig);
         list<string> info=gl->GetInfo();
+
 	m_s = info.front();
-	//m_s = gl->GetName();
+	
     }
-    
+
     if(m_s == "Robot"){
       QPopupMenu * cfgs = new QPopupMenu( this );
       cfgs->insertTearOffHandle();
@@ -346,7 +385,13 @@ void VizmoMainWin::obj_contexmenu()
 
       cm.insertItem( "Set query", cfgs);
     }
+    else
+      cm.insertItem("Delete",this,SLOT(setInvisible()));
+
 	
+    cm.insertItem(QIconSet(icon_pallet),"Color", this, SLOT(setNewColor()));
+    cm.insertSeparator();
+    //cm.insertItem("Edit...", this,SLOT(objectEdit()));
 
     if( cm.exec(QCursor::pos())!=-1 ) m_GL->updateGL();    
 }
@@ -376,7 +421,8 @@ void VizmoMainWin::setWire()
 
 void VizmoMainWin::setInvisible()
 {
-    GetVizmo().ChangeAppearance(2); 
+    GetVizmo().ChangeAppearance(2);
+    objectSelection->reset();
 }
 
 void VizmoMainWin::setNewColor()
@@ -458,7 +504,44 @@ void VizmoMainWin::resetRobotPosition(){
   m_GL->updateGL();
 }
 
+void VizmoMainWin::enablDisablCD(){
+  if(CDButton->isOn()){
+    m_GL->CDOn = true;
+    GetVizmo().TurnOn_CD();
+    m_GL->updateGL();
+  }
+  else
+    m_GL->CDOn = false;
 
+}
+
+void VizmoMainWin::runCode(){
+
+  obprmGUI * obprmWindow = new obprmGUI(this, "OBPRM Interface");
+  if( obprmWindow->exec()!=QDialog::Accepted )
+    return;
+}
+
+void VizmoMainWin::createEditor(){
+
+  vizmoEditor *vizEditor = new vizmoEditor(this, "VizmoEditor");
+  vizEditor->setCaption( "Vizmo++ Editor" );
+  vizEditor->show();
+}
+
+void VizmoMainWin::addObstacle(){
+
+  AddObjDial * addObj = new AddObjDial(this, "Add Object");
+  bool create = addObj->create();
+  if(create){
+    int r;
+    r =   addObj->exec();
+    //if(!r) return;
+   objectSelection->reset();
+  }
+  else
+    return;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -475,16 +558,19 @@ bool VizmoMainWin::CreateActions()
 
     ///////////////////////////////////////////////////////////////////////////////
     // Update Files  
-	fileUpdateAction=new QAction("Update File", QPixmap(icon_folder), "&Update", CTRL+Key_R, this);
+    fileUpdateAction=new QAction("Update File", QPixmap(icon_update), "&Update", CTRL+Key_R, this);
     connect(fileUpdateAction,SIGNAL(activated()), this, SLOT(updatefiles()) );
 
     ///////////////////////////////////////////////////////////////////////////////
     // Save File
-    fileSaveAction=new QAction("Save Environment", QPixmap(icon_folder), "&Save Env.", CTRL+Key_S,  this);
+    fileSaveAction=new QAction("Save Environment", QPixmap(disk_yellow), "&Save Env.", CTRL+Key_S,  this);
     connect(fileSaveAction,SIGNAL(activated()), this, SLOT(saveEnv()));
 
-    fileSaveQryAction=new QAction("Save Query", QPixmap(icon_folder), "&Save Query", CTRL+Key_Q,  this);
+    fileSaveQryAction=new QAction("Save Query", QPixmap(disk_green), "&Save Query", CTRL+Key_Q,  this);
     connect(fileSaveQryAction,SIGNAL(activated()), this, SLOT(saveQryFile()));
+
+    fileSaveMapAction=new QAction("Save Roadmap", QPixmap(disk_blue), "&Save Roadmap", CTRL+Key_D,  this);
+    connect(fileSaveMapAction,SIGNAL(activated()), this, SLOT(saveRoadmap()));
 
     ///////////////////////////////////////////////////////////////////////////////
     // Show/Hide Roadmap
@@ -533,13 +619,19 @@ bool VizmoMainWin::CreateActions()
     ///////////////////////////////////////////////////////////////////////////////
     // Grid
     showGridAction = new QAction(this,"",true); showGridAction->setText("Grid");
-	showGridAction->setOn(true);
-	connect(showGridAction, SIGNAL(activated()), m_GL, SLOT(showGrid()));
+    showGridAction->setOn(true);
+    connect(showGridAction, SIGNAL(activated()), m_GL, SLOT(showGrid()));
     
     ///////////////////////////////////////////////////////////////////////////////
     // Robot: set robot to initial Cfg.
     resetRobotPosAction=new QAction("Reset", QPixmap(icon_folder), "Reset&X", CTRL+Key_X,  this);
     connect(resetRobotPosAction,SIGNAL(activated()), this, SLOT(resetRobotPosition()));
+
+    /////////////////////////////////////////////////////////////////////////////
+    // Add an obstacle to the environment
+    addObstacleAction = new QAction("Add Obstacle","Add Obs&tacle",CTRL+Key_T, this);
+    connect(addObstacleAction, SIGNAL(activated()), this, SLOT(addObstacle()));
+    addObstacleAction->setEnabled(false);
 
     return true;
 }
@@ -580,12 +672,24 @@ void VizmoMainWin::SetTips(){
 
     const char * pictureText = "Click this button to take a picture of the environment";
 
-    //QWhatsThis::add(screenShotGUI->takePicture, pictureText );
+   QWhatsThis::add(screenShotGUI->takePicture, pictureText );
+ 
+    const char * CDText = "Click this button to enable/disable Collision Detection";
+
+    QWhatsThis::add( CDButton, CDText );
+
+    const char * editorText = "Click this button to open a <em>file</em>. <br>"
+      "You can also execute <em>file</em> clicking the <b>Execute</b> button"
+      "from the toolbar.</p>";
+
+    QWhatsThis::add( editorButton, editorText );
+ 
 }
 
 void VizmoMainWin::CreateToolbar(){
     
-    QPixmap folderIcon, pathIcon, cameraIcon, roadmapIcon, strtGoalIcon, palletIcon, envIcon;
+    QPixmap folderIcon, pathIcon, cameraIcon, roadmapIcon, strtGoalIcon, palletIcon, envIcon,
+            CDIcon;
     
     vizmoTools = new QToolBar( this, "vizmo operations" );
     vizmoTools->setLabel( "Vizmo Operations" );
@@ -631,16 +735,40 @@ void VizmoMainWin::CreateToolbar(){
     cameraButton->setEnabled(false);
 
     palletIcon = QPixmap(icon_pallet);
-    palletButton = new QToolButton(palletIcon, "BgColor", "Change Background Color", this,SLOT(changeBGcolor()), vizmoTools, "background color");
+    palletButton = new QToolButton(palletIcon, "BgColor", "Change Background Color", this,
+				   SLOT(changeBGcolor()), vizmoTools, "background color");
     palletButton->setUsesTextLabel ( true );
     palletButton->setEnabled(false);
 
     envIcon = QPixmap(icon_pallet);
-    envButton = new QToolButton(envIcon, "Random Color", "Changes randomly Env.obj. color", this, 
-				SLOT(envObjsRandomColor()),
-				vizmoTools, "Env.");
+    envButton = new QToolButton(envIcon, "Random Color", "Changes randomly Env.obj. color", 
+				this, SLOT(envObjsRandomColor()),vizmoTools, "Env.");
     envButton->setUsesTextLabel ( true );
     envButton->setEnabled(false);
+
+    //////////////////////////////////////////////////////////////////////////////
+    // Collision Detection: enable/disable
+    
+    CDIcon = QPixmap(icon_crash_burn);
+    CDButton = new QToolButton(CDIcon, "CollisionDetection", "Enable-Disable CD", 
+			       this, SLOT(enablDisablCD()), vizmoTools, "CD");
+    CDButton->setUsesTextLabel ( true );
+    CDButton->setToggleButton(true);
+    CDButton->setEnabled(false);
+
+    vizmoTools->addSeparator(); 
+
+    //////////////////////////////////////////////////////////////////////////////
+    // Editor
+
+    editorButton = new QToolButton(QPixmap( icon_edit),
+				   "Editor", "VizmoEditor", this,
+				   SLOT( createEditor() ), vizmoTools, "VizEdt");
+    
+    editorButton->setUsesTextLabel ( true );
+    editorButton->setEnabled(false);
+                     
+
 }
 
 void VizmoMainWin::CreateMenubar()
@@ -651,9 +779,10 @@ void VizmoMainWin::CreateMenubar()
     menuBar()->insertItem( "&File", file );
     
     fileOpenAction->addTo( file );
-	fileUpdateAction->addTo( file );
-	fileSaveAction->addTo( file );
-	fileSaveQryAction->addTo( file );
+    fileUpdateAction->addTo( file );
+    fileSaveAction->addTo( file );
+    fileSaveQryAction->addTo( file );
+    fileSaveMapAction->addTo( file );
     quitAction->addTo( file );
     
     ////////////////////////////////////////////// 
@@ -675,53 +804,53 @@ void VizmoMainWin::CreateMenubar()
     showHideRoadmapAction->addTo(roadmapMenu);
     roadmapMenu->insertSeparator();
     roadmapGUI->editAction->addTo(roadmapMenu);
-    roadmapGUI->addNodeAction->addTo(roadmapMenu);
-    roadmapGUI->addEdgeAction->addTo(roadmapMenu);
+    //roadmapGUI->addNodeAction->addTo(roadmapMenu);
+    //roadmapGUI->addEdgeAction->addTo(roadmapMenu);
     roadmapMenu->insertSeparator();
-    roadmapMenu->insertItem( "Set parameters", param);
-    roadmapMenu->insertSeparator();
+    //roadmapMenu->insertItem( "Set parameters", param);
+    //roadmapMenu->insertSeparator();
     
     /////////////////////////////////////////////////
     // PATH menu
     // first create submenus: opt
     ////////////////////////////////////////////////
     
-    QPopupMenu * opt = new QPopupMenu( this );
-    opt->insertTearOffHandle();
-    opt->insertItem( "Smooth", this, SLOT(notimp()) );
+    //QPopupMenu * opt = new QPopupMenu( this );
+    //opt->insertTearOffHandle();
+    //opt->insertItem( "Smooth", this, SLOT(notimp()) );
     
     QPopupMenu * pathMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Path", pathMenu );
     
     showHidePathAction->addTo( pathMenu );
     pathMenu->insertSeparator();
-    pathMenu->insertItem( "Optimization", opt);
-    pathMenu->insertSeparator();
+    //pathMenu->insertItem( "Optimization", opt);
+    //pathMenu->insertSeparator();
     
     ///////////////////////////////////////////////
     // ROBOT menu
     // first create submenus: robotRigid, robotArt
     ///////////////////////////////////////////////
     
-    QPopupMenu * robotRigid = new QPopupMenu( this );
-    robotRigid->insertTearOffHandle();
-    robotRigid->insertItem(  "Change start/goal position", this, SLOT(notimp()));
+    //QPopupMenu * robotRigid = new QPopupMenu( this );
+    //robotRigid->insertTearOffHandle();
+    //robotRigid->insertItem(  "Change start/goal position", this, SLOT(notimp()));
     // robotRigid->insertItem(  "Show/Hide", this, SLOT(notimp()));
-    showHideSGaction->addTo( robotRigid );
+    //showHideSGaction->addTo( robotRigid );
     
-    QPopupMenu * robotArt = new QPopupMenu( this );
-    robotArt->insertTearOffHandle();
-    robotArt->insertItem(  "Build", this, SLOT(notimp()) );
-    robotArt->insertItem(  "Change start/goal position", this, SLOT(notimp()));
-    robotArt->insertItem(  "Show/Hide", this, SLOT(notimp()));
+    //QPopupMenu * robotArt = new QPopupMenu( this );
+    //robotArt->insertTearOffHandle();
+    //robotArt->insertItem(  "Build", this, SLOT(notimp()) );
+    //robotArt->insertItem(  "Change start/goal position", this, SLOT(notimp()));
+    //robotArt->insertItem(  "Show/Hide", this, SLOT(notimp()));
     
     QPopupMenu * robotMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Robot", robotMenu );
     
-    robotMenu->insertItem( "Rigid", robotRigid);
-    robotMenu->insertSeparator();
-    robotMenu->insertItem( "Articulated", robotArt);
-    robotMenu->insertSeparator();
+    //robotMenu->insertItem( "Rigid", robotRigid);
+    //robotMenu->insertSeparator();
+    //robotMenu->insertItem( "Articulated", robotArt);
+    //robotMenu->insertSeparator();
 
     resetRobotPosAction->addTo(robotMenu);
     
@@ -729,16 +858,16 @@ void VizmoMainWin::CreateMenubar()
     // ENVIRONMENT menu
     /////////////////////////////////////////////
     
-    QPopupMenu * envMenu = new QPopupMenu( this );
+    QPopupMenu *envMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Environment", envMenu );
+    envMenu->insertItem( "Refresh", this, SLOT(refreshEnv()));  
+    envMenu->insertSeparator();
     changeBGcolorAction->addTo( envMenu );
     randObjcolorAction->addTo( envMenu );
-    envMenu->insertItem( "&Bounding Box", this, SLOT(showBBox()),  CTRL+Key_B );   
-    //envMenu->insertItem("Save Environment", this, SLOT(saveEnv()));
-    envMenu->insertItem( "&Refresh", this, SLOT(refreshEnv()));   
-    
     envMenu->insertSeparator();
-    
+    envMenu->insertItem( "&Bounding Box", this, SLOT(showBBox()),  CTRL+Key_B );   
+    addObstacleAction->addTo( envMenu );  
+
     /////////////////////////////////////////////  
     // Scene menu
     /////////////////////////////////////////////
@@ -748,8 +877,20 @@ void VizmoMainWin::CreateMenubar()
     cameraResetAction->addTo( sceneMenu );
 	showGridAction->addTo( sceneMenu );
 	showAxisAction->addTo( sceneMenu );
-    
+
+    /////////////////////////////////////////////  
+    // OBPRM menu
+    /////////////////////////////////////////////
+
+    QPopupMenu * obprmMenu = new QPopupMenu( this);
+    menuBar()->insertItem("OBPRM", obprmMenu );
+    obprmMenu->insertSeparator();
+    obprmMenu->insertItem("mkmp", this, SLOT(runCode()));
+   
+    /////////////////////////////////////////////  
     //create HELP menu
+    /////////////////////////////////////////////
+
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertItem( "&Help", help );
     help->insertItem( "&About", this, SLOT(about()), Key_F1 );
