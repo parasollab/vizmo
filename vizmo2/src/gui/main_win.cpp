@@ -522,6 +522,32 @@ void VizmoMainWin::runCode(){
     return;
 }
 
+void VizmoMainWin::createQryFile(){
+  QStringList command;
+  QFileInfo fi(GetVizmo().getEnvFileName().c_str());
+  QString qryPath;
+
+  QFileDialog* fd = new QFileDialog( this, "obprm_dialog", TRUE );
+  fd->setMode( QFileDialog::AnyFile );
+  fd->setShowHiddenFiles ( TRUE ); 
+  
+  if ( fd->exec() == QDialog::Accepted )
+    qryPath = fd->selectedFile();
+
+  QString s;
+  s = qryPath;
+  s.append(" -f ");
+  s.append(fi.baseName());
+  
+  vizmoEditor *vizEditor = new vizmoEditor(this, "VizmoEditor");
+  vizEditor->setCaption( "Query Editor" );
+  vizEditor->e->setText(s);
+  vizEditor->show();
+
+
+}
+
+
 void VizmoMainWin::createEditor(){
 
   vizmoEditor *vizEditor = new vizmoEditor(this, "VizmoEditor");
@@ -885,8 +911,9 @@ void VizmoMainWin::CreateMenubar()
     QPopupMenu * obprmMenu = new QPopupMenu( this);
     menuBar()->insertItem("OBPRM", obprmMenu );
     obprmMenu->insertSeparator();
-    obprmMenu->insertItem("mkmp", this, SLOT(runCode()));
-   
+    obprmMenu->insertItem("Generate mkmp", this, SLOT(runCode()));
+    obprmMenu->insertItem("Generate qry", this, SLOT(createQryFile()));
+
     /////////////////////////////////////////////  
     //create HELP menu
     /////////////////////////////////////////////

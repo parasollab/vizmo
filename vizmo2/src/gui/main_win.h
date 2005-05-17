@@ -95,6 +95,7 @@ private slots:
    
     void enablDisablCD(); //Enable/disable collision detection
     void runCode();  //Call obprm
+    void createQryFile(); // generate qry command line 
     void createEditor(); // create qry file for obprm
 
     void addObstacle();
@@ -143,6 +144,8 @@ private:
     QToolButton *editorButton;
 
     VizGLWin * m_GL;       //the scene window which displays environment..
+
+
 };
 
 
