@@ -45,12 +45,25 @@ obprmGUI::obprmGUI
   connect( this, SIGNAL( applyButtonPressed() ), this, SLOT( makeCommandLine() ) );
 }
 
+void obprmGUI:: getOBPRMpath(){
+
+    QFileDialog* fd = new QFileDialog( this, "obprm_dialog", TRUE );
+    fd->setMode( QFileDialog::AnyFile );
+    fd->setShowHiddenFiles ( TRUE ); 
+      
+    if ( fd->exec() == QDialog::Accepted )
+      obprmPath = fd->selectedFile();
+}
+
+
 void obprmGUI::makeCommandLine(){
 
   /////////////////////
   // FILES
   /////////////////////
-  command << "obprm ";
+
+  getOBPRMpath();
+  command <<  obprmPath ;
 
   if(!fname->text().isEmpty()){
     command << " -f ";
@@ -61,7 +74,7 @@ void obprmGUI::makeCommandLine(){
     else 
       command << fname->text() << " "; 
 
-    command.append(" \\ \n");
+    command.append(" \\\n");
 
   }
   
@@ -71,7 +84,7 @@ void obprmGUI::makeCommandLine(){
   command.append("-cd ");
   command << (bg_cd->selected())->text();
   
-  command.append(" \\ \n");
+  command.append(" \\\n");
 
   /////////////////////
   //-bbox 
@@ -80,51 +93,58 @@ void obprmGUI::makeCommandLine(){
     if(xmin->text() != NULL){
       command << "-bbox [";
       command <<xmin->text()<<","<<ymin->text()<<","<<zmin->text()<<","<<xmax->text()<< ","<<ymax->text()<<","<<zmax->text()<<"]";
-      command.append(" \\ \n");
+      command.append(" \\\n");
     }
-    command << "-bbox_scale " <<scale->text() << " \\ \n";
+    command << "-bbox_scale " <<scale->text() << " \\\n";
   }
 
   //////////////////////////
   //append -gNodes option
   //////////////////////////
-  for(int i=0; i<lbMethod->count() ; i++)
-    methods << lbMethod->text(i) << " ";
+  if(lbMethod->count() !=0){
+    for(int i=0; i<lbMethod->count() ; i++)
+      methods << lbMethod->text(i) << " ";
   
-  command.append("-gNodes ");
+    command.append("-gNodes ");
 
-  for ( QStringList::Iterator it = methods.begin(); it != methods.end(); ++it ) {
-    //QString myStr = *it;
-    command.append(*it);
+    for ( QStringList::Iterator it = methods.begin(); it != methods.end(); ++it ) {
+      //QString myStr = *it;
+      command.append(*it);
+    }
+    command <<" \\\n";
   }
-  command <<" \\ \n";
 
   //////////////////////////
   //append -lp option
   //////////////////////////
-  for(int i=0; i<lbLP->count() ; i++)
-    lps << lbLP->text(i) << " ";
+  if(lbLP->count() != 0){
 
-  command.append("-lp ");
+    for(int i=0; i<lbLP->count() ; i++)
+      lps << lbLP->text(i) << " ";
+    
+    command.append("-lp ");
 
-  for ( QStringList::Iterator it = lps.begin(); it != lps.end(); ++it ) {
-    command.append(*it);
+    for ( QStringList::Iterator it = lps.begin(); it != lps.end(); ++it ) {
+      command.append(*it);
+    }
+    command <<" \\\n";
   }
-  command <<" \\ \n";
 
   //////////////////////////
   //append -cNodes option
   //////////////////////////
-  for(int i =0; i<lbCnodes->count(); i++)
-    cNode<< (lbCnodes->item(i))->text() << " ";
+  if(lbCnodes->count() !=0 ){
+    for(int i =0; i<lbCnodes->count(); i++)
+      cNode<< (lbCnodes->item(i))->text() << " ";
   
-  command.append("-cNodes ");
+    command.append("-cNodes ");
 
-  for ( QStringList::Iterator it = cNode.begin(); it != cNode.end(); ++it ) {
-    QString myStr = *it;
-    command.append(myStr);
+    for ( QStringList::Iterator it = cNode.begin(); it != cNode.end(); ++it ) {
+      QString myStr = *it;
+      command.append(myStr);
+    }
+    command <<" \\\n";
   }
-  command <<" \\ \n";
 
   ///////////////////////////////
   // append options: numjoints,

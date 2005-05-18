@@ -50,6 +50,7 @@ public:
     QStringList command;
     textEditDialog * txtDialog;
     QString strComm;
+    QString obprmPath;
 
     //tabs
     QVBox  *tab4;
@@ -172,6 +173,9 @@ protected:
     void showTxtDilaog();
 
     void addBoxes(QGrid *grid);
+
+
+    void getOBPRMpath(); // get path of obprm executable
 
     ///////////////////
     //GNodes GUI
