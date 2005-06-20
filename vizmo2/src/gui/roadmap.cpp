@@ -108,6 +108,7 @@ void VizmoRoadmapGUI::reset()
       editAction->setEnabled(true);
       sizeAction->setEnabled(true);
       colorAction->setEnabled(true);
+      size = 0.5;
     }
     else{
       l->setEnabled(false);
@@ -400,6 +401,7 @@ bool VizmoRoadmapGUI::WriteHeader(const char *filename){
   const list<string> lps = maploader->GetLPs();
   const list<string> cds = maploader->GetCDs();
   const list<string> dms = maploader-> GetDMs();
+  const string seed = maploader-> GetSeed();
 
   ofstream outfile (filename);
   outfile<< "Roadmap Version Number "<< version<<"\n";
@@ -429,7 +431,12 @@ bool VizmoRoadmapGUI::WriteHeader(const char *filename){
   } 
   outfile<< "#####DMSTOP#####";
 
-
+  if(version == "041805"){
+    outfile<< " \n#####RNGSEEDSTART##### \n";
+    outfile<< seed <<"\n";
+    outfile<< "#####RNGSEEDSTOP##### \n";
+  }
+ 
   typedef CMapLoader<CCfg,CSimpleEdge>::WG WG;
   WG * graph;
   CMapLoader<CCfg,CSimpleEdge> *m_loader=(CMapLoader<CCfg,CSimpleEdge>*)m_Map->getLoader();
