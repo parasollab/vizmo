@@ -47,6 +47,7 @@ namespace plum{
         const list<string> & GetLPs() const { return m_strLPs; }
         const list<string> & GetCDs() const { return m_strCDs; }
         const list<string> & GetDMs() const { return m_strDMs; }
+	const string GetSeed() const {return m_seed; }
 
         //////////////////////////////////////////////////////////////////////
         //      Protected Methods and data members
@@ -66,6 +67,8 @@ namespace plum{
         list<string> m_strLPs;
         list<string> m_strCDs;
         list<string> m_strDMs;
+	string m_seed;
+
     };
 
     template< class Cfg, class WEIGHT >
@@ -147,40 +150,6 @@ namespace plum{
         }
         m_Graph->ReadGraph( fin ); 
         fin.close();      
-
-
-
-	ofstream outfile ("MapFileCopy.map");
-	outfile<< "Roadmap Version Number "<< m_strVersionNumber<<"\n";
-	outfile<< "#####PREAMBLESTART##### \n";
-	outfile<<m_strPreamble<<"\n";
-	outfile<< "#####PREAMBLESTOP##### \n";
-	outfile<< "#####ENVFILESTART##### \n";
-	outfile<< m_strEnvFileName<<"\n";
-	outfile<< "#####ENVFILESTOP##### \n";
-	outfile<< "#####LPSTART##### \n";
-	outfile<<m_strLPs.size()<<endl;
-	list<string>::const_iterator it;
-	for(it=m_strLPs.begin(); it!=m_strLPs.end(); ++it){
-	  outfile << *it << endl; // each element on a separate line
-	} 
-	outfile<< "#####LPSTOP##### \n";
-	outfile<< "#####CDSTART##### \n";
-	outfile<<m_strCDs.size()<<endl;
-	for(it=m_strCDs.begin(); it!=m_strCDs.end(); ++it){
-	  outfile << *it << endl; // each element on a separate line
-	} 
-	outfile<< "#####CDSTOP##### \n";
-	outfile<< "#####DMSTART##### \n";
-	outfile<<m_strDMs.size()<<endl;
-	for(it=m_strDMs.begin(); it!=m_strDMs.end(); ++it){
-	  outfile << *it << endl; // each element on a separate line
-	} 
-	outfile<< "#####DMSTOP#####";
-
-	m_Graph->WriteGraph(outfile);
-	
-	outfile.close();
 
         return true;
     }

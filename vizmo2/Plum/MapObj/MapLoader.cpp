@@ -43,21 +43,19 @@ namespace plum {
 		
         //get version comment
         GoToNext( in );
-        in >> strData >> strData >> strData >> strData; //Roadmap Version Number 061300
+        in >> strData >> strData >> strData >> strData; 
+	//Roadmap Version Number 061300
         m_strVersionNumber=strData;
-	//cout<< m_strVersionNumber<<endl;
         
         //get preamble info
         GoToNext( in );
         in.getline(strData, MAX_LINE_LENGTH);
         m_strPreamble=strData;
-	//cout<< m_strPreamble <<endl;        
 
         //get env file name info
         GoToNext( in );
         in.getline(strData, MAX_LINE_LENGTH);
         m_strEnvFileName = m_strFileDir+strData;
-	//cout<<m_strEnvFileName <<endl;        
 
         int number=0;
         //get lp info
@@ -92,7 +90,17 @@ namespace plum {
 	    m_strDMs.push_back(strData);   
 	  }
 	}
-		
+	
+	// June 17-05
+	// Supports new version of map generation:
+	// ask whether this has the RNGSEEDSTART tag:
+	string s_ver = m_strVersionNumber;
+	if( s_ver == "041805"){
+	  GoToNext( in );
+	  in.getline(strData, MAX_LINE_LENGTH);
+	  m_seed = strData;
+	}
+	
         return true;
     }
 
