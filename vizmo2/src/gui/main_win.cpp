@@ -909,7 +909,7 @@ void VizmoMainWin::CreateMenubar()
     /////////////////////////////////////////////
 
     QPopupMenu * obprmMenu = new QPopupMenu( this);
-    menuBar()->insertItem("OBPRM", obprmMenu );
+    menuBar()->insertItem("MP Library", obprmMenu );
     obprmMenu->insertSeparator();
     obprmMenu->insertItem("Generate mkmp", this, SLOT(runCode()));
     obprmMenu->insertItem("Generate qry", this, SLOT(createQryFile()));
