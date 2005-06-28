@@ -65,6 +65,7 @@ void obprmGUI::makeCommandLine(){
   getOBPRMpath();
   command <<  obprmPath ;
 
+
   if(!fname->text().isEmpty()){
     command << " -f ";
     if(GetVizmo().getEnvFileName() != ""){
@@ -1131,7 +1132,7 @@ void obprmGUI::addMethod(){
     lbMethod->insertItem( s );
    break;
   case 3: //Gauss
-    s+=" distance "+distance->text();
+    s+=" d "+distance->text();
     lbMethod->insertItem( s );
     break;
   case 4: //BasicMAPRM
