@@ -1,0 +1,16 @@
+VIZMO_DIR=..
+include $(VIZMO_DIR)/M_incl
+
+TARGET=$(VIZMO_DIR)/lib/libgli.a
+
+OBJECTS = gli.o gliCamera.o gliDataStructure.o gliPickBox.o gliTransTool.o gliFont.o gliDump.o
+
+$(TARGET): $(OBJECTS)
+	ar ruv $@ $(OBJECTS)
+#	libtool -static -o $@ $(OBJECTS)
+
+clean:
+	rm -f ${TARGET} ${OBJECTS} Dependencies
+	touch Dependencies
+
+include Dependencies

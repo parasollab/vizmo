@@ -1,0 +1,16 @@
+all:
+	cd GL; make -f Makefile.linux
+	cd mathtool; make -f Makefile.linux
+	cd modelgraph; make -f Makefile.linux
+	cd Plum; make -f Makefile.linux
+	cd CollisionDetection; make -f Makefile.linux
+	cd src; make -f Makefile.linux
+	mv vizmo++ vizmo++.app/Contents/MacOS
+
+clean:
+	cd GL; make -f Makefile.linux clean
+	cd mathtool; make -f Makefile.linux clean
+	cd modelgraph; make -f Makefile.linux clean
+	cd Plum; make -f Makefile.linux clean
+	cd CollisionDetection; make -f Makefile.linux clean
+	cd src; make -f Makefile.linux clean

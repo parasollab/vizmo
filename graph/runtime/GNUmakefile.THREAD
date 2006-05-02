@@ -1,0 +1,58 @@
+ifeq ($(platform), HP_aCC) #Hewlett Packard aCC B3910B A.03.27
+  CC       = aCC
+  CFLAGS   = -AA -D_HPUX_SOURCE -D_POSIX_C_SOURCE=199506L -D_REENTRANT -D_RWSTD_MULTI_THREAD +W930 -D_STAPL_THREAD -D_STL_PORT -I$(STAPL)/include/stlport/ -I$(STAPL)/include/
+  RTS_OPT  = +O2  -D_SEND_BUF_MAX=8192 -D_CACHE_LINE_SIZE=64 -D_BUSY_WAIT_MAX=0
+  USER_OPT = +O1
+  LIB      = $(STAPL)/lib/runtime.o -lpthread  $(STAPL)/lib/libstlport_aCC.a
+  LD       = ld -r
+  AR       = ar cr
+  staplrun = export STAPL_NUM_THREADS=$(1);
+endif
+
+ifeq ($(platform), IBM_xlC) #IBM VisualAge C++ 5
+  CC       = xlC_r
+  CFLAGS   = -blpdata -bmaxdata:0x80000000 -D_STAPL_THREAD -D_STL_PORT -I$(STAPL)/include/stlport/ -I$(STAPL)/include/
+  RTS_OPT  = -O5 -qstrict -D_SEND_BUF_MAX=8192 -D_CACHE_LINE_SIZE=128 -D_BUSY_WAIT_MAX=0
+  USER_OPT = -O2
+  LIB      = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_gcc.a
+  LD       = ld -r
+  AR       = ar cr
+  staplrun = export STAPL_NUM_THREADS=$(1);
+endif
+
+ifeq ($(platform), LINUX_g++) #GNU C++ 2.96 - 3.2.1
+  CC       = g++
+  CFLAGS   = -D_STAPL_THREAD -D_STL_PORT -I$(STAPL)/include/stlport/ -I$(STAPL)/include/
+  RTS_OPT  = -O3 -D_SEND_BUF_MAX=8192 -D_CACHE_LINE_SIZE=32 -D_BUSY_WAIT_MAX=1
+  USER_OPT = -O2
+  LIB      = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_gcc.a -lrt -lpthread
+  LD       = ld -r
+  AR       = ar cr
+  staplrun = export STAPL_NUM_THREADS=$(1);
+endif
+
+ifeq ($(platform), LINUX_KCC) #KAI C++ 4.0f
+  CC       = KCC
+  CFLAGS   = --thread_safe --no_linux_headers -D_STAPL_THREAD -D_STL_PORT -I$(STAPL)/include/stlport/ -I$(STAPL)/include/
+  RTS_OPT  = +K3 -O3 -D_SEND_BUF_MAX=8192 -D_CACHE_LINE_SIZE=32 -D_BUSY_WAIT_MAX=1
+  USER_OPT = +K2 -O2
+  LIB      = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_gcc.a -lm
+  LD       = ld -r
+  AR       = ar cr
+  staplrun = export STAPL_NUM_THREADS=$(1);
+endif
+
+ifeq ($(platform), SGI_CC) #SGI MIPSpro C++ 7.3.1.3m
+  CC       = CC
+  CFLAGS   = -mp -n32 -ansi -LANG:std -woff 3333 -D_STAPL_THREAD -D_STL_PORT -I$(STAPL)/include/stlport/ -I$(STAPL)/include/
+  RTS_OPT  = -O3 -D_SEND_BUF_MAX=8192 -D_CACHE_LINE_SIZE=128 -D_BUSY_WAIT_MAX=0
+  USER_OPT = -O2
+  LIB      = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_gcc.a -rpath $(STAPL)/lib -L$(STAPL)/lib -lhoard
+  LD       = ld -n32 -r
+  AR       = ar cr
+  staplrun = export STAPL_NUM_THREADS=$(1);
+endif
+
+
+$(STAPL)/lib/primitives.o: $(STAPL)/include/runtime/GNUmakefile.MPI $(STAPL)/include/runtime/primitives.h $(STAPL)/include/runtime/thread_primitives.h $(STAPL)/include/runtime/thread_primitives.cc
+	$(CC) $(RTS_OPT) $(CFLAGS) -o $(STAPL)/lib/primitives.o -c $(STAPL)/include/runtime/thread_primitives.cc

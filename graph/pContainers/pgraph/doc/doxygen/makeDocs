@@ -1,0 +1,208 @@
+#!/usr/bin/perl -w
+
+
+# Run Doxygen and generate the doxysearch index
+print( "Creating documentation from STAPL source code using Doxygen...\n" );
+`rm -rf html latex man`;
+`doxygen Doxyfile`;
+`doxytag -s html/search.idx html/*.html`;
+print( "\nAdjusting Doxygen output for STAPL...\n" );
+
+
+# If we specify our own header, it doesn't work for the dynamic 
+# generation of doxysearch pages via html/header.html because the
+# cgi directory is in a different location and relative links no
+# longer work. So, grab the correct url from the Doxyfile and add it!
+open( IN, "Doxyfile" ) || die( "ERROR: could not open Doxyfile" );
+while( $i = <IN> ) {
+  if( $i =~ /^DOC_URL/ ) {
+    $url = $i;
+    chomp( $url );
+    $url =~ s/^DOC_URL *= *//;
+    $url =~ s/ *$//;
+    if( $url !~ m|/$| ) {
+      $url = "$url" . "/";
+    }
+  }
+}
+if( open(IN, "html/header.html") ) {
+  open( OUT, ">html/header.bak" ) || die( "ERROR: could not open header (header.html)" );
+  while( $i = <IN> ) {
+    if( $i !~ m|href=\"http| ) {
+      $i =~ s|href=\"|href=\"$url|gi;
+    }
+    print( OUT "$i" );
+  }
+  `mv html/header.bak html/header.html`;
+  close( IN );
+  close( OUT );
+}
+
+
+# Remove the HTML Compound tree.js entries and improve some of the names.
+# Currently, the tree view is turned off, so this does nothing...
+if( open(IN, "html/tree.js") ) {
+  open( OUT, ">html/tree.bak" ) || die( "ERROR: could not open treeview (tree.js)" );
+  while( $i = <IN> ) {
+    if( $i =~ /Compound List/ ) {
+      while( $i !~ /Modules/ ) {
+	print( OUT "// $i" );
+	$i = <IN>;
+      }
+    }
+    $i =~ s/STAPL/STAPL Documentation/;
+    $i =~ s/Modules/Components/;
+    $i =~ s/Related Pages/Developer\'s Guide/;
+    print( OUT "$i" );
+  }
+  `mv html/tree.bak html/tree.js`;
+  close( IN );
+  close( OUT );
+}
+
+
+# Remove the footer from the LaTeX style files
+open( IN, "latex/doxygen.sty" ) || die( "ERROR: could not open latex style (doxygen.sty)" );
+open( OUT, ">latex/doxygen.bak" ) || die( "ERROR: could not open latex style (duxygen.bak)" );
+while( $i = <IN> ) {
+  if( $i =~ /(r|l)foot/ ) {
+    print( OUT "% $i" );
+  }
+  else {
+    print( OUT "$i" );
+  }
+}
+`mv latex/doxygen.bak latex/doxygen.sty`;
+close( IN );
+close( OUT );
+
+
+# Make a first pass over the manual, improving some features and
+# reading in the list of classes (which Doxygen includes as separate
+# sections, instead of with their corresponding groups)
+@classes = ();
+open( IN, "latex/refman.tex" ) || die( "ERROR: could not open latex manual (refman.tex)" );
+open( OUT, ">latex/refman.bak" ) || die( "ERROR: could not open latex manual (refman.bak)" );
+while( $i = <IN> ) {
+
+  # Improve or remove some of the section names (more will be added later)
+  $i =~ s/STAPL Example Documentation/STAPL Examples/;
+  $i =~ s/STAPL Page Documentation/STAPL Developer\'s Guide/;
+  $i =~ s/\\section{STAPL Module Documentation}//;
+  $i =~ s/\\section{STAPL Class Documentation}//;
+
+  # Remove the lengthy initial index entries
+  if( $i =~ /\\section{.*Index}/ ) {
+    print( OUT "% $i" );
+    $i = <IN>;
+    print( OUT "% $i" );
+  }
+
+  # Remove the footer horizontal line
+  elsif( $i =~ /footrulewidth/ ) {
+    print( OUT "% $i" );
+  }
+
+  # Grab all class/struct entries
+  elsif( $i =~ /\\input\{(class|struct)/ ) {
+    push( @classes, $i );
+  }
+
+  # save everything else
+  else {
+    print( OUT "$i" );
+  }
+}
+close( IN );
+close( OUT );
+
+
+# Make the components sections instead of subsections, in the following order, 
+# to produce a more useful table of contents.
+@files = ( "pRange", "pContainers", "pAlgorithms", "runtimeSystem", "stlReference" );
+foreach $file ( @files ){
+  $f = "group__" . $file . ".tex";
+  open( IN, "latex/$f" ) || die( "ERROR: could not open latex/$f" );
+  open( OUT, ">latex/tmp.bak" ) || die( "ERROR: could not open latex/tmp.bak" );
+  print( OUT "\\pagebreak\n" );
+  while( $i = <IN> ) {
+    $i =~ s/\\sub/\\/;
+    print( OUT "$i" );
+  }
+  `mv latex/tmp.bak latex/$f`;
+  close( IN );
+  close( OUT );
+}
+
+
+# Now make a second pass, inserting the classes immediately after their groups.
+open( IN, "latex/refman.bak" ) || die( "ERROR: could not open latex manual (refman.bak)" );
+open( OUT, ">latex/refman.tex" ) || die( "ERROR: could not open latex manual (refman.tex)" );
+while( $i = <IN> ) {
+  print( OUT "$i" );
+
+  # Look for every group entry (it may have associated classes...)
+  if ($i =~ /\\input\{group__/ ) {
+    $f = $i; chomp( $f ); $f =~ s/\\input\{//; $f =~ s/\}.*//; $f = $f . ".tex";
+    open( NEST_IN, "latex/$f" ) || die( "ERROR: could not open $f" );
+
+    # Now look for the list of associated classes/structs
+    $nest_i = <NEST_IN>;
+    $sub = 0;
+    if( $nest_i =~ /\\subsection/ ) {
+      $sub = 1;
+    }
+    while( $nest_i = <NEST_IN> ) {
+      if( $nest_i =~ /\{(Compounds)\}/ ) {
+	$nest_i = <NEST_IN>; $nest_i = <NEST_IN>;
+	while( $nest_i =~ /\\item/ ) {
+	  $nest_i = <NEST_IN>;
+
+	  # Get the class name, adjust it to Doxygen file format, find its input entry in the list 
+          # of classes, then add that input entry after its calling group in the LaTeX code.
+	  chomp( $nest_i ); $nest_i =~ s/.*\{\\bf //; $nest_i =~ s/\}.*//; 
+	  $nest_i =~ s/\\_/__/g; $nest_i =~ s/\\-//g;
+	  for( $i=1; $i<=$#classes; $i++ ) {
+	    if( $classes[$i] =~ /$nest_i/ ) {
+	      print( OUT splice( @classes, $i, 1 ) );
+	      $i--; # Make sure we check the whole list (possible subclasses of a given class)
+	    }
+	  }
+
+	  # Adjust the class code down a subsection in LaTeX code if the group it is a
+	  # subcomponent of is itself a subsection.
+	  if( $sub == 1 ) {
+	    $f = "class" . $nest_i . ".tex";
+	    if( !open(TMP_IN, "latex/$f") ) {
+	      $f =~ s/class/struct/;
+	      open(TMP_IN, "latex/$f") || die( "ERROR: could not open latex/$f" );
+	    }
+	    open( TMP_OUT, ">latex/tmp.bak" ) || die( "ERROR: could not open latex/tmp.bak" );
+	    while( $i = <TMP_IN> ) {
+	      $i =~ s/section(\{|\*\{)/subsection$1/;
+	      if( $i =~ s/\\subsubsubsection\**/\\paragraph\{\\setlength\{\\rightskip\}\{0pt plus 5cm\}/ ) {
+		chomp( $i );
+		$i = $i . "}\\hfill\n\n";
+	      }
+	      print( TMP_OUT "$i" );
+	    }
+	    `mv latex/tmp.bak latex/$f`;
+	    close( TMP_IN );
+	    close( TMP_OUT );
+	  }
+
+	  $nest_i = <NEST_IN>;
+	}
+      }
+    }
+  }
+}
+
+
+# Make sure we found a place for all classes, otherwise signal an error.
+if( $#classes != 0 ) {
+  print( "ERROR: not all class inputs were associated with a group...\n" );
+  for( $i=1; $i<=$#classes; $i++ ) {
+    print( "   $classes[$i]" );
+  }
+}
