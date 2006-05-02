@@ -1,0 +1,70 @@
+// EnvLoader.h: interface for the CEnvLoader class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(_ENVLOADER_H_)
+#define _ENVLOADER_H_
+
+#include "ILoadable.h"
+
+namespace plum{
+
+    class CMultiBodyInfo;
+    class CBodyInfo;
+    class CConnectionInfo;
+
+    /**
+     * This class load env file.
+     */
+    class CEnvLoader : public I_Loadable
+    {
+            //////////////////////////////////////////////////////////////////////
+            //
+            // Constructor/Destructor
+            //
+            //////////////////////////////////////////////////////////////////////
+    public:
+            CEnvLoader();
+            virtual ~CEnvLoader();
+
+            //////////////////////////////////////////////////////////////////////
+            // Core function
+            //////////////////////////////////////////////////////////////////////
+            virtual bool ParseFile();
+            virtual void SetModelDataDir( const string strModelDataDir );
+
+            //////////////////////////////////////////////////////////////////////
+            // Access function
+            //////////////////////////////////////////////////////////////////////
+            virtual int GetNumberOfMultiBody() const{ return m_cNumberOfMultiBody; }
+            virtual const CMultiBodyInfo * GetMultiBodyInfo() const { return m_pMBInfo; }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //      Protected Methods and data members
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    protected:
+            void Free_Memory();
+
+            virtual bool ParseFileHeader( ifstream & fin );
+            virtual bool ParseFileBody( ifstream & fin );
+            virtual bool ParseMultiBody( ifstream & fin, CMultiBodyInfo & MBInfo );
+            virtual bool ParseBody( ifstream & fin, CBodyInfo & BodyInfo );
+            virtual bool ParseConnection(ifstream & fin, CConnectionInfo & ConnectionInfo );
+
+            ////////////////////////////////////////////////////////////////////////////
+            //
+            //      Private Methods and data members
+            //
+            ////////////////////////////////////////////////////////////////////////////
+    private:
+
+            string m_strModelDataDir;
+            int m_cNumberOfMultiBody;
+            CMultiBodyInfo * m_pMBInfo;
+    };
+
+}//namespace plum
+
+#endif // !defined(_ENVLOADER_H_)

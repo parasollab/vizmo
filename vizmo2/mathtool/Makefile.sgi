@@ -1,0 +1,39 @@
+# $Id$
+#------------------------------------------------------
+# Make your own and use it or use the one in BASELINE
+#------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Choose a compiler & its options
+#--------------------------------------------------------------------------
+ CC = CC
+
+ CXX = CC
+
+ OPTS = -n32 -LANG:std
+
+ INCLUDE = -I/usr/local/include
+
+ CFLAGS     = $(OPTS) $(INCLUDE) -I.
+ CXXFLAGS   = $(CFLAGS)
+ 
+ TARGET = ../lib/libmathtool.so
+
+all: $(TARGET)
+
+#--------------------------------------------------------------------
+.SUFFIXES: .cpp
+.cpp.o:
+	$(CC) ${CFLAGS} -c $<
+
+% : %.o
+	$(CXX) $(CXXFLAGS) -o $@ $@.cpp
+#--------------------------------------------------------------------
+OBJS         =  EulerAngle.o  Gauss.o  Matrix.o  Basic.o
+
+objs: ${OBJS}
+#--------------------------------------------------------------------
+$(TARGET): objs
+	$(CC) -w -shared -no_unresolved -o $(TARGET) $(OBJS)
+clean:
+	rm -rf *.o $(TARGET) ii_files

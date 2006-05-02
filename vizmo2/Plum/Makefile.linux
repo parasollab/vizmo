@@ -1,0 +1,49 @@
+# Makefile for NeuronPRM
+# Author Marco A. Morales
+
+CC = g++
+
+
+Env_DIR = EnvObj
+Map_DIR = MapObj
+
+LIB_DIR = -L/usr/X11R6/lib -L/usr/local/lib
+GL_LIB = -lglut -lGLU -lGL -lm
+X_LIB =   -lX11 -lXmu -lXi
+
+GLI_DIR = ..
+GLI_INCL = -I$(GLI_DIR)
+GLI_LIB = -L$(GLI_DIR)/GL/lib -lgli
+
+
+INCL = -I. -I../mathtool -I../modelgraph -I../GL $(GLI_INCL)
+
+LIB = $(LIB_DIR) $(GLI_LIB) $(GL_LIB) $(X_LIB)
+
+C_FLAGS = -g -Wall -MMD $(INCL)
+
+.SUFFIXES: .cpp
+
+TARGET=../lib/libPlum.a
+
+OBJECTS = Plum.o PlumState.o PlumUtil.o
+
+EnvOBJ = ${Env_DIR}/CmdParser.o  ${Env_DIR}/EnvLoader.o  ${Env_DIR}/EnvModel.o  \
+         ${Env_DIR}/MovieBYULoader.o  ${Env_DIR}/PolyhedronModel.o \
+         ${Env_DIR}/MultiBodyInfo.o  ${Env_DIR}/MultiBodyModel.o
+MapOBJ = ${Map_DIR}/MapLoader.o  ${Map_DIR}/MapModel.o  ${Map_DIR}/SimpleCfg.o
+
+$(TARGET): ${OBJECTS} ${EnvOBJ} ${MapOBJ}
+	ar ruv $@  ${OBJECTS} ${EnvOBJ} ${MapOBJ}
+
+.SUFIXES: .cpp
+.cpp.o:
+	${CC} ${C_FLAGS} ${INCL} -c $< -o $@ 
+	cat $*.d >> Dependencies
+	rm -f $*.d
+
+clean:
+	rm -f ${TARGET} ${OBJECTS} ${EnvOBJ} ${MapOBJ} Dependencies
+	touch Dependencies
+
+include Dependencies
