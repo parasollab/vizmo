@@ -1,0 +1,51 @@
+CC     = mpiCC -g
+
+#DIST   = ../../distribution
+#BASE   = ../../base
+#COMMON = ../../../common
+#PGRAPH = ../
+#GRAPH  = ../../../graph
+#GSCHEDULER = ../../../GeneralScheduler
+
+STAPL  = ../../../..
+
+LCFLAGS = -ftemplate-depth-25 -I/usr/share/mpi/include
+HPFLAGS = -AA -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE  
+
+OPT    = 
+LCLIB    = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_gcc.a -lrt
+HPLIB    = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_aCC.a -lrt
+
+INCLUDE  = -I. -I../ -I$(STAPL)/include/stlport -I$(STAPL)/include
+
+######################################
+######################################
+CFLAGS = $(HPFLAGS) $(INCLUDE) -D_OPTIONAL_SORT_ -DPARALLEL -D_PGRAPH  -DDYNAMIC_GRAPH -DEFFICIENCY -DQUIETGRAPH -D_STL_PORT -D_STAPL_MPI -D_PLIST -DCOMPLETE_LOCATION_MAP -D_STAPL
+
+
+LIB    = $(HPLIB)
+
+all: gabi_test paul_test dist_test ann_test test_iterator
+
+list_ranking: list_ranking.cc 
+	$(CC) -DSTAPL_DEBUG9 $(CFLAGS) -o $@ $@.cc $(LIB) 
+
+paul_test: paul_test.cc 
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 
+
+dist_test: dist_test.cc 
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 
+
+ann_test: ann_test.cc 
+	$(CC) $(CFLAGS) -DSTAPL_DEBUG -o $@ $@.cc $(LIB) 
+
+ann_plist_test: ann_plist_test.cc 
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 
+
+test_iterator: test_iterator.cc
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 
+
+clean:
+	rm -rf *.o gabi_test paul_test ann_test crude* dummy* test_iterator dist_test
+
+

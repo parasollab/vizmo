@@ -1,0 +1,133 @@
+//*****************************************************************************
+// This section is the main page of the HTML and the first chapter in LaTeX.
+//*****************************************************************************
+
+/**
+ * \mainpage Overview & Installation
+ *
+ * \section overview Overview
+ * STAPL, the Standard Template Adaptive Parallel Library, is a parallel C++
+ * library with functionality similar to STL, the ANSI/ISO approved C++
+ * Standard Template Library.  To ease the transition to parallel programming
+ * and ensure portability across varied machines and programs, STAPL is a
+ * superset of STL that is sequentially consistent for functions with the same
+ * name.  STAPL executes on uni- or multi-processor architectures with shared
+ * or distributed memory and can co-exist in the same program with STL.
+ *
+ * STAPL is implemented using simple parallel extensions of C++ which provide
+ * a SPMD model of parallelism and supports nested (recursive) parallelism.
+ * Although nested parallelism is not widely supported in the currently
+ * targeted commercial DSM machines, we believe that it is an important
+ * feature that needs to be provided for several reasons: 
+ *
+ * - many large parallel systems have a hierarchical architecture on which
+ * hierarchical parallelism would map naturally
+ *
+ * - current compilers do not simultaneously exploit parallelism at the multi-
+ * and microprocessor level well -- but we believe improvement will come soon
+ *
+ * - library functions are often used as basic, elementary blocks which can be
+ * themselves nested or incorporated in a larger parallel application, thus
+ * requiring appropriate support.
+ *								     
+ * STAPL defines and implements several key extensions of STL:
+ *
+ * - \ref pRange - the parallel equivalent of \c iterators
+ *
+ * - \ref pContainers - the parallel equivalent of \c containers
+ *
+ * - \ref pAlgorithms - the parallel equivalent of \c algorithms
+ *
+ * This guide contains a brief overview and reference of these STL components
+ * to aid the user not already familiar with STL.  A reasonable understanding
+ * of STL will greatly ease the learning curve for STAPL.
+ *								     
+ * STAPL provides portability across multiple systems by including its own
+ * \ref runtimeSystem to support high level parallel constructs (e.g., \ref
+ * p_for_all) and their supporting low level implementations (\ref
+ * parallelPrimitives).  STAPL also provides its own scheduling and data
+ * distribution interfaces.  As such, there is no need for user code
+ * modification when porting a program from one system to the one.
+ *
+ * STAPL allows for STL containers and algorithms to be used together with
+ * STAPL pContainers and pAlgorithms in the same program. 
+ *
+ *
+ * \section install Installation 
+ * 
+ * Obtaining your own private copy of STAPL involves getting the files
+ * out of CVS, building STLport, and then making a few links that the
+ * STLport compilation is not able to make.  To get a copy of STAPL from
+ * CVS on the machines in the PARASOL lab you need to first ensure that
+ * the environment variable CVSROOT is set to
+
+ * "/research/umbrella/cvsrepository"
+  
+   If your shell is tcsh the command to set the variable is 
+
+   'setenv CVSROOT /research/umbrella/cvsrepository'.
+ 
+   For bash users the command is
+
+ * 'export CVSROOT=/research/umbrella/cvsrepository'.  
+   
+   Once CVSROOT is set you can checkout a copy of STAPL by running 
+
+   'cvs checkout stapl' 
+
+   in the directory where STAPL will be installed.
+ *
+ * To get a copy from machines outside of parasol domain, like brainscan 
+ * or university SGIs, set CVSROOT to
+
+ * ':ext:your_login_id@umbrella.cs.tamu.edu:/research/umbrella/cvsrepository'
+
+ * also remember to set CVS_RSH to ssh
+
+ * setenv CVS_RSH ssh
+ 
+ * You have to run 'cvs login' the first time to check out stapl.
+ *
+ * PLEASE DON'T CHECK IN ANYTHING (for parasol group users of STAPL) 
+ *
+ * After checking out a copy of STAPL you need to build the STLport
+ * libraries.  STLport is a platform independent, ISO standard conforming
+ * version of the standard template library (STL) used by STAPL for
+ * greater portability.  The STLport libraries provide the implementation
+ * of the non-templated functions defined in the STLport header files.
+ * (Temporarily) copy stlport from STLport src,
+	
+   cp -R YOUR_PATH/stapl/STLport/stlport    YOUR_PATH/stapl/include/stlport
+ 
+ *
+ * After installation is complete, the system specific run-time system needs
+ * to be compiled. In stapl/include/runtime, type 'gmake' to be instructed to
+ * compile on different platforms.
+ *
+ *
+ * \section firstExample Running Your First pGraph Example Program
+ * STAPL pGraph comes with a number of example
+ * programs, contained in the \c stapl/include/pContainers/pgraph/test
+ * directory, along with a
+ * corresponding Makefiles (hpmake for parasol, lcmake for brainscan).
+ * The following commands will run a simple pgraph distribution
+ * program with 2 processors using 'in' as input graph:
+ *
+ * on brainscan, 
+   to use MPICH, set /usr/share/mpi/bin as the first thing in your PATH, and
+   /usr/share/mpi/include as the first thing to include. (To replace the default 
+   LAM MPI).
+
+ *  make -f lcmake dist_test 
+
+ *  mpirun -np 2 dist_test
+ *
+ * This example, \c dist_test.cc, is described in more detail in the examples
+ * section of this guide. 
+ *
+ *
+ * \section basicCompiling Basic Compiling of STAPL Programs 
+ * Use lcmake and hpmake as template makefiles to compile on Brainscan 
+ * and Parasol.
+ *
+ **/

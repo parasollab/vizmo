@@ -1,0 +1,99 @@
+#-----------------------------------------------------------------------------
+# Choose a compiler & its options
+#--------------------------------------------------------------------------
+ g++ = g++
+
+ CXX = g++
+# CXX = c++
+
+ OPTS = -O2 -MMD -W #-Wall
+ #OPTS = -g -MMD -W
+ #OPTS = -O2 -MMD -pipe -Wall -W -Os  -DQT_ACCESSIBILITY_SUPPORT -DQT_TABLET_SUPPORT -DQT_NO_DEBUG -DQT_SHARED
+ #OPTS = -MMD -w 
+
+
+#--------------------------------------------------------------------
+# Xlib
+#--------------------------------------------------------------------
+
+ X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt
+
+# for MAC
+# GL_LIB = -framework OpenGL -framework GLUT -lm -lobjc
+
+# for Liniux
+ GL_LIB = -lglut -lGLU -lGL -lm
+
+
+ GL_INCL = -I/System/Library/Frameworks/GLUT.framework/Versions/Current/Headers/ -I/System/Library/Frameworks/OpenGL.framework/Versions/Current/Headers/
+
+ GLI_DIR = $(VIZMO_DIR)
+ GLI_INCL = -I$(GLI_DIR)
+ GLI_LIB = -L$(GLI_DIR)/lib -lgli
+#--------------------------------------------------------------------
+
+ PLUM_DIR = $(VIZMO_DIR)
+ PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/mathtool -I$(PLUM_DIR)/modelgraph
+ PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
+
+ QT_INC  = -I$(QT4DIR)/mkspecs/default -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support  -DQT3_SUPPORT -I.
+
+QT_LIBS = $(SUBLIBS) -L$(QT4DIR)/lib -lQt3Support -lQtCore -lQtGui -lQtOpenGL
+ #QT_LIBS = $(SUBLIBS) -Wl,-rpath,$(QTDIR)/lib -L$(QTDIR)/lib  -lqt -lpthread -lXext 
+ #QT_LIBS = $(SUBLIBS) -L$(QTDIR)/lib  -lqt -lpthread -lXext 
+
+ GRAPH_DIR = $(VIZMO_DIR)/graph
+ GRAPH_INCL = -I$(GRAPH_DIR)
+
+
+#--------------------------------------------------------------------------
+# collision detection
+#--------------------------------------------------------------------------
+# RCD_DIR = /usr/local/Parasol
+ RCD_DIR = /research/umbrella/dsmft/CD-libs/linux
+
+# -- For MAC
+                                                                                
+# RAPID_DIR     = ${RCD_DIR}
+# RAPIDLIB_DIR  = ${RAPID_DIR}/lib
+# RAPID_INCL    = -I${RAPID_DIR}/include
+
+# -- For Linux
+
+ RAPID_DIR     = ${RCD_DIR}/RAPID
+ RAPIDLIB_DIR  = ${RAPID_DIR}
+ RAPIDLIB      = -L${RAPIDLIB_DIR} -lRAPID
+ RAPID_INCL    = -I${RAPID_DIR}
+                                      
+ CD_DIR = $(VIZMO_DIR)
+ CD_INCL = -I$(CD_DIR)/CollisionDetection -I$(CD_DIR)/Plum
+ CD_LIB = -L$(CD_DIR)/lib -lCD -lPlum 
+#-------------------------------------------------------------------------
+
+############### STLPORT
+
+ #STLPORT_DIR = $(STAPLDIR)/STLport
+ #STLPORT_INCL = -I$(STLPORT_DIR)/include/stlport -I/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/ -I/System/Library/Frameworks/OpenGL.framework/Versions/A/Headers/
+ #STLPORT_LIB = -Wl, $(STLPORT_DIR)/lib/libstlport_gcc.dylib.4.6 -L$(STLPORT_DIR)/lib -lstlport_gcc -lpthread
+ 
+
+
+# INCLUDE = -I. -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(CD_INCL) $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL)
+# LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPIDLIB} $(LIBS)
+
+ INCLUDE = -I. -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(CD_INCL) $(GRAPH_INCL) $(QT_INC) $(INCPATH) $(RAPID_INCL)
+ LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPIDLIB} $(LIBS)
+
+#--------------------------------------------------------------------
+
+ CFLAGS     = $(OPTS) $(INCLUDE)
+ CXXFLAGS   = $(CFLAGS)
+
+#--------------------------------------------------------------------
+.SUFIXES: .cpp
+
+.cpp.o:
+	${CXX} ${CXXFLAGS} -c $< -o $@
+	cat $*.d >> Dependencies
+	rm -f $*.d
+

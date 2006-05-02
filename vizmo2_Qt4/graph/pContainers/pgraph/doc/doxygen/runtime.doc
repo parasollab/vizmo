@@ -1,0 +1,212 @@
+//*****************************************************************************
+// The following is the Run-Time component of STAPL, along with the detailed
+// descriptions and subsections (e.g., schedulers).  All subsections should
+// appear in the desired order of appearance, and are defined by @defgroup.  
+// Source code that belongs in a section or subsection should indicate as such 
+// with @addtogroup.
+//*****************************************************************************
+
+/**
+ * @defgroup runtimeSystem Run-Time System
+ * The STAPL run-time system provides support for, and abstracts, parallel
+ * processing for different parallel architectures (e.g., HP V2200, SGI Origin
+ * 2000/3000, SGI Power Challenge) and for different parallel paradigms (e.g.,
+ * PThreads, OpenMP, MPI) that would generally be used to run on such
+ * architectures.  The run-time system supports nested parallelism if the
+ * underlying architecture allows it via a hierarchical run-time structure,
+ * otherwise nested regions are sequentialized.
+ *
+ * Essentially, the STAPL run-time system provides all the tools a developer
+ * needs to express and maintain parallelism.  All of STAPL's components, and
+ * especially \ref pAlgorithms, rely heavily on the run-time system.  Thus,
+ * details of parallel execution are handled by the run-time system, allowing
+ * other components to cleanly express a given concept.
+ *
+ * Currently, the run-time system contains three main components: 
+ * - \ref p_for_all - takes a \ref pRange and a parallel work function
+ * (p_function), and executes the function on the data in parallel.  It
+ * abstracts the intricacies of data distribution and scheduling.
+ *
+ * - \ref scheduler - handles the assignment of data to processors, and are
+ * used by p_for_all.
+ *
+ * - \ref parallelPrimitives - are the lowest level of expressing parallelism
+ * and synchronization, and are the fundamental building block uses by
+ * p_for_all, pAlgorithms and all other STAPL components that execute in
+ * parallel.
+ *
+ * Additionally, a small \ref timer component is available for generic timing of
+ * sections of code.
+ *
+ * In the future, STAPL will provide additional run-time components, such as
+ * an executor (which will operate similar to p_for_all, but will also satisfy
+ * data dependencies contained in the pRange) and a distributor (which will
+ * physically distribute data across processors in a distributed memory
+ * environment).
+ **/
+
+/**
+ * @ingroup runtimeSystem
+ * @defgroup p_for_all p_for_all
+ **/
+
+/**
+ * @ingroup runtimeSystem
+ * @defgroup scheduler Scheduler
+ **/
+
+/**
+ * @ingroup runtimeSystem
+ * @defgroup parallelPrimitives Parallel Primitives
+ **/
+
+/**
+ * @ingroup runtimeSystem
+ * @defgroup timer Timer
+ **/
+
+
+/**
+ * @addtogroup scheduler
+ * 
+ * \b Common \b Features \b of \b the \b STAPL \b Scheduling \b Policies
+ * 
+ * The scheduler takes one or more pRanges and sends its subranges to
+ * processors, according to its scheduling policy, until all the subranges
+ * have been processed.  Currently, STAPL provides 5 types of schedulers.
+ * According to their scheduling policies, they can be categorized as:
+ *
+ * - Static Scheduler
+ * - Interleaved Scheduler 		    
+ * - Dynamic Scheduler 			    
+ * - Partial Self-Guided Scheduler 	    
+ * - User-defined Scheduler
+ *
+ * Each scheduler provides a different scheduling policy. The reason STAPL has
+ * more then one scheduling policy is because for some types of applications,
+ * a scheduling policy gives very good performance, while for other types of
+ * programs the same scheduling policy could not guarantee the same
+ * performance. Depending on the type of application, the user could choose
+ * one of the four scheduling policies in STAPL, or could write their own
+ * scheduler and just plug it into STAPL ( see below for further discussion
+ * about writing a scheduler). If the pRange being used is not distributed,
+ * the scheduler distributes the pRange using the default distribution
+ * algorithm. If the user wants a custom distribution, they have to distribute
+ * it before the pRange is sent to the scheduler.
+ *
+ * Each scheduler has three variants regarding the number of pRanges it takes
+ * for scheduling : one pRange, two pRanges and three pRanges. The idea behind
+ * providing three variants emerged from the types of operations that
+ * frequently occur in practice.
+ *
+ * \c A=Const;
+ *
+ * \c A=B;
+ *
+ * \c A=B+C;
+ *
+ * Supporting these three operation framework STAPL provides for each type of
+ * scheduler three variants which take one pRange, two pRange and respectively
+ * three pRanges as input for scheduling. Each scheduler name ends in a digit
+ * which specifies the number of pRanges it takes for scheduling
+ * (e.g. Static_Scheduler2 takes two pRanges as input for scheduling ).
+ *
+ * \b IMPORTANT
+ *
+ * STAPL schedulers which take more the 1 pRange as input assume that all
+ * pRanges given as input have the same number of sRange (e.g. :
+ * Static_Scheduler2(pRange1,pRange2) - the number of sRanges in the pRange1
+ * should be equal to the number of sRanges in pRange2 ). The sizes of the
+ * corresponding sRange doesn't have to be equal as long as the p_function
+ * applied on those sRanges work properly.
+ *
+ * \b Static \b Scheduler 
+ *
+ * Static Scheduler is the default scheduling policy in STAPL, and it will be
+ * used unless the user specifies another scheduler as an argument to
+ * p_for_all. The static scheduler is a block scheduling mechanism. It takes
+ * the collection of subranges and groups it into P equal (if possible,
+ * otherwise approximately equal) blocks. Each of the p blocks is a contiguous
+ * portion of the subrange collection. For example, if there is a pRange which
+ * contains 16 subranges and there are 4 available processors, these 16
+ * subranges will be assigned as follows: the first 4 subranges will be
+ * assigned to the first processor, the next four subranges to the next
+ * processor, and so on. If there are 16 subranges in a pRange, but only 3
+ * processors available, the blocking is done in the following manner: the
+ * first 6 subranges are assigned to the first processor, the next 5 subranges
+ * are assigned to the second processor, and the last 5 subranges are assigned
+ * to the third processor.  This static scheduler provides good data locality
+ * on each processor. This is because the subranges assigned to a particular
+ * processor are adjacent subranges in the original pRange.
+ *
+ * \see Static_Scheduler1 Static_Scheduler2 Static_Scheduler3
+ *
+ * \b Interleaved \b Scheduler
+ *
+ * The Interleaved Scheduler takes a the collection of subranges (a pRange) and
+ * groups it in P consecutive subranges per group. Each processor takes the
+ * IDproc-th subrange of the first group of subranges, then the IDproc-th
+ * subrange from the second group of p subranges, a subrange from the third
+ * group of p subranges, and so on. So the first processor is assigned these
+ * subranges :\f$ 1, 1+P, 1+2P\f$, \f$\ldots\f$ The set of subranges designated
+ * to the \f$k-th\f$ processor is { x | x= k+ n*P, where x< number of subranges
+ * int the collection and n>=0 }, where k is the processor ID.
+ *
+ * \see Interleave_Scheduler1 Interleave_Scheduler2 Interleave_Scheduler3
+ *
+ * \b Dynamic \b Scheduler 						  
+ *
+ * The Dynamic Scheduler is used to help preserve a good load balance. The
+ * case where the subranges of a pRange are not all the same size could occur
+ * by a user specified data distribution, or through modifications made to the
+ * p_container. In this case, assigning the subrange collection to the
+ * processors according to the number of subranges each processor takes could
+ * lead to a disastrous load balance, even though the number of subranges are
+ * equally divided among the processors.  Dynamic Scheduler was designed to
+ * alleviate this problem. Rather than grouping the subranges of a pRange as
+ * equal entities, the grouping performed by the dynamic scheduler involves
+ * the number of elements each subranges contains into the scheduling
+ * policy. Each processor picks a subrange from the pool of subrange provided
+ * by the pRange and starts processing that subrange. When the processor
+ * finishes the work assigned to that subrange, goes back to the dynamic
+ * scheduler and asks for the next available subrange ready to be
+ * processed. This hand-shake mechanism between the processor and the
+ * scheduler is performed as an atomic operation. When the processor asks for
+ * the next available subrange ready for computation, it locks the scheduler
+ * to serve its request. As soon as it finds an answer ( whether or not it has
+ * been assigned a subrange ) it releases the scheduler for other starving
+ * processors. This procedure continues until all the subranges in the pRange
+ * are processed.
+ *
+ * \see Dynamic_Scheduler1 Dynamic_Scheduler2 Dynamic_Scheduler3
+ *
+ * \b Guided \b Self \b Scheduler 
+ *
+ * Self-guided scheduler helps improve load balance. Self-Guided Scheduler
+ * takes the collection of subranges and sorts it according to the subranges'
+ * sizes. After the collection is sorted, each processor is grabs a subrange
+ * from this collection, starting with the biggest one. Assigning a subrange
+ * for a processor is performed as an atomic operation. After finishing the
+ * work on a subrange, the processor asks for another subrange from the
+ * collection, until all the subranges in the collection are processed.
+ * \warning This scheduling policy makes the assumption that the amount of
+ * work executed by a processor on a subrange is direct proportional with the
+ * size in elements of that subrange.
+ *
+ * This type of scheduling policy provides a good load balance among
+ * processors. The rationale behind this policy is to process the most
+ * expensive subrange ( with is equivalent to the biggest subrange under
+ * assumptions ) at the very beginning, and leave the least expensive subrange
+ * at the end of the computation for alleviate the possible imbalance with as
+ * less as possible difference in quanta of work (proportional to the
+ * subrange's size).  Self-Guided Scheduler is recommended when the sizes of
+ * subranges differ.
+ *
+ * \see Guided_Scheduler1 Guided_Scheduler2 Guided_Scheduler3
+ *
+ * \b User \b Defined \b Scheduler
+ *
+ * The user can write his own scheduling policy and just plug it in STAPL any
+ * time they want to call that specific policy. The guidelines for developing
+ * a scheduler for STAPL are described in \ref schedulingDev.
+ **/

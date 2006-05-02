@@ -1,0 +1,19 @@
+1:
+
+TODO-hashmap
+
+
+  virtual pIterator_type begin() = 0;
+     
+  /**local end
+   *\b LOCAL
+   */
+  virtual pIterator_type end() = 0;
+
+
+2:
+
+	Change the IsLocal Method
+
+
+

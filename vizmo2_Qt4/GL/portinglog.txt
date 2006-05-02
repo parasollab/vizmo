@@ -1,0 +1,2 @@
+Number of log entries: 1
+No changes made to file /Users/mmorales/Development/Parasol/vizmo2/GL/gliDump.cpp

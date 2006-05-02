@@ -1,0 +1,38 @@
+# $Id$
+#------------------------------------------------------
+# Make your own and use it or use the one in BASELINE
+#------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Choose a compiler & its options
+#--------------------------------------------------------------------------
+
+ CXX = CC
+
+ OPTS = -n32
+
+ INCLUDE = -I/usr/local/include
+
+ LIB_DIR = -L/usr/X11R6/lib -L/usr/local/lib
+
+ X_LIB =  -lX11 -lXmu
+ GL_LIB = -lglut -lGLU -lGL -lm
+
+ LIB = $(LIB_DIR) $(GL_LIB) $(X_LIB)
+
+
+CFLAGS     = $(OPTS) $(INCLUDE)
+CXXFLAGS   = $(CFLAGS) 
+
+OBJS         = gli.o 
+
+all: gli
+
+gli: $(OBJS)
+	ar cru lib/libgli.a $(OBJS)
+
+gli.o: 
+	$(CXX) $(CXXFLAGS) -c -o gli.o gli.cpp 
+clean:
+	rm -f *.o lib/libgli.a
+	rm -fr ii_files

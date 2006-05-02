@@ -1,0 +1,4 @@
+obprm_rigid -f l_tunnel -inmapFile l_tunnel.map -outmapFile test.map \
+-cd RAPID \
+-lp straightline lineSegmentLength 0 binarySearch 1 \
+-cNodes closest 5

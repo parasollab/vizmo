@@ -1,0 +1,128 @@
+//*****************************************************************************
+// The following is the pContainers component of STAPL, along with the detailed
+// descriptions and subsections.  All subsections should appear in the desired 
+// order of appearance, and are defined by @defgroup.  Source code that belongs 
+// in a section or subsection should indicate as such with @addtogroup.
+//*****************************************************************************
+
+/**
+ * @defgroup pContainers pContainers
+
+* General pContainers
+
+* pContainers are the parallel counterparts of STL containers, and other
+useful sequential data structures(like graph). To serve as
+parallel/distributed data structure, a pContainer provides
+semi-random/random access to each element in the data structure across
+the machine. It also hides the data distribution information from the
+user. Viewing from outside it is exactly the same as a sequential
+container, and sequentially consistent in terms of the computation.
+
+Data Distribution Object
+
+Data distribution is a feature of the pContainer. Each pContainer
+is associated with a specific distribution object. The distribution
+has the information and functionality necessary to locate and move
+elements of a pContainer across the machine.
+*
+Partition, Mapping, Distribution
+
+A distribution is determined by data partitioning and mapping. A
+partition is a decomposition of the elements in a sequential container
+into disjoint sets. It can be generated using algorithms available in
+STAPL toolbox, or provided by the user directly. It is a logical
+arrangement of the data, not necessarily related with the machine
+topology. A mapping is a logical placement of a partition onto the
+machine. It can be computed based on machine topology using STAPL
+tools, or designated by the user. The result of mapping a partition
+onto the machine is a distribution. The user can also pre-define a
+distribution, for example storing decomposed data into files on each
+computation node.
+*
+Element Location
+
+After data is distributed onto each computation node, an important
+functionality of the distribution object is to locate remote data
+items efficiently. This is done in a semi-random/random fashion based
+on the specification of the sequential container. For example, to find
+a data item in a parallel linked list, first we randomly locate the
+processor it resides on, then we access sequential the linked list to
+find it.
+
+To facilitate the element location, an ElementLocator object is
+associated with the Distribution.The ElementLocator finds the
+location of a data element given its unique description, eg. a global
+index for a pVector, or a global ID for a pGraph.  Element Location is
+done in a distributed fashion by storing on each processor an element
+location cache. The cache is similar to a distributed hash table, and
+can be directly accessed from any processor. This solution is efficient
+and scalable in terms of both memory and performance.
+
+Load-balancing/Re-distribution
+
+For some applications, the data layout of the container changes as
+data elements are added, migrated or deleted. It can result an
+imbalanced workload among processors and inefficient parallel
+computation. Hence another functionality a Distribution provides is
+load-balancing/redistribution. The work load on each processor is
+checked periodically; If the imbalance ratio surpass certain
+threshold, a re-distribution could be performed to restore the
+balance. This process involves not only the pContainer, but also the
+associated pRanges and the runtime system.
+
+User interaction with the Distribution of the pContainer
+
+The user of the pContainer can interact with the data distribution in
+various ways. The three main steps in building a pContainer are data
+partitioning, mapping and distribution. Any of these steps can be
+performed using predefined methods available in STAPL or functions
+provided by the user. For example the user can specify a uniform or
+non-uniform partition and distribution or can use the STAPL scheduling
+toolbox to compute a more efficient one.
+
+When there are no dependencies among the data in the pContainer
+simple partitioning strategies can be used. In cases when there are
+precedence constraints among the data, which is represented by a Data
+Dependence Graph (DDG) corresponding to the algorithm, the user can
+select from a list of scheduling algorithms (STAPL scheduling toolbox)
+to compute the partitioning and mapping of the computation onto the
+multiprocessor machine.
+
+STAPL Scheduling Tool Box
+
+Currently there are a number of scheduling and mapping algorithms
+available in the toolbox. For scheduling/partitioning, the algorithms
+assume infinite/finite number of processor, with homogeneous
+connection topology and computation power on each node. For mapping,
+the algorithms assume finite number of processors, with
+homogeneous/heterogeneous machine topology. Combining the scheduling
+and mapping algorithms, the toolbox can produce distributions for the
+pContainer to use.
+
+pGraph Container
+
+Parallel graph is one of the parallel containers provided by
+STAPL. Graph data structure is used widely in applications and some of
+them work on large graphs which require an efficient distributed
+implementation.  STAPL pGraph would be the ideal choice for these
+problems. Parallel graph provides all the functionality of a
+sequential graph. pGraph is used extensively by a number of projects
+like ASCI[ref] and OBPRM[ref] and other components of STAPL like
+pRange. These applications require highly scalable data structures and
+pGraph was designed with this in mind.
+
+A parallel graph is composed of a number of sequential graphs each of
+them residing in one thread of execution. The pGraph could be
+partition into these individual pieces through the user input
+information or through a partition algorithm provided by STAPL.The
+user can specify (build) the pGraph in a number of ways. It can be
+specified in a sequential fashion in the form of a single file and
+pGraph will automatically distribute the vertices in the graph
+among available processors. If the user has already partitioned the
+graph then it could be specified in a distributed fashion (like in a
+number of files).  After the pGraph was distributed we have the option
+to redistribute if necessary. The redistribution of the pGraph could be
+done by the STAPL runtime or could be initiated by the user.
+
+**/
+
