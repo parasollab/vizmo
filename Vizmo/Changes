@@ -1,5 +1,0 @@
-Oct 26, 2000: 
- -Created a wrapper script to decide on which platform, vizmo is running
- -Now each platform has its own so stored under lib directory
- -Added makeme script
-
