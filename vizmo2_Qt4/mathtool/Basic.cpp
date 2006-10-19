@@ -22,9 +22,9 @@ namespace mathtool{
       absb = fabs(b);
 
       if(absa > absb)
-        return absa * sqrt(1.0 + sqr(absb / absa));
+        return absa * sqrt(1.0 + pow((absb / absa),2));
       else if(absb > 0)
-        return absb * sqrt(1.0 + sqr(absa / absb));
+        return absb * sqrt(1.0 + pow((absa / absb),2));
       else
         return 0;
     }

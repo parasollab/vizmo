@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'queryGUI.h'
 **
-** Created: Tue Nov 29 13:20:11 2005
-**      by: The Qt Meta Object Compiler version 58 (Qt 4.0.1)
+** Created: Wed Oct 18 14:25:23 2006
+**      by: The Qt Meta Object Compiler version 59 (Qt 4.2.0)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -10,8 +10,8 @@
 #include "queryGUI.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'queryGUI.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 58
-#error "This file was generated using the moc from 4.0.1. It"
+#elif Q_MOC_OUTPUT_REVISION != 59
+#error "This file was generated using the moc from 4.2.0. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -70,7 +70,7 @@ int queryGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: callUpdate(); break;
         case 1: SaveSG(); break;
-        case 2: newCfg(*(QString*)_a[1]); break;
+        case 2: newCfg((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 3: updateQryCfg(); break;
         case 4: resetCfg(); break;
         }

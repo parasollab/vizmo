@@ -100,7 +100,7 @@ namespace mathtool{
     {
         T sumsqr = 0;
         for(int i = 0; i < D; i++)
-            sumsqr += sqr(v[i]);
+            sumsqr += pow(v[i],2);
         return sumsqr;
     }
     
@@ -112,7 +112,7 @@ namespace mathtool{
         int i;
         for(i=0; i<D; i++){
             newv.v[i] = v[i] / magnitude;
-            if(abs(v[i]) > magnitude * HUGENUMBER){
+            if(fabs(v[i]) > magnitude * HUGENUMBER){
                 cerr << "taking the norm of a zero" << D << " Vector" << endl;
                 break;
             }

@@ -24,6 +24,7 @@ namespace mathtool{
     #define HUGENUMBER  1.0e10
 
     /* Miscellaneous Scalar Math */
+  /*
     #define abs(x)      (((x) < 0) ? (-(x)) : (x))
     #define sqr(x)      ((x) * (x))
 
@@ -34,7 +35,7 @@ namespace mathtool{
     #ifndef max
     #define max(x1,x2)  ((x1)>(x2)?(x1):(x2))
     #endif
-
+  */
     //int round(double x, double p);
     //int round( double v );
     inline int round( double x, double p){

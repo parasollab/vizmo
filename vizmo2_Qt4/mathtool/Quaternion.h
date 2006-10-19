@@ -51,12 +51,12 @@ namespace mathtool{
         }
 
         double norm(){ return sqrt(normsqr()); }
-        double normsqr(){ return m_v.normsqr()+sqr(m_s); }
+        double normsqr(){ return m_v.normsqr()+pow(m_s,2); }
 
         //////////////////////////////////////////////////////////////////////////
         //Access
         Matrix3x3 getMatrix(){
-            double x_2=2*sqr(m_v[0]); double y_2=2*sqr(m_v[1]); double z_2=2*sqr(m_v[2]);
+            double x_2=2*pow(m_v[0],2); double y_2=2*pow(m_v[1],2); double z_2=2*pow(m_v[2],2);
             double xy=2*m_v[0]*m_v[1]; double yz=2*m_v[1]*m_v[2]; double zx=2*m_v[2]*m_v[0]; 
             double sx=2*m_s*m_v[0]; double sy=2*m_s*m_v[1]; double sz=2*m_s*m_v[2]; 
 
