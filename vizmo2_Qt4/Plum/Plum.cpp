@@ -112,8 +112,8 @@ namespace plum{
         glLoadIdentity();
         double x=(box.l+box.r)/2;
         double y=(box.t+box.b)/2;
-        double w=abs(box.r-box.l); if( w<5 ) w=5;
-        double h=abs(box.t-box.b); if( h<5 ) h=5;
+        double w=fabs(box.r-box.l); if( w<5 ) w=5;
+        double h=fabs(box.t-box.b); if( h<5 ) h=5;
         gluPickMatrix( x, y, w, h, viewport);
         glMultMatrixd(pm); //apply current proj matrix
 
