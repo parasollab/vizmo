@@ -4,10 +4,21 @@
 
 #include <sys/types.h>
 #include <dirent.h>
+#include <cerrno>
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // QT Headhers
 
+#include <qlabel.h>
+#include <qstring.h>
+#include <qmessagebox.h>
+#include <qfile.h>
+#include <qfiledialog.h>
+#include <qfileinfo.h>
+#include <qlayout.h>
+#include <qgrid.h>
+#include <qpushbutton.h>
 #include <QtGui>
 
 //Added by qt3to4:
