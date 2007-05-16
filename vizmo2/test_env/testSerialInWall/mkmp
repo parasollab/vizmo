@@ -1,8 +1,0 @@
-../obprm -cd RAPID -f serial \
-	-bbox [0.0,4.0,0.0,4.0,-5.0,14.0] \
-	-bbox_scale 1 \
-	-lp straightline rotate_at_s \
-	-gNodes OBPRM nodes 400 \
-	collPair rT rT shells 1 freePair rT rT \
-	-cNodes closest 20 components 5 5 
-
