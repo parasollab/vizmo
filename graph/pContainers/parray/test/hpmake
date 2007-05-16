@@ -1,0 +1,48 @@
+CC     = mpiCC +O2 +inline_level 3  -Wl,-N
+
+#DIST   = ../../distribution
+#BASE   = ../../base
+#COMMON = ../../../common
+#PGRAPH = ../
+#GRAPH  = ../../../graph
+#GSCHEDULER = ../../../GeneralScheduler
+
+STAPL  = ../../../..
+
+LCFLAGS = -ftemplate-depth-25 -I/usr/share/mpi/include
+HPFLAGS = -AA -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE  
+
+OPT    = 
+LCLIB    = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_gcc.a -lrt
+HPLIB    = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_aCC.a -lrt
+
+INCLUDE  = -I. -I../ -I$(STAPL)/include/stlport -I$(STAPL)/include -I${STAPL}/include/pContainers/pvector -I${STAPL}/include/pContainers/parray
+
+######################################
+######################################
+CFLAGS = $(HPFLAGS) $(INCLUDE) -D_OPTIONAL_SORT_ -DPARALLEL -D_PGRAPH  -DDYNAMIC_GRAPH -DEFFICIENCY -DQUIETGRAPH -D_STL_PORT -D_STAPL_MPI -D_PLIST -DCOMPLETE_LOCATION_MAP -D_STAPL
+
+
+LIB    = $(HPLIB)
+
+all: parray_test prefixSums
+
+parray_test: parray_test.cc
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 	
+
+prefixSums: prefixSums.cc
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 	
+
+seqPrefixSums: seqPrefixSums.cc
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 	
+
+overhead: overhead.cc
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 	
+
+overhead_simple: overhead_simple.cc
+	$(CC) $(CFLAGS) -o $@ $@.cc $(LIB) 	
+
+clean:
+	rm -rf *.o ii_files paray_test prefixSums seqPrefixSums overhead
+
+

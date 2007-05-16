@@ -1,0 +1,1 @@
+../query -cfg Cfg_free_tree 3 -cd RAPID -f serial

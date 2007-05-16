@@ -1,0 +1,11 @@
+
+GetEdgeWeight: edge not in graphSchedule is correct.
+Correct Schedule. Clustering result
+##### Schedule by DSC ####
+Number of Processors used  6
+pid =   0 vertices={ 1   3 } 
+pid =   1 vertices={ 0   2   4   5   7   9   11   13   15   17   19   21   22   24   25   26   27   28   29   30   31 } 
+pid =   2 vertices={ 6   8   10   12 } 
+pid =   3 vertices={ 14   16   18 } 
+pid =   4 vertices={ 20 } 
+pid =   5 vertices={ 23 } 

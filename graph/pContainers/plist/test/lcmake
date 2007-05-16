@@ -1,0 +1,44 @@
+CC     = mpiCC -g
+
+#PGRAPH = ../
+
+STAPL  = ../../../..
+
+LCFLAGS = -ftemplate-depth-25 -I/usr/share/mpi/include
+HPFLAGS = -AA -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE  
+
+OPT    = 
+
+LCLIB    = $(STAPL)/lib/runtime.o \
+	   $(STAPL)/lib/libstlport_gcc.a  \
+	   -Wl,-rpath=/usr/local/gnu/lib  \
+	   -Wl,-rpath=/usr/share/mpi/lib -lrt
+
+HPLIB    = $(STAPL)/lib/runtime.o $(STAPL)/lib/libstlport_aCC.a -lrt
+
+INCLUDE  = -I. -I$(STAPL)/include/stlport -I$(STAPL)/include
+
+######################################
+#switch between HPFLAGS/LCFLAGS and HPLIB/LCLIB 
+#when compile on different machines (parasol/brainscan)
+######################################
+CFLAGS = $(LCFLAGS) $(INCLUDE) -D_OPTIONAL_SORT_ -DPARALLEL -D_PGRAPH -DDYNAMIC_GRAPH -DEFFICIENCY -DQUIETGRAPH -D_STL_PORT -D_STAPL_MPI -D_PLIST -DCOMPLETE_LOCATION_MAP -D_STAPL
+
+LIB    = $(LCLIB)
+
+all: ann_plist_test list_ranking
+
+ann_plist_test: ann_plist_test.cc ../pList.h ../../distribution/BaseDistribution.h
+	$(CC) -w $(CFLAGS) -DSTAPL_DEBUG -o $@ $@.cc $(LIB) 
+
+parray_test: parray_test.cc ../pArray.h ../ArrayPart.h 
+	$(CC) $(CFLAGS) -DSTAPL_DEBUG -o $@ $@.cc $(LIB) 
+
+list_ranking: list_ranking.cc
+	$(CC) $(CFLAGS) -DSTAPL_DEBUG0 -o $@ $@.cc $(LIB) 
+
+clean:
+	rm -rf *.o ann_plist_test list_ranking
+
+
+

@@ -1,0 +1,4 @@
+Revision name 		Coments
+graph_object		the garph is an object inside pgraph class
+before-moveout-pwtvertex the pgraph doesn't use the pWtVertex datastructure; 
+			It uses only the WtVertex	

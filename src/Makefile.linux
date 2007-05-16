@@ -1,0 +1,44 @@
+VIZMO_DIR = ..
+include $(VIZMO_DIR)/M_incl
+
+Env_DIR = EnvObj
+Map_DIR = MapObj
+GUI_DIR = gui
+
+#--------------------------------------------------------------------
+
+#target = ../vizmo2
+#alias = ../vizmo++
+
+target = ../vizmo++
+
+#all: $(target) $(alias)
+all: $(target)
+
+#--------------------------------------------------------------------
+OBJS =  main.o vizmo2.o
+
+EnvOBJ = ${Env_DIR}/BoundingBoxModel.o  ${Env_DIR}/BoundingBoxParser.o  ${Env_DIR}/PathLoader.o  \
+         ${Env_DIR}/PathModel.o  ${Env_DIR}/QueryLoader.o \
+         ${Env_DIR}/QueryModel.o  ${Env_DIR}/Robot.o
+
+GUIOBJ = -lvgui
+
+#--------------------------------------------------------------------
+
+$(target):  ${EnvOBJ} GUIOBJ_d ${OBJS}
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) ${EnvOBJ} ${GUIOBJ} ${LIB}
+
+#$(alias): $(target)
+#	rm -f $@
+#	ln -s vizmo2 $@
+
+GUIOBJ_d:
+	cd ${GUI_DIR} ; make -f Makefile.linux all
+clean:
+	rm -f  ${EnvOBJ} ${OBJS} $(target) Dependencies
+	touch Dependencies
+	cd ${GUI_DIR} ; make -f Makefile.linux clean
+
+include  Dependencies
+

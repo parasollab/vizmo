@@ -1,0 +1,190 @@
+This file describes the recommended style of documenting STAPL source
+code, along with generating documentation using the Doxygen Source
+Documentation System, and enabling the doxygen search.
+
+
+
+NOTE:
+It is important to NOT use other commenting styles such as
+/*************** or /////////////////, which may confuse Doxygen.  To
+make a comment that separates sections of code, the recommended style is
+
+//*****************************************************************************
+
+and for other comments (not to be used by Doxygen), use the regular /* */
+and // common to C and C++. 
+
+
+
+OVERVIEW:
+The .doc files in this directory contain the introductory material that
+encompasses a larger scope than a single algorithm (function) or container
+(class).  All STAPL components' documentation is started in these files.
+Doxygen tends to haphazardly place sections into the LaTeX documentation,
+making for a difficult to understand document.  The desired ordering of
+subcomponents (i.e. the table of contents) is thus defined within the .doc
+files (e.g., Numerical Algorithms are a subcomponent of pAlgorithms, and
+accumulate is a subcomponent of Numerical Algorithms).  The specifics on each
+these sections are what is contained in the actual source code, and are
+described below.  This style allows for a readable document to be produced,
+while still keeping the source uncluttered.  Other introductory information is
+maintained in .doc files, such as an overview of all parallel algorithms
+(pAlgorithms.doc), or the overview of all of STAPL (overview.doc).  In
+addition, the .doc files provide space for more indepth discussion for
+developers via the developer's guide sections.
+
+Space for examples is also available.  Short (approx. 2-5 lines) examples are
+included as part of the pAlgorithms description below.  More complicated
+examples (written as individual files) should be placed in the stapl/ examples
+directory, and a detailed introduction/description of each may be inserted in
+examples.doc.  Links from the example to the STAPL functionality it uses are
+automatically created by Doxygen, and vice versa.
+
+Finally, room for discussion on STL is given in stlReference.doc. It gives an
+introduction to STL, and defines and briefly documents a number of common
+classes (e.g., iterators and function objects) for users that may not
+understand STL entirely yet.  It is important to write STAPL code that uses
+such constructs with the same names as defined (e.g. InputIterator) so Doxygen
+may automatically reference the STL reference section when they are used.
+
+
+
+pALGORITHM SOURCE CODE DOCUMENTATION:
+pAlgorithms and other function source code should be documented as follows:
+
+/**
+ * @addtogroup algorithmID
+ * ... main description ...
+ *
+ * \include
+ * <p_???.h>
+ *
+ * \ex
+ * ... example description ...
+ * \code
+ * ... C++ code fragment ...
+ * \endcode
+ *
+ * \complexity
+ * \f$O(???n / p???)\f$
+ *
+ * \note
+ * ... optional notes (could also use \warning for a stronger suggestion) ...
+ *
+ * \see
+ * ... optional references to other section ...
+ * @{
+ **/
+... code ...
+/**
+ * \param parameter1 ... description ...
+ * \param parameter2 ... description ...
+ * \return ... description ...
+ **/
+  p_algorithm(...)   <or>   pi_algorithm(...)
+... the rest of the code related to this algorithm ...
+/** @} **/
+
+where algorithmID is the appropriate STAPL algorithm, defined in
+pAlgorithms.doc with @defgroup.  Using this style, there is one main
+description for a given algorithm, and all of its derivations (p_ vs. pi_, and
+those that use predicates) simply describe the specifics on their parameters.
+The derivations are all grouped together via the @{ and @} commands.  It is nice
+if all derivations can be physically grouped together in the source code.  If
+this is not possible however, the outliers may include @addtogroup algorithmID
+in their comment block to be included.
+
+
+
+pCONTAINER SOURCE CODE DOCUMENTATION:
+pContainers and other class source code should be documented as follows:
+
+/**
+ * @addtogroup containerID
+ * ... overall description, may include sections like above ...
+ **/
+
+and their methods (which don't need the @ingroup command):
+
+/** ... short description ... */
+<or>
+/**
+ * ... long description ...
+ **/
+
+
+
+RUN-TIME SYSTEM SOURCE CODE DOCUMENTATION:
+Because individual run-time system components are contained within a single
+file (as opposed to pAlgorithms, which are spread over many), its
+documentation is contained at the top of a component's file (just after
+namespace stapl;), using the following structure:
+
+/**
+ * @addtogroup component
+ *
+ * ... overall documentation ...
+ * @{
+ **/
+
+where componentID is defined in runtime.doc. The rest of the file can be
+documented like methods of a class because they no longer need @addtogroup
+because of the @{ (make sure to close the @{ by putting /** @} **/ at the
+bottom of the file!!!).
+
+
+
+DOXYGEN SPECIAL COMMANDS/FEATURES:
+Doxygen provides a number of special formatting symbols.
+(www.doxygen.org -> Section "Special Commands" contains more detail)
+
+\warning starts a "Warning" section
+\b <word> display <word> using a bold font
+\e <word> displays <word> in italics (i.e. emphasized)
+\c <word> displays <word> using a typewriter font (good for C++ keywords)
+\code ... \endcode typeset ... as code (good for short inlined examples)
+\f$...\f$ formats ... in LaTeX math mode
+\li { item-description } typeset item-description as a bulleted list
+
+Doxygen also provides the \brief command to include a short description
+at the beginning of a section. This tends to produce confusing and cluttered
+results, and it is best not to use it.
+
+Some features may be useful to document in Doxygen, but should only be
+presented to STAPL developers and not the common user (e.g., private members
+of a class). These sections should be surrounded by "\if stapl_internal" and
+"\endif". This is similar to conditional compilation in C/C++. To turn it on,
+set the ENABLED_SECTIONS flag of the Doxyfile to stapl_internal. If 
+stapl_internal is not set, these comments will not be shown.
+
+Doxygen also automatically creates link (hyperlinks in HTML, page numbers in
+LaTeX) between documented components.  A class or function from STAPL source
+code will automatically be recognized and a link created.  URL's (http://...)
+also are automatically linked and emphasized.  Groups (e.g. what is defined
+witht eh @addtogroup or @defgroup commands), however, are not.  If a link to a
+group is desired, the name must be preceded by \ref (e.g., \ref pRange).
+
+
+
+'GENERATING' THE DOCUMENTATION:
+Once documentation is complete, it is easy to generate the results using the
+'makeDocs' script provided.  It runs Doxygen, then slightly modifies the
+output to create a more readable presentation.  The result is HTML, LaTeX, and
+MAN pages contained in the html, latex, and man directories.  From within
+the latex directory, 'make ps' will produce a postscript file (refman.ps) and
+'make pdf' will produce the PDF version (refman.pdf).
+
+
+
+ENABLING 'SEARCHING' OF THE DOCUMENTATION: Doxygen has a built in search cgi
+script for HTML documentation. This feature is enabled/disabled from the
+Doxyfile.  If it is turned on, each path in that section also needs to be
+correctly set for the current STAPL webserver.  Once the documentation is
+generated (see above), copy the html/ directory to the webserver directory
+(one step that is necessary is running 'doxytag -s search.idx' from the html
+directory to create the search index, but the makeDocs script automatically
+takes care of this).  Copy the staplSearch script to the cgi directory.
+Finally, make sure that Doxygen, or at least the doxysearch component of
+Doxygen, is installed on the webserver.  The html_header.html file contains a
+link to the resulting search page, which is dynamically created and handled by
+doxysearch.

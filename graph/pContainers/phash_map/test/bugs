@@ -1,0 +1,38 @@
+1:
+
+
+  virtual void AddPart2LocationMap(const pContainer_Part_type& _bt) {
+    for(part_const_iterator it = _bt.begin(); it!=_bt.end(); ++it) {
+      PARTID _partid = _bt.GetPartId();
+      Location location(myid,_partid);
+      GID _gid;// = it->GetGid();               //TODOD TODO TODO
+      pair<GID,Location> tp(_gid,location);
+      dist.Add2LocationMap(tp);
+    }  
+  }
+
+
+
+2:
+
+	IsLocal ........ more efficient????
+
+
+3:  
+	virtual GID AddElement(const value_type& _t) {
+
+4:
+
+
+Why is this const
+
+  virtual const pContainer_Part_type* GetPart(PARTID _id) const {
+    return pcontainer_parts[_id];
+  }
+
+5:
+
+AddPart2LocationMap..... Use GID--PartID   map
+
+
+
