@@ -15,7 +15,7 @@ Summary: vizmo++ - A visualization/authoring tool for motion planning
 Version: 0 
 Release: %{date}%{dist}
 License: Copyright 2006, Parasol Lab, Texas A&M University.  All Rights Reserved.
-Group: Development/Tools
+Group: Application/Engineering
 Source: %{name}-%{version}-%{date}.tar.gz
 # CR_icra06.pdf from http://parasol.tamu.edu/publications/download.php?file_id=519
 Source2: vizmo++-CR_icra06.pdf 
