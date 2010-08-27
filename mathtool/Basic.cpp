@@ -7,6 +7,7 @@
 //
 //
 
+#include <cstring>
 #include "Basic.h"
 
 namespace mathtool{

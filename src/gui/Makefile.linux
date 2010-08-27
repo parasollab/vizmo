@@ -2,7 +2,8 @@ INCPATH = -I..
 VIZMO_DIR = ../..
 include $(VIZMO_DIR)/M_incl
 
-MOC      = /usr/bin/moc-qt4
+#MOC      = /usr/bin/moc-qt4
+MOC	 = /usr/lib/qt4/bin/moc
 TARGET   = ../../lib/libvgui.a
 
 ####### Output directory

@@ -5,6 +5,7 @@
 #include "BoundingBoxParser.h"
 #include <stdlib.h>
 #include <string>
+#include <cstring>
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////

@@ -1,12 +1,13 @@
 #-----------------------------------------------------------------------------
 # Choose a compiler & its options
-#--------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
  g++ = g++
 
  CXX = g++
 
- OPTS = -O2 -MMD -W #-Wall
+ #OPTS = -O2 -MMD -W #-Wall
  #OPTS = -g -MMD -W
+ OPTS = -O2 #-DUSE_PHANTOM
 
 #--------------------------------------------------------------------
 # Xlib
@@ -14,7 +15,11 @@
 
 # X_LIB  = -L/usr/X11R6/lib -L/opt/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt
 
- X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXxf86vm -lXrandr -lXcursor -lXinerama -lXfixes
+# X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXxf86vm -lXrandr -lXcursor -lXinerama -lXfixes
+
+ X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXrandr -lXcursor -lXinerama -lXfixes
+
+ #Phantom_LIB = -lHD -lHDU -lrt
 
  GL_LIB = -lglut -lGLU -lGL -lm
 # GL_LIB = -framework AGL -framework OpenGL -framework GLUT -lm
@@ -30,7 +35,7 @@
  PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/mathtool -I$(PLUM_DIR)/modelgraph
  PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
 
-QT4DIR = /usr/
+QT4DIR = /usr/lib/qt4/
 #QT_INC  = -I$(QT4DIR)/include -I$(QT4DIR)/mkspecs/default
 
  QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT -I.
@@ -46,8 +51,7 @@ QT4DIR = /usr/
 #--------------------------------------------------------------------------
 # collision detection
 #--------------------------------------------------------------------------
-# RCD_DIR = $(VIZMO_DIR)
- RCD_DIR = /research/matlock/users/xinyut/Protein_RNA/folding/CD_libs/
+ RCD_DIR = $(VIZMO_DIR)
 
  RAPID_DIR     = ${RCD_DIR}/RAPID
  RAPIDLIB_DIR  = ${RAPID_DIR}
@@ -61,7 +65,7 @@ QT4DIR = /usr/
 #-------------------------------------------------------------------------
 
  INCLUDE = -I. -I/usr/X11R6/include -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(CD_INCL) $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL)
- LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPIDLIB} $(LIBS)
+ LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPIDLIB} $(LIBS) ${Phantom_LIB} 
 
 # INCLUDE = -I. -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(GRAPH_INCL) $(QT_INC) $(INCPATH)
 # LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(LIBS)

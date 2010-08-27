@@ -41,7 +41,7 @@ namespace plum{
 	bool AddCC(int vid){
 	  //get graph
 	  if( m_mapLoader==NULL ) return false;
-	  typename Loader::WG * graph = m_mapLoader->GetGraph();
+	  typename Loader::Wg * graph = m_mapLoader->GetGraph();
 	  if( graph==NULL ) return false;
 	  myCCModel * cc=new myCCModel(m_CCModels.size());
 	  cc->RobotModel(m_pRobot);  
@@ -58,7 +58,7 @@ namespace plum{
 	  color =  m_CCModels[m_CCModels.size()-1]->getColor();
 	  
 	  cc->change_properties(m_CCModels[m_CCModels.size()-1]->getShape(),size,
-				color, false);
+				color, true);
 	  m_CCModels.push_back(cc);
 	  
 	  return true;
@@ -117,7 +117,7 @@ namespace plum{
         m_mapLoader = NULL;
         m_RenderMode = CPlumState::MV_INVISIBLE_MODE;
         m_pRobot=NULL;
-		m_EnableSeletion=false; //disable selection
+		m_EnableSeletion=true; //disable selection
     }
     
     template <class Cfg, class WEIGHT>
@@ -135,7 +135,7 @@ namespace plum{
 
         //get graph
         if( m_mapLoader==NULL ) return false;
-		typename Loader::WG * graph = m_mapLoader->GetGraph();
+		typename Loader::Wg * graph = m_mapLoader->GetGraph();
         if( graph==NULL ) return false;
         m_CCModels.clear(); //new line Jul-01-05
         //Get CCs

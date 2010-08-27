@@ -30,7 +30,7 @@ VizmoItemSelectionGUI::VizmoItemSelectionGUI(Q3MainWindow *parent,char *name)
     listview->setMinimumHeight(parent->height()*2/3);
     listview->setMultiSelection(true);
     listview->setSelectionMode(Q3ListView::Extended);
-    listview->setColumnWidth (0,100);
+    listview->setColumnWidth (0,200);
     connect(listview,SIGNAL(selectionChanged()),this,SLOT(selectionChanged()));
     setEnabled(false);
 }
@@ -58,7 +58,7 @@ void VizmoItemSelectionGUI::fillTree(vector<PlumObject*>& obj)
 	createItem(NULL,m);
 	
     }//end for
-    trim();
+//    trim();
 }
 
 VizmoListViewItem *
@@ -143,3 +143,5 @@ void VizmoItemSelectionGUI::trim(){
   }
     
 }
+
+

@@ -189,11 +189,11 @@ bool gliMoveTool::Select(int x, int y)
     }
 
     //do selection buffer
-    GLuint hitBuffer[10];
+    GLuint hitBuffer[1000000];
     GLint viewport[4];
     
     // prepare for selection mode
-    glSelectBuffer( 10, hitBuffer);
+    glSelectBuffer( 1000000, hitBuffer);
     glRenderMode( GL_SELECT );
     
     // get view port
@@ -356,11 +356,11 @@ bool gliScaleTool::Select(int x, int y)
     }
 
     //do selection buffer
-    GLuint hitBuffer[10];
+    GLuint hitBuffer[1000000];
     GLint viewport[4];
     
     // prepare for selection mode
-    glSelectBuffer( 10, hitBuffer);
+    glSelectBuffer( 1000000, hitBuffer);
     glRenderMode( GL_SELECT );
     
     // get view port
@@ -582,11 +582,11 @@ bool gliRotateTool::Select(int x, int y)
     y=m_H-y;
 
     //do selection buffer
-    GLuint hitBuffer[10];
+    GLuint hitBuffer[1000000];
     GLint viewport[4];
     
     // prepare for selection mode
-    glSelectBuffer( 10, hitBuffer);
+    glSelectBuffer( 1000000, hitBuffer);
     glRenderMode( GL_SELECT );
     
     // get view port
@@ -716,7 +716,9 @@ bool gliTransformTool::KEY( QKeyEvent * e ) //Key
             m_pTool=&m_ST; m_pTool->Enable(); return true;
         default: return false; //not handled
     }
+
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //Singleton for gliTransformTool

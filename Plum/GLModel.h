@@ -17,70 +17,76 @@
 #include <list>
 #include <string>
 #include <sstream>
+#include <cstring>
+
+#include <QKeyEvent>
 
 namespace plum{
-    
-    class CGLModel : public gliTransform
-    {
-    public:
-        CGLModel()
-        { 
+
+   class CGLModel : public gliTransform
+   {
+      public:
+         CGLModel()
+         { 
             m_EnableSeletion=true; 
             m_RenderMode=CPlumState::MV_SOLID_MODE; 
-        }
+         }
 
-        CGLModel(const CGLModel& other) : gliTransform(other)
-        {
-            m_EnableSeletion=other.m_EnableSeletion;
-            m_RenderMode=other.m_RenderMode;
-            memcpy(m_RGBA,other.m_RGBA,4*sizeof(float));
-        }
-        
-        virtual ~CGLModel(){/*do nothing*/}
-        
-        //////////////////////////////////////////////////////////////////////
-        // Action functions
-        //////////////////////////////////////////////////////////////////////
-        virtual void EnableSelection( bool enable=true ){ 
+         CGLModel(const CGLModel& other) : gliTransform(other)
+      {
+         m_EnableSeletion=other.m_EnableSeletion;
+         m_RenderMode=other.m_RenderMode;
+         memcpy(m_RGBA,other.m_RGBA,4*sizeof(float));
+      }
+
+         virtual ~CGLModel(){/*do nothing*/}
+
+         //////////////////////////////////////////////////////////////////////
+         // Action functions
+         //////////////////////////////////////////////////////////////////////
+         virtual void EnableSelection( bool enable=true ){ 
             m_EnableSeletion=enable; 
-        }
-        
-        virtual void Select( unsigned int * index, vector<gliObj>& sel ){/*nothing*/}
-        virtual bool BuildModels() =0;
-        virtual void Draw( GLenum mode ) =0;
+         }
 
-		//the scale may be difficult for some models....
-        virtual void Scale( double x, double y, double z )
-	  { 
-		m_Scale[0]=x; m_Scale[1]=y; m_Scale[2]=z; };
+         virtual void Select( unsigned int * index, vector<gliObj>& sel ){/*nothing*/}
+         virtual bool BuildModels() =0;
+         virtual void Draw( GLenum mode ) =0;
 
-        //this function is called when this obj is selected
-        virtual void DrawSelect(){/*nothing*/} 
-        
-        //set wire/solid/hide
-        virtual void SetRenderMode( int mode ){ m_RenderMode=mode; }
-        
-        //get/set color
-        virtual void SetColor( float r, float g, float b, float a ){
-            m_RGBA[0]=r; m_RGBA[1]=g; m_RGBA[2]=b; m_RGBA[3]=a;
-        }
-        virtual const float * GetColor() const { return m_RGBA; }
+         //the scale may be difficult for some models....
+         virtual void Scale( double x, double y, double z )
+         { 
+            m_Scale[0]=x; m_Scale[1]=y; m_Scale[2]=z; };
 
-        //Get the name information
-        virtual const string GetName() const =0;//{ return "unknow"; }
+            //this function is called when this obj is selected
+            virtual void DrawSelect(){/*nothing*/} 
 
-        //get the contained children if any
-        virtual void GetChildren( list<CGLModel*>& models )
-        { /*do nothing as default*/ }
+            //set wire/solid/hide
+            virtual void SetRenderMode( int mode ){ m_RenderMode=mode; }
 
-        //Get more detailde information
-        virtual list<string> GetInfo() const { return list<string>(); }
+            //get/set color
+            virtual void SetColor( float r, float g, float b, float a ){
+               m_RGBA[0]=r; m_RGBA[1]=g; m_RGBA[2]=b; m_RGBA[3]=a;
+            }
+            virtual const float * GetColor() const { return m_RGBA; }
 
-    protected:
-        bool  m_EnableSeletion;
-        int   m_RenderMode;     //wire or solid or hide
-        float m_RGBA[4];        //Color
-    };
-    
+            //Get the name information
+            virtual const string GetName() const =0;//{ return "unknow"; }
+
+            //get the contained children if any
+            virtual void GetChildren( list<CGLModel*>& models )
+            { /*do nothing as default*/ }
+
+            //Get more detailde information
+            virtual list<string> GetInfo() const { return list<string>(); }
+
+            virtual bool KP( QKeyEvent * e ) {}
+
+      public:
+            bool  m_EnableSeletion;
+            int   m_RenderMode;     //wire or solid or hide
+
+            float m_RGBA[4];        //Color
+   };
+
 }//namespace plum
 #endif // !defined(_GLMODEL_H_)

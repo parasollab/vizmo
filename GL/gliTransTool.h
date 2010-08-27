@@ -205,7 +205,7 @@ public:
     void CheckSelectObject();
     void CM(){ //camera move event
         m_MT.Project2Win(); 
-		m_ST.Project2Win(); 
+	m_ST.Project2Win(); 
         if( &m_RT==m_pTool ) m_RT.ComputAngles(); //view angle changed...
     } 
 

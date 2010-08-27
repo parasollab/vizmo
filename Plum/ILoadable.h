@@ -16,7 +16,7 @@
 #include <sstream>
 using namespace std;
 
-#define MAX_LINE_LENGTH 500
+#define MAX_LINE_LENGTH 2000
 
 namespace plum{
     

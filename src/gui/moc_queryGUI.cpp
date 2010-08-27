@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'queryGUI.h'
 **
-** Created: Wed Oct 18 14:25:23 2006
-**      by: The Qt Meta Object Compiler version 59 (Qt 4.2.0)
+** Created: Fri Aug 27 15:06:30 2010
+**      by: The Qt Meta Object Compiler version 59 (Qt 4.2.1)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -11,7 +11,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'queryGUI.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 59
-#error "This file was generated using the moc from 4.2.0. It"
+#error "This file was generated using the moc from 4.2.1. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif

@@ -17,7 +17,7 @@
 #include <qfiledialog.h>
 #include <qfileinfo.h>
 #include <qlayout.h>
-#include <qgrid.h>
+//#include <qgrid.h>
 #include <qpushbutton.h>
 #include <QtGui>
 

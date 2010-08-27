@@ -70,6 +70,10 @@ public slots:
     void changeSize();      //Changes road map node's size
     void changeColor();      //Changes CC's color
     void changeColorOfCCselected(); //Changes CC's color when one is selected
+    void changeInvisibleOfNodeselected(); //Changes Node's color when one is selected
+    void changeWireOfNodeselected(); //Changes Node's color when one is selected
+    void changeSolidOfNodeselected(); //Changes Node's color when one is selected
+    void changeColorOfNodeselected(); //Changes Node's color when one is selected
     void setSameColor();     // set all CC to the same color
 
     void handleSelect();
@@ -98,7 +102,12 @@ private slots:
             * addNodeAction,
             * addEdgeAction,
             * sizeAction,
-            * colorAction;
+            * colorAction,
+	    * colorSelectAction,
+	    * invisibleSelectNodeAction,
+	    * wireSelectNodeAction,
+	    * solidSelectNodeAction,
+	    * colorSelectNodeAction;
 
     double *m_cfg;
     int m_dof;

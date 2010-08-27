@@ -117,7 +117,8 @@ bool VizmoMainWin::InitVizmo()
     roadmapGUI->reset();
 
     reset();
-    
+
+ 
     return true;
 }
 
@@ -222,6 +223,8 @@ void VizmoMainWin::reset()
     setQrySAction->setEnabled(true);
     setQryGAction->setEnabled(true);
 
+    GetVizmo().ChangeNodesRandomColor();
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -247,6 +250,7 @@ void VizmoMainWin::load()
     }
     else statusBar()->message( "Loading aborted" );
 
+    
     m_GL->resetTransTool();
     m_GL->updateGL();
 }
@@ -353,7 +357,20 @@ void VizmoMainWin::showmap()          //show roadmap
     static bool show=false;
     show=!show;
     GetVizmo().ShowRoadMap(show);
-	roadmapGUI->reset();
+    roadmapGUI->reset();
+    typedef CMapModel<CCfg,CSimpleEdge> MM;
+    typedef CCModel<CCfg,CSimpleEdge> CC;
+    typedef vector<CC*>::iterator CCIT;
+    CMapModel<CCfg,CSimpleEdge>* mmodel =(MM*)GetVizmo().GetMap()->getModel();
+    vector<CC*>& cc=mmodel->GetCCModels();
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+            (*ic)->DrawSelect();
+            (*ic)->newColor = true;
+            (*ic)->ReBuildAll();            
+            (*ic)->DrawRobotNodes(GL_RENDER);
+            (*ic)->DrawSelect();
+      }
+    GetVizmo().UpdateSelection();
     m_GL->updateGL();
 }
 
@@ -549,8 +566,8 @@ void VizmoMainWin::showCfg(){
 void VizmoMainWin::enablDisablCD(){
   if(CDButton->isOn()){
     m_GL->CDOn = true;
-    GetVizmo().TurnOn_CD();
-    m_GL->updateGL();
+    //GetVizmo().TurnOn_CD();
+    //m_GL->updateGL();
   }
   else
     m_GL->CDOn = false;

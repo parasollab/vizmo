@@ -92,8 +92,10 @@ namespace plum{
         //these two functions are only accessed from CMapModeler
         //WeightedMultiDiGraph<Cfg,WEIGHT> * GetGraph() { return m_Graph; }
         typedef 
-        Graph<UG<Cfg,WEIGHT>,NMG<Cfg,WEIGHT>,WG<Cfg,WEIGHT>,Cfg,WEIGHT> WG;
-        WG * GetGraph() { return m_Graph; }
+        Graph<UG<Cfg,WEIGHT>,NMG<Cfg,WEIGHT>,WG<Cfg,WEIGHT>,Cfg,WEIGHT> Wg;
+	
+	
+        Wg * GetGraph() { return m_Graph; }
         //void KillGraph(){ delete m_Graph; m_Graph=NULL; }
 
 
@@ -107,7 +109,7 @@ namespace plum{
         //      Protected Methods and data members
         //////////////////////////////////////////////////////////////////////
     protected:        
-        WG * m_Graph;
+        Wg * m_Graph;
     };
 
     /*********************************************************************
@@ -149,7 +151,7 @@ namespace plum{
         //Get Graph Data
         char strData[MAX_LINE_LENGTH];
         fin.getline(strData, MAX_LINE_LENGTH);
-        m_Graph =new WG();
+        m_Graph =new Wg();
         if( m_Graph==NULL ){ 
             cout<<"Graph null ..."<<endl;
             return false; 
@@ -164,7 +166,7 @@ namespace plum{
     template< class Cfg, class WEIGHT > void
       CMapLoader<Cfg, WEIGHT>::genGraph()
       {
-	m_Graph =new WG();
+	m_Graph =new Wg();
       }
 
 

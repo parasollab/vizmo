@@ -3,6 +3,7 @@
 #include "gliUtility.h"
 #include "gliPickBox.h"
 #include "gliTransTool.h"
+#include "../src/vizmo2.h"
 //Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -87,8 +88,22 @@ bool gliMM( QMouseEvent * e )
 bool gliKEY( QKeyEvent * e )
 {
     if( gliGetTransformTool().KEY(e) ) return true;
+   return false;
+}
+
+
+bool gliCameraKEY( QKeyEvent * e )
+{
+    if( gliGetCameraFactory().getCurrentCamera()->KP(e) )return true;
     return false;
 }
+
+bool gliRobotKEY( QKeyEvent * e)
+{
+	 if( GetVizmo().GetRobot()->getModel()->KP(e) )return true;
+	 return false;
+}
+
 
 /// window resize event
 void gliWS( int w, int h )

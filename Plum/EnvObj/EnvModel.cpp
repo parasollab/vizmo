@@ -74,6 +74,7 @@ namespace plum {
   }
     void CEnvModel::Select( unsigned int * index, vector<gliObj>& sel )
     {    
+         //cout << "selecting env object" << endl;
         //unselect old one       
         if( index==NULL ) return;
         if( *index>=m_pMBModel.size() ) //input error
