@@ -102,7 +102,7 @@ void obprmGUI::makeCommandLine(){
   //append -gNodes option
   //////////////////////////
   if(lbMethod->count() !=0){
-    for(int i=0; i<lbMethod->count() ; i++)
+    for(unsigned int i=0; i<lbMethod->count() ; i++)
       methods << lbMethod->text(i) << " ";
   
     command.append("-gNodes ");
@@ -119,7 +119,7 @@ void obprmGUI::makeCommandLine(){
   //////////////////////////
   if(lbLP->count() != 0){
 
-    for(int i=0; i<lbLP->count() ; i++)
+    for(unsigned int i=0; i<lbLP->count() ; i++)
       lps << lbLP->text(i) << " ";
     
     command.append("-lp ");
@@ -134,7 +134,7 @@ void obprmGUI::makeCommandLine(){
   //append -cNodes option
   //////////////////////////
   if(lbCnodes->count() !=0 ){
-    for(int i =0; i<lbCnodes->count(); i++)
+    for(unsigned int i =0; i<lbCnodes->count(); i++)
       cNode<< (lbCnodes->item(i))->text() << " ";
   
     command.append("-cNodes ");
@@ -1417,7 +1417,7 @@ void textEditDialog::createFile(){
 
   }
   QFileInfo fi(fn);
-  int i = system("chmod u+x "+fi.baseName());
+  system("chmod u+x "+fi.baseName());
 
 }
 

@@ -3,7 +3,7 @@ VIZMO_DIR = ../..
 include $(VIZMO_DIR)/M_incl
 
 #MOC      = /usr/bin/moc-qt4
-MOC	 = /usr/lib/qt4/bin/moc
+#MOC	 = /usr/lib/qt4/bin/moc
 TARGET   = ../../lib/libvgui.a
 
 ####### Output directory
@@ -15,7 +15,7 @@ OBJECTS = gui.o	main_win.o scene_win.o animation_gui.o \
 
 SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp \
          moc_itemselection_gui.cpp moc_roadmap.cpp moc_filelistDialog.cpp moc_obj_property.cpp \
-	 moc_obprmGUI.cpp moc_addObjDialog.cpp moc_vizmoEditor.cpp moc_attributeselectio_gui.cpp
+	 moc_obprmGUI.cpp moc_addObjDialog.cpp moc_vizmoEditor.cpp moc_attributeselectio_gui.cpp moc_queryGUI.cpp
 OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o \
          moc_roadmap.o moc_filelistDialog.o moc_obj_property.o moc_obprmGUI.o \
 	 moc_addObjDialog.o moc_vizmoEditor.o moc_queryGUI.o
@@ -34,8 +34,8 @@ $(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC)
 
 mocables: $(SRCMOC)
 
-$(MOC): 
-	( cd $(QTDIR)/src/moc ; $(MAKE) )
+#$(MOC): 
+#	( cd $(QTDIR)/src/moc ; $(MAKE) )
 
 mocclean:
 	-rm -f $(OBJMOC) $(SRCMOC)

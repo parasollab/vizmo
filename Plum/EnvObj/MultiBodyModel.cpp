@@ -137,10 +137,10 @@ namespace plum{
    }
 
    const float *  CMultiBodyModel::GetColor() const{
-      float c[3];
-      c[0] = m_MBInfo.m_pBodyInfo[0].rgb[0];
-      c[1] = m_MBInfo.m_pBodyInfo[0].rgb[1];
-      c[2] = m_MBInfo.m_pBodyInfo[0].rgb[2];
+      const float * c = m_MBInfo.m_pBodyInfo[0].rgb;
+      //c[0] = m_MBInfo.m_pBodyInfo[0].rgb[0];
+      //c[1] = m_MBInfo.m_pBodyInfo[0].rgb[1];
+      //c[2] = m_MBInfo.m_pBodyInfo[0].rgb[2];
       return c;
    }
 

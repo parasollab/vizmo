@@ -610,7 +610,7 @@ double *OBPRMView_Robot::getFinalCfg(){
    list<CGLModel*> robotList;
    m_RobotModel->GetChildren(robotList);
 
-   bool tool = false;
+   //bool tool = false;
 
    if(dof == 6){ //rigid body
 
@@ -785,8 +785,8 @@ double *OBPRMView_Robot::getFinalCfg(){
 
 int OBPRMView_Robot::getNumJoints(){
 
-   const CMultiBodyInfo * pMInfo = m_pEnvLoader->GetMultiBodyInfo();
-   int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
+   //const CMultiBodyInfo * pMInfo = m_pEnvLoader->GetMultiBodyInfo();
+   //int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
    m_RobotInfo = m_pEnvLoader->GetMultiBodyInfo();
 
    return m_RobotInfo[0].m_NumberOfConnections;

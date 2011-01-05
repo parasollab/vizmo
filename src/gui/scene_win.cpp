@@ -298,7 +298,7 @@ void VizGLWin::drawText(list<string>& info)
    for(SIT i=info.begin();i!=info.end();i++){
       //////////////////////////////////////////////
       glTranslated(0,-0.5,0);
-      int pos = i->find("**", 0); 
+      size_t pos = i->find("**", 0); 
       if (pos == string::npos)
          glColor3f(0.2,0.2,0.5);
       else

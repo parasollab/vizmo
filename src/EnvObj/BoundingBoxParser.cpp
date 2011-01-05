@@ -23,7 +23,7 @@ CBoundingBoxParser::CBoundingBoxParser()
 //////////////////////////////////////////////////////////////////////
 bool CBoundingBoxParser::ParseFile(){
 
-    const char * command = m_strFileName.c_str();
+    char * command = (char*)(m_strFileName.c_str());
     if( command==NULL ) return false;
 
     //get scale

@@ -26,8 +26,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Images
-#include "icon/folder.xpm"
-#include "icon/eye.xpm"
+//#include "icon/folder.xpm"
+//#include "icon/eye.xpm"
 
 AddObjDial::AddObjDial
 (QWidget *parent, const char *name, Qt::WFlags f)
@@ -223,7 +223,7 @@ string AddObjDial::getSubstr(string s, char c, int i){
 
   const char* st;
   st = s.c_str();
-  char *pos = strrchr(st, c);
+  const char *pos = strrchr(st, c);
   position = pos-st+1;
   string subS;
   if(i==1)

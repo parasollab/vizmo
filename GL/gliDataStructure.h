@@ -24,6 +24,7 @@ public:
 
 	m_RotPoly[0] = m_RotPoly[1] = m_RotPoly[2] = -1;
     }
+    virtual ~gliTransform(){}
     
     void glTransform();
     void Euiler2Quaternion();

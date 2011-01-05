@@ -267,7 +267,7 @@ namespace plum{
         sep="\\";
 #endif
         string filename=m_BodyInfo.m_strModelDataFileName;
-        int pos=0;
+        size_t pos=0;
         if( (pos=filename.find(sep))!=string::npos )
             filename=filename.substr(pos+1);
         return filename; 

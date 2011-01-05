@@ -99,6 +99,8 @@ class visitor_base{
    */
   visitor_base(GRAPH& _g){}
 
+  virtual ~visitor_base(){}
+
   /**
    *This method of the visitor will be called by the traversal when 
    *a vertex is reached for the first time. 
@@ -1403,6 +1405,7 @@ public:
   _visitor_GetCC(GRAPH& g, CONTAINER* _v){
    ccverts = _v;
   };
+  virtual ~_visitor_GetCC(){}
   inline  int vertex(typename GRAPH::VI v) {
     ccverts->push_back(v->vid);
     return 1;
@@ -1466,6 +1469,7 @@ class _visitor_GetCCEdges: public visitor_base<GRAPH>{
   _visitor_GetCCEdges(GRAPH& g, CONTAINER* _v){
     ccedges = _v;
   };
+  virtual ~_visitor_GetCCEdges(){}
   inline int tree_edge (typename GRAPH::VI vi, typename GRAPH::EI ei){
     pair<VID,VID> nextedge(vi->vid,ei->vertex2id);
     ccedges->push_back(nextedge);

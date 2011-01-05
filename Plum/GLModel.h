@@ -79,7 +79,7 @@ namespace plum{
             //Get more detailde information
             virtual list<string> GetInfo() const { return list<string>(); }
 
-            virtual bool KP( QKeyEvent * e ) {}
+            virtual bool KP( QKeyEvent * e ) {return true;}
 
       public:
             bool  m_EnableSeletion;

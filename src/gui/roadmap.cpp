@@ -302,14 +302,14 @@ void VizmoRoadmapGUI::changeColorOfCCselected(){
 
    vector<gliObj>& sel = GetVizmo().GetSelectedItem();
    typedef vector<gliObj>::iterator SI;
-   int m_i;
+   //int m_i;
    string m_sO;
    for(SI i = sel.begin(); i!= sel.end(); i++){
       CGLModel *gl = (CGLModel*)(*i);
       m_sO = gl->GetName();
    }
    string m_s="NULL";
-   int position = -10;
+   size_t position = 0;
    position = m_sO.find("CC",0);
    if(position != string::npos){
       QColor color = QColorDialog::getColor( Qt::white, this, "color dialog" );
@@ -534,7 +534,7 @@ void VizmoRoadmapGUI::handleAddEdge()
    //add edge
 
    list<CGLModel*>::const_iterator it;
-   int i =0;
+   //int i =0;
    for(it = m_Nodes.begin(); it != m_Nodes.end(); it++){
       Node_Edge.push_back(*it);
    }
@@ -588,7 +588,7 @@ void VizmoRoadmapGUI::handleAddNode()
          m_cfg = new double [c.size()];
          m_dof = c.size();
 
-         for(int i=0; i<c.size(); i++){
+         for(unsigned int i=0; i<c.size(); i++){
             m_cfg[i] = c[i];
          }
 
@@ -634,7 +634,7 @@ void VizmoRoadmapGUI::handleAddNode()
             typedef CMapLoader<CCfg,CSimpleEdge>::Wg WG;
             WG * graph;
             graph = mloader->GetGraph();
-            int numVert = graph->GetVertexCount();
+            //int numVert = graph->GetVertexCount();
             CCfg *cfgNew = new CCfg(); 
 
             //get robot's current cfg
@@ -672,7 +672,7 @@ void VizmoRoadmapGUI::handleAddNode()
             GetVizmo().addSelectedItem((CGLModel*)cfgNew);
             vector<double> cf = cfgNew->GetDataCfg();
             m_cfg = new double [cf.size()];
-            for(int i=0; i<cf.size(); i++)
+            for(unsigned int i=0; i<cf.size(); i++)
                m_cfg[i] = cf[i];
 
             noMap = true;
@@ -775,7 +775,7 @@ void VizmoRoadmapGUI::MoveNode()
          if(nodeGUI->isVisible()){
             v_cfg = ((CCfg*)n)->GetDataCfg();
             double * new_cfg = new double [v_cfg.size()];
-            for(int v= 0; v<v_cfg.size(); v++)
+            for(unsigned int v= 0; v<v_cfg.size(); v++)
                new_cfg[v] = v_cfg[v];
             nodeGUI->setNodeVal(v_cfg.size(), new_cfg);
             nodeGUI->filledFirstTime = false;
@@ -821,7 +821,7 @@ void VizmoRoadmapGUI::createWindow(){
       cfgNew->setCfg(newNodeCfg);
       cfgNew->setIndex(numVert);
 
-      int vertx = graph->AddVertex(*cfgNew);
+      //int vertx = graph->AddVertex(*cfgNew);
 
       //get mapModel and add a new elment to m_CCModels
       CMapModel<CCfg,CSimpleEdge>* mmodel =(CMapModel<CCfg,CSimpleEdge>*)m_Map->getModel();
@@ -970,7 +970,7 @@ void VizmoRoadmapGUI::printRobCfg(){
             list<string> info = GetVizmo().getRobCfgText();
             QStringList strList;
             s_robCfg = "";
-            int idx=0;
+            //int idx=0;
 
             typedef list<string>::iterator SIT;
             for(SIT i=info.begin();i!=info.end();i++)

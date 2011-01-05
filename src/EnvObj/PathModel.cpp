@@ -42,7 +42,7 @@ bool CPathModel::BuildModels(){
     ///////////////////////////////////////////////////////
     //Build Path Model
     unsigned int iPathSize = m_pPathLoader->GetPathSize();
-    unsigned int dof =  m_pPathLoader->GetDOF();
+    //unsigned int dof =  m_pPathLoader->GetDOF();
     m_pRobot->SetRenderMode(CPlumState::MV_WIRE_MODE);
     const float * col=m_pRobot->GetColor(); //old color
     float oldcol[4]; memcpy(oldcol,col,4*sizeof(float));

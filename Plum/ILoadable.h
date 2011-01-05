@@ -107,7 +107,7 @@ namespace plum{
         string getPathName( const string filename )
         {
             char sep='/';
-            unsigned int pos=filename.rfind(sep);
+            size_t pos=filename.rfind(sep);
             if( pos==string::npos ) return string(); //empty
             string pathname(filename.begin(),filename.begin()+pos+1);
             

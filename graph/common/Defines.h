@@ -55,6 +55,7 @@
       #include <string>
       #include <queue>
       #include <ext/hash_map>
+      #include <cstring>
       #if __GNUC_MINOR__ == 0 && !defined(__blrts__)
         namespace Sgi = std;               // GCC 3.0
       #else

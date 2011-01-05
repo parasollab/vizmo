@@ -396,7 +396,7 @@ namespace plum{
 
    ostream & operator<<( ostream & out, const CCfg & cfg )
    {
-      for( int iC=0; iC<cfg.dofs.size(); iC++ ){
+      for( unsigned int iC=0; iC<cfg.dofs.size(); iC++ ){
          out<<cfg.dofs[iC]<<" ";
       }
 

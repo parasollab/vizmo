@@ -151,7 +151,7 @@ bool Rapid::IsInCollision(CMultiBodyModel * robot,
       OBPRMView_Robot * robotObj, int dof, 
       CMultiBodyModel * obstacle){
 
-   bool is_collision = false;
+   //bool is_collision = false;
 
    double mR[3][3], mO[3][3], pR[3],  pO[3];
    double pRt[3];

@@ -60,11 +60,11 @@ namespace plum {
       else
          m_strEnvFileName = strData;
 
-      int number=0;
+      unsigned int number=0;
       //get lp info
       GoToNext( in );
       in >> number; //# of lps
-      for( int iLP=0; iLP<number; iLP++ ) {
+      for( unsigned int iLP=0; iLP<number; iLP++ ) {
          GoToNext( in );
          in.getline(strData, MAX_LINE_LENGTH);
          if( m_strLPs.size() != number){
@@ -75,7 +75,7 @@ namespace plum {
       //get cd info
       GoToNext( in );
       in >> number; //# of lps
-      for( int iCD=0; iCD<number; iCD++ ) {
+      for( unsigned int iCD=0; iCD<number; iCD++ ) {
          GoToNext( in );
          in.getline(strData, MAX_LINE_LENGTH);
          if( m_strCDs.size() != number){
@@ -86,7 +86,7 @@ namespace plum {
       //get dm info
       GoToNext( in );
       in >> number;
-      for( int iDM=0; iDM<number; iDM++ ) {
+      for( unsigned int iDM=0; iDM<number; iDM++ ) {
          GoToNext( in );
          in.getline(strData, MAX_LINE_LENGTH);
          if( m_strDMs.size() != number){

@@ -1,4 +1,5 @@
 all:
+	./touch.pl
 	cd GL; make -f Makefile.linux
 	cd mathtool; make -f Makefile.linux
 	cd modelgraph; make -f Makefile.linux
@@ -13,3 +14,4 @@ clean:
 	cd Plum; make -f Makefile.linux clean
 	cd CollisionDetection; make -f Makefile.linux clean
 	cd src; make -f Makefile.linux clean
+	find -name *.d | xargs rm

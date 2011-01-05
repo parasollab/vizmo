@@ -5,7 +5,7 @@
 #include "CmdParser.h"
 #include <stdlib.h>
 #include <string>
-#include <strstream>
+#include <sstream>
 #include <iostream>
 namespace plum{
     
@@ -34,10 +34,10 @@ namespace plum{
     bool
         CCmdParser::FindModelDataDir( string cmd )
     {
-        unsigned int pos = cmd.find("-descDir");
+        size_t pos = cmd.find("-descDir");
         if( pos==string::npos ) return false;
         string sub=cmd.substr(pos+8);
-        istrstream is(sub.c_str());
+        istringstream is(sub);
         is>>m_strModelDataDir;
         return true;
     }

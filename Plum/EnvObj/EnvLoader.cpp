@@ -152,7 +152,7 @@ namespace plum{
     //Get connection info if numberOfRobotConnection != 0 
 
     int currentBody = 0; //index of current Body
-    int nextBody = 0; //indext of next Body
+    //int nextBody = 0; //indext of next Body
 
     //Do transformation for body0, the base. This is always needed.	 
     MBInfo.m_pBodyInfo[currentBody].doTransform();
@@ -182,7 +182,7 @@ namespace plum{
   bool CEnvLoader::ParseBody( ifstream & fin, CBodyInfo & BodyInfo )
   {
     char strData[150];
-    char tmp[150];
+    //char tmp[150];
     static double PI_180=3.1415926535/180;
     //static double PI_180 = 3.1415926535*2;
 #ifdef WIN32

@@ -13,9 +13,9 @@ using namespace std;
 typedef unsigned int    uint;
 typedef unsigned char   uchar;
 
-//============\\
-// STRUCTURES \\
-//============\\
+//============//
+// STRUCTURES //
+//============//
 
 //=====================================================================
 // This is the image structure, the raster is contained in here as well

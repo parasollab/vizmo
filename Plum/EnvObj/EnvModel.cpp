@@ -154,7 +154,7 @@ namespace plum {
 
   //getMBody() and then current position and orientation
     vector<CMultiBodyModel *> MBmodel = this->getMBody();
-    int numMB = MBmodel.size();
+    //int numMB = MBmodel.size();
 
     for(int i = 0; i<MBnum; i++){ //for each body in *.env
 
@@ -192,7 +192,7 @@ namespace plum {
 	  string s_tmp = MBI[i].m_pBodyInfo[j].m_strModelDataFileName;
 	  const char* st;
 	  st = s_tmp.c_str();
-	  char *pos = strrchr(st, '/');
+	  const char *pos = strrchr(st, '/');
 	  int position = pos-st+1;
 	  string sub_string = s_tmp.substr(position);
 	  
@@ -264,7 +264,7 @@ namespace plum {
 		  MBI[i].listConnections[l].second, str);
 
 	  //get info. from current Body and current connection
-	  int index;
+	  int index=0;
 	  for(int b=0; 
 	      b<MBI[i].m_pBodyInfo[indexList].m_cNumberOfConnection; b++){
 	    
@@ -322,7 +322,7 @@ namespace plum {
   }
   
   fclose(envFile);
-
+   return 1;
 }
 
 }//namespace plum

@@ -11,7 +11,7 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
   string objname;
   //to store a cfg
   QString qs;
-  int I=0;
+  //int I=0;
   for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++){
       CGLModel * gl=(CGLModel *)(*ig);
       //objname = gl->GetInfo();

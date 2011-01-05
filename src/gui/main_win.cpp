@@ -43,10 +43,10 @@
 #include "icon/navigate.xpm"
 #include "icon/flag.xpm"
 #include "icon/pallet.xpm"
-#include "icon/tapes.xpm"
+//#include "icon/tapes.xpm"
 #include "icon/crash_burn.xpm"
 #include "icon/edit.xpm"
-#include "icon/floppy2_green.xpm"
+//#include "icon/floppy2_green.xpm"
 #include "icon/3D_yellow.xpm"
 #include "icon/3D_blue.xpm"
 #include "icon/3D_green.xpm"
@@ -643,7 +643,7 @@ void VizmoMainWin::autoMkmp(){
 
   bool changed = false;
   string sub, mapFile, randName, dir;
-  const char * fileName;
+  //const char * fileName;
   QString newComm;
   obprmGUI * obprmLine;
   string envFile = GetVizmo().getEnvFileName(); 
@@ -758,7 +758,7 @@ void VizmoMainWin::autoMkmp(){
 void VizmoMainWin::autoQry(){
 
   string sub, envName, randName, dir;
-  int querySaved;
+  int querySaved=0;
 
   //find out dir and name of ENV  
   string envFile = GetVizmo().getEnvFileName(); 
@@ -1089,6 +1089,7 @@ bool VizmoMainWin::CreateActions()
     setQryGAction->setStatusTip(tr("Set Query Goal"));
     setQryGAction->setEnabled(false);
 
+   return true;
 }
 
 void VizmoMainWin::SetTips(){
@@ -1361,7 +1362,7 @@ void VizmoMainWin::CreateMenubar()
 
 void VizmoMainWin::CreateScreenCapture()
 {
-    screenShotGUI=new VizmoScreenShotGUI(this,"Screen Shot");
+    screenShotGUI=new VizmoScreenShotGUI(this,(char*)"Screen Shot");
     connect(screenShotGUI,SIGNAL(getScreenSize(int *,int *)),this,SLOT(getOpenglSize(int *,int *)));
     connect(screenShotGUI,SIGNAL(togleSelectionSignal()),m_GL,SLOT(togleSlectionSlot()));
     connect(screenShotGUI,SIGNAL(getBoxDimensions(int *,int *,int *,int *)),m_GL,SLOT(getBoxDimensions(int *,int *,int *,int *)));
@@ -1371,7 +1372,7 @@ void VizmoMainWin::CreateScreenCapture()
 
 void VizmoMainWin::CreateObjectSelection()
 {
-    objectSelection= new VizmoItemSelectionGUI(this,"ObjectSelection");
+    objectSelection= new VizmoItemSelectionGUI(this,(char*)"ObjectSelection");
     connect(objectSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 	//connect(objectSelection,SIGNAL(itemSelected()), this, SLOT(obj_contexmenu()));
 }
@@ -1382,7 +1383,7 @@ void VizmoMainWin::CreateAttributeSelection()
 }
 
 void VizmoMainWin::CreateRoadmapToolbar(){
-  roadmapGUI = new VizmoRoadmapGUI (this, "MapSelection");
+  roadmapGUI = new VizmoRoadmapGUI (this, (char*)"MapSelection");
   connect(roadmapGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 }
 

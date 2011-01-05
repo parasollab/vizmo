@@ -20,6 +20,7 @@ class gliTToolBase
 public:
 
     gliTToolBase(){}
+    virtual ~gliTToolBase(){}
 
     ///////////////////////////////////////////////////////////////////////////
     // Core

@@ -5,9 +5,9 @@
 
  CXX = g++
 
- #OPTS = -O2 -MMD -W #-Wall
+ OPTS = -O3 -W -Wno-deprecated #-Wall
  #OPTS = -g -MMD -W
- OPTS = -O2 #-DUSE_PHANTOM
+ #OPTS = -ggdb -Wall -Wno-deprecated #-DUSE_PHANTOM
 
 #--------------------------------------------------------------------
 # Xlib
@@ -35,7 +35,10 @@
  PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/mathtool -I$(PLUM_DIR)/modelgraph
  PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
 
+MOC	 = /usr/lib/qt4/bin/moc
+#MOC      = /usr/lib64/qt4/bin/moc
 QT4DIR = /usr/lib/qt4/
+#QT4DIR = /usr/
 #QT_INC  = -I$(QT4DIR)/include -I$(QT4DIR)/mkspecs/default
 
  QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT -I.
@@ -51,7 +54,7 @@ QT4DIR = /usr/lib/qt4/
 #--------------------------------------------------------------------------
 # collision detection
 #--------------------------------------------------------------------------
- RCD_DIR = $(VIZMO_DIR)
+ RCD_DIR = /users/jdenny/PMPL/trunk/utils/geom/CD-libs
 
  RAPID_DIR     = ${RCD_DIR}/RAPID
  RAPIDLIB_DIR  = ${RAPID_DIR}

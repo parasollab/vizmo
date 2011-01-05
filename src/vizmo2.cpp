@@ -549,7 +549,7 @@ bool vizmo::SaveEnv(const char *filename)
    env=(CEnvModel*)m_obj.m_Env->getModel();
 
    env->SaveFile(filename);
-
+   return 1;
 }
 
 void vizmo::SaveQryCfg(char ch){
@@ -619,7 +619,7 @@ bool vizmo::SaveQry(const char *filename){
       }
       fclose(qryFile);
    }
-
+   return 1;
 }
 
 void vizmo::ShowRoadMap( bool bShow ){
@@ -843,7 +843,7 @@ void vizmo::ChangeCCColor(double r, double g, double b, string s){
       m_sO = gl->GetName();
    }
    string m_s="NULL";
-   int position = m_sO.find("CC",0);
+   size_t position = m_sO.find("CC",0);
    if(position != string::npos){
       m_s = m_sO.substr(position+2, m_sO.length());
    }   
@@ -912,7 +912,7 @@ void vizmo::UpdateSelection(){
       m_sO = gl->GetName();
 
       string m_s="NULL";
-      int position = m_sO.find("Node",0);
+      size_t position = m_sO.find("Node",0);
       if(position != string::npos){
          m_s = m_sO.substr(position+4, m_sO.length());
          //std::cout << m_s << endl;
@@ -982,7 +982,7 @@ void vizmo::ChangeNodeColor(double r, double g, double b, string s){
       m_sO = gl->GetName();
 
       string m_s="NULL";
-      int position = m_sO.find("Node",0);
+      size_t position = m_sO.find("Node",0);
       if(position != string::npos){
          m_s = m_sO.substr(position+4, m_sO.length());
          //std::cout << m_s << endl;
@@ -1217,8 +1217,8 @@ int vizmo::getNumJoints(){
 
    OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
    if( r!=NULL )
-      r->getNumJoints();
-
+      return r->getNumJoints();
+   return -1;
 }
 ///////////////////////////////////////////////////////////////////////////////
 // Private Functions

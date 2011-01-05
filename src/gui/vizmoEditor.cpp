@@ -197,7 +197,7 @@ void vizmoEditor::save()
 
     statusBar()->message( QString( "File %1 saved" ).arg( filename ), 2000 );
 
-    int i = system("chmod u+x "+filename);
+    system("chmod u+x "+filename);
 
 }
 

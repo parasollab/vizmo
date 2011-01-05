@@ -29,8 +29,8 @@ BasicPropertyDialog::BasicPropertyDialog
 (QWidget *parent, const char *name, Qt::WFlags f)
 :QDialog(parent,name,f)
 {
-	vector<gliObj>& sel=GetVizmo().GetSelectedItem(); 
-	gliObj first=sel.front();
+	//vector<gliObj>& sel=GetVizmo().GetSelectedItem(); 
+	//gliObj first=sel.front();
 	setIcon(QPixmap(icon_eye));
 
 	///////////////////////////////////////////////////////////////////////

@@ -79,7 +79,7 @@ class CollisionDetectionMethod {
   CollisionDetectionMethod(){}
   virtual  ~CollisionDetectionMethod(){}
 
-  virtual char* GetName() const = 0;
+  virtual const char* GetName() const = 0;
   virtual bool IsInCollision(plum::CMultiBodyModel* robot, 
 			     OBPRMView_Robot * robotObj, int dof,
 			     plum::CMultiBodyModel* obstacle) = 0;
@@ -91,7 +91,7 @@ class Rapid: public CollisionDetectionMethod {
   Rapid(){test_node = false;}
   virtual ~Rapid(){}
 
-  virtual char* GetName() const { return "RAPID";}
+  virtual const char* GetName() const { string s = "RAPID"; return s.c_str();}
   
   /**RAPID to check collision between two MultiBody.
    *Collision is checked at body level between two MultiBody objects,
