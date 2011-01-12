@@ -8,28 +8,29 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CBoundingBoxModel::CBoundingBoxModel()
-{
-    m_pBBXParser=NULL;
-    m_DisplayID=-1;
-    m_BBX=NULL;
+CBoundingBoxModel::CBoundingBoxModel(int i, vector<double> values){
+   m_BBXindex=i;
+   m_BBX = vector<double>(values);
+   m_DisplayID=-1;
 }
 
-CBoundingBoxModel::~CBoundingBoxModel()
-{
-    m_pBBXParser=NULL;
-    m_BBX=NULL;
+CBoundingBoxModel::~CBoundingBoxModel(){
 }
 
 //////////////////////////////////////////////////////////////////////
 // GLModel Methods
 //////////////////////////////////////////////////////////////////////
 
+void CBoundingBoxModel::Select( unsigned int * index, vector<gliObj>& sel )
+{
+   if(index!=NULL)
+      sel.push_back(this);
+}
+
+
 bool CBoundingBoxModel::BuildModels(){
-    if( m_pBBXParser==NULL ) return false;
-    
-    m_BBX=m_pBBXParser->getBBXValue();
-    
+   if(m_BBX.size()==0) return false;
+
     GLdouble vertice[]=
     { m_BBX[0], m_BBX[2], m_BBX[4],
     m_BBX[1], m_BBX[2], m_BBX[4],
@@ -57,8 +58,8 @@ bool CBoundingBoxModel::BuildModels(){
     m_DisplayID = glGenLists(1);
     glNewList(m_DisplayID, GL_COMPILE);
     
-    glEnable( GL_POLYGON_OFFSET_FILL );
-    glPolygonOffset( 2.0, 1.0 );
+    //glEnable( GL_POLYGON_OFFSET_FILL );
+    //glPolygonOffset( 2.0, 1.0 );
     //setup points
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_DOUBLE, 0, vertice);
@@ -82,6 +83,14 @@ bool CBoundingBoxModel::BuildModels(){
     glDrawElements( GL_LINES, 24, GL_UNSIGNED_BYTE, lineid );
     glEndList();
 
+   m_LinesID = glGenLists(1);
+   glNewList(m_LinesID, GL_COMPILE);
+   glVertexPointer(3, GL_DOUBLE, 0, vertice);
+   //Draw lines
+   glDrawElements( GL_LINES, 24, GL_UNSIGNED_BYTE, lineid );
+   glEndList();
+
+
     glDisableClientState(GL_VERTEX_ARRAY);
     
     return true;
@@ -91,8 +100,6 @@ void CBoundingBoxModel::Draw( GLenum mode ){
 
     if( mode==GL_RENDER ){
         if(m_RenderMode==CPlumState::MV_INVISIBLE_MODE) return;
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
         //Draw bbx
         if( m_DisplayID!=-1 ){
             glPolygonMode( GL_FRONT, GL_FILL );
@@ -100,8 +107,32 @@ void CBoundingBoxModel::Draw( GLenum mode ){
             glCallList(m_DisplayID);
             glEnable(GL_LIGHTING);
         }
-		glDisable(GL_CULL_FACE);
     }
+}
+
+void CBoundingBoxModel::DrawSelect(){
+   //Draw bbx
+   if( m_LinesID!=-1 ){
+      glDisable(GL_LIGHTING);
+      glLineWidth(2);
+      glColor3d( 1, 1, 0 );
+      glCallList(m_LinesID);
+      glEnable(GL_LIGHTING);
+   }
+}
+
+void CBoundingBoxModel::DrawLines(GLenum mode){
+   if( mode==GL_RENDER ){
+      if(m_RenderMode==CPlumState::MV_INVISIBLE_MODE) return;
+      //Draw bbx
+      if( m_LinesID!=-1 ){
+         glDisable(GL_LIGHTING);
+         glLineWidth(2);
+         glColor3d( 1, 0, 0 );
+         glCallList(m_LinesID);
+         glEnable(GL_LIGHTING);
+      }
+   }
 }
 
 ////////////////////////////////////////////////////////
@@ -161,24 +192,31 @@ double CBoundingBoxModel::returnMax(){
     
 }
 
+const string CBoundingBoxModel::GetName() const{
+   ostringstream oss;
+   oss << "Bounding Box " << m_BBXindex;
+   string s = oss.str();
+   return s;
+}
+
 list<string> CBoundingBoxModel::GetInfo() const 
 { 
-    list<string> info; 
-	info.push_back("Bounding Box");
-	info.push_back("");
-    for( int i=0;i<6;i++ ){
-		string name;
-		switch(i){
-			case 0: name="Min X="; break;
-			case 1: name="Max X="; break;
-			case 2: name="Min Y="; break;
-			case 3: name="Max Y="; break;
-			case 4: name="Min Z="; break;
-			case 5: name="Max Z="; break;
-		}
-        ostringstream temp;
-        temp<<m_BBX[i];
-        info.push_back(name+temp.str());
-    }   
-    return info;
+   list<string> info; 
+   info.push_back(GetName());
+   info.push_back("");
+   for( int i=0;i<6;i++ ){
+      string name;
+      switch(i){
+         case 0: name="Min X="; break;
+         case 1: name="Max X="; break;
+         case 2: name="Min Y="; break;
+         case 3: name="Max Y="; break;
+         case 4: name="Min Z="; break;
+         case 5: name="Max Z="; break;
+      }
+      ostringstream temp;
+      temp<<m_BBX[i];
+      info.push_back(name+temp.str());
+   }   
+   return info;
 }

@@ -27,7 +27,7 @@ using namespace plum;
 // Include OBPRMViewer headers
 #include "EnvObj/PathLoader.h"
 #include "EnvObj/PathModel.h"
-#include "EnvObj/BoundingBoxModel.h"
+#include "EnvObj/BoundingBoxesModel.h"
 #include "EnvObj/BoundingBoxParser.h"
 #include "EnvObj/Robot.h"
 #include "EnvObj/QueryLoader.h"
@@ -1145,7 +1145,7 @@ bool vizmo::CreateBBoxObj( vizmo_obj& obj )
    if( maploader->ParseHeader()==false ) return false;
    const string command=maploader->GetPreamble();
    CBoundingBoxParser * bloader=new CBoundingBoxParser();
-   CBoundingBoxModel * bmodel=new CBoundingBoxModel();
+   CBoundingBoxesModel * bmodel=new CBoundingBoxesModel();
    if( bloader==NULL || bmodel==NULL ){ 
       return false;}
    //well, this time we view filename as command
