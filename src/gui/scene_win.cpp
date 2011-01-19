@@ -242,6 +242,7 @@ void VizGLWin::keyPressEvent ( QKeyEvent * e )
    updateGL();
    if( gliCameraKEY(e) ){ updateGL();return; }
    if( gliKEY(e) ){ updateGL(); return; }//handled by gli
+   if( (OBPRMView_Robot* )(GetVizmo().GetRobot()) == NULL ){updateGL(); return;}
    if( (OBPRMView_Robot* )(GetVizmo().GetRobot()->getModel())->KP(e) ){updateGL(); return;}
    e->ignore(); //not handled
 }
