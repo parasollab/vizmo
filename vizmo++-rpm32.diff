@@ -1,0 +1,23 @@
+Index: M_incl
+===================================================================
+--- M_incl	(revision 189)
++++ M_incl	(working copy)
+@@ -10,7 +10,7 @@
+  #OPTS = -g -MMD -W
+  #OPTS = -ggdb -Wall -Wno-deprecated #-DUSE_PHANTOM
+ 
+-RPM = 0
++RPM = 1
+ ifeq ($(RPM), 1)
+   OPTS+=-MMD -fPIC 
+ endif
+@@ -68,7 +68,8 @@
+ # collision detection
+ #--------------------------------------------------------------------------
+  #RCD_DIR = /users/jdenny/PMPL/trunk/utils/geom/CD-libs
+- RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
++ #RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
++RCD_DIR = /usr/include
+ 
+  RAPID_DIR     = ${RCD_DIR}/RAPID
+  RAPIDLIB_DIR  = ${RAPID_DIR}
