@@ -27,8 +27,13 @@ GUIOBJ = -lvgui
 
 #--------------------------------------------------------------------
 
+ifeq ($RPM), 0)
 $(target):  ${EnvOBJ} GUIOBJ_d ${OBJS}
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) ${EnvOBJ} ${GUIOBJ} ${LIB}
+else
+$(target):  ${EnvOBJ} GUIOBJ_d ${OBJS}
+	$(CXX) $(CXXFLAGS) -Wl,-rpath=/usr/lib/vizmo++ -o $@ $(OBJS) ${EnvOBJ} ${GUIOBJ} ${LIB}
+endif
 
 #$(alias): $(target)
 #	rm -f $@

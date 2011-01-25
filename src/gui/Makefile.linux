@@ -2,9 +2,11 @@ INCPATH = -I..
 VIZMO_DIR = ../..
 include $(VIZMO_DIR)/M_incl
 
-#MOC      = /usr/bin/moc-qt4
-#MOC	 = /usr/lib/qt4/bin/moc
+ifeq ($(RPM), 0)
 TARGET   = ../../lib/libvgui.a
+else
+TARGET   = ../../lib/libvgui.so
+endif
 
 ####### Output directory
 
@@ -25,9 +27,14 @@ first: all
 
 ####### Build rules
 
+ifeq ($(RPM), 0)
 all: $(OBJECTS) $(OBJMOC)
 	ar ruv $(TARGET) ${OBJECTS} $(OBJMOC)
 #	libtool -static -o $(TARGET) ${OBJECTS} $(OBJMOC)
+else
+all: $(OBJECTS) $(OBJMOC)
+	$(CC) -shared $(OBJECTS) $(OBJMOC) -Wl,-soname=`basename $(TARGET)`.0 -o $(TARGET)
+endif
 
 $(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) 
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)

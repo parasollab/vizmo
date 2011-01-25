@@ -14,4 +14,6 @@ clean:
 	cd Plum; make -f Makefile.linux clean
 	cd CollisionDetection; make -f Makefile.linux clean
 	cd src; make -f Makefile.linux clean
-	find -name *.d | xargs rm
+	find -name *.d | xargs rm -rf
+	rm lib/*.a lib/*.so
+

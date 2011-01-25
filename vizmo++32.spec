@@ -9,20 +9,19 @@
 # mv vizmo/trunk vizmo++-0-`date +%Y.%m.%d`
 # tar cvzf vizmo++-0-`date +%Y.%m.%d`.tar.gz vizmo++-0-`date +%Y.%m.%d`
 #
-%define date 2007.10.11
+%define date 2011.01.14
 Name: vizmo++
 Summary: vizmo++ - A visualization/authoring tool for motion planning 
 Version: 0 
 Release: %{date}%{dist}
-License: Copyright 2006, Parasol Lab, Texas A&M University.  All Rights Reserved.
+License: Copyright 2011, Parasol Lab, Texas A&M University.  All Rights Reserved.
 Group: Application/Engineering
 Source: %{name}-%{version}-%{date}.tar.gz
 # CR_icra06.pdf from http://parasol.tamu.edu/publications/download.php?file_id=519
-Source2: vizmo++-CR_icra06.pdf 
 URL: http://parasol.tamu.edu/groups/amatogroup/research/vizmo++/
-Packager: Jack Perdue <j-perdue@tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
+Packager: Jory Denny <jdenny@neo.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot
-Patch1: vizmo++-rpm.diff
+Patch1: vizmo++-rpm32.diff
 Requires: RAPID qt4
 BuildRequires: RAPID-devel qt4-devel
 
@@ -39,8 +38,7 @@ users to interact with and edit the environment.
 
 %prep
 %setup -n %{name}-%{version}-%{date}
-%patch1 
-cp %{SOURCE2} .
+%patch1
 
 %build
 make -f Makefile.linux
@@ -53,6 +51,7 @@ mkdir -p %{buildroot}/usr/lib/vizmo++
 cd lib
 for file in `ls *.so` ; do
   install $file %{buildroot}/usr/lib/vizmo++/$file.%{version}.%{release}
+  #ln -s %{buildroot}/usr/lib/vizmo++/$file.%{version}.%{release} $file.%{version}
 done
 cd ..
 
@@ -60,19 +59,20 @@ cd ..
 rm -rf %{buildroot}
 
 %post
-/sbin/ldconfig -n /usr/lib/vizmo++
+echo "/usr/lib/vizmo++" > /etc/ld.so.conf.d/vizmo++-i386.conf
+/sbin/ldconfig
 
 %postun
-/sbin/ldconfig -n /usr/lib/vizmo++
-rmdir /usr/lib/vizmo++
+rm -rf /usr/lib/vizmo++
+rm /etc/ld.so.conf.d/vizmo++-i386.conf
+/sbin/ldconfig
 
 %files
 /usr/bin/%{name}
 /usr/lib/%{name}
-%doc vizmo++-CR_icra06.pdf
 
 %changelog
-* Thu Oct 11 2007 Jack Perdue <j-perdue@tamu.edu> 0-11oct2007 
+* Fri Jan 14 2011 Jory Denny <jdenny@neo.tamu.edu> 0-14jan2011 
 - Initial version
 
 # EOF - vizmo++.spec

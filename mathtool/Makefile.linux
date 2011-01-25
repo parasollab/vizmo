@@ -1,41 +1,23 @@
-# $Id: Makefile.linux, sept. 16 2002
-#------------------------------------------------------
-# Make your own and use it or use the one in BASELINE
-#------------------------------------------------------
+VIZMO_DIR=..
+include $(VIZMO_DIR)/M_incl
 
-#-----------------------------------------------------------------------------
-# Choose a compiler & its options
-#--------------------------------------------------------------------------
- CC = g++
+ifeq ($(RPM), 0)
+TARGET = ../lib/libmathtool.a
+else
+TARGET = ../lib/libmathtool.so
+endif
 
- CXX = g++
-
- OPTS = -O2 -MMD
-
- INCLUDE = -I/usr/local/include
-
- CFLAGS     = $(OPTS) $(INCLUDE) -I.
- CXXFLAGS   = $(CFLAGS) 
- 
- TARGET = ../lib/libmathtool.a
-
-all: $(TARGET)
-
-#--------------------------------------------------------------------
-.SUFFIXES: .cpp
-.cpp.o:
-	$(CC) ${CFLAGS} -c $<
-	cat $*.d >> Dependencies
-	rm -f $*.d
-
-#--------------------------------------------------------------------
 OBJS         =  EulerAngle.o  Gauss.o  Matrix.o  Basic.o Quaternion.o
 
-objs: ${OBJS}
-#--------------------------------------------------------------------
-$(TARGET): objs
-	ar cru $(TARGET) $(OBJS)
-#	libtool -static -o $(TARGET) $(OBJS)
+ifeq ($(RPM), 0)
+$(TARGET): ${OBJS}
+	ar ruv $@ $(OBJS)
+#	libtool -static -o $@ $(OBJS)
+else
+$(TARGET): ${OBJS}
+	$(CC) -shared $(OBJS) -Wl,-soname=`basename $@`.0 -o $@
+endif
+
 clean:
 	rm -f *.o $(TARGET) Dependencies
 	touch Dependencies

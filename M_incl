@@ -1,6 +1,7 @@
 #-----------------------------------------------------------------------------
 # Choose a compiler & its options
 #-----------------------------------------------------------------------------
+
  g++ = g++
 
  CXX = g++
@@ -8,6 +9,16 @@
  OPTS = -O3 -W -Wno-deprecated #-Wall
  #OPTS = -g -MMD -W
  #OPTS = -ggdb -Wall -Wno-deprecated #-DUSE_PHANTOM
+
+RPM = 0
+ifeq ($(RPM), 1)
+  OPTS+=-MMD -fPIC 
+endif
+
+_64BIT = 0
+ifeq ($(_64BIT), 1)
+   OPTS+=-D_64_BIT
+endif
 
 #--------------------------------------------------------------------
 # Xlib
@@ -35,9 +46,11 @@
  PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/mathtool -I$(PLUM_DIR)/modelgraph
  PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
 
-MOC	 = /usr/lib/qt4/bin/moc
+#MOC	 = /usr/lib/qt4/bin/moc
+MOC	 = /usr/share/qt4/bin/moc
 #MOC      = /usr/lib64/qt4/bin/moc
-QT4DIR = /usr/lib/qt4/
+#QT4DIR = /usr/lib/qt4/
+QT4DIR = /usr/share/qt4/
 #QT4DIR = /usr/
 #QT_INC  = -I$(QT4DIR)/include -I$(QT4DIR)/mkspecs/default
 
@@ -54,7 +67,8 @@ QT4DIR = /usr/lib/qt4/
 #--------------------------------------------------------------------------
 # collision detection
 #--------------------------------------------------------------------------
- RCD_DIR = /users/jdenny/PMPL/trunk/utils/geom/CD-libs
+ #RCD_DIR = /users/jdenny/PMPL/trunk/utils/geom/CD-libs
+ RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
 
  RAPID_DIR     = ${RCD_DIR}/RAPID
  RAPIDLIB_DIR  = ${RAPID_DIR}
@@ -82,6 +96,6 @@ QT4DIR = /usr/lib/qt4/
 .SUFIXES: .cpp
 
 .cpp.o:
-	${CXX} ${CXXFLAGS} -D_DARWIN -c $< -o $@
+	${CXX} ${CXXFLAGS} -c $< -o $@
 	cat $*.d >> Dependencies
 	rm -f $*.d
