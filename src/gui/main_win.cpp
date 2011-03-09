@@ -108,6 +108,7 @@ bool VizmoMainWin::InitVizmo()
     if( GetVizmo().InitVizmoObject()==false ){
         return false;
     }
+    resize(width()+1,height()+1);
     m_Args.clear();
     resetCamera(); //reset camera
     //reset guis

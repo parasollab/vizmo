@@ -5,6 +5,7 @@
 OBPRMView_Robot::OBPRMView_Robot(CEnvLoader * pEnv)
 {
    m_pEnvLoader=pEnv;
+   dof=1000;
    m_RobotModel=NULL;
    mode = 0;
    delta = .1;
@@ -16,9 +17,7 @@ OBPRMView_Robot::OBPRMView_Robot(CEnvLoader * pEnv)
    mbRobotBackUp = NULL;
    RotFstBody = NULL;
 
-   cout << "start" << endl;
    pthread_mutex_init(&mutex,NULL);
-   cout << "end" << endl;
 
 }
 
