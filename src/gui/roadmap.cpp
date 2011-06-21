@@ -478,16 +478,18 @@ void VizmoRoadmapGUI::addEdge()
 void VizmoRoadmapGUI::handleSelect()
 {
    //if( !m_bEditModel ) return;
-
+   
    //find nodes
    m_Nodes.clear();
    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
    typedef vector<gliObj>::iterator OIT;
+   
    for(OIT i=sel.begin();i!=sel.end();i++){
-
+      string myName = ((CGLModel*)(*i))->GetName();
       if( ((CGLModel*)(*i)) != NULL )
-         if( ((CGLModel*)(*i))->GetName()=="Node" ) { 
-            m_Nodes.push_back((CGLModel*)(*i));
+           //if( ((CGLModel*)(*i))->GetName()=="Node" ) { 
+           if(myName.find("Node")!=string::npos ){
+             m_Nodes.push_back((CGLModel*)(*i));
 
          }//end if
 
@@ -498,21 +500,26 @@ void VizmoRoadmapGUI::handleSelect()
       }
 
    }//end for
-
-   if( !m_bEditModel ) return;
-
+   if( !m_bEditModel ){return;}
+  
    if(m_Nodes.size() > 0){
       CGLModel * n=m_Nodes.front();
       printNodeCfg((CCfg*)n);
    }
 
-   if( m_addEdge )
-      handleAddEdge();
-   else if( m_addNode )
-      handleAddNode();
-   else
-      handleEditMap();
+   if( m_addEdge ){
+    
+     handleAddEdge();
 
+}
+   else if( m_addNode ){
+          
+      handleAddNode();
+}
+   else{
+          
+      handleEditMap();
+}
 
 }
 
@@ -580,7 +587,9 @@ void VizmoRoadmapGUI::handleAddNode()
    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
 
    if(sel.size() !=0){ 
+      
       if( !m_Nodes.empty() ){
+     
          CGLModel * n=m_Nodes.front(); 
          CCfg * cfg = (CCfg*)n;   
          //get current node's cfg
@@ -606,9 +615,7 @@ void VizmoRoadmapGUI::handleAddNode()
 
       else{ //no node selected and assumes there is not roadmap....
 
-
-         if (GetVizmo().GetMap() == NULL) {
-
+            if (GetVizmo().GetMap() == NULL) {
             CMapLoader<CCfg,CSimpleEdge> * mloader=new CMapLoader<CCfg,CSimpleEdge>();
             CMapModel<CCfg,CSimpleEdge> * mmodel = new CMapModel<CCfg,CSimpleEdge>();
 
@@ -684,7 +691,7 @@ void VizmoRoadmapGUI::handleAddNode()
             setShape();
             emit getSelectedItem();
 
-            //GetVizmo().Display();
+            GetVizmo().Display();
             //emit callUpdate();
 
             addNodeAction->setChecked(false);
@@ -821,7 +828,7 @@ void VizmoRoadmapGUI::createWindow(){
       cfgNew->setCfg(newNodeCfg);
       cfgNew->setIndex(numVert);
 
-      //int vertx = graph->AddVertex(*cfgNew);
+      int vertx = graph->AddVertex(*cfgNew);
 
       //get mapModel and add a new elment to m_CCModels
       CMapModel<CCfg,CSimpleEdge>* mmodel =(CMapModel<CCfg,CSimpleEdge>*)m_Map->getModel();
@@ -932,7 +939,10 @@ void VizmoRoadmapGUI::printNodeCfg(CCfg *c){
    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
    typedef vector<gliObj>::iterator OIT;
    for(OIT i=sel.begin();i!=sel.end();i++){
-      if( ((CGLModel*)(*i))->GetName()=="Node" ) {
+      //if( ((CGLModel*)(*i))->GetName()=="Node" ) {
+         string myName = ((CGLModel*)(*i))->GetName();
+         if(myName.find("Node")!=string::npos ){
+
 
          sl_cfg.clear();s_cfg="";
 
