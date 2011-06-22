@@ -141,6 +141,7 @@ namespace plum{
         //Get CCs
         typedef typename vector< pair<int,VID> >::iterator CIT;//CC iterator
         vector< pair<int,VID> > CCs;
+        if(graph!=NULL)
 		GetCCStats(*graph,CCs);
         int CCSize=CCs.size();
         m_CCModels.reserve(CCSize);

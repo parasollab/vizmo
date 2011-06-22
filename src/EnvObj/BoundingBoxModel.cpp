@@ -9,9 +9,19 @@
 //////////////////////////////////////////////////////////////////////
 
 CBoundingBoxModel::CBoundingBoxModel(int i, vector<double> values){
-   m_BBXindex=i;
-   m_BBX = vector<double>(values);
-   m_DisplayID=-1;
+  m_BBXindex=i;
+  m_BBX = vector<double>(values);
+  for(size_t i = 0; i<6; i+=2){
+    if(m_BBX[i]==m_BBX[i+1]){
+      m_BBX[i] = m_BBX[i]-1;
+      m_BBX[i+1] = m_BBX[i+1]+1;
+    }
+  }
+  if(m_BBX.size()<=6 && m_BBX[4]==0 && m_BBX[5]==1){
+    m_BBX[4]=-1;
+    m_BBX[5]=1;
+  }
+  m_DisplayID=-1;
 }
 
 CBoundingBoxModel::~CBoundingBoxModel(){

@@ -828,7 +828,7 @@ void VizmoRoadmapGUI::createWindow(){
       cfgNew->setCfg(newNodeCfg);
       cfgNew->setIndex(numVert);
 
-      int vertx = graph->AddVertex(*cfgNew);
+      graph->AddVertex(*cfgNew);
 
       //get mapModel and add a new elment to m_CCModels
       CMapModel<CCfg,CSimpleEdge>* mmodel =(CMapModel<CCfg,CSimpleEdge>*)m_Map->getModel();
