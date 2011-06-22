@@ -108,7 +108,7 @@ bool VizmoMainWin::InitVizmo()
     if( GetVizmo().InitVizmoObject()==false ){
         return false;
     }
-    resize(width()+1,height()+1);
+    resize(width(),height());
     m_Args.clear();
     resetCamera(); //reset camera
     //reset guis
@@ -203,7 +203,7 @@ void VizmoMainWin::reset()
     CDButton->setEnabled(true);
     CDButton->setOn ( FALSE );
     editorButton->setEnabled(true);
-    roadmapGUI->l_robCfg->clear();
+    //roadmapGUI->l_robCfg->clear();
     mkmpButton->setEnabled(true);
     qryButton->setEnabled(true);
 

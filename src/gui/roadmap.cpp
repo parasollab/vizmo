@@ -135,8 +135,8 @@ void VizmoRoadmapGUI::createGUI()
    connect(listWidget,SIGNAL(currentItemChanged ( QListWidgetItem *, QListWidgetItem *)),this,SLOT(getSelectedItem()));  
    listWidget->setEnabled(false);
    // listWidget->resize (minimumSize);
-   listWidget->setMinimumSize ( 75, 75 );
-   listWidget->setMaximumSize ( 75, 75 );
+   listWidget->setMinimumSize ( 60, 60 );
+   listWidget->setMaximumSize ( 60, 60 );
 
    // l =  new Q3ListBox( this );
    //  l->setFocusPolicy( Qt::StrongFocus ); 
@@ -169,7 +169,7 @@ void VizmoRoadmapGUI::createGUI()
    }
 
    createQGrid();
-   createRobotToolBar();
+   //createRobotToolBar();
 
 }
 
@@ -202,8 +202,8 @@ void VizmoRoadmapGUI::reset()
    Node_Edge.clear();
    l_cfg->clear();
 
-   if(robCfgOn==false)
-      l_robCfg->clear();
+   //if(robCfgOn==false)
+      //l_robCfg->clear();
 
    editAction->setChecked(false);
    addNodeAction->setChecked(false);
@@ -976,7 +976,7 @@ void VizmoRoadmapGUI::printRobCfg(){
          GetVizmo().getRoboCfg();
 
          if(robCfgOn){
-            l_robCfg->clear();
+            //l_robCfg->clear();
             list<string> info = GetVizmo().getRobCfgText();
             QStringList strList;
             s_robCfg = "";
@@ -989,16 +989,16 @@ void VizmoRoadmapGUI::printRobCfg(){
             for ( QStringList::Iterator it = strList.begin(); it != strList.end(); ++it )
                s_robCfg+= *it;
 
-            if(GetVizmo().getCD_value())
+            /*if(GetVizmo().getCD_value())
                l_robCfg->setPaletteForegroundColor(Qt::red);
             else
                l_robCfg->setPaletteForegroundColor(Qt::darkGreen);
 
-            l_robCfg->setText(s_robCfg);
+            l_robCfg->setText(s_robCfg);*/
 
          }
-         else
-            l_robCfg->hide();
+         //else
+            //l_robCfg->hide();
       }
 
    }
@@ -1019,10 +1019,10 @@ void VizmoRoadmapGUI::createQGrid(){
 }
 
 void VizmoRoadmapGUI::createRobotToolBar(){
-   l_robCfg = new QLabel(m_vbox);
+   /*l_robCfg = new QLabel(m_vbox);
    l_robCfg->setPaletteForegroundColor(Qt::darkGreen);
    l_robCfg->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
-
+*/
 }
 
 void VizmoRoadmapGUI::updateNodeCfg(){
