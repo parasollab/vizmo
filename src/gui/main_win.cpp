@@ -203,7 +203,7 @@ void VizmoMainWin::reset()
     CDButton->setEnabled(true);
     CDButton->setOn ( FALSE );
     editorButton->setEnabled(true);
-    //roadmapGUI->l_robCfg->clear();
+    roadmapGUI->l_robCfg->clear();
     mkmpButton->setEnabled(true);
     qryButton->setEnabled(true);
 
@@ -212,7 +212,7 @@ void VizmoMainWin::reset()
     envMenu->setItemEnabled(refreshID , TRUE);
     envMenu->setItemEnabled(bboxID , TRUE);
 
-    robotCfgAction->setEnabled(true);
+    robotCfgAction->setEnabled(false);
     robotCfgAction->setOn(false);
     resetRobotPosAction->setEnabled(true);
 

@@ -169,7 +169,7 @@ void VizmoRoadmapGUI::createGUI()
    }
 
    createQGrid();
-   //createRobotToolBar();
+   createRobotToolBar();
 
 }
 
@@ -202,8 +202,8 @@ void VizmoRoadmapGUI::reset()
    Node_Edge.clear();
    l_cfg->clear();
 
-   //if(robCfgOn==false)
-      //l_robCfg->clear();
+   if(robCfgOn==false)
+      l_robCfg->clear();
 
    editAction->setChecked(false);
    addNodeAction->setChecked(false);
@@ -976,7 +976,7 @@ void VizmoRoadmapGUI::printRobCfg(){
          GetVizmo().getRoboCfg();
 
          if(robCfgOn){
-            //l_robCfg->clear();
+            l_robCfg->clear();
             list<string> info = GetVizmo().getRobCfgText();
             QStringList strList;
             s_robCfg = "";
@@ -989,16 +989,17 @@ void VizmoRoadmapGUI::printRobCfg(){
             for ( QStringList::Iterator it = strList.begin(); it != strList.end(); ++it )
                s_robCfg+= *it;
 
-            /*if(GetVizmo().getCD_value())
+            if(GetVizmo().getCD_value())
                l_robCfg->setPaletteForegroundColor(Qt::red);
             else
                l_robCfg->setPaletteForegroundColor(Qt::darkGreen);
 
-            l_robCfg->setText(s_robCfg);*/
+            cout<<s_robCfg.toStdString()<<endl;
+            l_robCfg->setText(s_robCfg);
 
          }
-         //else
-            //l_robCfg->hide();
+         else
+            l_robCfg->hide();
       }
 
    }
@@ -1013,16 +1014,20 @@ void VizmoRoadmapGUI::createQGrid(){
    l_icon = new QLabel(m_grid);
    l_message = new QLabel(m_grid);
    l_cfg = new QLabel(m_grid); 
+   l_cfg->setEnabled(false);
+   l_cfg->hide();
    new QLabel(m_grid);
 
 
 }
 
 void VizmoRoadmapGUI::createRobotToolBar(){
-   /*l_robCfg = new QLabel(m_vbox);
+   l_robCfg = new QLabel(m_vbox);
    l_robCfg->setPaletteForegroundColor(Qt::darkGreen);
    l_robCfg->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
-*/
+   l_robCfg->setEnabled(false);
+   l_robCfg->hide();
+
 }
 
 void VizmoRoadmapGUI::updateNodeCfg(){
