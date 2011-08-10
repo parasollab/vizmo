@@ -209,11 +209,11 @@ namespace plum{
          m_RGBA[1]=g;
          m_RGBA[2]=b;
 
-         typedef vector<CCfg*>::iterator NIT;
+         typedef vector<CCfg>::iterator NIT;
          for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++){
-            (*i)->m_RGBA[0]=r;
-            (*i)->m_RGBA[1]=g;
-            (*i)->m_RGBA[2]=b;
+            (*i).m_RGBA[0]=r;
+            (*i).m_RGBA[1]=g;
+            (*i).m_RGBA[2]=b;
 
          }
 
@@ -242,11 +242,11 @@ namespace plum{
          m_RGBA[1]=g;
          m_RGBA[2]=b;
 
-         typedef vector<CCfg*>::iterator NIT;
+         typedef vector<CCfg>::iterator NIT;
          for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++){
-            (*i)->m_RGBA[0]=r;
-            (*i)->m_RGBA[1]=g;
-            (*i)->m_RGBA[2]=b;
+            (*i).m_RGBA[0]=r;
+            (*i).m_RGBA[1]=g;
+            (*i).m_RGBA[2]=b;
 
          }
 
@@ -292,9 +292,9 @@ namespace plum{
 
 
       virtual void GetChildren( list<CGLModel*>& models ){ 
-         typedef vector<CCfg*>::iterator NIT;
+         typedef vector<CCfg>::iterator NIT;
          for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++)
-            models.push_back(*i);
+            models.push_back(&*i);
 
          typedef vector<CSimpleEdge>::iterator EIT;
          for(EIT i=m_Edges.begin();i!=m_Edges.end();i++)
@@ -323,7 +323,7 @@ namespace plum{
       public:		        
 
 
-      vector<Cfg*> m_Nodes;
+      vector<Cfg> m_Nodes;
       vector<WEIGHT> m_Edges;
       OBPRMView_Robot* m_pRobot;
       WG * m_Graph;
@@ -360,17 +360,16 @@ namespace plum{
    template <class Cfg, class WEIGHT>
       bool CCModel<Cfg, WEIGHT>::BuildModels(VID id,WG* g)
       { 
-         if( g==NULL ) return false;
+         if( g==NULL ){cout<<"Graph is null"<<endl; return false;}
          m_Graph=g;
          //Setup cc nodes
          vector<int> ccnid; //node id in this cc
          GetCC(*g,id,ccnid);
          int nSize=ccnid.size(); 
-         m_Nodes.reserve(nSize);
          for( int iN=0; iN<nSize; iN++ ){
             int nid=ccnid[iN];
-            CCfg* cfg=g->GetReferenceofData(nid);
-            cfg->Set(nid,m_pRobot,this);
+            Cfg cfg=*g->GetReferenceofData(nid);
+            cfg.Set(nid,m_pRobot,this);
             m_Nodes.push_back(cfg);
          }
 
@@ -427,7 +426,7 @@ namespace plum{
 
          //cout << "draw robot nodes" << endl; 
 
-         if( m_pRobot==NULL ) return; //no robot given
+         if( m_pRobot==NULL ){cout<<"m_pRobot is NULL"<<endl; return;} //no robot given
 
          //ReBuildAll();
 
@@ -444,10 +443,10 @@ namespace plum{
          //cout << " draw robot nodes called"  << endl;
          for( int iN=0; iN<nSize; iN++ ){ 
             //cout << "robot scale " << m_fRobotScale << endl; 
-            m_Nodes[iN]->Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
-            m_Nodes[iN]->SetShape(CCfg::Robot); 
+            m_Nodes[iN].Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
+            m_Nodes[iN].SetShape(CCfg::Robot); 
             m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
-            m_Nodes[iN]->Draw(mode);//draw robot;	
+            m_Nodes[iN].Draw(mode);//draw robot;	
          }
 
          //glEndList();	
@@ -463,9 +462,9 @@ namespace plum{
          int nSize=m_Nodes.size(); 
          for( int iN=0; iN<nSize; iN++ ){
             //cout << "box scale " << m_fBoxScale << endl; 
-            m_Nodes[iN]->Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
-            m_Nodes[iN]->SetShape(CCfg::Box);
-            m_Nodes[iN]->Draw(mode); //draw box;
+            m_Nodes[iN].Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
+            m_Nodes[iN].SetShape(CCfg::Box);
+            m_Nodes[iN].Draw(mode); //draw box;
          }
       }
 
@@ -475,9 +474,9 @@ namespace plum{
          glPointSize(4);
          int nSize=m_Nodes.size();
          for( int iN=0; iN<nSize; iN++ ){
-            m_Nodes[iN]->Scale(1,1,1);
-            m_Nodes[iN]->SetShape(CCfg::Point);
-            m_Nodes[iN]->Draw(mode);//draw point;
+            m_Nodes[iN].Scale(1,1,1);
+            m_Nodes[iN].SetShape(CCfg::Point);
+            m_Nodes[iN].Draw(mode);//draw point;
          }
          glEndList();
       }
@@ -518,21 +517,21 @@ namespace plum{
 
             for( int iN=0; iN<nSize; iN++ ){
                if(m_shape == 'r'){
-                  m_Nodes[iN]->SetShape(CCfg::Robot);
-                  m_Nodes[iN]->Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
+                  m_Nodes[iN].SetShape(CCfg::Robot);
+                  m_Nodes[iN].Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
                   //cout << "robot scale " << m_fRobotScale << endl; 
-                  m_Nodes[iN]->Draw(mode);//draw robot;
+                  m_Nodes[iN].Draw(mode);//draw robot;
                }
                else if(m_shape == 'b'){
-                  m_Nodes[iN]->SetShape(CCfg::Box);
-                  m_Nodes[iN]->Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
+                  m_Nodes[iN].SetShape(CCfg::Box);
+                  m_Nodes[iN].Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
                   //cout << "box scale " << m_fBoxScale << endl; 
-                  m_Nodes[iN]->Draw(mode);//draw box
+                  m_Nodes[iN].Draw(mode);//draw box
                }
                else if(m_shape == 'p'){
-                  m_Nodes[iN]->SetShape(CCfg::Point);
-                  m_Nodes[iN]->Scale(1,1,1);
-                  m_Nodes[iN]->Draw(mode);//draw point
+                  m_Nodes[iN].SetShape(CCfg::Point);
+                  m_Nodes[iN].Scale(1,1,1);
+                  m_Nodes[iN].Draw(mode);//draw point
                }
             }
 

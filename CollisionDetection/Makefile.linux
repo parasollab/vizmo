@@ -23,4 +23,4 @@ clean:
 	rm -f ${TARGET} ${OBJECTS} Dependencies
 	touch Dependencies
 
-include Dependencies
+-include Dependencies

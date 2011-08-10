@@ -96,6 +96,7 @@ namespace plum{
 	
 	
         Wg * GetGraph() { return m_Graph; }
+        void InitGraph() {m_Graph = new Wg();}
         //void KillGraph(){ delete m_Graph; m_Graph=NULL; }
 
 

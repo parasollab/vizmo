@@ -87,7 +87,15 @@ VizmoScreenShotGUI::~VizmoScreenShotGUI()
 void VizmoScreenShotGUI::reset() //reset every thing
 {
     if( mDialog!=NULL ){
+      if(GetVizmo().GetPathSize()>0){
         mDialog->endIntFrame=GetVizmo().GetPathSize()-1;
+      }
+      else if(GetVizmo().GetDebugSize()>0){
+        mDialog->endIntFrame=GetVizmo().GetDebugSize()-1;
+      }
+      else{
+        mDialog->endIntFrame=-1;
+      }
         mDialog->startIntFrame=0;
         mDialog->stepIntSize=10;
         mDialog->updateAttributes();
@@ -95,7 +103,7 @@ void VizmoScreenShotGUI::reset() //reset every thing
     
     if( animation!=NULL ){
         //disable/enable this toolbar
-        if( GetVizmo().GetPathSize()==0 ) animation->setEnabled(false);
+        if( GetVizmo().GetPathSize()==0 && GetVizmo().GetDebugSize()==0) animation->setEnabled(false);
         else{
 			animation->setEnabled(true);
 			takeBoxPicture->setEnabled(true);

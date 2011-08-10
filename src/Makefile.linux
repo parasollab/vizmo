@@ -21,7 +21,8 @@ OBJS =  main.o vizmo2.o
 EnvOBJ = ${Env_DIR}/BoundingBoxModel.o  ${Env_DIR}/BoundingBoxParser.o \
 	 ${Env_DIR}/BoundingBoxesModel.o ${Env_DIR}/PathLoader.o  \
          ${Env_DIR}/PathModel.o  ${Env_DIR}/QueryLoader.o \
-         ${Env_DIR}/QueryModel.o  ${Env_DIR}/Robot.o
+         ${Env_DIR}/QueryModel.o  ${Env_DIR}/Robot.o \
+         ${Env_DIR}/DebugLoader.o  ${Env_DIR}/DebugModel.o
 
 GUIOBJ = -lvgui
 
@@ -46,5 +47,5 @@ clean:
 	touch Dependencies
 	cd ${GUI_DIR} ; make -f Makefile.linux clean
 
-include  Dependencies
+-include  Dependencies
 

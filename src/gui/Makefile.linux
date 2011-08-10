@@ -98,4 +98,4 @@ moc_vizmoEditor.cpp: $(MOC) vizmoEditor.h
 moc_queryGUI.cpp: $(MOC) queryGUI.h
 	$(MOC) queryGUI.h -o moc_queryGUI.cpp
 
-include Dependencies
+-include Dependencies

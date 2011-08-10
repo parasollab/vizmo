@@ -241,7 +241,7 @@ void VizmoRoadmapGUI::reset()
 
 void VizmoRoadmapGUI::getSelectedItem()
 { 
-   if(GetVizmo().GetMap() != NULL){ 
+   if(GetVizmo().GetMap() != NULL || GetVizmo().GetDebug() != NULL){ 
       string s;
       s = (string)(listWidget->currentItem ())->text ().ascii();
       m_shapeString = s;

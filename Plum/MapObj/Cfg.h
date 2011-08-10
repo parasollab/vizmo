@@ -63,7 +63,7 @@ namespace plum{
 
       virtual void SetColor( float r, float g, float b, float a ){
          CGLModel::SetColor(r,g,b,a);
-         m_robot->SetColor(r,g,b,a);
+         //m_robot->SetColor(r,g,b,a);
       }
       virtual void SetRenderMode( int mode ){ //cout << "setting render mode" << endl;
          m_RenderMode=mode; }
@@ -180,7 +180,7 @@ namespace plum{
 
       bool operator==( const CSimpleEdge & other );
       //void Set(const Point3d& p1, const Point3d& p2){ m_s=p1; m_e=p2; }
-      void Set(int id, CCfg * c1, CCfg * c2){ m_ID=id; m_s=c1; m_e=c2; }
+      void Set(int id, CCfg * c1, CCfg * c2){ m_ID=id; m_s=*c1; m_e=*c2; }
 
       //////////////////////////////////////////////////////////////////////
       bool BuildModels(){ /*do nothing*/ return true; }
@@ -203,6 +203,7 @@ namespace plum{
       //////////////////////////////////////////////////////////////////////
       int & GetLP(){ return m_LP; }
       double & GetWeight(){ return m_Weight; }
+      double & Weight(){ return m_Weight; }
       int GetID() { return m_ID; }
       //////////////////////////////////////////////////////////////////////
       //      Protected Method & Data
@@ -210,7 +211,7 @@ namespace plum{
       protected:
 
       //Point3d m_s, m_e;
-      CCfg * m_s, * m_e;
+      CCfg m_s, m_e;
 
       int    m_LP;
       double m_Weight;

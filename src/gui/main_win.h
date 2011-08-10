@@ -168,7 +168,7 @@ private:
       *setQrySAction,
       *setQryGAction;
 
-    VizmoAnimationGUI *animationGUI;
+    VizmoAnimationGUI *animationGUI, *animationDebugGUI;
     VizmoScreenShotGUI *screenShotGUI;
     VizmoItemSelectionGUI *objectSelection;
     VizmoAttributeSelectionGUI *attributeSelection;

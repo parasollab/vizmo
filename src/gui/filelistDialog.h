@@ -25,6 +25,7 @@ private slots:
 	void changeMap();
 	void changeEnv();
 	void changePath();
+	void changeDebug();
 	void changeQry();
     
 private:
@@ -32,9 +33,10 @@ private:
     void storeAttributes();
 
     QLabel * Map_label;
-	QLabel * Env_label;
-	QLabel * Path_label;
-	QLabel * Query_label;
+    QLabel * Env_label;
+    QLabel * Path_label;
+    QLabel * Debug_label;
+    QLabel * Query_label;
 };
 
 #endif//VIZMO2_FILE_LIST_DIALOG

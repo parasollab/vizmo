@@ -80,7 +80,7 @@ bool OBPRMView_Robot::BuildModels(){
 }
 
 void OBPRMView_Robot::Draw(GLenum mode){
-   if( m_RobotModel==NULL) return;
+   if( m_RobotModel==NULL){cout<<"m_RobotModel==NULL"<<endl; return;}
    glPushMatrix();
    glTransform();
    m_RobotModel->Draw(mode);
@@ -125,7 +125,6 @@ void OBPRMView_Robot::InitialCfg(double * cfg){
 }
 
 void OBPRMView_Robot::RestoreInitCfg(){
-
    //reset MultiBody values to 0's
    m_RobotModel->tx() = m_RobotModel->ty() = m_RobotModel->tz() = 0;
    double z = 0.0;
@@ -150,6 +149,7 @@ void OBPRMView_Robot::RestoreInitCfg(){
 }
 
 void OBPRMView_Robot::BackUp(){
+  m_RenderModeBackUp = m_RenderMode;
    Poly = m_RobotModel->GetPolyhedron();
    const CMultiBodyInfo * MBInfo = m_pEnvLoader->GetMultiBodyInfo();
    int numMBody=MBInfo[0].m_cNumberOfBody;
@@ -214,6 +214,7 @@ void OBPRMView_Robot::Restore(){
 
    //delete [] Poly;
    //delete [] pPolyBackUp;
+  SetRenderMode(m_RenderModeBackUp);
 
 }
 

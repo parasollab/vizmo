@@ -182,6 +182,7 @@ class vizmo_obj{
       PlumObject * m_Path;    bool m_show_Path; string m_PathFile;
       PlumObject * m_Env;                       string m_EnvFile;
       PlumObject * m_Map;     bool m_show_Map;  string m_MapFile;
+      PlumObject * m_Debug;     bool m_show_Debug;  string m_DebugFile;
 };
 
 /**
@@ -228,6 +229,7 @@ class vizmo
        * Animate Robot motion.
        */
       void Animate( int frame );
+      void AnimateDebug( int frame );
 
       //////////////////////////////////////////////////////////////////////
       // Roadmap Related Function
@@ -250,6 +252,13 @@ class vizmo
       int GetPathSize();
       bool IsPathLoaded(){ return m_obj.m_Path!=NULL; }
       PlumObject * GetPath() const { return m_obj.m_Path; }
+
+      //////////////////////////////////////////////////////////////////////
+      // Debug Related Function
+      void ShowDebugFrame( bool bShow=true );
+      int GetDebugSize();
+      bool IsDebugLoaded(){ return m_obj.m_Debug!=NULL; }
+      PlumObject * GetDebug() const { return m_obj.m_Debug; }
 
       //////////////////////////////////////////////////////////////////////
       // Query Related Function
@@ -354,11 +363,13 @@ class vizmo
       const string& getMapFileName() const { return m_obj.m_MapFile; }
       const string& getEnvFileName() const { return m_obj.m_EnvFile; }
       const string& getPathFileName() const { return m_obj.m_PathFile; }
+      const string& getDebugFileName() const { return m_obj.m_DebugFile; }
       const string& getQryFileName() const { return m_obj.m_QryFile; }
 
       void setMapFileName(const string& name){ m_obj.m_MapFile=name; }
       void setEnvFileName(const string& name){ m_obj.m_EnvFile=name; }
       void setPathFileName(const string& name) { m_obj.m_PathFile=name; }
+      void setDebugFileName(const string& name) { m_obj.m_DebugFile=name; }
       void setQryFileName(const string& name){ m_obj.m_QryFile=name; }
 
       //////////////////////////////////////////////////////////////////////
@@ -380,6 +391,11 @@ class vizmo
        * Create Path Plum Object.
        */
       bool CreatePathObj( vizmo_obj& obj, const string& fname );
+
+      /**
+       * Create Debug Plum Object.
+       */
+      bool CreateDebugObj( vizmo_obj& obj, const string& fname );
 
       /**
        * Create Query Plum Object.

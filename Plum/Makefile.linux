@@ -31,6 +31,6 @@ clean:
 	rm -f ${TARGET} ${OBJECTS} ${EnvOBJ} ${MapOBJ} Dependencies
 	touch Dependencies
 
-include Dependencies
+-include Dependencies
 
 

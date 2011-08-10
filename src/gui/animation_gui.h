@@ -39,7 +39,7 @@ class VizmoAnimationGUI : public Q3ToolBar
     Q_OBJECT
         
 public:
-    VizmoAnimationGUI(Q3MainWindow * parent=NULL,char * name=NULL);
+    VizmoAnimationGUI(string n, Q3MainWindow * parent=NULL,char * name=NULL);
     void reset(); //reset every thing
     
 signals:
@@ -89,6 +89,7 @@ private:
     int max_value;
     int cur_value;
     bool forwardDirection;
+    string m_name;
 };
 
 

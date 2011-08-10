@@ -29,12 +29,13 @@ namespace plum{
       m_Unknow1 = LONG_MAX; m_Unknow2 = LONG_MAX; m_Unknow3 = LONG_MAX;
       m_index = -1; m_Shape=Point;
       coll = false;
+      dofs.clear();
    }
 
    CCfg::~CCfg()
    {
       //CCfg::dof = 0;
-      m_Unknow1 = LONG_MAX; m_Unknow2 = LONG_MAX; m_Unknow3 = LONG_MAX;
+      //m_Unknow1 = LONG_MAX; m_Unknow2 = LONG_MAX; m_Unknow3 = LONG_MAX;
    }
 
    void CCfg::Set( int index , OBPRMView_Robot* robot, CCModelBase* cc) 
@@ -329,8 +330,8 @@ namespace plum{
       if(m_RenderMode == CPlumState::MV_SOLID_MODE || m_RenderMode == CPlumState::MV_WIRE_MODE){
          glColor4fv(m_RGBA);
          glBegin( GL_LINES );
-         glVertex3d( m_s->tx(),m_s->ty(),m_s->tz() );
-         glVertex3d( m_e->tx(),m_e->ty(),m_e->tz() );
+         glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );
+         glVertex3d( m_e.tx(),m_e.ty(),m_e.tz() );
          glEnd();
       }
       glPopName();
@@ -341,8 +342,8 @@ namespace plum{
       glColor3d(1,1,0);
       glLineWidth(4);
       glBegin( GL_LINES );
-      glVertex3d( m_s->tx(),m_s->ty(),m_s->tz() );
-      glVertex3d( m_e->tx(),m_e->ty(),m_e->tz() );
+      glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );
+      glVertex3d( m_e.tx(),m_e.ty(),m_e.tz() );
       glEnd();
    }
 
@@ -365,7 +366,7 @@ namespace plum{
       {
          ostringstream temp;
          temp<<"Edge, ID= "<<m_ID<<", ";
-         temp<<"connects Node "<<m_s->GetIndex()<<" and Node "<<m_e->GetIndex();
+         temp<<"connects Node "<<m_s.GetIndex()<<" and Node "<<m_e.GetIndex();
          info.push_back(temp.str());
       }
 
@@ -375,8 +376,8 @@ namespace plum{
    vector<int> CSimpleEdge::GetEdgeNodes(){
 
       vector<int> v;
-      v.push_back(m_s->GetIndex());
-      v.push_back(m_e->GetIndex());
+      v.push_back(m_s.GetIndex());
+      v.push_back(m_e.GetIndex());
       return v;
    }
 

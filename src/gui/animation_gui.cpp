@@ -26,8 +26,8 @@
 #include "icon/vcr/pause.xpm"
 
 ///////////////////////////////////////////////////////////////////////////////// 
-VizmoAnimationGUI::VizmoAnimationGUI(Q3MainWindow *parent,char *name)
-:Q3ToolBar("Animation",parent,Qt::DockBottom,true,name)
+VizmoAnimationGUI::VizmoAnimationGUI(string n, Q3MainWindow *parent,char *name)
+:Q3ToolBar("Animation",parent,Qt::DockBottom,true,name), m_name(n)
 {
     this->setLabel("Vizmo animation");
     
@@ -47,7 +47,10 @@ VizmoAnimationGUI::VizmoAnimationGUI(Q3MainWindow *parent,char *name)
 void VizmoAnimationGUI::reset()
 {
     pauseAnimate();
-    max_value=GetVizmo().GetPathSize();
+    if(m_name == "Path")
+      max_value=GetVizmo().GetPathSize();
+    else if(m_name == "Debug")
+      max_value=GetVizmo().GetDebugSize();
     cur_value=0;
     slider->setRange(0,max_value-1);
     slider->setValue(0);
@@ -93,7 +96,7 @@ void VizmoAnimationGUI::CreateStepInput()
 {
     new QLabel("Step = ",this);
     stepField=new QLineEdit(this);
-    stepField->setText("5");
+    stepField->setText("1");
     stepField->setMaximumSize(55,22);
     stepField->setValidator(new QIntValidator(stepField));
     connect(stepField,SIGNAL(returnPressed()),SLOT(updateStepSize()));
@@ -253,7 +256,10 @@ void VizmoAnimationGUI::previousFrame()
 void VizmoAnimationGUI::sliderMoved(int newValue)
 {
     UpdateCurValue(newValue);
-    GetVizmo().Animate(cur_value);
+    if(m_name == "Path")
+      GetVizmo().Animate(cur_value);
+    else if(m_name == "Debug")
+      GetVizmo().AnimateDebug(cur_value);
     emit callUpdate();
 }
 

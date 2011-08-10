@@ -64,10 +64,10 @@
 VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
 :Q3MainWindow(parent, name), m_bVizmoInit(false)
 { 
-    setMinimumSize( 800, 600 );
+    setMinimumSize( 850, 700 );
     setCaption("Vizmo++"); 
     m_GL=NULL;
-    animationGUI=NULL;
+    animationGUI=animationDebugGUI=NULL;
     move(0,0);
     m_setQS = false;
     m_setQG = false;
@@ -113,6 +113,7 @@ bool VizmoMainWin::InitVizmo()
     resetCamera(); //reset camera
     //reset guis
     animationGUI->reset();
+    animationDebugGUI->reset();
     objectSelection->reset();
     screenShotGUI->reset();
     roadmapGUI->reset();
@@ -131,8 +132,11 @@ bool VizmoMainWin::InitVizmo()
 bool VizmoMainWin::CreateGUI()
 {
     ///////////////////////////////////////////////////////////////////////////
-    animationGUI=new VizmoAnimationGUI(this);    
+    animationGUI=new VizmoAnimationGUI("Path", this);    
     connect(animationGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
+
+    animationDebugGUI=new VizmoAnimationGUI("Debug", this);    
+    connect(animationDebugGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 
     ///////////////////////////////////////////////////////////////////////////
     CreateActions();
@@ -239,7 +243,7 @@ void VizmoMainWin::load()
 //         "Files (*.map *.env)" , this);
 
     QString fn = QFileDialog::getOpenFileName(this,  "Choose an environment to open",  
-	     QString::null,"Files (*.map *.env)" );
+	     QString::null,"Files (*.map *.env *.vd)" );
 
     QFileInfo fi(fn);
 
@@ -269,6 +273,7 @@ void VizmoMainWin::updatefiles()
     
     //reset guis
     animationGUI->reset();
+    animationDebugGUI->reset();
     objectSelection->reset();
     screenShotGUI->reset();
     roadmapGUI->reset();
@@ -546,6 +551,7 @@ void VizmoMainWin::resetRobotPosition(){
 
   GetVizmo().ResetRobot();
   animationGUI->reset();
+  animationDebugGUI->reset();
   m_GL->updateGL();
 }
 
@@ -1369,6 +1375,7 @@ void VizmoMainWin::CreateScreenCapture()
     connect(screenShotGUI,SIGNAL(getBoxDimensions(int *,int *,int *,int *)),m_GL,SLOT(getBoxDimensions(int *,int *,int *,int *)));
     connect(screenShotGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
     connect(screenShotGUI,SIGNAL(goToFrame(int)),animationGUI,SLOT(goToFrame(int)));
+    connect(screenShotGUI,SIGNAL(goToFrame(int)),animationDebugGUI,SLOT(goToFrame(int)));
 }
 
 void VizmoMainWin::CreateObjectSelection()

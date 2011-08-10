@@ -35,6 +35,11 @@ FileListDialog::FileListDialog
 	QPushButton * pathButton = new QPushButton(QIcon(icon_folder),"Browse",controls);  
     connect(pathButton,SIGNAL(clicked()),this,SLOT(changePath()));
  
+    l=new QLabel("<b>Debug File</b>:",controls); //l->setAlignment(AlignCenter);
+    Debug_label = new QLabel(GetVizmo().getDebugFileName().c_str(),controls);
+	QPushButton * debugButton = new QPushButton(QIcon(icon_folder),"Browse",controls);  
+    connect(debugButton,SIGNAL(clicked()),this,SLOT(changeDebug()));
+ 
     l=new QLabel("<b>Query File</b>:",controls); //l->setAlignment(AlignCenter);
     Query_label = new QLabel(GetVizmo().getQryFileName().c_str(),controls); 
 	QPushButton * qryButton = new QPushButton(QIcon(icon_folder),"Browse",controls);  
@@ -72,6 +77,16 @@ void FileListDialog::changePath()
     if ( !fn.isEmpty() ){
 		GetVizmo().setPathFileName(fn.toStdString());
         Path_label->setText(GetVizmo().getPathFileName().c_str());
+    }
+}
+
+void FileListDialog::changeDebug()
+{
+    QString fn=QFileDialog::getOpenFileName(this, "Choose a debug file", 
+					    QString::null,"Debug File (*.vd)");
+    if ( !fn.isEmpty() ){
+		GetVizmo().setDebugFileName(fn.toStdString());
+        Debug_label->setText(GetVizmo().getDebugFileName().c_str());
     }
 }
 

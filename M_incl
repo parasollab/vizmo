@@ -6,7 +6,7 @@
 
  CXX = g++
 
- OPTS = -O3 -W -Wno-deprecated #-Wall
+ OPTS = -O3 -W -Wno-deprecated -MMD #-Wall
  #OPTS = -g -MMD -W
  #OPTS = -ggdb -Wall -Wno-deprecated #-DUSE_PHANTOM
 
