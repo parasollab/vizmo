@@ -20,6 +20,6 @@ endif
 
 default_target: $(TARGET)
 
-CLEAN = *.o $(TARGET) Dependencies
+CLEAN = $(OBJS) $(TARGET) Dependencies
 
 -include Dependencies

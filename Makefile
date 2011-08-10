@@ -15,7 +15,7 @@ CLEAN = vizmo++
 reallyclean:
 	@${MAKE} clean
 	cd GL; ${MAKE} clean
-	cd modelgraph; ${MAKE}
+	cd modelgraph; ${MAKE} clean
 	cd Plum; ${MAKE} clean
 	cd CollisionDetection; ${MAKE} clean
 	cd src/gui; ${MAKE} clean
