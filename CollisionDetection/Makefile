@@ -2,12 +2,12 @@ VIZMO_DIR=..
 include $(VIZMO_DIR)/M_incl
 
 ifeq ($(RPM), 0)
-TARGET=$(VIZMO_DIR)/lib/libgli.a
+TARGET=$(VIZMO_DIR)/lib/libCD.a
 else
-TARGET=$(VIZMO_DIR)/lib/libgli.so
+TARGET=$(VIZMO_DIR)/lib/libCD.so
 endif
 
-OBJECTS = gli.o gliCamera.o gliDataStructure.o gliPickBox.o gliTransTool.o gliFont.o gliDump.o
+OBJECTS = CollisionDetection.o
 
 ifeq ($(RPM), 0)
 $(TARGET): $(OBJECTS)
@@ -18,8 +18,8 @@ $(TARGET): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -Wl,-soname=`basename $@`.0 -o $@
 endif
 
-clean:
-	rm -f ${TARGET} ${OBJECTS} Dependencies
-	touch Dependencies
+default_target: $(TARGET)
+
+CLEAN = ${TARGET} ${OBJECTS} Dependencies
 
 -include Dependencies

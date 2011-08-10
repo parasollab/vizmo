@@ -2,12 +2,12 @@ VIZMO_DIR=..
 include $(VIZMO_DIR)/M_incl
 
 ifeq ($(RPM), 0)
-TARGET = ../lib/libmathtool.a
+TARGET = ../lib/libmodelgraph.a
 else
-TARGET = ../lib/libmathtool.so
+TARGET = ../lib/libmodelgraph.so
 endif
 
-OBJS         =  EulerAngle.o  Gauss.o  Matrix.o  Basic.o Quaternion.o
+OBJS = ModelGraph.o ModelNode.o ModelEdge.o
 
 ifeq ($(RPM), 0)
 $(TARGET): ${OBJS}
@@ -18,8 +18,8 @@ $(TARGET): ${OBJS}
 	$(CC) -shared $(OBJS) -Wl,-soname=`basename $@`.0 -o $@
 endif
 
-clean:
-	rm -f *.o $(TARGET) Dependencies
-	touch Dependencies
+default_target: $(TARGET)
+
+CLEAN = *.o $(TARGET) Dependencies
 
 -include Dependencies

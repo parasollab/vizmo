@@ -7,13 +7,7 @@ GUI_DIR = gui
 
 #--------------------------------------------------------------------
 
-#target = ../vizmo2
-#alias = ../vizmo++
-
 target = ../vizmo++
-
-#all: $(target) $(alias)
-all: $(target)
 
 #--------------------------------------------------------------------
 OBJS =  main.o vizmo2.o
@@ -29,23 +23,16 @@ GUIOBJ = -lvgui
 #--------------------------------------------------------------------
 
 ifeq ($RPM), 0)
-$(target):  ${EnvOBJ} GUIOBJ_d ${OBJS}
+$(target):  ${EnvOBJ} ${OBJS}
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) ${EnvOBJ} ${GUIOBJ} ${LIB}
 else
-$(target):  ${EnvOBJ} GUIOBJ_d ${OBJS}
+$(target):  ${EnvOBJ} ${OBJS}
 	$(CXX) $(CXXFLAGS) -Wl,-rpath=/usr/lib/vizmo++ -o $@ $(OBJS) ${EnvOBJ} ${GUIOBJ} ${LIB}
 endif
 
-#$(alias): $(target)
-#	rm -f $@
-#	ln -s vizmo2 $@
+default_target: $(target)
 
-GUIOBJ_d:
-	cd ${GUI_DIR} ; make -f Makefile.linux all
-clean:
-	rm -f  ${EnvOBJ} ${OBJS} $(target) Dependencies
-	touch Dependencies
-	cd ${GUI_DIR} ; make -f Makefile.linux clean
+CLEAN = ${EnvOBJ} ${OBJS} $(target) Dependencies
 
 -include  Dependencies
 

@@ -5,7 +5,6 @@
 using namespace std;
 
 #include <Quaternion.h>
-using namespace mathtool;
 
 #include <string>
 

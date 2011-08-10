@@ -1,6 +1,6 @@
 Index: M_incl
 ===================================================================
---- M_incl	(revision 189)
+--- M_incl	(revision 192)
 +++ M_incl	(working copy)
 @@ -10,12 +10,12 @@
   #OPTS = -g -MMD -W
@@ -17,13 +17,30 @@ Index: M_incl
  ifeq ($(_64BIT), 1)
     OPTS+=-D_64_BIT
  endif
-@@ -68,7 +68,8 @@
+@@ -47,11 +47,11 @@
+  PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
+ 
+ #MOC	 = /usr/lib/qt4/bin/moc
+-MOC	 = /usr/share/qt4/bin/moc
+-#MOC      = /usr/lib64/qt4/bin/moc
++#MOC	 = /usr/share/qt4/bin/moc
++MOC      = /usr/lib64/qt4/bin/moc
+ #QT4DIR = /usr/lib/qt4/
+-QT4DIR = /usr/share/qt4/
+-#QT4DIR = /usr/
++#QT4DIR = /usr/share/qt4/
++QT4DIR = /usr/
+ #QT_INC  = -I$(QT4DIR)/include -I$(QT4DIR)/mkspecs/default
+ 
+  QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT -I.
+@@ -68,8 +68,8 @@
  # collision detection
  #--------------------------------------------------------------------------
   #RCD_DIR = /users/jdenny/PMPL/trunk/utils/geom/CD-libs
 - RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
+-
 + #RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
-+RCD_DIR = /usr/include
- 
++  RCD_DIR = /usr/include
   RAPID_DIR     = ${RCD_DIR}/RAPID
   RAPIDLIB_DIR  = ${RAPID_DIR}
+  RAPIDLIB      = -L${RAPIDLIB_DIR} -lRAPID

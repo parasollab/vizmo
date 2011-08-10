@@ -1,101 +1,102 @@
-#-----------------------------------------------------------------------------
-# Choose a compiler & its options
-#-----------------------------------------------------------------------------
+# set default platform
+ifndef platform
+  platform = LINUX_gcc
+endif
 
- g++ = g++
+# set default debug
+ifndef debug
+  debug = 0
+endif
 
- CXX = g++
+# set directory paths
+ifndef VIZMO_DIR
+  VIZMO_DIR = .
+endif
 
- OPTS = -O3 -W -Wno-deprecated -MMD #-Wall
- #OPTS = -g -MMD -W
- #OPTS = -ggdb -Wall -Wno-deprecated #-DUSE_PHANTOM
+UTILS_DIR = $(VIZMO_DIR)/utils
+
+# include makefile defaults
+include ${UTILS_DIR}/makefile_includes/Makefile.defaults
 
 RPM = 0
 ifeq ($(RPM), 1)
   OPTS+=-fPIC 
 endif
 
-_64BIT = 0
-ifeq ($(_64BIT), 1)
-   OPTS+=-D_64_BIT
-endif
 
 #--------------------------------------------------------------------
 # Xlib
 #--------------------------------------------------------------------
 
-# X_LIB  = -L/usr/X11R6/lib -L/opt/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt
+X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXrandr -lXcursor -lXinerama -lXfixes
 
-# X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXxf86vm -lXrandr -lXcursor -lXinerama -lXfixes
+#Phantom_LIB = -lHD -lHDU -lrt
 
- X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXrandr -lXcursor -lXinerama -lXfixes
+GL_LIB = -lglut -lGLU -lGL -lm
+GL_INCL = -I/usr/include/GL/
 
- #Phantom_LIB = -lHD -lHDU -lrt
-
- GL_LIB = -lglut -lGLU -lGL -lm
-# GL_LIB = -framework AGL -framework OpenGL -framework GLUT -lm
-# GL_INCL = -I/System/Library/Frameworks/GLUT.framework/Headers/ -I/System/Library/Frameworks/OpenGL.framework/Headers/
- GL_INCL = -I/usr/include/GL/
-
- GLI_DIR = $(VIZMO_DIR)
- GLI_INCL = -I$(GLI_DIR)
- GLI_LIB = -L$(GLI_DIR)/lib -lgli
+GLI_DIR = $(VIZMO_DIR)
+GLI_INCL = -I$(GLI_DIR)
+GLI_LIB = -L$(GLI_DIR)/lib -lgli
 #--------------------------------------------------------------------
 
- PLUM_DIR = $(VIZMO_DIR)
- PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/mathtool -I$(PLUM_DIR)/modelgraph
- PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph -lmathtool
+PLUM_DIR = $(VIZMO_DIR)
+PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/modelgraph
+PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph
 
 #MOC	 = /usr/lib/qt4/bin/moc
 MOC	 = /usr/share/qt4/bin/moc
 #MOC      = /usr/lib64/qt4/bin/moc
-#QT4DIR = /usr/lib/qt4/
-QT4DIR = /usr/share/qt4/
-#QT4DIR = /usr/
-#QT_INC  = -I$(QT4DIR)/include -I$(QT4DIR)/mkspecs/default
 
- QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT -I.
+#QT4DIR = /usr/lib/qt4
+QT4DIR = /usr/share/qt4
+#QT4DIR = /usr
 
- #QT_LIBS = $(SUBLIBS) -Wl,-rpath,$(QT4DIR)/lib -L$(QT4DIR)/lib  -lqt -lpthread -lXext
-  QT_LIBS = $(SUBLIBS)  -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork  -lpthread -lXext -lz 
-# QT_LIBS = $(SUBLIBS) -L$(QT4DIR)/lib -lqt-mt -lpthread -lXext 
+QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT -I.
 
- GRAPH_DIR = $(VIZMO_DIR)/graph
- GRAPH_INCL = -I$(GRAPH_DIR)
+QT_LIBS = $(SUBLIBS)  -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork  -lpthread -lXext -lz 
 
+GRAPH_DIR = $(VIZMO_DIR)/graph
+GRAPH_INCL = -I$(GRAPH_DIR)
 
+# mathtool
+MATHTOOL_DIR = ${UTILS_DIR}/mathtool
+MATHTOOL_LIB = -L${MATHTOOL_DIR} -lmathtool
+MATHTOOL_INCL = -I${MATHTOOL_DIR}
+${MATHTOOL_DIR}/libmathtool.a:
+	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug}
+
+MATHTOOL_LIBFILE = ${MATHTOOL_DIR}/libmathtool.a
 #--------------------------------------------------------------------------
 # collision detection
 #--------------------------------------------------------------------------
- #RCD_DIR = /users/jdenny/PMPL/trunk/utils/geom/CD-libs
- RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
- #RCD_DIR = /usr/include
- RAPID_DIR     = ${RCD_DIR}/RAPID
- RAPIDLIB_DIR  = ${RAPID_DIR}
- RAPIDLIB      = -L${RAPIDLIB_DIR} -lRAPID
- RAPID_INCL    = -I${RAPID_DIR}
+RAPID_DIR     = $(UTILS_DIR)/geom/CD-libs/RAPID
+RAPID_LIB      = -L${RAPID_DIR} -lRAPID
+RAPID_INCL    = -I${RAPID_DIR}
+${RAPID_DIR}/libRAPID.a:
+	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug}
 
- CD_DIR = $(VIZMO_DIR)
- CD_INCL = -I$(CD_DIR)/CollisionDetection -I$(CD_DIR)/Plum
-# CD_LIB = -L$(CD_DIR)/lib -lCD                    
- CD_LIB = -L$(CD_DIR)/lib -lCD -lPlum                   
+RAPID_LIBFILE = ${RAPID_DIR}/libRAPID.a
+
+CD_DIR = $(VIZMO_DIR)
+CD_INCL = -I$(CD_DIR)/CollisionDetection -I$(CD_DIR)/Plum
+CD_LIB = -L$(CD_DIR)/lib -lCD -lPlum                   
 #-------------------------------------------------------------------------
 
- INCLUDE = -I. -I/usr/X11R6/include -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(CD_INCL) $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL)
- LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPIDLIB} $(LIBS) ${Phantom_LIB} 
+INCLUDE = -I. -I/usr/X11R6/include -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(CD_INCL) \
+          $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL) $(MATHTOOL_INCL)
+LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPID_LIB} \
+      ${Phantom_LIB} $(MATHTOOL_LIB)
 
-# INCLUDE = -I. -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(GRAPH_INCL) $(QT_INC) $(INCPATH)
-# LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(LIBS)
+# macros
+OPTS += -MMD -fPIC 
+INCL = $(INCLUDE)
+LIBS = $(LIB)
 
 #--------------------------------------------------------------------
+#  .SUFIXES: .cpp
 
- CFLAGS     = $(OPTS) $(INCLUDE)
- CXXFLAGS   = $(CFLAGS)
-
-#--------------------------------------------------------------------
-.SUFIXES: .cpp
-
-.cpp.o:
-	${CXX} ${CXXFLAGS} -c $< -o $@
-	cat $*.d >> Dependencies
-	rm -f $*.d
+#  .cpp.o:
+#  ${CXX} ${CXXFLAGS} -c $< -o $@
+#  cat $*.d >> Dependencies
+#  rm -f $*.d

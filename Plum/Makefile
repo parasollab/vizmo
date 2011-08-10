@@ -27,9 +27,9 @@ $(TARGET): ${OBJECTS} ${EnvOBJ} ${MapOBJ}
 	$(CC) -shared ${OBJECTS} ${EnvOBJ} ${MapOBJ} -Wl,-soname=`basename $@`.0 -o $@
 endif
 
-clean:
-	rm -f ${TARGET} ${OBJECTS} ${EnvOBJ} ${MapOBJ} Dependencies
-	touch Dependencies
+default_target: $(TARGET)
+
+CLEAN = ${TARGET} ${OBJECTS} ${EnvOBJ} ${MapOBJ} Dependencies
 
 -include Dependencies
 

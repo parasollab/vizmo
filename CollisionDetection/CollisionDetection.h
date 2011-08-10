@@ -19,7 +19,6 @@
 //include math files
 #include<Vector.h>
 #include<Matrix.h>
-using namespace mathtool;
 
 //EnvModel.h includes MultiBodyModel.h and EnvLoader.h
 #include "Plum/EnvObj/EnvModel.h"

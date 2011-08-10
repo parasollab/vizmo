@@ -12,7 +12,6 @@
 
 #include<Vector.h>
 #include<Matrix.h>
-using namespace mathtool;
 
 namespace plum{
 

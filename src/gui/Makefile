@@ -28,35 +28,25 @@ first: all
 ####### Build rules
 
 ifeq ($(RPM), 0)
-all: $(OBJECTS) $(OBJMOC)
+$(TARGET): $(OBJECTS) $(OBJMOC)
 	ar ruv $(TARGET) ${OBJECTS} $(OBJMOC)
 #	libtool -static -o $(TARGET) ${OBJECTS} $(OBJMOC)
 else
-all: $(OBJECTS) $(OBJMOC)
+$(TARGET): $(OBJECTS) $(OBJMOC)
 	$(CC) -shared $(OBJECTS) $(OBJMOC) -Wl,-soname=`basename $(TARGET)`.0 -o $(TARGET)
 endif
 
-$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) 
-	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
+#$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(all) 
+	#$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
 
 mocables: $(SRCMOC)
 
 #$(MOC): 
 #	( cd $(QTDIR)/src/moc ; $(MAKE) )
 
-mocclean:
-	-rm -f $(OBJMOC) $(SRCMOC)
+default_target: $(TARGET)
 
-clean: mocclean
-	-rm -f $(OBJECTS) Dependencies
-	-rm -f *~ core *.core $(TARGET)
-	touch Dependencies
-
-
-####### Sub-libraries
-
-distclean: clean
-	-rm -f $(TARGET) $(TARGET)
+CLEAN = $(OBJMOC) $(SRCMOC) $(OBJECTS) Dependencies *~ core *.core $(TARGET)
 
 FORCE:
 
