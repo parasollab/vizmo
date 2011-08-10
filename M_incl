@@ -12,7 +12,7 @@
 
 RPM = 0
 ifeq ($(RPM), 1)
-  OPTS+=-MMD -fPIC 
+  OPTS+=-fPIC 
 endif
 
 _64BIT = 0
@@ -69,7 +69,7 @@ QT4DIR = /usr/share/qt4/
 #--------------------------------------------------------------------------
  #RCD_DIR = /users/jdenny/PMPL/trunk/utils/geom/CD-libs
  RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
-
+ #RCD_DIR = /usr/include
  RAPID_DIR     = ${RCD_DIR}/RAPID
  RAPIDLIB_DIR  = ${RAPID_DIR}
  RAPIDLIB      = -L${RAPIDLIB_DIR} -lRAPID
