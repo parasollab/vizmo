@@ -6,7 +6,7 @@
 #define _MAPMODEL_H_
 
 #include <math.h>
-#include "mathtool/Gauss.h"
+#include "Gauss.h"
 #include "src/EnvObj/Robot.h"
 
 #include "MapLoader.h"

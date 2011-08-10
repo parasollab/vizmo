@@ -93,10 +93,9 @@ OPTS += -MMD -fPIC
 INCL = $(INCLUDE)
 LIBS = $(LIB)
 
-#--------------------------------------------------------------------
-#  .SUFIXES: .cpp
+%.o: %.cpp
+	@${MAKE} -s check_platform
+	${CXX} -c ${CXXFLAGS} ${OPTS} ${DEFS} ${INCL} ${DEPS} $< -o $@
+	cat $*.d >> Dependencies
+	rm -f $*.d
 
-#  .cpp.o:
-#  ${CXX} ${CXXFLAGS} -c $< -o $@
-#  cat $*.d >> Dependencies
-#  rm -f $*.d
