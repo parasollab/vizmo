@@ -61,20 +61,20 @@ GRAPH_INCL = -I$(GRAPH_DIR)
 
 # mathtool
 MATHTOOL_DIR = ${UTILS_DIR}/mathtool
-MATHTOOL_LIB = -L${MATHTOOL_DIR} -lmathtool
+MATHTOOL_LIB = -lmathtool
 MATHTOOL_INCL = -I${MATHTOOL_DIR}
 ${MATHTOOL_DIR}/libmathtool.a:
-	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug}
+	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libmathtool.a ../../lib
 
 MATHTOOL_LIBFILE = ${MATHTOOL_DIR}/libmathtool.a
 #--------------------------------------------------------------------------
 # collision detection
 #--------------------------------------------------------------------------
 RAPID_DIR     = $(UTILS_DIR)/geom/CD-libs/RAPID
-RAPID_LIB      = -L${RAPID_DIR} -lRAPID
+RAPID_LIB      = -lRAPID
 RAPID_INCL    = -I${RAPID_DIR}
 ${RAPID_DIR}/libRAPID.a:
-	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug}
+	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libRAPID.a ../../../../lib
 
 RAPID_LIBFILE = ${RAPID_DIR}/libRAPID.a
 
