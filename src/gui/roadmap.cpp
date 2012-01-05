@@ -132,7 +132,7 @@ void VizmoRoadmapGUI::createGUI()
    new QListWidgetItem(tr("Box"), listWidget);
    new QListWidgetItem(tr("Point"), listWidget);
    listWidget->setCurrentRow( 2 );
-   connect(listWidget,SIGNAL(currentItemChanged ( QListWidgetItem *, QListWidgetItem *)),this,SLOT(getSelectedItem()));  
+   connect(listWidget,SIGNAL(currentItemChanged ( QListWidgetItem *, QListWidadd_edgegetItem *)),this,SLOT(getSelectedItem()));  
    listWidget->setEnabled(false);
    // listWidget->resize (minimumSize);
    listWidget->setMinimumSize ( 60, 60 );
@@ -548,8 +548,7 @@ void VizmoRoadmapGUI::handleAddEdge()
    if(Node_Edge.size() == 2){
       cfg1 = (CCfg*)Node_Edge[0];
       cfg2 = (CCfg*)Node_Edge[1];
-      graph->AddEdge(cfg1->GetIndex(), cfg2->GetIndex(), 1);
-
+      graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1 );  
       //////////  Jun 16-05 ///////////////
       // Add edge to CCModel:
       // get a CC id
@@ -660,7 +659,7 @@ void VizmoRoadmapGUI::handleAddNode()
             }
             cfgNew->SetDof(m_dof);
             cfgNew->setCfg(tmp);
-            int vertx = graph->AddVertex(*cfgNew);
+            int vertx = graph->add_vertex(*cfgNew);
             cfgNew->setIndex(vertx);
 
             //add CC
@@ -823,12 +822,11 @@ void VizmoRoadmapGUI::createWindow(){
       WG * graph;
       CMapLoader<CCfg,CSimpleEdge> *m_loader=(CMapLoader<CCfg,CSimpleEdge>*)m_Map->getLoader();
       graph = m_loader->GetGraph();
-      int numVert = graph->GetVertexCount();
+      int numVert= graph->get_num_vertices();
       CCfg *cfgNew = new CCfg();
       cfgNew->setCfg(newNodeCfg);
       cfgNew->setIndex(numVert);
-
-      graph->AddVertex(*cfgNew);
+      graph->add_vertex(*cfgNew);
 
       //get mapModel and add a new elment to m_CCModels
       CMapModel<CCfg,CSimpleEdge>* mmodel =(CMapModel<CCfg,CSimpleEdge>*)m_Map->getModel();
@@ -926,8 +924,7 @@ bool VizmoRoadmapGUI::WriteHeader(const char *filename){
    CMapLoader<CCfg,CSimpleEdge> *m_loader=(CMapLoader<CCfg,CSimpleEdge>*)m_Map->getLoader();
    graph = m_loader->GetGraph();
 
-   graph->WriteGraph(outfile);
-
+   write_graph(*graph, outfile);
    outfile.close();
    return true;
 

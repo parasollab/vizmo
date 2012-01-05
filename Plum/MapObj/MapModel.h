@@ -13,6 +13,11 @@
 #include "CCModel.h"
 #include "PlumState.h"
 
+#include <algorithms/graph_algo_util.h>
+
+using namespace stapl;
+using namespace std;
+
 namespace plum{
     
     template <class Cfg, class WEIGHT>
@@ -20,6 +25,10 @@ namespace plum{
     {
         typedef CCModel<Cfg,WEIGHT> myCCModel;
 	typedef CMapLoader<Cfg,WEIGHT> Loader;
+        typedef graph<DIRECTED,MULTIEDGES,Cfg,WEIGHT> Weg;
+        typedef typename Weg::vertex_descriptor VID;
+        typedef vector_property_map<Weg, size_t> color_map_t;
+        color_map_t cmap;
     public:
         
         //////////////////////////////////////////////////////////////////////
@@ -132,21 +141,24 @@ namespace plum{
     template <class Cfg, class WEIGHT>
     bool CMapModel<Cfg, WEIGHT>::BuildModels()
     {
-
         //get graph
         if( m_mapLoader==NULL ) return false;
 		typename Loader::Wg * graph = m_mapLoader->GetGraph();
         if( graph==NULL ) return false;
         m_CCModels.clear(); //new line Jul-01-05
         //Get CCs
-        typedef typename vector< pair<int,VID> >::iterator CIT;//CC iterator
-        vector< pair<int,VID> > CCs;
-        if(graph!=NULL)
-		GetCCStats(*graph,CCs);
-        int CCSize=CCs.size();
+        typedef typename vector< pair<size_t,VID> >::iterator CIT;//CC iterator
+        vector<pair<size_t,VID> > ccs;
+        
+        if(graph!=NULL){
+          cmap.reset();
+          get_cc_stats(*graph,cmap,ccs);  
+        }
+                
+        int CCSize=ccs.size();
         m_CCModels.reserve(CCSize);
-        for( CIT ic=CCs.begin();ic!=CCs.end();ic++ ){
-            myCCModel * cc=new myCCModel(ic-CCs.begin());
+        for( CIT ic=ccs.begin();ic!=ccs.end();ic++ ){
+            myCCModel * cc=new myCCModel(ic-ccs.begin());
             cc->RobotModel(m_pRobot);    
             cc->BuildModels(ic->second,graph);   
             m_CCModels.push_back(cc);

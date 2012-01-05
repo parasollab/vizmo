@@ -1,17 +1,25 @@
 #ifndef _PLUM_CCMODEL_H_
 #define _PLUM_CCMODEL_H_
 
-#include <Graph.h>
+#include <graph.h>
+#include <graph_algo.h>
+#include <task.h>
+#include <graph_algo_util.h>
+#include <algorithms/connected_components.h>
+
 #include <iostream>
 #include <vector> 
 #include <string>
-using namespace std;
+
 
 #include "GLModel.h"
 #include "MapLoader.h"
 #include "Cfg.h"
 #include "SimpleCfg.h"
 #include "src/EnvObj/Robot.h"
+
+using namespace std;
+using namespace stapl;
 
 namespace plum{
 
@@ -168,7 +176,11 @@ namespace plum{
       void Draw( GLenum mode );
       void DrawSelect();
       void Select( unsigned int * index, vector<gliObj>& sel );
-      bool BuildModels(VID id,WG * g); //call this instread
+      typedef graph<DIRECTED,MULTIEDGES,Cfg,WEIGHT> WDG;
+      typedef typename WDG::vertex_descriptor VID;
+      typedef vector_property_map<WDG, size_t> color_map_t;
+      color_map_t cmap;
+      bool BuildModels( VID id,WG * g); //call this instread
       const string GetName() const;
       virtual list<string> GetInfo() const;
 
@@ -192,7 +204,13 @@ namespace plum{
       //add a new Edge (from the 'add edge' option) 
       //June 16-05
       void addEdge(Cfg * c1, Cfg *c2){
-         WEIGHT w=m_Graph->GetEdgeWeight(c1->GetIndex(),c2->GetIndex());
+         typename WDG::vertex_iterator vi ;
+         typename WDG::adj_edge_iterator ei;
+         typename  WDG::edge_descriptor ed(c1->GetIndex(),c2->GetIndex());
+            m_Graph->find_edge(ed, vi, ei);
+           
+            WEIGHT w  = (*ei).property();   
+             
          w.Set(m_Edges.size(),c1,c2);
          m_Edges.push_back(w);
       }
@@ -291,6 +309,7 @@ namespace plum{
       }
 
 
+
       virtual void GetChildren( list<CGLModel*>& models ){ 
          typedef vector<CCfg>::iterator NIT;
          for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++)
@@ -364,29 +383,36 @@ namespace plum{
          m_Graph=g;
          //Setup cc nodes
          vector<int> ccnid; //node id in this cc
-         GetCC(*g,id,ccnid);
+         vector<VID> cc;
+         cmap.reset();
+         get_cc(*g,cmap,id,cc);
          int nSize=ccnid.size(); 
+         typename WDG::vertex_iterator cvi,cvi2, vi ;
+         typename WDG::adj_edge_iterator ei;
          for( int iN=0; iN<nSize; iN++ ){
-            int nid=ccnid[iN];
-            Cfg cfg=*g->GetReferenceofData(nid);
+            int nid=ccnid[iN];    
+            Cfg cfg = (g->find_vertex(nid))->property();
             cfg.Set(nid,m_pRobot,this);
             m_Nodes.push_back(cfg);
          }
 
 
          //Setup edges
-         //m_Edges = g->GetCCEdges(id);
          vector< pair<VID,VID> > ccedges;
-         GetCCEdges(*g,ccedges,id);
+        
+         cmap.reset();
+         get_cc_edges(*g,cmap,ccedges,id);
          int eSize=ccedges.size();
          m_Edges.reserve(eSize/2);
          int edge_index=0;
          for( int iE=0; iE<eSize; iE++ ){
             if( ccedges[iE].first<ccedges[iE].second ) continue;
-            Cfg* cfg1=g->GetReferenceofData(ccedges[iE].first);
-            Cfg* cfg2=g->GetReferenceofData(ccedges[iE].second);
-            WEIGHT w=g->GetEdgeWeight(ccedges[iE].first,ccedges[iE].second);
-            w.Set(edge_index,cfg1,cfg2);
+            Cfg* cfg1= &((g->find_vertex(ccedges[iE].first) )->property() ) ;
+            Cfg* cfg2= &((g->find_vertex(ccedges[iE].second) )->property() );          
+            typename  WG::edge_descriptor ed(ccedges[iE].first,ccedges[iE].second);
+            g->find_edge(ed, vi, ei);
+            WEIGHT w  = (*ei).property(); 
+             w.Set(edge_index,cfg1,cfg2);
             edge_index++;
             m_Edges.push_back(w);
          }
@@ -535,7 +561,6 @@ namespace plum{
                }
             }
 
-
          }
 
          glEndList();
@@ -620,9 +645,11 @@ namespace plum{
       void CCModel<Cfg, WEIGHT>::
       Select( unsigned int * index, vector<gliObj>& sel )
       { 
+         typename WDG::vertex_iterator cvi;
          if( index==NULL || m_Graph==NULL ) return;
          if(index[0]==1){
-            CCfg* cfg=m_Graph->GetReferenceofData(index[1]);  
+            CCfg* cfg= &( (m_Graph->find_vertex(index[1]))->property());
+
             //cfg->SetShape((CCfg::Shape)m_sNodeShape);
             sel.push_back(cfg);
          }

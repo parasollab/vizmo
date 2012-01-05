@@ -11,11 +11,12 @@
 #endif
 
 #include "ILoadable.h"
-#include <Graph.h>
-#include <GraphAlgo.h>
+#include <graph.h>
+#include <algorithms/graph_algo_util.h>
+#include <algorithms/graph_input_output.h>
 #include <string>
 using namespace std;
-
+using namespace stapl;
 namespace plum{
 
     //This class Responsilbe for load header part of map file
@@ -91,14 +92,26 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
         //these two functions are only accessed from CMapModeler
         //WeightedMultiDiGraph<Cfg,WEIGHT> * GetGraph() { return m_Graph; }
-        typedef 
-        Graph<UG<Cfg,WEIGHT>,NMG<Cfg,WEIGHT>,WG<Cfg,WEIGHT>,Cfg,WEIGHT> Wg;
+        typedef graph<DIRECTED,MULTIEDGES,Cfg,WEIGHT> Wg;
+        typedef typename Wg::vertex_descriptor VID;
+        typedef typename Wg::vertex_iterator VI;
 	
 	
         Wg * GetGraph() { return m_Graph; }
         void InitGraph() {m_Graph = new Wg();}
         //void KillGraph(){ delete m_Graph; m_Graph=NULL; }
-
+        VID Cfg2VID(Cfg target){
+          VI vi;
+          VID tvid;
+          for(vi=GetGraph()->begin();vi!=GetGraph()->end();vi++){
+            if( target == (*vi).property() ){
+              tvid=(*vi).descriptor();   
+              break;
+            }
+         
+          }
+          return tvid;
+        }
 
 	//////////////////////////////////////////////////////////
 	// Called from VizmoRoadmapGUI::handleAddNode()
@@ -111,6 +124,7 @@ namespace plum{
         //////////////////////////////////////////////////////////////////////
     protected:        
         Wg * m_Graph;
+                
     };
 
     /*********************************************************************
@@ -157,7 +171,7 @@ namespace plum{
             cout<<"Graph null ..."<<endl;
             return false; 
         }
-        m_Graph->ReadGraph( fin ); 
+        read_graph(*m_Graph, fin);
         fin.close();      
 
         return true;

@@ -4,14 +4,27 @@
 
 #include "DebugModel.h"
 #include "Robot.h"
+#include <Cfg.h>
+#include <algorithms/dijkstra.h>
 
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
 #include <Plum.h>
 #include "GL/gliFont.h"
+using namespace stapl;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+struct my_edge_access_functor{
+
+  typedef double value_type;
+  template<typename Property>
+  value_type get(Property p) {return p.GetWeight();}
+
+  template<typename Property>
+  void put(Property p, value_type _v) {p.GetWeight()=_v; }
+  
+};
 
 CDebugModel::CDebugModel()
 {
@@ -21,6 +34,7 @@ CDebugModel::CDebugModel()
     m_mapLoader->InitGraph();
     m_pRobot=NULL;
     m_RenderMode=CPlumState::MV_INVISIBLE_MODE;
+    
 }
 
 CDebugModel::~CDebugModel()
@@ -41,8 +55,15 @@ CDebugModel::~CDebugModel()
 bool CDebugModel::BuildModels(){
   //can't build model without model loader
   if( m_pRobot==NULL || m_pDebugLoader==NULL ) return false;
+  typedef graph<DIRECTED,MULTIEDGES,CCfg,CSimpleEdge> WG;
+  typedef WG::vertex_iterator VI;
+  typedef WG::vertex_descriptor VID;
+  typedef WG::adj_edge_iterator EI ;
 
-
+  typedef vector_property_map<WG, size_t> color_map_t;
+  color_map_t cmap;
+  VID tvid,svid;
+  VI vi;
   ///////////////////////////////////////////////////////
   //Build Path Model
 
@@ -58,22 +79,25 @@ bool CDebugModel::BuildModels(){
     }
     else if(ins->name == "AddNode"){
       AddNode* an = dynamic_cast<AddNode*>(ins);
-      m_mapLoader->GetGraph()->AddVertex(an->cfg);
+      m_mapLoader->GetGraph()->add_vertex(an->cfg);
     }
     else if(ins->name == "AddEdge"){
       AddEdge* ae = dynamic_cast<AddEdge*>(ins);
       CSimpleEdge edge(1);
-      int tvid = m_mapLoader->GetGraph()->GetVID(ae->target);
-      int svid = m_mapLoader->GetGraph()->GetVID(ae->source);
-      CCfg* target = m_mapLoader->GetGraph()->GetReferenceofData(tvid);
-      CCfg* source = m_mapLoader->GetGraph()->GetReferenceofData(svid);
+      tvid = m_mapLoader->Cfg2VID(ae->target); 
+      CCfg* target = &((*vi).property());
+      svid = m_mapLoader->Cfg2VID(ae->source); 
+      CCfg* source = &((*vi).property());
+
       edge.Set(edgeNum++, &ae->source, &ae->target);
       float color[3] = {0,0,0};
-      vector<int> ccnid; //node id in this cc
-      vector<int> ccnid1; //node id in this cc
-      vector<int> ccnid2; //node id in this cc
-      GetCC(*(m_mapLoader->GetGraph()),tvid,ccnid1);
-      GetCC(*(m_mapLoader->GetGraph()),svid,ccnid2);
+      vector<VID> ccnid; //node id in this cc
+      
+      vector<VID> ccnid1; //node id in this cc     
+      vector<VID> ccnid2; //node id in this cc 
+      cmap.reset();
+      get_cc(*(m_mapLoader->GetGraph()), cmap, tvid, ccnid1);
+      get_cc(*(m_mapLoader->GetGraph()), cmap, svid, ccnid2);
       if(ccnid1.size()>ccnid2.size()){
         color[0] = target->GetColor()[0];
         color[1] = target->GetColor()[1];
@@ -87,19 +111,22 @@ bool CDebugModel::BuildModels(){
         ccnid = ccnid1;
       }
       for(size_t i = 0; i<ccnid.size(); i++){
-        CCfg* cfgcc = m_mapLoader->GetGraph()->GetReferenceofData(ccnid[i]);
+        CCfg* cfgcc = &((m_mapLoader->GetGraph()->find_vertex(ccnid[i]) )->property());
+
         cfgcc->SetColor(color[0],color[1],color[2],1);
-        vector<pair<pair<int,int>, CSimpleEdge> > incidentEdges;
-        m_mapLoader->GetGraph()->GetIncidentEdges(ccnid[i],incidentEdges);
-        for(size_t j = 0; j<incidentEdges.size(); j++){
-          incidentEdges[j].second.SetColor(color[0],color[1],color[2],1);
-          m_mapLoader->GetGraph()->ChangeEdgeWeight(incidentEdges[j].first.first, 
-                                                    incidentEdges[j].first.second,
-                                                    incidentEdges[j].second);
-        }
+        vector<pair<VID,VID> > incidentEdges; 
+        EI ei = (*vi).begin();
+        EI ei_end = (*vi).end();  
+         for(; ei != ei_end; ++ei){
+           
+          (*ei).property().SetColor(color[0],color[1],color[2],1) ;
+          cout<<(*ei).property().Weight();
+                     
+      }
+        
       }
       edge.SetColor(color[0],color[1],color[2],1);
-      m_mapLoader->GetGraph()->AddEdge(svid, tvid,edge);
+      m_mapLoader->GetGraph()->add_edge(svid, tvid,edge);
     }
     else if(ins->name == "AddTempCfg"){
       AddTempCfg* atc = dynamic_cast<AddTempCfg*>(ins);
@@ -136,11 +163,17 @@ bool CDebugModel::BuildModels(){
     }
     else if(ins->name == "RemoveNode"){
       RemoveNode* rn = dynamic_cast<RemoveNode*>(ins);
-      m_mapLoader->GetGraph()->DeleteVertex(rn->cfg);
+      VID xvid; 
+      xvid = m_mapLoader->Cfg2VID(rn->cfg); 
+      m_mapLoader->GetGraph()->delete_vertex(xvid);
     }
     else if(ins->name == "RemoveEdge"){
       RemoveEdge* re = dynamic_cast<RemoveEdge*>(ins);
-      m_mapLoader->GetGraph()->DeleteEdge(re->source, re->target);
+      VID xvid1; 
+      xvid1 = m_mapLoader->Cfg2VID(re->source); 
+      VID xvid2; 
+      xvid2 = m_mapLoader->Cfg2VID(re->target); 
+      m_mapLoader->GetGraph()->delete_edge(xvid1, xvid2);
     }
     else if(ins->name == "Comment"){
       Comment* c = dynamic_cast<Comment*>(ins);
@@ -150,7 +183,14 @@ bool CDebugModel::BuildModels(){
       Query* q = dynamic_cast<Query*>(ins);
       typedef vector<pair<CCfg, CSimpleEdge> > PATH;
       PATH path;
-      FindPathDijkstra(*(m_mapLoader->GetGraph()), q->source, q->target, path);
+      VID svid, tvid; 
+      vector<VID> vvector;
+      svid = m_mapLoader->Cfg2VID(q->source);
+      tvid = m_mapLoader->Cfg2VID(q->target);
+          
+      typedef edge_property_map<WG, my_edge_access_functor> edge_map_t;
+      edge_map_t edge_map(*(m_mapLoader->GetGraph()) );
+      find_path_dijkstra( *(m_mapLoader->GetGraph()), svid,tvid, vvector,edge_map);
       CCfg source = q->source, target;
       for(PATH::iterator pit = path.begin()+1; pit!=path.end(); pit++){
         target = pit->first;

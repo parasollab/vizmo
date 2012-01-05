@@ -56,7 +56,7 @@ QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCor
 
 QT_LIBS = $(SUBLIBS)  -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork  -lpthread -lXext -lz 
 
-GRAPH_DIR = $(VIZMO_DIR)/graph
+GRAPH_DIR = $(UTILS_DIR)/graph
 GRAPH_INCL = -I$(GRAPH_DIR)
 
 # mathtool
