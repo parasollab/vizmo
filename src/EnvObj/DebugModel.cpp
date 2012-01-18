@@ -190,7 +190,7 @@ bool CDebugModel::BuildModels(){
           
       typedef edge_property_map<WG, my_edge_access_functor> edge_map_t;
       edge_map_t edge_map(*(m_mapLoader->GetGraph()) );
-      find_path_dijkstra( *(m_mapLoader->GetGraph()), svid,tvid, vvector,edge_map);
+      find_path_dijkstra( *(m_mapLoader->GetGraph()), edge_map, svid,tvid, vvector);
       CCfg source = q->source, target;
       for(PATH::iterator pit = path.begin()+1; pit!=path.end(); pit++){
         target = pit->first;
