@@ -381,21 +381,19 @@ namespace plum{
       { 
          if( g==NULL ){cout<<"Graph is null"<<endl; return false;}
          m_Graph=g;
-         //Setup cc nodes
-         vector<int> ccnid; //node id in this cc
+         //Setup cc nodes        
          vector<VID> cc;
          cmap.reset();
          get_cc(*g,cmap,id,cc);
-         int nSize=ccnid.size(); 
+         int nSize=cc.size();    
          typename WDG::vertex_iterator cvi,cvi2, vi ;
          typename WDG::adj_edge_iterator ei;
          for( int iN=0; iN<nSize; iN++ ){
-            int nid=ccnid[iN];    
+            VID nid=cc[iN];    
             Cfg cfg = (g->find_vertex(nid))->property();
             cfg.Set(nid,m_pRobot,this);
             m_Nodes.push_back(cfg);
          }
-
 
          //Setup edges
          vector< pair<VID,VID> > ccedges;
