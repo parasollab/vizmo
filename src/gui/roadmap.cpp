@@ -132,7 +132,7 @@ void VizmoRoadmapGUI::createGUI()
    new QListWidgetItem(tr("Box"), listWidget);
    new QListWidgetItem(tr("Point"), listWidget);
    listWidget->setCurrentRow( 2 );
-   connect(listWidget,SIGNAL(currentItemChanged ( QListWidgetItem *, QListWidadd_edgegetItem *)),this,SLOT(getSelectedItem()));  
+   connect(listWidget,SIGNAL(currentItemChanged ( QListWidgetItem *, QListWidgetItem *)),this,SLOT(getSelectedItem()));  
    listWidget->setEnabled(false);
    // listWidget->resize (minimumSize);
    listWidget->setMinimumSize ( 60, 60 );

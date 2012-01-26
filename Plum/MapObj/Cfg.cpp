@@ -155,7 +155,7 @@ namespace plum{
                //change
                m_robot->SetColor(1,1,0,0);
                m_robot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
-               m_robot->Scale(1.1*m_Scale[0],1.1*m_Scale[1],1.1*m_Scale[2]);
+               m_robot->Scale(m_Scale[0],m_Scale[1],m_Scale[2]);
                m_robot->Configure(cfg);
                delete[] cfg;
                m_robot->DrawSelect();
