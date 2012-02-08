@@ -4,7 +4,6 @@
 
 #include "DebugModel.h"
 #include "Robot.h"
-#include <Cfg.h>
 #include <algorithms/dijkstra.h>
 
 //////////////////////////////////////////////////////////////////////
@@ -63,7 +62,6 @@ bool CDebugModel::BuildModels(){
   typedef vector_property_map<WG, size_t> color_map_t;
   color_map_t cmap;
   VID tvid,svid;
-  VI vi;
   ///////////////////////////////////////////////////////
   //Build Path Model
 
@@ -85,9 +83,9 @@ bool CDebugModel::BuildModels(){
       AddEdge* ae = dynamic_cast<AddEdge*>(ins);
       CSimpleEdge edge(1);
       tvid = m_mapLoader->Cfg2VID(ae->target); 
-      CCfg* target = &((*vi).property());
+      CCfg target = m_mapLoader->GetGraph()->find_vertex(tvid)->property();
       svid = m_mapLoader->Cfg2VID(ae->source); 
-      CCfg* source = &((*vi).property());
+      CCfg source = m_mapLoader->GetGraph()->find_vertex(svid)->property();
 
       edge.Set(edgeNum++, &ae->source, &ae->target);
       float color[3] = {0,0,0};
@@ -99,31 +97,27 @@ bool CDebugModel::BuildModels(){
       get_cc(*(m_mapLoader->GetGraph()), cmap, tvid, ccnid1);
       get_cc(*(m_mapLoader->GetGraph()), cmap, svid, ccnid2);
       if(ccnid1.size()>ccnid2.size()){
-        color[0] = target->GetColor()[0];
-        color[1] = target->GetColor()[1];
-        color[2] = target->GetColor()[2];
+        color[0] = target.GetColor()[0];
+        color[1] = target.GetColor()[1];
+        color[2] = target.GetColor()[2];
         ccnid = ccnid2;
       }
       else{
-        color[0] = source->GetColor()[0];
-        color[1] = source->GetColor()[1];
-        color[2] = source->GetColor()[2];
+        color[0] = source.GetColor()[0];
+        color[1] = source.GetColor()[1];
+        color[2] = source.GetColor()[2];
         ccnid = ccnid1;
       }
       for(size_t i = 0; i<ccnid.size(); i++){
-        CCfg* cfgcc = &((m_mapLoader->GetGraph()->find_vertex(ccnid[i]) )->property());
-
+        VI vi = m_mapLoader->GetGraph()->find_vertex(ccnid[i]);
+        CCfg* cfgcc = &(vi->property());
         cfgcc->SetColor(color[0],color[1],color[2],1);
         vector<pair<VID,VID> > incidentEdges; 
         EI ei = (*vi).begin();
         EI ei_end = (*vi).end();  
-         for(; ei != ei_end; ++ei){
-           
+        for(; ei != ei_end; ++ei){
           (*ei).property().SetColor(color[0],color[1],color[2],1) ;
-          cout<<(*ei).property().Weight();
-                     
-      }
-        
+        }
       }
       edge.SetColor(color[0],color[1],color[2],1);
       m_mapLoader->GetGraph()->add_edge(svid, tvid,edge);
@@ -169,9 +163,8 @@ bool CDebugModel::BuildModels(){
     }
     else if(ins->name == "RemoveEdge"){
       RemoveEdge* re = dynamic_cast<RemoveEdge*>(ins);
-      VID xvid1; 
+      VID xvid1, xvid2; 
       xvid1 = m_mapLoader->Cfg2VID(re->source); 
-      VID xvid2; 
       xvid2 = m_mapLoader->Cfg2VID(re->target); 
       m_mapLoader->GetGraph()->delete_edge(xvid1, xvid2);
     }
@@ -181,23 +174,23 @@ bool CDebugModel::BuildModels(){
     }
     else if(ins->name == "Query"){
       Query* q = dynamic_cast<Query*>(ins);
-      typedef vector<pair<CCfg, CSimpleEdge> > PATH;
-      PATH path;
       VID svid, tvid; 
-      vector<VID> vvector;
+      vector<VID> path;
       svid = m_mapLoader->Cfg2VID(q->source);
       tvid = m_mapLoader->Cfg2VID(q->target);
           
       typedef edge_property_map<WG, my_edge_access_functor> edge_map_t;
       edge_map_t edge_map(*(m_mapLoader->GetGraph()) );
-      find_path_dijkstra( *(m_mapLoader->GetGraph()), edge_map, svid,tvid, vvector);
+      find_path_dijkstra( *(m_mapLoader->GetGraph()), edge_map, svid,tvid, path);
       CCfg source = q->source, target;
-      for(PATH::iterator pit = path.begin()+1; pit!=path.end(); pit++){
-        target = pit->first;
-        CSimpleEdge e(1);
-        e.Set(1, &source, &target);
-        query.push_back(e);
-        source = target;
+      if(path.size()>0){
+        for(vector<VID>::iterator pit = path.begin()+1; pit!=path.end(); pit++){
+          target = m_mapLoader->GetGraph()->find_vertex(*pit)->property();
+          CSimpleEdge e(1);
+          e.Set(1, &source, &target);
+          query.push_back(e);
+          source = target;
+        }
       }
     }
     CMapModel<CCfg, CSimpleEdge>* mapModel = new CMapModel<CCfg, CSimpleEdge>();

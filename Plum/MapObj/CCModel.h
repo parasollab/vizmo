@@ -2,9 +2,6 @@
 #define _PLUM_CCMODEL_H_
 
 #include <graph.h>
-#include <graph_algo.h>
-#include <task.h>
-#include <graph_algo_util.h>
 #include <algorithms/connected_components.h>
 
 #include <iostream>
