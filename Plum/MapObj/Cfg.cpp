@@ -326,13 +326,28 @@ namespace plum{
    void CSimpleEdge::Draw(GLenum mode) 
    {
 
+      typedef vector<CCfg>::iterator CFGIT;
+
       glPushName(m_ID);
       if(m_RenderMode == CPlumState::MV_SOLID_MODE || m_RenderMode == CPlumState::MV_WIRE_MODE){
          glColor4fv(m_RGBA);
          glBegin( GL_LINES );
          glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );
+
+         for(CFGIT c = m_IntermediateCfgs.begin(); c != m_IntermediateCfgs.end(); c++) {
+           glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
+           glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
+         }
+         
          glVertex3d( m_e.tx(),m_e.ty(),m_e.tz() );
          glEnd();
+
+         //draw intermediate configurations
+         /*for(CFGIT c = m_IntermediateCfgs.begin();
+           c != m_IntermediateCfgs.end(); c++) 
+           c->Draw(mode);
+         */
+
       }
       glPopName();
    }
@@ -436,7 +451,21 @@ namespace plum{
 
    istream & operator>>( istream &  in, CSimpleEdge & edge )
    {
-      in >> edge.m_LP >> edge.m_Weight;
+      //in >> edge.m_LP >> edge.m_Weight;
+      //return in;
+
+      //cout << "operator >> (istream & in, CSimpleEdge & edge )" << endl;
+      int numIntermediates = 0;
+      CCfg cfgtmp;
+      in >> numIntermediates;
+      //cout << "edgeID " << edge.m_ID << endl; 
+      //cout << "numIntermediates " << numIntermediates << endl;
+      for(int i = 0; i < numIntermediates; i++) {
+        in >> cfgtmp;
+        edge.m_IntermediateCfgs.push_back(cfgtmp);
+      }
+      in >> edge.m_Weight;
+      //cout << "edgeWeight " << edge.m_Weight << endl;
       return in;
    }
 }//namespace plum

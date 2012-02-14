@@ -216,6 +216,10 @@ namespace plum{
       int    m_LP;
       double m_Weight;
       int m_ID;
+     
+      //allow an edge to contain a sequence of cfgs
+      vector <CCfg> m_IntermediateCfgs;
+
    };
 
 }//namespace plum
