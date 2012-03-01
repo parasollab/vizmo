@@ -58,6 +58,8 @@ namespace plum{
       CCfg();
       ~CCfg();
 
+			CCfg(const CCfg& _cfg);
+
       bool operator==( const CCfg & other ) const;
       void Set( int index , OBPRMView_Robot* robot, CCModelBase* cc);
 
@@ -109,6 +111,8 @@ namespace plum{
          }
          static int GetDof(void) { return dof; }
          CCModelBase * GetCC() const { return m_CC; }
+				 OBPRMView_Robot* GetRobot() const {return m_robot;}
+			
 
          static void SetDof(int d) { dof = d; }
          void SetShape(Shape shape){ m_Shape=shape; }
@@ -180,7 +184,7 @@ namespace plum{
 
       bool operator==( const CSimpleEdge & other );
       //void Set(const Point3d& p1, const Point3d& p2){ m_s=p1; m_e=p2; }
-      void Set(int id, CCfg * c1, CCfg * c2){ m_ID=id; m_s=*c1; m_e=*c2; }
+      void Set(int id, CCfg * c1, CCfg * c2, OBPRMView_Robot* _robot=NULL); 
 
       //////////////////////////////////////////////////////////////////////
       bool BuildModels(){ /*do nothing*/ return true; }
@@ -197,6 +201,30 @@ namespace plum{
       list<string> GetInfo() const;
       vector<int> GetEdgeNodes();
 
+      void SetCfgShape(char _shape) {
+        
+        switch (_shape) {
+
+          case 'r':
+            m_cfgShape = CCfg::Robot;
+            break;
+      
+          case 'b':
+            m_cfgShape = CCfg::Box;
+            break;
+
+          case 'p':
+            m_cfgShape = CCfg::Point;
+            break;
+  
+          default:
+            break;
+
+        }
+
+
+
+      }
 
       //////////////////////////////////////////////////////////////////////
       //      Access Method
@@ -205,6 +233,7 @@ namespace plum{
       double & GetWeight(){ return m_Weight; }
       double & Weight(){ return m_Weight; }
       int GetID() { return m_ID; }
+      const CCfg & GetStartCfg() { return m_s; }
       //////////////////////////////////////////////////////////////////////
       //      Protected Method & Data
       //////////////////////////////////////////////////////////////////////
@@ -216,7 +245,9 @@ namespace plum{
       int    m_LP;
       double m_Weight;
       int m_ID;
-     
+    
+      CCfg::Shape m_cfgShape;
+
       //allow an edge to contain a sequence of cfgs
       vector <CCfg> m_IntermediateCfgs;
 

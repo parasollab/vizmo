@@ -38,6 +38,21 @@ namespace plum{
       //m_Unknow1 = LONG_MAX; m_Unknow2 = LONG_MAX; m_Unknow3 = LONG_MAX;
    }
 
+	CCfg::CCfg(const CCfg& _cfg) {
+	
+			m_index = _cfg.m_index;
+			m_robot = _cfg.m_robot;
+			m_CC = _cfg.m_CC;
+			coll = _cfg.coll;
+			dofs = _cfg.dofs;
+			m_Shape = _cfg.m_Shape; 
+	
+			m_Unknow1 = _cfg.m_Unknow1;
+			m_Unknow2 = _cfg.m_Unknow2;
+			m_Unknow3 = _cfg.m_Unknow3;
+
+	 }
+
    void CCfg::Set( int index , OBPRMView_Robot* robot, CCModelBase* cc) 
    {   
       m_index = index;
@@ -54,8 +69,6 @@ namespace plum{
 
    void CCfg::DrawRobot(){
 
-      //cout << "draw robot" << endl;      
-
       if( m_robot==NULL ) return;
       //Dump();
       int dof=CCfg::dof;
@@ -65,7 +78,8 @@ namespace plum{
       }
       //CopyCfg();
       //backUp
-      float o_c[4]; memcpy(o_c,m_robot->GetColor(),4*sizeof(float));
+      float o_c[4];
+			memcpy(o_c,m_robot->GetColor(),4*sizeof(float));
       m_robot->RestoreInitCfg();
       m_robot->BackUp();
       glColor4fv(m_RGBA);
@@ -126,6 +140,7 @@ namespace plum{
       //cout << v[0] << endl;
 
       //cout << "drawing cfg" << endl;   
+
 
       switch(m_Shape){
          case Robot: DrawRobot(); break;
@@ -195,7 +210,7 @@ namespace plum{
 
    bool CCfg::operator==( const CCfg & other ) const {
       int dof=CCfg::dof;
-
+				
       if( dofs[0] != other.dofs[0] || 
             dofs[1] != other.dofs[1] || 
             dofs[2] != other.dofs[2] )
@@ -323,6 +338,20 @@ namespace plum{
       m_ID=-1;
    }
 
+	void CSimpleEdge::Set(int id, CCfg* c1, CCfg* c2, OBPRMView_Robot* _robot) {
+		m_ID=id;
+		m_s=*c1;
+		m_e=*c2;
+
+		typedef vector<CCfg>::iterator CIT;
+		for(CIT c = m_IntermediateCfgs.begin();
+		c != m_IntermediateCfgs.end(); c++) {
+			c->m_robot = _robot;
+		}
+
+
+	}
+
    void CSimpleEdge::Draw(GLenum mode) 
    {
 
@@ -334,7 +363,8 @@ namespace plum{
          glBegin( GL_LINES );
          glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );
 
-         for(CFGIT c = m_IntermediateCfgs.begin(); c != m_IntermediateCfgs.end(); c++) {
+         for(CFGIT c = m_IntermediateCfgs.begin();
+         c != m_IntermediateCfgs.end(); c++) {
            glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
            glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
          }
@@ -343,21 +373,31 @@ namespace plum{
          glEnd();
 
          //draw intermediate configurations
-         /*for(CFGIT c = m_IntermediateCfgs.begin();
-           c != m_IntermediateCfgs.end(); c++) 
-           c->Draw(mode);
-         */
+         if(m_cfgShape == CCfg::Box || m_cfgShape == CCfg::Robot) {
+           for(CFGIT c = m_IntermediateCfgs.begin();
+             c != m_IntermediateCfgs.end(); c++) { 
+             c->SetShape(m_cfgShape);
+             c->SetRenderMode(CPlumState::MV_WIRE_MODE);
+             c->Draw(mode);
+           }
+         } 
 
       }
       glPopName();
    }
-
+  
    void CSimpleEdge::DrawSelect()
    {
+      typedef vector<CCfg>::iterator CFGIT;
       glColor3d(1,1,0);
       glLineWidth(4);
       glBegin( GL_LINES );
       glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );
+      for(CFGIT c = m_IntermediateCfgs.begin();
+      c != m_IntermediateCfgs.end(); c++) {
+        glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
+        glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
+      }
       glVertex3d( m_e.tx(),m_e.ty(),m_e.tz() );
       glEnd();
    }
@@ -454,18 +494,16 @@ namespace plum{
       //in >> edge.m_LP >> edge.m_Weight;
       //return in;
 
-      //cout << "operator >> (istream & in, CSimpleEdge & edge )" << endl;
       int numIntermediates = 0;
-      CCfg cfgtmp;
-      in >> numIntermediates;
-      //cout << "edgeID " << edge.m_ID << endl; 
-      //cout << "numIntermediates " << numIntermediates << endl;
+      CCfg cfgtmp = edge.GetStartCfg();
+			in >> numIntermediates;
+
       for(int i = 0; i < numIntermediates; i++) {
         in >> cfgtmp;
         edge.m_IntermediateCfgs.push_back(cfgtmp);
       }
+
       in >> edge.m_Weight;
-      //cout << "edgeWeight " << edge.m_Weight << endl;
       return in;
    }
 }//namespace plum

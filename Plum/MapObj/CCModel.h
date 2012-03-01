@@ -407,7 +407,7 @@ namespace plum{
             typename  WG::edge_descriptor ed(ccedges[iE].first,ccedges[iE].second);
             g->find_edge(ed, vi, ei);
             WEIGHT w  = (*ei).property(); 
-             w.Set(edge_index,cfg1,cfg2);
+             w.Set(edge_index,cfg1,cfg2, m_pRobot);
             edge_index++;
             m_Edges.push_back(w);
          }
@@ -513,6 +513,8 @@ namespace plum{
          {
             int eSize=m_Edges.size();
             for( int iE=0; iE<eSize; iE++ ){
+							 cout << "setting cfg shape: " << m_shape << endl;
+               m_Edges[iE].SetCfgShape(m_shape);
                m_Edges[iE].Draw(m_RenderMode);
             }
          }   
