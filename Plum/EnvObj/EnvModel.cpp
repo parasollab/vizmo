@@ -48,7 +48,7 @@ namespace plum {
     
     void CEnvModel::Draw( GLenum mode )
     {
-        if( mode==GL_SELECT && !m_EnableSeletion ) return;
+        if( mode==GL_SELECT && !m_enableSelection ) return;
 	
         glLineWidth(1);
         int MBSize=m_pMBModel.size();

@@ -229,7 +229,7 @@ void CDebugModel::Draw( GLenum mode ){
       cfg[0]+=tmp->tx();
       cfg[1]+=tmp->ty();
       cfg[2]+=tmp->tz();
-      ray.setCfg(cfg);
+      ray.SetCfg(cfg);
       edge.Set(0, tmp, &ray);
       edge.SetColor(1,1,0,1);
       glLineWidth(4);

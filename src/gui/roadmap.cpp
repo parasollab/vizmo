@@ -658,16 +658,16 @@ void VizmoRoadmapGUI::handleAddNode()
                   tmp.push_back( rCfg[i] );
             }
             cfgNew->SetDof(m_dof);
-            cfgNew->setCfg(tmp);
+            cfgNew->SetCfg(tmp);
             int vertx = graph->add_vertex(*cfgNew);
-            cfgNew->setIndex(vertx);
+            cfgNew->SetIndex(vertx);
 
             //add CC
             //mmodel->AddCC(numVert);
             mmodel->BuildModels();
             GetVizmo().ShowRoadMap(true);
 
-            cfgNew->setCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
+            cfgNew->SetCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
 
             //GetVizmo().Display();
             //emit callUpdate();
@@ -824,15 +824,15 @@ void VizmoRoadmapGUI::createWindow(){
       graph = m_loader->GetGraph();
       int numVert= graph->get_num_vertices();
       CCfg *cfgNew = new CCfg();
-      cfgNew->setCfg(newNodeCfg);
-      cfgNew->setIndex(numVert);
+      cfgNew->SetCfg(newNodeCfg);
+      cfgNew->SetIndex(numVert);
       graph->add_vertex(*cfgNew);
 
       //get mapModel and add a new elment to m_CCModels
       CMapModel<CCfg,CSimpleEdge>* mmodel =(CMapModel<CCfg,CSimpleEdge>*)m_Map->getModel();
       mmodel->AddCC(numVert);    
 
-      cfgNew->setCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
+      cfgNew->SetCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
       //cfgNew->GetCC()->ReBuildAll();
 
 
@@ -1037,7 +1037,7 @@ void VizmoRoadmapGUI::updateNodeCfg(){
 
          VNodeCfg =  nodeGUI->getNodeCfg();
 
-         cfg->setCfg( VNodeCfg );
+         cfg->SetCfg( VNodeCfg );
          cfg->GetCC()->ReBuildAll();
          emit callUpdate();
       }

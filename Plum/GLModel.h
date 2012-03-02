@@ -28,13 +28,13 @@ namespace plum{
       public:
          CGLModel()
          { 
-            m_EnableSeletion=true; 
+            m_enableSelection=true; 
             m_RenderMode=CPlumState::MV_SOLID_MODE; 
          }
 
          CGLModel(const CGLModel& other) : gliTransform(other)
       {
-         m_EnableSeletion=other.m_EnableSeletion;
+         m_enableSelection=other.m_enableSelection;
          m_RenderMode=other.m_RenderMode;
          memcpy(m_RGBA,other.m_RGBA,4*sizeof(float));
       }
@@ -45,7 +45,7 @@ namespace plum{
          // Action functions
          //////////////////////////////////////////////////////////////////////
          virtual void EnableSelection( bool enable=true ){ 
-            m_EnableSeletion=enable; 
+            m_enableSelection=enable; 
          }
 
          virtual void Select( unsigned int * index, vector<gliObj>& sel ){/*nothing*/}
@@ -82,7 +82,7 @@ namespace plum{
             virtual bool KP( QKeyEvent * e ) {return true;}
 
       public:
-            bool  m_EnableSeletion;
+            bool  m_enableSelection;
             int   m_RenderMode;     //wire or solid or hide
 
             float m_RGBA[4];        //Color

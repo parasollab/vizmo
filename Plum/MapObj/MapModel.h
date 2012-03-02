@@ -126,7 +126,7 @@ namespace plum{
         m_mapLoader = NULL;
         m_RenderMode = CPlumState::MV_INVISIBLE_MODE;
         m_pRobot=NULL;
-		m_EnableSeletion=true; //disable selection
+		m_enableSelection=true; //disable selection
     }
     
     template <class Cfg, class WEIGHT>
@@ -172,7 +172,7 @@ namespace plum{
         void CMapModel<Cfg, WEIGHT>::Draw( GLenum mode ) {
         
         if( m_RenderMode == CPlumState::MV_INVISIBLE_MODE ) return;
-        if( mode==GL_SELECT && !m_EnableSeletion ) return;
+        if( mode==GL_SELECT && !m_enableSelection ) return;
         //Draw each CC
 	int size = 0;
         typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
