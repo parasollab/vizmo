@@ -36,7 +36,7 @@ GL_LIB = -lglut -lGLU -lGL -lm
 GL_INCL = -I/usr/include/GL/
 
 GLI_DIR = $(VIZMO_DIR)
-GLI_INCL = -I$(GLI_DIR)
+GLI_INCL = -I$(GLI_DIR) -I/sw/include -I/usr/X11/include  -I/usr/X11/include/GL -I$(GLI_DIR)
 GLI_LIB = -L$(GLI_DIR)/lib -lgli
 #--------------------------------------------------------------------
 
@@ -45,12 +45,13 @@ PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/modelgraph
 PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph
 
 #MOC	 = /usr/lib/qt4/bin/moc
-MOC	 = /usr/share/qt4/bin/moc
-#MOC      = /usr/lib64/qt4/bin/moc
+#MOC	 = /usr/share/qt4/bin/moc
+#MOC = /sw/lib/qt4-x11/bin/moc
+MOC      = /usr/lib64/qt4/bin/moc
 
 #QT4DIR = /usr/lib/qt4
-QT4DIR = /usr/share/qt4
-#QT4DIR = /usr
+QT4DIR = /usr/
+#QT4DIR = /sw/lib/qt4-x11/
 
 QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT -I.
 
@@ -61,17 +62,27 @@ GRAPH_INCL = -I$(GRAPH_DIR)
 
 # mathtool
 MATHTOOL_DIR = ${UTILS_DIR}/mathtool
-MATHTOOL_LIB = -lmathtool
+MATHTOOL_LIB = -L${MATHTOOL_DIR} -lmathtool
 MATHTOOL_INCL = -I${MATHTOOL_DIR}
 ${MATHTOOL_DIR}/libmathtool.a:
 	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libmathtool.a ../../lib
 
 MATHTOOL_LIBFILE = ${MATHTOOL_DIR}/libmathtool.a
+
+# modelloader
+MODELLOADER_DIR = ${UTILS_DIR}/modelloader
+MODELLOADER_LIB = -L${MODELLOADER_DIR} -lmodloader
+MODELLOADER_INCL = -I${MODELLOADER_DIR}
+${MODELLOADER_DIR}/libmodloader.a: 
+	cd ${MODELLOADER_DIR}; ${MAKE} platform=${platform} debug=${debug}
+
+MODELLOADER_LIBFILE = ${MODELLOADER_DIR}/libmodloader.a
+
 #--------------------------------------------------------------------------
 # collision detection
 #--------------------------------------------------------------------------
 RAPID_DIR     = $(UTILS_DIR)/geom/CD-libs/RAPID
-RAPID_LIB      = -lRAPID
+RAPID_LIB      = -L$(RAPID_DIR) -lRAPID
 RAPID_INCL    = -I${RAPID_DIR}
 ${RAPID_DIR}/libRAPID.a:
 	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libRAPID.a ../../../../lib
@@ -84,9 +95,9 @@ CD_LIB = -L$(CD_DIR)/lib -lCD -lPlum
 #-------------------------------------------------------------------------
 
 INCLUDE = -I. -I/usr/X11R6/include -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(CD_INCL) \
-          $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL) $(MATHTOOL_INCL)
+          $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL)
 LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPID_LIB} \
-      ${Phantom_LIB} $(MATHTOOL_LIB)
+      ${Phantom_LIB} $(MATHTOOL_LIB) $(MODELLOADER_LIB)
 
 # macros
 OPTS += -MMD -fPIC 

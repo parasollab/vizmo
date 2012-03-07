@@ -11,16 +11,16 @@ using namespace std;
 
 namespace plum{
 
-    class CBodyInfo;
-    class CConnectionInfo;
+  class CBodyInfo;
+  class CConnectionInfo;
 
-    //////////////////////////////////////////////////////////////////////
-    //
-    // CMultiBodyInfo
-    //
-    //////////////////////////////////////////////////////////////////////
-    class CMultiBodyInfo {
-      
+  //////////////////////////////////////////////////////////////////////
+  //
+  // CMultiBodyInfo
+  //
+  //////////////////////////////////////////////////////////////////////
+  class CMultiBodyInfo {
+
     public:
       //////////////////////////////////////////////////////////////////////
       // Constructor/Destructor
@@ -30,22 +30,23 @@ namespace plum{
       ~CMultiBodyInfo();
       void operator=( const CMultiBodyInfo & other );
       friend ostream & operator<<( ostream & out, const CMultiBodyInfo & mbody );
-      
+
       int m_cNumberOfBody; //Total number of bodies
       int m_NumberOfConnections; //how many connections there are
       bool m_active; //Active or passive?
+      bool m_surface;//is surface? default is false
 
       CBodyInfo * m_pBodyInfo;
       vector< pair<int, int> > listConnections;     
-    };
-    
-    //////////////////////////////////////////////////////////////////////
-    //
-    // CBodyInfo
-    //
-    //////////////////////////////////////////////////////////////////////
-    class CBodyInfo {
-      
+  };
+
+  //////////////////////////////////////////////////////////////////////
+  //
+  // CBodyInfo
+  //
+  //////////////////////////////////////////////////////////////////////
+  class CBodyInfo {
+
     public:
       //////////////////////////////////////////////////////////////////////
       // Constructor/Destructor
@@ -71,7 +72,7 @@ namespace plum{
 
       void operator=( const CBodyInfo & other );
       friend ostream & operator<<( ostream & out, const CBodyInfo & body );
-      
+
       bool m_bIsFixed;
       bool m_IsBase;
       bool m_transformDone;
@@ -83,20 +84,21 @@ namespace plum{
       double m_X, m_Y, m_Z;
       double m_Alpha, m_Beta, m_Gamma;
       float rgb[3]; //store initial color (read from env. file)
-      
+      bool m_IsSurface;
+
       int m_cNumberOfConnection;
       CConnectionInfo * m_pConnectionInfo;
       Transformation m_currentTransform, m_prevTransform;
 
-    };
-    
-    //////////////////////////////////////////////////////////////////////
-    //
-    // ConnectionInfo
-    //
-    //////////////////////////////////////////////////////////////////////
+  };
 
-    class CConnectionInfo {
+  //////////////////////////////////////////////////////////////////////
+  //
+  // ConnectionInfo
+  //
+  //////////////////////////////////////////////////////////////////////
+
+  class CConnectionInfo {
 
     public:
       //////////////////////////////////////////////////////////////////////
@@ -114,7 +116,7 @@ namespace plum{
       int getNextBody(){return m_nextIndex;}
       void operator=( const CConnectionInfo & other );
       friend ostream & operator<<( ostream & out, const CConnectionInfo & con );
-      
+
       int m_preIndex;
       int m_nextIndex;
       double m_posX, m_posY, m_posZ;
@@ -127,9 +129,9 @@ namespace plum{
       bool m_actuated;
       double m_pos2X, m_pos2Y, m_pos2Z;
       double m_orient2X, m_orient2Y, m_orient2Z;
-      
-    };
-    
+
+  };
+
 }//namespace plum
 
 #endif //_MultiBodyInfo_H_

@@ -1,6 +1,6 @@
 include M_incl
 
-default_target: $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) vizmo
+default_target: $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE) vizmo
 
 vizmo:
 	cd GL; ${MAKE}

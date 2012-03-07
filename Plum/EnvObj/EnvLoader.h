@@ -85,6 +85,8 @@ namespace plum{
       int m_cNumberOfMultiBody;
       CMultiBodyInfo * m_pMBInfo;
       int preIndx, nextIndx;
+
+      bool m_ContainsSurfaces;
     };
   
 }//namespace plum
