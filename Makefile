@@ -27,3 +27,4 @@ reallyreallyclean:
 	@${MAKE} reallyclean
 	cd $(RAPID_DIR); ${MAKE} clean
 	cd $(MATHTOOL_DIR); ${MAKE} clean
+	cd $(MODELLOADER_DIR); ${MAKE} clean
