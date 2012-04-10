@@ -20,7 +20,7 @@ reallyclean:
 	cd CollisionDetection; ${MAKE} clean
 	cd src/gui; ${MAKE} clean
 	cd src; ${MAKE} clean
-	find -name *.d | xargs rm -rf
+	#find -name *.d | xargs rm -rf
 	rm -f lib/*.a lib/*.so
 
 reallyreallyclean:

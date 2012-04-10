@@ -5,7 +5,7 @@ endif
 
 # set default debug
 ifndef debug
-  debug = 0
+  debug = 1
 endif
 
 # set directory paths
@@ -36,26 +36,35 @@ GL_LIB = -lglut -lGLU -lGL -lm
 GL_INCL = -I/usr/include/GL/
 
 GLI_DIR = $(VIZMO_DIR)
-GLI_INCL = -I$(GLI_DIR) -I/sw/include -I/usr/X11/include  -I/usr/X11/include/GL -I$(GLI_DIR)
-GLI_LIB = -L$(GLI_DIR)/lib -lgli
+GLI_INCL = -I/sw/include -I/usr/X11/include  -I/usr/X11/include/GL
+GLI_LIB = -lgli
 #--------------------------------------------------------------------
 
-PLUM_DIR = $(VIZMO_DIR)
-PLUM_INCL = -I$(PLUM_DIR)/Plum -I$(PLUM_DIR)/modelgraph
-PLUM_LIB = -L$(PLUM_DIR)/lib -lPlum -lmodelgraph
+VIZMO_INCL = -I$(VIZMO_DIR)
+VIZMO_LIB = -L$(VIZMO_DIR)/lib
+
+MODELGRAPH_DIR = $(VIZMO_DIR)/modelgraph
+MODELGRAPH_INCL = -I$(MODELGRAPH_DIR)
+MODELGRAPH_LIB = -lmodelgraph
+
+PLUM_DIR = $(VIZMO_DIR)/Plum
+PLUM_INCL = -I$(PLUM_DIR)
+PLUM_LIB = -lPlum
+
+VGUI_LIB = -lvgui
 
 #MOC	 = /usr/lib/qt4/bin/moc
-#MOC	 = /usr/share/qt4/bin/moc
+MOC	 = /usr/share/qt4/bin/moc
 #MOC = /sw/lib/qt4-x11/bin/moc
-MOC      = /usr/lib64/qt4/bin/moc
+#MOC      = /usr/lib64/qt4/bin/moc
 
 #QT4DIR = /usr/lib/qt4
-QT4DIR = /usr/
+QT4DIR = /usr/share/qt4
+#QT4DIR = /usr/
 #QT4DIR = /sw/lib/qt4-x11/
 
-QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT -I.
-
-QT_LIBS = $(SUBLIBS)  -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork  -lpthread -lXext -lz 
+QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT
+QT_LIBS = -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork  -lpthread -lXext -lz 
 
 GRAPH_DIR = $(UTILS_DIR)/graph
 GRAPH_INCL = -I$(GRAPH_DIR)
@@ -89,14 +98,15 @@ ${RAPID_DIR}/libRAPID.a:
 
 RAPID_LIBFILE = ${RAPID_DIR}/libRAPID.a
 
-CD_DIR = $(VIZMO_DIR)
-CD_INCL = -I$(CD_DIR)/CollisionDetection -I$(CD_DIR)/Plum
-CD_LIB = -L$(CD_DIR)/lib -lCD -lPlum                   
+CD_DIR = $(VIZMO_DIR)/CollisionDetection
+CD_INCL = -I$(CD_DIR)
+CD_LIB = -lCD
 #-------------------------------------------------------------------------
 
-INCLUDE = -I. -I/usr/X11R6/include -I/usr/local/include $(PLUM_INCL) $(GLI_INCL) $(CD_INCL) \
+#INCLUDE = \ #-I. -I/usr/X12R6/include -I/usr/local/include 
+INCLUDE = $(VIZMO_INCL) $(PLUM_INCL) $(MODELGRAPH_INCL) $(GLI_INCL) $(CD_INCL) \
           $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL)
-LIB = $(PLUM_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPID_LIB} \
+LIB = $(VIZMO_LIB) $(PLUM_LIB) $(MODELGRAPH_LIB) $(VGUI_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPID_LIB} \
       ${Phantom_LIB} $(MATHTOOL_LIB) $(MODELLOADER_LIB)
 
 # macros

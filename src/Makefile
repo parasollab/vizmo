@@ -1,3 +1,4 @@
+INCPATH = -I.
 VIZMO_DIR = ..
 include $(VIZMO_DIR)/M_incl
 
@@ -22,12 +23,12 @@ GUIOBJ = -lvgui
 
 #--------------------------------------------------------------------
 
-ifeq ($RPM), 0)
+ifeq ($(RPM), 0)
 $(target):  ${EnvOBJ} ${OBJS}
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) ${EnvOBJ} ${GUIOBJ} ${LIB}
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) ${EnvOBJ} ${LIB}
 else
 $(target):  ${EnvOBJ} ${OBJS}
-	$(CXX) $(CXXFLAGS) -Wl,-rpath=/usr/lib/vizmo++ -o $@ $(OBJS) ${EnvOBJ} ${GUIOBJ} ${LIB}
+	$(CXX) $(CXXFLAGS) -Wl,-rpath=/usr/lib/vizmo++ -o $@ $(OBJS) ${EnvOBJ} ${LIB}
 endif
 
 default_target: $(target)
