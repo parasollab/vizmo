@@ -18,7 +18,7 @@ UTILS_DIR = $(VIZMO_DIR)/utils
 # include makefile defaults
 include ${UTILS_DIR}/makefile_includes/Makefile.defaults
 
-RPM = 1
+RPM = 0
 ifeq ($(RPM), 1)
   OPTS+=-fPIC 
 endif
@@ -28,7 +28,7 @@ endif
 # Xlib
 #--------------------------------------------------------------------
 
-X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXrandr -lXcursor -lXinerama -lXfixes
+#X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXrandr -lXcursor -lXinerama -lXfixes
 
 #Phantom_LIB = -lHD -lHDU -lrt
 
@@ -54,16 +54,16 @@ PLUM_LIB = -lPlum
 VGUI_LIB = -lvgui
 
 #MOC	 = /usr/lib/qt4/bin/moc
-MOC      = /usr/lib64/qt4/bin/moc
-#MOC	 = /usr/share/qt4/bin/moc
+#MOC      = /usr/lib64/qt4/bin/moc
+MOC	 = /usr/share/qt4/bin/moc
 #MOC = /sw/lib/qt4-x11/bin/moc
 
-QT4DIR = /usr/
-#QT4DIR = /usr/share/qt4
+#QT4DIR = /usr/
+QT4DIR = /usr/share/qt4
 #QT4DIR = /sw/lib/qt4-x11/
 
 QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT
-QT_LIBS = -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork  -lpthread -lXext -lz 
+QT_LIBS = -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork -lpthread #-lXext -lz 
 
 GRAPH_DIR = $(UTILS_DIR)/graph
 GRAPH_INCL = -I$(GRAPH_DIR)
