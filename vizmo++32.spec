@@ -9,21 +9,20 @@
 # mv vizmo/trunk vizmo++-0-`date +%Y.%m.%d`
 # tar cvzf vizmo++-0-`date +%Y.%m.%d`.tar.gz vizmo++-0-`date +%Y.%m.%d`
 #
-%define date 2011.01.14
+%define date 2012.05.24
 Name: vizmo++
 Summary: vizmo++ - A visualization/authoring tool for motion planning 
-Version: 0 
+Version: 3 
 Release: %{date}%{dist}
 License: Copyright 2011, Parasol Lab, Texas A&M University.  All Rights Reserved.
 Group: Application/Engineering
 Source: %{name}-%{version}-%{date}.tar.gz
-# CR_icra06.pdf from http://parasol.tamu.edu/publications/download.php?file_id=519
 URL: http://parasol.tamu.edu/groups/amatogroup/research/vizmo++/
-Packager: Jory Denny <jdenny@neo.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
+Packager: Jory Denny <jdenny@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot
 Patch1: vizmo++-rpm32.diff
-Requires: RAPID qt4
-BuildRequires: RAPID-devel qt4-devel
+Requires: qt4
+BuildRequires: qt4-devel
 
 %description
 VIZMO is a 3D visualization/authoring tool for files 
@@ -41,17 +40,19 @@ users to interact with and edit the environment.
 %patch1
 
 %build
-make -f Makefile.linux
+make
 
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/bin
+rm -f %{buildroot}/usr/bin/vizmo++
 install %{name} %{buildroot}/usr/bin
+rm -rf %{buildroot}/usr/lib/vizmo++
 mkdir -p %{buildroot}/usr/lib/vizmo++
 cd lib
-for file in `ls *.so` ; do
+for file in `ls *.so *.a` ; do
   install $file %{buildroot}/usr/lib/vizmo++/$file.%{version}.%{release}
-  #ln -s %{buildroot}/usr/lib/vizmo++/$file.%{version}.%{release} $file.%{version}
+  #ln -s %{buildroot}/usr/lib/vizmo++/$file.%{version}.%{release} $file.0
 done
 cd ..
 
@@ -64,7 +65,7 @@ echo "/usr/lib/vizmo++" > /etc/ld.so.conf.d/vizmo++-i386.conf
 
 %postun
 rm -rf /usr/lib/vizmo++
-rm /etc/ld.so.conf.d/vizmo++-i386.conf
+rm -f /etc/ld.so.conf.d/vizmo++-i386.conf
 /sbin/ldconfig
 
 %files
@@ -72,8 +73,8 @@ rm /etc/ld.so.conf.d/vizmo++-i386.conf
 /usr/lib/%{name}
 
 %changelog
-* Fri Jan 14 2011 Jory Denny <jdenny@neo.tamu.edu> 0-14jan2011 
-- Initial version
+* Thu May 24 2012 Jory Denny <jdenny@cse.tamu.edu> 3-24may2012 
+- Version 3 - new environment definition
 
 # EOF - vizmo++.spec
 

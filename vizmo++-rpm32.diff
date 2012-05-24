@@ -1,23 +1,30 @@
 Index: M_incl
 ===================================================================
---- M_incl	(revision 189)
+--- M_incl	(revision 224)
 +++ M_incl	(working copy)
-@@ -10,7 +10,7 @@
-  #OPTS = -g -MMD -W
-  #OPTS = -ggdb -Wall -Wno-deprecated #-DUSE_PHANTOM
+@@ -18,7 +18,7 @@
+ # include makefile defaults
+ include ${UTILS_DIR}/makefile_includes/Makefile.defaults
  
 -RPM = 0
 +RPM = 1
  ifeq ($(RPM), 1)
-   OPTS+=-MMD -fPIC 
+   OPTS+=-fPIC 
  endif
-@@ -68,7 +68,8 @@
- # collision detection
- #--------------------------------------------------------------------------
-  #RCD_DIR = /users/jdenny/PMPL/trunk/utils/geom/CD-libs
-- RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
-+ #RCD_DIR = /home/jdenny/PMPL/trunk/utils/geom/CD-libs
-+RCD_DIR = /usr/include
+@@ -53,13 +53,13 @@
  
-  RAPID_DIR     = ${RCD_DIR}/RAPID
-  RAPIDLIB_DIR  = ${RAPID_DIR}
+ VGUI_LIB = -lvgui
+ 
+-#MOC	 = /usr/lib/qt4/bin/moc
+-MOC	 = /usr/share/qt4/bin/moc
++MOC	 = /usr/lib/qt4/bin/moc
++#MOC	 = /usr/share/qt4/bin/moc
+ #MOC = /sw/lib/qt4-x11/bin/moc
+ #MOC      = /usr/lib64/qt4/bin/moc
+ 
+-#QT4DIR = /usr/lib/qt4
+-QT4DIR = /usr/share/qt4
++QT4DIR = /usr/
++#QT4DIR = /usr/share/qt4
+ #QT4DIR = /usr/
+ #QT4DIR = /sw/lib/qt4-x11/

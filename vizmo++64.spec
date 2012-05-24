@@ -9,15 +9,14 @@
 # mv vizmo/trunk vizmo++-0-`date +%Y.%m.%d`
 # tar cvzf vizmo++-0-`date +%Y.%m.%d`.tar.gz vizmo++-0-`date +%Y.%m.%d`
 #
-%define date 2011.10.13
+%define date 2012.05.24
 Name: vizmo++
 Summary: vizmo++ - A visualization/authoring tool for motion planning 
-Version: 2
+Version: 3
 Release: %{date}%{dist}
-License: Copyright 2011, Parasol Lab, Texas A&M University.  All Rights Reserved.
+License: Copyright 2012, Parasol Lab, Texas A&M University.  All Rights Reserved.
 Group: Application/Engineering
 Source: %{name}-%{version}-%{date}.tar.gz
-# CR_icra06.pdf from http://parasol.tamu.edu/publications/download.php?file_id=519
 URL: http://parasol.tamu.edu/groups/amatogroup/research/vizmo++/
 Packager: Jory Denny <jdenny@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot
@@ -46,12 +45,14 @@ make
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/bin
+rm -f %{buildroot}/usr/bin/vizmo++
 install %{name} %{buildroot}/usr/bin
+rm -rf %{buildroot}/usr/lib64/vizmo++
 mkdir -p %{buildroot}/usr/lib64/vizmo++
 cd lib
 for file in `ls *.so *.a` ; do
   install $file %{buildroot}/usr/lib64/vizmo++/$file.%{version}.%{release}
-  ln -s %{buildroot}/usr/lib64/vizmo++/$file.%{version}.%{release} $file.0
+  #ln -s %{buildroot}/usr/lib64/vizmo++/$file.%{version}.%{release} $file.0
 done
 cd ..
 
@@ -64,7 +65,7 @@ echo "/usr/lib64/vizmo++" > /etc/ld.so.conf.d/vizmo++-x86_64.conf
 
 %postun
 rm -rf /usr/lib64/vizmo++
-rm /etc/ld.so.conf.d/vizmo++-x86_64.conf
+rm -f /etc/ld.so.conf.d/vizmo++-x86_64.conf
 /sbin/ldconfig
 
 %files
@@ -72,8 +73,8 @@ rm /etc/ld.so.conf.d/vizmo++-x86_64.conf
 /usr/lib64/%{name}
 
 %changelog
-* Thu Oct 13 2011 Jory Denny <jdenny@cse.tamu.edu> 2-13oct2011 
-- Second version
+* Thu May 24 2012 Jory Denny <jdenny@cse.tamu.edu> 3-24may2012 
+- Version 3 - new environment definition
 
 # EOF - vizmo++.spec
 
