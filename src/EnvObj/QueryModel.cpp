@@ -60,7 +60,7 @@ bool CQueryModel::BuildModels(){
     glLineWidth(0.5);
  
     for( unsigned int iQ=0; iQ<iQSize; iQ++ ){
-        double * Cfg = m_pQueryLoader->GetStartGoal(iQ);
+        vector<double> Cfg = m_pQueryLoader->GetStartGoal(iQ);
         m_pRobot->Configure(Cfg);
         if(iQ==1) m_pRobot->SetColor(1,0.6,0,0);
         m_pRobot->Draw(GL_RENDER);
@@ -68,8 +68,6 @@ bool CQueryModel::BuildModels(){
         glColor3d(0.1,0.1,0.1);
         if( iQ==0 ) drawstr(Cfg[0]-0.5,Cfg[1]-0.5,Cfg[2],"S");
         else drawstr(Cfg[0]-0.2,Cfg[1]-0.2,Cfg[2],"G");
-
-        delete [] Cfg;
     }
     glEndList();
     
@@ -97,7 +95,7 @@ list<string> CQueryModel::GetInfo() const
   int dof = m_pRobot->returnDOF();
   int i;
   //get Query configurations
-  vector<double*> m_cfg;
+  vector<vector<double> > m_cfg;
   m_cfg.clear();
   m_cfg.push_back(m_pQueryLoader->GetStartGoal(0) );
   m_cfg.push_back( m_pQueryLoader->GetStartGoal(1) );

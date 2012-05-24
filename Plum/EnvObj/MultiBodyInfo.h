@@ -1,11 +1,12 @@
-#ifndef _MultiBodyInfo_H_
-#define _MultiBodyInfo_H_
+#ifndef MULTIBODYINFO_H_
+#define MULTIBODYINFO_H_
 
 #include <iostream>
 #include <string>
 using namespace std;
 
 #include "Transformation.h"
+#include "RobotInfo.h"
 
 //class Transformation;
 
@@ -38,6 +39,9 @@ namespace plum{
 
       CBodyInfo * m_pBodyInfo;
       vector< pair<int, int> > listConnections;     
+  
+      Robot::JointMap& GetJointMap() {return jointMap;}
+      Robot::JointMap jointMap;
   };
 
   //////////////////////////////////////////////////////////////////////
@@ -68,7 +72,7 @@ namespace plum{
       Transformation getTransform();
       ///@Compute prevtranform * TDH * dh * TBody2
       ///@receives the Body THIS body is connected to, the id of that connection and the new thetha
-      void computeTransform(CBodyInfo &BodyInfo, int nextBody, double _theta);
+      void computeTransform(CBodyInfo &BodyInfo, int nextBody);
 
       void operator=( const CBodyInfo & other );
       friend ostream & operator<<( ostream & out, const CBodyInfo & body );
@@ -90,6 +94,16 @@ namespace plum{
       CConnectionInfo * m_pConnectionInfo;
       Transformation m_currentTransform, m_prevTransform;
 
+      bool IsBase() { return isBase; };
+      Robot::Base GetBase() { return baseType; };
+      Robot::BaseMovement GetBaseMovement() { return baseMovementType; };
+      void SetBase(Robot::Base _baseType) { baseType = _baseType; };
+      void SetBaseMovement(Robot::BaseMovement _baseMovementType) { baseMovementType = _baseMovementType; };
+
+      bool isBase;                           ///<Is this a base?
+    private:
+      Robot::Base baseType;                  ///<If its a base, this needs to be set later
+      Robot::BaseMovement baseMovementType;  ///<If its a base, this also needs to be set
   };
 
   //////////////////////////////////////////////////////////////////////
@@ -119,14 +133,15 @@ namespace plum{
 
       int m_preIndex;
       int m_nextIndex;
+      //translation and rotation to NextBody
       double m_posX, m_posY, m_posZ;
       double m_orientX, m_orientY, m_orientZ;
       double alpha, theta, a, d;
       // this will keep the original theta value read
       //for Revolute joints, theta is variable
       double m_theta; 
-      string m_articulation;      
       bool m_actuated;
+      //translation and rotation to DHFrame
       double m_pos2X, m_pos2Y, m_pos2Z;
       double m_orient2X, m_orient2Y, m_orient2Z;
 

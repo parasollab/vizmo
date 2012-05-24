@@ -149,7 +149,6 @@ void AddObjDial::createMBInfo(){
   mbiTmp[0].m_pBodyInfo[0].m_Alpha = 0; 
   mbiTmp[0].m_pBodyInfo[0].m_Beta = 0; 
   mbiTmp[0].m_pBodyInfo[0].m_Gamma = 0;
-  mbiTmp[0].m_pBodyInfo[0].doTransform();  
   mbiTmp[0].m_pBodyInfo[0].rgb[0] = 0.5;
   mbiTmp[0].m_pBodyInfo[0].rgb[1] = 0.5;
   mbiTmp[0].m_pBodyInfo[0].rgb[2] = 0.5;

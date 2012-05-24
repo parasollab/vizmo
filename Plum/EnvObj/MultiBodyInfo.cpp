@@ -93,7 +93,7 @@ namespace plum{
       Vector3d position;
       position.set(m_X, m_Y, m_Z);
       Orientation orientation(Orientation::FixedXYZ, m_Alpha, m_Beta, m_Gamma);
-      Transformation m_currentTransform(orientation, position);
+      m_currentTransform = Transformation(orientation, position);
     }
 
 
@@ -108,7 +108,7 @@ namespace plum{
   }
 
 
-  void CBodyInfo::computeTransform(CBodyInfo &BodyInfo, int nextBody, double _theta){
+  void CBodyInfo::computeTransform(CBodyInfo &BodyInfo, int nextBody){
 
     int NumberOfconnections = BodyInfo.m_cNumberOfConnection;
     int connection=0;
@@ -119,9 +119,6 @@ namespace plum{
 	break;
       }
     }
-
-
-    BodyInfo.m_pConnectionInfo[connection].theta = _theta;
 
     Transformation dh(BodyInfo.m_pConnectionInfo[connection].getDH());
 
@@ -198,7 +195,6 @@ namespace plum{
     m_posX=m_posY=m_posZ=-1;
     m_orientX=m_orientY=m_orientZ=-1;
     alpha=theta=d=a=-1;
-    m_articulation="none";
     m_pos2X=m_pos2Y=m_pos2Z=-1;
     m_orient2X=m_orient2Y=m_orient2Z=-1;
     m_actuated = true;
@@ -254,7 +250,6 @@ namespace plum{
     m_theta = other.m_theta;
     d = other.d;
     a = other.a;
-    m_articulation = other.m_articulation;
     m_actuated = other.m_actuated;
     m_pos2X = other.m_pos2X;
     m_pos2Y = other.m_pos2Y;
@@ -278,7 +273,6 @@ namespace plum{
       <<"-\t\t Position1 = "<<con.m_posX<<", "<<con.m_posY<<", "<< con.m_posZ<<endl
       <<"-\t\t Orient1 = "<<con.m_orientX<<", "<<con.m_orientY<<", "<<con.m_orientZ<<endl
       <<"-\t\t DH = "<<con.alpha<<", "<<con.a<<", "<<con.d<<", "<<con.theta<<endl
-      <<"-\t\t ART = "<<con.m_articulation<<endl
       <<"-\t\t Position2= "<<con.m_pos2X<<", "<<con.m_pos2Y<<", "<<con.m_pos2Z<<endl
       <<"-\t\t Orient2 = "<<con.m_orient2X<<", "<<con.m_orient2Y<<", "<<con.m_orient2Z<<endl;
     return out;

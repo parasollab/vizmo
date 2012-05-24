@@ -41,7 +41,7 @@ namespace plum{
     //The vector comes as: alpha, a, d, theta
 
     double a, d, alpha, theta;
-    alpha = dh[0]*DEGTORAD;
+    alpha = dh[0];
     a = dh[1];
     d = dh[2];
     theta = dh[3];

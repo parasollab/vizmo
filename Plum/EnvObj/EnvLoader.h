@@ -2,10 +2,14 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_ENVLOADER_H_)
-#define _ENVLOADER_H_
+#ifndef ENVLOADER_H_
+#define ENVLOADER_H_
 
 #include "ILoadable.h"
+#include "RobotInfo.h"
+#include <graph.h>
+#include <algorithms/graph_input_output.h>
+#include <algorithms/connected_components.h>
 
 namespace plum{
 
@@ -50,6 +54,8 @@ namespace plum{
       int DoF;
       int getDOF(){return DoF;}
 
+      vector<Robot>& GetRobots(){return robotVec;}
+      
       ////////////////////////////////
       //Objects Deleted from Scene
       ///////////////////////////////
@@ -66,12 +72,15 @@ namespace plum{
     protected:
       void Free_Memory();
       
-      virtual bool ParseFileHeader( ifstream & fin );
-      virtual bool ParseFileBody( ifstream & fin );
-      virtual bool ParseMultiBody( ifstream & fin, CMultiBodyInfo & MBInfo );
-      virtual bool ParseBody( ifstream & fin, CBodyInfo & BodyInfo );
-      virtual bool ParseConnections(ifstream & fin, CBodyInfo *BodyInfo );
+      virtual bool ParseFileHeader(ifstream & ifs);
+      virtual bool ParseFileBody(ifstream & ifs);
+      virtual bool ParseMultiBody(ifstream & ifs, CMultiBodyInfo & MBInfo);
+      virtual bool ParseActiveBody(ifstream & ifs, CBodyInfo & BodyInfo);
+      virtual bool ParseOtherBody(ifstream & ifs, CBodyInfo & BodyInfo);
+      virtual bool ParseConnections(ifstream & ifs, CBodyInfo *BodyInfo);
       
+      void BuildRobotStructure(); 
+
       ////////////////////////////////////////////////////////////////////////////
       //
       //      Private Methods and data members
@@ -84,9 +93,14 @@ namespace plum{
       string m_strModelDataDir;
       int m_cNumberOfMultiBody;
       CMultiBodyInfo * m_pMBInfo;
-      int preIndx, nextIndx;
+      int previousBodyIndex, nextBodyIndex;
+      Robot::JointType jointType;
 
       bool m_ContainsSurfaces;
+    
+      typedef stapl::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
+      RobotGraph m_robotGraph;
+      vector<Robot> robotVec;
     };
   
 }//namespace plum

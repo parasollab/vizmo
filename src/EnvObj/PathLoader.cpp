@@ -46,7 +46,7 @@ bool CPathLoader::ParseFile()
 
     for( unsigned int iF=0;iF<iPathSize;iF++ )
     {
-      double * dCfg=new double[dof];
+      vector<double> dCfg(dof);
 
       for(int j=0; j<dof; j++){
 	fin>>dCfg[j];
@@ -60,19 +60,17 @@ bool CPathLoader::ParseFile()
     return true;
 }
 
-double * CPathLoader::GetConfiguration(int frame)
-{
+vector<double>
+CPathLoader::GetConfiguration(int frame) {
 	if(frame>=(int)m_pList.size()) frame=m_pList.size()-1;
 	if(frame<0 ) frame=0;
-	double * currentCfg = GetConfigure(false, frame);    
+	vector<double> currentCfg = GetConfigure(false, frame);    
 	return currentCfg;
 }
 
-double * CPathLoader::GetConfigure( bool bOutputFrameNumber, int & index )
-{
-  int dof=CCfg::dof;
-  double * currentCfg=new double[dof];
-  for(int i=0;i<dof;i++) currentCfg[i]=m_pList[index][i];
+vector<double> 
+CPathLoader::GetConfigure( bool bOutputFrameNumber, int & index ) {
+  vector<double> currentCfg = m_pList[index];
 
   if( bOutputFrameNumber )
     cout<< "- ChainMaiViewer Mag : Current Frame # = " << index
@@ -81,15 +79,7 @@ double * CPathLoader::GetConfigure( bool bOutputFrameNumber, int & index )
   return currentCfg;
 }
 
-void CPathLoader::FreePathList()
-{
-    //not thing I son't need to free~
-    if( m_pList.empty() ) return;
-    
-    for( unsigned int iF=0;iF<m_pList.size();iF++ )
-    {
-        delete [] m_pList[iF];
-    }
-    
+void 
+CPathLoader::FreePathList(){
     m_pList.clear();
 }

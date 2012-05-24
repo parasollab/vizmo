@@ -34,7 +34,7 @@ public:
     //    Access Methods
     ///////////////////////////////////////////////////////////////////////
     //Get a particular configuration
-    virtual double * GetConfiguration(int frame);
+    virtual vector<double> GetConfiguration(int frame);
     virtual unsigned int GetPathSize(){ return m_pList.size(); }
     virtual unsigned int GetDOF(){ return CCfg::dof; }
 
@@ -45,11 +45,11 @@ protected:
     
     ///Free memory
     virtual void FreePathList();
-    virtual double * GetConfigure(bool bOutputFrameNumber, int & index );
+    virtual vector<double> GetConfigure(bool bOutputFrameNumber, int & index );
 
 private:
     
-    vector<double *> m_pList;       ///path storage
+    vector<vector<double> > m_pList;       ///path storage
 };
 
 #endif // !defined(_PATH_LOADER_H_)

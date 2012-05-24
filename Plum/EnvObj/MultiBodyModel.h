@@ -1,5 +1,5 @@
-#ifndef CMultiBodyModel_H_
-#define CMultiBodyModel_H_
+#ifndef MULTIBODYMODEL_H_
+#define MULTIBODYMODEL_H_
 
 #include "MultiBodyInfo.h"
 #include "GLModel.h"
@@ -7,19 +7,18 @@
 
 namespace plum{
 
-  class CMultiBodyModel : public CGLModel {
+  class MultiBodyModel : public CGLModel {
     public:
       //////////////////////////////////////////////////////////////////////
       // Cons/Des
-      CMultiBodyModel(unsigned int index, const CMultiBodyInfo & MBInfo);
-      virtual ~CMultiBodyModel();
+      MultiBodyModel(const CMultiBodyInfo & MBInfo);
+      virtual ~MultiBodyModel();
 
       //////////////////////////////////////////////////////////////////////
       // Core
       //////////////////////////////////////////////////////////////////////
       virtual bool BuildModels();
-
-      virtual void Select( unsigned int * index, vector<gliObj>& sel );
+      virtual void Select(unsigned int * index, vector<gliObj>& sel);
 
       //Draw
       virtual void Draw( GLenum mode );
@@ -27,61 +26,49 @@ namespace plum{
 
       //set wire/solid/hide
       virtual void SetRenderMode( int mode );
-
       virtual void SetColor(float r, float g, float b, float a);
+      const float * GetColor() const;
 
       virtual const string GetName() const { return "MultiBody"; }
 
       virtual void GetChildren( list<CGLModel*>& models ){ 
-	for(int i=0;i<m_PolySize;i++ )
-	  models.push_back(&m_pPoly[i]);
+	for(size_t i=0; i<m_poly.size(); i++ )
+	  models.push_back(&m_poly[i]);
       }
 
       virtual list<string> GetInfo() const;
 
       //used to print the confg. of the MultiBody
-      void setPos(double * Cfg);
-      void setCurrCfg(double * Cfg, int dof);
-      virtual	void Scale(double x, double y, double z);
+      void SetCfg(vector<double>& _cfg);
+      virtual void Scale(double x, double y, double z);
 
-      double posX, posY, posZ;
 
       //////////////////////////////////////////////////////////////////////
       // Access
       //////////////////////////////////////////////////////////////////////
-      void setAsFree( bool free=true ){ m_bFixed=!free; }
+      void SetAsFree(bool free=true){m_bFixed = !free;}
+      
+      double GetRadius() const{return m_radius;}
+      const Point3d& GetCOM() const{return m_COM;}
+      vector<CPolyhedronModel>& GetPolyhedron(){return m_poly;}
+      const CMultiBodyInfo& GetMBinfo(){return m_MBInfo;}
+      bool IsFixed() const{return m_bFixed;}
 
-      double GetRadius() const { return m_R; }
-
-      const Point3d& GetCOM() const { return m_COM; }
-
-      CPolyhedronModel* GetPolyhedron()  {return m_pPoly;}
-
+      //public variables
+      double posX, posY, posZ;
       list<CGLModel *> objlist; // to have access from glitransTool class
-
-      CMultiBodyInfo GetMBinfo() { CMultiBodyInfo m_MBI; m_MBI = m_MBInfo;
-	return m_MBI;}
-
-      const float * GetColor() const;
-
-      const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
-
+    
     private:
-      CPolyhedronModel * m_pPoly;
+      const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
+      vector<CPolyhedronModel> m_poly;
 
-      int m_PolySize;
-      int m_index; //the index of this multibody
-      //const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
       bool m_bFixed; //is this multibody fixed. i.e obstacle
-
-      double m_R; //Radius
+      double m_radius; //Radius
       Point3d m_COM; // center of mass
 
-      double *queryCfg, *queryPos;
-      int m_dof;
-
+      vector<double> m_cfg;
   };
 }//namespace plum
 
-#endif //CMultiBodyModel_H_
+#endif //MULTIBODYMODEL_H_
 

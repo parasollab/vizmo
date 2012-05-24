@@ -891,7 +891,7 @@ void VizmoMainWin::setSQuery(){
   //set original Query cfgs. to queryGUI
   //so they can be reset...
   ////////////////////////////////////////
-  double * cfg = NULL;
+  vector<double> cfg;
 
   if( GetVizmo().IsQueryLoaded() ){ 
     PlumObject * m_qry;
@@ -912,9 +912,7 @@ void VizmoMainWin::setSQuery(){
     m_Rob = GetVizmo().GetRobot();
     OBPRMView_Robot * r = (OBPRMView_Robot*)m_Rob->getModel();    
     dof = r->returnDOF();
-    cfg = new double[dof];
-    for(int i=0; i<dof; i++)
-      cfg[i] = 0.0;
+    cfg = vector<double>(dof,0);
   }
   
   qrySGUI->show();
@@ -934,7 +932,7 @@ void VizmoMainWin::setSQuery(){
   //so they can be reset...
   ////////////////////////////////////////
   
-  double * cfg = NULL;
+  vector<double> cfg;
 
   if( GetVizmo().IsQueryLoaded() ){
     PlumObject * m_qry;
@@ -957,9 +955,7 @@ void VizmoMainWin::setSQuery(){
     m_Rob = GetVizmo().GetRobot();
     OBPRMView_Robot * r = (OBPRMView_Robot*)m_Rob->getModel();    
     dof = r->returnDOF();
-    cfg = new double[dof];
-    for(int i=0; i<dof; i++)
-      cfg[i] = 0.0;
+    cfg = vector<double>(dof,0);
   }
   
   qryGGUI->show();

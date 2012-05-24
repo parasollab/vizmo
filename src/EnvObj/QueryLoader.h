@@ -34,7 +34,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
   
     virtual unsigned int GetQuerySize(){ return m_sgList.size(); }
-    virtual double * GetStartGoal( int Index);
+    virtual vector<double> GetStartGoal( int Index);
 
     /******** NEW Variables ********/
 

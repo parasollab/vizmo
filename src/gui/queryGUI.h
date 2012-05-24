@@ -29,7 +29,7 @@ class queryGUI: public QDialog
   queryGUI(QWidget *parent, Qt::WFlags f=0);
   char m_SorG;
 
-  void setQuery(double * q);
+  void setQuery(vector<double>& q);
   void setNodeVal(int dof, double *cfg);
   vector<double> getNodeCfg();
   bool filledFirstTime;
@@ -53,7 +53,7 @@ private:
     double * QcfgTmp, *Qcfg;
     QDoubleSpinBox *stx, *sty, *stz;
     vector<QDoubleSpinBox*> vSpin;
-    double * query_org;
+    vector<double> query_org;
     double * node_cfg;
     string m_ObjName; 
 

@@ -160,14 +160,14 @@ void VizGLWin::mouseReleaseEvent( QMouseEvent * e )
          if( ((CGLModel*)(*i))->GetName()!="Node" ) {
 
             typedef vector<gliObj>::iterator GIT;
-            CMultiBodyModel * mbl;
+            MultiBodyModel * mbl;
             list<CGLModel*> modelList;
             CGLModel* gl;
             int i=0;
             for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++){
                if(!modelList.empty()){
                   i++;
-                  mbl=(CMultiBodyModel*)(*ig);
+                  mbl=(MultiBodyModel*)(*ig);
                   //get Polyhedron
                   mbl->GetChildren(modelList);
                   gl = modelList.front();

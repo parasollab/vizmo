@@ -508,7 +508,7 @@ void vizmo::TurnOn_CD(){
       list<CGLModel*> robotList,modelList;
       //obtain robot model	  
       robot->GetChildren(modelList);
-      CMultiBodyModel * robotModel = (CMultiBodyModel*)modelList.front();
+      MultiBodyModel * robotModel = (MultiBodyModel*)modelList.front();
 
       //If we'll test a node, copy Cfg to CD class
       if(m_IsNode){
@@ -572,43 +572,44 @@ bool vizmo::SaveEnv(const char *filename)
 
 void vizmo::SaveQryCfg(char ch){
 
-   typedef vector<gliObj>::iterator GIT;
-   string name;
-   CGLModel * gl;
-   //to store a single cfg
-   vector<double *> cfg;
+  typedef vector<gliObj>::iterator GIT;
+  string name;
+  CGLModel * gl;
 
-   OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+  OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
 
-   for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
-   {
-      gl=(CGLModel *)(*ig);
-      list<string> info=gl->GetInfo();
-      name = info.front();
-   }
+  for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
+  {
+    gl=(CGLModel *)(*ig);
+    list<string> info=gl->GetInfo();
+    name = info.front();
+  }
 
-   if(name == "Robot"){
-      int dof = CCfg::dof;
-      if(m_obj.m_Qry != NULL){
-         //get original Cfgs from QueryLoader
-         CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
+  if(name == "Robot"){
+    //to store a single cfg
+    vector<vector<double> > cfg;
 
-         unsigned int iQSize = q->GetQuerySize();
+    int dof = CCfg::dof;
+    if(m_obj.m_Qry != NULL){
+      //get original Cfgs from QueryLoader
+      CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
 
-         for( unsigned int iQ=0; iQ<iQSize; iQ++ ){
-            double * Cfg = new double[dof];
-            Cfg = q->GetStartGoal(iQ); 
-            cfg.push_back(Cfg);
-         }
+      unsigned int iQSize = q->GetQuerySize();
+
+      for( unsigned int iQ=0; iQ<iQSize; iQ++ ){
+        vector<double> Cfg(dof);
+        Cfg = q->GetStartGoal(iQ); 
+        cfg.push_back(Cfg);
       }
-      else{
-         double * c = robot->getFinalCfg();
-         cfg.push_back(c);
-         cfg.push_back(c);
-      }
+    }
+    else{
+      vector<double> c = robot->getFinalCfg();
+      cfg.push_back(c);
+      cfg.push_back(c);
+    }
 
-      robot->SaveQry(cfg, ch);
-   }
+    robot->SaveQry(cfg, ch);
+  }
 
 }
 
@@ -618,7 +619,7 @@ bool vizmo::SaveQry(const char *filename){
    FILE *qryFile;
 
    OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
-   vector<double *> vSG = robot->getNewStartAndGoal();
+   vector<vector<double> > vSG = robot->getNewStartAndGoal();
 
    if(!vSG.empty()){
       //open file
@@ -627,11 +628,10 @@ bool vizmo::SaveQry(const char *filename){
          return 0;
       }
       //get values
-      typedef vector<double *>::iterator IC;
+      typedef vector<vector<double> >::iterator IC;
       for(IC ic=vSG.begin(); ic!=vSG.end(); ic++){
-         double * c = (double *)(*ic);
          for(int i=0; i<dof; i++){
-            fprintf(qryFile, "%2f ", c[i]);
+            fprintf(qryFile, "%2f ", (*ic)[i]);
          }
          fprintf(qryFile, "\n");
       }
@@ -720,8 +720,7 @@ void vizmo::ChangeAppearance(int status)
          model->SetRenderMode(CPlumState::MV_WIRE_MODE);
       else if(status==2){
          model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
-         CMultiBodyModel * mbl;
-         mbl=(CMultiBodyModel*)(*ig);
+         MultiBodyModel* mbl=(MultiBodyModel*)(*ig);
          DeleteObject(mbl);
       }
       else if(status == 3){
@@ -752,7 +751,7 @@ void vizmo::ChangeAppearance(int status)
 
 }
 
-void vizmo::DeleteObject(CMultiBodyModel *mbl){
+void vizmo::DeleteObject(MultiBodyModel *mbl){
 
    CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
    int MBnum = envLoader->GetNumberOfMultiBody();
@@ -765,10 +764,10 @@ void vizmo::DeleteObject(CMultiBodyModel *mbl){
    int j=0;
    for(int i=0; i<MBnum; i++){
       if( (mbi[i].m_pBodyInfo[0].m_strModelDataFileName !=
-               mbl->m_MBInfo.m_pBodyInfo[0].m_strModelDataFileName) ||
-            (mbi[i].m_pBodyInfo[0].m_X != mbl->m_MBInfo.m_pBodyInfo[0].m_X )||
-            (mbi[i].m_pBodyInfo[0].m_Y != mbl->m_MBInfo.m_pBodyInfo[0].m_Y)||
-            (mbi[i].m_pBodyInfo[0].m_Z != mbl->m_MBInfo.m_pBodyInfo[0].m_Z) ){
+               mbl->GetMBinfo().m_pBodyInfo[0].m_strModelDataFileName) ||
+            (mbi[i].m_pBodyInfo[0].m_X != mbl->GetMBinfo().m_pBodyInfo[0].m_X )||
+            (mbi[i].m_pBodyInfo[0].m_Y != mbl->GetMBinfo().m_pBodyInfo[0].m_Y)||
+            (mbi[i].m_pBodyInfo[0].m_Z != mbl->GetMBinfo().m_pBodyInfo[0].m_Z) ){
 
          mbiTmp[j] = mbi[i];
          j++;
@@ -793,16 +792,13 @@ void vizmo::DeleteObject(CMultiBodyModel *mbl){
     CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
     OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
 
-    double * dCfg;
     //Get Cfg
-
-    dCfg=ploader->GetConfiguration(frame);
+    vector<double> dCfg=ploader->GetConfiguration(frame);
 
     //reset robot's original position
     ResetRobot();
 
     rmodel->Configure(dCfg);
-    delete dCfg;
   }
 
   void vizmo::AnimateDebug(int frame){
@@ -1335,7 +1331,7 @@ void vizmo::PlaceRobot()
 {
    OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
    if( r!=NULL ){
-      double * cfg=NULL;
+      vector<double> cfg;
       if( m_obj.m_Qry!=NULL ){//check query loader
          CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
          cfg=q->GetStartGoal(0);
@@ -1347,19 +1343,15 @@ void vizmo::PlaceRobot()
       else {
          CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
          int d = envLoader->getDOF();
-         cfg = new double [d];
-         for(int i=0; i<d; i++){
-            cfg[i] = 0.0;
-         }
+         cfg = vector<double>(d);
       }
       if(m_obj.m_Debug!=NULL){
         r->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
       }
-      if( cfg!=NULL){
+      if(!cfg.empty()){
          r->Configure(cfg);
          //copy initial cfg. to OBPRMView_Robot
          r->InitialCfg(cfg);
-         delete [] cfg;
       }
    }
 }
@@ -1428,7 +1420,7 @@ bool vizmo::envChanged(){
    mbi = envLoader->GetMultiBodyInfo();
 
    CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
-   vector<CMultiBodyModel *> mbm = env->getMBody();
+   vector<MultiBodyModel *> mbm = env->getMBody();
 
 
    for(int i=0; i<numBod; i++){

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 using namespace std;
 
 #define MAX_LINE_LENGTH 2000
@@ -137,6 +138,42 @@ namespace plum{
 	    }
 	  }
 	}
+
+        template <class T>  
+          T 
+          ReadField(istream& _is, string _error) {
+            char c;
+            string line;
+            T element;
+            while (_is.get(c)) {
+              if (c == '#') {
+                getline(_is, line);
+              }   
+              else if (!isspace(c)) {
+                _is.putback(c);
+                if (!(_is >> element)) {
+                  cerr << "Error in Reading Field::" << _error <<
+                    endl;
+                  exit(1);
+                }   
+                else
+                  break;
+              }   
+            }
+            if(_is.eof()){
+              cerr << "Error end of file reached in Reading Field::" << _error << endl;
+              exit(1);
+            }
+            return element;
+          };
+
+        string 
+          ReadFieldString(istream& _is, string _error, bool _toUpper = true){
+            string s = ReadField<string>(_is, _error);
+            if(_toUpper)
+              transform(s.begin(), s.end(), s.begin(), ::toupper);
+            return s;
+          };
 
 	//the file name that is going to be load
 	string m_strFileName;

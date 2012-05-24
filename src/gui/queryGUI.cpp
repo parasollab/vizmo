@@ -24,9 +24,8 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
     OBPRMView_Robot * r = (OBPRMView_Robot*)m_Rob->getModel();
     m_dof = (r->getEnvLoader())->getDOF();
 
-    Qcfg = new double [m_dof];
     //here I should put query values...
-    Qcfg = r->getFinalCfg();
+    vector<double> Qcfg = r->getFinalCfg();
 
     //will be used in newCfg funct.
     QcfgTmp = new double [m_dof];
@@ -124,7 +123,7 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
 ///////                        METHODS
 //////////////////////////////////////////////////////////////////////////////
 
-void queryGUI::setQuery(double * q){
+void queryGUI::setQuery(vector<double>& q){
   query_org = q;
 }
 
@@ -212,12 +211,10 @@ void queryGUI::SaveSG(){
 
 void queryGUI::updateQryCfg(){
 
-  double *Qcfg3 = new double [m_dof];
-
   PlumObject * m_Rob;
   m_Rob = GetVizmo().GetRobot();
   OBPRMView_Robot * r = (OBPRMView_Robot*)m_Rob->getModel();
-  Qcfg3  = r->getFinalCfg();
+  vector<double> Qcfg3  = r->getFinalCfg();
 
   stx->setValue(Qcfg3[0]);
   sty->setValue(Qcfg3[1]);

@@ -217,7 +217,7 @@ void CDebugModel::Draw( GLenum mode ){
       eit->Draw(mode);
     }
     for(EIT eit = m.query.begin(); eit!=m.query.end(); eit++){
-      glLineWidth(6);
+      glLineWidth(12);
       eit->SetColor(1,1,0,1);
       eit->Draw(mode);
     }
@@ -232,7 +232,7 @@ void CDebugModel::Draw( GLenum mode ){
       ray.SetCfg(cfg);
       edge.Set(0, tmp, &ray);
       edge.SetColor(1,1,0,1);
-      glLineWidth(4);
+      glLineWidth(8);
       edge.Draw(mode);
     }
     glPushAttrib(GL_CURRENT_BIT);

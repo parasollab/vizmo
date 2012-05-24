@@ -34,7 +34,7 @@ using namespace plum;
 /* class CollisionDetectionMethod; */
 /* class CEnvLoader;*/
 /* class CEnvModel; */
-/*class CMultiBodyModel;*/
+/*class MultiBodyModel;*/
 
 //class Rapid;
 
@@ -53,12 +53,12 @@ class CollisionDetection{
    */
   
   bool IsInCollision(plum::CEnvLoader* envLoader, 
-		     plum::CMultiBodyModel* robot, 
-		     plum::CMultiBodyModel* obstacle);
+		     plum::MultiBodyModel* robot, 
+		     plum::MultiBodyModel* obstacle);
 
   bool IsInCollision(int numMB, plum::CEnvModel* env, 
 		     plum::CEnvLoader* envLoader,
-		     plum::CMultiBodyModel * robotModel,
+		     plum::MultiBodyModel * robotModel,
 		     OBPRMView_Robot * robotObj);
 
   void CopyNodeCfg(double * cfg, int dof);
@@ -79,9 +79,9 @@ class CollisionDetectionMethod {
   virtual  ~CollisionDetectionMethod(){}
 
   virtual const char* GetName() const = 0;
-  virtual bool IsInCollision(plum::CMultiBodyModel* robot, 
+  virtual bool IsInCollision(plum::MultiBodyModel* robot, 
 			     OBPRMView_Robot * robotObj, int dof,
-			     plum::CMultiBodyModel* obstacle) = 0;
+			     plum::MultiBodyModel* obstacle) = 0;
 };
 
 class Rapid: public CollisionDetectionMethod {
@@ -102,12 +102,12 @@ class Rapid: public CollisionDetectionMethod {
    *@note collision between two ajacent links will be ignored.
    *@return true if Collision found, false otherwise.
    */
-  //  virtual bool IsInCollision(plum::CMultiBodyModel* robot, 
-  //			     plum::CMultiBodyModel* obstacle);
+  //  virtual bool IsInCollision(plum::MultiBodyModel* robot, 
+  //			     plum::MultiBodyModel* obstacle);
 
-  virtual bool IsInCollision(CMultiBodyModel * robot, 
+  virtual bool IsInCollision(MultiBodyModel * robot, 
 			     OBPRMView_Robot * robotObj, int dof,
-  			     CMultiBodyModel * obstacle);
+  			     MultiBodyModel * obstacle);
 
   void RCopyNodeCfg(double * n_cfg, int dof);
 

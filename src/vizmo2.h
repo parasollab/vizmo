@@ -304,7 +304,7 @@ class vizmo
       void SaveQryStart(); //save start cfg
       //void SaveQryGoal(); //save goal cfg.
       void SaveQryCfg(char ch); //save start or goal cfg.
-      void DeleteObject(CMultiBodyModel * mbl);
+      void DeleteObject(MultiBodyModel * mbl);
       //called form main_win::autoMkmp()
       bool env_changed;
       bool envChanged();

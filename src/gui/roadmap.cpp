@@ -647,8 +647,7 @@ void VizmoRoadmapGUI::handleAddNode()
 
             m_dof = r->returnDOF();
 
-            double *rCfg = new double [m_dof];
-            rCfg = r->getFinalCfg();
+            vector<double> rCfg = r->getFinalCfg();
             vector<double> tmp;
             tmp.clear();
             for(int i=0; i<m_dof; i++){

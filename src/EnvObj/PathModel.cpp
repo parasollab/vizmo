@@ -53,12 +53,11 @@ bool CPathModel::BuildModels(){
       for( unsigned int iP=0; iP<iPathSize; iP++ ){
       double percent=((double)iP)/iPathSize;
       m_pRobot->SetColor(percent,0.8f,1-percent,1.0);
-          double * Cfg = m_pPathLoader->GetConfiguration(iP);
+          vector<double> Cfg = m_pPathLoader->GetConfiguration(iP);
           if( iP%3==0 ){
 	    m_pRobot->Configure(Cfg);
 	    m_pRobot->Draw(GL_RENDER);
           }
-          delete [] Cfg;
       }
     glEndList();
     

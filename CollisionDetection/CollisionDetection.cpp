@@ -28,8 +28,8 @@ CollisionDetection::~CollisionDetection(){
 }
 
 bool CollisionDetection::IsInCollision(plum::CEnvLoader* envLoader, 
-      plum::CMultiBodyModel* robot, 
-      plum::CMultiBodyModel* obstacle){
+      plum::MultiBodyModel* robot, 
+      plum::MultiBodyModel* obstacle){
 
    return true;
 }
@@ -38,17 +38,17 @@ bool CollisionDetection::IsInCollision(plum::CEnvLoader* envLoader,
 bool CollisionDetection::IsInCollision(int numMB, 
       plum::CEnvModel* env, 
       plum::CEnvLoader* envLoader,
-      plum::CMultiBodyModel * robotModel,
+      plum::MultiBodyModel * robotModel,
       OBPRMView_Robot * robotObj) {
 
 
-   vector<CMultiBodyModel *> MBmodel = env->getMBody();
+   vector<MultiBodyModel *> MBmodel = env->getMBody();
    const CMultiBodyInfo* MBI = envLoader->GetMultiBodyInfo();
    int dof = envLoader->getDOF();
    int robIndx = 0;
    bool collision = false;
    bool value = false;
-   CMultiBodyModel *m_robot;
+   MultiBodyModel *m_robot;
 
    ////// Making a copy of the robot
    /// use this new robot to work...
@@ -58,7 +58,7 @@ bool CollisionDetection::IsInCollision(int numMB,
    list<CGLModel*> robotList,modelList;
    //obtain robot model	  
    robotCpy->GetChildren(modelList);
-   CMultiBodyModel * m_robotModel = (CMultiBodyModel*)modelList.front();
+   MultiBodyModel * m_robotModel = (MultiBodyModel*)modelList.front();
 
 
    //get current color of robot
@@ -106,9 +106,9 @@ bool CollisionDetection::IsInCollision(int numMB,
    //rapid->test_node = false;
 
    if(!value && !rapid->test_node){
-      const CMultiBodyInfo rMBInfo = robotModel->m_MBInfo;
+      const CMultiBodyInfo& rMBInfo = robotModel->GetMBinfo();
       int NumBodiesRob= rMBInfo.m_cNumberOfBody;
-      CPolyhedronModel * rPoly = robotModel->GetPolyhedron();
+      vector<CPolyhedronModel>& rPoly = robotModel->GetPolyhedron();
       int c;
       for(c=0; c<NumBodiesRob; c++){
          //rPoly[c].SetColor(1, 0, 0, 1);
@@ -147,9 +147,9 @@ void Rapid::RCopyNodeCfg(double * n_cfg, int dof){
    }
 }
 
-bool Rapid::IsInCollision(CMultiBodyModel * robot, 
+bool Rapid::IsInCollision(MultiBodyModel * robot, 
       OBPRMView_Robot * robotObj, int dof, 
-      CMultiBodyModel * obstacle){
+      MultiBodyModel * obstacle){
 
    //bool is_collision = false;
 
@@ -159,8 +159,8 @@ bool Rapid::IsInCollision(CMultiBodyModel * robot,
    RAPID_model *RMobst, *RMrobot;
 
 
-   const CMultiBodyInfo rMBInfo = robot->m_MBInfo;
-   const CMultiBodyInfo oMBInfo = obstacle->m_MBInfo;
+   const CMultiBodyInfo rMBInfo = robot->GetMBinfo();
+   const CMultiBodyInfo oMBInfo = obstacle->GetMBinfo();
 
    int NumBodiesRob= rMBInfo.m_cNumberOfBody;
 
@@ -179,8 +179,8 @@ bool Rapid::IsInCollision(CMultiBodyModel * robot,
     **  each obstacle's bodies
     ******************************************************/
 
-   CPolyhedronModel * rPoly = robot->GetPolyhedron();
-   CPolyhedronModel * oPoly = obstacle->GetPolyhedron();
+   vector<CPolyhedronModel>& rPoly = robot->GetPolyhedron();
+   vector<CPolyhedronModel>& oPoly = obstacle->GetPolyhedron();
 
    //////////////////////////////////////////////////////////////////////////
    //
@@ -259,8 +259,7 @@ bool Rapid::IsInCollision(CMultiBodyModel * robot,
                   CurrCfg[4] = fv[1]/TwoPI; 
                   CurrCfg[5] = fv[2]/TwoPI;
 
-                  double * Cfg = new double[dof];
-                  Cfg = robotObj->returnCurrCfg(dof);
+                  vector<double> Cfg = robotObj->returnCurrCfg(dof);
 
                   for(int c=6; c<dof; c++)
                      CurrCfg[c] = Cfg[c];

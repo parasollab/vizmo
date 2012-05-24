@@ -60,11 +60,12 @@ bool CQueryLoader::ParseFile()
     return true;
 }
 
-double * CQueryLoader::GetStartGoal(int Index){
+vector<double> CQueryLoader::GetStartGoal(int Index){
 
   int dof =CCfg::dof;
-  double * currentCfg=new double[dof]; 
-  for(int i=0;i<dof;i++) currentCfg[i]=m_sgList[Index][i];
+  vector<double> currentCfg(dof); 
+  for(int i=0;i<dof;i++) 
+    currentCfg[i]=m_sgList[Index][i];
   return currentCfg;
 }
 

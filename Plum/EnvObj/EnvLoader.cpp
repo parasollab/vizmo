@@ -6,6 +6,8 @@
 #include "MultiBodyInfo.h"
 #include "MapObj/Cfg.h"
 
+#define  PI_180 3.1415926535/180 
+
 namespace plum{
 
   //////////////////////////////////////////////////////////////////////
@@ -28,19 +30,19 @@ namespace plum{
 
   bool 
     CEnvLoader::ParseFile( ) {
-      if( CheckCurrentStatus()==false )
+      if(CheckCurrentStatus()==false)
 	return false;
 
       //Open file for reading datat
-      ifstream fin(m_strFileName.c_str(), ios::in);
+      ifstream ifs(m_strFileName.c_str());
 
-      if( ParseFileHeader(fin)==false ) 
+      if(ParseFileHeader(ifs)==false) 
 	return false;
 
-      if( ParseFileBody(fin)==false ) 
+      if(ParseFileBody(ifs)==false) 
 	return false;
 
-      fin.close();
+      ifs.close();
 
       return true;
     }
@@ -59,185 +61,186 @@ namespace plum{
     cout<<"- Geo Dir   : "<<m_strModelDataDir<<endl;
   }
 
-  bool CEnvLoader::ParseFileHeader( ifstream & fin ) {
-    char strLine[150]; //150 is max line length...
-
-    //parse
-    while( !fin.eof() ) {
-      char c=fin.peek();
-      fin.getline(strLine, 149); //read a line
-
-      if( !isCommentLine(c) ){ //if this line is not comment
-	m_cNumberOfMultiBody = atoi( strLine ); //total number of multiBodies
-	break;
-      }
-      string line(strLine);
-      string tag = "Surface";
-      size_t found = line.find(tag);
-      if( found!=string::npos ) {
-	m_ContainsSurfaces = true;
-      }
-    }
-
+  bool CEnvLoader::ParseFileHeader( ifstream & ifs ) {
+    m_cNumberOfMultiBody = ReadField<int>(ifs, "Number of Multibodies");
+    cout << "Number of multibody::" << m_cNumberOfMultiBody << endl;
     return true;
   }
 
-  bool CEnvLoader::ParseFileBody( ifstream & fin ) {
+  bool CEnvLoader::ParseFileBody( ifstream & ifs ) {
     m_pMBInfo = new CMultiBodyInfo[m_cNumberOfMultiBody];
     if( m_pMBInfo==NULL ) return false;
 
-    for( int iM=0; iM<m_cNumberOfMultiBody; iM++ )
-    {
-      if( ParseMultiBody(fin, m_pMBInfo[iM])==false )
+    for( int iM=0; iM<m_cNumberOfMultiBody; iM++ ) {
+      cout << "Reading multibody " << iM << endl;
+      if( ParseMultiBody(ifs, m_pMBInfo[iM])==false )
 	return false;
     }
+  
+    BuildRobotStructure();
 
+    CCfg::dof=DoF;
+    cout<< "DOF's: "<<CCfg::dof<<endl<<flush; 
+    
     return true;
   }
 
-  bool CEnvLoader::ParseMultiBody( ifstream & fin, CMultiBodyInfo & MBInfo ) {
-
-    char strData[150];
-    //int dof = 6;
-    int dof = 0;
+  bool CEnvLoader::ParseMultiBody( ifstream & ifs, CMultiBodyInfo & MBInfo ) {
     bool bActive=false;
+    bool bInternal=false;
     bool bSurface=false;
+    
+    string multibodyType = ReadFieldString(ifs,
+        "Multibody Type (Active, Passive, Internal, Surface)");
+    cout << "MultibodyType::" << multibodyType << endl;
 
-    GoToNext(fin);
-    fin >> strData; /*Tag, "MultiBody"*/ 
-    fin >> strData; //Tag, "Active/Passive/Surface" adding new tag surface
-
-    if( strData[0]=='A'||strData[0]=='a'){
+    if(multibodyType == "ACTIVE"){
       bActive=true;
       MBInfo.m_active = true;
     }
-    if( strData[0]=='S'||strData[0]=='s'){
+    else if(multibodyType == "INTERNAL") {
+      bInternal = true;
+    }
+    else if(multibodyType == "SURFACE") {
       bSurface=true;
       MBInfo.m_surface = true;
       m_ContainsSurfaces = true;
     }
 
-    fin >> MBInfo.m_cNumberOfBody;  /* number of body in this multibody */
+    if(multibodyType == "ACTIVE"){
+      MBInfo.m_cNumberOfBody = ReadField<int>(ifs, "Body Count");
+      cout << "Number of body::" << MBInfo.m_cNumberOfBody << endl;
 
-    MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
-    if( MBInfo.m_pBodyInfo==NULL ) return false;
+      MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
+      if( MBInfo.m_pBodyInfo==NULL ) return false;
 
-    getColor(fin);
+      getColor(ifs);
 
-    for( int iB=0; iB<MBInfo.m_cNumberOfBody; iB++ ) {
-      if( ParseBody(fin, MBInfo.m_pBodyInfo[iB])==false )
-	return false;
-      MBInfo.m_pBodyInfo[iB].m_IsSurface = m_ContainsSurfaces;
-
-      if((iB == 0)&&(!MBInfo.m_pBodyInfo[0].m_bIsFixed))
-	dof = 6;
-    }
-
-
-    ////////////////////////////////////////////////////////
-    //get connection info
-    ////////////////////////////////////////////////////////
-
-    GoToNext(fin);
-    fin.getline(strData, MAX_LINE_LENGTH ); //tag Connection
-    int numberOfRobotConnections;
-    fin >> numberOfRobotConnections; /* Number of Connections (links) */
-    MBInfo.m_NumberOfConnections = numberOfRobotConnections;
-
-    if( bActive ){ //if is robot
-      dof+=numberOfRobotConnections;
-      CCfg::dof=dof;
-      cout<< "DOF's: "<<CCfg::dof<<endl; 
-      DoF = dof;
-    }
-
-    //Each body can have more than one connection
-    //Get connection info if numberOfRobotConnection != 0 
-
-    int currentBody = 0; //index of current Body
-    //int nextBody = 0; //indext of next Body
-
-    //Do transformation for body0, the base. This is always needed.	 
-    MBInfo.m_pBodyInfo[currentBody].doTransform();
-
-    if( numberOfRobotConnections!=0 ){
-
-      //initialize the MBInfo.m_pBodyInfo[i].m_pConnectionInfo for each body
-
-      for(int i=0; i<MBInfo.m_cNumberOfBody; i++){
-	MBInfo.m_pBodyInfo[i].m_pConnectionInfo = 
-	  new CConnectionInfo[numberOfRobotConnections];
-
-	if( MBInfo.m_pBodyInfo[i].m_pConnectionInfo==NULL ) { 
-	  cout<<"COULDN'T CREATE CONNECTION INFO"<<endl; return false;}
+      for( int iB=0; iB<MBInfo.m_cNumberOfBody; iB++ ) {
+        cout << "Reading Body " << iB << endl;
+        if( ParseActiveBody(ifs, MBInfo.m_pBodyInfo[iB])==false )
+          return false;
       }
-      for( int iB=0; iB<numberOfRobotConnections; iB++ ){
-	if( ParseConnections(fin, MBInfo.m_pBodyInfo)==false )
-	  return false;
-	MBInfo.listConnections.push_back(pair<int,int>(preIndx,nextIndx));
+
+      //get connection info
+      string connectionTag = ReadFieldString(ifs, "Connections tag");
+      int numberOfRobotConnections = ReadField<int>(ifs, "Number of Connections");
+      MBInfo.m_NumberOfConnections = numberOfRobotConnections;
+
+      int currentBody = 0; //index of current Body
+
+      //Do transformation for body0, the base. This is always needed.	 
+      MBInfo.m_pBodyInfo[currentBody].doTransform();
+
+      if( numberOfRobotConnections!=0 ){
+        //initialize the MBInfo.m_pBodyInfo[i].m_pConnectionInfo for each body
+        for(int i=0; i<MBInfo.m_cNumberOfBody; i++){
+          MBInfo.m_pBodyInfo[i].m_pConnectionInfo = 
+            new CConnectionInfo[numberOfRobotConnections];
+
+          if( MBInfo.m_pBodyInfo[i].m_pConnectionInfo==NULL ) { 
+            cout<<"COULDN'T CREATE CONNECTION INFO"<<endl; return false;}
+        }
+        for( int iB=0; iB<numberOfRobotConnections; iB++ ){
+          if( ParseConnections(ifs, MBInfo.m_pBodyInfo)==false )
+            return false;
+          MBInfo.listConnections.push_back(pair<int,int>(previousBodyIndex,nextBodyIndex));
+          MBInfo.jointMap.push_back(make_pair(
+                  make_pair(previousBodyIndex, nextBodyIndex), jointType));
+        }
       }
+    }
+    else if(multibodyType == "INTERNAL" || multibodyType == "SURFACE" ||
+        multibodyType == "PASSIVE"){
+      MBInfo.m_cNumberOfBody = 1;
+      MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
+      if( MBInfo.m_pBodyInfo==NULL ) return false;
+
+      getColor(ifs);
+
+      if( ParseOtherBody(ifs, MBInfo.m_pBodyInfo[0])==false )
+        return false;
+
+      return true;
+
+    }
+    else{
+      cerr << "Error:: Unsupported body type" << endl;
+      cerr << "Choices are Active, Passive, Internal, or Surface" << endl;
+      exit(1);
     }
 
     return true;
-
   }
 
-  bool CEnvLoader::ParseBody( ifstream & fin, CBodyInfo & BodyInfo ) {
-    char strData[150];
-    //char tmp[150];
-    static double PI_180=3.1415926535/180;
-    //static double PI_180 = 3.1415926535*2;
-#ifdef WIN32
-    string sep="\\"; //path seperator
-#else
-    string sep="/";
-#endif
+  bool CEnvLoader::ParseActiveBody( ifstream & ifs, CBodyInfo & BodyInfo ) {
+    BodyInfo.m_bIsFixed = false;
+    bool isBase = false;
+    Robot::Base baseType;
+    Robot::BaseMovement baseMovementType;
 
-    GoToNext(fin);
+    BodyInfo.m_strFileName = ReadFieldString(ifs,
+        "Body Filename (geometry file)", false);
 
-    //Get Body Type
-    fin>>strData;
-
-    if( strcmp(strData, "FixedBody")==0 )
-      BodyInfo.m_bIsFixed = true;
-    else
-      BodyInfo.m_bIsFixed = false;
-
-    //get body index
-    fin >> BodyInfo.m_Index;
-
-    //set "m_IsBase" var. to true if m_Index==0
-    if (BodyInfo.m_Index ==0)
-      BodyInfo.m_IsBase = true;
-
-    //get data file name
-    fin >> strData;
-    //store name of *.g file and its subdirectory (if exists)
-    BodyInfo.m_strFileName = strData;
+    cout << "Geometry::" << BodyInfo.m_strFileName << endl;
 
     if( !m_strModelDataDir.empty() ) {
       //store just the path of the current directory
       BodyInfo.m_strDirectory = m_strModelDataDir;
 
-      BodyInfo.m_strModelDataFileName+=m_strModelDataDir;
-      BodyInfo.m_strModelDataFileName+=sep;
+      BodyInfo.m_strModelDataFileName += m_strModelDataDir;
+      BodyInfo.m_strModelDataFileName += "/";
     }
-    BodyInfo.m_strModelDataFileName+=strData;
+    BodyInfo.m_strModelDataFileName += BodyInfo.m_strFileName;
 
-    //if Body0 then read orientation and position 
-    //else put 0's for the rest of the Bodies if they exist
-    if(BodyInfo.m_Index ==0){
-      fin >> BodyInfo.m_X >> BodyInfo.m_Y >> BodyInfo.m_Z;
-      fin >> BodyInfo.m_Alpha >> BodyInfo.m_Beta >> BodyInfo.m_Gamma;
+    //Read for Base Type. If Planar or Volumetric, read in two more strings
+    //If Joint skip this stuff. If Fixed read in positions like an obstacle
+    string baseTag = ReadFieldString(ifs,
+        "Base Tag (Planar, Volumetric, Fixed, Joint");
+    cout << "Base Type::" << baseTag << endl;
+    baseType = Robot::GetBaseFromTag(baseTag);
+
+    Vector3D bodyPosition;
+    Vector3D bodyRotation;
+
+    if(baseType == Robot::VOLUMETRIC || baseType == Robot::PLANAR){
+      isBase = true;
+      BodyInfo.m_IsBase = true;
+      string rotationalTag = ReadFieldString(ifs,
+          "Rotation Tag (Rotational, Translational");
+      cout << "RotationTag::" << rotationalTag << endl;
+      baseMovementType = Robot::GetMovementFromTag(rotationalTag);
     }
-    else{
-      BodyInfo.m_X = BodyInfo.m_Y = BodyInfo.m_Z = BodyInfo.m_Alpha = BodyInfo.m_Beta = BodyInfo.m_Gamma = 0;
+    else if(baseType == Robot::FIXED){
+      isBase = true;
+      bodyPosition = ReadField<Vector3D>(ifs, "Body Position");
+      cout << "BodyPosition::" << bodyPosition << endl;
+      bodyRotation = ReadField<Vector3D>(ifs, "Body Orientation");
+      cout << "BodyRotation::" << bodyRotation << endl;
     }
 
-    //convert to radians	 
-    BodyInfo.m_Alpha=BodyInfo.m_Alpha*PI_180;
-    BodyInfo.m_Beta=BodyInfo.m_Beta*PI_180;
-    BodyInfo.m_Gamma=BodyInfo.m_Gamma*PI_180;
+    //save this for when these classes utilize only transformations instead
+    //of x, y, z, alpha, beta, gamma, separately.
+    /*Orientation bodyOrientation(Orientation::FixedXYZ,
+      bodyRotation[2]*PI_180,
+      bodyRotation[1]*PI_180,
+      bodyRotation[0]*PI_180);
+      Transformation transformation(bodyOrientation, bodyPosition);
+     */
+    BodyInfo.m_IsBase = isBase;
+    BodyInfo.isBase = isBase;
+    BodyInfo.SetBase(baseType);
+    if (isBase) {
+      BodyInfo.SetBaseMovement(baseMovementType);
+    }
+
+    BodyInfo.m_X = bodyPosition[0];
+    BodyInfo.m_Y = bodyPosition[1];
+    BodyInfo.m_Z = bodyPosition[2];
+    BodyInfo.m_Alpha = bodyRotation[0]*PI_180;
+    BodyInfo.m_Beta = bodyRotation[1]*PI_180;
+    BodyInfo.m_Gamma = bodyRotation[2]*PI_180;
+    BodyInfo.doTransform();
 
     //set color information
     if(m_rgb[0] != -1){
@@ -245,94 +248,139 @@ namespace plum{
     }
     else{
       if(BodyInfo.m_bIsFixed){
-	BodyInfo.rgb[0]=0.5;BodyInfo.rgb[1]=0.5;BodyInfo.rgb[2]=0.5;
+        BodyInfo.rgb[0]=0.5;BodyInfo.rgb[1]=0.5;BodyInfo.rgb[2]=0.5;
       }
       else{
-	BodyInfo.rgb[0]=1;BodyInfo.rgb[1]=0;BodyInfo.rgb[2]=0;
+        BodyInfo.rgb[0]=1;BodyInfo.rgb[1]=0;BodyInfo.rgb[2]=0;
       }
     }	
-
-    GoToNext(fin);
 
     return true;
   }
 
+  bool CEnvLoader::ParseOtherBody( ifstream & ifs, CBodyInfo & BodyInfo ) {
+    BodyInfo.m_bIsFixed = true;
+    BodyInfo.m_IsBase = true;
+    BodyInfo.m_strFileName = ReadFieldString(ifs,
+        "Body Filename (geometry file)", false);
 
-  bool CEnvLoader::ParseConnections(ifstream & fin, CBodyInfo *BodyInfo ) {
-    char strData[150];
-    static double PI_180=3.1415926535/180;
-    preIndx=nextIndx=-1;
-    int conn = 0;
+    cout << "Geometry::" << BodyInfo.m_strFileName << endl;
 
-    fin >> preIndx >> nextIndx;
+    if( !m_strModelDataDir.empty() ) {
+      //store just the path of the current directory
+      BodyInfo.m_strDirectory = m_strModelDataDir;
 
-    // Tag, "Actuated/NonActuated"
-    fin >> strData; 
+      BodyInfo.m_strModelDataFileName += m_strModelDataDir;
+      BodyInfo.m_strModelDataFileName += "/";
+    }
+    BodyInfo.m_strModelDataFileName += BodyInfo.m_strFileName;
+
+    Vector3D bodyPosition = ReadField<Vector3D>(ifs, "Body Position");
+    cout << "BodyPosition::" << bodyPosition << endl;
+    Vector3D bodyRotation = ReadField<Vector3D>(ifs, "Body Orientation");
+    cout << "BodyRotation::" << bodyRotation << endl;
+
+    //save this for when body utilizes only transformation not
+    //x,y,z,alpha,beta,gama
+    /*Orientation bodyOrientation(Orientation::FixedXYZ,
+      bodyRotation[2]*TWOPI/360.0,
+      bodyRotation[1]*TWOPI/360.0,
+      bodyRotation[0]*TWOPI/360.0);
+      Transformation transformation(bodyOrientation, bodyPosition);
+     */
+
+    BodyInfo.m_X = bodyPosition[0];
+    BodyInfo.m_Y = bodyPosition[1];
+    BodyInfo.m_Z = bodyPosition[2];
+    BodyInfo.m_Alpha = bodyRotation[0]*PI_180;
+    BodyInfo.m_Beta = bodyRotation[1]*PI_180;
+    BodyInfo.m_Gamma = bodyRotation[2]*PI_180;
+    BodyInfo.doTransform();
+
+    //set color information
+    if(m_rgb[0] != -1){
+      BodyInfo.rgb[0]=m_rgb[0];BodyInfo.rgb[1]=m_rgb[1];BodyInfo.rgb[2]=m_rgb[2];
+    }
+    else{
+      if(BodyInfo.m_bIsFixed){
+        BodyInfo.rgb[0]=0.5;BodyInfo.rgb[1]=0.5;BodyInfo.rgb[2]=0.5;
+      }
+      else{
+        BodyInfo.rgb[0]=1;BodyInfo.rgb[1]=0;BodyInfo.rgb[2]=0;
+      }
+    }	
+
+    return true;
+  }
+
+  bool CEnvLoader::ParseConnections(ifstream & ifs, CBodyInfo *BodyInfo ) {
+    //body indices
+    previousBodyIndex = ReadField<int>(ifs, "Previous Body Index");
+    nextBodyIndex = ReadField<int>(ifs, "Next Body Index");
 
     //Increment m_cNumberOfConnection for each body
-
-    BodyInfo[preIndx].m_cNumberOfConnection++;
+    CBodyInfo& previousBody = BodyInfo[previousBodyIndex];
+    previousBody.m_cNumberOfConnection++;
 
     //Get connection index for this body
-    conn = BodyInfo[preIndx].m_cNumberOfConnection - 1;
+    CConnectionInfo& conn = previousBody.m_pConnectionInfo[previousBody.m_cNumberOfConnection - 1];
 
     //set next and pre index
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_preIndex = preIndx;
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_nextIndex = nextIndx;
+    conn.m_preIndex = previousBodyIndex;
+    conn.m_nextIndex = nextBodyIndex;
 
     //set Actuated/NonActuated
+    conn.m_actuated = true;
 
-    if( strcmp(strData, "Actuated")==0 )
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_actuated = true;
-    else
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_actuated = false;
+    //grab the joint type
+    string connectionTypeTag = ReadFieldString(ifs, "Connection Type");
+    jointType = Robot::GetJointTypeFromTag(connectionTypeTag);
 
-    //poisition
-    fin >> BodyInfo[preIndx].m_pConnectionInfo[conn].m_posX >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_posY >> 
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_posZ;
+    //transformation to DHFrame
+    Vector3D positionToDHFrame = ReadField<Vector3D>(ifs, "Translation to DHFrame");
+    Vector3D rotationToDHFrame = ReadField<Vector3D>(ifs, "Rotation to DHFrame");
 
+    /*Orientation orientationToDHFrame = Orientation(Orientation::FixedXYZ,
+      rotationToDHFrame[2]*TWOPI/360.0,
+      rotationToDHFrame[1]*TWOPI/360.0,
+      rotationToDHFrame[0]*TWOPI/360.0);*/
 
-    //orientation
-    fin >> BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientX >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientY >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientZ;
+    conn.m_pos2X = positionToDHFrame[0];
+    conn.m_pos2Y = positionToDHFrame[1];
+    conn.m_pos2Z = positionToDHFrame[2];
 
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientX = 
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientX*PI_180;
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientY = 
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientY*PI_180;
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientZ = 
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orientZ*PI_180;
+    conn.m_orient2X = rotationToDHFrame[0]*PI_180;
+    conn.m_orient2Y = rotationToDHFrame[1]*PI_180;
+    conn.m_orient2Z = rotationToDHFrame[2]*PI_180;
 
     //DH parameters
-    fin >> BodyInfo[preIndx].m_pConnectionInfo[conn].alpha >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].a >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].d >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].theta;
+    Vector4d dhparameters = ReadField<Vector4d>(ifs, "DH Parameters");
+
+    conn.alpha = dhparameters[0];
+    conn.a = dhparameters[1];
+    conn.d = dhparameters[2];
+    conn.theta = dhparameters[3];
+
     //save original theta   
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_theta =
-      BodyInfo[preIndx].m_pConnectionInfo[conn].theta;
+    conn.m_theta =
+      conn.theta;
 
-    // Tag, "Revolute" or "Prismatic"
-    fin >> BodyInfo[preIndx].m_pConnectionInfo[conn].m_articulation;
+    //transformation to next body
+    Vector3D positionToNextBody = ReadField<Vector3D>(ifs, "Translation to Next Body");
+    Vector3D rotationToNextBody = ReadField<Vector3D>(ifs, "Rotation to Next Body");
 
-    //poisiton DH frame
-    fin >> BodyInfo[preIndx].m_pConnectionInfo[conn].m_pos2X >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_pos2Y >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_pos2Z;
+    /*Orientation orientationToNextBody = Orientation(Orientation::FixedXYZ,
+      rotationToNextBody[2]*TWOPI/360.0, 
+      rotationToNextBody[1]*TWOPI/360.0, 
+      rotationToNextBody[0]*TWOPI/360.0);*/
 
-    //orientation DH frame
-    fin >> BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2X >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Y >>
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Z;
+    conn.m_posX = positionToNextBody[0];
+    conn.m_posY = positionToNextBody[1];
+    conn.m_posZ = positionToNextBody[2];
 
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2X = 
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2X*PI_180;
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Y =
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Y*PI_180;
-    BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Z =
-      BodyInfo[preIndx].m_pConnectionInfo[conn].m_orient2Z*PI_180;
+    conn.m_orientX = rotationToNextBody[0]*PI_180;
+    conn.m_orientY = rotationToNextBody[1]*PI_180;
+    conn.m_orientZ = rotationToNextBody[2]*PI_180;
 
     return true;
   }
@@ -345,6 +393,105 @@ namespace plum{
     }
 
   }
+
+  void
+    CEnvLoader::BuildRobotStructure() {
+      DoF = 0;
+      int robotIndex = 0;
+      for( int i=0; i<m_cNumberOfMultiBody; i++ ) {
+        if(m_pMBInfo[i].m_active){
+          robotIndex = i;
+          break;
+        }
+      }
+      CMultiBodyInfo& robot = m_pMBInfo[robotIndex];
+      //int fixedBodyCount = robot -> GetFixedBodyCount();
+      //int freeBodyCount = robot->GetFreeBodyCount();
+      //int numOfBodies = robot.m_cNumberOfBody;
+      for (int i = 0; i < robot.m_cNumberOfBody; i++) {
+        m_robotGraph.add_vertex(i);
+      }
+      //Total amount of bodies in environment: free + fixed
+      for (int i = 0; i < robot.m_cNumberOfBody; i++){
+        CBodyInfo& body = robot.m_pBodyInfo[i];  
+        //For each body, find forward connections and connect them 
+        for (int j = 0; j < body.m_cNumberOfConnection; j++) {
+          int nextIndex = body.m_pConnectionInfo[j].m_nextIndex;
+          m_robotGraph.add_edge(i, nextIndex);
+        } 
+      }
+
+      write_vertices_edges_graph(m_robotGraph,cout); 
+      //Robot ID typedef
+      typedef RobotGraph::vertex_descriptor RID; 
+      vector< pair<size_t,RID> > ccs;
+      stapl::vector_property_map< RobotGraph,size_t > cmap;
+      //Initialize CC information
+      get_cc_stats(m_robotGraph,cmap,ccs);
+      for (size_t i = 0; i < ccs.size(); i++) {
+        cmap.reset();
+        vector<RID> cc;
+        //Find CCs, construct robot objects
+        get_cc(m_robotGraph, cmap, ccs[i].second, cc);
+        size_t baseIndx = -1;
+        cout << "cc::" << cc.size() << endl;
+        for(size_t j = 0; j<cc.size(); j++){
+          size_t index = m_robotGraph.find_vertex(cc[j])->property();
+          cout << "index::" << index << endl;
+          cout << "IsBase?::" << robot.m_pBodyInfo[index].IsBase() << endl;
+          if(robot.m_pBodyInfo[index].IsBase()){
+            cout <<"Setting Base" << endl;
+            baseIndx = index;
+            break;
+          }
+        }
+        if(baseIndx == size_t(-1)){
+          cerr << "Each robot must have at least one base. Please fix .env file." << endl;
+          exit(1);
+        }
+
+        Robot::Base bt = robot.m_pBodyInfo[baseIndx].GetBase();
+        Robot::BaseMovement bm = robot.m_pBodyInfo[baseIndx].GetBaseMovement();
+        if(bt == Robot::PLANAR){
+          DoF += 2;
+          if(bm == Robot::ROTATIONAL){
+            DoF +=1;
+          }
+        }
+        else if(bt == Robot::VOLUMETRIC){
+          DoF += 3;
+          if(bm == Robot::ROTATIONAL){
+            DoF += 3;
+          }
+        }
+        Robot::JointMap jm;
+        for(size_t j = 0; j<cc.size(); j++){
+          size_t index = m_robotGraph.find_vertex(cc[j])->property();
+          typedef Robot::JointMap::iterator MIT;
+          cout << "Map::";
+          for(MIT mit = robot.GetJointMap().begin(); mit!=robot.GetJointMap().end(); mit++){
+            cout << "(" << mit->first.first << "," << mit->first.second << "),";
+            if(mit->first.first == index){
+              jm.push_back(*mit);
+              if(mit->second == Robot::REVOLUTE){
+                DoF += 1;
+              }
+              else if(mit->second == Robot::SPHERICAL){
+                DoF += 2;
+              }
+            }
+          }
+          cout << endl;
+        }
+        cout << "bt::" << bt << endl;
+        cout << "bm::" << bm << endl;
+        cout << "jm::" << jm.size() << endl;
+        cout << "baseIndex::" << baseIndx << endl;
+        robotVec.push_back(Robot(bt, bm, jm, baseIndx));
+      }
+
+      //make sure to set DoF
+    }
 
 }//namespace plum
 

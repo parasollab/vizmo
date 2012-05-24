@@ -107,7 +107,6 @@ void VizmoItemSelectionGUI::clear()
 
 void VizmoItemSelectionGUI::select()
 {
-
     vector<gliObj> sel=GetVizmo().GetSelectedItem();
     int size=sel.size();
     typedef list<VizmoListViewItem*>::iterator IIT;

@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_ENVMODEL_H_)
-#define _ENVMODEL_H_
+#ifndef ENVMODEL_H_
+#define ENVMODEL_H_
 
 #include "GLModel.h"
 #include "MultiBodyModel.h"
@@ -11,59 +11,60 @@
 
 namespace plum{
 
-    class CEnvLoader;
+  class CEnvLoader;
 
-    class CEnvModel : public CGLModel
-    {
+  class CEnvModel : public CGLModel {
     public:
-            //////////////////////////////////////////////////////////////////////
-            // Constructor/Destructor
-            //////////////////////////////////////////////////////////////////////
-            CEnvModel();
+      //////////////////////////////////////////////////////////////////////
+      // Constructor/Destructor
+      //////////////////////////////////////////////////////////////////////
+      CEnvModel();
 
-            //////////////////////////////////////////////////////////////////////
-            // Access functions
-            //////////////////////////////////////////////////////////////////////
-            void SetEnvLoader( CEnvLoader * envLoader ){ m_envLoader = envLoader; }
-            double GetRadius() const { return m_R; }
-            const Point3d& GetCOM() const { return m_COM; }
-	    void ChangeColor(); //changes object's color randomly
-	    vector<CPolyhedronModel *> getPoly();
-	    vector<CMultiBodyModel *> getMBody();
+      //////////////////////////////////////////////////////////////////////
+      // Access functions
+      //////////////////////////////////////////////////////////////////////
+      void SetEnvLoader( CEnvLoader * envLoader ){ m_envLoader = envLoader; }
+      double GetRadius() const { return m_R; }
+      const Point3d& GetCOM() const { return m_COM; }
+      void ChangeColor(); //changes object's color randomly
+      vector<vector<CPolyhedronModel> > getPoly();
+      vector<MultiBodyModel *> getMBody();
 
-	    void DeleteMBModel(CMultiBodyModel *mbl);
+      void DeleteMBModel(MultiBodyModel *mbl);
 
-	    void AddMBModel(CMultiBodyInfo newMBI);
+      void AddMBModel(CMultiBodyInfo newMBI);
 
-	    //////////////////////////////////
-	    // TESTING to save Env. file
-	    /////////////////////////////////
-	    bool SaveFile(const char *filename);
+      //////////////////////////////////
+      // TESTING to save Env. file
+      /////////////////////////////////
+      bool SaveFile(const char *filename);
 
-            //////////////////////////////////////////////////////////////////////
-            // Action functions
-            //////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////
+      // Action functions
+      //////////////////////////////////////////////////////////////////////
 
-            virtual bool BuildModels();
-            virtual void Draw( GLenum mode );
-            virtual void Select( unsigned int * index, vector<gliObj>& sel );
-            virtual const string GetName() const { return "Environment"; }
-            virtual void GetChildren( list<CGLModel*>& models ){ 
-                typedef vector<CMultiBodyModel *>::iterator MIT;
-                for(MIT i=m_pMBModel.begin();i!=m_pMBModel.end();i++)
-                    models.push_back(*i);
-            }
-            virtual list<string> GetInfo() const;
-            
-                        
+      virtual bool BuildModels();
+      virtual void Draw( GLenum mode );
+      virtual void Select( unsigned int * index, vector<gliObj>& sel );
+      virtual const string GetName() const { return "Environment"; }
+      virtual void GetChildren( list<CGLModel*>& models ){ 
+        typedef vector<MultiBodyModel *>::iterator MIT;
+        for(MIT i=m_pMBModel.begin();i!=m_pMBModel.end();i++){
+          if((*i)->IsFixed())
+            models.push_back(*i);
+        }
+      }
+      virtual list<string> GetInfo() const;
+
+
 
     private:
-            CEnvLoader * m_envLoader;      //a pointer to CEnvLoader
-            vector<CMultiBodyModel *> m_pMBModel; //an array of CMultiBodyModel
+      CEnvLoader * m_envLoader;      //a pointer to CEnvLoader
+      vector<MultiBodyModel *> m_pMBModel; //an array of MultiBodyModel
 
-            double m_R;    ///radius
-            Point3d m_COM; ///center of mass
-    };
+      double m_R;    ///radius
+      Point3d m_COM; ///center of mass
+  };
 
 }//namespace plum
 
