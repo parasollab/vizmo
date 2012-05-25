@@ -19,10 +19,6 @@ UTILS_DIR = $(VIZMO_DIR)/utils
 include ${UTILS_DIR}/makefile_includes/Makefile.defaults
 
 RPM = 0
-ifeq ($(RPM), 1)
-  OPTS+=-fPIC 
-endif
-
 
 #--------------------------------------------------------------------
 # Xlib
