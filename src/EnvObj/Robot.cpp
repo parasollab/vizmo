@@ -370,10 +370,9 @@ void OBPRMView_Robot::Configure(vector<double>& _cfg){
 }
 
 vector<double> OBPRMView_Robot::returnCurrCfg( int dof){
-   vector<double> currentCfg(dof, 0); 
-
+   vector<double> currentCfg; 
    for(int i=0;i<dof;i++){
-     currentCfg[i] = RotFstBody[i];
+     currentCfg.push_back(RotFstBody[i]);
    }
    return currentCfg;
 }
