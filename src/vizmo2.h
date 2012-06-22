@@ -244,7 +244,7 @@ class vizmo
       void ChangeNodesRandomColor();
       PlumObject * GetMap() const { return m_obj.m_Map; }
 
-      void setMapObj(CMapLoader<CCfg,CSimpleEdge> *ml, CMapModel<CCfg,CSimpleEdge> * mm);
+      void setMapObj(CMapLoader<CCfg,Edge> *ml, CMapModel<CCfg,Edge> * mm);
 
       //////////////////////////////////////////////////////////////////////
       // Path Related Function
