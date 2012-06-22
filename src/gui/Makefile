@@ -13,14 +13,14 @@ endif
 OBJECTS = GUI.o	MainWin.o scene_win.o AnimationGUI.o \
           snapshot_gui.o ItemSelectionGUI.o FileListDialog.o \
 	  ObjProperty.o roadmap.o OBPRMGUI.o AddObjDialog.o\
-	  vizmoEditor.o queryGUI.o
+	  vizmoEditor.o QueryGUI.o
 
 SRCMOC = moc_MainWin.cpp moc_scene_win.cpp moc_AnimationGUI.cpp moc_snapshot_gui.cpp \
          moc_ItemSelectionGUI.cpp moc_roadmap.cpp moc_FileListDialog.cpp moc_ObjProperty.cpp \
-	 moc_OBPRMGUI.cpp moc_AddObjDialog.cpp moc_vizmoEditor.cpp moc_AttributeSelectionGUI.cpp moc_queryGUI.cpp
+	 moc_OBPRMGUI.cpp moc_AddObjDialog.cpp moc_vizmoEditor.cpp moc_AttributeSelectionGUI.cpp moc_QueryGUI.cpp
 OBJMOC = moc_MainWin.o moc_scene_win.o moc_AnimationGUI.o moc_snapshot_gui.o moc_ItemSelectionGUI.o \
          moc_roadmap.o moc_FileListDialog.o moc_ObjProperty.o moc_OBPRMGUI.o \
-	 moc_AddObjDialog.o moc_vizmoEditor.o moc_queryGUI.o
+	 moc_AddObjDialog.o moc_vizmoEditor.o moc_QueryGUI.o
 
 
 first: all
@@ -85,7 +85,7 @@ moc_AddObjDialog.cpp: $(MOC) AddObjDialog.h
 moc_vizmoEditor.cpp: $(MOC) vizmoEditor.h
 	$(MOC) vizmoEditor.h -o moc_vizmoEditor.cpp
 
-moc_queryGUI.cpp: $(MOC) queryGUI.h
-	$(MOC) queryGUI.h -o moc_queryGUI.cpp
+moc_QueryGUI.cpp: $(MOC) QueryGUI.h
+	$(MOC) QueryGUI.h -o moc_QueryGUI.cpp
 
 -include Dependencies

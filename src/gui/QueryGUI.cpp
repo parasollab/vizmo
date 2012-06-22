@@ -1,5 +1,5 @@
 #include "vizmo2.h"
-#include "queryGUI.h"
+#include "QueryGUI.h"
 
 queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
 :QDialog(parent)
