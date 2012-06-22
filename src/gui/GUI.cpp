@@ -1,4 +1,4 @@
-#include "gui.h"
+#include "GUI.h"
 #include "main_win.h"
 #include <glut.h>
 #include <iostream>

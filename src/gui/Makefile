@@ -10,16 +10,16 @@ endif
 
 ####### Output directory
 
-OBJECTS = gui.o	main_win.o scene_win.o AnimationGUI.o \
-          snapshot_gui.o itemselection_gui.o filelistDialog.o \
+OBJECTS = GUI.o	main_win.o scene_win.o AnimationGUI.o \
+          snapshot_gui.o itemselection_gui.o FileListDialog.o \
 	  obj_property.o roadmap.o obprmGUI.o AddObjDialog.o\
 	  vizmoEditor.o queryGUI.o
 
 SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_AnimationGUI.cpp moc_snapshot_gui.cpp \
-         moc_itemselection_gui.cpp moc_roadmap.cpp moc_filelistDialog.cpp moc_obj_property.cpp \
-	 moc_obprmGUI.cpp moc_AddObjDialog.cpp moc_vizmoEditor.cpp moc_attributeselectio_gui.cpp moc_queryGUI.cpp
+         moc_itemselection_gui.cpp moc_roadmap.cpp moc_FileListDialog.cpp moc_obj_property.cpp \
+	 moc_obprmGUI.cpp moc_AddObjDialog.cpp moc_vizmoEditor.cpp moc_AttributeSelectionGUI.cpp moc_queryGUI.cpp
 OBJMOC = moc_main_win.o moc_scene_win.o moc_AnimationGUI.o moc_snapshot_gui.o moc_itemselection_gui.o \
-         moc_roadmap.o moc_filelistDialog.o moc_obj_property.o moc_obprmGUI.o \
+         moc_roadmap.o moc_FileListDialog.o moc_obj_property.o moc_obprmGUI.o \
 	 moc_AddObjDialog.o moc_vizmoEditor.o moc_queryGUI.o
 
 
@@ -70,8 +70,8 @@ moc_roadmap.cpp: $(MOC) roadmap.h
 moc_snapshot_gui.cpp:  $(MOC) snapshot_gui.h
 	$(MOC) snapshot_gui.h -o moc_snapshot_gui.cpp
 
-moc_filelistDialog.cpp: $(MOC) filelistDialog.h
-	$(MOC) filelistDialog.h -o moc_filelistDialog.cpp
+moc_FileListDialog.cpp: $(MOC) FileListDialog.h
+	$(MOC) FileListDialog.h -o moc_FileListDialog.cpp
 
 moc_obj_property.cpp: $(MOC) obj_property.h
 	$(MOC) obj_property.h -o moc_obj_property.cpp
