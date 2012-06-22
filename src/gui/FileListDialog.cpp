@@ -1,5 +1,5 @@
 #include "vizmo2.h"
-#include "filelistDialog.h"
+#include "FileListDialog.h"
 #include "icon/folder.xpm"
 #include "icon/eye.xpm"
 
