@@ -11,14 +11,14 @@ endif
 ####### Output directory
 
 OBJECTS = GUI.o	main_win.o scene_win.o AnimationGUI.o \
-          snapshot_gui.o itemselection_gui.o FileListDialog.o \
+          snapshot_gui.o ItemSelectionGUI.o FileListDialog.o \
 	  obj_property.o roadmap.o obprmGUI.o AddObjDialog.o\
 	  vizmoEditor.o queryGUI.o
 
 SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_AnimationGUI.cpp moc_snapshot_gui.cpp \
-         moc_itemselection_gui.cpp moc_roadmap.cpp moc_FileListDialog.cpp moc_obj_property.cpp \
+         moc_ItemSelectionGUI.cpp moc_roadmap.cpp moc_FileListDialog.cpp moc_obj_property.cpp \
 	 moc_obprmGUI.cpp moc_AddObjDialog.cpp moc_vizmoEditor.cpp moc_AttributeSelectionGUI.cpp moc_queryGUI.cpp
-OBJMOC = moc_main_win.o moc_scene_win.o moc_AnimationGUI.o moc_snapshot_gui.o moc_itemselection_gui.o \
+OBJMOC = moc_main_win.o moc_scene_win.o moc_AnimationGUI.o moc_snapshot_gui.o moc_ItemSelectionGUI.o \
          moc_roadmap.o moc_FileListDialog.o moc_obj_property.o moc_obprmGUI.o \
 	 moc_AddObjDialog.o moc_vizmoEditor.o moc_queryGUI.o
 
@@ -61,8 +61,8 @@ moc_scene_win.cpp: $(MOC) scene_win.h
 moc_AnimationGUI.cpp:  $(MOC) AnimationGUI.h
 	$(MOC) AnimationGUI.h -o moc_AnimationGUI.cpp
 
-moc_itemselection_gui.cpp: $(MOC) itemselection_gui.h
-	$(MOC) itemselection_gui.h -o moc_itemselection_gui.cpp
+moc_ItemSelectionGUI.cpp: $(MOC) ItemSelectionGUI.h
+	$(MOC) ItemSelectionGUI.h -o moc_ItemSelectionGUI.cpp
 
 moc_roadmap.cpp: $(MOC) roadmap.h
 	$(MOC) roadmap.h -o moc_roadmap.cpp
