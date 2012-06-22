@@ -1,5 +1,5 @@
 #include "vizmo2.h"
-#include "obprmGUI.h"
+#include "OBPRMGUI.h"
 
 #include "icon/folder.xpm"
 #include "icon/clip.xpm"
