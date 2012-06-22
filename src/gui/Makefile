@@ -10,15 +10,15 @@ endif
 
 ####### Output directory
 
-OBJECTS = gui.o	main_win.o scene_win.o animation_gui.o \
+OBJECTS = gui.o	main_win.o scene_win.o AnimationGUI.o \
           snapshot_gui.o itemselection_gui.o filelistDialog.o \
 	  obj_property.o roadmap.o obprmGUI.o AddObjDialog.o\
 	  vizmoEditor.o queryGUI.o
 
-SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp \
+SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_AnimationGUI.cpp moc_snapshot_gui.cpp \
          moc_itemselection_gui.cpp moc_roadmap.cpp moc_filelistDialog.cpp moc_obj_property.cpp \
 	 moc_obprmGUI.cpp moc_AddObjDialog.cpp moc_vizmoEditor.cpp moc_attributeselectio_gui.cpp moc_queryGUI.cpp
-OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o \
+OBJMOC = moc_main_win.o moc_scene_win.o moc_AnimationGUI.o moc_snapshot_gui.o moc_itemselection_gui.o \
          moc_roadmap.o moc_filelistDialog.o moc_obj_property.o moc_obprmGUI.o \
 	 moc_AddObjDialog.o moc_vizmoEditor.o moc_queryGUI.o
 
@@ -58,8 +58,8 @@ moc_main_win.cpp: $(MOC) main_win.h
 moc_scene_win.cpp: $(MOC) scene_win.h
 	$(MOC) scene_win.h -o moc_scene_win.cpp
 
-moc_animation_gui.cpp:  $(MOC) animation_gui.h
-	$(MOC) animation_gui.h -o moc_animation_gui.cpp
+moc_AnimationGUI.cpp:  $(MOC) AnimationGUI.h
+	$(MOC) AnimationGUI.h -o moc_AnimationGUI.cpp
 
 moc_itemselection_gui.cpp: $(MOC) itemselection_gui.h
 	$(MOC) itemselection_gui.h -o moc_itemselection_gui.cpp
