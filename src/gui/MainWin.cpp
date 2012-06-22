@@ -1,16 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 //Include Vizmo2 Headers
 #include "vizmo2.h"
-#include "main_win.h"  
+#include "MainWin.h"  
 #include "scene_win.h"
-#include "animation_gui.h"
+#include "AnimationGUI.h"
 #include "snapshot_gui.h"
-#include "itemselection_gui.h"
+#include "ItemSelectionGUI.h"
 #include "roadmap.h"
-#include "filelistDialog.h"
+#include "FileListDialog.h"
 #include "obj_property.h"
 #include "obprmGUI.h"
-#include "addObjDialog.h"
+#include "AddObjDialog.h"
 #include "vizmoEditor.h"
 #include "queryGUI.h"
 
@@ -43,6 +43,9 @@
 #include "icon/navigate.xpm"
 #include "icon/flag.xpm"
 #include "icon/pallet.xpm"
+#include "icon/make_solid.xpm" 
+#include "icon/make_wired.xpm"
+#include "icon/make_invisible.xpm" 
 //#include "icon/tapes.xpm"
 #include "icon/crash_burn.xpm"
 #include "icon/edit.xpm"
@@ -364,10 +367,10 @@ void VizmoMainWin::showmap()          //show roadmap
     show=!show;
     GetVizmo().ShowRoadMap(show);
     roadmapGUI->reset();
-    typedef CMapModel<CCfg,CSimpleEdge> MM;
-    typedef CCModel<CCfg,CSimpleEdge> CC;
+    typedef CMapModel<CCfg,Edge> MM;
+    typedef CCModel<CCfg,Edge> CC;
     typedef vector<CC*>::iterator CCIT;
-    CMapModel<CCfg,CSimpleEdge>* mmodel =(MM*)GetVizmo().GetMap()->getModel();
+    CMapModel<CCfg,Edge>* mmodel =(MM*)GetVizmo().GetMap()->getModel();
     vector<CC*>& cc=mmodel->GetCCModels();
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
             (*ic)->DrawSelect();
@@ -1148,7 +1151,7 @@ void VizmoMainWin::SetTips(){
 void VizmoMainWin::CreateToolbar(){
     
     QPixmap folderIcon, pathIcon, cameraIcon, roadmapIcon, strtGoalIcon, palletIcon, envIcon,
-            CDIcon;
+            CDIcon, mksolidIcon;
     
     vizmoTools = new Q3ToolBar(this, "Main Operations");
     //vizmoTools = new QToolBar("Main Operations",this);
