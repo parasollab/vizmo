@@ -1,5 +1,5 @@
 #include "vizmo2.h"
-#include "obj_property.h"
+#include "ObjProperty.h"
 #include "icon/eye.xpm"
 
 #include <q3grid.h>
