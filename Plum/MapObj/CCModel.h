@@ -1,5 +1,5 @@
-#ifndef _PLUM_CCMODEL_H_
-#define _PLUM_CCMODEL_H_
+#ifndef CCMODEL_H_
+#define CCMODEL_H_
 
 #include <graph.h>
 #include <algorithms/connected_components.h>
@@ -10,13 +10,15 @@
 
 
 #include "GLModel.h"
-#include "MapLoader.h"
+//#include "SimpleCfg.h"
 #include "Cfg.h"
-#include "SimpleCfg.h"
+#include "Edge.h" 
+#include "MapLoader.h"
 #include "src/EnvObj/Robot.h"
 
 using namespace std;
 using namespace stapl;
+using namespace plum;
 
 namespace plum{
 
@@ -37,9 +39,10 @@ namespace plum{
       m_enableSelection = true;
       m_RenderMode = CPlumState::MV_INVISIBLE_MODE;
       //Set random Color
-      m_RGBA[0]=((float)rand())/RAND_MAX;
-      m_RGBA[1]=((float)rand())/RAND_MAX;
-      m_RGBA[2]=((float)rand())/RAND_MAX;
+      m_RGBA.clear(); 
+      m_RGBA.push_back(((float)rand())/RAND_MAX);
+      m_RGBA.push_back(((float)rand())/RAND_MAX);
+      m_RGBA.push_back(((float)rand())/RAND_MAX);  
       //size
       m_fRobotScale = 1;
       m_fBoxScale = 1;
@@ -96,9 +99,9 @@ namespace plum{
       m_sNodeShape = _s;
       CGLModel::SetColor(_r, _g, _b, 1); 
 
-      m_RGBA[0] = _r;
-      m_RGBA[1] = _g;
-      m_RGBA[2] = _b;
+      m_RGBA.push_back(_r);
+      m_RGBA.push_back(_g);
+      m_RGBA.push_back(_b);
 
     }
 
@@ -121,7 +124,7 @@ namespace plum{
     float getBoxSize() {return m_fBoxScale;}
     
     //get color
-    float *getColor() {return m_RGBA;}
+    vector<float> getColor() {return m_RGBA;}
 
     protected:
     //CC ID
@@ -209,22 +212,25 @@ namespace plum{
       m_sNodeShape = _s;
       CGLModel::SetColor(_r, _g, _b, 1); 
 
-      m_RGBA[0] = _r;
-      m_RGBA[1] = _g;
-      m_RGBA[2] = _b;
+      m_RGBA.clear(); 
+      m_RGBA.push_back(_r);
+      m_RGBA.push_back(_g);
+      m_RGBA.push_back(_b);
 
       typedef vector<CCfg>::iterator NIT;
       for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++){
-        (*i).m_RGBA[0] = _r;
-        (*i).m_RGBA[1] = _g;
-        (*i).m_RGBA[2] = _b;
+        (*i).m_RGBA.clear(); 
+        (*i).m_RGBA.push_back(_r);
+        (*i).m_RGBA.push_back(_g);
+        (*i).m_RGBA.push_back(_b);
       }
 
-      typedef vector<CSimpleEdge>::iterator EIT;
+      typedef vector<Edge>::iterator EIT;
       for(EIT i=m_Edges.begin();i!=m_Edges.end();i++){
-        (*i).m_RGBA[0] = _r;
-        (*i).m_RGBA[1] = _g;
-        (*i).m_RGBA[2] = _b;
+        (*i).m_RGBA.clear(); 
+        (*i).m_RGBA.push_back(_r);
+        (*i).m_RGBA.push_back(_g);
+        (*i).m_RGBA.push_back(_b);
 
       }
     }
@@ -234,27 +240,31 @@ namespace plum{
 
       ReBuildAll();
 
-      m_RGBA[0] = _r;
-      m_RGBA[1] = _g;
-      m_RGBA[2] = _b;
+      m_RGBA.clear(); 
+      m_RGBA.push_back(_r);
+      m_RGBA.push_back(_g);
+      m_RGBA.push_back(_b);
 
       typedef vector<CCfg>::iterator NIT;
       for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++) {
-        (*i).m_RGBA[0] = _r;
-        (*i).m_RGBA[1] = _g;
-        (*i).m_RGBA[2] = _b;
+        (*i).m_RGBA.clear(); 
+        (*i).m_RGBA.push_back( _r);
+        (*i).m_RGBA.push_back( _g);
+        (*i).m_RGBA.push_back(_b); 
       }
 
-      typedef vector<CSimpleEdge>::iterator EIT;
+      typedef vector<Edge>::iterator EIT;
       for(EIT i=m_Edges.begin();i!=m_Edges.end();i++) {
-        (*i).m_RGBA[0] = _r;
-        (*i).m_RGBA[1] = _g;
-        (*i).m_RGBA[2] = _b;
+        (*i).m_RGBA.clear(); 
+        (*i).m_RGBA.push_back(_r);
+        (*i).m_RGBA.push_back(_g);
+        (*i).m_RGBA.push_back(_b);
       }
 
     }
 
-    void change_properties(Shape _s, float _size, float* _color, bool _isNew){
+    //void change_properties(Shape _s, float _size, float* _color, bool _isNew){
+    void change_properties(Shape _s, float _size, vector<float> _color, bool _isNew){ 
       m_RenderMode = CPlumState::MV_SOLID_MODE;
       m_sNodeShape = _s;
       if(_s == 0){ 
@@ -282,7 +292,7 @@ namespace plum{
       for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++)
         _models.push_back(&*i);
 
-      typedef vector<CSimpleEdge>::iterator EIT;
+      typedef vector<Edge>::iterator EIT;
       for(EIT i=m_Edges.begin();i!=m_Edges.end();i++)
         _models.push_back(&(*i)); 
     }
@@ -408,9 +418,9 @@ namespace plum{
       cout << "m_pRobot is NULL" << endl;
       return;
     } //no robot given
+    
+    vector<float> origColor = m_pRobot->GetColor(); 
 
-    float origColor[4];
-    memcpy(origColor,m_pRobot->GetColor(),4*sizeof(float));
     m_pRobot->BackUp();
     //m_idRobot = glGenLists(1);
     //glNewList( m_idRobot, GL_COMPILE );

@@ -138,28 +138,28 @@ m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
     
-    CSimpleEdge::CSimpleEdge()
+    Edge::Edge()
     {
         m_LP = INT_MAX;
         m_Weight = LONG_MAX;
 		m_ID=-1;
     }
     
-    CSimpleEdge::CSimpleEdge(double weight)
+    Edge::Edge(double weight)
     {
         m_LP = INT_MAX;
         m_Weight = weight;
 		m_ID=-1;
     }
     
-    CSimpleEdge::~CSimpleEdge()
+    Edge::~Edge()
     {
         m_LP = INT_MAX;
         m_Weight = LONG_MAX;
 		m_ID=-1;
     }
     
-    void CSimpleEdge::Draw(GLenum mode) 
+    void Edge::Draw(GLenum mode) 
     {
 		glPushName(m_ID);
         glBegin( GL_LINES );
@@ -169,7 +169,7 @@ m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);
 		glPopName();
     }
 	
-	void CSimpleEdge::DrawSelect()
+	void Edge::DrawSelect()
 	{
 		glColor3d(1,1,0);
 		glLineWidth(4);
@@ -179,13 +179,13 @@ m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);
         glEnd();
 	}
 
-    bool CSimpleEdge::operator==( const CSimpleEdge & other ){
+    bool Edge::operator==( const Edge & other ){
         if( m_LP != other.m_LP || m_Weight != other.m_Weight ) 
             return false;        
         return true;
     }
 
-	list<string> CSimpleEdge::GetInfo() const 
+	list<string> Edge::GetInfo() const 
     { 	
         list<string> info; 
         {
@@ -221,13 +221,13 @@ m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);
         return in;
     }
     
-    ostream & operator<<( ostream & out, const CSimpleEdge & edge )
+    ostream & operator<<( ostream & out, const Edge & edge )
     {
         out << edge.m_LP << " " << edge.m_Weight;
         return out;
     }
     
-    istream & operator>>( istream &  in, CSimpleEdge & edge )
+    istream & operator>>( istream &  in, Edge & edge )
     {
         in >> edge.m_LP >> edge.m_Weight;
         return in;

@@ -97,14 +97,14 @@ namespace plum{
     
     //////////////////////////////////////////////////////////////////////
     //
-    //      CSimpleEdge
+    //      Edge
     //
     //////////////////////////////////////////////////////////////////////
     
-    class CSimpleEdge : public CGLModel
+    class Edge : public CGLModel
     {
-        friend ostream & operator<<( ostream & out, const CSimpleEdge & edge );
-        friend istream & operator>>( istream &  in, CSimpleEdge & edge );
+        friend ostream & operator<<( ostream & out, const Edge & edge );
+        friend istream & operator>>( istream &  in, Edge & edge );
         
     public:
         
@@ -112,11 +112,11 @@ namespace plum{
         //      Constructor/Destructor
         //////////////////////////////////////////////////////////////////////
         
-        CSimpleEdge();
-        CSimpleEdge(double weight);
-        ~CSimpleEdge();
+        Edge();
+        Edge(double weight);
+        ~Edge();
         
-        bool operator==( const CSimpleEdge & other );
+        bool operator==( const Edge & other );
         void Set(int id, CSimpleCfg * c1, CSimpleCfg * c2)
 		{ m_ID=id; m_s=c1; m_e=c2; }
 

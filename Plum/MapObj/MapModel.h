@@ -56,7 +56,7 @@ namespace plum{
 	  cc->RobotModel(m_pRobot);  
 	  cc->BuildModels(vid,graph); 
 	  float size;
-	  float *color;
+          vector<float> color; 
 	  if(m_CCModels[m_CCModels.size()-1]->getShape() == 0)
 	    size = m_CCModels[m_CCModels.size()-1]->getRobotSize();
 	  else if(m_CCModels[m_CCModels.size()-1]->getShape() == 1)
@@ -88,10 +88,10 @@ namespace plum{
             typedef typename vector<myCCModel*>::iterator CIT;
             for(CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ )
                 models.push_back(*ic);
-        }
+        } 
 
 	void SetProperties(typename myCCModel::Shape s, float size, 
-			   float *color, bool isNew){
+			   vector<float> color, bool isNew){
 	  typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
 	  for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ )
 	    (*ic)->change_properties(s, size, color, isNew);
@@ -158,7 +158,7 @@ namespace plum{
         int CCSize=ccs.size();
         m_CCModels.reserve(CCSize);
         for( CIT ic=ccs.begin();ic!=ccs.end();ic++ ){
-            myCCModel * cc=new myCCModel(ic-ccs.begin());
+            myCCModel* cc=new myCCModel(ic-ccs.begin());
             cc->RobotModel(m_pRobot);    
             cc->BuildModels(ic->second,graph);   
             m_CCModels.push_back(cc);
