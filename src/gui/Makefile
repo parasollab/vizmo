@@ -12,14 +12,14 @@ endif
 
 OBJECTS = GUI.o	MainWin.o scene_win.o AnimationGUI.o \
           snapshot_gui.o ItemSelectionGUI.o FileListDialog.o \
-	  ObjProperty.o roadmap.o OBPRMGUI.o AddObjDialog.o\
+	  ObjProperty.o Roadmap.o OBPRMGUI.o AddObjDialog.o\
 	  vizmoEditor.o QueryGUI.o
 
 SRCMOC = moc_MainWin.cpp moc_scene_win.cpp moc_AnimationGUI.cpp moc_snapshot_gui.cpp \
-         moc_ItemSelectionGUI.cpp moc_roadmap.cpp moc_FileListDialog.cpp moc_ObjProperty.cpp \
+         moc_ItemSelectionGUI.cpp moc_Roadmap.cpp moc_FileListDialog.cpp moc_ObjProperty.cpp \
 	 moc_OBPRMGUI.cpp moc_AddObjDialog.cpp moc_vizmoEditor.cpp moc_AttributeSelectionGUI.cpp moc_QueryGUI.cpp
 OBJMOC = moc_MainWin.o moc_scene_win.o moc_AnimationGUI.o moc_snapshot_gui.o moc_ItemSelectionGUI.o \
-         moc_roadmap.o moc_FileListDialog.o moc_ObjProperty.o moc_OBPRMGUI.o \
+         moc_Roadmap.o moc_FileListDialog.o moc_ObjProperty.o moc_OBPRMGUI.o \
 	 moc_AddObjDialog.o moc_vizmoEditor.o moc_QueryGUI.o
 
 
@@ -64,8 +64,8 @@ moc_AnimationGUI.cpp:  $(MOC) AnimationGUI.h
 moc_ItemSelectionGUI.cpp: $(MOC) ItemSelectionGUI.h
 	$(MOC) ItemSelectionGUI.h -o moc_ItemSelectionGUI.cpp
 
-moc_roadmap.cpp: $(MOC) roadmap.h
-	$(MOC) roadmap.h -o moc_roadmap.cpp
+moc_Roadmap.cpp: $(MOC) Roadmap.h
+	$(MOC) Roadmap.h -o moc_Roadmap.cpp
 
 moc_snapshot_gui.cpp:  $(MOC) snapshot_gui.h
 	$(MOC) snapshot_gui.h -o moc_snapshot_gui.cpp

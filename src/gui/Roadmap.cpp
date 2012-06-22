@@ -1,5 +1,5 @@
-#include "roadmap.h"
-#include "queryGUI.h"
+#include "Roadmap.h"
+#include "QueryGUI.h"
 ///////////////////////////////////////////////////////////////////////////////// 
 //// Include Qt Headers
 #include <qapplication.h>
@@ -33,8 +33,11 @@
 #include "icon/bulb.xpm"
 #include "icon/cross.xpm"
 #include "icon/crossEdge.xpm"
-
-
+#include "icon/make_solid.xpm" 
+#include "icon/make_wired.xpm"
+#include "icon/make_invisible.xpm" 
+#include "icon/cc_color.xpm"
+#include "icon/rcolor.xpm" 
 
 VizmoRoadmapGUI::VizmoRoadmapGUI( Q3MainWindow * parent,char *name)
    :Q3ToolBar(parent, name){
@@ -62,35 +65,35 @@ void VizmoRoadmapGUI::createGUI()
    sizeAction->addTo(this);
    sizeAction->setEnabled(false);
 
-   colorAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Random Color"), this);
+   colorAction = new QAction (QIcon(QPixmap(icon_rcolor)),tr("Random Color"), this);
    colorAction->setShortcut(tr("CTRL+R"));
    colorAction->setToolTip ( "CC's Random Color" );
    connect(colorAction,SIGNAL(activated()), this, SLOT(changeColor()) );
    colorAction->addTo(this);
    colorAction->setEnabled(false);
 
-   colorSelectAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Change Color"), this);
+   colorSelectAction = new QAction (QIcon(QPixmap(icon_cc_color)),tr("Change Color"), this);
    colorSelectAction->setShortcut(tr("CTRL+C"));
    colorSelectAction->setToolTip ( "Change Selected CC's Color" );
    connect(colorSelectAction,SIGNAL(activated()), this, SLOT(changeColorOfCCselected()) );
    colorSelectAction->addTo(this);
    colorSelectAction->setEnabled(false);
 
-   invisibleSelectNodeAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Change to Invisible"), this);
+   invisibleSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_invisible)),tr("Change to Invisible"), this);
    invisibleSelectNodeAction->setShortcut(tr("CTRL+N"));
    invisibleSelectNodeAction->setToolTip ( "Make Invisible" );
    connect(invisibleSelectNodeAction,SIGNAL(activated()), this, SLOT(changeInvisibleOfNodeselected()) );
    invisibleSelectNodeAction->addTo(this);
    invisibleSelectNodeAction->setEnabled(false);
 
-   wireSelectNodeAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Change to Wire Mode"), this);
+   wireSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_wired)),tr("Change to Wire Mode"), this);
    wireSelectNodeAction->setShortcut(tr("CTRL+N"));
    wireSelectNodeAction->setToolTip ( "Make Wired" );
    connect(wireSelectNodeAction,SIGNAL(activated()), this, SLOT(changeWireOfNodeselected()) );
    wireSelectNodeAction->addTo(this);
    wireSelectNodeAction->setEnabled(false);
 
-   solidSelectNodeAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Change to Solid Mode"), this);
+   solidSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_solid)),tr("Change to Solid Mode"), this);
    solidSelectNodeAction->setShortcut(tr("CTRL+N"));
    solidSelectNodeAction->setToolTip ( "Make Solid" );
    connect(solidSelectNodeAction,SIGNAL(activated()), this, SLOT(changeSolidOfNodeselected()) );
@@ -135,8 +138,8 @@ void VizmoRoadmapGUI::createGUI()
    connect(listWidget,SIGNAL(currentItemChanged ( QListWidgetItem *, QListWidgetItem *)),this,SLOT(getSelectedItem()));  
    listWidget->setEnabled(false);
    // listWidget->resize (minimumSize);
-   listWidget->setMinimumSize ( 60, 60 );
-   listWidget->setMaximumSize ( 60, 60 );
+   listWidget->setMinimumSize ( 80, 80 );
+   listWidget->setMaximumSize ( 80, 80 );
 
    // l =  new Q3ListBox( this );
    //  l->setFocusPolicy( Qt::StrongFocus ); 
@@ -531,9 +534,9 @@ void VizmoRoadmapGUI::handleAddEdge()
    m_Map = GetVizmo().GetMap();
    CCfg *cfg1, *cfg2;
 
-   typedef CMapLoader<CCfg,CSimpleEdge>::Wg WG;
+   typedef CMapLoader<CCfg,Edge>::Wg WG;
    WG * graph;
-   CMapLoader<CCfg,CSimpleEdge> *m_loader=(CMapLoader<CCfg,CSimpleEdge>*)m_Map->getLoader();
+   CMapLoader<CCfg,Edge> *m_loader=(CMapLoader<CCfg,Edge>*)m_Map->getLoader();
    graph = m_loader->GetGraph();
 
    //get from m_nodes node1 and node2
@@ -554,14 +557,14 @@ void VizmoRoadmapGUI::handleAddEdge()
       // get a CC id
       int CC_id = cfg1->GetCC_ID();
       //get mapModel
-      CMapModel<CCfg,CSimpleEdge>* mmodel =(CMapModel<CCfg,CSimpleEdge>*)m_Map->getModel();
+      CMapModel<CCfg,Edge>* mmodel =(CMapModel<CCfg,Edge>*)m_Map->getModel();
       //get the CCModel of Cfg
-      CCModel<CCfg,CSimpleEdge>* m_CCModel = mmodel->GetCCModel(CC_id);
+      CCModel<CCfg,Edge>* m_CCModel = mmodel->GetCCModel(CC_id);
       //add edge to CC 
       m_CCModel->addEdge(cfg1, cfg2);
 
       //backUp current prpoperties:
-      CCModel<CCfg,CSimpleEdge>::Shape shape = m_CCModel->getShape();
+      CCModel<CCfg,Edge>::Shape shape = m_CCModel->getShape();
       float size;
       if(shape == 0)
          size = m_CCModel->getRobotSize();
@@ -569,7 +572,8 @@ void VizmoRoadmapGUI::handleAddEdge()
          size = m_CCModel->getBoxSize();
       else
          size = 0;
-      float *rgb;
+      //float *rgb;
+      vector<float> rgb; 
       rgb = m_CCModel->getColor();
 
       mmodel->BuildModels();
@@ -615,8 +619,8 @@ void VizmoRoadmapGUI::handleAddNode()
       else{ //no node selected and assumes there is not roadmap....
 
             if (GetVizmo().GetMap() == NULL) {
-            CMapLoader<CCfg,CSimpleEdge> * mloader=new CMapLoader<CCfg,CSimpleEdge>();
-            CMapModel<CCfg,CSimpleEdge> * mmodel = new CMapModel<CCfg,CSimpleEdge>();
+            CMapLoader<CCfg,Edge> * mloader=new CMapLoader<CCfg,Edge>();
+            CMapModel<CCfg,Edge> * mmodel = new CMapModel<CCfg,Edge>();
 
             mmodel->SetMapLoader(mloader);
 
@@ -637,7 +641,7 @@ void VizmoRoadmapGUI::handleAddNode()
             mloader->genGraph();
 
             //add node to graph
-            typedef CMapLoader<CCfg,CSimpleEdge>::Wg WG;
+            typedef CMapLoader<CCfg,Edge>::Wg WG;
             WG * graph;
             graph = mloader->GetGraph();
             //int numVert = graph->GetVertexCount();
@@ -817,9 +821,9 @@ void VizmoRoadmapGUI::createWindow(){
       PlumObject * m_Map;
       m_Map = GetVizmo().GetMap();
 
-      typedef CMapLoader<CCfg,CSimpleEdge>::Wg WG;
+      typedef CMapLoader<CCfg,Edge>::Wg WG;
       WG * graph;
-      CMapLoader<CCfg,CSimpleEdge> *m_loader=(CMapLoader<CCfg,CSimpleEdge>*)m_Map->getLoader();
+      CMapLoader<CCfg,Edge> *m_loader=(CMapLoader<CCfg,Edge>*)m_Map->getLoader();
       graph = m_loader->GetGraph();
       int numVert= graph->get_num_vertices();
       CCfg *cfgNew = new CCfg();
@@ -828,7 +832,7 @@ void VizmoRoadmapGUI::createWindow(){
       graph->add_vertex(*cfgNew);
 
       //get mapModel and add a new elment to m_CCModels
-      CMapModel<CCfg,CSimpleEdge>* mmodel =(CMapModel<CCfg,CSimpleEdge>*)m_Map->getModel();
+      CMapModel<CCfg,Edge>* mmodel =(CMapModel<CCfg,Edge>*)m_Map->getModel();
       mmodel->AddCC(numVert);    
 
       cfgNew->SetCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
@@ -918,9 +922,9 @@ bool VizmoRoadmapGUI::WriteHeader(const char *filename){
       }
    }
 
-   typedef CMapLoader<CCfg,CSimpleEdge>::Wg WG;
+   typedef CMapLoader<CCfg,Edge>::Wg WG;
    WG * graph;
-   CMapLoader<CCfg,CSimpleEdge> *m_loader=(CMapLoader<CCfg,CSimpleEdge>*)m_Map->getLoader();
+   CMapLoader<CCfg,Edge> *m_loader=(CMapLoader<CCfg,Edge>*)m_Map->getLoader();
    graph = m_loader->GetGraph();
 
    write_graph(*graph, outfile);
@@ -954,7 +958,7 @@ void VizmoRoadmapGUI::printNodeCfg(CCfg *c){
 
          l_cfg->setPaletteForegroundColor(Qt::darkGreen);
 
-         if(c->coll)
+         if(c->m_coll)
             l_cfg->setPaletteForegroundColor(Qt::red);
 
          l_cfg->setText(s_cfg);
