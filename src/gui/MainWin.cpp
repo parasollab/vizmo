@@ -2,17 +2,17 @@
 //Include Vizmo2 Headers
 #include "vizmo2.h"
 #include "MainWin.h"  
-#include "scene_win.h"
+#include "SceneWin.h"
 #include "AnimationGUI.h"
-#include "snapshot_gui.h"
+#include "SnapshotGUI.h"
 #include "ItemSelectionGUI.h"
-#include "roadmap.h"
+#include "Roadmap.h"
 #include "FileListDialog.h"
-#include "obj_property.h"
-#include "obprmGUI.h"
+#include "ObjProperty.h"
+#include "OBPRMGUI.h"
 #include "AddObjDialog.h"
-#include "vizmoEditor.h"
-#include "queryGUI.h"
+#include "VizmoEditor.h"
+#include "QueryGUI.h"
 
 //////////////////////////////////////////////////////////////////////
 // Include Load headers

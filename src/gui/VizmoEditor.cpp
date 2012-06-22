@@ -1,4 +1,4 @@
-#include "vizmoEditor.h"
+#include "VizmoEditor.h"
 
 #include <iostream>
 
