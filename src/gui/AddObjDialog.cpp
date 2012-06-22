@@ -1,4 +1,4 @@
-#include "addObjDialog.h"
+#include "AddObjDialog.h"
 
 
 

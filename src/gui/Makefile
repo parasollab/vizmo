@@ -12,15 +12,15 @@ endif
 
 OBJECTS = gui.o	main_win.o scene_win.o animation_gui.o \
           snapshot_gui.o itemselection_gui.o filelistDialog.o \
-	  obj_property.o roadmap.o obprmGUI.o addObjDialog.o\
+	  obj_property.o roadmap.o obprmGUI.o AddObjDialog.o\
 	  vizmoEditor.o queryGUI.o
 
 SRCMOC = moc_main_win.cpp moc_scene_win.cpp moc_animation_gui.cpp moc_snapshot_gui.cpp \
          moc_itemselection_gui.cpp moc_roadmap.cpp moc_filelistDialog.cpp moc_obj_property.cpp \
-	 moc_obprmGUI.cpp moc_addObjDialog.cpp moc_vizmoEditor.cpp moc_attributeselectio_gui.cpp moc_queryGUI.cpp
+	 moc_obprmGUI.cpp moc_AddObjDialog.cpp moc_vizmoEditor.cpp moc_attributeselectio_gui.cpp moc_queryGUI.cpp
 OBJMOC = moc_main_win.o moc_scene_win.o moc_animation_gui.o moc_snapshot_gui.o moc_itemselection_gui.o \
          moc_roadmap.o moc_filelistDialog.o moc_obj_property.o moc_obprmGUI.o \
-	 moc_addObjDialog.o moc_vizmoEditor.o moc_queryGUI.o
+	 moc_AddObjDialog.o moc_vizmoEditor.o moc_queryGUI.o
 
 
 first: all
@@ -79,8 +79,8 @@ moc_obj_property.cpp: $(MOC) obj_property.h
 moc_obprmGUI.cpp: $(MOC) obprmGUI.h 
 	$(MOC) obprmGUI.h -o moc_obprmGUI.cpp
 
-moc_addObjDialog.cpp: $(MOC) addObjDialog.h
-	$(MOC) addObjDialog.h -o moc_addObjDialog.cpp
+moc_AddObjDialog.cpp: $(MOC) AddObjDialog.h
+	$(MOC) AddObjDialog.h -o moc_AddObjDialog.cpp
 
 moc_vizmoEditor.cpp: $(MOC) vizmoEditor.h
 	$(MOC) vizmoEditor.h -o moc_vizmoEditor.cpp
