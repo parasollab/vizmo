@@ -17,7 +17,7 @@ EnvOBJ = ${Env_DIR}/CmdParser.o  ${Env_DIR}/EnvLoader.o  ${Env_DIR}/EnvModel.o  
          ${Env_DIR}/MultiBodyInfo.o  ${Env_DIR}/MultiBodyModel.o \
 	 ${Env_DIR}/Transformation.o  ${Env_DIR}/Orientation.o \
 	 ${Env_DIR}/RobotInfo.o
-MapOBJ = ${Map_DIR}/MapLoader.o  ${Map_DIR}/MapModel.o  ${Map_DIR}/Cfg.o 
+MapOBJ = ${Map_DIR}/MapLoader.o  ${Map_DIR}/MapModel.o  ${Map_DIR}/Cfg.o ${Map_DIR}/Edge.o 
 
 ifeq ($(RPM), 0)
 $(TARGET): ${OBJECTS} ${EnvOBJ} ${MapOBJ}

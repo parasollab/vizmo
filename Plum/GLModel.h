@@ -29,14 +29,18 @@ namespace plum{
          CGLModel()
          { 
             m_enableSelection=true; 
-            m_RenderMode=CPlumState::MV_SOLID_MODE; 
+            m_RenderMode=CPlumState::MV_SOLID_MODE;
+            m_RGBA.clear();
+            for(int i = 0; i < 4; i++) {
+              m_RGBA.push_back(0.0);
+            }
          }
 
          CGLModel(const CGLModel& other) : gliTransform(other)
       {
          m_enableSelection=other.m_enableSelection;
          m_RenderMode=other.m_RenderMode;
-         memcpy(m_RGBA,other.m_RGBA,4*sizeof(float));
+         m_RGBA = other.m_RGBA; 
       }
 
          virtual ~CGLModel(){/*do nothing*/}
@@ -65,9 +69,11 @@ namespace plum{
 
             //get/set color
             virtual void SetColor( float r, float g, float b, float a ){
-               m_RGBA[0]=r; m_RGBA[1]=g; m_RGBA[2]=b; m_RGBA[3]=a;
+              m_RGBA.clear(); 
+              m_RGBA.push_back(r); m_RGBA.push_back(g); m_RGBA.push_back(b); m_RGBA.push_back(a);
             }
-            virtual const float * GetColor() const { return m_RGBA; }
+            //virtual const float * GetColor() const { return m_RGBA; }
+            vector<float> GetColor() const { return m_RGBA; } 
 
             //Get the name information
             virtual const string GetName() const =0;//{ return "unknow"; }
@@ -85,7 +91,7 @@ namespace plum{
             bool  m_enableSelection;
             int   m_RenderMode;     //wire or solid or hide
 
-            float m_RGBA[4];        //Color
+            vector<float> m_RGBA;  //Color  
    };
 
 }//namespace plum
