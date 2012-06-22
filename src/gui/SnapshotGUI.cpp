@@ -2,9 +2,9 @@
 // GUI for screen shot toolbar
 
 //#include "vizmo2.h"
-//#include "main_win.h"  
+//#include "MainWin.h"  
 
-#include "snapshot_gui.h"
+#include "SnapshotGUI.h"
 
 #include <GL/gliDump.h>
 #include <GL/gliPickBox.h>
