@@ -17,7 +17,7 @@
 #include <string>
 using std::string;
 
-#include "vizmoEditor.h"
+#include "VizmoEditor.h"
 
 class obprmFileSelectDialog;
 class textEditDialog;

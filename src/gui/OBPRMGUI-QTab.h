@@ -16,7 +16,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-#include "vizmoEditor.h"
+#include "VizmoEditor.h"
 
 class obprmFileSelectDialog;
 class textEditDialog;
