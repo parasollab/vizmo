@@ -79,8 +79,8 @@ namespace plum{
   
     BuildRobotStructure();
 
-    CCfg::dof=DoF;
-    cout<< "DOF's: "<<CCfg::dof<<endl<<flush; 
+    CCfg::m_dof=DoF;
+    cout<< "DOF's: "<<CCfg::m_dof<<endl<<flush; 
     
     return true;
   }

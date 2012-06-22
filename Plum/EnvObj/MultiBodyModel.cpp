@@ -76,7 +76,9 @@ namespace plum{
 
   //Draw
   void MultiBodyModel::Draw( GLenum mode ) {
-    glColor4fv(m_RGBA);
+    
+    float* arr_m_RGBA = &m_RGBA[0]; 
+    glColor4fv(arr_m_RGBA);
     glPushMatrix();
     glTranslated(m_poly[0].tx(), m_poly[0].ty(), m_poly[0].tz());
     glTransform();

@@ -210,7 +210,9 @@ namespace plum{
     if( m_RenderMode==CPlumState::MV_INVISIBLE_MODE ) return;
 
     ////////////////////////////////////////////////////////////////////////////////
-    glColor4fv(m_RGBA);
+    
+    float* arr_m_RGBA = &m_RGBA[0]; 
+    glColor4fv(arr_m_RGBA); 
     glPushMatrix();
     glTransform();
     //new May-24-04
