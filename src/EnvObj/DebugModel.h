@@ -22,8 +22,8 @@ class OBPRMView_Robot;
 class CDebugModel : public CGLModel
 {
 public:
-    typedef CMapModel<CCfg, CSimpleEdge> MapModel;
-    typedef CSimpleEdge EDGE;
+    typedef CMapModel<CCfg, Edge> MapModel;
+    typedef Edge EDGE;
     struct DModel{
       DModel(MapModel* m, vector<CCfg> v, vector<EDGE> e, vector<EDGE> q, CCfg* r, vector<string> c):
         mapModel(m), tempCfgs(v), tempEdges(e), query(q), tempRay(r), comments(c){}
@@ -68,7 +68,7 @@ private:
     size_t m_Index;
     CDebugLoader * m_pDebugLoader;
     OBPRMView_Robot * m_pRobot;
-    CMapLoader<CCfg,CSimpleEdge>* m_mapLoader;
+    CMapLoader<CCfg,Edge>* m_mapLoader;
     vector<Model> m_mapModels;
 };
 

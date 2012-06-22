@@ -16,15 +16,15 @@ using namespace plum;
 
 #include<Vector.h>
 #include<Matrix.h>
+
 using namespace mathtool;
 
-class OBPRMView_Robot : public CGLModel
-{
+class OBPRMView_Robot : public CGLModel{
 
   public:
 
     /////////////////////////////////////////////////////////////////////
-    void print(){
+    void Print(){
       std::cout << m_RobotModel->tx() << " "
         << m_RobotModel->ty() << " "
         << m_RobotModel->tz() << " "
@@ -38,8 +38,8 @@ class OBPRMView_Robot : public CGLModel
     //////////////////////////////////////////////////////////////////////
     // Constructor/Destructor
     //////////////////////////////////////////////////////////////////////
-    OBPRMView_Robot(CEnvLoader * pEnv);
-    OBPRMView_Robot(const OBPRMView_Robot &other_robot);
+    OBPRMView_Robot(CEnvLoader* _pEnv);
+    OBPRMView_Robot(const OBPRMView_Robot& _otherRobot);
     ~OBPRMView_Robot();
 
     //////////////////////////////////////////////////////////////////////

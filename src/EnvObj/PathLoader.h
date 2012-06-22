@@ -36,7 +36,7 @@ public:
     //Get a particular configuration
     virtual vector<double> GetConfiguration(int frame);
     virtual unsigned int GetPathSize(){ return m_pList.size(); }
-    virtual unsigned int GetDOF(){ return CCfg::dof; }
+    virtual unsigned int GetDOF(){ return CCfg::m_dof; }
 
     //////////////////////////////////////////////////////////////////////
     //    Protected Methods and Data

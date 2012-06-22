@@ -44,7 +44,7 @@ bool CQueryLoader::ParseFile()
     unsigned int iFileSize=2;
     
     //Build  Model
-    int dof =CCfg::dof;
+    int dof =CCfg::m_dof;
     for( unsigned int iF=0;iF<iFileSize;iF++ )
     {
       dCfg=new double[dof];
@@ -62,7 +62,7 @@ bool CQueryLoader::ParseFile()
 
 vector<double> CQueryLoader::GetStartGoal(int Index){
 
-  int dof =CCfg::dof;
+  int dof =CCfg::m_dof;
   vector<double> currentCfg(dof); 
   for(int i=0;i<dof;i++) 
     currentCfg[i]=m_sgList[Index][i];

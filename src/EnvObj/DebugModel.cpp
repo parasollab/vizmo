@@ -29,7 +29,7 @@ CDebugModel::CDebugModel()
 {
     m_Index=-1;
     m_pDebugLoader=NULL;
-    m_mapLoader = new CMapLoader<CCfg, CSimpleEdge>();
+    m_mapLoader = new CMapLoader<CCfg, Edge>();
     m_mapLoader->InitGraph();
     m_pRobot=NULL;
     m_RenderMode=CPlumState::MV_INVISIBLE_MODE;
@@ -54,7 +54,7 @@ CDebugModel::~CDebugModel()
 bool CDebugModel::BuildModels(){
   //can't build model without model loader
   if( m_pRobot==NULL || m_pDebugLoader==NULL ) return false;
-  typedef graph<DIRECTED,MULTIEDGES,CCfg,CSimpleEdge> WG;
+  typedef graph<DIRECTED,MULTIEDGES,CCfg,Edge> WG;
   typedef WG::vertex_iterator VI;
   typedef WG::vertex_descriptor VID;
   typedef WG::adj_edge_iterator EI ;
@@ -68,7 +68,7 @@ bool CDebugModel::BuildModels(){
   size_t iDebugSize = m_pDebugLoader->GetDebugSize();
   int edgeNum = 0;
   vector<CCfg> tempCfgs;
-  vector<CSimpleEdge> tempEdges, query;
+  vector<Edge> tempEdges, query;
   vector<string> comments;
   for( size_t iP=0; iP<iDebugSize; iP++ ){
     CCfg* tempRay = NULL;
@@ -81,7 +81,7 @@ bool CDebugModel::BuildModels(){
     }
     else if(ins->name == "AddEdge"){
       AddEdge* ae = dynamic_cast<AddEdge*>(ins);
-      CSimpleEdge edge(1);
+      Edge edge(1);
       tvid = m_mapLoader->Cfg2VID(ae->target); 
       CCfg target = m_mapLoader->GetGraph()->find_vertex(tvid)->property();
       svid = m_mapLoader->Cfg2VID(ae->source); 
@@ -134,7 +134,7 @@ bool CDebugModel::BuildModels(){
     }
     else if(ins->name == "AddTempEdge"){
       AddTempEdge* ate = dynamic_cast<AddTempEdge*>(ins);
-      CSimpleEdge e(1);
+      Edge e(1);
       e.Set(1, &ate->source, &ate->target);
       tempEdges.push_back(e);
     }
@@ -186,14 +186,14 @@ bool CDebugModel::BuildModels(){
       if(path.size()>0){
         for(vector<VID>::iterator pit = path.begin()+1; pit!=path.end(); pit++){
           target = m_mapLoader->GetGraph()->find_vertex(*pit)->property();
-          CSimpleEdge e(1);
+          Edge e(1);
           e.Set(1, &source, &target);
           query.push_back(e);
           source = target;
         }
       }
     }
-    CMapModel<CCfg, CSimpleEdge>* mapModel = new CMapModel<CCfg, CSimpleEdge>();
+    CMapModel<CCfg, Edge>* mapModel = new CMapModel<CCfg, Edge>();
     mapModel->SetMapLoader(m_mapLoader);
     mapModel->SetRobotModel(m_pRobot);
     mapModel->BuildModels();
@@ -209,7 +209,7 @@ void CDebugModel::Draw( GLenum mode ){
     Model& m = m_mapModels[m_Index];
     m.mapModel->Draw(mode);
     typedef vector<CCfg>::iterator CIT;
-    typedef vector<CSimpleEdge>::iterator EIT;
+    typedef vector<Edge>::iterator EIT;
     for(CIT cit = m.tempCfgs.begin(); cit!=m.tempCfgs.end(); cit++){
       cit->Draw(mode);
     }
@@ -222,7 +222,7 @@ void CDebugModel::Draw( GLenum mode ){
       eit->Draw(mode);
     }
     if(m.tempRay!=NULL && m.tempCfgs.size()>0){
-      CSimpleEdge edge;
+      Edge edge;
       CCfg ray = *m.tempRay;
       vector<double> cfg = ray.GetDataCfg(); 
       CCfg* tmp = &m.tempCfgs[m.tempCfgs.size()-1];

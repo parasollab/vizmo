@@ -51,9 +51,11 @@ bool CQueryModel::BuildModels(){
     glMatrixMode( GL_MODELVIEW );
     m_DLIndex=glGenLists(1);
     m_pRobot->SetRenderMode(CPlumState::MV_WIRE_MODE);
-    //remeber
-    const float * col=m_pRobot->GetColor(); //remember old color
-    float oldcol[4]; memcpy(oldcol,col,4*sizeof(float));
+    //remember
+   
+    vector<float> col = m_pRobot->GetColor(); //remember old color
+    vector<float> oldcol = col; 
+
     m_pRobot->SetColor(0,1,0,0);
     //create list
     glNewList( m_DLIndex, GL_COMPILE );

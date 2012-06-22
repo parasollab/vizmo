@@ -42,7 +42,7 @@ bool CPathLoader::ParseFile()
     unsigned int iPathSize=0;
     fin>>iPathSize;
     
-    int dof=CCfg::dof;
+    int dof=CCfg::m_dof;
 
     for( unsigned int iF=0;iF<iPathSize;iF++ )
     {
