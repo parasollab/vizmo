@@ -1,7 +1,7 @@
 // GUI for screen capture and movie
 
 #include "vizmo2.h"
-//#include "main_win.h"
+//#include "MainWin.h"
 /** 
 * This class deifines the animation GUI for vizmo2
 *
