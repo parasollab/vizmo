@@ -88,7 +88,6 @@ namespace plum{
   CCfg::DrawBox(){
     glEnable(GL_LIGHTING);
     glPushMatrix();
-    /**/cout<<endl<<"SIZE OF FAIL FAIL FAIL:" << m_RGBA.size(); 
     float* arr_m_RGBA = &m_RGBA[0]; 
     glColor4fv(arr_m_RGBA);
 
