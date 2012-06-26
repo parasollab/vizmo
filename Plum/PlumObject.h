@@ -12,18 +12,18 @@ namespace plum{
     class PlumObject {
 
     public:
-        PlumObject(CGLModel * model=0, I_Loadable * load=0)
+        PlumObject(CGLModel* model=0, I_Loadable* load=0)
         { 
             m_pModel=model; m_pLoad=load; 
         }
 
-        CGLModel *   getModel() const { return m_pModel; }
-        I_Loadable * getLoader() const { return m_pLoad; }
+        CGLModel*   getModel() const { return m_pModel; }
+        I_Loadable* getLoader() const { return m_pLoad; }
 
     protected:
 
-        CGLModel * m_pModel;
-        I_Loadable * m_pLoad;
+        CGLModel* m_pModel;
+        I_Loadable* m_pLoad;
     };
 
 }//namespace plum
