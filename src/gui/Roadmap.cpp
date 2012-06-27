@@ -138,8 +138,8 @@ void VizmoRoadmapGUI::createGUI()
    connect(listWidget,SIGNAL(currentItemChanged ( QListWidgetItem *, QListWidgetItem *)),this,SLOT(getSelectedItem()));  
    listWidget->setEnabled(false);
    // listWidget->resize (minimumSize);
-   listWidget->setMinimumSize ( 80, 80 );
-   listWidget->setMaximumSize ( 80, 80 );
+   listWidget->setMinimumSize ( 60, 60 );
+   listWidget->setMaximumSize ( 60, 60 );
 
    // l =  new Q3ListBox( this );
    //  l->setFocusPolicy( Qt::StrongFocus ); 
