@@ -4,9 +4,9 @@
 #ifndef TEXTGUI_H_
 #define TEXTGUI_H_ 
 
-#include <q3textview.h> 
+#include <QTextEdit> 
 
-class TextGUI : public Q3TextView{
+class TextGUI : public QTextEdit{
 
   Q_OBJECT
 

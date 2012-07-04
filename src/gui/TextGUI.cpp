@@ -10,7 +10,8 @@
 using namespace std; 
 
 TextGUI::TextGUI(QWidget* _parent, char* _name)
-  :Q3TextView(_parent, _name){
+  :QTextEdit(_parent, _name){
+    setReadOnly(true); 
   }
 
 void 
@@ -19,7 +20,7 @@ TextGUI::SetText(){
 
   typedef vector<gliObj>::iterator SIT;
 
-  //Holds whatever will go into the Q3TextView box: a selected node/group of
+  //Holds whatever will go into the QTextEdit box: a selected node/group of
   //nodes' configurations, VDebug comments, etc. 
   vector<string> infoVect;
 
