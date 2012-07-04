@@ -108,9 +108,9 @@ namespace plum{
     return true;
   }
 
-  list<string> 
+  vector<string> 
   Edge::GetInfo() const {  
-    list<string> info; 
+    vector<string> info; 
     ostringstream temp;
     temp << "Edge, ID= " << m_id << ", ";
     temp << "connects Node " << m_s.GetIndex() << " and Node " << m_e.GetIndex();

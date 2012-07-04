@@ -4,6 +4,7 @@
 
 #include "DebugModel.h"
 #include "Robot.h"
+#include "gui/SceneWin.h" //to call new drawText 
 #include <algorithms/dijkstra.h>
 
 //////////////////////////////////////////////////////////////////////
@@ -14,6 +15,7 @@ using namespace stapl;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+
 struct my_edge_access_functor{
 
   typedef double value_type;
@@ -235,34 +237,6 @@ void CDebugModel::Draw( GLenum mode ){
       glLineWidth(8);
       edge.Draw(mode);
     }
-    glPushAttrib(GL_CURRENT_BIT);
-
-    //draw reference axis
-    glMatrixMode(GL_PROJECTION); //change to Ortho view
-    glPushMatrix(); 
-    glLoadIdentity();
-    gluOrtho2D(0,20,0,20);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glDisable(GL_LIGHTING);
-    //Draw text
-    glTranslated(0.25,19.75,0);
-    setfont("times roman", 24);
-    typedef vector<string>::iterator SIT;
-    for(SIT i=m.comments.begin();i!=m.comments.end();i++){
-      //////////////////////////////////////////////
-      glTranslated(0,-0.75,0);
-      glColor3f(0,0,0);
-      drawstr(0,0,0,i->c_str());
-    }
-    glPopMatrix();
-    //pop GL_PROJECTION
-    glMatrixMode(GL_PROJECTION); //change to Pers view
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopAttrib();
-    setfont("helvetica", 12);
   }
 }
 
@@ -270,9 +244,9 @@ void CDebugModel::ConfigureFrame(int f){
   m_Index = f;
 }
 
-list<string> CDebugModel::GetInfo() const 
-{ 
-  list<string> info; 
+vector<string> 
+CDebugModel::GetInfo() const { 
+  vector<string> info; 
   info.push_back(m_pDebugLoader->GetFileName());
   {
     ostringstream temp;
@@ -281,4 +255,15 @@ list<string> CDebugModel::GetInfo() const
   }	
   return info;
 }
+
+vector<string>    
+CDebugModel::GetComments(){
+  
+  if(m_Index != (size_t)-1)
+    return m_mapModels[m_Index].comments;
+  else{
+    vector<string> tmp;
+    return tmp;
+  }
+} 
 

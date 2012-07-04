@@ -83,9 +83,10 @@ void CPathModel::Draw( GLenum mode ){
     glCallList( m_DLIndex );
 }
 
-list<string> CPathModel::GetInfo() const 
-{ 
-  list<string> info; 
+vector<string> 
+CPathModel::GetInfo() const { 
+  
+  vector<string> info; 
   info.push_back(m_pPathLoader->GetFileName());
   {
     ostringstream temp;

@@ -41,7 +41,7 @@ public:
     virtual bool BuildModels();
     virtual void Draw( GLenum mode );
     virtual const string GetName() const { return "Path"; }
-	virtual list<string> GetInfo() const;
+    virtual vector<string> GetInfo() const;
 
     //output info to std ouput
     //virtual void DumpSelected();

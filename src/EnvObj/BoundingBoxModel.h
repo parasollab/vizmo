@@ -32,7 +32,7 @@ public:
     virtual void DrawSelect();
     void DrawLines(GLenum mode);
     virtual const string GetName() const;
-    virtual list<string> GetInfo() const;
+    virtual vector<string> GetInfo() const;
     //////////////////// find the max coord. in Z
     double returnMax( void );
     double minVal(double x, double y);

@@ -36,7 +36,7 @@ namespace plum{
 	  models.push_back(&m_poly[i]);
       }
 
-      virtual list<string> GetInfo() const;
+      virtual vector<string> GetInfo() const;
 
       //used to print the confg. of the MultiBody
       void SetCfg(vector<double>& _cfg);

@@ -36,7 +36,7 @@ class CBoundingBoxesModel : public CGLModel
       virtual bool BuildModels();
       virtual void Draw( GLenum mode );
       virtual const string GetName() const { return "Bounding Box"; }
-      virtual list<string> GetInfo() const;
+      virtual vector<string> GetInfo() const;
       virtual void Select( unsigned int * index, vector<gliObj>& sel );
       virtual void GetChildren( list<CGLModel*>& models ){
          typedef vector<CBoundingBoxModel*>::iterator BIT;

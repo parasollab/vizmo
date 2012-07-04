@@ -48,7 +48,7 @@ namespace plum {
         return temp.str(); 
       } 
     
-      list<string> GetInfo() const; 
+      vector<string> GetInfo() const; 
       vector<int> GetEdgeNodes(); 
       
       void 

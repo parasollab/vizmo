@@ -78,8 +78,6 @@ class OBPRMView_Robot : public CGLModel{
         models.push_back(m_RobotModel);
     }
 
-    //virtual list<string> GetInfo() const;
-
     void SaveQry(vector<vector<double> >& cfg, char ch);
 
     //copy query configuration

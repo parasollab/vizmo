@@ -54,7 +54,7 @@ namespace plum{
         void Draw( GLenum mode );
 		void DrawSelect();
 		const string GetName() const { return "Node"; }
-		list<string> GetInfo() const;
+		vector<string> GetInfo() const;
 		
         //////////////////////////////////////////////////////////////////////
         //      Access Method
@@ -126,7 +126,7 @@ namespace plum{
 		void DrawSelect();
 
         const string GetName() const { return "Edge"; }
-		list<string> GetInfo() const;
+		vector<string> GetInfo() const;
 
         //////////////////////////////////////////////////////////////////////
         //      Access Method

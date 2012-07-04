@@ -18,7 +18,7 @@ class AddObjDial : public QDialog
         
 public:
 
-    AddObjDial(QWidget *parent, const char *name, Qt::WFlags f=0);
+    AddObjDial(QWidget* parent, const char* name, Qt::WFlags f=0);
     ~AddObjDial(){};
 
     bool create();

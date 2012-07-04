@@ -111,9 +111,7 @@ void VizmoRoadmapGUI::createGUI()
    editAction->setShortcut(tr("CTRL+M"));
    editAction->setStatusTip(tr("Edit Map"));
    editAction->setCheckable(true);
-   //connect(editAction,SIGNAL(activated()), this, SLOT(editMap()) );
    connect(editAction,SIGNAL(triggered ()), this, SLOT(editMap()) );
-   //connect(editAction,SIGNAL(toggled (true)  ), this, SLOT(toggle ()  ) );
    editAction->addTo(this);
    editAction->setEnabled(false);
 
@@ -137,18 +135,8 @@ void VizmoRoadmapGUI::createGUI()
    listWidget->setCurrentRow( 2 );
    connect(listWidget,SIGNAL(currentItemChanged ( QListWidgetItem *, QListWidgetItem *)),this,SLOT(getSelectedItem()));  
    listWidget->setEnabled(false);
-   // listWidget->resize (minimumSize);
    listWidget->setMinimumSize ( 60, 60 );
    listWidget->setMaximumSize ( 60, 60 );
-
-   // l =  new Q3ListBox( this );
-   //  l->setFocusPolicy( Qt::StrongFocus ); 
-   //  l->insertItem( QString::fromLatin1( "Robot" ));
-   //  l->insertItem( QString::fromLatin1( "Box" ));
-   //  l->insertItem( QString::fromLatin1( "Point" ));
-   //  l->setSelected(2,true);
-   //  connect(l,SIGNAL(clicked(Q3ListBoxItem *)),this,SLOT(getSelectedItem()));
-   //  l->setEnabled(false);
 
    size=0.5;
 
@@ -157,10 +145,6 @@ void VizmoRoadmapGUI::createGUI()
        SLOT(setSameColor()), this, "node");
    nodesSameColor->setUsesTextLabel ( true );
    nodesSameColor->setEnabled(false);
-
-   //nodesColor = new QToolButton (QPixmap(icon_pallet), tr("CC's Random Color"), "randomColor", this, SLOT(changeColor()), this, "cc");
-
-   //nodesColor->setUsesTextLabel(true);
 
    //Find all toolbar button and show text
    QList<QObject *> l = QObject::queryList( "QToolButton" );
@@ -180,17 +164,13 @@ void VizmoRoadmapGUI::reset()
 {
    //Apr-05-2005
    m_Nodes.clear();
-
-   //if( GetVizmo().IsRoadMapLoaded() &&
-   //        GetVizmo().isRoadMapShown()){
-   //get current selected item to set it selected
+   
    listWidget->setEnabled(true);
    if( GetVizmo().IsRoadMapLoaded() && GetVizmo().isRoadMapShown()){
       if( listWidget->currentRow () != -1)
          emit getSelectedItem();
    }
 
-   //nodesColor->setEnabled(true);
    nodesSameColor->setEnabled(true);
 
    editAction->setEnabled(true);
@@ -216,31 +196,7 @@ void VizmoRoadmapGUI::reset()
    m_bEditModel=false;
    m_addNode=false;
    m_addEdge=false;
-
-   //    } 
-
-
-   //    else{
-   //       l->setEnabled(false);
-   //       //nodesColor->setEnabled(false);
-   //       nodesSameColor->setEnabled(false);
-
-   //       editAction->setEnabled(false);
-   //       addNodeAction->setOn(false);
-   //       addEdgeAction->setOn(false);
-   //       l_message->clear();
-   //       l_icon->clear();
-   //       m_addNode=false;
-   //       m_addEdge=false;
-
-   //       sizeAction->setEnabled(false);
-   //       colorAction->setEnabled(false);
-   //       l_cfg->clear();
-   //       if(robCfgOn==false)
-   // 	l_robCfg->clear();
-   //    }
 }
-
 
 void VizmoRoadmapGUI::getSelectedItem()
 { 
@@ -267,7 +223,7 @@ void VizmoRoadmapGUI::changeSize(){
       shape = (string)(listWidget->currentItem ())->text ().ascii();
 
       GetVizmo().ChangeNodesSize(size, shape);
-      emit callUpdate(); //set an updat event
+      emit callUpdate(); //set an update event
    }
 
 }
@@ -288,12 +244,12 @@ void VizmoRoadmapGUI::setSameColor(){
 
    shape = (string)(listWidget->currentItem ())->text ().ascii();
    GetVizmo().ChangeCCColor(R, G, B, shape);
-   emit callUpdate(); //set an updat event
+   emit callUpdate(); //set an update event
 }
 
 void VizmoRoadmapGUI::changeColor(){
    GetVizmo().ChangeNodesRandomColor();
-   emit callUpdate(); //set an updat event
+   emit callUpdate(); //set an update event
 }
 
 void VizmoRoadmapGUI::changeColorOfCCselected(){
@@ -305,7 +261,6 @@ void VizmoRoadmapGUI::changeColorOfCCselected(){
 
    vector<gliObj>& sel = GetVizmo().GetSelectedItem();
    typedef vector<gliObj>::iterator SI;
-   //int m_i;
    string m_sO;
    for(SI i = sel.begin(); i!= sel.end(); i++){
       CGLModel *gl = (CGLModel*)(*i);
@@ -342,7 +297,6 @@ void VizmoRoadmapGUI::changeSolidOfNodeselected(){
       CGLModel *gl = (CGLModel*)(*i);
       gl->SetRenderMode(CPlumState::MV_SOLID_MODE);
       s = gl->GetName();
-      //cout << s << " " << k << endl;
       k++;
    }
    GetVizmo().UpdateSelection();
@@ -420,20 +374,14 @@ void VizmoRoadmapGUI::editMap()
       addEdgeAction->setChecked(false);
       addNodeAction->setEnabled(true);
       addNodeAction->setChecked(false);
-      //editAction->setChecked(true);
    }
    else{
-      //parentWidget()->setCursor(QCursor(arrowCursor));
       if(GetVizmo().GetMap() != NULL)
          GetVizmo().GetMap()->getModel()->EnableSelection(false);
       addEdgeAction->setEnabled(false); addEdgeAction->setChecked(false);
       addNodeAction->setEnabled(false); addNodeAction->setChecked(false);
       m_addNode=false;
       m_addEdge=false;
-      //if(m_Map_Changed){
-      //update the roadmap CC
-      //}
-      //editAction->setChecked(false);
       l_message->clear();
       l_icon->clear();
       l_cfg->clear();
@@ -480,8 +428,6 @@ void VizmoRoadmapGUI::addEdge()
 
 void VizmoRoadmapGUI::handleSelect()
 {
-   //if( !m_bEditModel ) return;
-   
    //find nodes
    m_Nodes.clear();
    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
@@ -490,7 +436,6 @@ void VizmoRoadmapGUI::handleSelect()
    for(OIT i=sel.begin();i!=sel.end();i++){
       string myName = ((CGLModel*)(*i))->GetName();
       if( ((CGLModel*)(*i)) != NULL )
-           //if( ((CGLModel*)(*i))->GetName()=="Node" ) { 
            if(myName.find("Node")!=string::npos ){
              m_Nodes.push_back((CGLModel*)(*i));
 
@@ -499,7 +444,6 @@ void VizmoRoadmapGUI::handleSelect()
       if (robCfgOn){
          GetVizmo().getRoboCfg();
          printRobCfg();
-         //emit callUpdate();
       }
 
    }//end for
@@ -544,7 +488,6 @@ void VizmoRoadmapGUI::handleAddEdge()
    //add edge
 
    list<CGLModel*>::const_iterator it;
-   //int i =0;
    for(it = m_Nodes.begin(); it != m_Nodes.end(); it++){
       Node_Edge.push_back(*it);
    }
@@ -572,12 +515,10 @@ void VizmoRoadmapGUI::handleAddEdge()
          size = m_CCModel->getBoxSize();
       else
          size = 0;
-      //float *rgb;
       vector<float> rgb; 
       rgb = m_CCModel->getColor();
 
       mmodel->BuildModels();
-      //mmodel->SetProperties(shape, size, rgb, true);
       mmodel->SetProperties(shape, size, rgb, false);
       emit callUpdate();
 
@@ -631,20 +572,13 @@ void VizmoRoadmapGUI::handleAddNode()
             if(r != NULL)
                mmodel->SetRobotModel( r );
 
-            //copy objects to vizmo:
-            //     obj.m_Map = new PlumObject(mmodel, mloader); 
-            //and should add it to plum:
-            //m_Plum.AddPlumObject(m_obj.m_Map);
             GetVizmo().setMapObj(mloader, mmodel); 
-            //mapLoader must create graph:
-            //          m_Graph =new WG();
             mloader->genGraph();
 
             //add node to graph
             typedef CMapLoader<CCfg,Edge>::Wg WG;
             WG * graph;
             graph = mloader->GetGraph();
-            //int numVert = graph->GetVertexCount();
             CCfg *cfgNew = new CCfg(); 
 
             //get robot's current cfg
@@ -665,15 +599,10 @@ void VizmoRoadmapGUI::handleAddNode()
             int vertx = graph->add_vertex(*cfgNew);
             cfgNew->SetIndex(vertx);
 
-            //add CC
-            //mmodel->AddCC(numVert);
             mmodel->BuildModels();
             GetVizmo().ShowRoadMap(true);
 
             cfgNew->SetCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
-
-            //GetVizmo().Display();
-            //emit callUpdate();
 
             //uselect
             GetVizmo().cleanSelectedItem();
@@ -687,14 +616,10 @@ void VizmoRoadmapGUI::handleAddNode()
             noMap = true;
 
             createWindow();
-
-            //cfgNew->GetCC()->ReBuildAll();
-
             setShape();
             emit getSelectedItem();
 
             GetVizmo().Display();
-            //emit callUpdate();
 
             addNodeAction->setChecked(false);
             m_addNode = false;
@@ -705,49 +630,10 @@ void VizmoRoadmapGUI::handleAddNode()
          }
       }
    }
-   //setShape();
 }
 
 void VizmoRoadmapGUI::handleEditMap()
 {
-   /*
-      static CGLModel* node=NULL;
-      static double ot[3];
-      static double or[3];
-
-   //find node
-   CGLModel* current_node=NULL;
-   vector<gliObj>& sel=GetVizmo().GetSelectedItem();
-   typedef vector<gliObj>::iterator OIT;
-   for(OIT i=sel.begin();i!=sel.end();i++){
-   if( ((CGLModel*)(*i))->GetName()=="Node" ) {
-   current_node=(CGLModel*)(*i);
-   break;
-   }
-   }
-   if( current_node==NULL ) return; //no node is selected
-
-   //find node
-   if( current_node==node){
-   double diff=fabs(ot[0]-node->tx())+
-   fabs(ot[1]-node->ty())+
-   fabs(ot[2]-node->tz())+
-   fabs(or[0]-node->rx())+
-   fabs(or[1]-node->ry())+
-   fabs(or[2]-node->rz());
-   if( diff>1e-10 ){
-   m_Map_Changed=true;
-   cout<<"node moved"<<endl;
-   }
-   node=NULL;
-   }
-   else{
-   //remember node
-   node=current_node;
-   ot[0]=node->tx(); ot[1]=node->ty(); ot[2]=node->tz();
-   or[0]=node->rx(); or[1]=node->ry(); or[2]=node->rz();
-   }
-    */
    if( m_Nodes.empty()==false ){
       CGLModel * n=m_Nodes.front();
       old_T[0]=n->tx(); old_T[1]=n->ty(); old_T[2]=n->tz();
@@ -791,11 +677,8 @@ void VizmoRoadmapGUI::MoveNode()
          }
       }
       m_Map_Changed=true;
-      ((CCfg*)n)->GetCC()->ReBuildAll();
-
 
       emit callUpdate();
-
    }   
 }
 
@@ -836,38 +719,24 @@ void VizmoRoadmapGUI::createWindow(){
       mmodel->AddCC(numVert);    
 
       cfgNew->SetCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
-      //cfgNew->GetCC()->ReBuildAll();
-
-
-      ////////////////////// unselect current node
-      //vector<gliObj>& sel_b=GetVizmo().GetSelectedItem();
 
       GetVizmo().cleanSelectedItem();
       vector<gliObj>& sel=GetVizmo().GetSelectedItem();
 
-
-      //CGLModel * n=m_Nodes.front(); 
-      //CCfg * cfg = (CCfg*)n;
-      //int cc_id = cfg->GetCC_ID();
       unsigned int *obj = NULL;
       mmodel->Select(&obj[0], sel);
       /////////////////////////////////////////////////    
       //select new node
       GetVizmo().addSelectedItem((CGLModel*)cfgNew);
-      //GetVizmo().Display();
       emit callUpdate();    
    }
 
    nodeGUI->filledFirstTime = false;
-
-
 }
-
 
 void VizmoRoadmapGUI::SaveNewRoadmap(const char *filename){
 
    WriteHeader(filename);
-
 }
 
 
@@ -939,17 +808,15 @@ void VizmoRoadmapGUI::printNodeCfg(CCfg *c){
    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
    typedef vector<gliObj>::iterator OIT;
    for(OIT i=sel.begin();i!=sel.end();i++){
-      //if( ((CGLModel*)(*i))->GetName()=="Node" ) {
          string myName = ((CGLModel*)(*i))->GetName();
          if(myName.find("Node")!=string::npos ){
 
-
          sl_cfg.clear();s_cfg="";
 
-         list<string> info = c->GetNodeInfo();
-         typedef list<string>::iterator SIT;
-         for(SIT i=info.begin();i!=info.end();i++){
-            sl_cfg << QString(i->c_str()) ;
+         vector<string> info = c->GetNodeInfo();
+         typedef vector<string>::iterator SIT;
+         for(SIT i=info.begin(); i!=info.end(); i++){
+            sl_cfg << QString(i->c_str());
          }
 
          for ( QStringList::Iterator it = sl_cfg.begin(); it != sl_cfg.end(); ++it ) {
@@ -977,12 +844,11 @@ void VizmoRoadmapGUI::printRobCfg(){
 
          if(robCfgOn){
             l_robCfg->clear();
-            list<string> info = GetVizmo().getRobCfgText();
+            vector<string> info = GetVizmo().getRobCfgText();
             QStringList strList;
             s_robCfg = "";
-            //int idx=0;
 
-            typedef list<string>::iterator SIT;
+            typedef vector<string>::iterator SIT;
             for(SIT i=info.begin();i!=info.end();i++)
                strList << QString(i->c_str());
 
@@ -1049,6 +915,5 @@ void VizmoRoadmapGUI::updateNodeCfg(){
 
 void VizmoRoadmapGUI::setShape(){
 
-   //l->setSelected(0,true);
    listWidget->setCurrentRow( 0 );
 }

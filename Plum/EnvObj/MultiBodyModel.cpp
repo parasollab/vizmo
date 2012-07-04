@@ -133,13 +133,17 @@ namespace plum{
     CGLModel::Scale(x,y,z);
   }
 
-  list<string> MultiBodyModel::GetInfo() const {	
-    list<string> info; 
+  vector<string> 
+  MultiBodyModel::GetInfo() const {	
+    
+    vector<string> info; 
     ostringstream temp, os;
+    
     if(m_bFixed){
       info.push_back(string("Obstacle"));
       temp << "Position ( "<< tx()<<", "<<ty()<<", "<<tz()<<" )";
     }
+    
     else {	
       info.push_back(string("Robot"));
       temp << m_poly.size();

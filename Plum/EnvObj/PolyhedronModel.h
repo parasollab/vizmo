@@ -38,7 +38,7 @@ namespace plum{
       void Select( unsigned int * index, vector<gliObj>& sel ){}
 
       virtual const string GetName() const;
-      virtual list<string> GetInfo() const;
+      virtual vector<string> GetInfo() const;
 
       //////////////////////////////////////////////////////////////////////
       // Access

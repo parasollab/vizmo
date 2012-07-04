@@ -44,9 +44,9 @@ bool AddObjDial::create(){
   
   if(!fn.isEmpty() ){
 
-    QGridLayout *g = new QGridLayout(this, 5, 3);
+    QGridLayout* g = new QGridLayout(this, 5, 3);
     
-    QVBoxLayout * controls = new QVBoxLayout();
+    QVBoxLayout* controls = new QVBoxLayout();
     controls->setSpacing(1);
 
     controls->addWidget(new QLabel("<b>File to be added</b>:", this));

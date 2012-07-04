@@ -518,7 +518,6 @@ void vizmo::TurnOn_CD(){
 
       if(objName != "Node"){
          m_IsNode = false;
-         //CD.TestNode = false;
       }
 
       bool b = false;
@@ -529,7 +528,6 @@ void vizmo::TurnOn_CD(){
 
          if(m_cfg != NULL){
             m_cfg->m_coll = true;
-            //m_IsNode = false;
          }
 #ifdef USE_PHANTOM
          GetPhantomManager().Collision = 1;
@@ -539,8 +537,8 @@ void vizmo::TurnOn_CD(){
 
          if(m_cfg != NULL){
             m_cfg->m_coll = false;
-            //m_IsNode = false;
          }
+
 #ifdef USE_PHANTOM
          GetPhantomManager().Collision = 0;
 #endif
@@ -561,6 +559,7 @@ void vizmo::TurnOn_CD(){
 // SaveQryStart() and SaveQryGoal()
 // 
 ///////////////////////////////////////////////////
+
 bool vizmo::SaveEnv(const char *filename)
 {
    CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
@@ -581,7 +580,7 @@ void vizmo::SaveQryCfg(char ch){
   for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
   {
     gl=(CGLModel *)(*ig);
-    list<string> info=gl->GetInfo();
+    vector<string> info=gl->GetInfo();
     name = info.front();
   }
 
@@ -728,15 +727,15 @@ void vizmo::ChangeAppearance(int status)
             robot->SetColor(mR, mG, mB, 1.0);
             robot->keepColor(mR, mG, mB);
             robot->BackUp();
-            //model->SetColor( mR, mG, mB, 1 );
-
          }
+         
          else if((model->GetInfo()).front() == "Node" || (model->GetInfo()).front() == "Edge"){
             model->m_RGBA[0]=mR;
             model->m_RGBA[1]=mG;
             model->m_RGBA[2]=mB;
 
          }
+         
          else {
             model->SetColor(mR,mG,mB,1);
          }
@@ -806,7 +805,6 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
       return;
     m_obj.m_show_Debug = true;
     CDebugModel* dmodel=(CDebugModel*)m_obj.m_Debug->getModel();
-    //OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
 
     dmodel->ConfigureFrame(frame);
   }
@@ -1039,21 +1037,19 @@ void vizmo::UpdateSelection(){
       size_t position = m_sO.find("Node",0);
       if(position != string::npos){
          m_s = m_sO.substr(position+4, m_sO.length());
-         //std::cout << m_s << endl;
       }   
 
       if(m_obj.m_Map!=NULL){
-        CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->getModel();
-        vector<CC*>& cc=mmodel->GetCCModels();
+        CMapModel<CCfg,Edge>* mmodel = (MM*)m_obj.m_Map->getModel();
+        vector<CC*>& cc = mmodel->GetCCModels();
         if(m_s != "NULL"){
           for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-            typedef vector<CCfg>::iterator NIT;
-            for(NIT i=(*ic)->m_Nodes.begin();i!=(*ic)->m_Nodes.end();i++)
+            typedef map<CC::VID, CCfg>::iterator NIT;
+            for(NIT i=(*ic)->m_Nodes.begin(); i!=(*ic)->m_Nodes.end(); i++)
               if(StringToInt(m_s, m_i)){
-                if(m_i == (*i).GetIndex()){//cout << "yes" << endl;
+                if(m_i == i->second.GetIndex()){   
                   (*ic)->DrawSelect();
                   (*ic)->newColor = true;
-
                   (*ic)->ReBuildAll();            
                   (*ic)->DrawRobotNodes(GL_RENDER);
                   (*ic)->DrawSelect();
@@ -1062,19 +1058,19 @@ void vizmo::UpdateSelection(){
           }
         }
       }
+      
       if(m_obj.m_Debug!=NULL){
         vector<Model>& mapModels = ((CDebugModel*)m_obj.m_Debug->getModel())->GetModels();
         for(MMIT mmit = mapModels.begin(); mmit != mapModels.end(); mmit++){
-          vector<CC*>& cc=(*mmit).mapModel->GetCCModels();
+          vector<CC*>& cc = (*mmit).mapModel->GetCCModels();
           if(m_s != "NULL"){
             for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-              typedef vector<CCfg>::iterator NIT;
-              for(NIT i=(*ic)->m_Nodes.begin();i!=(*ic)->m_Nodes.end();i++)
+              typedef map<CC::VID, CCfg>::iterator NIT;
+              for(NIT i=(*ic)->m_Nodes.begin(); i!=(*ic)->m_Nodes.end(); i++)
                 if(StringToInt(m_s, m_i)){
-                  if(m_i == (*i).GetIndex()){//cout << "yes" << endl;
+                  if(m_i == i->second.GetIndex()){   
                     (*ic)->DrawSelect();
                     (*ic)->newColor = true;
-
                     (*ic)->ReBuildAll();            
                     (*ic)->DrawRobotNodes(GL_RENDER);
                     (*ic)->DrawSelect();
@@ -1084,28 +1080,6 @@ void vizmo::UpdateSelection(){
           }
         }
       }
-      //else if(m_s == "NULL" && oneColor){
-      /* for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-         CC::Shape shape=CC::Point;
-         if( s=="Robot" ) shape=CC::Robot;
-         else if( s=="Box" ) shape=CC::Box;
-         (*ic)->newColor = true;
-         (*ic)->changeColor(r, g, b, shape);
-         }*/
-      //oneColor = false;
-      //}
-      //else{
-      /*for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        CC::Shape shape=CC::Point;
-        if( s=="Robot" ) shape=CC::Robot;
-        else if( s=="Box" ) shape=CC::Box;
-        (*ic)->newColor = true;
-        r = ((float)rand())/RAND_MAX; 
-        g = ((float)rand())/RAND_MAX; 
-        b = ((float)rand())/RAND_MAX; 
-        (*ic)->changeColor(r, g, b, shape);
-        }*/
-      //}
    }
 }
 
@@ -1133,7 +1107,6 @@ void vizmo::ChangeNodeColor(double r, double g, double b, string s){
       size_t position = m_sO.find("Node",0);
       if(position != string::npos){
          m_s = m_sO.substr(position+4, m_sO.length());
-         //std::cout << m_s << endl;
       }   
 
       CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->getModel();
@@ -1143,44 +1116,20 @@ void vizmo::ChangeNodeColor(double r, double g, double b, string s){
             CC::Shape shape=CC::Point;
             if( s=="Robot" ) shape=CC::Robot;
             else if( s=="Box" ) shape=CC::Box;
-            typedef vector<CCfg>::iterator NIT;
+            typedef map<CC::VID, CCfg>::iterator NIT;
             for(NIT i=(*ic)->m_Nodes.begin();i!=(*ic)->m_Nodes.end();i++)
                if(StringToInt(m_s, m_i)){
-                  if(m_i == (*i).GetIndex()){//cout << "yes" << endl;
-                     //(*ic)->DrawSelect();
-                     //(*ic)->newColor = true;
+                  if(m_i == i->second.GetIndex()){  
                      (*ic)->ReBuildAll();
-                     (*i).m_RGBA[0]=r;
-                     (*i).m_RGBA[1]=g;
-                     (*i).m_RGBA[2]=b;
+                     i->second.m_RGBA[0]=r;
+                     i->second.m_RGBA[1]=g;
+                     i->second.m_RGBA[2]=b;
                      (*ic)->DrawRobotNodes((*ic)->m_RenderMode);
                      (*ic)->DrawSelect();
                   }
                }
          }
       }
-      //else if(m_s == "NULL" && oneColor){
-      /* for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-         CC::Shape shape=CC::Point;
-         if( s=="Robot" ) shape=CC::Robot;
-         else if( s=="Box" ) shape=CC::Box;
-         (*ic)->newColor = true;
-         (*ic)->changeColor(r, g, b, shape);
-         }*/
-      //oneColor = false;
-      //}
-      //else{
-      /*for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        CC::Shape shape=CC::Point;
-        if( s=="Robot" ) shape=CC::Robot;
-        else if( s=="Box" ) shape=CC::Box;
-        (*ic)->newColor = true;
-        r = ((float)rand())/RAND_MAX; 
-        g = ((float)rand())/RAND_MAX; 
-        b = ((float)rand())/RAND_MAX; 
-        (*ic)->changeColor(r, g, b, shape);
-        }*/
-      //}
    }
 }
 

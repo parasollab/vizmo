@@ -27,7 +27,7 @@ VizmoItemSelectionGUI::VizmoItemSelectionGUI(Q3MainWindow *parent,char *name)
     listview->addColumn("Environment Objects");
     listview->setColumnWidthMode(0,Q3ListView::Manual);
     listview->setRootIsDecorated( TRUE );
-    listview->setMinimumHeight(parent->height()*2/3);
+    listview->setMinimumHeight(parent->height()*1/3);
     listview->setMultiSelection(true);
     listview->setSelectionMode(Q3ListView::Extended);
     listview->setColumnWidth (0,200);

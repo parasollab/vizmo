@@ -122,16 +122,17 @@ m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);
     }
 
     
-	list<string> CSimpleCfg::GetInfo() const 
-    { 	
-        list<string> info; 
+    vector<string> 
+    CSimpleCfg::GetInfo() const { 	
+        
+      vector<string> info; 
         {
             ostringstream temp;
             temp<<"Node ID= "<<m_index;
             info.push_back(temp.str());
         }
 		
-        return info;
+      return info;
     }
     
     //////////////////////////////////////////////////////////////////////
@@ -185,9 +186,9 @@ m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);
         return true;
     }
 
-	list<string> Edge::GetInfo() const 
-    { 	
-        list<string> info; 
+    vector<string> 
+    Edge::GetInfo() const { 	
+      vector<string> info; 
         {
 			ostringstream temp;
 			temp<<"Edge, ID= "<<m_ID<<", ";
@@ -195,7 +196,7 @@ m_robot->SetColor(o_c[0],o_c[1],o_c[2],o_c[3]);
 			info.push_back(temp.str());
         }
 		
-        return info;
+      return info;
     }
 
     //////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 #include "SnapshotGUI.h"
 #include "ItemSelectionGUI.h"
 #include "Roadmap.h"
+#include "TextGUI.h"     
 #include "FileListDialog.h"
 #include "ObjProperty.h"
 #include "OBPRMGUI.h"
@@ -18,6 +19,7 @@
 // Include Load headers
 #include "EnvObj/PathLoader.h"
 #include "EnvObj/QueryLoader.h"
+#include "EnvObj/DebugModel.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //Include Qt Headers
@@ -43,9 +45,6 @@
 #include "icon/navigate.xpm"
 #include "icon/flag.xpm"
 #include "icon/pallet.xpm"
-#include "icon/make_solid.xpm" 
-#include "icon/make_wired.xpm"
-#include "icon/make_invisible.xpm" 
 //#include "icon/tapes.xpm"
 #include "icon/crash_burn.xpm"
 #include "icon/edit.xpm"
@@ -148,13 +147,17 @@ bool VizmoMainWin::CreateGUI()
     CreateObjectSelection();
     CreateRoadmapToolbar();
     CreateMenubar();
+    CreateTextOutbox();    
     SetTips();
 
+
+    connect(animationDebugGUI,SIGNAL(callUpdate()), m_outbox, SLOT(SetText()));
     connect(m_GL, SIGNAL(selectByRMB()), this, SLOT(obj_contexmenu()));
     connect(m_GL, SIGNAL(clickByRMB()), this, SLOT(gen_contexmenu()));
     connect(m_GL, SIGNAL(selectByLMB()), objectSelection, SLOT(select()));
     connect(m_GL, SIGNAL(selectByLMB()), roadmapGUI, SLOT(handleSelect()));
-    connect(m_GL, SIGNAL(MRbyGLI()), roadmapGUI, SLOT(MoveNode()));
+    connect(m_GL, SIGNAL(clickByLMB()), m_outbox, SLOT(SetText()));
+    connect(m_GL, SIGNAL(selectByLMB()), m_outbox, SLOT(SetText()));
     connect(m_GL, SIGNAL(MRbyGLI()), roadmapGUI, SLOT(printRobCfg()));
  
     return true;
@@ -423,7 +426,7 @@ void VizmoMainWin::obj_contexmenu()
     for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++)
     {
         CGLModel * gl=(CGLModel *)(*ig);
-        list<string> info=gl->GetInfo();
+        vector<string> info=gl->GetInfo();
 
 	m_s = info.front();
     }
@@ -1393,4 +1396,11 @@ void VizmoMainWin::CreateRoadmapToolbar(){
   roadmapGUI = new VizmoRoadmapGUI (this, (char*)"MapSelection");
   connect(roadmapGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
 }
+
+void 
+VizmoMainWin::CreateTextOutbox(){
+  m_outbox = new TextGUI (this, (char*)"Vizmo Text Output");  
+  m_outbox->setGeometry(0, 375, 206, 220);
+}
+
 

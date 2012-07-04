@@ -12,8 +12,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
 
+class VizmoMainWin; 
+
    VizGLWin::VizGLWin(QWidget * parent, const char * name)
-: QGLWidget(parent,name)
+: QGLWidget(parent,name)  
 { 
    setMinimumSize( 600, 400 );
    setFocusPolicy(Qt::StrongFocus);
@@ -90,7 +92,6 @@ void VizGLWin::paintGL()
    gliDraw(param);
    SetLightPos();
    GetVizmo().Display();
-   drawText();
 }
 
 void VizGLWin::SetLight()
@@ -144,10 +145,8 @@ void VizGLWin::mouseReleaseEvent( QMouseEvent * e )
    else if( e->button()==Qt::LeftButton ){ 
       if( !objs.empty() ) 
          emit selectByLMB();
-
       else
          emit clickByLMB();
-
    }//if
 
 
@@ -245,69 +244,6 @@ void VizGLWin::keyPressEvent ( QKeyEvent * e )
    if( (OBPRMView_Robot* )(GetVizmo().GetRobot()) == NULL ){updateGL(); return;}
    if( (OBPRMView_Robot* )(GetVizmo().GetRobot()->getModel())->KP(e) ){updateGL(); return;}
    e->ignore(); //not handled
-}
-
-void VizGLWin::drawText()
-{
-   vector<gliObj>& sel=GetVizmo().GetSelectedItem();
-   typedef vector<gliObj>::iterator SIT;
-
-   glPushAttrib(GL_CURRENT_BIT);
-
-   //draw reference axis
-   glMatrixMode(GL_PROJECTION); //change to Ortho view
-   glPushMatrix(); 
-   glLoadIdentity();
-   gluOrtho2D(0,20,0,20);
-
-   glMatrixMode(GL_MODELVIEW);
-   glPushMatrix();
-   glLoadIdentity();
-   glDisable(GL_LIGHTING);
-
-   //Draw text
-   glTranslated(0,20,0);
-   for(SIT i=sel.begin();i!=sel.end();i++){
-      CGLModel * gl=(CGLModel *)(*i);
-
-      //*********** this is the original code **********
-      //list<string> info=gl->GetInfo();
-      //drawText(info);
-      // ***********************************************
-      //June 08-05
-      if(gl != NULL){
-         list<string> info=gl->GetInfo();
-         //NOTE:: comment out next line
-         //if( gl->GetName()!="MultiBody" )
-         drawText(info);
-      }
-   }
-
-   glPopMatrix();
-
-   //pop GL_PROJECTION
-   glMatrixMode(GL_PROJECTION); //change to Pers view
-   glPopMatrix();
-   glMatrixMode(GL_MODELVIEW);
-   glPopAttrib();
-}
-
-void VizGLWin::drawText(list<string>& info)
-{
-   typedef list<string>::iterator SIT;
-
-   for(SIT i=info.begin();i!=info.end();i++){
-      //////////////////////////////////////////////
-      glTranslated(0,-0.5,0);
-      size_t pos = i->find("**", 0); 
-      if (pos == string::npos)
-         glColor3f(0.2,0.2,0.5);
-      else
-         glColor3f(1, 0, 0);
-
-      drawstr(0.2,0,0,i->c_str());
-
-   }
 }
 
 void VizGLWin::showGrid() 

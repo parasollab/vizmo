@@ -83,8 +83,9 @@ namespace plum {
     m_pMBModel[index[0]]->Select(index+1,sel);
   }
 
-  list<string> CEnvModel::GetInfo() const { 
-    list<string> info; 
+  vector<string> 
+  CEnvModel::GetInfo() const { 
+    vector<string> info; 
     info.push_back(string(m_envLoader->GetFileName()));
 
     ostringstream temp;

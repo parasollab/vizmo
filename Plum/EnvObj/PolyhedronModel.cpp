@@ -280,8 +280,9 @@ namespace plum{
     return filename; 
   }
 
-  list<string> CPolyhedronModel::GetInfo() const { 
-    list<string> info; 
+  vector<string> 
+  CPolyhedronModel::GetInfo() const { 
+    vector<string> info; 
     info.push_back(m_BodyInfo.m_strModelDataFileName);
     return info;
   }

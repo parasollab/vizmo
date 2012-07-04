@@ -176,13 +176,13 @@ class vizmo_obj{
       ~vizmo_obj(){Clean();}
       void Clean();
 
-      PlumObject * m_Robot;   
-      PlumObject * m_BBox;    bool m_show_BBox;
-      PlumObject * m_Qry;     bool m_show_Qry;  string m_QryFile;
-      PlumObject * m_Path;    bool m_show_Path; string m_PathFile;
-      PlumObject * m_Env;                       string m_EnvFile;
-      PlumObject * m_Map;     bool m_show_Map;  string m_MapFile;
-      PlumObject * m_Debug;     bool m_show_Debug;  string m_DebugFile;
+      PlumObject* m_Robot;   
+      PlumObject* m_BBox;    bool m_show_BBox;
+      PlumObject* m_Qry;     bool m_show_Qry;  string m_QryFile;
+      PlumObject* m_Path;    bool m_show_Path; string m_PathFile;
+      PlumObject* m_Env;                       string m_EnvFile;
+      PlumObject* m_Map;     bool m_show_Map;  string m_MapFile;
+      PlumObject* m_Debug;     bool m_show_Debug;  string m_DebugFile;
 };
 
 /**
@@ -281,9 +281,9 @@ class vizmo
       // get the robot's cfg. to be drawn in the toolbar
       //getRoboCfg() called from scene_win::mouseMoveEvent()
       void getRoboCfg(); 
-      list<string> info;
+      vector<string> info;
       //getRobCfgText() called from roadmap::printRobCfg()
-      list<string> getRobCfgText(){return info;} 
+      vector<string> getRobCfgText(){return info;} 
       int getNumJoints();
 
       PlumObject * GetRobot() const {  return m_obj.m_Robot; }

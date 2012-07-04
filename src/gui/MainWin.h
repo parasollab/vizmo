@@ -23,7 +23,7 @@
 //Added by qt3to4:
 #include <QKeyEvent>
 #include <Q3PopupMenu>
-
+#include "TextGUI.h"
 
 #include <QDoubleSpinBox>
 
@@ -58,9 +58,14 @@ class VizmoMainWin : public Q3MainWindow
 {
     Q_OBJECT
 
+
 public:
 
     VizmoMainWin(QWidget * parent=0, const char * name=0);
+    ~VizmoMainWin(){
+      delete m_outbox;
+    }
+    
     bool Init();
     bool InitVizmo();
     void SetArgs( vector<string> args ){ m_Args=args; }
@@ -72,6 +77,8 @@ public:
     bool m_setQS, m_setQG; //used to know if values in window will
 			   //need to be updated
     string firstQry_file; //to hold name of first query file
+
+    TextGUI* m_outbox; //Q3TextView that displays node/edge(s) selection info, debug, etc.  
 
 public slots:
     void showCfg(); //draw robot's current Cfg.
@@ -136,6 +143,8 @@ private slots:
     void setSQuery();
     void setGQuery();
 
+    TextGUI* GetOutbox(){return m_outbox;} //May not need this  
+
 private:
   
     bool CreateActions();   //Create Qt Actions
@@ -146,6 +155,7 @@ private:
     void CreateObjectSelection(); // create object selection
     void CreateAttributeSelection(); // create object selection
     void CreateRoadmapToolbar(); //Create color box for CC's 
+    void CreateTextOutbox();   //Create output area for cfg, VDebug, etc. text 
 
     QAction *showHideRoadmapAction, 
             *showHidePathAction, 
@@ -173,7 +183,7 @@ private:
     VizmoItemSelectionGUI *objectSelection;
     VizmoAttributeSelectionGUI *attributeSelection;
 
-    VizmoRoadmapGUI *roadmapGUI;  //for CC's
+    VizmoRoadmapGUI* roadmapGUI;  //for CC's
     queryGUI *qrySGUI,*qryGGUI;
 
     vector<string> m_Args; //user input arguments.

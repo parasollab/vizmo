@@ -97,7 +97,7 @@ namespace plum{
 	    (*ic)->change_properties(s, size, color, isNew);
 	}
 	
-        virtual list<string> GetInfo() const;
+        virtual vector<string> GetInfo() const;
         
     private:
         
@@ -197,8 +197,8 @@ namespace plum{
     }
     
     template <class Cfg, class WEIGHT>
-        list<string> CMapModel<Cfg, WEIGHT>::GetInfo() const { 
-        list<string> info; 
+        vector<string> CMapModel<Cfg, WEIGHT>::GetInfo() const { 
+        vector<string> info; 
         info.push_back(string(m_mapLoader->GetFileName()));
         
         {

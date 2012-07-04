@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector> 
+#include <map> 
 #include <string>
 
 
@@ -148,174 +149,167 @@ namespace plum{
    // CCModel
    ////////////////////////////////////////////////////////////////
 
-  template <class Cfg, class WEIGHT> class CCModel : public CCModelBase {
-    typedef typename CMapLoader<Cfg,WEIGHT>::Wg WG;
+  template <class Cfg, class WEIGHT> 
+    class CCModel : public CCModelBase {
+      public:
+        typedef typename CMapLoader<Cfg,WEIGHT>::Wg WG;
+        typedef typename WG::vertex_descriptor VID;
+        typedef typename WG::edge_descriptor EID;
+        typedef vector_property_map<WG, size_t> color_map_t;
+        
+        //////////////////////////////////////////////////////////////////////
+        // Constructor/Destructor
+        //////////////////////////////////////////////////////////////////////
+        CCModel(unsigned int _ID);
+        virtual ~CCModel();
 
-  public:
+        //////////////////////////////////////////////////////////////////////
+        // GL interface functions
+        //////////////////////////////////////////////////////////////////////      
+        bool BuildModels(); //not used, should not call this
+        void Draw( GLenum _mode );
+        void DrawSelect();
+        void Select( unsigned int* _index, vector<gliObj>& _sel );
+        bool BuildModels( VID _id, WG* _g); //call this instread
+        const string GetName() const;
+        virtual vector<string> GetInfo() const;
 
-    //////////////////////////////////////////////////////////////////////
-    // Constructor/Destructor
-    //////////////////////////////////////////////////////////////////////
-    CCModel(unsigned int _ID);
-    virtual ~CCModel();
+        void 
+        RobotModel(OBPRMView_Robot* _pRobot){
+          m_pRobot = _pRobot;
+        }
 
-    //////////////////////////////////////////////////////////////////////
-    // GL interface functions
-    //////////////////////////////////////////////////////////////////////      
-    bool BuildModels(); //not used, should not call this
-    void Draw( GLenum _mode );
-    void DrawSelect();
-    void Select( unsigned int* _index, vector<gliObj>& _sel );
-    typedef graph<DIRECTED,MULTIEDGES,Cfg,WEIGHT> WDG;
-    typedef typename WDG::vertex_descriptor VID;
-    typedef vector_property_map<WDG, size_t> color_map_t;
-    color_map_t cmap;
-    bool BuildModels( VID _id, WG* _g); //call this instread
-    const string GetName() const;
-    virtual list<string> GetInfo() const;
+        ///////////////////////////////////////////////////
+        // Access Functions
+        //////////////////////////////////////////////////
 
-    void RobotModel(OBPRMView_Robot* _pRobot){
-    m_pRobot = _pRobot;
-  }
+        int GetNumNodes(){ return m_Nodes.size();}
+        double GetNodeData() { return m_Nodes[0]->tx();}
+        // Functions to be accessed to get nodes and edges info.
+        //to write a new *.map file (this functions are 
+        //currently accessed from vizmo2.ccp: vizmo::GetNodeInfo()
+        map<VID, Cfg>& GetNodesInfo() {return m_Nodes;}
+        vector<WEIGHT>& GetEdgesInfo() {return m_Edges;}
+        WG* GetGraph(){return m_graph;}
 
-    ///////////////////////////////////////////////////
-    // Access Functions
-    //////////////////////////////////////////////////
+        //add a new Edge (from the 'add edge' option) 
+        //June 16-05
+        void addEdge(Cfg* _c1, Cfg* _c2){
+          typename WG::vertex_iterator vi;
+          typename WG::adj_edge_iterator ei;
+          EID ed(_c1->GetIndex(),_c2->GetIndex());
+          m_graph->find_edge(ed, vi, ei);
 
-    int GetNumNodes(){ return m_Nodes.size();}
-    double GetNodeData() { return m_Nodes[0]->tx();}
-    // Functions to be accessed to get nodes and edges info.
-    //to write a new *.map file (this functions are 
-    //currently accessed from vizmo2.ccp: vizmo::GetNodeInfo()
-    vector<Cfg*> GetNodesInfo() {return m_Nodes;}
-    vector<WEIGHT> GetEdgesInfo() { return m_Edges; }
-    WG * GetGraph(){ return m_graph; }
+          WEIGHT w  = (*ei).property();   
+          w.Set(m_Edges.size(),_c1,_c2);
+          m_Edges.push_back(w);
+        }
 
-    //add a new Edge (from the 'add edge' option) 
-    //June 16-05
-    void addEdge(Cfg* _c1, Cfg* _c2){
-      typename WDG::vertex_iterator vi;
-      typename WDG::adj_edge_iterator ei;
-      typename  WDG::edge_descriptor ed(_c1->GetIndex(),_c2->GetIndex());
-      m_graph->find_edge(ed, vi, ei);
+        /// Allow to change color of CC's
+        void changeColor(float _r, float _g, float _b, Shape _s){ 
 
-      WEIGHT w  = (*ei).property();   
-      w.Set(m_Edges.size(),_c1,_c2);
-      m_Edges.push_back(w);
-    }
+          ReBuildAll();
 
-    /// Allow to change color of CC's
-    void changeColor(float _r, float _g, float _b, Shape _s){ 
+          m_sNodeShape = _s;
+          CGLModel::SetColor(_r, _g, _b, 1); 
 
-      ReBuildAll();
+          m_RGBA.clear(); 
+          m_RGBA.push_back(_r);
+          m_RGBA.push_back(_g);
+          m_RGBA.push_back(_b);
 
-      m_sNodeShape = _s;
-      CGLModel::SetColor(_r, _g, _b, 1); 
+          typedef typename map<VID, Cfg>::iterator CIT;
+          for(CIT cit=m_Nodes.begin(); cit!=m_Nodes.end(); cit++){
+            cit->second.m_RGBA.clear(); 
+            cit->second.m_RGBA.push_back(_r);
+            cit->second.m_RGBA.push_back(_g);
+            cit->second.m_RGBA.push_back(_b);
+          }
 
-      m_RGBA.clear(); 
-      m_RGBA.push_back(_r);
-      m_RGBA.push_back(_g);
-      m_RGBA.push_back(_b);
+          typedef typename vector<WEIGHT>::iterator EIT;
+          for(EIT eit=m_Edges.begin(); eit!=m_Edges.end(); eit++){
+            eit->m_RGBA.clear(); 
+            eit->m_RGBA.push_back(_r);
+            eit->m_RGBA.push_back(_g);
+            eit->m_RGBA.push_back(_b);
+          }
+        }
 
-      typedef vector<CCfg>::iterator NIT;
-      for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++){
-        (*i).m_RGBA.clear(); 
-        (*i).m_RGBA.push_back(_r);
-        (*i).m_RGBA.push_back(_g);
-        (*i).m_RGBA.push_back(_b);
-      }
+        void SetColor(float _r, float _g, float _b, float _a) { 
 
-      typedef vector<Edge>::iterator EIT;
-      for(EIT i=m_Edges.begin();i!=m_Edges.end();i++){
-        (*i).m_RGBA.clear(); 
-        (*i).m_RGBA.push_back(_r);
-        (*i).m_RGBA.push_back(_g);
-        (*i).m_RGBA.push_back(_b);
+          ReBuildAll();
 
-      }
-    }
+          m_RGBA.clear(); 
+          m_RGBA.push_back(_r);
+          m_RGBA.push_back(_g);
+          m_RGBA.push_back(_b);
 
+          typedef typename map<VID, Cfg>::iterator CIT;
+          for(CIT cit=m_Nodes.begin(); cit!=m_Nodes.end(); cit++){
+            cit->second.m_RGBA.clear(); 
+            cit->second.m_RGBA.push_back(_r);
+            cit->second.m_RGBA.push_back(_g);
+            cit->second.m_RGBA.push_back(_b);
+          }
 
-    void SetColor(float _r, float _g, float _b, float _a) { 
+          typedef typename vector<WEIGHT>::iterator EIT;
+          for(EIT eit=m_Edges.begin(); eit!=m_Edges.end(); eit++){
+            eit->m_RGBA.clear(); 
+            eit->m_RGBA.push_back(_r);
+            eit->m_RGBA.push_back(_g);
+            eit->m_RGBA.push_back(_b);
+          }
+        }
 
-      ReBuildAll();
+        void change_properties(Shape _s, float _size, vector<float> _color, bool _isNew){ 
+          m_RenderMode = CPlumState::MV_SOLID_MODE;
+          m_sNodeShape = _s;
+          if(_s == 0){ 
+            m_fRobotScale = _size;
+            //force to rebuild robot
+            glDeleteLists(m_idRobot,1);
+            m_idRobot=-1; //need new id
+          }
+          else{
+            m_fBoxScale = _size;
+            glDeleteLists(m_idBox,1);
+            m_idBox=-1; //need new id
+          }
+          glDeleteLists(m_idEdges,1);
+          m_idEdges=-1; 
+          glDeleteLists(m_idPt,1);
+          m_idPt=-1;       
+          if(_isNew)
+            changeColor(_color[0], _color[1], _color[2], _s);
+        }
 
-      m_RGBA.clear(); 
-      m_RGBA.push_back(_r);
-      m_RGBA.push_back(_g);
-      m_RGBA.push_back(_b);
+        virtual void GetChildren(list<CGLModel*>& _models){ 
+          typedef typename map<VID, Cfg>::iterator CIT;
+          for(CIT cit=m_Nodes.begin(); cit!=m_Nodes.end(); cit++)
+            _models.push_back(&cit->second);
 
-      typedef vector<CCfg>::iterator NIT;
-      for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++) {
-        (*i).m_RGBA.clear(); 
-        (*i).m_RGBA.push_back( _r);
-        (*i).m_RGBA.push_back( _g);
-        (*i).m_RGBA.push_back(_b); 
-      }
+          typedef typename vector<WEIGHT>::iterator EIT;
+          for(EIT eit=m_Edges.begin(); eit!=m_Edges.end(); eit++)
+            _models.push_back(&*eit); 
+        }
 
-      typedef vector<Edge>::iterator EIT;
-      for(EIT i=m_Edges.begin();i!=m_Edges.end();i++) {
-        (*i).m_RGBA.clear(); 
-        (*i).m_RGBA.push_back(_r);
-        (*i).m_RGBA.push_back(_g);
-        (*i).m_RGBA.push_back(_b);
-      }
+        void BuildNodeModels(GLenum _mode);
 
-    }
+        void DrawRobotNodes(GLenum _mode);
+        void DrawBoxNodes(GLenum _mode);
+        void DrawPointNodes(GLenum _mode);
 
-    //void change_properties(Shape _s, float _size, float* _color, bool _isNew){
-    void change_properties(Shape _s, float _size, vector<float> _color, bool _isNew){ 
-      m_RenderMode = CPlumState::MV_SOLID_MODE;
-      m_sNodeShape = _s;
-      if(_s == 0){ 
-        m_fRobotScale = _size;
-        //force to rebuild robot
-        glDeleteLists(m_idRobot,1);
-        m_idRobot=-1; //need new id
-      }
-      else{
-        m_fBoxScale = _size;
-        glDeleteLists(m_idBox,1);
-        m_idBox=-1; //need new id
-      }
-      glDeleteLists(m_idEdges,1);
-      m_idEdges=-1; 
-      glDeleteLists(m_idPt,1);
-      m_idPt=-1;       
-      if(_isNew)
-        changeColor(_color[0], _color[1], _color[2], _s);
+        void BuildEdges();
 
-    }
+        void ChangeColor(GLenum _mode);
 
-    virtual void GetChildren( list<CGLModel*>& _models ){ 
-      typedef vector<CCfg>::iterator NIT;
-      for(NIT i=m_Nodes.begin();i!=m_Nodes.end();i++)
-        _models.push_back(&*i);
+        map<VID, Cfg> m_Nodes;
+        vector<WEIGHT> m_Edges;
+        OBPRMView_Robot* m_pRobot;
+        WG* m_graph;
+        color_map_t m_cmap;
 
-      typedef vector<Edge>::iterator EIT;
-      for(EIT i=m_Edges.begin();i!=m_Edges.end();i++)
-        _models.push_back(&(*i)); 
-    }
-
-
-  public:
-    void BuildNodeModels(GLenum _mode);
-
-    void DrawRobotNodes(GLenum _mode);
-    void DrawBoxNodes(GLenum _mode);
-    void DrawPointNodes(GLenum _mode);
-
-    void BuildEdges();
-
-    void ChangeColor(GLenum _mode);
-
-  public:           
-    vector<Cfg> m_Nodes;
-    vector<WEIGHT> m_Edges;
-    OBPRMView_Robot* m_pRobot;
-    WG * m_graph;
-
-  };
+    };
 
 
   /*********************************************************************
@@ -350,36 +344,33 @@ namespace plum{
     m_graph = _g;
     //Setup cc nodes        
     vector<VID> cc;
-    cmap.reset();
-    get_cc(*_g, cmap, _id, cc);
-    int nSize=cc.size();    
-    typename WDG::vertex_iterator cvi, cvi2, vi;
-    typename WDG::adj_edge_iterator ei;
+    m_cmap.reset();
+    get_cc(*_g, m_cmap, _id, cc);
+    int nSize=cc.size();   
+    typename WG::vertex_iterator cvi, cvi2, vi;
+    typename WG::adj_edge_iterator ei;
     for( int iN=0; iN<nSize; iN++ ){
       VID nid=cc[iN];    
       Cfg cfg = (_g->find_vertex(nid))->property();
       cfg.Set(nid,m_pRobot,this);
-      m_Nodes.push_back(cfg);
+      m_Nodes[nid] = cfg;
     }
 
     //Setup edges
     vector< pair<VID,VID> > ccedges;
 
-    cmap.reset();
-    get_cc_edges(*_g, cmap, ccedges, _id);
-    int eSize=ccedges.size();
-    m_Edges.reserve(eSize/2);
-    int edge_index=0;
+    m_cmap.reset();
+    get_cc_edges(*_g, m_cmap, ccedges, _id);
+    int eSize=ccedges.size(), edgeIdx = 0;
     for( int iE=0; iE<eSize; iE++ ){
       if( ccedges[iE].first<ccedges[iE].second )
         continue;
       Cfg* cfg1 = &((_g->find_vertex(ccedges[iE].first) )->property() ) ;
       Cfg* cfg2 = &((_g->find_vertex(ccedges[iE].second) )->property() );          
-      typename  WG::edge_descriptor ed(ccedges[iE].first,ccedges[iE].second);
+      EID ed(ccedges[iE].first,ccedges[iE].second);
       _g->find_edge(ed, vi, ei);
       WEIGHT w  = (*ei).property(); 
-       w.Set(edge_index,cfg1,cfg2, m_pRobot);
-      edge_index++;
+      w.Set(edgeIdx++,cfg1,cfg2, m_pRobot);
       m_Edges.push_back(w);
     }
 
@@ -429,14 +420,14 @@ namespace plum{
       glEnable(GL_LIGHTING); 
     }
 
-    int nSize = m_Nodes.size(); 
-    //cout << " draw robot nodes called"  << endl;
-    for( int iN=0; iN<nSize; iN++ ){ 
-      //cout << "robot scale " << m_fRobotScale << endl; 
-      m_Nodes[iN].Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
-      m_Nodes[iN].SetShape(CCfg::Robot); 
+    typedef typename map<VID, Cfg>::iterator CIT;
+    for(CIT cit = m_Nodes.begin(); cit!=m_Nodes.end(); cit++){      
+      glPushName(cit->first);
+      cit->second.Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
+      cit->second.SetShape(CCfg::Robot); 
       m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
-      m_Nodes[iN].Draw(_mode);//draw robot;  
+      cit->second.Draw(_mode);//draw robot; 
+      glPopName();
     }
 
     m_pRobot->Restore();
@@ -447,12 +438,13 @@ namespace plum{
   template <class Cfg, class WEIGHT>
   void CCModel<Cfg, WEIGHT>::DrawBoxNodes(GLenum _mode) {
     glEnable(GL_LIGHTING);
-    int nSize=m_Nodes.size(); 
-    for( int iN=0; iN<nSize; iN++ ){
-      //cout << "box scale " << m_fBoxScale << endl; 
-      m_Nodes[iN].Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
-      m_Nodes[iN].SetShape(CCfg::Box);
-      m_Nodes[iN].Draw(_mode); //draw box;
+    typedef typename map<VID, Cfg>::iterator CIT;
+    for(CIT cit = m_Nodes.begin(); cit!=m_Nodes.end(); cit++){      
+      glPushName(cit->first);
+      cit->second.Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
+      cit->second.SetShape(CCfg::Box);
+      cit->second.Draw(_mode); //draw box;
+      glPopName();
     }
   }
 
@@ -460,11 +452,13 @@ namespace plum{
   void CCModel<Cfg, WEIGHT>::DrawPointNodes(GLenum _mode){ 
      glDisable(GL_LIGHTING);
      glPointSize(4);
-     int nSize=m_Nodes.size();
-     for( int iN=0; iN<nSize; iN++ ){
-        m_Nodes[iN].Scale(1,1,1);
-        m_Nodes[iN].SetShape(CCfg::Point);
-        m_Nodes[iN].Draw(_mode);//draw point;
+     typedef typename map<VID, Cfg>::iterator CIT;
+     for(CIT cit = m_Nodes.begin(); cit!=m_Nodes.end(); cit++){      
+        glPushName(cit->first);
+        cit->second.Scale(1,1,1);
+        cit->second.SetShape(CCfg::Point);
+        cit->second.Draw(_mode);//draw point;
+        glPopName();
      }
      glEndList();
   }
@@ -478,10 +472,10 @@ namespace plum{
     glNewList( m_idEdges, GL_COMPILE );
     glDisable(GL_LIGHTING);
     {
-      int eSize=m_Edges.size();
-      for( int iE=0; iE<eSize; iE++ ){
-         m_Edges[iE].SetCfgShape(m_shape);
-         m_Edges[iE].Draw(m_RenderMode);
+      typedef typename vector<WEIGHT>::iterator EIT;
+      for(EIT eit = m_Edges.begin(); eit!=m_Edges.end(); eit++){
+        eit->SetCfgShape(m_shape);
+        eit->Draw(m_RenderMode);
       }
     }   
     glEndList();
@@ -496,26 +490,24 @@ namespace plum{
 
     glNewList( m_idRobot, GL_COMPILE );
     glEnable(GL_LIGHTING);
-    int nSize=m_Nodes.size();
-
-    for( int iN=0; iN<nSize; iN++ ){
-       if(m_shape == 'r'){
-          m_Nodes[iN].SetShape(CCfg::Robot);
-          m_Nodes[iN].Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
-          //cout << "robot scale " << m_fRobotScale << endl; 
-          m_Nodes[iN].Draw(_mode);//draw robot;
-       }
-       else if(m_shape == 'b'){
-          m_Nodes[iN].SetShape(CCfg::Box);
-          m_Nodes[iN].Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
-          //cout << "box scale " << m_fBoxScale << endl; 
-          m_Nodes[iN].Draw(_mode);//draw box
-       }
-       else if(m_shape == 'p'){
-          m_Nodes[iN].SetShape(CCfg::Point);
-          m_Nodes[iN].Scale(1,1,1);
-          m_Nodes[iN].Draw(_mode);//draw point
-       }
+    
+    typedef typename map<VID, Cfg>::iterator CIT;
+    for(CIT cit = m_Nodes.begin(); cit!=m_Nodes.end(); cit++){      
+      if(m_shape == 'r'){
+        cit->second.SetShape(CCfg::Robot);
+        cit->second.Scale(m_fRobotScale,m_fRobotScale,m_fRobotScale);
+        cit->second.Draw(_mode);//draw robot;
+      }
+      else if(m_shape == 'b'){
+        cit->second.SetShape(CCfg::Box);
+        cit->second.Scale(m_fBoxScale,m_fBoxScale,m_fBoxScale);
+        cit->second.Draw(_mode);//draw box
+      }
+      else if(m_shape == 'p'){
+        cit->second.SetShape(CCfg::Point);
+        cit->second.Scale(1,1,1);
+        cit->second.Draw(_mode);//draw point
+      }
     }
 
     glEndList();
@@ -604,14 +596,11 @@ namespace plum{
   template <class Cfg, class WEIGHT>
   void CCModel<Cfg, WEIGHT>::
   Select( unsigned int* _index, vector<gliObj>& _sel ) { 
-    typename WDG::vertex_iterator cvi;
+    typename WG::vertex_iterator cvi;
     if( _index==NULL || m_graph==NULL )
       return;
     if(_index[0]==1){
-      CCfg* cfg= &( (m_graph->find_vertex(_index[1]))->property());
-
-      //cfg->SetShape((CCfg::Shape)m_sNodeShape);
-      _sel.push_back(cfg);
+      _sel.push_back(&m_Nodes[(VID)_index[1]]);
     }
     else 
       _sel.push_back(&m_Edges[_index[1]]);
@@ -625,9 +614,9 @@ namespace plum{
   }
 
   template <class Cfg, class WEIGHT>
-  list<string> CCModel<Cfg, WEIGHT>::GetInfo() const { 
+  vector<string> CCModel<Cfg, WEIGHT>::GetInfo() const { 
 
-    list<string> info; 
+    vector<string> info; 
     ostringstream temp,temp2;
     temp << "There are " << m_Nodes.size() << " nodes";
     info.push_back(temp.str());

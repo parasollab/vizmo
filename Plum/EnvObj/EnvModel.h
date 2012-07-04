@@ -54,7 +54,7 @@ namespace plum{
             models.push_back(*i);
         }
       }
-      virtual list<string> GetInfo() const;
+      virtual vector<string> GetInfo() const;
 
 
 

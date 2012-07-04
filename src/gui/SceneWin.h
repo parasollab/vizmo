@@ -14,7 +14,12 @@
 // BSS
 #include <GL/gli.h>
 #include <list>
+#include "TextGUI.h"
+#include "MainWin.h"
+
 using namespace std;
+
+class TextGUI; 
 
 class VizGLWin : public QGLWidget
 {
@@ -22,16 +27,16 @@ class VizGLWin : public QGLWidget
         
 public:
     
-    VizGLWin( QWidget * parent=0, const char * name=0 );
+    VizGLWin(QWidget* parent=0, const char* name=0);
     void resetCamera();
     
     // BSS
-    vector<gliObj> *objs2;
+    vector<gliObj>* objs2;
     
-    void getWidthHeight(int *,int *);
+    void getWidthHeight(int*,int*);
     
     void setClearColor(double r, double g, double b) const {
-		glClearColor( r , g, b, 0 );
+		glClearColor(r, g, b, 0);
 	}
     //Collision Detection related vars.
     bool CDOn;
@@ -51,14 +56,12 @@ signals:
 protected:
     
     void initializeGL();
-    void resizeGL( int, int );
+    void resizeGL(int, int);
     void paintGL();
-    void mousePressEvent ( QMouseEvent * );
-    void mouseReleaseEvent ( QMouseEvent * );
-    void mouseMoveEvent ( QMouseEvent * );
-    void keyPressEvent ( QKeyEvent * e );
-	
-    void drawText(); //this should not be here but it is here for now
+    void mousePressEvent(QMouseEvent*);
+    void mouseReleaseEvent(QMouseEvent*);
+    void mouseMoveEvent(QMouseEvent*);
+    void keyPressEvent(QKeyEvent* e);
 
 public slots:
 	void showGrid();
@@ -67,7 +70,7 @@ public slots:
 private slots:
     
     void togleSlectionSlot();
-    void getBoxDimensions(int *,int *,int *,int *); 
+    void getBoxDimensions(int*, int*, int*, int*); 
     void simulateMouseUpSlot();
     
 private:
@@ -80,11 +83,9 @@ private:
         glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
     }
 	
-    void drawText(list<string>& info);
     bool takingSnapShot;
-
     bool m_bShowGrid, m_bShowAxis;
-
+  
 };
 
 

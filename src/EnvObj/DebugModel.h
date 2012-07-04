@@ -17,6 +17,7 @@ using namespace plum;
 //////////////////////////////////////////////////////////////////////
 //OBPRMView Headers
 #include "DebugLoader.h"
+
 class OBPRMView_Robot;
 
 class CDebugModel : public CGLModel
@@ -53,11 +54,13 @@ public:
     virtual bool BuildModels();
     virtual void Draw( GLenum mode );
     virtual const string GetName() const { return "Debug"; }
-    virtual list<string> GetInfo() const;
+    virtual vector<string> GetInfo() const;
+    vector<string> GetComments();  
 
     void ConfigureFrame(int f);//{m_Index = f;}
 
     vector<Model>& GetModels() {return m_mapModels;}
+
     //output info to std ouput
     //virtual void DumpSelected();
     

@@ -209,9 +209,9 @@ const string CBoundingBoxModel::GetName() const{
    return s;
 }
 
-list<string> CBoundingBoxModel::GetInfo() const 
-{ 
-   list<string> info; 
+vector<string> 
+CBoundingBoxModel::GetInfo() const { 
+   vector<string> info; 
    info.push_back(GetName());
    info.push_back("");
    for( int i=0;i<6;i++ ){

@@ -91,9 +91,10 @@ void CQueryModel::Draw( GLenum mode ){
     glCallList( m_DLIndex );
 }
 
-list<string> CQueryModel::GetInfo() const 
-{ 
-  list<string> info; 
+vector<string> 
+CQueryModel::GetInfo() const {
+
+  vector<string> info; 
   int dof = m_pRobot->returnDOF();
   int i;
   //get Query configurations

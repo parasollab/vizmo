@@ -211,12 +211,11 @@ namespace plum{
   // this information is controlled by VizmoRoadmapGUI::printNodeCfg() 
   // in roadmap.cpp, which calls CCfg::GetNodeInfo()
 
-  list<string> 
-  CCfg::GetInfo() const {  
-    list<string> info; 
+  vector<string> 
+  CCfg::GetInfo() const {
+    vector<string> info; 
     int dof=CCfg::m_dof;
     ostringstream temp;
-
     temp << "Node ID = " << m_index << " ";
     temp << " Cfg ( ";
 
@@ -240,9 +239,9 @@ namespace plum{
   }
 
 
-  list<string> 
-  CCfg::GetNodeInfo() const {  
-    list<string> info; 
+  vector<string> 
+  CCfg::GetNodeInfo() const { 
+    vector<string> info; 
     int dof=CCfg::m_dof;
     ostringstream temp;
 

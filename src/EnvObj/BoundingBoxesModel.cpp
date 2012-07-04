@@ -56,16 +56,17 @@ void CBoundingBoxesModel::Draw( GLenum mode ){
    }
 }
 
-list<string> CBoundingBoxesModel::GetInfo() const 
-{
-   list<string> info; 
-   info.push_back("Bounding Box");
-   info.push_back("");
-   string name = "Num Bounding Boxes=";
-   ostringstream temp;
-   temp<<m_BBXModels.size();
-   info.push_back(name+temp.str());
-   return info;
+vector<string> 
+CBoundingBoxesModel::GetInfo() const {
+   
+  vector<string> info; 
+  info.push_back("Bounding Box");
+  info.push_back("");
+  string name = "Num Bounding Boxes=";
+  ostringstream temp;
+  temp<<m_BBXModels.size();
+  info.push_back(name+temp.str());
+  return info;
 }
 
 void CBoundingBoxesModel::Select( unsigned int * index, vector<gliObj>& sel )

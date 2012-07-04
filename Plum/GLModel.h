@@ -83,7 +83,7 @@ namespace plum{
             { /*do nothing as default*/ }
 
             //Get more detailde information
-            virtual list<string> GetInfo() const { return list<string>(); }
+            virtual vector<string> GetInfo() const {return vector<string>();}
 
             virtual bool KP( QKeyEvent * e ) {return true;}
 
