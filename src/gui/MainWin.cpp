@@ -1195,7 +1195,8 @@ void VizmoMainWin::CreateToolbar(){
     vizmoTools->addSeparator(); 
    
     palletIcon = QPixmap(icon_color_table);
-    palletButton = new QToolButton(palletIcon, "BgColor", "Change Background Color", this, SLOT(changeBGcolor()), vizmoTools, "background color");
+    palletButton = new QToolButton(palletIcon, "BgColor", "Change Background Color",
+        this, SLOT(changeBGcolor()), vizmoTools, "background color");
     palletButton->setUsesTextLabel ( true );
     palletButton->setEnabled(false);
  

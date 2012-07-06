@@ -18,6 +18,8 @@
 #include <qstringlist.h> 
 //Added by qt3to4:
 #include <QLabel>
+#include <QButtonGroup> 
+#include <QPushButton> 
 
 #include <vector>
 #include <string>
@@ -107,7 +109,8 @@ private slots:
 	    * invisibleSelectNodeAction,
 	    * wireSelectNodeAction,
 	    * solidSelectNodeAction,
-	    * colorSelectNodeAction;
+	    * colorSelectNodeAction, 
+            * m_ccsOneColor; 
 
     double *m_cfg;
     int m_dof;
@@ -121,11 +124,9 @@ private slots:
  private:
  
     // private:
-    //Q3ListBox *l;
-    QListWidget *listWidget;
+    QButtonGroup* m_nodeView; 
 
     double size;
-    QToolButton *nodesSameColor;
 
     string m_shapeString;
     bool m_bEditModel;
