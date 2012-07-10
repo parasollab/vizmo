@@ -1063,7 +1063,7 @@ bool VizmoMainWin::CreateActions()
     // Grid
     showGridAction = new QAction(tr("Grid"), this);
     showGridAction->setCheckable(true); showGridAction->setText("Grid");
-    showGridAction->setOn(true);
+    showGridAction->setOn(false);
     connect(showGridAction, SIGNAL(activated()), m_GL, SLOT(showGrid()));
     
     ///////////////////////////////////////////////////////////////////////////////

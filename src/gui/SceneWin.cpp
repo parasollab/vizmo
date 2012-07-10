@@ -21,7 +21,8 @@ class VizmoMainWin;
    setFocusPolicy(Qt::StrongFocus);
 
    takingSnapShot=false;
-   m_bShowGrid=m_bShowAxis=true;
+   m_bShowGrid=false;
+   m_bShowAxis=true;
 
 
 }
