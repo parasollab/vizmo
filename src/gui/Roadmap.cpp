@@ -38,8 +38,8 @@
 #include "icon/make_invisible.xpm" 
 #include "icon/cc_color.xpm"
 #include "icon/rcolor.xpm"
-#include "icon/ruler.xpm"
-#include "icon/ccs_one_color.xpm" 
+//#include "icon/ruler.xpm"
+//#include "icon/ccs_one_color.xpm" 
 
 VizmoRoadmapGUI::VizmoRoadmapGUI(Q3MainWindow * parent,char *name)
    :Q3ToolBar(parent, name){
@@ -61,7 +61,8 @@ VizmoRoadmapGUI::VizmoRoadmapGUI(Q3MainWindow * parent,char *name)
 void VizmoRoadmapGUI::createGUI()
 {
 
-   sizeAction = new QAction (QIcon(QPixmap(icon_ruler)),tr("Size"), this);
+   //sizeAction = new QAction (QIcon(QPixmap(icon_ruler)),tr("Size"), this);
+   sizeAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Size"), this);
    sizeAction->setShortcut(tr("CTRL+S"));
    connect(sizeAction,SIGNAL(activated()), this, SLOT(changeSize()));
    sizeAction->addTo(this);
@@ -129,7 +130,8 @@ void VizmoRoadmapGUI::createGUI()
    connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()));
    addEdgeAction->setEnabled(false);
 
-   m_ccsOneColor = new QAction(QIcon(QPixmap(icon_ccs_one_color)), tr("CCs one color"), this); 
+   //m_ccsOneColor = new QAction(QIcon(QPixmap(icon_ccs_one_color)), tr("CCs one color"), this); 
+   m_ccsOneColor = new QAction(QIcon(QPixmap(icon_pallet)), tr("CCs one color"), this); 
    m_ccsOneColor->setCheckable(true); 
    m_ccsOneColor->setToolTip("CCs one color"); 
    connect(m_ccsOneColor, SIGNAL(activated()), this, SLOT(setSameColor())); 
