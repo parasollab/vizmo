@@ -804,7 +804,7 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
     if( m_obj.m_Robot==NULL || m_obj.m_Debug==NULL)
       return;
     m_obj.m_show_Debug = true;
-    CDebugModel* dmodel=(CDebugModel*)m_obj.m_Debug->getModel();
+    DebugModel* dmodel=(DebugModel*)m_obj.m_Debug->getModel();
 
     dmodel->ConfigureFrame(frame);
   }
@@ -829,8 +829,6 @@ void vizmo::ChangeNodesSize(float s, string str){
   typedef CMapModel<CCfg,Edge> MM;
   typedef CCModel<CCfg,Edge> CC;
   typedef vector<CC*>::iterator CCIT;
-  typedef CDebugModel::Model Model;
-  typedef vector<Model>::iterator MMIT;
 
   if(m_obj.m_Map!=NULL){
     MM* mmodel =(MM*)m_obj.m_Map->getModel();
@@ -843,16 +841,16 @@ void vizmo::ChangeNodesSize(float s, string str){
     }
   }
   if(m_obj.m_Debug!=NULL){
-    vector<Model>& mapModels = ((CDebugModel*)m_obj.m_Debug->getModel())->GetModels();
-    for(MMIT mmit = mapModels.begin(); mmit != mapModels.end(); mmit++){
-      vector<CC*>& cc=(*mmit).mapModel->GetCCModels();
+    DebugModel* dmodel = ((DebugModel*)m_obj.m_Debug->getModel()); 
+      vector<CC*>& cc=dmodel->GetMapModel()->GetCCModels();
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        CC::Shape shape=CC::Point;
-        if( str=="Robot" ) shape=CC::Robot;
-        else if( str=="Box" ) shape=CC::Box;
+        CC::Shape shape = CC::Point;
+        if( str=="Robot")
+          shape=CC::Robot;
+        else if( str=="Box")
+          shape=CC::Box;
         (*ic)->scaleNode(s, shape);
       }
-    }
   }
 }
 
@@ -865,8 +863,6 @@ void vizmo::ChangeNodesShape(string s){
   typedef CMapModel<CCfg,Edge> MM;
   typedef CCModel<CCfg,Edge> CC;
   typedef vector<CC*>::iterator CCIT;
-  typedef CDebugModel::Model Model;
-  typedef vector<Model>::iterator MMIT;
 
   if(m_obj.m_Map!=NULL){
     CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->getModel();
@@ -879,32 +875,31 @@ void vizmo::ChangeNodesShape(string s){
     }
   }
   if(m_obj.m_Debug!=NULL){
-    vector<Model>& mapModels = ((CDebugModel*)m_obj.m_Debug->getModel())->GetModels();
-    for(MMIT mmit = mapModels.begin(); mmit != mapModels.end(); mmit++){
-      vector<CC*>& cc=(*mmit).mapModel->GetCCModels();
+    DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->getModel(); 
+      vector<CC*>& cc=dmodel->GetMapModel()->GetCCModels();
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        CC::Shape shape=CC::Point;
-        if( s=="Robot" ) shape=CC::Robot;
-        else if( s=="Box" ) shape=CC::Box;
+        CC::Shape shape = CC::Point;
+        if( s=="Robot")
+          shape=CC::Robot;
+        else if( s=="Box")
+          shape=CC::Box;
         (*ic)->changeShape(shape);
       }
-    }
   }
 }
 
 
 void vizmo::ChangeCCColor(double r, double g, double b, string s){
 
-  if( m_obj.m_Robot==NULL ) return;
+  if( m_obj.m_Robot==NULL)
+    return;
 
-  if( m_obj.m_Map==NULL && m_obj.m_Debug==NULL ) return;
+  if( m_obj.m_Map==NULL && m_obj.m_Debug==NULL)
+    return;
 
   typedef CMapModel<CCfg,Edge> MM;
   typedef CCModel<CCfg,Edge> CC;
   typedef vector<CC*>::iterator CCIT; 
-  typedef CDebugModel::Model Model;
-  typedef vector<Model>::iterator MMIT;
-
 
   //change color of one CC at a time
   vector<gliObj>& sel = GetVizmo().GetSelectedItem();
@@ -927,8 +922,10 @@ void vizmo::ChangeCCColor(double r, double g, double b, string s){
     if(m_s != "NULL"){
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
         CC::Shape shape=CC::Point;
-        if( s=="Robot" ) shape=CC::Robot;
-        else if( s=="Box" ) shape=CC::Box;
+        if(s=="Robot")
+          shape=CC::Robot;
+        else if(s=="Box")
+          shape=CC::Box;
         if(StringToInt(m_s, m_i)){
           if(m_i == (*ic)->id){
             (*ic)->DrawSelect();
@@ -942,8 +939,10 @@ void vizmo::ChangeCCColor(double r, double g, double b, string s){
     else if(m_s == "NULL" && oneColor){
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
         CC::Shape shape=CC::Point;
-        if( s=="Robot" ) shape=CC::Robot;
-        else if( s=="Box" ) shape=CC::Box;
+        if(s=="Robot")
+          shape=CC::Robot;
+        else if(s=="Box")
+          shape=CC::Box;
         (*ic)->newColor = true;
         (*ic)->changeColor(r, g, b, shape);
         (*ic)->DrawRobotNodes((*ic)->m_RenderMode);
@@ -953,8 +952,10 @@ void vizmo::ChangeCCColor(double r, double g, double b, string s){
     else{
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
         CC::Shape shape=CC::Point;
-        if( s=="Robot" ) shape=CC::Robot;
-        else if( s=="Box" ) shape=CC::Box;
+        if(s=="Robot")
+          shape=CC::Robot;
+        else if(s=="Box")
+          shape=CC::Box;
         (*ic)->newColor = true;
         r = ((float)rand())/RAND_MAX; 
         g = ((float)rand())/RAND_MAX; 
@@ -965,47 +966,51 @@ void vizmo::ChangeCCColor(double r, double g, double b, string s){
     }
   }
   if(m_obj.m_Debug!=NULL){
-    vector<Model>& mapModels = ((CDebugModel*)m_obj.m_Debug->getModel())->GetModels();
-    for(MMIT mmit = mapModels.begin(); mmit != mapModels.end(); mmit++){
-      vector<CC*>& cc=(*mmit).mapModel->GetCCModels();
-      if(m_s != "NULL"){
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          CC::Shape shape=CC::Point;
-          if( s=="Robot" ) shape=CC::Robot;
-          else if( s=="Box" ) shape=CC::Box;
-          if(StringToInt(m_s, m_i)){
-            if(m_i == (*ic)->id){
-              (*ic)->DrawSelect();
-              (*ic)->newColor = true;
-              (*ic)->changeColor(r, g, b, shape);
-              (*ic)->DrawRobotNodes((*ic)->m_RenderMode);
-            }
+    DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->getModel(); 
+    vector<CC*>& cc=dmodel->GetMapModel()->GetCCModels();
+    if(m_s != "NULL"){
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+        CC::Shape shape=CC::Point;
+        if( s=="Robot")
+          shape=CC::Robot;
+        else if( s=="Box")
+          shape=CC::Box;
+        if(StringToInt(m_s, m_i)){
+          if(m_i == (*ic)->id){
+            (*ic)->DrawSelect();
+            (*ic)->newColor = true;
+            (*ic)->changeColor(r, g, b, shape);
+            (*ic)->DrawRobotNodes((*ic)->m_RenderMode);
           }
         }
       }
-      else if(m_s == "NULL" && oneColor){
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          CC::Shape shape=CC::Point;
-          if( s=="Robot" ) shape=CC::Robot;
-          else if( s=="Box" ) shape=CC::Box;
-          (*ic)->newColor = true;
-          (*ic)->changeColor(r, g, b, shape);
-          (*ic)->DrawRobotNodes((*ic)->m_RenderMode);
-        }
-        oneColor = false;
+    }
+    else if(m_s == "NULL" && oneColor){
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+        CC::Shape shape=CC::Point;
+        if(s=="Robot")
+          shape=CC::Robot;
+        else if(s=="Box")
+          shape=CC::Box;
+        (*ic)->newColor = true;
+        (*ic)->changeColor(r, g, b, shape);
+        (*ic)->DrawRobotNodes((*ic)->m_RenderMode);
       }
-      else{
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          CC::Shape shape=CC::Point;
-          if( s=="Robot" ) shape=CC::Robot;
-          else if( s=="Box" ) shape=CC::Box;
-          (*ic)->newColor = true;
-          r = ((float)rand())/RAND_MAX; 
-          g = ((float)rand())/RAND_MAX; 
-          b = ((float)rand())/RAND_MAX; 
-          (*ic)->changeColor(r, g, b, shape);
-          (*ic)->DrawRobotNodes((*ic)->m_RenderMode);
-        }
+      oneColor = false;
+    }
+    else{
+      for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+        CC::Shape shape=CC::Point;
+        if(s=="Robot")
+          shape=CC::Robot;
+        else if(s=="Box")
+          shape=CC::Box;
+        (*ic)->newColor = true;
+        r = ((float)rand())/RAND_MAX; 
+        g = ((float)rand())/RAND_MAX; 
+        b = ((float)rand())/RAND_MAX; 
+        (*ic)->changeColor(r, g, b, shape);
+        (*ic)->DrawRobotNodes((*ic)->m_RenderMode);
       }
     }
   }
@@ -1021,8 +1026,6 @@ void vizmo::UpdateSelection(){
    typedef CMapModel<CCfg,Edge> MM;
    typedef CCModel<CCfg,Edge> CC;
    typedef vector<CC*>::iterator CCIT;
-   typedef CDebugModel::Model Model;
-   typedef vector<Model>::iterator MMIT;
 
    //change color of one CC at a time
    vector<gliObj>& sel = GetVizmo().GetSelectedItem();
@@ -1060,23 +1063,21 @@ void vizmo::UpdateSelection(){
       }
       
       if(m_obj.m_Debug!=NULL){
-        vector<Model>& mapModels = ((CDebugModel*)m_obj.m_Debug->getModel())->GetModels();
-        for(MMIT mmit = mapModels.begin(); mmit != mapModels.end(); mmit++){
-          vector<CC*>& cc = (*mmit).mapModel->GetCCModels();
-          if(m_s != "NULL"){
-            for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-              typedef map<CC::VID, CCfg>::iterator NIT;
-              for(NIT i=(*ic)->m_Nodes.begin(); i!=(*ic)->m_Nodes.end(); i++)
-                if(StringToInt(m_s, m_i)){
-                  if(m_i == i->second.GetIndex()){   
-                    (*ic)->DrawSelect();
-                    (*ic)->newColor = true;
-                    (*ic)->ReBuildAll();            
-                    (*ic)->DrawRobotNodes(GL_RENDER);
-                    (*ic)->DrawSelect();
-                  }
+        DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->getModel(); 
+        vector<CC*>& cc = dmodel->GetMapModel()->GetCCModels();
+        if(m_s != "NULL"){
+          for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+            typedef map<CC::VID, CCfg>::iterator NIT;
+            for(NIT i=(*ic)->m_Nodes.begin(); i!=(*ic)->m_Nodes.end(); i++)
+              if(StringToInt(m_s, m_i)){
+                if(m_i == i->second.GetIndex()){   
+                  (*ic)->DrawSelect();
+                  (*ic)->newColor = true;
+                  (*ic)->ReBuildAll();            
+                  (*ic)->DrawRobotNodes(GL_RENDER);
+                  (*ic)->DrawSelect();
                 }
-            }
+              }
           }
         }
       }
@@ -1223,7 +1224,7 @@ bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
 bool vizmo::CreateDebugObj( vizmo_obj& obj, const string& fname )
 {
    CDebugLoader * dloader=new CDebugLoader();
-   CDebugModel * dmodel=new CDebugModel();
+   DebugModel * dmodel=new DebugModel();
    if( dloader==NULL || dmodel==NULL ) return false;
    dloader->SetDataFileName(fname);
    dmodel->SetDebugLoader(dloader);

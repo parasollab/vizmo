@@ -102,7 +102,7 @@ namespace plum{
         //void KillGraph(){ delete m_Graph; m_Graph=NULL; }
         VID Cfg2VID(Cfg target){
           VI vi;
-          VID tvid;
+          VID tvid = -1;
           for(vi=GetGraph()->begin();vi!=GetGraph()->end();vi++){
             if( target == (*vi).property() ){
               tvid=(*vi).descriptor();   

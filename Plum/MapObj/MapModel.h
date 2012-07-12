@@ -35,7 +35,7 @@ namespace plum{
         // Constructor/Destructor
         //////////////////////////////////////////////////////////////////////
         CMapModel();
-        virtual ~CMapModel();
+        virtual ~CMapModel();// {
         
         //////////////////////////////////////////////////////////////////////
         // Access functions
@@ -132,39 +132,38 @@ namespace plum{
     template <class Cfg, class WEIGHT>
         CMapModel<Cfg, WEIGHT>::~CMapModel()
     {
-        typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
-        for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
-	  //delete *ic;
-		}//end for
+      typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
+      for(CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++){
+        delete *ic;
+      }//end for
     }
     
     template <class Cfg, class WEIGHT>
     bool CMapModel<Cfg, WEIGHT>::BuildModels()
     {
+        typedef typename vector<myCCModel*>::iterator CCIT;//CC iterator
         //get graph
         if( m_mapLoader==NULL ) return false;
 		typename Loader::Wg * graph = m_mapLoader->GetGraph();
         if( graph==NULL ) return false;
+        for(CCIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++)
+          delete (*ic);
         m_CCModels.clear(); //new line Jul-01-05
         //Get CCs
         typedef typename vector< pair<size_t,VID> >::iterator CIT;//CC iterator
         vector<pair<size_t,VID> > ccs;
+        cmap.reset();
+        get_cc_stats(*graph,cmap,ccs);  
         
-        if(graph!=NULL){
-          cmap.reset();
-          get_cc_stats(*graph,cmap,ccs);  
-        }
-                
+
         int CCSize=ccs.size();
         m_CCModels.reserve(CCSize);
         for( CIT ic=ccs.begin();ic!=ccs.end();ic++ ){
-            myCCModel* cc=new myCCModel(ic-ccs.begin());
+            myCCModel* cc = new myCCModel(ic-ccs.begin());
             cc->RobotModel(m_pRobot);    
             cc->BuildModels(ic->second,graph);   
             m_CCModels.push_back(cc);
         }
-        
-
         return true;
     }
     

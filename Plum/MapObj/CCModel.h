@@ -184,6 +184,7 @@ namespace plum{
         //////////////////////////////////////////////////
 
         int GetNumNodes(){ return m_Nodes.size();}
+        int GetNumEdges(){ return m_Edges.size();}
         double GetNodeData() { return m_Nodes[0]->tx();}
         // Functions to be accessed to get nodes and edges info.
         //to write a new *.map file (this functions are 
@@ -346,9 +347,11 @@ namespace plum{
     vector<VID> cc;
     m_cmap.reset();
     get_cc(*_g, m_cmap, _id, cc);
+    
     int nSize=cc.size();   
     typename WG::vertex_iterator cvi, cvi2, vi;
     typename WG::adj_edge_iterator ei;
+    m_Nodes.clear();
     for( int iN=0; iN<nSize; iN++ ){
       VID nid=cc[iN];    
       Cfg cfg = (_g->find_vertex(nid))->property();
@@ -362,9 +365,12 @@ namespace plum{
     m_cmap.reset();
     get_cc_edges(*_g, m_cmap, ccedges, _id);
     int eSize=ccedges.size(), edgeIdx = 0;
+
+    m_Edges.clear();
     for( int iE=0; iE<eSize; iE++ ){
       if( ccedges[iE].first<ccedges[iE].second )
         continue;
+
       Cfg* cfg1 = &((_g->find_vertex(ccedges[iE].first) )->property() ) ;
       Cfg* cfg2 = &((_g->find_vertex(ccedges[iE].second) )->property() );          
       EID ed(ccedges[iE].first,ccedges[iE].second);
@@ -373,7 +379,6 @@ namespace plum{
       w.Set(edgeIdx++,cfg1,cfg2, m_pRobot);
       m_Edges.push_back(w);
     }
-
     return true;
   }
 

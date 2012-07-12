@@ -35,6 +35,7 @@ struct AddNode : public Instruction {
 };
 
 struct AddEdge : public Instruction {
+  float target_color[3], source_color[3];
   AddEdge(CCfg s, CCfg t):source(s), target(t){name = "AddEdge";};
   CCfg source, target;
   virtual void Print(ostream& oss){
@@ -68,6 +69,10 @@ struct AddTempEdge : public Instruction {
 };
 
 struct ClearLastTemp : public Instruction {
+  CCfg* tempRay;
+  vector<CCfg> lastTempCfgs;
+  vector<Edge> lastTempEdges;
+
   ClearLastTemp(){name = "ClearLastTemp";}
   virtual void Print(ostream& oss){
     oss<<name<<endl;
@@ -75,6 +80,13 @@ struct ClearLastTemp : public Instruction {
 };
 
 struct ClearAll : public Instruction {
+  CCfg* tempRay;
+  vector<CCfg> tempCfgs;
+  vector<Edge> tempEdges;
+  vector<Edge> query;
+  vector<string> comments;
+  
+  
   ClearAll(){name = "ClearAll";}
   virtual void Print(ostream& oss){
     oss<<name<<endl;
@@ -82,6 +94,7 @@ struct ClearAll : public Instruction {
 };
 
 struct ClearComments : public Instruction {
+  vector<string> comments;
   ClearComments(){name = "ClearComments";}
   virtual void Print(ostream& oss){
     oss<<name<<endl;
@@ -97,6 +110,7 @@ struct RemoveNode : public Instruction {
 };
 
 struct RemoveEdge : public Instruction {
+  int edgeNum;
   RemoveEdge(CCfg s, CCfg t):source(s), target(t){name = "RemoveEdge";};
   CCfg source, target;
   virtual void Print(ostream& oss){
@@ -113,6 +127,7 @@ struct Comment : public Instruction {
 };
 
 struct Query : public Instruction {
+  vector<Edge> query;
   Query(CCfg s, CCfg t):source(s), target(t){name = "Query";};
   CCfg source, target;
   virtual void Print(ostream& oss){

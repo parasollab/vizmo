@@ -1,5 +1,4 @@
-// PathModel.h: interface for the CDebugModel class.
-//
+// DebugModel.h: interface for the DebugModel class.
 //////////////////////////////////////////////////////////////////////
 
 #ifndef _DEBUGMODEL_H_
@@ -20,59 +19,54 @@ using namespace plum;
 
 class OBPRMView_Robot;
 
-class CDebugModel : public CGLModel
-{
-public:
+class DebugModel : public CGLModel {
+  public:
     typedef CMapModel<CCfg, Edge> MapModel;
-    typedef Edge EDGE;
-    struct DModel{
-      DModel(MapModel* m, vector<CCfg> v, vector<EDGE> e, vector<EDGE> q, CCfg* r, vector<string> c):
-        mapModel(m), tempCfgs(v), tempEdges(e), query(q), tempRay(r), comments(c){}
-      MapModel* mapModel;
-      vector<CCfg> tempCfgs;
-      vector<EDGE> tempEdges, query;
-      CCfg* tempRay;
-      vector<string> comments;
-    };
-    typedef DModel Model;
 
     //////////////////////////////////////////////////////////////////////
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
-    CDebugModel();
-    virtual ~CDebugModel();
+    DebugModel();
+    virtual ~DebugModel();
     
     //////////////////////////////////////////////////////////////////////
     // Action functions
     //////////////////////////////////////////////////////////////////////
-    void SetDebugLoader( CDebugLoader * pDebugLoader ){ m_pDebugLoader=pDebugLoader; }
-    void SetModel( OBPRMView_Robot * pRobot ){ m_pRobot=pRobot; }
+    void SetDebugLoader( CDebugLoader* _debugLoader ){ m_debugLoader = _debugLoader; }
+    void SetModel( OBPRMView_Robot* _robot ){ m_robot = _robot; }
     
     //////////////////////////////////////////////////////////////////////
     // Action functions
     //////////////////////////////////////////////////////////////////////
     virtual bool BuildModels();
-    virtual void Draw( GLenum mode );
+    virtual void BuildForward();
+    virtual void BuildBackward();
+    virtual void Draw(GLenum _mode);
     virtual const string GetName() const { return "Debug"; }
     virtual vector<string> GetInfo() const;
     vector<string> GetComments();  
 
-    void ConfigureFrame(int f);//{m_Index = f;}
+    MapModel* GetMapModel(){return m_mapModel;}
 
-    vector<Model>& GetModels() {return m_mapModels;}
+    void ConfigureFrame(int _frame);//{m_index = f;}
 
-    //output info to std ouput
-    //virtual void DumpSelected();
-    
     //////////////////////////////////////////////////////////////////////
     // Private functions and data
     //////////////////////////////////////////////////////////////////////
-private:
-    size_t m_Index;
-    CDebugLoader * m_pDebugLoader;
-    OBPRMView_Robot * m_pRobot;
+  private:
+    int m_index;
+    int m_prevIndex;
+    CDebugLoader* m_debugLoader;
+    OBPRMView_Robot* m_robot;
     CMapLoader<CCfg,Edge>* m_mapLoader;
-    vector<Model> m_mapModels;
+
+    int m_edgeNum;
+    MapModel* m_mapModel;
+    vector<CCfg> m_tempCfgs;
+    vector<Edge> m_tempEdges, m_query;
+    CCfg* m_tempRay;
+    vector<string> m_comments;
+
 };
 
 #endif // !defined(_PATHMODEL_H_)
