@@ -31,6 +31,8 @@
 #include "icon/tapes.xpm"
 #include "icon/video_camera2.xpm"
 #include "icon/camera.xpm"
+#include "icon/crop.xpm" 
+#include "icon/camcorder.xpm" 
 
 inline QStringList& Filters()
 {
@@ -52,21 +54,21 @@ inline QStringList& Filters()
     return filters;
 }
 
-inline string Filter2Ext( const string filter )
+inline string Filter2Ext(const string filter)
 {
-    if( filter.find("jpg")!=string::npos ) return ".jpg";
-    if( filter.find("gif")!=string::npos ) return ".gif";
-    if( filter.find("eps")!=string::npos ) return ".eps";
-    if( filter.find("tga")!=string::npos ) return ".tga";
-    if( filter.find("png")!=string::npos ) return ".png";
-    if( filter.find("pdf")!=string::npos ) return ".pdf";
-    if( filter.find("bmp")!=string::npos ) return ".bmp";
-    if( filter.find("epi")!=string::npos ) return ".epi";
-    if( filter.find("cgm")!=string::npos ) return ".cgm";
-    if( filter.find("ico")!=string::npos ) return ".ico";
-    if( filter.find("pcx")!=string::npos ) return ".pcx";
-    if( filter.find("ppm")!=string::npos ) return ".ppm";
-    if( filter.find("pdf")!=string::npos ) return ".pdf";
+    if(filter.find("jpg")!=string::npos) return ".jpg";
+    if(filter.find("gif")!=string::npos) return ".gif";
+    if(filter.find("eps")!=string::npos) return ".eps";
+    if(filter.find("tga")!=string::npos) return ".tga";
+    if(filter.find("png")!=string::npos) return ".png";
+    if(filter.find("pdf")!=string::npos) return ".pdf";
+    if(filter.find("bmp")!=string::npos) return ".bmp";
+    if(filter.find("epi")!=string::npos) return ".epi";
+    if(filter.find("cgm")!=string::npos) return ".cgm";
+    if(filter.find("ico")!=string::npos) return ".ico";
+    if(filter.find("pcx")!=string::npos) return ".pcx";
+    if(filter.find("ppm")!=string::npos) return ".ppm";
+    if(filter.find("pdf")!=string::npos) return ".pdf";
     return "";
 }
 
@@ -86,7 +88,7 @@ VizmoScreenShotGUI::~VizmoScreenShotGUI()
 
 void VizmoScreenShotGUI::reset() //reset every thing
 {
-    if( mDialog!=NULL ){
+    if(mDialog!=NULL){
       if(GetVizmo().GetPathSize()>0){
         mDialog->endIntFrame=GetVizmo().GetPathSize()-1;
       }
@@ -101,9 +103,11 @@ void VizmoScreenShotGUI::reset() //reset every thing
         mDialog->updateAttributes();
     }
     
-    if( animation!=NULL ){
+    if(animation!=NULL){
         //disable/enable this toolbar
-        if( GetVizmo().GetPathSize()==0 && GetVizmo().GetDebugSize()==0) animation->setEnabled(false);
+        if(GetVizmo().GetPathSize()==0 && GetVizmo().GetDebugSize()==0) 
+          animation->setEnabled(false);
+        
         else{
 			animation->setEnabled(true);
 			takeBoxPicture->setEnabled(true);
@@ -120,24 +124,26 @@ bool VizmoScreenShotGUI::CreateGUI()
 
 
 void VizmoScreenShotGUI::CreateActions()
-{
-	//
-    takePicture= new QToolButton(QPixmap(icon_camera), "Picture", "Take a snap shot of whole window", this,
-                                 SLOT(takeSnapshot()), this, "picture");
-    takePicture->setUsesTextLabel ( true );
-    takePicture->setEnabled(false);
-	//
-    animation= new QToolButton(QPixmap(icon_video_camera), "Movie", "Save Image Sequence", this,
-                               SLOT(takeMoviePictures()), this, "movie");
-    animation->setEnabled(false);
-    animation->setUsesTextLabel ( true );
-	//
-    takeBoxPicture= new QToolButton(QPixmap(icon_tapes), "Crop", "Take a snap shot of the selected region", this,
+{   
+    //Select box region (click and drag) which can be used to take snapshot 
+    takeBoxPicture= new QToolButton(QPixmap(icon_crop), "Crop", "Take a snap shot of the selected region", this,
                                     SLOT(takeBoxSnapshot()), this, "selected");
-    takeBoxPicture->setUsesTextLabel ( true );
+    takeBoxPicture->setUsesTextLabel (true);
     takeBoxPicture->setToggleButton(true);
     takeBoxPicture->setEnabled(false);
-	//
+     
+    //Take the screenshot (whole window or selected region if box is drawn)
+    takePicture= new QToolButton(QPixmap(icon_camera), "Picture", "Take a snap shot of whole window", this,
+                                 SLOT(takeSnapshot()), this, "picture");
+    takePicture->setUsesTextLabel (true);
+    takePicture->setEnabled(false);
+	
+    //Save movie sequence for query, debug file, etc. 
+    animation= new QToolButton(QPixmap(icon_camcorder), "Movie", "Save Image Sequence", this,
+                               SLOT(takeMoviePictures()), this, "movie");
+    animation->setEnabled(false);
+    animation->setUsesTextLabel (true);
+	
     mDialog=new MovieSaveDialog(this,"movie_save", Qt::Dialog);
     mDialog->setModal(true);
 }
@@ -187,7 +193,7 @@ void VizmoScreenShotGUI::takeMoviePictures()
     {
         progress.setValue(i-startFrame);
         qApp->processEvents();
-        if ( progress.wasCanceled() ) break;
+        if (progress.wasCanceled()) break;
         // dump the image
         emit goToFrame(i);
 		// 
@@ -196,7 +202,7 @@ void VizmoScreenShotGUI::takeMoviePictures()
 	const char * char_qfname = (qfname.toStdString()).c_str();
         dump(char_qfname, ExtName, xOffset+1, yOffset+1, w-2, h-2);
     }
-    progress.setValue( endFrame-startFrame );
+    progress.setValue(endFrame-startFrame);
 }
 
 void VizmoScreenShotGUI::takeBoxSnapshot()
@@ -224,10 +230,11 @@ void VizmoScreenShotGUI::takeSnapshot()
     }
     
     ///////////////////////////////////////////////////////////////////////////////
-    QFileDialog *fd=new QFileDialog(this,"Choose a name",".",QString::null );
+    QFileDialog *fd=new QFileDialog(this,"Choose a name",".",QString::null);
     //fd->setMode(QFileDialog::ExistingFile);
     fd->setFileMode(QFileDialog::AnyFile);
-    fd->setFilters(Filters());    
+    fd->setFilters(Filters());  
+    fd->setAcceptMode(QFileDialog::AcceptSave); 
     QString fileName;
     QString fileExt;
     if(fd->exec()==QDialog::Accepted)
@@ -334,7 +341,7 @@ void MovieSaveDialog::showFileDialog()
 		int _s=sFileName.find('#');
 		int _g=sFileName.findRev('#');
 		frame_digit=_g-_s;
-		if( _s==_g ) frame_digit=4;
+		if(_s==_g) frame_digit=4;
 		sFileName=sFileName.left(_s);
     }
 }

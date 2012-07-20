@@ -2,7 +2,9 @@
 #define _MAIN_WIN_H_
 
 /**
- * This file defines class for main window of vimzo2. 
+ * This file defines class for main window of vimzo2.
+ * NOTE:: Buttons/toolbar areas for non-implemented or incomplete features temporarily
+ * commented out.  
  */
 
 #ifdef WIN32
@@ -129,17 +131,17 @@ private slots:
 
     void resetRobotPosition(); //reset Robot to initial Cfg.
    
-    void enablDisablCD(); //Enable/disable collision detection
+    //void enablDisablCD(); //Enable/disable collision detection
     void runCode();  //Call obprm
     void createQryFile(); // generate qry command line 
-    void createEditor(); // create qry file for obprm
+    //void createEditor(); // create qry file for obprm
 
     void addObstacle();
     // to generate and run automatically
     //obprm and query:
     //it assumes both (obprm and query) are in the ../directory
-    void autoMkmp();
-    void autoQry();
+    //void autoMkmp();
+    //void autoQry();
     void setSQuery();
     void setGQuery();
 
@@ -157,9 +159,11 @@ private:
     void CreateRoadmapToolbar(); //Create color box for CC's 
     void CreateTextOutbox();   //Create output area for cfg, VDebug, etc. text 
 
+    /*****Non-implemented Actions, etc. temporarily removed*********/ 
+
     QAction *showHideRoadmapAction, 
             *showHidePathAction, 
-            *showHideSGaction,
+            *m_showHideSGAction,
             *quitAction,
             *fileOpenAction, 
             *fileUpdateAction,
@@ -179,7 +183,7 @@ private:
       *setQryGAction;
 
     VizmoAnimationGUI *animationGUI, *animationDebugGUI;
-    VizmoScreenShotGUI *screenShotGUI;
+    VizmoScreenShotGUI* screenShotGUI;
     VizmoItemSelectionGUI *objectSelection;
     VizmoAttributeSelectionGUI *attributeSelection;
 
@@ -192,16 +196,18 @@ private:
     Q3ToolBar *vizmoTools;
     QToolButton *folderButton;
     QToolButton *roadmapButton, *pathButton, *strtGoalButton;
-    QToolButton  *cameraButton, *palletButton, *envButton, *CDButton; 
-    QToolButton *editorButton;
-    QToolButton *mkmpButton, *qryButton;
+    QToolButton  *palletButton, *envButton;
+    QToolButton* cameraButton; 
+
+    //QToolButtons temporarily commented out: 
+    //*CDButton, *editorButton, *mkmpButton, *qryButton 
 
     VizGLWin * m_GL;       //the scene window which displays environment..
 
-    //environment menu variables
+    //"Environment" from top dropdown menu...explicitly a member because
+    //accessed elsewhere in main window  
     int refreshID, bboxID;
-    Q3PopupMenu *envMenu;
-
+    Q3PopupMenu* envMenu;  
   
 };
 

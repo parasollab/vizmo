@@ -38,11 +38,11 @@
 #include "icon/make_invisible.xpm" 
 #include "icon/cc_color.xpm"
 #include "icon/rcolor.xpm"
-//#include "icon/ruler.xpm"
-//#include "icon/ccs_one_color.xpm" 
+#include "icon/ruler.xpm"
+#include "icon/ccs_one_color.xpm" 
 
 VizmoRoadmapGUI::VizmoRoadmapGUI(Q3MainWindow * parent,char *name)
-   :Q3ToolBar(parent, name){
+   :Q3ToolBar(parent, name){  
 
       this->setLabel("CC's features");
       createGUI();
@@ -60,100 +60,110 @@ VizmoRoadmapGUI::VizmoRoadmapGUI(Q3MainWindow * parent,char *name)
 
 void VizmoRoadmapGUI::createGUI()
 {
-
-   //sizeAction = new QAction (QIcon(QPixmap(icon_ruler)),tr("Size"), this);
-   sizeAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Size"), this);
-   sizeAction->setShortcut(tr("CTRL+S"));
-   connect(sizeAction,SIGNAL(activated()), this, SLOT(changeSize()));
-   sizeAction->addTo(this);
-   sizeAction->setEnabled(false);
-
-   colorAction = new QAction (QIcon(QPixmap(icon_rcolor)),tr("Random Color"), this);
-   colorAction->setShortcut(tr("CTRL+R"));
-   colorAction->setToolTip ("CC's Random Color");
-   connect(colorAction,SIGNAL(activated()), this, SLOT(changeColor()));
-   colorAction->addTo(this);
-   colorAction->setEnabled(false);
-
-   colorSelectAction = new QAction (QIcon(QPixmap(icon_cc_color)),tr("Change Color"), this);
-   colorSelectAction->setShortcut(tr("CTRL+C"));
-   colorSelectAction->setToolTip ("Change Selected CC's Color");
-   connect(colorSelectAction,SIGNAL(activated()), this, SLOT(changeColorOfCCselected()));
-   colorSelectAction->addTo(this);
-   colorSelectAction->setEnabled(false);
-
-   invisibleSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_invisible)),tr("Change to Invisible"), this);
-   invisibleSelectNodeAction->setShortcut(tr("CTRL+N"));
-   invisibleSelectNodeAction->setToolTip ("Make Invisible");
-   connect(invisibleSelectNodeAction,SIGNAL(activated()), this, SLOT(changeInvisibleOfNodeselected()));
-   invisibleSelectNodeAction->addTo(this);
-   invisibleSelectNodeAction->setEnabled(false);
-
-   wireSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_wired)),tr("Change to Wire Mode"), this);
-   wireSelectNodeAction->setShortcut(tr("CTRL+N"));
-   wireSelectNodeAction->setToolTip ("Make Wired");
-   connect(wireSelectNodeAction,SIGNAL(activated()), this, SLOT(changeWireOfNodeselected()));
-   wireSelectNodeAction->addTo(this);
-   wireSelectNodeAction->setEnabled(false);
-
-   solidSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_solid)),tr("Change to Solid Mode"), this);
-   solidSelectNodeAction->setShortcut(tr("CTRL+N"));
-   solidSelectNodeAction->setToolTip ("Make Solid");
-   connect(solidSelectNodeAction,SIGNAL(activated()), this, SLOT(changeSolidOfNodeselected()));
-   solidSelectNodeAction->addTo(this);
-   solidSelectNodeAction->setEnabled(false);
-
-   colorSelectNodeAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Change Node Color"), this);
-   colorSelectNodeAction->setShortcut(tr("CTRL+N"));
-   colorSelectNodeAction->setToolTip ("Change Color");
-   connect(colorSelectNodeAction,SIGNAL(activated()), this, SLOT(changeColorOfNodeselected()));
-   colorSelectNodeAction->addTo(this);
-   colorSelectNodeAction->setEnabled(false);
-
-   editAction = new QAction (QIcon(QPixmap(icon_make)),tr("Edit Map"), this);
-   editAction->setShortcut(tr("CTRL+M"));
-   editAction->setStatusTip(tr("Edit Map"));
-   editAction->setCheckable(true);
-   connect(editAction,SIGNAL(triggered ()), this, SLOT(editMap()));
-   editAction->addTo(this);
-   editAction->setEnabled(false);
-
-   addNodeAction = new QAction (QIcon(QPixmap(icon_cross)),tr("Add &Node"),this);
-   addNodeAction->setShortcut(tr("CTRL+M"));
-   addNodeAction->setCheckable(true);
-   connect(addNodeAction,SIGNAL(activated()), this, SLOT(addNode()));
-   addNodeAction->setEnabled(false);
-
-   addEdgeAction = new QAction (QIcon(QPixmap(icon_crossEdge)),tr("Add &Edge"),this);
-   addEdgeAction->setShortcut(tr("CTRL+E"));
-   addEdgeAction->setCheckable(true);
-   connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()));
-   addEdgeAction->setEnabled(false);
-
-   //m_ccsOneColor = new QAction(QIcon(QPixmap(icon_ccs_one_color)), tr("CCs one color"), this); 
-   m_ccsOneColor = new QAction(QIcon(QPixmap(icon_pallet)), tr("CCs one color"), this); 
-   m_ccsOneColor->setCheckable(true); 
-   m_ccsOneColor->setToolTip("CCs one color"); 
-   connect(m_ccsOneColor, SIGNAL(activated()), this, SLOT(setSameColor())); 
-   m_ccsOneColor->addTo(this); 
-   m_ccsOneColor->setEnabled(false); 
-
    m_nodeView = new QButtonGroup(this);
 
    m_nodeView->addButton(new QPushButton("Robot", this), 1);
    m_nodeView->button(1)->setFixedWidth(47);
    m_nodeView->button(1)->setEnabled(false);
-   m_nodeView->button(1)->setCheckable(true); 
+   m_nodeView->button(1)->setCheckable(true);
+   m_nodeView->button(1)->setStatusTip("Display nodes in robot mode"); 
    m_nodeView->addButton(new QPushButton("Box", this), 2);
    m_nodeView->button(2)->setFixedWidth(47); 
    m_nodeView->button(2)->setEnabled(false);
-   m_nodeView->button(2)->setCheckable(true); 
+   m_nodeView->button(2)->setCheckable(true);
+   m_nodeView->button(2)->setStatusTip("Display nodes in box mode"); 
    m_nodeView->addButton(new QPushButton("Point", this), 3);  
    m_nodeView->button(3)->setFixedWidth(47); 
    m_nodeView->button(3)->setEnabled(false); 
    m_nodeView->button(3)->setCheckable(true); 
+   m_nodeView->button(3)->setStatusTip("Display nodes in point mode"); 
 
    connect(m_nodeView, SIGNAL(buttonClicked(int)), this, SLOT(getSelectedItem())); 
+   
+   solidSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_solid)),tr("Make Solid"), this);
+   solidSelectNodeAction->setShortcut(tr("CTRL+N"));
+   solidSelectNodeAction->setToolTip("Make Solid");
+   solidSelectNodeAction->setStatusTip("Display selected item in solid mode"); 
+   connect(solidSelectNodeAction,SIGNAL(activated()), this, SLOT(changeSolidOfNodeselected()));
+   solidSelectNodeAction->addTo(this);
+   solidSelectNodeAction->setEnabled(false);
+
+   wireSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_wired)),tr("Make Wired"), this);
+   wireSelectNodeAction->setShortcut(tr("CTRL+N"));
+   wireSelectNodeAction->setToolTip ("Make Wired");
+   wireSelectNodeAction->setStatusTip("Display selected item in wired mode"); 
+   connect(wireSelectNodeAction,SIGNAL(activated()), this, SLOT(changeWireOfNodeselected()));
+   wireSelectNodeAction->addTo(this);
+   wireSelectNodeAction->setEnabled(false);
+   
+   invisibleSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_invisible)),tr("Make Invisible"), this);
+   invisibleSelectNodeAction->setShortcut(tr("CTRL+N"));
+   invisibleSelectNodeAction->setToolTip ("Make Invisible");
+   invisibleSelectNodeAction->setStatusTip("Make selected item invisible"); 
+   connect(invisibleSelectNodeAction,SIGNAL(activated()), this, SLOT(changeInvisibleOfNodeselected()));
+   invisibleSelectNodeAction->addTo(this);
+   invisibleSelectNodeAction->setEnabled(false);
+   
+   //Probably need to rename below...this is for edges as well as nodes! 
+   colorSelectNodeAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Change Color"), this);
+   colorSelectNodeAction->setShortcut(tr("CTRL+N"));
+   colorSelectNodeAction->setToolTip ("Change Selected Item Color");
+   colorSelectNodeAction->setStatusTip("Change color of selected item"); 
+   connect(colorSelectNodeAction,SIGNAL(activated()), this, SLOT(changeColorOfNodeselected()));
+   colorSelectNodeAction->addTo(this);
+   colorSelectNodeAction->setEnabled(false);
+   
+   sizeAction = new QAction (QIcon(QPixmap(icon_ruler)),tr("Scale Nodes"), this);
+   sizeAction->setShortcut(tr("CTRL+S"));
+   sizeAction->setStatusTip("Change node size"); 
+   connect(sizeAction,SIGNAL(activated()), this, SLOT(changeSize()));
+   sizeAction->addTo(this);
+   sizeAction->setEnabled(false);
+
+   colorSelectAction = new QAction (QIcon(QPixmap(icon_cc_color)),tr("Change Color of Selected"), this);
+   colorSelectAction->setShortcut(tr("CTRL+C"));
+   colorSelectAction->setToolTip("Change Selected CC's Color");
+   colorSelectAction->setStatusTip("Change color of selected connected component"); 
+   connect(colorSelectAction,SIGNAL(activated()), this, SLOT(changeColorOfCCselected()));
+   colorSelectAction->addTo(this);
+   colorSelectAction->setEnabled(false);
+   
+   colorAction = new QAction (QIcon(QPixmap(icon_rcolor)),tr("Randomize colors"), this);
+   colorAction->setShortcut(tr("CTRL+R"));
+   colorAction->setToolTip("Randomize CC colors");
+   colorAction->setStatusTip("Randomly color the connected components"); 
+   connect(colorAction,SIGNAL(activated()), this, SLOT(changeColor()));
+   colorAction->addTo(this);
+   colorAction->setEnabled(false);
+
+   m_ccsOneColor = new QAction(QIcon(QPixmap(icon_ccs_one_color)), tr("Make all one color"), this); 
+   m_ccsOneColor->setToolTip("Make all CCs one color");
+   m_ccsOneColor->setStatusTip("Make all connected components one color"); 
+   connect(m_ccsOneColor, SIGNAL(activated()), this, SLOT(setSameColor())); 
+   m_ccsOneColor->addTo(this); 
+   m_ccsOneColor->setEnabled(false); 
+
+   //Interface for non-implemented features temporarily removed 
+
+   //editAction = new QAction (QIcon(QPixmap(icon_make)),tr("Edit Map"), this);
+   //editAction->setShortcut(tr("CTRL+M"));
+   //editAction->setStatusTip(tr("Edit Map"));
+   //editAction->setCheckable(true);
+   //connect(editAction,SIGNAL(triggered ()), this, SLOT(editMap()));
+   //editAction->addTo(this);
+   //editAction->setEnabled(false);
+
+   //addNodeAction = new QAction (QIcon(QPixmap(icon_cross)),tr("Add &Node"),this);
+   //addNodeAction->setShortcut(tr("CTRL+M"));
+   //addNodeAction->setCheckable(true);
+   //connect(addNodeAction,SIGNAL(activated()), this, SLOT(addNode()));
+   //addNodeAction->setEnabled(false);
+
+   //addEdgeAction = new QAction (QIcon(QPixmap(icon_crossEdge)),tr("Add &Edge"),this);
+   //addEdgeAction->setShortcut(tr("CTRL+E"));
+   //addEdgeAction->setCheckable(true);
+   //connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()));
+   //addEdgeAction->setEnabled(false);
 
    size=0.5;
 
@@ -168,7 +178,6 @@ void VizmoRoadmapGUI::createGUI()
 
    createQGrid();
    createRobotToolBar();
-
 }
 
 void VizmoRoadmapGUI::reset()
@@ -185,7 +194,7 @@ void VizmoRoadmapGUI::reset()
          emit getSelectedItem();
    }
 
-   editAction->setEnabled(true);
+   //editAction->setEnabled(true);
    sizeAction->setEnabled(true);
    colorAction->setEnabled(true);
    colorSelectAction->setEnabled(true);
@@ -201,9 +210,9 @@ void VizmoRoadmapGUI::reset()
    if(robCfgOn==false)
       l_robCfg->clear();
 
-   editAction->setChecked(false);
-   addNodeAction->setChecked(false);
-   addEdgeAction->setChecked(false);
+   //editAction->setChecked(false);
+   //addNodeAction->setChecked(false);
+   //addEdgeAction->setChecked(false);
    l_message->clear();
    l_icon->clear();
    m_bEditModel=false;
@@ -211,6 +220,7 @@ void VizmoRoadmapGUI::reset()
    m_addEdge=false;
 }
 
+//For changing node shape with buttons
 void 
 VizmoRoadmapGUI::getSelectedItem(){
 
@@ -223,7 +233,6 @@ VizmoRoadmapGUI::getSelectedItem(){
     }   
   }
 }
-
 
 void 
 VizmoRoadmapGUI::changeSize(){
@@ -375,8 +384,20 @@ void VizmoRoadmapGUI::changeColorOfNodeselected(){
    emit callUpdate(); //set an update event
 }
 
-void VizmoRoadmapGUI::editMap()
-{
+void
+VizmoRoadmapGUI::changeNodeShape(QAction* _action){
+  
+  string s = (_action->text()).toStdString();
+  if(s == "Robot") 
+    (m_nodeView->button(1))->click();
+  else if(s == "Box") 
+    (m_nodeView->button(2))->click(); 
+  else if(s == "Point") 
+    (m_nodeView->button(3))->click();  
+}
+
+  
+  /*void VizmoRoadmapGUI::editMap(){
    m_bEditModel=!m_bEditModel;
    if(m_bEditModel){ 
       m_Map_Changed=false;
@@ -389,7 +410,7 @@ void VizmoRoadmapGUI::editMap()
       addNodeAction->setChecked(false);
    }
    else{
-      if(GetVizmo().GetMap() != NULL)
+     if(GetVizmo().GetMap() != NULL)
          GetVizmo().GetMap()->getModel()->EnableSelection(false);
       addEdgeAction->setEnabled(false); addEdgeAction->setChecked(false);
       addNodeAction->setEnabled(false); addNodeAction->setChecked(false);
@@ -401,9 +422,9 @@ void VizmoRoadmapGUI::editMap()
 
       emit callUpdate();
    }
-}
+}*/ 
 
-void VizmoRoadmapGUI::addNode()
+/*void VizmoRoadmapGUI::addNode()
 {   
    m_addNode=!m_addNode;
    //turn off add edge
@@ -419,14 +440,14 @@ void VizmoRoadmapGUI::addNode()
       l_message->clear();
       l_icon->clear();
    }
-}
+}*/ 
 
-void VizmoRoadmapGUI::addEdge()
+/*void VizmoRoadmapGUI::addEdge()
 {
    m_addEdge=!m_addEdge;
    //turn off add edge anyway
    m_addNode=false;
-   addNodeAction->setChecked(false);
+   //addNodeAction->setChecked(false);
    if(m_addEdge){
       l_message->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
       l_icon->setPixmap(QPixmap(icon_bulb));
@@ -437,7 +458,7 @@ void VizmoRoadmapGUI::addEdge()
       l_message->clear();
       l_icon->clear();
    }
-}
+}*/
 
 void VizmoRoadmapGUI::handleSelect()
 {
@@ -517,7 +538,7 @@ void VizmoRoadmapGUI::handleAddEdge()
       //get the CCModel of Cfg
       CCModel<CCfg,Edge>* m_CCModel = mmodel->GetCCModel(CC_id);
       //add edge to CC 
-      m_CCModel->addEdge(cfg1, cfg2);
+      //m_CCModel->addEdge(cfg1, cfg2); //***Jul 17-12 
 
       //backUp current prpoperties:
       CCModel<CCfg,Edge>::Shape shape = m_CCModel->getShape();
@@ -564,7 +585,7 @@ void VizmoRoadmapGUI::handleAddNode()
          // to avoid add other more nodes every time the user clicks on
          // this cfg.
 
-         addNodeAction->setChecked(false);
+         //addNodeAction->setChecked(false);
          m_addNode = false;
          l_message->clear();
          l_icon->clear();
@@ -634,7 +655,7 @@ void VizmoRoadmapGUI::handleAddNode()
 
             GetVizmo().Display();
 
-            addNodeAction->setChecked(false);
+            //addNodeAction->setChecked(false);
             m_addNode = false;
             l_message->clear();
             l_icon->clear();

@@ -4,6 +4,7 @@
 
 /** 
 * This class deifines the animation GUI for vizmo2
+* Interface for non-implemented features temporarily removed
 */
 
 #ifdef WIN32
@@ -20,6 +21,7 @@
 #include <QLabel>
 #include <QButtonGroup> 
 #include <QPushButton> 
+#include <QMenu> 
 
 #include <vector>
 #include <string>
@@ -77,6 +79,7 @@ public slots:
     void changeSolidOfNodeselected(); //Changes Node's color when one is selected
     void changeColorOfNodeselected(); //Changes Node's color when one is selected
     void setSameColor();     // set all CC to the same color
+    void changeNodeShape(QAction*);  //for dropdown menubar
 
     void handleSelect();
     void MoveNode();
@@ -92,18 +95,15 @@ signals:
 
 private slots:
    void getSelectedItem();
-   void editMap();         //add/delete nodes and edges 
-   void addNode();
-   void addEdge();
+   //void editMap();         //add/delete nodes and edges 
+   //void addNode();
+   //void addEdge();
    void handleAddEdge();
    void handleAddNode();
    void handleEditMap();
 
  public:
-    QAction * editAction,
-            * addNodeAction,
-            * addEdgeAction,
-            * sizeAction,
+    QAction * sizeAction,
             * colorAction,
 	    * colorSelectAction,
 	    * invisibleSelectNodeAction,
@@ -111,6 +111,8 @@ private slots:
 	    * solidSelectNodeAction,
 	    * colorSelectNodeAction, 
             * m_ccsOneColor; 
+    //Temporarily removed from QActions above: *editAction, *addNodeAction,
+    //*addEdgeAction 
 
     double *m_cfg;
     int m_dof;
