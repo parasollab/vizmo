@@ -21,8 +21,7 @@ MapOBJ = ${Map_DIR}/MapLoader.o  ${Map_DIR}/MapModel.o  ${Map_DIR}/Cfg.o ${Map_D
 
 ifeq ($(RPM), 0)
 $(TARGET): ${OBJECTS} ${EnvOBJ} ${MapOBJ}
-	ar ruv $@  ${OBJECTS} ${EnvOBJ} ${MapOBJ}
-#	libtool -static -o $@  ${OBJECTS} ${EnvOBJ} ${MapOBJ}
+	$(AR) $@  ${OBJECTS} ${EnvOBJ} ${MapOBJ}
 else
 $(TARGET): ${OBJECTS} ${EnvOBJ} ${MapOBJ}
 	$(CC) -shared ${OBJECTS} ${EnvOBJ} ${MapOBJ} -Wl,-soname=`basename $@`.0 -o $@

@@ -11,8 +11,7 @@ OBJECTS = CollisionDetection.o
 
 ifeq ($(RPM), 0)
 $(TARGET): $(OBJECTS)
-	ar ruv $@ $(OBJECTS)
-#	libtool -static -o $@ $(OBJECTS)
+	$(AR) $@ $(OBJECTS)
 else
 $(TARGET): $(OBJECTS)
 	$(CC) -shared $(OBJECTS) -Wl,-soname=`basename $@`.0 -o $@

@@ -11,8 +11,7 @@ OBJS = ModelGraph.o ModelNode.o ModelEdge.o
 
 ifeq ($(RPM), 0)
 $(TARGET): ${OBJS}
-	ar ruv $@ $(OBJS)
-#	libtool -static -o $@ $(OBJS)
+	$(AR) $@ $(OBJS)
 else
 $(TARGET): ${OBJS}
 	$(CC) -shared $(OBJS) -Wl,-soname=`basename $@`.0 -o $@
