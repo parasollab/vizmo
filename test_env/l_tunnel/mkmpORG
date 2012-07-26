@@ -1,3 +1,0 @@
-/users/aimee/obprm/OBPRM/obprm -cd PQP -f l_tunnel -bbox [-19,19,-16,17,-14,14] -bbox_scale 1 -gNodes BasicMAPRM nodes 155 -cNodes closest components
-
-
