@@ -18,7 +18,9 @@ UTILS_DIR = $(VIZMO_DIR)/utils
 # include makefile defaults
 include ${UTILS_DIR}/makefile_includes/Makefile.defaults
 
-RPM = 0
+ifndef RPM
+  RPM = 0
+endif
 
 #--------------------------------------------------------------------
 # Xlib
@@ -49,14 +51,20 @@ PLUM_LIB = -lPlum
 
 VGUI_LIB = -lvgui
 
-#MOC	 = /usr/lib/qt4/bin/moc
-MOC      = /usr/lib64/qt4/bin/moc
+ifeq ($(platform), LINUX_gcc)
+MOC	 = /usr/lib/qt4/bin/moc
 #MOC	 = /usr/share/qt4/bin/moc
-#MOC = /sw/lib/qt4-x11/bin/moc
-
 QT4DIR = /usr/
 #QT4DIR = /usr/share/qt4
-#QT4DIR = /sw/lib/qt4-x11/
+endif
+ifeq ($(platform), LINUX_64_gcc)
+MOC      = /usr/lib64/qt4/bin/moc
+QT4DIR = /usr/
+endif
+ifeq ($(platform), MACOS_gcc)
+MOC = /sw/lib/qt4-x11/bin/moc
+QT4DIR = /sw/lib/qt4-x11/
+endif
 
 QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT
 QT_LIBS = -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork -lpthread #-lXext -lz 
