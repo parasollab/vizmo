@@ -18,10 +18,6 @@ UTILS_DIR = $(VIZMO_DIR)/utils
 # include makefile defaults
 include ${UTILS_DIR}/makefile_includes/Makefile.defaults
 
-ifndef RPM
-  RPM = 0
-endif
-
 #--------------------------------------------------------------------
 # Xlib
 #--------------------------------------------------------------------
@@ -117,9 +113,21 @@ OPTS += -MMD -fPIC
 INCL = $(INCLUDE)
 LIBS = $(LIB)
 
+default_target: $(TARGET)
+$(TARGET): $(OBJECTS)
+
 %.o: %.cpp
 	@${MAKE} -s check_platform
 	${CXX} -c ${CXXFLAGS} ${OPTS} ${DEFS} ${INCL} ${DEPS} $< -o $@
 	cat $*.d >> Dependencies
 	rm -f $*.d
 
+%.a: $(OBJECTS)
+	$(AR) $@ $(OBJECTS)
+
+CLEAN= $(TARGET) $(OBJECTS) Dependencies *~
+
+-include Dependencies
+
+#%.so: $(OBJECTS)
+#	$(CC) -shared $(OBJECTS) -Wl,-soname=`basename $@`.0 -o $@
