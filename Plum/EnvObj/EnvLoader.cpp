@@ -63,7 +63,6 @@ namespace plum{
 
   bool CEnvLoader::ParseFileHeader( ifstream & ifs ) {
     m_cNumberOfMultiBody = ReadField<int>(ifs, "Number of Multibodies");
-    cout << "Number of multibody::" << m_cNumberOfMultiBody << endl;
     return true;
   }
 
@@ -72,7 +71,6 @@ namespace plum{
     if( m_pMBInfo==NULL ) return false;
 
     for( int iM=0; iM<m_cNumberOfMultiBody; iM++ ) {
-      cout << "Reading multibody " << iM << endl;
       if( ParseMultiBody(ifs, m_pMBInfo[iM])==false )
 	return false;
     }
@@ -92,7 +90,6 @@ namespace plum{
     
     string multibodyType = ReadFieldString(ifs,
         "Multibody Type (Active, Passive, Internal, Surface)");
-    cout << "MultibodyType::" << multibodyType << endl;
 
     if(multibodyType == "ACTIVE"){
       bActive=true;
@@ -109,7 +106,6 @@ namespace plum{
 
     if(multibodyType == "ACTIVE"){
       MBInfo.m_cNumberOfBody = ReadField<int>(ifs, "Body Count");
-      cout << "Number of body::" << MBInfo.m_cNumberOfBody << endl;
 
       MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
       if( MBInfo.m_pBodyInfo==NULL ) return false;
@@ -117,7 +113,6 @@ namespace plum{
       getColor(ifs);
 
       for( int iB=0; iB<MBInfo.m_cNumberOfBody; iB++ ) {
-        cout << "Reading Body " << iB << endl;
         if( ParseActiveBody(ifs, MBInfo.m_pBodyInfo[iB])==false )
           return false;
       }
@@ -182,8 +177,6 @@ namespace plum{
     BodyInfo.m_strFileName = ReadFieldString(ifs,
         "Body Filename (geometry file)", false);
 
-    cout << "Geometry::" << BodyInfo.m_strFileName << endl;
-
     if( !m_strModelDataDir.empty() ) {
       //store just the path of the current directory
       BodyInfo.m_strDirectory = m_strModelDataDir;
@@ -197,7 +190,6 @@ namespace plum{
     //If Joint skip this stuff. If Fixed read in positions like an obstacle
     string baseTag = ReadFieldString(ifs,
         "Base Tag (Planar, Volumetric, Fixed, Joint");
-    cout << "Base Type::" << baseTag << endl;
     baseType = Robot::GetBaseFromTag(baseTag);
 
     Vector3D bodyPosition;
@@ -208,15 +200,12 @@ namespace plum{
       BodyInfo.m_IsBase = true;
       string rotationalTag = ReadFieldString(ifs,
           "Rotation Tag (Rotational, Translational");
-      cout << "RotationTag::" << rotationalTag << endl;
       baseMovementType = Robot::GetMovementFromTag(rotationalTag);
     }
     else if(baseType == Robot::FIXED){
       isBase = true;
       bodyPosition = ReadField<Vector3D>(ifs, "Body Position");
-      cout << "BodyPosition::" << bodyPosition << endl;
       bodyRotation = ReadField<Vector3D>(ifs, "Body Orientation");
-      cout << "BodyRotation::" << bodyRotation << endl;
     }
 
     //save this for when these classes utilize only transformations instead
@@ -264,8 +253,6 @@ namespace plum{
     BodyInfo.m_strFileName = ReadFieldString(ifs,
         "Body Filename (geometry file)", false);
 
-    cout << "Geometry::" << BodyInfo.m_strFileName << endl;
-
     if( !m_strModelDataDir.empty() ) {
       //store just the path of the current directory
       BodyInfo.m_strDirectory = m_strModelDataDir;
@@ -276,9 +263,7 @@ namespace plum{
     BodyInfo.m_strModelDataFileName += BodyInfo.m_strFileName;
 
     Vector3D bodyPosition = ReadField<Vector3D>(ifs, "Body Position");
-    cout << "BodyPosition::" << bodyPosition << endl;
     Vector3D bodyRotation = ReadField<Vector3D>(ifs, "Body Orientation");
-    cout << "BodyRotation::" << bodyRotation << endl;
 
     //save this for when body utilizes only transformation not
     //x,y,z,alpha,beta,gama
@@ -421,7 +406,6 @@ namespace plum{
         } 
       }
 
-      write_vertices_edges_graph(m_robotGraph,cout); 
       //Robot ID typedef
       typedef RobotGraph::vertex_descriptor RID; 
       vector< pair<size_t,RID> > ccs;
@@ -434,13 +418,9 @@ namespace plum{
         //Find CCs, construct robot objects
         get_cc(m_robotGraph, cmap, ccs[i].second, cc);
         size_t baseIndx = -1;
-        cout << "cc::" << cc.size() << endl;
         for(size_t j = 0; j<cc.size(); j++){
           size_t index = m_robotGraph.find_vertex(cc[j])->property();
-          cout << "index::" << index << endl;
-          cout << "IsBase?::" << robot.m_pBodyInfo[index].IsBase() << endl;
           if(robot.m_pBodyInfo[index].IsBase()){
-            cout <<"Setting Base" << endl;
             baseIndx = index;
             break;
           }
@@ -468,9 +448,7 @@ namespace plum{
         for(size_t j = 0; j<cc.size(); j++){
           size_t index = m_robotGraph.find_vertex(cc[j])->property();
           typedef Robot::JointMap::iterator MIT;
-          cout << "Map::";
           for(MIT mit = robot.GetJointMap().begin(); mit!=robot.GetJointMap().end(); mit++){
-            cout << "(" << mit->first.first << "," << mit->first.second << "),";
             if(mit->first.first == index){
               jm.push_back(*mit);
               if(mit->second == Robot::REVOLUTE){
@@ -481,16 +459,9 @@ namespace plum{
               }
             }
           }
-          cout << endl;
         }
-        cout << "bt::" << bt << endl;
-        cout << "bm::" << bm << endl;
-        cout << "jm::" << jm.size() << endl;
-        cout << "baseIndex::" << baseIndx << endl;
         robotVec.push_back(Robot(bt, bm, jm, baseIndx));
       }
-
-      //make sure to set DoF
     }
 
 }//namespace plum

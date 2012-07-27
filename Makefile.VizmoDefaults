@@ -18,21 +18,11 @@ UTILS_DIR = $(VIZMO_DIR)/utils
 # include makefile defaults
 include ${UTILS_DIR}/makefile_includes/Makefile.defaults
 
-#--------------------------------------------------------------------
-# Xlib
-#--------------------------------------------------------------------
-
-#X_LIB  = -L/usr/X11R6/lib -L/usr/local/lib -lX11 -lXmu -lXi -lICE -lSM -lXrender -lXft -lXt -lXrandr -lXcursor -lXinerama -lXfixes
-
 #Phantom_LIB = -lHD -lHDU -lrt
 
-GL_LIB = -lglut -lGLU -lGL -lm
-GL_INCL = -I/usr/include/GL/
-
-GLI_DIR = $(VIZMO_DIR)
-GLI_INCL = -I/sw/include -I/usr/X11/include  -I/usr/X11/include/GL
+GL_LIB = -lglut -lGLU -lGL
+GL_INCL = -I/usr/include/GL
 GLI_LIB = -lgli
-#--------------------------------------------------------------------
 
 VIZMO_INCL = -I$(VIZMO_DIR)
 VIZMO_LIB = -L$(VIZMO_DIR)/lib
@@ -50,20 +40,20 @@ VGUI_LIB = -lvgui
 ifeq ($(platform), LINUX_gcc)
 MOC	 = /usr/lib/qt4/bin/moc
 #MOC	 = /usr/share/qt4/bin/moc
-QT4DIR = /usr/
+QT4DIR = /usr
 #QT4DIR = /usr/share/qt4
 endif
 ifeq ($(platform), LINUX_64_gcc)
 MOC      = /usr/lib64/qt4/bin/moc
-QT4DIR = /usr/
+QT4DIR = /usr
 endif
 ifeq ($(platform), MACOS_gcc)
 MOC = /sw/lib/qt4-x11/bin/moc
 QT4DIR = /sw/lib/qt4-x11/
 endif
 
-QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtOpenGL -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/mkspecs/default -DQT3_SUPPORT
-QT_LIBS = -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL -lQtNetwork -lpthread #-lXext -lz 
+QT_INC = -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL -DQT3_SUPPORT
+QT_LIBS = -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL  
 
 GRAPH_DIR = $(UTILS_DIR)/graph
 GRAPH_INCL = -I$(GRAPH_DIR)
@@ -102,14 +92,13 @@ CD_INCL = -I$(CD_DIR)
 CD_LIB = -lCD
 #-------------------------------------------------------------------------
 
-#INCLUDE = \ #-I. -I/usr/X12R6/include -I/usr/local/include 
 INCLUDE = $(VIZMO_INCL) $(PLUM_INCL) $(MODELGRAPH_INCL) $(GLI_INCL) $(CD_INCL) \
           $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL)
-LIB = $(VIZMO_LIB) $(PLUM_LIB) $(MODELGRAPH_LIB) $(VGUI_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(X_LIB) $(CD_LIB) ${RAPID_LIB} \
+LIB = $(VIZMO_LIB) $(PLUM_LIB) $(MODELGRAPH_LIB) $(VGUI_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(CD_LIB) ${RAPID_LIB} \
       ${Phantom_LIB} $(MATHTOOL_LIB) $(MODELLOADER_LIB)
 
 # macros
-OPTS += -MMD -fPIC 
+OPTS += -MMD
 INCL = $(INCLUDE)
 LIBS = $(LIB)
 
@@ -129,5 +118,3 @@ CLEAN= $(TARGET) $(OBJECTS) Dependencies *~
 
 -include Dependencies
 
-#%.so: $(OBJECTS)
-#	$(CC) -shared $(OBJECTS) -Wl,-soname=`basename $@`.0 -o $@
