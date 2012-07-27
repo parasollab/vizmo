@@ -22,6 +22,11 @@ Packager: Jory Denny <jdenny@cse.tamu.edu>, Parasol Laboratory, Texas A&M Univer
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot
 Requires: qt4
 BuildRequires: qt4-devel
+%ifarch x86_64
+%define PLATFORM LINUX_64_gcc
+%else
+%define PLATFORM LINUX_gcc
+%endif
 
 %description
 VIZMO is a 3D visualization/authoring tool for files 
@@ -38,36 +43,25 @@ users to interact with and edit the environment.
 %setup -n %{name}-%{version}-%{date}
 
 %build
-make platform=LINUX_64_gcc
+make reallyreallyclean
+make platform=%{PLATFORM}
 
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/bin
 rm -f %{buildroot}/usr/bin/vizmo++
 install %{name} %{buildroot}/usr/bin
-rm -rf %{buildroot}/usr/lib64/vizmo++
-mkdir -p %{buildroot}/usr/lib64/vizmo++
-cd lib
-for file in `ls *.a` ; do
-  install $file %{buildroot}/usr/lib64/vizmo++/$file.%{version}.%{release}
-done
 cd ..
 
 %clean
 rm -rf %{buildroot}
 
 %post
-echo "/usr/lib64/vizmo++" > /etc/ld.so.conf.d/vizmo++-x86_64.conf
-/sbin/ldconfig
 
 %postun
-rm -rf /usr/lib64/vizmo++
-rm -f /etc/ld.so.conf.d/vizmo++-x86_64.conf
-/sbin/ldconfig
 
 %files
 /usr/bin/%{name}
-/usr/lib64/%{name}
 
 %changelog
 * Thu May 24 2012 Jory Denny <jdenny@cse.tamu.edu> 3-24may2012 
