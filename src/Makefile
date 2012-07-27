@@ -15,7 +15,7 @@ ENVOBJS = ${Env_DIR}/BoundingBoxModel.o  ${Env_DIR}/BoundingBoxParser.o \
          ${Env_DIR}/QueryModel.o  ${Env_DIR}/Robot.o \
          ${Env_DIR}/DebugLoader.o  ${Env_DIR}/DebugModel.o
 
-OBJECTS = $(OBJS) $(ENVOBJS)
+OBJECTS = $(ENVOBJS) $(OBJS) 
 
 include $(VIZMO_DIR)/Makefile.VizmoDefaults
 
