@@ -1,11 +1,11 @@
 #
-# RAPID.spec
+# Vizmo.spec
 #
-# This is designed to build RAPID from the current
+# This is designed to build VIZMO from the current
 # Parasol SVN.  To create the source tarball, do:
 #
 # svn co svn+ssh://parasol-svn.cs.tamu.edu/research/parasol-svn/svnrepository/vizmo
-# rm -rf `find vizmo -name .svn`
+# rm -rf `find -name .svn`
 # mv vizmo/trunk vizmo++-0-`date +%Y.%m.%d`
 # tar cvzf vizmo++-0-`date +%Y.%m.%d`.tar.gz vizmo++-0-`date +%Y.%m.%d`
 #
@@ -14,13 +14,12 @@ Name: vizmo++
 Summary: vizmo++ - A visualization/authoring tool for motion planning 
 Version: 3 
 Release: %{date}%{dist}
-License: Copyright 2011, Parasol Lab, Texas A&M University.  All Rights Reserved.
+License: Copyright 2012, Parasol Lab, Texas A&M University.  All Rights Reserved.
 Group: Application/Engineering
 Source: %{name}-%{version}-%{date}.tar.gz
 URL: http://parasol.tamu.edu/groups/amatogroup/research/vizmo++/
 Packager: Jory Denny <jdenny@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot
-Patch1: vizmo++-rpm32.diff
 Requires: qt4
 BuildRequires: qt4-devel
 
@@ -37,10 +36,9 @@ users to interact with and edit the environment.
 
 %prep
 %setup -n %{name}-%{version}-%{date}
-%patch1
 
 %build
-make
+make platform=LINUX_gcc
 
 %install
 rm -rf %{buildroot}
@@ -50,9 +48,8 @@ install %{name} %{buildroot}/usr/bin
 rm -rf %{buildroot}/usr/lib/vizmo++
 mkdir -p %{buildroot}/usr/lib/vizmo++
 cd lib
-for file in `ls *.so *.a` ; do
+for file in `ls *.a` ; do
   install $file %{buildroot}/usr/lib/vizmo++/$file.%{version}.%{release}
-  #ln -s %{buildroot}/usr/lib/vizmo++/$file.%{version}.%{release} $file.0
 done
 cd ..
 
