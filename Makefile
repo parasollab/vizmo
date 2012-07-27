@@ -1,4 +1,4 @@
-include M_incl
+include Makefile.VizmoDefaults
 
 default_target: $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE) vizmo
 

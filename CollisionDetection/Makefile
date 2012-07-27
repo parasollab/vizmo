@@ -1,5 +1,5 @@
 VIZMO_DIR=..
-include $(VIZMO_DIR)/M_incl
+include $(VIZMO_DIR)/Makefile.VizmoDefaults
 
 ifeq ($(RPM), 0)
 TARGET=$(VIZMO_DIR)/lib/libCD.a

@@ -1,5 +1,5 @@
 VIZMO_DIR=..
-include $(VIZMO_DIR)/M_incl
+include $(VIZMO_DIR)/Makefile.VizmoDefaults
 
 Env_DIR = EnvObj
 Map_DIR = MapObj
