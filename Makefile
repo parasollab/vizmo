@@ -1,6 +1,8 @@
 include Makefile.VizmoDefaults
 
-default_target: $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE) vizmo
+EXTERNALLIBS = $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE)
+
+default_target:  $(EXTERNALLIBS) vizmo
 
 vizmo:
 	cd GL; ${MAKE}
@@ -20,7 +22,7 @@ reallyclean:
 	cd CollisionDetection; ${MAKE} clean
 	cd src/gui; ${MAKE} clean
 	cd src; ${MAKE} clean
-	rm -f lib/*.a lib/*.so
+	rm -f lib/*.a
 
 reallyreallyclean:
 	@${MAKE} reallyclean
