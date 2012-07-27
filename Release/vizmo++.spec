@@ -9,10 +9,10 @@
 # mv vizmo/trunk vizmo++-0-`date +%Y.%m.%d`
 # tar cvzf vizmo++-0-`date +%Y.%m.%d`.tar.gz vizmo++-0-`date +%Y.%m.%d`
 #
-%define date 2012.05.24
+%define date 0000.00.00
 Name: vizmo++
 Summary: vizmo++ - A visualization/authoring tool for motion planning 
-Version: 3
+Version: 0
 Release: %{date}%{dist}
 License: Copyright 2012, Parasol Lab, Texas A&M University.  All Rights Reserved.
 Group: Application/Engineering
