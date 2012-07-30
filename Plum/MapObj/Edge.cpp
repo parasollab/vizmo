@@ -42,6 +42,7 @@ namespace plum{
     }
         }
 
+  //Changing edge thickness: final step. GL lines drawn with set width. 
   void
   Edge::Draw(GLenum _mode) {
 
@@ -52,6 +53,8 @@ namespace plum{
         
         float* arr_m_RGBA = &m_RGBA[0]; 
         glColor4fv(arr_m_RGBA);
+
+        glLineWidth(m_edgeThickness); 
         
         glBegin(GL_LINES);
         glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );
@@ -78,11 +81,17 @@ namespace plum{
       glPopName();
     }
 
+  //Changing edge thickness: step 5
+  void
+  Edge::SetThickness(float _thickness){
+    m_edgeThickness = _thickness; 
+  }
+
   void 
   Edge::DrawSelect() {
     typedef vector<CCfg>::iterator CFGIT;
     glColor3d(1,1,0);
-    glLineWidth(4);
+    glLineWidth(m_edgeThickness+4);
 
     glBegin( GL_LINES );
     glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );

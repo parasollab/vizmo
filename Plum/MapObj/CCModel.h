@@ -74,7 +74,7 @@ namespace plum{
 
 
     //////////////////////////////////////////////////////////////////////
-    // Accss
+    // Access
     //////////////////////////////////////////////////////////////////////      
 
     void scaleNode( float _scale, Shape _s ) { 
@@ -90,6 +90,15 @@ namespace plum{
         glDeleteLists(m_idBox,1);
         m_idBox = -1; //need new id
       }
+    }
+
+    //Changing edge thickness: step 3
+    //This function sets the edgeThickness member of CCModel, which is
+    //used by BuildEdges function from this file
+    void
+    ScaleEdges(float _scale){
+      m_edgeThickness = _scale; 
+      ReBuildAll(); 
     }
 
     void changeShape(Shape _s) { m_sNodeShape= _s; }
@@ -134,6 +143,9 @@ namespace plum{
     //to store the node size of the current selection
     float m_fRobotScale;
     float m_fBoxScale;
+
+    //Edge thickness
+    float m_edgeThickness; 
 
     //to store the "name" of the item selected
     Shape m_sNodeShape;
@@ -469,7 +481,9 @@ namespace plum{
   }
 
 
-
+  //Changing edge thickness: step 4
+  //This function sets the thickness member of the edge itself
+  //and then calls Edge's Draw
   template <class Cfg, class WEIGHT>
   void CCModel<Cfg, WEIGHT>::BuildEdges(){
     //build edges
@@ -479,6 +493,7 @@ namespace plum{
     {
       typedef typename vector<WEIGHT>::iterator EIT;
       for(EIT eit = m_Edges.begin(); eit!=m_Edges.end(); eit++){
+        eit->SetThickness(m_edgeThickness); 
         eit->SetCfgShape(m_shape);
         eit->Draw(m_RenderMode);
       }

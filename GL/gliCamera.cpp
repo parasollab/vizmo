@@ -58,6 +58,13 @@ void gliCamera::ReverseTransform(double &x,double &y,double &z){
    z = dz*cos(angle) + dx*sin(angle);
 }
 
+void 
+gliCamera::SetByUser(double _x, double _y, double _z, double _azim, double _elev){
+  
+  setCameraPos(Point3d(-1*(_x), -1*(_y), _z)); 
+  m_currentAzim = _azim; 
+  m_currentElev = _elev; 
+}
 
 void gliCamera::Draw( void )
 {
@@ -150,7 +157,7 @@ bool gliCamera::MM( QMouseEvent * e )
          RotateY(m_deltaDis, -m_currentAzim+m_deltaAzim);
       }else{
          m_deltaDis[0] = ((m_CameraPos[0]>5)?m_CameraPos[0]:5)*drag.x()/10.0;
-         m_deltaDis[1] = -(((m_CameraPos[1]>5)?m_CameraPos[1]:5)*drag.y()/10.0);
+        m_deltaDis[1] = -(((m_CameraPos[1]>5)?m_CameraPos[1]:5)*drag.y()/10.0);
       }
    }
    else if(e->state()&Qt::RightButton){ //right button only

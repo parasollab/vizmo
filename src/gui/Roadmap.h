@@ -72,6 +72,7 @@ public:
 
 public slots:
     void changeSize();      //Changes road map node's size
+    void ChangeEdgeThickness(); //change the thickness of the edges 
     void changeColor();      //Changes CC's color
     void changeColorOfCCselected(); //Changes CC's color when one is selected
     void changeInvisibleOfNodeselected(); //Changes Node's color when one is selected
@@ -104,6 +105,7 @@ private slots:
 
  public:
     QAction * sizeAction,
+            * m_edgeSizeAction, 
             * colorAction,
 	    * colorSelectAction,
 	    * invisibleSelectNodeAction,
@@ -129,6 +131,7 @@ private slots:
     QButtonGroup* m_nodeView; 
 
     double size;
+    double m_edgeThickness; 
 
     string m_shapeString;
     bool m_bEditModel;

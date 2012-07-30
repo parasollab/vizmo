@@ -14,6 +14,8 @@
 #include "AddObjDialog.h"
 #include "VizmoEditor.h"
 #include "QueryGUI.h"
+#include <GL/gliCamera.h> 
+#include <Point.h> 
 
 //////////////////////////////////////////////////////////////////////
 // Include Load headers
@@ -56,14 +58,14 @@
 #include "icon/color_table.xpm"
 #include "icon/font_edit.xpm"
 #include "icon/reset_camera.xpm"
-#include "icon/bg_color.xpm" 
+#include "icon/bg_color.xpm"
+#include "icon/RandEnv.xpm" 
 //#include "icon/runner.xpm"
 
 ////////////////////////////////////////////////////////
 /// CLASS
 /// VizmoMainWin
 ////////////////////////////////////////////////////////
-
 
 VizmoMainWin::VizmoMainWin(QWidget * parent, const char * name)
 :Q3MainWindow(parent, name), m_bVizmoInit(false)
@@ -373,6 +375,44 @@ void VizmoMainWin::resetCamera()
     m_GL->updateGL();
 }
 
+void  
+VizmoMainWin::SetCameraPos(){
+  
+  Point3d p = gliGetCameraFactory().getCurrentCamera()->getCameraPos();
+  //vector<double> ptVect; 
+  //p.get(ptVect);
+  //Unfortunately, points are defined backwards for x and y
+  //We want "X=3" to mean that VIEWER has moved to X=3 
+  if(p[0] != 0) //otherwise displays '-0' ! 
+    p[0] = -1*p[0];
+  if(p[1] != 0)
+    p[1] = -1*p[1]; 
+  
+  double azim = gliGetCameraFactory().getCurrentCamera()->getCurrentAzim();  
+  double elev = gliGetCameraFactory().getCurrentCamera()->getCurrentElev();
+
+  ostringstream ossX, ossY, ossZ, ossAzim, ossElev;  
+  ossX << p[0]; 
+  ossY << p[1]; 
+  ossZ << p[2]; 
+  ossAzim << azim; 
+  ossElev << elev; 
+
+  QString QsX((ossX.str()).c_str()); 
+  QString QsY((ossY.str()).c_str()); 
+  QString QsZ((ossZ.str()).c_str()); 
+  QString QsAzim((ossAzim.str()).c_str());
+  QString QsElev((ossElev.str()).c_str()); 
+
+  (m_cameraPosInput->m_xLineEdit)->setText(QsX); 
+  (m_cameraPosInput->m_yLineEdit)->setText(QsY); 
+  (m_cameraPosInput->m_zLineEdit)->setText(QsZ); 
+  (m_cameraPosInput->m_azimLineEdit)->setText(QsAzim); 
+  (m_cameraPosInput->m_elevLineEdit)->setText(QsElev); 
+  
+  m_cameraPosInput->show();
+}
+
 void VizmoMainWin::showmap()          //show roadmap
 {
     static bool show=false;
@@ -466,6 +506,7 @@ void VizmoMainWin::gen_contexmenu()
   Q3PopupMenu cm(this);
   changeBGcolorAction->addTo(&cm);
   cameraResetAction->addTo(&cm);
+  m_cameraPositionAction->addTo(&cm); 
   showGridAction->addTo(&cm);
   showAxisAction->addTo(&cm);
 
@@ -1045,7 +1086,6 @@ bool VizmoMainWin::CreateActions()
     cameraResetAction->setText("Reset Camera");   
     connect(cameraResetAction, SIGNAL(activated()) , this, SLOT(resetCamera()));
     
-    ///////////////////////////////////////////////////////////////////////////////
     // Quit
     quitAction = new QAction("Quit", this);
     quitAction->setShortcut(tr("CTRL+Q"));
@@ -1212,7 +1252,7 @@ void VizmoMainWin::CreateToolbar(){
 
     //Buttons for non-implemented features temporarily removed
 
-    envIcon = QPixmap(icon_pallet);
+    envIcon = QPixmap(randEnvIcon);
     envButton = new QToolButton(envIcon, "Randomize Environment Colors", "Randomly change environment object colors", 
 				this, SLOT(envObjsRandomColor()),vizmoTools, "Env.");
     envButton->setUsesTextLabel(true);
@@ -1274,9 +1314,17 @@ void VizmoMainWin::CreateMenubar()
     //////////////////////////////////////////////
     QMenu* sceneMenu = new QMenu(this); 
     menuBar()->insertItem("&Scene", sceneMenu);
-    sceneMenu->addAction(cameraResetAction); 
+    
     sceneMenu->addAction(showGridAction); 
     sceneMenu->addAction(showAxisAction); 
+    sceneMenu->addAction(cameraResetAction);
+     
+    //Camera position does not have its own button 
+    m_cameraPositionAction = new QAction("Set Camera Position", sceneMenu);
+    m_cameraPosInput = new CameraPosDialog(this); 
+    connect(m_cameraPositionAction, SIGNAL(activated()), this, SLOT(SetCameraPos())); 
+
+    sceneMenu->addAction(m_cameraPositionAction); 
     sceneMenu->addAction(changeBGcolorAction); 
 
     ///////////////////////////////////////////////
@@ -1329,9 +1377,6 @@ void VizmoMainWin::CreateMenubar()
     nodeView->addAction(boxView); 
     nodeView->addAction(pointView); 
     connect(nodeView, SIGNAL(triggered(QAction*)), roadmapGUI, SLOT(changeNodeShape(QAction*)));  
-    //nodeView->addAction("Robot", roadmapGUI, SLOT(robotNodeShape()));   
-    //nodeView->addAction("Box", roadmapGUI, SLOT(boxNodeShape())); 
-    //nodeView->addAction("Point", roadmapGUI, SLOT(pointNodeShape())); 
     roadmapMenu->addMenu(nodeView);
 
     QMenu* modifySelected = new QMenu("Modify Selected Item", roadmapMenu); 
@@ -1342,6 +1387,7 @@ void VizmoMainWin::CreateMenubar()
     roadmapMenu->addMenu(modifySelected);  
 
     roadmapMenu->addAction(roadmapGUI->sizeAction);
+    roadmapMenu->addAction(roadmapGUI->m_edgeSizeAction); 
 
     QMenu* connectedComps = new QMenu("Modify CCs", roadmapMenu); 
     connectedComps->addAction(roadmapGUI->colorSelectAction); 

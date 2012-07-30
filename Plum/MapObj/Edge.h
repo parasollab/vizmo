@@ -38,6 +38,7 @@ namespace plum {
     /////////////////////////////////////////////////////////////////
       
       bool BuildModels(){ return true; }
+      void SetThickness(float); 
       void Draw(GLenum _mode);
       void DrawSelect();
 
@@ -91,6 +92,8 @@ namespace plum {
       int m_lp;
       double m_weight;
       int m_id;
+
+      float m_edgeThickness; 
 
       CCfg::Shape m_cfgShape;
 

@@ -40,6 +40,8 @@
 #include "icon/rcolor.xpm"
 #include "icon/ruler.xpm"
 #include "icon/ccs_one_color.xpm" 
+#include "icon/NodeSize.xpm"
+#include "icon/EdgeThickness.xpm" 
 
 VizmoRoadmapGUI::VizmoRoadmapGUI(Q3MainWindow * parent,char *name)
    :Q3ToolBar(parent, name){  
@@ -113,12 +115,18 @@ void VizmoRoadmapGUI::createGUI()
    colorSelectNodeAction->addTo(this);
    colorSelectNodeAction->setEnabled(false);
    
-   sizeAction = new QAction (QIcon(QPixmap(icon_ruler)),tr("Scale Nodes"), this);
+   sizeAction = new QAction (QIcon(QPixmap(nodeSizeIcon)),tr("Scale Nodes"), this);
    sizeAction->setShortcut(tr("CTRL+S"));
    sizeAction->setStatusTip("Change node size"); 
    connect(sizeAction,SIGNAL(activated()), this, SLOT(changeSize()));
    sizeAction->addTo(this);
    sizeAction->setEnabled(false);
+
+   m_edgeSizeAction = new QAction(QIcon(QPixmap(edgeThicknessIcon)), tr("Edge Thickness"), this); 
+   m_edgeSizeAction->setStatusTip("Change edge thickness"); 
+   connect(m_edgeSizeAction, SIGNAL(activated()), this, SLOT(ChangeEdgeThickness())); 
+   m_edgeSizeAction->addTo(this); 
+   m_edgeSizeAction->setEnabled(false); 
 
    colorSelectAction = new QAction (QIcon(QPixmap(icon_cc_color)),tr("Change Color of Selected"), this);
    colorSelectAction->setShortcut(tr("CTRL+C"));
@@ -196,6 +204,7 @@ void VizmoRoadmapGUI::reset()
 
    //editAction->setEnabled(true);
    sizeAction->setEnabled(true);
+   m_edgeSizeAction->setEnabled(true); 
    colorAction->setEnabled(true);
    colorSelectAction->setEnabled(true);
    solidSelectNodeAction->setEnabled(true);
@@ -239,14 +248,31 @@ VizmoRoadmapGUI::changeSize(){
 
    bool ok = false;
    size = QInputDialog::getDouble(tr("Change Roadmap Node Size"), 
-         tr("Enter a positive number to scale the nodes"),
-         size, 0, 1, 2,  &ok,  this);
+         tr("Enter a positive number between 0 and 10 to scale the nodes"),
+         size, 0, 10, 2,  &ok,  this);
   if(ok){
     string shape = (string)(m_nodeView->checkedButton())->text().ascii(); 
     GetVizmo().ChangeNodesSize(size, shape);
     emit callUpdate(); //set an update event
   }
 
+}
+
+//Changing edge thickness (complicated process!) step 1: User input. 
+//This function calls ChangeEdgeThickness with given value in vizmo2.cpp
+//Implementation only appears to support thickness up to 10 
+void
+VizmoRoadmapGUI::ChangeEdgeThickness(){
+  
+  bool ok = false; 
+  m_edgeThickness = QInputDialog::getDouble(tr("Change Roadmap Edge Thickness"), 
+    tr("Enter a positive number between 1 and 10 to scale the thickness of the edges"), m_edgeThickness, 
+    1, 10, 2, &ok, this);
+  
+  if(ok){
+    GetVizmo().ChangeEdgeThickness(m_edgeThickness); 
+    emit callUpdate(); 
+  } 
 }
 
 void 
