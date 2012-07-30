@@ -1,0 +1,43 @@
+/* XPM */
+static const char* navigate[] = {
+/* width height ncolors chars_per_pixel */
+(char*)"32 32 4 1",
+/* colors */
+(char*)"  c black",
+(char*)". c yellow",
+(char*)"X c SlateGrey",
+(char*)"o c blue",
+/* pixels */
+(char*)"                                ",
+(char*)" XoXXXXXXoXXXoXXXXXXXXXXoXXXXXX ",
+(char*)" XoXXXXXXoXXXXoXXXXXXXXXoXXXXXX ",
+(char*)" XXoXXXXXoXXXXoXXXXXXXXXXoXXXXX ",
+(char*)" XXoXXXXXoXXXXXoXXXXXXXXXoXXXXX ",
+(char*)" XXoXXXXXoXXXXXXoXXXXXXXXoooXXX ",
+(char*)" XXoXXXXoXXXXXXXXoXXXXoooXXXooX ",
+(char*)" XXXoXXXoXXXXXXXXoXXooXXXXXXXXo ",
+(char*)" XXX...XoXXXXoooooooXXXXXXXXXXX ",
+(char*)" XX.XXX..ooooXXXXooXXXXXXXXXXXX ",
+(char*)" X.XXXXX.XXXXXXXoXXoXXXXXXXXXXo ",
+(char*)" .XXXXXX.XXXXXXoXXXXoXXXXXXXooX ",
+(char*)" XXXXXXX.XXXXooXXXXXXoXXXXooXXX ",
+(char*)" XXXXXXXX.XXoXXXXXXXXXoXooXXXXX ",
+(char*)" XXXXXXXX.XoXXXXXXXXXX..XXXXXXX ",
+(char*)" oooooXXX.oXXXXXXXXo..XX.XXXXXX ",
+(char*)" XXXXXooo...........XXXXX.XXXXX ",
+(char*)" XXXXXXXoXoXXXXXoXoXXXXXX.XXXXX ",
+(char*)" XXXXXXXoXoXXXXXoXXoXXXXXX.XXoo ",
+(char*)" XXXXXXoXXXoXXXoXXXXoXXXXXX.oXX ",
+(char*)" XXXXXoXXXXoXXXoXXXXXoXXX..XXXX ",
+(char*)" oXXXoXXXXXXoXoXXXXXXXoX.XXXXXX ",
+(char*)" XoXXoXXXXXXoXoXXXXXXXX..XXXXXX ",
+(char*)" XoXoXXXXXXXXoXXXXXXXXoXX..XX.. ",
+(char*)" XXoXXXXXXXXoXoXXXXXXoXXXXX..XX ",
+(char*)" XXooXXXXXXoXXXoXXXXXoXXXXXoXXX ",
+(char*)" XXoXoXXXXXoXXXXoXXXoXXXXXoXXXX ",
+(char*)" XXoXXoXXXoXXXXXXoXoXXXXXXoXXXX ",
+(char*)" XoXXXXoXoXXXXXXXXooXXXXXXoXXXX ",
+(char*)" XoXXXXXoXXXXXXXooXXooXXXoXXXXX ",
+(char*)" XoXXXXXXoXXXXooXXXXXXoXXoXXXXX ",
+(char*)"                                "
+};

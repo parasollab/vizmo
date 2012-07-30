@@ -27,19 +27,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //Icons
-#include "icon/shapes1.xpm"
-#include "icon/pallet.xpm"
-#include "icon/make.xpm"
-#include "icon/bulb.xpm"
-#include "icon/cross.xpm"
-#include "icon/crossEdge.xpm"
-#include "icon/make_solid.xpm" 
-#include "icon/make_wired.xpm"
-#include "icon/make_invisible.xpm" 
-#include "icon/cc_color.xpm"
-#include "icon/rcolor.xpm"
-#include "icon/ruler.xpm"
-#include "icon/ccs_one_color.xpm" 
+#include "icon/Shapes1.xpm"
+#include "icon/Pallet.xpm"
+#include "icon/Make.xpm"
+#include "icon/Bulb.xpm"
+#include "icon/Cross.xpm"
+#include "icon/CrossEdge.xpm"
+#include "icon/MakeSolid.xpm" 
+#include "icon/MakeWired.xpm"
+#include "icon/MakeInvisible.xpm" 
+#include "icon/CCColor.xpm"
+#include "icon/RColor.xpm"
+#include "icon/CCsOneColor.xpm" 
 #include "icon/NodeSize.xpm"
 #include "icon/EdgeThickness.xpm" 
 
@@ -82,7 +81,7 @@ void VizmoRoadmapGUI::createGUI()
 
    connect(m_nodeView, SIGNAL(buttonClicked(int)), this, SLOT(getSelectedItem())); 
    
-   solidSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_solid)),tr("Make Solid"), this);
+   solidSelectNodeAction = new QAction (QIcon(QPixmap(makeSolid)),tr("Make Solid"), this);
    solidSelectNodeAction->setShortcut(tr("CTRL+N"));
    solidSelectNodeAction->setToolTip("Make Solid");
    solidSelectNodeAction->setStatusTip("Display selected item in solid mode"); 
@@ -90,7 +89,7 @@ void VizmoRoadmapGUI::createGUI()
    solidSelectNodeAction->addTo(this);
    solidSelectNodeAction->setEnabled(false);
 
-   wireSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_wired)),tr("Make Wired"), this);
+   wireSelectNodeAction = new QAction (QIcon(QPixmap(makeWired)),tr("Make Wired"), this);
    wireSelectNodeAction->setShortcut(tr("CTRL+N"));
    wireSelectNodeAction->setToolTip ("Make Wired");
    wireSelectNodeAction->setStatusTip("Display selected item in wired mode"); 
@@ -98,7 +97,7 @@ void VizmoRoadmapGUI::createGUI()
    wireSelectNodeAction->addTo(this);
    wireSelectNodeAction->setEnabled(false);
    
-   invisibleSelectNodeAction = new QAction (QIcon(QPixmap(icon_make_invisible)),tr("Make Invisible"), this);
+   invisibleSelectNodeAction = new QAction (QIcon(QPixmap(makeInvisible)),tr("Make Invisible"), this);
    invisibleSelectNodeAction->setShortcut(tr("CTRL+N"));
    invisibleSelectNodeAction->setToolTip ("Make Invisible");
    invisibleSelectNodeAction->setStatusTip("Make selected item invisible"); 
@@ -107,7 +106,7 @@ void VizmoRoadmapGUI::createGUI()
    invisibleSelectNodeAction->setEnabled(false);
    
    //Probably need to rename below...this is for edges as well as nodes! 
-   colorSelectNodeAction = new QAction (QIcon(QPixmap(icon_pallet)),tr("Change Color"), this);
+   colorSelectNodeAction = new QAction (QIcon(QPixmap(pallet)),tr("Change Color"), this);
    colorSelectNodeAction->setShortcut(tr("CTRL+N"));
    colorSelectNodeAction->setToolTip ("Change Selected Item Color");
    colorSelectNodeAction->setStatusTip("Change color of selected item"); 
@@ -128,7 +127,7 @@ void VizmoRoadmapGUI::createGUI()
    m_edgeSizeAction->addTo(this); 
    m_edgeSizeAction->setEnabled(false); 
 
-   colorSelectAction = new QAction (QIcon(QPixmap(icon_cc_color)),tr("Change Color of Selected"), this);
+   colorSelectAction = new QAction (QIcon(QPixmap(ccColor)),tr("Change Color of Selected"), this);
    colorSelectAction->setShortcut(tr("CTRL+C"));
    colorSelectAction->setToolTip("Change Selected CC's Color");
    colorSelectAction->setStatusTip("Change color of selected connected component"); 
@@ -136,7 +135,7 @@ void VizmoRoadmapGUI::createGUI()
    colorSelectAction->addTo(this);
    colorSelectAction->setEnabled(false);
    
-   colorAction = new QAction (QIcon(QPixmap(icon_rcolor)),tr("Randomize colors"), this);
+   colorAction = new QAction (QIcon(QPixmap(rcolor)),tr("Randomize colors"), this);
    colorAction->setShortcut(tr("CTRL+R"));
    colorAction->setToolTip("Randomize CC colors");
    colorAction->setStatusTip("Randomly color the connected components"); 
@@ -144,7 +143,7 @@ void VizmoRoadmapGUI::createGUI()
    colorAction->addTo(this);
    colorAction->setEnabled(false);
 
-   m_ccsOneColor = new QAction(QIcon(QPixmap(icon_ccs_one_color)), tr("Make all one color"), this); 
+   m_ccsOneColor = new QAction(QIcon(QPixmap(ccsOneColor)), tr("Make all one color"), this); 
    m_ccsOneColor->setToolTip("Make all CCs one color");
    m_ccsOneColor->setStatusTip("Make all connected components one color"); 
    connect(m_ccsOneColor, SIGNAL(activated()), this, SLOT(setSameColor())); 
@@ -153,7 +152,7 @@ void VizmoRoadmapGUI::createGUI()
 
    //Interface for non-implemented features temporarily removed 
 
-   //editAction = new QAction (QIcon(QPixmap(icon_make)),tr("Edit Map"), this);
+   //editAction = new QAction (QIcon(QPixmap(make)),tr("Edit Map"), this);
    //editAction->setShortcut(tr("CTRL+M"));
    //editAction->setStatusTip(tr("Edit Map"));
    //editAction->setCheckable(true);
@@ -161,13 +160,13 @@ void VizmoRoadmapGUI::createGUI()
    //editAction->addTo(this);
    //editAction->setEnabled(false);
 
-   //addNodeAction = new QAction (QIcon(QPixmap(icon_cross)),tr("Add &Node"),this);
+   //addNodeAction = new QAction (QIcon(QPixmap(cross)),tr("Add &Node"),this);
    //addNodeAction->setShortcut(tr("CTRL+M"));
    //addNodeAction->setCheckable(true);
    //connect(addNodeAction,SIGNAL(activated()), this, SLOT(addNode()));
    //addNodeAction->setEnabled(false);
 
-   //addEdgeAction = new QAction (QIcon(QPixmap(icon_crossEdge)),tr("Add &Edge"),this);
+   //addEdgeAction = new QAction (QIcon(QPixmap(crossEdge)),tr("Add &Edge"),this);
    //addEdgeAction->setShortcut(tr("CTRL+E"));
    //addEdgeAction->setCheckable(true);
    //connect(addEdgeAction,SIGNAL(activated()), this, SLOT(addEdge()));
@@ -458,7 +457,7 @@ VizmoRoadmapGUI::changeNodeShape(QAction* _action){
    addEdgeAction->setChecked(false);
    if(m_addNode){
       l_message->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
-      l_icon->setPixmap(QPixmap(icon_bulb));
+      l_icon->setPixmap(QPixmap(bulb));
       l_message->setPaletteForegroundColor(Qt::darkRed);
       l_message->setText("Add NODE is ON");        
    }
@@ -476,7 +475,7 @@ VizmoRoadmapGUI::changeNodeShape(QAction* _action){
    //addNodeAction->setChecked(false);
    if(m_addEdge){
       l_message->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
-      l_icon->setPixmap(QPixmap(icon_bulb));
+      l_icon->setPixmap(QPixmap(bulb));
       l_message->setPaletteForegroundColor(Qt::darkRed);
       l_message->setText("Add EDGE is ON");  
    }

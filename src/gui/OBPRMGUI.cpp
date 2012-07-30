@@ -1,8 +1,8 @@
 #include "vizmo2.h"
 #include "OBPRMGUI.h"
 
-#include "icon/folder.xpm"
-#include "icon/clip.xpm"
+#include "icon/Folder.xpm"
+#include "icon/Clip.xpm"
 
 ///////////////////////////////
 // Widgets
@@ -260,7 +260,7 @@ void obprmGUI::setupTabFile(){
   numJoints = new QLineEdit(main);
   grid->addWidget(numJoints, 6, 1);
 
-  addTab (main, QIcon(icon_folder), "General");
+  addTab (main, QIcon(folder), "General");
 
 }
 
@@ -353,7 +353,7 @@ void obprmGUI::setupTabGnodes(){
 
   commonGrid->addWidget(lbMethod, 4, 0);
 
-  QPushButton *acceptMethod = new QPushButton(QIcon(icon_clip), 
+  QPushButton *acceptMethod = new QPushButton(QIcon(clip), 
 					      "Add method", basicWidgt);
 
   connect(acceptMethod, SIGNAL( clicked() ), this, SLOT( addMethod() ) );
@@ -393,7 +393,7 @@ void obprmGUI::setupTabLp(){
   l = new QLabel("binary search : int", main);
   grid->addWidget(l, 0, 2, Qt::AlignCenter);
 
-  pb = new QPushButton(QIcon(icon_clip), "straightline", main);
+  pb = new QPushButton(QIcon(clip), "straightline", main);
   connect(pb, SIGNAL(clicked()), this, SLOT(LP1()));
   grid->addWidget(pb, 1, 0);
 
@@ -405,7 +405,7 @@ void obprmGUI::setupTabLp(){
   lp_strLine2->setText("0");
   grid->addWidget(lp_strLine2, 1, 2);
 
-  pb = new QPushButton(QIcon(icon_clip), "rotate_at_s", main);
+  pb = new QPushButton(QIcon(clip), "rotate_at_s", main);
   connect(pb, SIGNAL(clicked()), this, SLOT(LP2()));
   grid->addWidget(pb, 3, 0);
  
@@ -423,7 +423,7 @@ void obprmGUI::setupTabLp(){
   grid->addWidget(l, 4, 2, Qt::AlignCenter);
 
 
-  pb = new QPushButton(QIcon(icon_clip), "a_star_dist",main);
+  pb = new QPushButton(QIcon(clip), "a_star_dist",main);
   connect(pb, SIGNAL(clicked()), this, SLOT(LP3()));
   grid->addWidget(pb, 5, 0);
 
@@ -441,7 +441,7 @@ void obprmGUI::setupTabLp(){
   grid->addWidget(l, 6, 2, Qt::AlignCenter);
 
 
-  pb = new QPushButton(QIcon(icon_clip), "a_star_clearance", 
+  pb = new QPushButton(QIcon(clip), "a_star_clearance", 
 			 main, "a_star_clearance");
   connect(pb, SIGNAL(clicked()), this, SLOT(LP4()));
   grid->addWidget(pb, 7, 0);
@@ -458,7 +458,7 @@ void obprmGUI::setupTabLp(){
   l = new QLabel("n : int", main);
   grid->addWidget(l, 8, 1, Qt::AlignCenter);
 
-  pb = new QPushButton(QIcon(icon_clip), "approx_spheres",main);
+  pb = new QPushButton(QIcon(clip), "approx_spheres",main);
   connect(pb, SIGNAL(clicked()), this, SLOT(LP5()));
   grid->addWidget(pb, 9, 0);
 
@@ -590,11 +590,11 @@ void obprmGUI::createCNodesGUI(){
   grid->setAlignment( Qt::AlignHCenter);
   grid->setSpacing(5);
  
-  pbCN = new QPushButton(QIcon(icon_clip),"random",main);
+  pbCN = new QPushButton(QIcon(clip),"random",main);
   grid->addWidget(pbCN, 0, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addRandom()) );
 
-  pbCN = new QPushButton(QIcon(icon_clip),"closest",main);
+  pbCN = new QPushButton(QIcon(clip),"closest",main);
   grid->addWidget(pbCN, 1, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addClosest()) );
 
@@ -602,7 +602,7 @@ void obprmGUI::createCNodesGUI(){
   closest->setText("10");
   grid->addWidget(closest, 1, 1);
  
-  pbCN = new QPushButton(QIcon(icon_clip),"closestVE",main);
+  pbCN = new QPushButton(QIcon(clip),"closestVE",main);
   grid->addWidget(pbCN, 2, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addClosestVE()) ); 
 
@@ -610,7 +610,7 @@ void obprmGUI::createCNodesGUI(){
   closestVE->setText("5");
   grid->addWidget(closestVE, 2, 1);
 
-  pbCN = new QPushButton(QIcon(icon_clip),"components",main);
+  pbCN = new QPushButton(QIcon(clip),"components",main);
   grid->addWidget(pbCN, 4, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addComp()) );
 
@@ -627,7 +627,7 @@ void obprmGUI::createCNodesGUI(){
   componts2->setText("4"); 
   grid->addWidget(componts2, 4, 2);
 
-  pbCN = new QPushButton(QIcon(icon_clip),"obstBased",main);
+  pbCN = new QPushButton(QIcon(clip),"obstBased",main);
   grid->addWidget(pbCN, 6, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addObst()) );
 
@@ -644,7 +644,7 @@ void obprmGUI::createCNodesGUI(){
   obstB_s->setText("3");
   grid->addWidget(obstB_s, 6, 2);
 
-  pbCN = new QPushButton(QIcon(icon_clip),"RRTexpand",main);
+  pbCN = new QPushButton(QIcon(clip),"RRTexpand",main);
   grid->addWidget(pbCN, 8, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addRRTe()) );
 
@@ -679,7 +679,7 @@ void obprmGUI::createCNodesGUI(){
   rrt5->setText("1");
   grid->addWidget(rrt5, 8, 5);
 
-  pbCN = new QPushButton(QIcon(icon_clip),"RRTcomponents",main);
+  pbCN = new QPushButton(QIcon(clip),"RRTcomponents",main);
   grid->addWidget(pbCN, 10, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addRRTc()) );
 
@@ -715,7 +715,7 @@ void obprmGUI::createCNodesGUI(){
   rrtc5->setText("1");
   grid->addWidget(rrtc5, 10, 5);   
 
-  pbCN = new QPushButton(QIcon(icon_clip),"RayTracer",main);
+  pbCN = new QPushButton(QIcon(clip),"RayTracer",main);
   grid->addWidget(pbCN, 12, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addRT()) );
 
@@ -759,7 +759,7 @@ void obprmGUI::createCNodesGUI(){
   rt7->setText("10"); 
   grid->addWidget(rt7, 14, 3);
 
-  pbCN = new QPushButton(QIcon(icon_clip),"modifiedLM",main);
+  pbCN = new QPushButton(QIcon(clip),"modifiedLM",main);
   grid->addWidget(pbCN, 16, 0);
   connect(pbCN, SIGNAL(clicked()), this, SLOT(addLM()) );
 
@@ -1302,21 +1302,21 @@ obprmFileSelectDialog::obprmFileSelectDialog (QWidget *parent, Qt::WFlags f)
   controls->addWidget(new QLabel("<b>Env File</b>:", this), 0, 0);
   Env_label = new QLabel(GetVizmo().getEnvFileName().c_str(),this );
   controls->addWidget(Env_label,0, 1);
-  QPushButton * envButton = new QPushButton(QIcon(icon_folder),"Browse",this);  
+  QPushButton * envButton = new QPushButton(QIcon(folder),"Browse",this);  
   connect(envButton,SIGNAL(clicked()),this,SLOT(changeEnv()));
   controls->addWidget(envButton, 0, 2);
 
 
   controls->addWidget(new QLabel("<b>IN Map File</b>:", this), 1, 0);
   INMap_label=new QLabel(GetVizmo().getMapFileName().c_str(),this);
-  QPushButton * inButton = new QPushButton(QIcon(icon_folder),"Browse",this);  
+  QPushButton * inButton = new QPushButton(QIcon(folder),"Browse",this);  
   connect(inButton,SIGNAL(clicked()),this,SLOT(changeMapIN()));
   controls->addWidget(INMap_label, 1, 1);
   controls->addWidget(inButton, 1, 2);
 
   controls->addWidget(new QLabel("<b>OUT MapFile</b>:", this), 2, 0);
   OUTMap_label = new QLabel(GetVizmo().getQryFileName().c_str(),this); 
-  QPushButton * outButton = new QPushButton(QIcon(icon_folder),"Browse",this);  
+  QPushButton * outButton = new QPushButton(QIcon(folder),"Browse",this);  
   connect(outButton,SIGNAL(clicked()),this,SLOT(changeMapOUT()));
   controls->addWidget(OUTMap_label, 2, 1);
   controls->addWidget(outButton, 2, 2);

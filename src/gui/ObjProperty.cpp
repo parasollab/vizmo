@@ -1,6 +1,6 @@
 #include "vizmo2.h"
 #include "ObjProperty.h"
-#include "icon/eye.xpm"
+#include "icon/Eye.xpm"
 
 #include <q3grid.h>
 #include <q3vbox.h>
@@ -31,7 +31,7 @@ BasicPropertyDialog::BasicPropertyDialog
 {
 	//vector<gliObj>& sel=GetVizmo().GetSelectedItem(); 
 	//gliObj first=sel.front();
-	setIcon(QPixmap(icon_eye));
+	setIcon(QPixmap(eye));
 
 	///////////////////////////////////////////////////////////////////////
     QVBoxLayout* vbox = new QVBoxLayout(this,8);

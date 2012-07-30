@@ -1,0 +1,41 @@
+/* XPM */
+static const char* redcross[] = {
+/* width height ncolors chars_per_pixel */
+(char*)"32 32 2 1",
+/* colors */
+(char*)"` c white",
+(char*)"a c red",
+/* pixels */
+(char*)"````````````````````````````````",
+(char*)"````````````````````````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````aaaaaaaaaaaaaaaaaaaaaaa`````",
+(char*)"````aaaaaaaaaaaaaaaaaaaaaaa`````",
+(char*)"````aaaaaaaaaaaaaaaaaaaaaaa`````",
+(char*)"````aaaaaaaaaaaaaaaaaaaaaaa`````",
+(char*)"````aaaaaaaaaaaaaaaaaaaaaaa`````",
+(char*)"````aaaaaaaaaaaaaaaaaaaaaaa`````",
+(char*)"````aaaaaaaaaaaaaaaaaaaaaaa`````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````aaaaaaa`````````````",
+(char*)"````````````````````````````````",
+(char*)"````````````````````````````````",
+(char*)"````````````````````````````````",
+(char*)"````````````````````````````````"
+};

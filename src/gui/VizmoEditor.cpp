@@ -8,10 +8,10 @@
 #include <Q3PopupMenu>
 using namespace std;
 
-#include "icon/filing.xpm"
-#include "icon/floppy2_green.xpm"
-#include "icon/printer2.xpm"
-#include "icon/computer_clock.xpm"
+#include "icon/Filing.xpm"
+#include "icon/Floppy2Green.xpm"
+#include "icon/Printer2.xpm"
+#include "icon/ComputerClock.xpm"
 
 vizmoEditor::vizmoEditor(QWidget * parent, const char * name)
 :Q3MainWindow( parent, name)
@@ -28,8 +28,8 @@ vizmoEditor::vizmoEditor(QWidget * parent, const char * name)
   connect( fileNewAction, SIGNAL( activated() ) , this,
 	   SLOT( newDoc() ) );
 
-//  fileOpenAction = new QAction( "Open", QPixmap( icon_filing ), "&Open...", 
-  fileOpenAction = new QAction(QIcon(QPixmap( icon_filing )), tr("&Open..."), this);
+//  fileOpenAction = new QAction( "Open", QPixmap(filing), "&Open...", 
+  fileOpenAction = new QAction(QIcon(QPixmap(filing)), tr("&Open..."), this);
   fileOpenAction->setShortcut(tr("CTRL+O"));
   connect( fileOpenAction, SIGNAL( activated() ) , this, SLOT( choose() ) );
 
@@ -41,9 +41,9 @@ vizmoEditor::vizmoEditor(QWidget * parent, const char * name)
 		       fileOpenAction->iconSet().pixmap() );
   fileOpenAction->setWhatsThis( fileOpenText );
 
-//  fileSaveAction = new QAction( "Save", QPixmap( icon_floppy ), "&Save",
+//  fileSaveAction = new QAction( "Save", QPixmap(floppy), "&Save",
 //                                CTRL+Key_S, this);
-  fileSaveAction = new QAction( QIcon(QPixmap( icon_floppy )), tr("&Save"), this);
+  fileSaveAction = new QAction( QIcon(QPixmap(floppy)), tr("&Save"), this);
   fileSaveAction->setShortcut(tr("CTRL+S"));
   connect( fileSaveAction, SIGNAL( activated() ) , this, SLOT( save() ) );
 
@@ -66,9 +66,9 @@ vizmoEditor::vizmoEditor(QWidget * parent, const char * name)
 	   SLOT( saveAs() ) );
   fileSaveAsAction->setWhatsThis( fileSaveText );
 
-//  filePrintAction = new QAction( "Print File", QPixmap( icon_printer ),
+//  filePrintAction = new QAction( "Print File", QPixmap(printer),
 //                                   "&Print...", CTRL+Key_P, this);
-  filePrintAction = new QAction( QIcon(QPixmap( icon_printer )), tr("&Print..."), this);
+  filePrintAction = new QAction( QIcon(QPixmap(printerIcon)), tr("&Print..."), this);
   filePrintAction->setShortcut(tr("CTRL+P"));
   connect( filePrintAction, SIGNAL( activated() ) , this,
              SLOT( print() ) );
@@ -78,9 +78,9 @@ vizmoEditor::vizmoEditor(QWidget * parent, const char * name)
                      "command from the File menu.";
   filePrintAction->setWhatsThis( filePrintText );
 
-//  fileExecAction = new QAction( "Execute", QPixmap( icon_computer_clock ), "&Execute",
+//  fileExecAction = new QAction( "Execute", QPixmap(computerClock), "&Execute",
 //                                CTRL+Key_E, this);
-  fileExecAction = new QAction( QIcon(QPixmap( icon_computer_clock )), tr("&Execute"), this);
+  fileExecAction = new QAction( QIcon(QPixmap(computerClock)), tr("&Execute"), this);
   fileExecAction->setShortcut(tr("CTRL+E"));
   connect( fileExecAction, SIGNAL( activated() ) , this, SLOT( execFile() ) );
 

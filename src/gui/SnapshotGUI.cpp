@@ -28,11 +28,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //Icons
-#include "icon/tapes.xpm"
-#include "icon/video_camera2.xpm"
-#include "icon/camera.xpm"
-#include "icon/crop.xpm" 
-#include "icon/camcorder.xpm" 
+#include "icon/VideoCamera2.xpm"
+#include "icon/Camera.xpm"
+#include "icon/Crop.xpm" 
+#include "icon/Camcorder.xpm" 
 
 inline QStringList& Filters()
 {
@@ -126,20 +125,20 @@ bool VizmoScreenShotGUI::CreateGUI()
 void VizmoScreenShotGUI::CreateActions()
 {   
     //Select box region (click and drag) which can be used to take snapshot 
-    takeBoxPicture= new QToolButton(QPixmap(icon_crop), "Crop", "Take a snap shot of the selected region", this,
+    takeBoxPicture= new QToolButton(QPixmap(crop), "Crop", "Take a snap shot of the selected region", this,
                                     SLOT(takeBoxSnapshot()), this, "selected");
     takeBoxPicture->setUsesTextLabel (true);
     takeBoxPicture->setToggleButton(true);
     takeBoxPicture->setEnabled(false);
      
     //Take the screenshot (whole window or selected region if box is drawn)
-    takePicture= new QToolButton(QPixmap(icon_camera), "Picture", "Take a snap shot of whole window", this,
+    takePicture= new QToolButton(QPixmap(camera), "Picture", "Take a snap shot of whole window", this,
                                  SLOT(takeSnapshot()), this, "picture");
     takePicture->setUsesTextLabel (true);
     takePicture->setEnabled(false);
 	
     //Save movie sequence for query, debug file, etc. 
-    animation= new QToolButton(QPixmap(icon_camcorder), "Movie", "Save Image Sequence", this,
+    animation= new QToolButton(QPixmap(camcorder), "Movie", "Save Image Sequence", this,
                                SLOT(takeMoviePictures()), this, "movie");
     animation->setEnabled(false);
     animation->setUsesTextLabel (true);

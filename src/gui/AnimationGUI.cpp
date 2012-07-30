@@ -17,13 +17,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////// 
 // Icons
-#include "icon/vcr/first.xpm"
-#include "icon/vcr/last.xpm"
-#include "icon/vcr/next.xpm"
-#include "icon/vcr/previous.xpm"
-#include "icon/vcr/play.xpm"
-#include "icon/vcr/playback.xpm"
-#include "icon/vcr/pause.xpm"
+#include "icon/vcr/First.xpm"
+#include "icon/vcr/Last.xpm"
+#include "icon/vcr/Next.xpm"
+#include "icon/vcr/Previous.xpm"
+#include "icon/vcr/Play.xpm"
+#include "icon/vcr/Playback.xpm"
+#include "icon/vcr/Pause.xpm"
 
 ///////////////////////////////////////////////////////////////////////////////// 
 VizmoAnimationGUI::VizmoAnimationGUI(string n, Q3MainWindow *parent,char *name)
@@ -110,26 +110,26 @@ bool VizmoAnimationGUI::CreateActions()
     
     //playPathAction=new QAction("Play",QPixmap(Camera),"&Play",CTRL+Key_P,this,"play");
     
-    //playPathAction=new QAction("Play",QPixmap(icon_play),"&Play",Qt::CTRL+Qt::Key_P,this,"play");
-playPathAction=new QAction(QIcon(QPixmap(icon_play)), tr("Play"), this);
+    //playPathAction=new QAction("Play",QPixmap(play),"&Play",Qt::CTRL+Qt::Key_P,this,"play");
+playPathAction=new QAction(QIcon(QPixmap(play)), tr("Play"), this);
     connect(playPathAction,SIGNAL(activated()),SLOT(animate2()));
     
-    playBackAction = new QAction(QIcon(QPixmap(icon_playback)),"BackPLay",this);
+    playBackAction = new QAction(QIcon(QPixmap(playback)),"BackPLay",this);
     connect(playBackAction,SIGNAL(activated()),SLOT(backAnimate()));
     
-    pausePathAction=new QAction(QIcon(QPixmap(icon_pause)),tr("Pause"),this);
+    pausePathAction=new QAction(QIcon(QPixmap(pauseIcon)),tr("Pause"),this);
     connect(pausePathAction,SIGNAL(activated()),SLOT(pauseAnimate()));
     
-    nextFrameAction=new QAction(QIcon(QPixmap(icon_next)),tr("NextFrame"),this);
+    nextFrameAction=new QAction(QIcon(QPixmap(next)),tr("NextFrame"),this);
     connect(nextFrameAction,SIGNAL(activated()),SLOT(nextFrame()));
     
-    previousFrameAction=new QAction(QIcon(QPixmap(icon_previous)),tr("PreviousFrame"),this);
+    previousFrameAction=new QAction(QIcon(QPixmap(previous)),tr("PreviousFrame"),this);
     connect(previousFrameAction,SIGNAL(activated()),SLOT(previousFrame()));
     
     
-    firstFrame=new QAction(QIcon(QPixmap(icon_first)),tr("first"),this);
+    firstFrame=new QAction(QIcon(QPixmap(first)),tr("first"),this);
     connect(firstFrame,SIGNAL(activated()),SLOT(gotoFirst()));
-    lastFrame=new QAction(QIcon(QPixmap(icon_last)),tr("last"),this);
+    lastFrame=new QAction(QIcon(QPixmap(last)),tr("last"),this);
     connect(lastFrame,SIGNAL(activated()),SLOT(gotoLast()));
     
     return true;
