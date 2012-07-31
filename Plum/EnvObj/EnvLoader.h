@@ -5,7 +5,9 @@
 #ifndef ENVLOADER_H_
 #define ENVLOADER_H_
 
-#include "ILoadable.h"
+//ILoadable included using angle brackets
+//This seems to resolve an issue when compiling on Mac OSX Lion
+#include <Plum/ILoadable.h>
 #include "RobotInfo.h"
 #include <graph.h>
 #include <algorithms/graph_input_output.h>

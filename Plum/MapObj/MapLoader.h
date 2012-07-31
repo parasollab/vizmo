@@ -10,7 +10,9 @@
 #define _STL_PORT
 #endif
 
-#include "ILoadable.h"
+//ILoadable included using angle brackets
+//This seems to resolve an issue when compiling on Mac OSX Lion
+#include <Plum/ILoadable.h>
 #include <graph.h>
 #include <algorithms/graph_algo_util.h>
 #include <algorithms/graph_input_output.h>

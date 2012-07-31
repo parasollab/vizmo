@@ -5,7 +5,9 @@
 #ifndef _MOVIEBYULOADER_H_
 #define _MOVIEBYULOADER_H_
 
-#include "ILoadable.h"
+//ILoadable included using angle brackets
+//This seems to resolve an issue when compiling on Mac OSX Lion
+#include <Plum/ILoadable.h>
 
 //////////////////////////////////////////////////////////////////////////////////////
 ///std header
