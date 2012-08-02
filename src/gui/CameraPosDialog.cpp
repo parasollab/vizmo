@@ -3,9 +3,8 @@
 
 using namespace std; 
 
-CameraPosDialog::CameraPosDialog(QWidget* parent)
-  :QDialog(parent)
-{
+CameraPosDialog::CameraPosDialog(QWidget* _parent)
+  :QDialog(_parent) {
   SetUpDialog(this); 
 }
 
