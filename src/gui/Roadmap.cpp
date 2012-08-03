@@ -27,12 +27,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //Icons
-#include "icon/Shapes1.xpm"
 #include "icon/Pallet.xpm"
-#include "icon/Make.xpm"
-#include "icon/Bulb.xpm"
-#include "icon/Cross.xpm"
-#include "icon/CrossEdge.xpm"
 #include "icon/MakeSolid.xpm" 
 #include "icon/MakeWired.xpm"
 #include "icon/MakeInvisible.xpm" 

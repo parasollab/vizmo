@@ -26,7 +26,8 @@
 #include <QKeyEvent>
 #include <Q3PopupMenu>
 #include "TextGUI.h"
-#include "CameraPosDialog.h" 
+#include "CameraPosDialog.h"
+#include "CustomizePathDialog.h" 
 #include <QDoubleSpinBox>
 
 class QAction;
@@ -81,7 +82,9 @@ public:
     string firstQry_file; //to hold name of first query file
 
     TextGUI* m_outbox; //Q3TextView that displays node/edge(s) selection info, debug, etc.  
-    CameraPosDialog* m_cameraPosInput; 
+    
+    CameraPosDialog* m_cameraPosInput; //allow user to manually specify a camera position
+    CustomizePathDialog* m_pathOptionsInput; 
 
 public slots:
     void showCfg(); //draw robot's current Cfg.
@@ -104,7 +107,8 @@ private slots:
 
     void showmap();         //show roadmap
     void showpath();        //show path frame
-    void showstartgoal();   //show start and goal positionx
+    void showstartgoal();   //show start and goal position
+    void PathDisplayOptions(); //adjust robot outline width, gradient, etc. 
     void showBBox();        //show Bounding Box
 
     void about();           //about dialog
@@ -166,6 +170,7 @@ private:
     QAction *showHideRoadmapAction, 
             *showHidePathAction, 
             *m_showHideSGAction,
+            *m_pathOptionsAction, 
             *quitAction,
             *fileOpenAction, 
             *fileUpdateAction,

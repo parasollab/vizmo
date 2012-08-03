@@ -201,6 +201,7 @@ void VizmoMainWin::reset()
         else {
             showHidePathAction->setEnabled(true);
             pathButton->setEnabled(true);
+            m_pathOptionsAction->setEnabled(true); 
         }
     }
 
@@ -271,7 +272,7 @@ void VizmoMainWin::load()
     }
     else statusBar()->message("Loading aborted");
 
-    
+    m_pathOptionsInput->m_colors.clear(); //reset path gradient   
     m_GL->resetTransTool();
     m_GL->updateGL();
 }
@@ -449,6 +450,11 @@ void VizmoMainWin::showstartgoal() //show start and goal position
     
     GetVizmo().ShowQueryFrame(show);
     m_GL->updateGL();
+}
+
+void 
+VizmoMainWin::PathDisplayOptions(){//change path gradient colors, etc. 
+  m_pathOptionsInput->show(); 
 }
 
 void VizmoMainWin::showBBox()
@@ -1405,7 +1411,15 @@ void VizmoMainWin::CreateMenubar()
     QMenu* pathMenu = new QMenu(this);
     pathMenu = menuBar()->addMenu(tr("&Path"));
     pathMenu->addAction(showHidePathAction);
-    pathMenu->addAction(m_showHideSGAction); 
+    pathMenu->addAction(m_showHideSGAction);
+
+    //Path display options does not have its own button in toolbar
+    m_pathOptionsAction = new QAction("Path Display Options", pathMenu); 
+    m_pathOptionsInput = new CustomizePathDialog(this); 
+    connect(m_pathOptionsAction, SIGNAL(activated()), this, SLOT(PathDisplayOptions()));
+    pathMenu->addAction(m_pathOptionsAction);
+    m_pathOptionsAction->setEnabled(false); 
+
     pathMenu->addSeparator();
 
     QMenu* opt =  pathMenu->addMenu(tr("Set Query"));
