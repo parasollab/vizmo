@@ -80,7 +80,7 @@ bool OBPRMView_Robot::BuildModels(){
    return m_RobotModel->BuildModels();
 }
 
-void OBPRMView_Robot::Draw(GLenum mode){
+void OBPRMView_Robot::Draw(GLenum _mode){  
    if( m_RobotModel==NULL){cout<<"m_RobotModel==NULL"<<endl; return;}
    glPushMatrix();
    glTransform();

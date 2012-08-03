@@ -47,7 +47,7 @@ class OBPRMView_Robot : public CGLModel{
     //////////////////////////////////////////////////////////////////////
     virtual bool BuildModels();
 
-    virtual void Draw( GLenum mode);
+    virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
     virtual void Select( unsigned int * index, vector<gliObj>& sel );
 

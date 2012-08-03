@@ -46,6 +46,8 @@ class gliCamera{
       double getCurrentAzim() const {return m_currentAzim;} 
       Point3d getCameraPos() const { return m_CameraPos+m_deltaDis; }
       void setCameraPos(const Point3d& pos) { m_CameraPos=pos; }
+      void setAzim(double _azim) { m_currentAzim = _azim; }
+      void setElev(double _elev) { m_currentElev = _elev; } 
       const string& getCameraName() const { return m_CamName; }
       const Vector3d& getWindowX() const { return m_WindowX; }
       const Vector3d& getWindowY() const { return m_WindowY; }

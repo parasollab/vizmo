@@ -42,6 +42,8 @@ void VizGLWin::resetCamera()
 {
    double R=GetVizmo().GetEnvRadius();
    gliGetCameraFactory().getCurrentCamera()->setCameraPos(Point3d(0,0,4*R));
+   gliGetCameraFactory().getCurrentCamera()->setAzim(0); 
+   gliGetCameraFactory().getCurrentCamera()->setElev(0); 
 }
 
 //used as callback for gli

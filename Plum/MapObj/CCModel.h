@@ -77,7 +77,7 @@ namespace plum{
     // Access
     //////////////////////////////////////////////////////////////////////      
 
-    void scaleNode( float _scale, Shape _s ) { 
+    void scaleNode(float _scale, Shape _s) { 
       m_sNodeShape = _s; 
       if(m_sNodeShape == Robot && m_fRobotScale != _scale){
         m_fRobotScale = _scale;
@@ -116,7 +116,7 @@ namespace plum{
     }
 
     /// OTHER:: Allow to change color of CC's
-    void SetColor( float _r, float _g, float _b, float _a ){
+    void SetColor(float _r, float _g, float _b, float _a){
       CGLModel::SetColor(_r, _g, _b, _a); 
       //force to rebuild robot
       glDeleteLists(m_idRobot, 1);
@@ -179,10 +179,10 @@ namespace plum{
         // GL interface functions
         //////////////////////////////////////////////////////////////////////      
         bool BuildModels(); //not used, should not call this
-        void Draw( GLenum _mode );
+        void Draw(GLenum _mode);
         void DrawSelect();
-        void Select( unsigned int* _index, vector<gliObj>& _sel );
-        bool BuildModels( VID _id, WG* _g); //call this instread
+        void Select(unsigned int* _index, vector<gliObj>& _sel);
+        bool BuildModels(VID _id, WG* _g); //call this instread
         const string GetName() const;
         virtual vector<string> GetInfo() const;
 
@@ -350,7 +350,7 @@ namespace plum{
 
   template <class Cfg, class WEIGHT>
   bool CCModel<Cfg, WEIGHT>::BuildModels(VID _id, WG* _g) { 
-    if( _g == NULL ){
+    if(_g == NULL){
       cout<<"Graph is null"<<endl;
       return false;
     }
@@ -364,7 +364,7 @@ namespace plum{
     typename WG::vertex_iterator cvi, cvi2, vi;
     typename WG::adj_edge_iterator ei;
     m_Nodes.clear();
-    for( int iN=0; iN<nSize; iN++ ){
+    for(int iN=0; iN<nSize; iN++){
       VID nid=cc[iN];    
       Cfg cfg = (_g->find_vertex(nid))->property();
       cfg.Set(nid,m_pRobot,this);
@@ -379,12 +379,14 @@ namespace plum{
     int eSize=ccedges.size(), edgeIdx = 0;
 
     m_Edges.clear();
-    for( int iE=0; iE<eSize; iE++ ){
-      if( ccedges[iE].first<ccedges[iE].second )
+    for(int iE=0; iE<eSize; iE++){
+      if(ccedges[iE].first<ccedges[iE].second)
         continue;
 
-      Cfg* cfg1 = &((_g->find_vertex(ccedges[iE].first) )->property() ) ;
-      Cfg* cfg2 = &((_g->find_vertex(ccedges[iE].second) )->property() );          
+      Cfg* cfg1 = &((_g->find_vertex(ccedges[iE].first))->property());
+      cfg1->SetIndex(ccedges[iE].first); 
+      Cfg* cfg2 = &((_g->find_vertex(ccedges[iE].second))->property());
+      cfg2->SetIndex(ccedges[iE].second); 
       EID ed(ccedges[iE].first,ccedges[iE].second);
       _g->find_edge(ed, vi, ei);
       WEIGHT w  = (*ei).property(); 
@@ -397,22 +399,22 @@ namespace plum{
   template <class Cfg, class WEIGHT>
   void CCModel<Cfg, WEIGHT>::BuildNodeModels(GLenum _mode) {
     ReBuildAll(); 
-    switch( m_sNodeShape ){
+    switch(m_sNodeShape){
       case Robot: 
         m_idRobot = glGenLists(1);
-        glNewList( m_idRobot, GL_COMPILE );
+        glNewList(m_idRobot, GL_COMPILE);
         DrawRobotNodes(_mode);
         break;
       
       case Box: 
         m_idBox = glGenLists(1);
-        glNewList( m_idBox, GL_COMPILE );
+        glNewList(m_idBox, GL_COMPILE);
         DrawBoxNodes(_mode);
         break;
       
       case Point: 
         m_idPt = glGenLists(1);
-        glNewList( m_idPt, GL_COMPILE );
+        glNewList(m_idPt, GL_COMPILE);
         DrawPointNodes(_mode);
         break;
     }
@@ -422,7 +424,7 @@ namespace plum{
   template <class Cfg, class WEIGHT>
   void CCModel<Cfg, WEIGHT>::DrawRobotNodes(GLenum _mode) {
 
-    if( m_pRobot==NULL ){
+    if(m_pRobot==NULL){
       cout << "m_pRobot is NULL" << endl;
       return;
     } //no robot given
@@ -431,8 +433,8 @@ namespace plum{
 
     m_pRobot->BackUp();
     //m_idRobot = glGenLists(1);
-    //glNewList( m_idRobot, GL_COMPILE );
-    if( _mode==GL_RENDER ){
+    //glNewList(m_idRobot, GL_COMPILE);
+    if(_mode==GL_RENDER){
       //m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],m_pRobot->GetColor()[3]);
       glEnable(GL_LIGHTING); 
     }
@@ -488,7 +490,7 @@ namespace plum{
   void CCModel<Cfg, WEIGHT>::BuildEdges(){
     //build edges
     m_idEdges = glGenLists(1);
-    glNewList( m_idEdges, GL_COMPILE );
+    glNewList(m_idEdges, GL_COMPILE);
     glDisable(GL_LIGHTING);
     {
       typedef typename vector<WEIGHT>::iterator EIT;
@@ -508,7 +510,7 @@ namespace plum{
 
     m_idRobot = glGenLists(1);
 
-    glNewList( m_idRobot, GL_COMPILE );
+    glNewList(m_idRobot, GL_COMPILE);
     glEnable(GL_LIGHTING);
     
     typedef typename map<VID, Cfg>::iterator CIT;
@@ -539,10 +541,10 @@ namespace plum{
 
    ///////////////////////////////////////////////////////////////////////////
   template <class Cfg, class WEIGHT>
-  void CCModel<Cfg, WEIGHT>::Draw( GLenum _mode ) {
-    if( m_RenderMode == CPlumState::MV_INVISIBLE_MODE )
+  void CCModel<Cfg, WEIGHT>::Draw(GLenum _mode) {
+    if(m_RenderMode == CPlumState::MV_INVISIBLE_MODE)
       return;
-    if( _mode==GL_SELECT && !m_enableSelection )
+    if(_mode==GL_SELECT && !m_enableSelection)
       return;
 
     ///////////////////////////////////////////////////////////////////////
@@ -552,7 +554,7 @@ namespace plum{
     //m_pRobot->size=m_fNodeScale;
     int list=-1;
     ReBuildAll();
-    switch( m_sNodeShape ){ 
+    switch(m_sNodeShape){ 
       case Robot: 
          if(m_idRobot==-1) BuildNodeModels(_mode);
          list=m_idRobot;
@@ -576,37 +578,37 @@ namespace plum{
 
 
 
-    if( _mode == GL_SELECT )
+    if(_mode == GL_SELECT)
       glPushName(1); //1 means nodes
 
     glCallList(list);
 
-    if( _mode == GL_SELECT )
+    if(_mode == GL_SELECT)
       glPopName();
 
     ////////////////////////////////////////////////////////
     // Draw edge
 
-    //if( mode==GL_SELECT ) return; //no selection for edge
+    //if(mode==GL_SELECT) return; //no selection for edge
     //glColor3f(0.1f,0.1f,0.1f);
     //glColor3f(m_RGBA[0],m_RGBA[1],m_RGBA[2]);
 
-    if( m_idEdges==-1 ) BuildEdges();
+    if(m_idEdges==-1) BuildEdges();
     //glColor3f(0.2f,0.2f,0.2f);
     //glColor3f(m_RGBA[0],m_RGBA[1],m_RGBA[2]);
     glLineWidth(1);
 
-    if( _mode == GL_SELECT )
+    if(_mode == GL_SELECT)
       glPushName(2); //2 means edge
     glCallList(m_idEdges);
-    if( _mode == GL_SELECT )
+    if(_mode == GL_SELECT)
       glPopName();
   }
 
 
   template <class Cfg, class WEIGHT>
   void CCModel<Cfg, WEIGHT>::DrawSelect() {
-    if( m_idEdges==-1 ) BuildEdges();
+    if(m_idEdges==-1) BuildEdges();
     glColor3f(1,1,0);
     glLineWidth(3);
     glCallList(m_idEdges);
@@ -615,9 +617,9 @@ namespace plum{
 
   template <class Cfg, class WEIGHT>
   void CCModel<Cfg, WEIGHT>::
-  Select( unsigned int* _index, vector<gliObj>& _sel ) { 
+  Select(unsigned int* _index, vector<gliObj>& _sel) { 
     typename WG::vertex_iterator cvi;
-    if( _index==NULL || m_graph==NULL )
+    if(_index==NULL || m_graph==NULL)
       return;
     if(_index[0]==1){
       _sel.push_back(&m_Nodes[(VID)_index[1]]);
