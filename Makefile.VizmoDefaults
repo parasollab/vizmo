@@ -52,7 +52,7 @@ MOC = /sw/lib/qt4-x11/bin/moc
 QT4DIR = /sw/lib/qt4-x11/
 endif
 
-QT_INC = -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL -DQT3_SUPPORT
+QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/Qt3Support -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL -DQT3_SUPPORT
 QT_LIBS = -L$(QT4DIR)/lib  -lQt3Support -lQtCore -lQtGui -lQtOpenGL  
 
 GRAPH_DIR = $(UTILS_DIR)/graph
