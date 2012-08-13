@@ -71,7 +71,7 @@ public:
     
     bool Init();
     bool InitVizmo();
-    void SetArgs( vector<string> args ){ m_Args=args; }
+    void SetArgs(vector<string> _args){ m_Args=_args; }
     //double R, G, B;
 
     //command line to be executed to make a new roadmap

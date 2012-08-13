@@ -43,19 +43,13 @@
 #include "icon/Eye.xpm"
 #include "icon/Folder.xpm"
 #include "icon/Pen.xpm"
-//#include "icon/TripodCamera.xpm"
 #include "icon/Navigate.xpm"
 #include "icon/Flag.xpm"
 #include "icon/Pallet.xpm"
-//#include "icon/tapes.xpm"
 //#include "icon/CrashBurn.xpm"
 //#include "icon/Edit.xpm"
 //#include "icon/floppy2_green.xpm"
-#include "icon/3DYellow.xpm"
-#include "icon/3DBlue.xpm"
-#include "icon/3DGreen.xpm"
 #include "icon/Update.xpm"
-//#include "icon/FontEdit.xpm"
 #include "icon/ResetCamera.xpm"
 #include "icon/BgColor.xpm"
 #include "icon/RandEnv.xpm" 
@@ -1047,15 +1041,15 @@ bool VizmoMainWin::CreateActions()
     fileUpdateAction->setEnabled(false);
     ///////////////////////////////////////////////////////////////////////////////
     // Save File
-    fileSaveAction=new QAction(QIcon(QPixmap(diskYellow)), tr("Save Environment"),  this);
+    fileSaveAction=new QAction(tr("Save Environment"),  this);
     connect(fileSaveAction,SIGNAL(activated()), this, SLOT(saveEnv()));
     fileSaveAction->setEnabled(false);
 
-    fileSaveQryAction=new QAction(QIcon(QPixmap(diskGreen)), tr("Save Query"), this);
+    fileSaveQryAction=new QAction(tr("Save Query"), this);
     connect(fileSaveQryAction,SIGNAL(activated()), this, SLOT(saveQryFile()));
     fileSaveQryAction->setEnabled(false);
 
-    fileSaveMapAction=new QAction(QIcon(QPixmap(diskBlue)), tr("Save Roadmap"), this);
+    fileSaveMapAction=new QAction(tr("Save Roadmap"), this);
     connect(fileSaveMapAction,SIGNAL(activated()), this, SLOT(saveRoadmap()));
     fileSaveMapAction->setEnabled(false);
 
