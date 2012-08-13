@@ -8,15 +8,13 @@
 using namespace std; 
 
 CustomizePathDialog::CustomizePathDialog(QWidget* _parent)
-  :QDialog(_parent)
-{
-  RestoreDefault();
-  SetUpDialog(this);
-}
+  :QDialog(_parent) {
+    RestoreDefault();
+    SetUpDialog(this);
+  }
 
 void
 CustomizePathDialog::paintEvent(QPaintEvent* p){
-  
   QPainter painter(this);
   QLinearGradient grad(QPointF(20, 140), QPointF(501, 30));
  
@@ -40,7 +38,6 @@ CustomizePathDialog::paintEvent(QPaintEvent* p){
 
 void
 CustomizePathDialog::RestoreDefault(){
-  
   m_colors.clear(); 
   m_colors.push_back(QColor(0, 255, 255));
   m_colors.push_back(QColor(0, 255, 0)); 
@@ -51,7 +48,6 @@ CustomizePathDialog::RestoreDefault(){
 
 void  
 CustomizePathDialog::AddColor(){
-  
   QColor color = m_addColorDialog->getColor();
   if(m_isDefault)
     m_colors.clear(); 
@@ -62,14 +58,14 @@ CustomizePathDialog::AddColor(){
 
 void
 CustomizePathDialog::AcceptData(){ 
-  
-  CPathModel* path = (CPathModel*)GetVizmo().GetPath()->getModel();
+  PathModel* path = (PathModel*)GetVizmo().GetPath()->getModel();
   
   double width = (m_widthLineEdit->text()).toDouble(); 
   path->SetLineWidth(width); 
 
-  int disp = (m_modLineEdit->text()).toInt(); 
-  path->SetDisplayInterval(disp); 
+  size_t disp = (m_modLineEdit->text()).toInt(); 
+  if(disp < path->GetPathSize())
+    path->SetDisplayInterval(disp); 
 
   path->GetGradientVector().clear(); 
   typedef vector<QColor>::iterator QIT;
@@ -89,7 +85,6 @@ CustomizePathDialog::AcceptData(){
  
 void 
 CustomizePathDialog::SetUpDialog(QDialog* _dialog){
-
   _dialog->resize(550, 312); 
   _dialog->setWindowTitle("Customize Path"); 
 

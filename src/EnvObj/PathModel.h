@@ -1,39 +1,30 @@
-// PathModel.h: interface for the CPathModel class.
-//
-//////////////////////////////////////////////////////////////////////
+#ifndef PATHMODEL_H_
+#define PATHMODEL_H_
 
-#if !defined(_PATHMODEL_H_)
-#define _PATHMODEL_H_
-
-//////////////////////////////////////////////////////////////////////
-//std Headers
 #include <math.h>
 
-//////////////////////////////////////////////////////////////////////
-//Plum Headers
 #include <GLModel.h>
 using namespace plum;
 
-//////////////////////////////////////////////////////////////////////
-//OBPRMView Headers
 #include "PathLoader.h"
+
 class OBPRMView_Robot;
 
-class CPathModel : public CGLModel {
+class PathModel : public CGLModel {
   public:
     typedef vector<float> RGBAcolor; 
 
     //////////////////////////////////////////////////////////////////////
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
-    CPathModel();
-    virtual ~CPathModel();
+    PathModel();
+    virtual ~PathModel();
 
     //////////////////////////////////////////////////////////////////////
     // Action functions
     //////////////////////////////////////////////////////////////////////
-    void SetPathLoader(CPathLoader * pPathLoader){ m_pPathLoader=pPathLoader; }
-    void SetModel(OBPRMView_Robot * pRobot){ m_pRobot=pRobot; }
+    void SetPathLoader(CPathLoader * _pathLoader){ m_pathLoader = _pathLoader; }
+    void SetModel(OBPRMView_Robot * _robot){ m_robot = _robot; }
 
     //////////////////////////////////////////////////////////////////////
     // Action functions
@@ -44,11 +35,8 @@ class CPathModel : public CGLModel {
     virtual void Draw(GLenum mode);
     virtual const string GetName() const { return "Path"; }
     virtual vector<string> GetInfo() const;
-    size_t GetPathSize() {return m_pPathLoader->GetPathSize();}
+    size_t GetPathSize() {return m_pathLoader->GetPathSize();}
     vector<RGBAcolor>& GetGradientVector() {return m_stopColors;} 
-
-    //output info to std ouput
-    //virtual void DumpSelected();
 
     //////////////////////////////////////////////////////////////////////
     // Private functions and data
@@ -56,12 +44,11 @@ class CPathModel : public CGLModel {
   private:
     RGBAcolor Mix(RGBAcolor& _a, RGBAcolor& _b, float _percent);
 
-    int m_Index;
-    int m_DLIndex;//Display list index
+    size_t m_glListIndex;//Display list index
     float m_lineWidth; 
-    int m_displayInterval; 
-    CPathLoader * m_pPathLoader;
-    OBPRMView_Robot * m_pRobot;
+    size_t m_displayInterval; 
+    CPathLoader * m_pathLoader;
+    OBPRMView_Robot * m_robot;
 
     vector<RGBAcolor> m_stopColors; //gradient stops 
 };

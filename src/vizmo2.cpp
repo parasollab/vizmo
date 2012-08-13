@@ -1281,8 +1281,8 @@ bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
 
 bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
 {
-   CPathLoader * ploader=new CPathLoader();
-   CPathModel * pmodel=new CPathModel();
+   CPathLoader* ploader=new CPathLoader();
+   PathModel* pmodel=new PathModel();
    if( ploader==NULL || pmodel==NULL ) 
      return false;
    ploader->SetDataFileName(fname);

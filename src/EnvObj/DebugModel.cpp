@@ -77,7 +77,7 @@ DebugModel::BuildForward(){
   typedef vector_property_map<WG, size_t> color_map_t;
   typedef edge_property_map<WG, my_edge_access_functor> edge_map_t;
   
-  for(size_t i = m_prevIndex; i < m_index; i++){
+  for(size_t i = m_prevIndex; i < (size_t)m_index; i++){
     Instruction* ins = m_debugLoader->ConfigureFrame(i);
     if(ins->name == "default"){
       //do nothing
@@ -159,6 +159,8 @@ DebugModel::BuildForward(){
       m_tempCfgs.push_back(atc->cfg);
       m_tempCfgs.back().Set(0,m_robot,NULL);
       m_tempCfgs.back().SetShape(CCfg::Robot);
+      if(!atc->valid)
+        m_tempCfgs.back().SetColor(1, 0, 0, 1);
     }
     else if(ins->name == "AddTempRay"){
       //add temporary ray
@@ -292,7 +294,7 @@ DebugModel::BuildBackward(){
   //traverse list of instructions BACKWARDS
   //perform reverse of the forward operation
   //e.g. for AddNode, remove the specified node instead of adding it
-  for(size_t i = m_prevIndex; i > m_index; i--){
+  for(size_t i = m_prevIndex; i > (size_t)m_index; i--){
     Instruction* ins = m_debugLoader->ConfigureFrame(i-1);
     if(ins->name == "default"){
       //do nothing
@@ -365,7 +367,6 @@ DebugModel::BuildBackward(){
     }
     else if(ins->name == "AddTempRay"){
       //undo addition of temp ray
-      AddTempRay* atr = dynamic_cast<AddTempRay*>(ins);
       m_tempRay = NULL;
     }
     else if(ins->name == "AddTempEdge"){
@@ -517,8 +518,7 @@ DebugModel::GetInfo() const {
 
 vector<string>    
 DebugModel::GetComments(){
-  
-  if(m_index != (size_t)-1)
+  if(m_index != -1)
     return m_comments;
   else{
     vector<string> tmp;

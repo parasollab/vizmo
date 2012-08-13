@@ -1,24 +1,16 @@
-// PathModel.cpp: implementation of the CPathModel class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "PathModel.h"
 #include "Robot.h"
-
-//////////////////////////////////////////////////////////////////////
-// Include Plum headers
 #include <Plum.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CPathModel::CPathModel()
-{
-    m_Index=-1;
-    m_DLIndex=-1;
-    m_pPathLoader=NULL;
-    m_pRobot=NULL;
+PathModel::PathModel() 
+  : m_glListIndex(-1), m_lineWidth(1),
+  m_displayInterval(3), m_pathLoader(NULL), 
+  m_robot(NULL) {
+    
     m_RenderMode=CPlumState::MV_INVISIBLE_MODE;
     //set default stop colors for path gradient 
     RGBAcolor cyan, green, yellow;
@@ -29,47 +21,41 @@ CPathModel::CPathModel()
     green.push_back(0); 
     green.push_back(1); 
     green.push_back(0);
-    green.push_back(0); 
+    green.push_back(1); 
     yellow.push_back(1); 
     yellow.push_back(1); 
     yellow.push_back(0);
-    yellow.push_back(0); 
-    
+    yellow.push_back(1); 
+
     m_stopColors.push_back(cyan); 
     m_stopColors.push_back(green); 
     m_stopColors.push_back(yellow); 
-}
+  }
 
-CPathModel::~CPathModel()
-{
-    m_Index=-1;
-    m_DLIndex=-1;
-    m_pPathLoader=NULL;
-    m_pRobot=NULL;
+PathModel::~PathModel() {
+    m_pathLoader=NULL;
+    m_robot=NULL;
 }
 
 //////////////////////////////////////////////////////////////////////
 // Action Methods
 //////////////////////////////////////////////////////////////////////
 bool 
-CPathModel::BuildModels(){
+PathModel::BuildModels(){
   //can't build model without model loader
-  if(m_pRobot==NULL || m_pPathLoader==NULL) 
+  if(m_robot==NULL || m_pathLoader==NULL) 
     return false;
 
   //Build Path Model
-  size_t iPathSize = m_pPathLoader->GetPathSize();
-  m_pRobot->SetRenderMode(CPlumState::MV_WIRE_MODE);
-  if(m_displayInterval == 0){
-    SetDisplayInterval(3); //default, before customization 
-  }
+  size_t iPathSize = m_pathLoader->GetPathSize();
+  m_robot->SetRenderMode(CPlumState::MV_WIRE_MODE);
   
-  vector<float> col = m_pRobot->GetColor(); //old color 
+  vector<float> col = m_robot->GetColor(); //old color 
   vector<float> oldcol = col; 
 
   glMatrixMode(GL_MODELVIEW);
-  m_DLIndex=glGenLists(1);
-  glNewList(m_DLIndex, GL_COMPILE); 
+  m_glListIndex=glGenLists(1);
+  glNewList(m_glListIndex, GL_COMPILE); 
 
   typedef vector<RGBAcolor>::iterator CIT; //for the stop colors- small vector
   vector<RGBAcolor> allColors; //for the indiv. colors that give the gradation- large vector 
@@ -91,12 +77,12 @@ CPathModel::BuildModels(){
   }
 
   for(size_t i = 0; i < allColors.size(); i++){
-    m_pRobot->SetColor((allColors[i])[0], (allColors[i])[1],  
+    m_robot->SetColor((allColors[i])[0], (allColors[i])[1],  
         (allColors[i])[2], (allColors[i])[3]); 
-    vector<double> Cfg = m_pPathLoader->GetConfiguration(i); 
+    vector<double> Cfg = m_pathLoader->GetConfiguration(i); 
     if(i%m_displayInterval==0){
-      m_pRobot->Configure(Cfg);
-      m_pRobot->Draw(GL_RENDER); 
+      m_robot->Configure(Cfg);
+      m_robot->Draw(GL_RENDER); 
     }
   }
   
@@ -105,50 +91,50 @@ CPathModel::BuildModels(){
   int s = allColors.size()-1; 
   size_t remainder = iPathSize % allColors.size();
   for(size_t j = 0; j<remainder; j++){
-    m_pRobot->SetColor((allColors[s])[0], (allColors[s])[1], 
+    m_robot->SetColor((allColors[s])[0], (allColors[s])[1], 
         (allColors[s])[2], (allColors[s])[3]); 
-    vector<double> Cfg = m_pPathLoader->GetConfiguration(allColors.size()+(j+1)); 
+    vector<double> Cfg = m_pathLoader->GetConfiguration(allColors.size()+(j+1)); 
     if(j%m_displayInterval==0){
-      m_pRobot->Configure(Cfg); 
-      m_pRobot->Draw(GL_RENDER); 
+      m_robot->Configure(Cfg); 
+      m_robot->Draw(GL_RENDER); 
     }
   }
   
   glEndList();
 
   //set back
-  m_pRobot->SetRenderMode(CPlumState::MV_SOLID_MODE);
-  m_pRobot->SetColor(oldcol[0],oldcol[1],oldcol[2],oldcol[3]);
+  m_robot->SetRenderMode(CPlumState::MV_SOLID_MODE);
+  m_robot->SetColor(oldcol[0],oldcol[1],oldcol[2],oldcol[3]);
 
   return true;
 }
 
-void CPathModel::Draw(GLenum mode){
-    if( mode==GL_SELECT ) return; //not draw any thing
-        if( m_RenderMode==CPlumState::MV_INVISIBLE_MODE ) return;
-    if( m_DLIndex==-1 )
-        return;
-    //set to line represnet
-    glLineWidth(m_lineWidth);  
-    glCallList( m_DLIndex );
+void PathModel::Draw(GLenum mode){
+  if(mode==GL_SELECT) 
+    return; //not draw any thing
+  if(m_RenderMode==CPlumState::MV_INVISIBLE_MODE) 
+    return;
+  if(m_glListIndex==(size_t)-1)
+    return;
+  //set to line represnet
+  glLineWidth(m_lineWidth);  
+  glCallList(m_glListIndex);
 }
 
 vector<string> 
-CPathModel::GetInfo() const { 
-  
+PathModel::GetInfo() const { 
   vector<string> info; 
-  info.push_back(m_pPathLoader->GetFileName());
+  info.push_back(m_pathLoader->GetFileName());
   {
     ostringstream temp;
-    temp<<"There are "<<m_pPathLoader->GetPathSize()<<" path frames";
+    temp<<"There are "<<m_pathLoader->GetPathSize()<<" path frames";
     info.push_back(temp.str());
   }	
   return info;
 }
 
-CPathModel::RGBAcolor 
-CPathModel::Mix(RGBAcolor& _a, RGBAcolor& _b, float _percent){
-  
+PathModel::RGBAcolor 
+PathModel::Mix(RGBAcolor& _a, RGBAcolor& _b, float _percent){
   RGBAcolor mix;
   
   float red = _a[0]*(1-_percent) + _b[0]*(_percent);

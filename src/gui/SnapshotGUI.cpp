@@ -28,7 +28,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //Icons
-#include "icon/VideoCamera2.xpm"
+//#include "icon/VideoCamera2.xpm"
 #include "icon/Camera.xpm"
 #include "icon/Crop.xpm" 
 #include "icon/Camcorder.xpm" 
