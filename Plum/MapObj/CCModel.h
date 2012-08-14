@@ -52,6 +52,8 @@ namespace plum{
       m_idEdges = m_idRobot = m_idBox = m_idPt = -1;
 
       newColor = false;
+
+      m_edgeThickness = 1;
     }
 
     virtual ~CCModelBase(){
@@ -96,7 +98,7 @@ namespace plum{
     //This function sets the edgeThickness member of CCModel, which is
     //used by BuildEdges function from this file
     void
-    ScaleEdges(float _scale){
+    ScaleEdges(size_t _scale){
       m_edgeThickness = _scale; 
       ReBuildAll(); 
     }
@@ -145,7 +147,7 @@ namespace plum{
     float m_fBoxScale;
 
     //Edge thickness
-    float m_edgeThickness; 
+    size_t m_edgeThickness; 
 
     //to store the "name" of the item selected
     Shape m_sNodeShape;

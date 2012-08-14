@@ -6,13 +6,6 @@
 #ifndef CFG_H_
 #define CFG_H_ 
 
-#if !defined(AFX_SIMPLECFG_H__2A4319F9_0BA6_4F63_85B4_AE6226B6BC69__INCLUDED_)
-#define AFX_SIMPLECFG_H__2A4319F9_0BA6_4F63_85B4_AE6226B6BC69__INCLUDED_
-
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <iostream>
@@ -134,10 +127,12 @@ namespace plum{
       ///Translation
       double& tx(){ ObjName="Node";  CopyCfg(); return m_dofs[0]; }
       double& ty(){ return m_dofs[1]; }
-      double& tz(){ return m_dofs[2]; }
+      double& tz(){ if(m_dofs.size()>2) return m_dofs[2]; else return
+        m_defaultDOF;}
       const double& tx() const { return m_dofs[0]; }
       const double& ty() const { return m_dofs[1]; }
-      const double& tz() const { return m_dofs[2]; }
+      const double& tz() const { if(m_dofs.size()>2) return m_dofs[2]; else
+        return m_defaultDOF;}
 
 
     //////////////////////////////////////////////////////////////////////
@@ -157,11 +152,11 @@ namespace plum{
     //////////////////////////////////////////////////////////////////////
     private:
       static CCfg m_invalidCfg;
+      static double m_defaultDOF;
 
   };
 
 }//namespace plum
 
-#endif
 #endif 
 

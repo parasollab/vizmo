@@ -52,6 +52,8 @@ VizmoRoadmapGUI::VizmoRoadmapGUI(Q3MainWindow * parent,char *name)
       noMap = false;
 
       nodeGUI = NULL;
+
+      m_edgeThickness = 1;
    }
 
 void VizmoRoadmapGUI::createGUI()

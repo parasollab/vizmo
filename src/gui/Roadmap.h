@@ -131,7 +131,7 @@ private slots:
     QButtonGroup* m_nodeView; 
 
     double size;
-    double m_edgeThickness; 
+    size_t m_edgeThickness; 
 
     string m_shapeString;
     bool m_bEditModel;

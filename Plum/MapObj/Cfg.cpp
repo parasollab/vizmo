@@ -12,6 +12,7 @@ namespace plum{
   //init m_invalidCfg and DOF
   CCfg CCfg::m_invalidCfg;
   int CCfg::m_dof = 0;
+  double CCfg::m_defaultDOF = 0;
 
   //////////////////////////////////////////////////////////////////////
   // Construction/Destruction
@@ -192,18 +193,11 @@ namespace plum{
 
   bool 
   CCfg::operator==(const CCfg& _other) const {
-    int dof=CCfg::m_dof;
-
-    if( m_dofs[0] != _other.m_dofs[0] || 
-        m_dofs[1] != _other.m_dofs[1] || 
-        m_dofs[2] != _other.m_dofs[2] )
-      return false;
-
-    for(int i=0;i<dof-3;i++){
-      if( m_dofs[i+3] != _other.m_dofs[i+3])
+    for(vector<double>::const_iterator dit1 = m_dofs.begin(), dit2 = _other.m_dofs.begin();
+        dit1!=m_dofs.end() && dit2!=_other.m_dofs.end(); ++dit1, ++dit2){
+      if(fabs(*dit1 - *dit2) > 0.0000001)
         return false;
     }
-
     return true;
   }
 

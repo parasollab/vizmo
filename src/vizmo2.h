@@ -236,7 +236,7 @@ class vizmo
       void ShowRoadMap( bool bShow=true );
       bool isRoadMapShown() const { return m_obj.m_show_Map; }
       void ChangeNodesSize(float s, string str);
-      void ChangeEdgeThickness(float _t); 
+      void ChangeEdgeThickness(size_t _t); 
       void ChangeNodesShape(string s);
       bool IsRoadMapLoaded(){ return m_obj.m_Map!=NULL; }
       void ChangeCCColor(double r, double g, double b, string s);

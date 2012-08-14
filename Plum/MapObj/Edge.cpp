@@ -18,6 +18,7 @@ namespace plum{
     m_lp = INT_MAX;
     m_weight = LONG_MAX;
     m_id=-1;
+    m_edgeThickness = 1;
   }
 
   Edge::Edge(double _weight) {
@@ -83,7 +84,7 @@ namespace plum{
 
   //Changing edge thickness: step 5
   void
-  Edge::SetThickness(float _thickness){
+  Edge::SetThickness(size_t _thickness){
     m_edgeThickness = _thickness; 
   }
 

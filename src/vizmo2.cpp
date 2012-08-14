@@ -887,7 +887,7 @@ void vizmo::ChangeNodesSize(float s, string str){
 //Changing edge thickness: step 2
 //This function calls ScaleEdges in CCModel.h 
 void
-vizmo::ChangeEdgeThickness(float _t){
+vizmo::ChangeEdgeThickness(size_t _t){
     
   if(m_obj.m_Robot == NULL) 
     return; 
