@@ -99,12 +99,6 @@ DebugModel::BuildForward(){
       
       VID svid = m_mapLoader->Cfg2VID(ae->source); 
       VID tvid = m_mapLoader->Cfg2VID(ae->target); 
-      cout << "Source and target VIDs::" 
-        << svid << " " 
-        << tvid << endl;
-      cout << "Source and target Cfgs::" 
-        << ae->source << "::" 
-        << ae->target << endl;
       CCfg& source = m_mapLoader->GetGraph()->find_vertex(svid)->property();
       CCfg& target = m_mapLoader->GetGraph()->find_vertex(tvid)->property();
       
