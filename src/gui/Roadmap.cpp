@@ -314,6 +314,7 @@ VizmoRoadmapGUI::changeColorOfCCselected(){
   
   string m_s="NULL";
   size_t position = 0;
+
   position = m_sO.find("CC",0);
    
   if(position != string::npos){
@@ -325,7 +326,9 @@ VizmoRoadmapGUI::changeColorOfCCselected(){
     }
   }
 
-  string s = (string)(m_nodeView->checkedButton())->text().ascii();  
+  string s;
+  if(m_nodeView->checkedButton() != 0)
+    s = (string)(m_nodeView->checkedButton())->text().ascii();
   GetVizmo().ChangeCCColor(R, G, B, s);
   emit callUpdate(); //set an update event
 }
