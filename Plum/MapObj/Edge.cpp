@@ -25,6 +25,7 @@ namespace plum{
     m_lp = INT_MAX;
     m_weight = _weight;
     m_id=-1;
+    m_edgeThickness = 1;
   }
 
   void
@@ -36,12 +37,12 @@ namespace plum{
     m_e = *_c2;
 
     typedef vector<CCfg>::iterator CIT;
-     
+
     for(CIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++) {
-        c->m_robot = _robot;
+      c->m_robot = _robot;
     }
-        }
+  }
 
   //Changing edge thickness: final step. GL lines drawn with set width. 
   void
@@ -51,7 +52,7 @@ namespace plum{
       glPushName(m_id);
       if(m_RenderMode == CPlumState::MV_SOLID_MODE ||
           m_RenderMode == CPlumState::MV_WIRE_MODE){
-        
+       
         float* arr_m_RGBA = &m_RGBA[0]; 
         glColor4fv(arr_m_RGBA);
 
