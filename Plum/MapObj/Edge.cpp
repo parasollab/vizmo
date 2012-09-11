@@ -125,6 +125,10 @@ namespace plum{
     ostringstream temp;
     temp << "Edge, ID= " << m_id << ", ";
     temp << "connects Node " << m_s.GetIndex() << " and Node " << m_e.GetIndex();
+    temp << "Intermediates | ";
+    typedef vector<CCfg>::const_iterator CFGIT;
+    for(CFGIT c = m_intermediateCfgs.begin(); c!=m_intermediateCfgs.end(); c++)
+      temp << *c << " | ";
     info.push_back(temp.str());
     return info;
   }
@@ -171,9 +175,10 @@ namespace plum{
     }
 
   istream&
-  operator>>( istream&  _in, Edge& _edge ) {
+    operator>>( istream&  _in, Edge& _edge ) {
+      _edge.m_intermediateCfgs.clear();
       int numIntermediates = 0;
-      CCfg cfgtmp = _edge.GetStartCfg();
+      CCfg cfgtmp;
       _in >> numIntermediates;
 
       for(int i = 0; i < numIntermediates; i++) {

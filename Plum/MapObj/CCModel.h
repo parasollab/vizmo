@@ -392,7 +392,7 @@ namespace plum{
       EID ed(ccedges[iE].first,ccedges[iE].second);
       _g->find_edge(ed, vi, ei);
       WEIGHT w  = (*ei).property(); 
-      w.Set(edgeIdx++,cfg1,cfg2, m_pRobot);
+      w.Set(edgeIdx++,cfg2,cfg1, m_pRobot);
       m_Edges.push_back(w);
     }
     return true;
