@@ -1,5 +1,5 @@
 /* XPM */
-static char* ccsOneColor[] = {
+static char* ccsOneColorIcon[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"255 253 228 2",
 (char*)"   c #000000",

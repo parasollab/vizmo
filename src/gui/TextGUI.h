@@ -12,7 +12,7 @@ class TextGUI : public QTextEdit{
 
   public:
     TextGUI(QWidget* _parent = NULL, char* _name = NULL); 
-    
+
   public slots:
     void SetText();  
 

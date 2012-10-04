@@ -1,5 +1,5 @@
 /* XPM */
-static const char* camera[] = {
+static const char* cameraIcon[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"32 32 31 1",
 (char*)"  c black",

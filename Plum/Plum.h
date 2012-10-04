@@ -24,8 +24,7 @@ using namespace std;
 
 namespace plum{
 
-    class CPlum  
-    {
+    class CPlum {
     private:
         
         //////////////////////////////////////////////////////////////////////

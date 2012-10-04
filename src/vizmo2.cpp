@@ -509,13 +509,13 @@ void vizmo::Node_CD(CCfg *cfg){
 
 
 void vizmo::TurnOn_CD(){
-
-   string objName;
+   
+    string m_objName;
 
    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
    typedef vector<gliObj>::iterator OIT;
    for(OIT i=sel.begin();i!=sel.end();i++){
-      objName = ((CGLModel*)(*i))->GetName();
+      m_objName = ((CGLModel*)(*i))->GetName();
    }
    CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
    CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
@@ -535,7 +535,7 @@ void vizmo::TurnOn_CD(){
          CD.CopyNodeCfg(m_nodeCfg, dof);
       }
 
-      if(objName != "Node"){
+      if(m_objName != "Node"){
          m_IsNode = false;
       }
 
@@ -662,7 +662,7 @@ void vizmo::ShowRoadMap( bool bShow ){
    m_obj.m_show_Map=bShow;
    if( m_obj.m_Map==NULL ) 
      return;
-   CGLModel * m=m_obj.m_Map->getModel();
+   CGLModel* m=m_obj.m_Map->getModel();
 
    if( bShow )
       m->SetRenderMode(CPlumState::MV_SOLID_MODE);
@@ -697,12 +697,12 @@ void vizmo::ShowDebugFrame( bool bShow ){
 
 void vizmo::ShowQueryFrame(bool bShow){
    m_obj.m_show_Qry=bShow;
-   if( m_obj.m_Qry==NULL ) 
+   if(m_obj.m_Qry==NULL) 
      return;
-   CGLModel * m=m_obj.m_Qry->getModel();
-   if ( bShow )
+   CGLModel* m = m_obj.m_Qry->getModel();
+   if (bShow)
       m->SetRenderMode(CPlumState::MV_SOLID_MODE);
-   else
+   else 
       m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
 } 
 

@@ -1,5 +1,5 @@
 /* XPM */
-static char* makeWired[] = {
+static char* makeWiredIcon[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"268 266 39 1",
 (char*)"  c black",

@@ -1,5 +1,5 @@
 /* XPM */
-static char* camcorder[] = {
+static char* camcorderIcon[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"400 400 256 2",
 (char*)"   c #010101",

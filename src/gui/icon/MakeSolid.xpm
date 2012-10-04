@@ -1,5 +1,5 @@
 /* XPM */
-static const char* makeSolid[] = {
+static const char* makeSolidIcon[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"268 266 85 1",
 (char*)"  c black",

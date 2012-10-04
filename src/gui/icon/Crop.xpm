@@ -1,5 +1,5 @@
 /* XPM */
-static char* crop[] = {
+static char* cropIcon[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"256 256 2 1",
 (char*)"  c black",

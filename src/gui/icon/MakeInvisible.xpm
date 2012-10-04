@@ -1,5 +1,5 @@
 /* XPM */
-static char* makeInvisible[] = {
+static char* makeInvisibleIcon[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"268 266 81 1",
 (char*)"  c black",

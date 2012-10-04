@@ -13,6 +13,13 @@ using namespace std;
 #include<stdio.h>
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
+#include <MapObj/MapModel.h>
+
+namespace plum{
+  class CPlum;
+}
+
+
 #include <Plum.h>
 #include <EnvObj/MultiBodyModel.h>
 using namespace plum;
@@ -154,7 +161,6 @@ class PhantomManager
 
 /////////////////////////////////////////////////////////////////////////////////
 #endif
-
 
 //Define singleton
 class vizmo;

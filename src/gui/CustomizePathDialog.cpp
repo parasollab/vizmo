@@ -8,13 +8,15 @@
 using namespace std; 
 
 CustomizePathDialog::CustomizePathDialog(QWidget* _parent)
-  :QDialog(_parent) {
-    RestoreDefault();
-    SetUpDialog(this);
-  }
+  :QDialog(_parent)
+{
+  RestoreDefault();
+  SetUpDialog(this);
+}
 
 void
-CustomizePathDialog::paintEvent(QPaintEvent* p){
+CustomizePathDialog::paintEvent(QPaintEvent* _p){
+  
   QPainter painter(this);
   QLinearGradient grad(QPointF(20, 140), QPointF(501, 30));
  
@@ -38,11 +40,13 @@ CustomizePathDialog::paintEvent(QPaintEvent* p){
 
 void
 CustomizePathDialog::RestoreDefault(){
+  
   m_colors.clear(); 
   m_colors.push_back(QColor(0, 255, 255));
   m_colors.push_back(QColor(0, 255, 0)); 
   m_colors.push_back(QColor(255, 255, 0));
   m_isDefault = true; 
+  
   update(); 
 }
 
@@ -58,13 +62,14 @@ CustomizePathDialog::AddColor(){
 
 void
 CustomizePathDialog::AcceptData(){ 
+  
   PathModel* path = (PathModel*)GetVizmo().GetPath()->getModel();
   
   double width = (m_widthLineEdit->text()).toDouble(); 
   path->SetLineWidth(width); 
 
   size_t disp = (m_modLineEdit->text()).toInt(); 
-  if(disp < path->GetPathSize())
+  if(disp < path->GetPathSize() && disp > 0) //if 0, floating point exception! 
     path->SetDisplayInterval(disp); 
 
   path->GetGradientVector().clear(); 
@@ -85,6 +90,7 @@ CustomizePathDialog::AcceptData(){
  
 void 
 CustomizePathDialog::SetUpDialog(QDialog* _dialog){
+
   _dialog->resize(550, 312); 
   _dialog->setWindowTitle("Customize Path"); 
 
@@ -139,3 +145,5 @@ CustomizePathDialog::SetUpDialog(QDialog* _dialog){
 
   QMetaObject::connectSlotsByName(_dialog);
 }
+
+

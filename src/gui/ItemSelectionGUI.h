@@ -5,7 +5,7 @@
 
 
 #include "vizmo2.h"
-
+#include "MainWin.h" 
 /** 
 * This class deifines the animation GUI for vizmo2
 */
@@ -16,17 +16,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // QT Headhers
-#include <q3mainwindow.h>
-#include <q3toolbar.h>
-#include <q3listview.h> 
+#include <Q3ListView> 
 #include <qsplitter.h> 
 //Added by qt3to4:
 #include <QLabel>
+#include <QToolBar>
 
 class QAction;
 class QLineEdit;
 class QLabel;
-
 
 #include <vector>
 #include <string>
@@ -34,48 +32,44 @@ using namespace std;
 
 class VizmoListViewItem : public Q3ListViewItem
 {
-public:
-    VizmoListViewItem(Q3ListView * parent):Q3ListViewItem(parent){ model=NULL; }
-    VizmoListViewItem(Q3ListViewItem * parent):Q3ListViewItem(parent){model=NULL;}
-    CGLModel * model;
+  public: //Need to find qt4 alternative for Q3ListViewItem...this may fix CC selection 
+    VizmoListViewItem(Q3ListView* _parent):Q3ListViewItem(_parent){m_model=NULL;}
+    VizmoListViewItem(Q3ListViewItem* _parent):Q3ListViewItem(_parent){m_model=NULL;}
+    CGLModel* m_model;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 class Q3ListView;
 
-class VizmoItemSelectionGUI: public Q3ToolBar
+class VizmoItemSelectionGUI : public QToolBar 
 {
-    Q_OBJECT
+  Q_OBJECT
         
-public:
+  public:
     
-    VizmoItemSelectionGUI(Q3MainWindow * parent=NULL,char *name=NULL);
-	
-    //VizmoItemSelectionGUI(QWidget * parent, char * name=NULL);
+    VizmoItemSelectionGUI(QString _title, QWidget* _parent = NULL); 	
 	
     void reset();
-    void fillTree(vector<PlumObject*>& objs);
-    VizmoListViewItem * createItem(VizmoListViewItem * p, CGLModel * model);
+    void fillTree(vector<PlumObject*>& _objs);
+    VizmoListViewItem* createItem(VizmoListViewItem* _p, CGLModel* _model);
     void trim();
 	
-public slots:
-	void select();
+  public slots:
+    void select();
 	
-signals:
-	void itemSelected();
-	void callUpdate();
+  signals:
+    void itemSelected();
+    void callUpdate();
 	
-private slots:
-	void selectionChanged();
+  private slots:
+    void selectionChanged();
 	
-private:
+  private:
+    void clear();
 	
-	void clear();
-	
-	Q3ListView * listview;
-	int maxNoModels;
-	list<VizmoListViewItem*> items;
-	
+    Q3ListView* m_listview;
+    int m_maxNoModels;
+    vector<VizmoListViewItem*> items;
 };
 
 

@@ -11,8 +11,10 @@ using namespace std;
 
 TextGUI::TextGUI(QWidget* _parent, char* _name)
   :QTextEdit(_parent, _name){
-    setReadOnly(true); 
-  }
+    
+  setFixedSize(205, 225);
+  setReadOnly(true); 
+}
 
 void 
 TextGUI::SetText(){

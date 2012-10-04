@@ -10,7 +10,6 @@ PathModel::PathModel()
   : m_glListIndex(-1), m_lineWidth(1),
   m_displayInterval(3), m_pathLoader(NULL), 
   m_robot(NULL) {
-    
     m_RenderMode=CPlumState::MV_INVISIBLE_MODE;
     //set default stop colors for path gradient 
     RGBAcolor cyan, green, yellow;
@@ -41,7 +40,7 @@ PathModel::~PathModel() {
 // Action Methods
 //////////////////////////////////////////////////////////////////////
 bool 
-PathModel::BuildModels(){
+PathModel::BuildModels(){   
   //can't build model without model loader
   if(m_robot==NULL || m_pathLoader==NULL) 
     return false;
@@ -79,7 +78,7 @@ PathModel::BuildModels(){
   for(size_t i = 0; i < allColors.size(); i++){
     m_robot->SetColor((allColors[i])[0], (allColors[i])[1],  
         (allColors[i])[2], (allColors[i])[3]); 
-    vector<double> Cfg = m_pathLoader->GetConfiguration(i); 
+    vector<double> Cfg = m_pathLoader->GetConfiguration(i);
     if(i%m_displayInterval==0){
       m_robot->Configure(Cfg);
       m_robot->Draw(GL_RENDER); 

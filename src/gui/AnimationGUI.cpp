@@ -1,8 +1,9 @@
 #include "vizmo2.h"
 #include "AnimationGUI.h"
-
+#include "MainWin.h"   
 ///////////////////////////////////////////////////////////////////////////////// 
 //// Include Qt Headers
+#include <QToolBar>   
 #include <qapplication.h>
 #include <qpixmap.h>
 #include <qaction.h>
@@ -26,249 +27,274 @@
 #include "icon/vcr/Pause.xpm"
 
 ///////////////////////////////////////////////////////////////////////////////// 
-VizmoAnimationGUI::VizmoAnimationGUI(string n, Q3MainWindow *parent,char *name)
-:Q3ToolBar("Animation",parent,Qt::DockBottom,true,name), m_name(n)
+
+VizmoAnimationGUI::VizmoAnimationGUI(QString _title, QWidget* _parent, string _name)
+  :QToolBar(_title, _parent), m_name(_name)  
 {
-    this->setLabel("Vizmo animation");
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed); 
+  CreateGUI();
+  setEnabled(false);
     
-    //  this->setLabel("Vizmo animation");
-    CreateGUI();
-    setEnabled(false);
-    
-    // Initialize the timer
-    QTtimer=new QTimer(this);
-    connect(QTtimer,SIGNAL(timeout()),this,SLOT(timeout()));
-    stepSize=1;
-    forwardDirection=true;
-    max_value=0;
-    cur_value=0;
+  // Initialize the timer
+  m_timer = new QTimer(this);
+  connect(m_timer, SIGNAL(timeout()), this, SLOT(timeout()));
+  m_stepSize = 1;
+  m_forwardDirection = true;
+  m_maxValue = 0;
+  m_curValue = 0;
 }
 
-void VizmoAnimationGUI::reset()
-{
-    pauseAnimate();
-    if(m_name == "Path")
-      max_value=GetVizmo().GetPathSize();
-    else if(m_name == "Debug")
-      max_value=GetVizmo().GetDebugSize();
-    cur_value=0;
-    slider->setRange(0,max_value-1);
-    slider->setValue(0);
-    slider->setTickInterval(10);
-    totalStep->setNum(max_value);
+void 
+VizmoAnimationGUI::reset(){
     
-    //disable/enable this toolbar
-    if( max_value==0 ) setEnabled(false);
-    else setEnabled(true);
+  pauseAnimate();
+  if(m_name == "Path")  
+    m_maxValue=GetVizmo().GetPathSize();
+  else if(m_name == "Debug")  
+    m_maxValue=GetVizmo().GetDebugSize();
+  m_curValue=0;
+  m_slider->setRange(0, m_maxValue-1);
+  m_slider->setValue(0);
+  m_slider->setTickInterval(10);
+  m_totalSteps->setNum(m_maxValue);
+    
+  //disable/enable this toolbar
+  if(m_maxValue == 0) 
+    setEnabled(false);
+  else
+    setEnabled(true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool VizmoAnimationGUI::CreateGUI()
-{
-    CreateActions();
+bool 
+VizmoAnimationGUI::CreateGUI(){
+  
+  CreateActions();
+  addSeparator();
+  CreateSlider();
+  addSeparator();
+  CreateStepInput();
+  addSeparator();
+  CreateFrameInput();
     
-    addSeparator();
-    CreateSlider();
-    addSeparator();
-    CreateStepInput();
-    addSeparator();
-    CreateFrameInput();
+  return true;
+}
+
+void 
+VizmoAnimationGUI::CreateFrameInput(){
     
-    return true;
-}
-
-void VizmoAnimationGUI::CreateFrameInput()
-{
+  m_frameLabel = new QLabel("Frame = ",this);     // need to delete it once done
+  m_frameField = new QLineEdit(this);             // delete this on cleaning
+  m_frameField->setText("0");
+  m_frameField->setMaximumSize(55,22);
+  m_frameField->setValidator(new QIntValidator(m_frameField));
+  connect(m_frameField, SIGNAL(returnPressed()), SLOT(goToFrame()));
+  m_slash = new QLabel(" / ",this);
+  m_totalSteps = new QLabel("",this);
+  m_totalSteps->setNum(0);
+  m_framesLast = new QLabel(" frames ",this);
     
-    new QLabel("Frame = ",this);        /// need to delete it once done
-    frameCounter=new QLineEdit(this);                   // delete this on cleaning
-    frameCounter->setText("0");
-    frameCounter->setMaximumSize(55,22);
-    frameCounter->setValidator( new QIntValidator(frameCounter) );
-    connect(frameCounter,SIGNAL(returnPressed()),SLOT(goToFrame()));
-    new QLabel(" / ",this);
-    totalStep=new QLabel("",this);
-    totalStep->setNum(0);
-    new QLabel(" frames ",this);
+  this->addWidget(m_frameLabel); 
+  this->addWidget(m_frameField); 
+  this->addWidget(m_slash); 
+  this->addWidget(m_totalSteps); 
+  this->addWidget(m_framesLast); 
 }
 
-void VizmoAnimationGUI::CreateStepInput()
-{
-    new QLabel("Step = ",this);
-    stepField=new QLineEdit(this);
-    stepField->setText("1");
-    stepField->setMaximumSize(55,22);
-    stepField->setValidator(new QIntValidator(stepField));
-    connect(stepField,SIGNAL(returnPressed()),SLOT(updateStepSize()));
-}
-
-bool VizmoAnimationGUI::CreateActions()
-{
-    //////////////////////////////////////////////////////////////////////////////
-    // Setup the play button
+void 
+VizmoAnimationGUI::CreateStepInput(){
     
+  m_stepLabel = new QLabel("Step = ",this);
+  m_stepField = new QLineEdit(this);
+  m_stepField->setText("1");
+  m_stepField->setMaximumSize(55,22);
+  m_stepField->setValidator(new QIntValidator(m_stepField));
+  connect(m_stepField,SIGNAL(returnPressed()),SLOT(updateStepSize()));
+
+  this->addWidget(m_stepLabel); 
+  this->addWidget(m_stepField); 
+}
+
+bool VizmoAnimationGUI::CreateActions(){
+
+  m_playPathAction=new QAction(QIcon(QPixmap(play)), tr("Play"), this);
+  connect(m_playPathAction,SIGNAL(activated()),SLOT(animate2()));
+  
+  m_playBackAction = new QAction(QPixmap(playback),"BackPlay",this);
+  connect(m_playBackAction,SIGNAL(activated()),SLOT(backAnimate()));
     
-    //playPathAction=new QAction("Play",QPixmap(Camera),"&Play",CTRL+Key_P,this,"play");
+  m_pausePathAction=new QAction(QIcon(QPixmap(pauseIcon)),tr("Pause"),this);
+  connect(m_pausePathAction,SIGNAL(activated()),SLOT(pauseAnimate()));
     
-    //playPathAction=new QAction("Play",QPixmap(play),"&Play",Qt::CTRL+Qt::Key_P,this,"play");
-playPathAction=new QAction(QIcon(QPixmap(play)), tr("Play"), this);
-    connect(playPathAction,SIGNAL(activated()),SLOT(animate2()));
+  m_nextFrameAction=new QAction(QIcon(QPixmap(next)),tr("NextFrame"),this);
+  connect(m_nextFrameAction,SIGNAL(activated()),SLOT(nextFrame()));
     
-    playBackAction = new QAction(QIcon(QPixmap(playback)),"BackPLay",this);
-    connect(playBackAction,SIGNAL(activated()),SLOT(backAnimate()));
+  m_previousFrameAction=new QAction(QIcon(QPixmap(previous)),tr("PreviousFrame"),this);
+  connect(m_previousFrameAction,SIGNAL(activated()),SLOT(previousFrame()));
     
-    pausePathAction=new QAction(QIcon(QPixmap(pauseIcon)),tr("Pause"),this);
-    connect(pausePathAction,SIGNAL(activated()),SLOT(pauseAnimate()));
+  m_firstFrame=new QAction(QIcon(QPixmap(first)),tr("first"),this);
+  connect(m_firstFrame,SIGNAL(activated()),SLOT(gotoFirst()));
+  
+  m_lastFrame=new QAction(QIcon(QPixmap(last)),tr("last"),this);
+  connect(m_lastFrame,SIGNAL(activated()),SLOT(gotoLast()));
     
-    nextFrameAction=new QAction(QIcon(QPixmap(next)),tr("NextFrame"),this);
-    connect(nextFrameAction,SIGNAL(activated()),SLOT(nextFrame()));
+  m_playPathAction->addTo(this);
+  m_playBackAction->addTo(this);
+  m_pausePathAction->addTo(this);
+  m_nextFrameAction->addTo(this);
+  m_previousFrameAction->addTo(this);
+  m_firstFrame->addTo(this);
+  m_lastFrame->addTo(this);
+  
+  return true;
+}
+
+void 
+VizmoAnimationGUI::updateFrameCounter(int newValue){
     
-    previousFrameAction=new QAction(QIcon(QPixmap(previous)),tr("PreviousFrame"),this);
-    connect(previousFrameAction,SIGNAL(activated()),SLOT(previousFrame()));
+  QString result;
+  result=result.setNum(newValue);
+  m_frameField->setText(result);
+}
+
+void 
+VizmoAnimationGUI::CreateSlider(){
+
+  m_slider = new QSlider(Qt::Horizontal,this,"slider");   
+  m_slider->setRange(0,0);
+  m_slider->setFixedSize(300,22);
+  m_slider->setTickmarks(QSlider::Below);
     
+  connect(m_slider,SIGNAL(valueChanged(int)),this,SLOT(sliderMoved(int)));
+  connect(m_slider,SIGNAL(valueChanged(int)),this,SLOT(updateFrameCounter(int)));
+
+  this->addWidget(m_slider); 
+}
+
+void 
+VizmoAnimationGUI::pauseAnimate(){
     
-    firstFrame=new QAction(QIcon(QPixmap(first)),tr("first"),this);
-    connect(firstFrame,SIGNAL(activated()),SLOT(gotoFirst()));
-    lastFrame=new QAction(QIcon(QPixmap(last)),tr("last"),this);
-    connect(lastFrame,SIGNAL(activated()),SLOT(gotoLast()));
+  m_timer->stop();
+}
+
+void 
+VizmoAnimationGUI::backAnimate(){
     
-    return true;
+  updateStepSize();
+  m_forwardDirection=false;
+  m_timer->start(100);
 }
 
-void VizmoAnimationGUI::updateFrameCounter(int newValue)
-{
-    QString result;
-    result=result.setNum(newValue);
-    frameCounter->setText(result);
+void 
+VizmoAnimationGUI::animate2(){
+  
+  // first update step size
+  updateStepSize();
+  m_forwardDirection = true;
+  m_timer->start(100);
 }
 
-void VizmoAnimationGUI::CreateSlider()
-{
-    playPathAction->addTo(this);
-    playBackAction->addTo(this);
-    pausePathAction->addTo(this);
-    nextFrameAction->addTo(this);
-    previousFrameAction->addTo(this);
-    firstFrame->addTo(this);
-    lastFrame->addTo(this);
-    addSeparator();
+void 
+VizmoAnimationGUI::UpdateCurValue(int value){   
     
-    slider=new QSlider(Qt::Horizontal,this,"slider");   
-    slider->setRange(0,0);
-    slider->setFixedSize(300,22);
-    slider->setTickmarks(QSlider::Below);
+  m_curValue = value;
+  if(m_curValue >= m_maxValue) 
+    m_curValue = 0;
+  else if(m_curValue < 0) 
+    m_curValue = m_maxValue-1;
+}
+
+void 
+VizmoAnimationGUI::updateStepSize(){
+
+  QString newValue;
+  int newValueint;
+  bool conv;
+  newValue = m_stepField->text();
+  newValueint = newValue.toInt(&conv,10);
+  if(newValueint <= 1) newValueint = 1;
+  m_stepField->setText(newValue.setNum(newValueint));
+  m_stepSize = newValueint;
+  m_slider->setTickInterval(m_stepSize);
+}
+
+void 
+VizmoAnimationGUI::getStepSize(int& size){
     
-    connect(slider,SIGNAL(valueChanged(int)),this,SLOT(sliderMoved(int)));
-    connect(slider,SIGNAL(valueChanged(int)),this,SLOT(updateFrameCounter(int)));
+  size = m_stepSize;
+}
+
+void 
+VizmoAnimationGUI::goToFrame(){
+
+  // Get the number from the frameCoutner
+  bool conv;
+  QString frame = m_frameField->text();
+  int frameint = frame.toInt(&conv,10);
+  goToFrame(frameint);
+}
+
+void 
+VizmoAnimationGUI::goToFrame(int frame){
     
+  // the silde will send the slider moved signal and 
+  // the robot will update position automatically
+  UpdateCurValue(frame);
+  m_slider->setValue(m_curValue);
+  QString text;
+  m_frameField->setText(text.setNum(m_curValue)); //reset the number
 }
 
-void VizmoAnimationGUI::pauseAnimate()
-{
-    QTtimer->stop();
+void 
+VizmoAnimationGUI::gotoFirst(){
+
+  UpdateCurValue(0);  
+  m_slider->setValue(m_curValue);
 }
 
-void VizmoAnimationGUI::backAnimate()
-{
-    updateStepSize();
-    forwardDirection=false;
-    QTtimer->start(100);
+void 
+VizmoAnimationGUI::gotoLast(){
+
+  UpdateCurValue(m_maxValue-1);
+  m_slider->setValue(m_curValue);
 }
 
-void VizmoAnimationGUI::animate2()
-{
-    // first update step size
-    updateStepSize();
-    forwardDirection=true;
-    QTtimer->start(100);
+void 
+VizmoAnimationGUI::nextFrame(){
+
+  m_curValue += m_stepSize;
+  UpdateCurValue(m_curValue);
+  m_slider->setValue(m_curValue);
 }
 
-void VizmoAnimationGUI::UpdateCurValue(int value)
-{   
-    cur_value=value;
-    if(cur_value>=max_value) cur_value=0;
-    else if( cur_value<0 ) cur_value=max_value-1;
+void 
+VizmoAnimationGUI::previousFrame(){
+
+  m_curValue -= m_stepSize;
+  UpdateCurValue(m_curValue);
+  m_slider->setValue(m_curValue);
 }
 
-void VizmoAnimationGUI::updateStepSize()
-{
-    QString newValue;
-    int newValueint;
-    bool conv;
-    newValue=stepField->text();
-    newValueint=newValue.toInt(&conv,10);
-    if(newValueint<=1) newValueint=1;
-    stepField->setText(newValue.setNum(newValueint));
-    stepSize=newValueint;
-    slider->setTickInterval(stepSize);
+void 
+VizmoAnimationGUI::sliderMoved(int newValue){
+
+  UpdateCurValue(newValue);
+  if(m_name == "Path")
+    GetVizmo().Animate(m_curValue);
+  else if(m_name == "Debug")
+    GetVizmo().AnimateDebug(m_curValue);
+  emit callUpdate();
 }
 
-void VizmoAnimationGUI::getStepSize(int& size)
-{
-    size=stepSize;
-}
+void 
+VizmoAnimationGUI::timeout(){
 
-void VizmoAnimationGUI::goToFrame()
-{
-    // Get the number from the frameCoutner
-    bool conv;
-    QString frame=frameCounter->text();
-    int frameint=frame.toInt(&conv,10);
-    goToFrame(frameint);
-}
-
-void VizmoAnimationGUI::goToFrame(int frame)
-{
-    // the silde will send the slider moved signal and 
-    // the robot will update position automatically
-    UpdateCurValue(frame);
-    slider->setValue(cur_value);
-    QString text;
-    frameCounter->setText(text.setNum(cur_value)); //reset the number
-}
-
-void VizmoAnimationGUI::gotoFirst()
-{
-    UpdateCurValue(0);  
-    slider->setValue(cur_value);
-}
-
-void VizmoAnimationGUI::gotoLast()
-{
-    UpdateCurValue(max_value-1);
-    slider->setValue(cur_value);
-}
-
-void VizmoAnimationGUI::nextFrame()
-{
-    cur_value+=stepSize;
-    UpdateCurValue(cur_value);
-    slider->setValue(cur_value);
-}
-
-void VizmoAnimationGUI::previousFrame()
-{
-    cur_value-=stepSize;
-    UpdateCurValue(cur_value);
-    slider->setValue(cur_value);
-}
-
-void VizmoAnimationGUI::sliderMoved(int newValue)
-{
-    UpdateCurValue(newValue);
-    if(m_name == "Path")
-      GetVizmo().Animate(cur_value);
-    else if(m_name == "Debug")
-      GetVizmo().AnimateDebug(cur_value);
-    emit callUpdate();
-}
-
-void VizmoAnimationGUI::timeout()
-{   
-    if(forwardDirection) cur_value+=stepSize;
-    else cur_value-=stepSize;
-    UpdateCurValue(cur_value);
-    slider->setValue(cur_value);
+  if(m_forwardDirection) 
+    m_curValue += m_stepSize;
+  else 
+    m_curValue -= m_stepSize;
+  UpdateCurValue(m_curValue);
+  m_slider->setValue(m_curValue);
 }
 
 

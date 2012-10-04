@@ -145,7 +145,7 @@ namespace plum{
       int m_index;
       double m_unknow1, m_unknow2, m_unknow3;
       Shape m_shape;
-      CCModelBase * m_cc;       
+      CCModelBase* m_cc;       
 
     //////////////////////////////////////////////////////////////////////
     //      Private Method & Data
