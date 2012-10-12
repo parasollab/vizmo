@@ -75,12 +75,12 @@ VizmoMainWin::Init(){
 bool 
 VizmoMainWin::InitVizmo(){
 
-  if(m_bVizmoInit) 
+  if(m_bVizmoInit)  
     return true;
 
   m_bVizmoInit=true;
 
-  if(m_args.empty()) 
+  if(m_args.empty())
     return true; //nothing to init...
     /*
     Here we use the first argument, but in the future
@@ -90,9 +90,9 @@ VizmoMainWin::InitVizmo(){
   FileListDialog* flDialog = new FileListDialog(this,"Vizmo File List");
   
   if(flDialog->exec()!=QDialog::Accepted)
-    return false;
-  if(GetVizmo().InitVizmoObject()==false)
-    return false;
+    return false;  
+  if(GetVizmo().InitVizmoObject()==false)  
+    return false; 
     
   resize(width(),height());
   m_args.clear();
@@ -100,8 +100,8 @@ VizmoMainWin::InitVizmo(){
   m_GL->updateGL();
   //reset guis
   m_animationGUI->reset();   
-  m_animationDebugGUI->reset();
-  m_objectSelection->reset();
+  m_animationDebugGUI->reset();   
+  m_objectSelection->ResetLists();    
   m_mainMenu->CallReset(); 
   GetVizmo().ChangeNodesRandomColor(); //replacing the reset() call here previously 
  
@@ -119,15 +119,16 @@ VizmoMainWin::CreateGUI(){
   m_animationDebugGUI=new VizmoAnimationGUI("Debug", this, "Debug");    
   connect(m_animationDebugGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
     
-  m_objectSelection = new VizmoItemSelectionGUI("Object Selection", this);   
-  connect(m_objectSelection,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
+  m_objectSelection = new VizmoItemSelectionGUI(this);   
+  connect(m_objectSelection, SIGNAL(CallUpdate()),this,SLOT(updateScreen()));
   
   m_mainMenu = new MainMenu(this);  //also creates the toolbars  
   
   m_outbox = new TextGUI (this, (char*)"Vizmo Text Output");  
 
   connect(m_animationDebugGUI,SIGNAL(callUpdate()), m_outbox, SLOT(SetText()));
-  connect(m_GL, SIGNAL(selectByLMB()), m_objectSelection, SLOT(select()));
+  connect(m_objectSelection, SIGNAL(UpdateTextGUI()), m_outbox, SLOT(SetText())); 
+  connect(m_GL, SIGNAL(selectByLMB()), m_objectSelection, SLOT(Select()));
   //HandleSelect now in Plum/MapObj/MapModel.cpp and temporarily disabled 
   // connect(m_GL, SIGNAL(selectByLMB()), m_roadmapGUI, SLOT(handleSelect()));
   connect(m_GL, SIGNAL(clickByLMB()), m_outbox, SLOT(SetText()));
@@ -145,7 +146,8 @@ VizmoMainWin::SetUpLayout(){
   m_layout->setHorizontalSpacing(3);
   
   //The toolbars. 
-  m_allTogether = new QToolBar(this);    //Just because... 
+  //The m_allTogether toolbar holds them all together when window is expanded 
+  m_allTogether = new QToolBar(this);     
   m_allTogether->addWidget(m_mainMenu->m_fileOptions->GetToolbar()); 
   m_allTogether->addWidget(m_mainMenu->m_sceneOptions->GetToolbar()); 
   m_allTogether->addWidget(m_mainMenu->m_environmentOptions->GetToolbar()); 

@@ -188,7 +188,7 @@ namespace plum{
         glVertex3d( m_dofs[0], m_dofs[1], m_dofs[2] );
         glEnd();
         break;
-    }
+    } 
   } //end of function
 
   bool 

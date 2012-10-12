@@ -51,11 +51,11 @@ namespace plum{
         // Access functions
         //////////////////////////////////////////////////////////////////////
         void AddPlumObject( PlumObject * obj ){ 
-            if( obj!=NULL ) m_ObjList.push_back(obj); 
+            if( obj!=NULL ) m_objList.push_back(obj); 
         }
         
         vector<gliObj>& GetSelectedItem(){ return m_SelectedItem; }
-        vector<PlumObject *>& GetPlumObjects(){ return m_ObjList; }
+        vector<PlumObject *>& GetPlumObjects(){ return m_objList; }
 
         //////////////////////////////////////////////////////////////////////
         // Action functions
@@ -94,7 +94,7 @@ namespace plum{
         ////////////////////////////////////////////////////////////////////////////
     private:
         
-        vector<PlumObject *> m_ObjList;
+        vector<PlumObject *> m_objList;
         vector<gliObj> m_SelectedItem;
     };
 

@@ -90,12 +90,10 @@ VizGLWin::resizeGL(int w, int h){
 
 void 
 VizGLWin::paintGL(){
-
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   m_mainWin->InitVizmo(); 
-
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   int param=GLI_SHOW_PICKBOX|GLI_SHOW_TRANSFORMTOOL;

@@ -116,7 +116,7 @@ void PathModel::Draw(GLenum mode){
   if(m_glListIndex==(size_t)-1)
     return;
   //set to line represnet
-  glLineWidth(m_lineWidth);  
+  glLineWidth(m_lineWidth); 
   glCallList(m_glListIndex);
 }
 

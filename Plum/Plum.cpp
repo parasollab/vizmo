@@ -30,7 +30,7 @@ namespace plum{
 
    void CPlum::Clean()
    {
-      m_ObjList.clear();
+      m_objList.clear();
       m_SelectedItem.clear();
    }
 
@@ -42,9 +42,9 @@ namespace plum{
    int 
       CPlum::ParseFile()
       {
-         int objSize=m_ObjList.size();
+         int objSize=m_objList.size();
          for( int iCM=0; iCM<objSize; iCM++ ){
-            I_Loadable * loader=m_ObjList[iCM]->getLoader();
+            I_Loadable * loader=m_objList[iCM]->getLoader();
             if( loader==NULL ) continue;
             if( loader->ParseFile()==false ) return CPlumState::PARSE_ERROR;
          }
@@ -56,10 +56,10 @@ namespace plum{
    int CPlum::BuildModels(){
 
       /////////////////////////////////////////////////////
-      int objSize=m_ObjList.size();
+      int objSize=m_objList.size();
       for( int iCM=0; iCM<objSize; iCM++ ){
 
-         CGLModel * model=m_ObjList[iCM]->getModel();
+         CGLModel * model=m_objList[iCM]->getModel();
          if( model==NULL ) continue;
          if( model->BuildModels()==false ){
             cout<<"Couldn't build model..."<<endl;
@@ -70,21 +70,23 @@ namespace plum{
       return CPlumState::BUILD_MODEL_OK;
    }
 
-   void CPlum::Draw()
-   {
-      int objSize=m_ObjList.size();
+   void CPlum::Draw(){  
+      
+     int objSize=m_objList.size();
       for( int iCM=0; iCM<objSize; iCM++ ){
-         CGLModel * model=m_ObjList[iCM]->getModel();
-         if( model==NULL ) continue;
+         CGLModel* model=m_objList[iCM]->getModel();
+         if(model==NULL) continue;
          glEnable(GL_LIGHTING);
-         model->Draw( GL_RENDER );
+         model->Draw(GL_RENDER);
       }
       typedef vector<gliObj>::iterator GIT;
+          
       for(GIT ig=m_SelectedItem.begin();ig!=m_SelectedItem.end();ig++){
-         CGLModel * model=(CGLModel*)(*ig);
-         if(model != NULL)
-            model->DrawSelect();
+        CGLModel* model=(CGLModel*)(*ig);
+        if(model != NULL)
+          model->DrawSelect();
       }
+      
    }
 
 #define BUFFER_SIZE 1024
@@ -121,10 +123,10 @@ namespace plum{
 
       //draw
       glMatrixMode( GL_MODELVIEW );
-      int objSize=m_ObjList.size();
+      int objSize=m_objList.size();
       for( int iCM=0; iCM<objSize; iCM++ ){
          glPushName(iCM);
-         CGLModel * model=m_ObjList[iCM]->getModel();
+         CGLModel * model=m_objList[iCM]->getModel();
          if( model==NULL ) continue;
          model->Draw( GL_SELECT );
          glPopName();
@@ -175,10 +177,11 @@ namespace plum{
             }
          }
          else{ //select all
-            if( curName[0]>m_ObjList.size() ) return;
-            CGLModel * selectModel=m_ObjList[curName[0]]->getModel();
-            if( selectModel!=NULL ) 
-               selectModel->Select( &curName[1], m_SelectedItem );
+            if(curName[0] > m_objList.size()) 
+              return;
+            CGLModel* selectModel = m_objList[curName[0]]->getModel();
+            if(selectModel!=NULL) 
+               selectModel->Select(&curName[1], m_SelectedItem);
          }
 
          delete [] curName;  //free preallocated mem
@@ -187,10 +190,11 @@ namespace plum{
       //only the closest
       if( !all ){ //
          // analyze selected item //not name which created in this lib
-         if( selName[0]>m_ObjList.size() ) return;
-         CGLModel * selectModel=m_ObjList[selName[0]]->getModel();
-         if( selectModel!=NULL ){ 
-            selectModel->Select( &selName[1], m_SelectedItem );
+         if(selName[0] > m_objList.size()) 
+           return;
+         CGLModel * selectModel=m_objList[selName[0]]->getModel();
+         if(selectModel != NULL){ 
+            selectModel->Select(&selName[1], m_SelectedItem);
          }
       }
       delete [] selName;
