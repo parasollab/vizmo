@@ -52,11 +52,13 @@ namespace plum {
     glLineWidth(1);
     int MBSize=m_pMBModel.size();
     for( int iP=0; iP<MBSize; iP++ ) {
-      if( mode==GL_SELECT ) 
-        glPushName(iP);
-      m_pMBModel[iP]->Draw( mode );
-      if( mode==GL_SELECT ) 
-        glPopName();
+      if(m_pMBModel[iP]->IsFixed()){
+        if( mode==GL_SELECT ) 
+          glPushName(iP);
+        m_pMBModel[iP]->Draw( mode );
+        if( mode==GL_SELECT ) 
+          glPopName();
+      }
     }
   }
 
