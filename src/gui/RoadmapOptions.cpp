@@ -254,8 +254,6 @@ RoadmapOptions::Reset(){
     }
   }
 
-  GetMapModel()->GetNodeList().clear(); 
-
   //Enable m_nodeShape AND its items 
   m_nodeShape->setEnabled(true);  
   m_actions["robotView"]->setEnabled(true);
@@ -283,26 +281,29 @@ RoadmapOptions::Reset(){
   m_actions["randomizeColors"]->setEnabled(true);
   m_actions["ccsOneColor"]->setEnabled(true);
 
-  GetMapModel()->SetSize(0.5);  
-  GetMapModel()->GetNodesToConnect().clear(); 
-  // GetMapModel()->GetCfgLabel()->clear(); temporarily removed/what is it for? 
-  //GetMap()->l_cfg->clear();
+  if(GetMapModel() != NULL){
+    GetMapModel()->GetNodeList().clear(); 
+    GetMapModel()->SetSize(0.5);  
+    GetMapModel()->GetNodesToConnect().clear(); 
+    // GetMapModel()->GetCfgLabel()->clear(); temporarily removed/what is it for? 
+    //GetMap()->l_cfg->clear();
 
-  if(GetMapModel()->m_robCfgOn==false)
-  //**MORE TEMPORARY(?) REMOVALS
-    //  GetMapModel()->GetRobCfgLabel()->clear;  
-  //GetMap()->l_robCfg->clear();
+    if(GetMapModel()->m_robCfgOn==false)
+      //**MORE TEMPORARY(?) REMOVALS
+      //  GetMapModel()->GetRobCfgLabel()->clear;  
+      //GetMap()->l_robCfg->clear();
 
-  //editAction->setChecked(false);
-  //addNodeAction->setChecked(false);
-  //addEdgeAction->setChecked(false);
-  // GetMapModel()->GetMessageLabel()->clear(); 
-  //GetMap()->GetLMessage()->clear();
-  //GetMapModel()->GetIconLabel()->clear(); 
-  //GetMap()->GetLIcon()->clear();
-  GetMapModel()->SetMBEditModel(false);
-  GetMapModel()->m_addNode=false;
-  GetMapModel()->m_addEdge=false;
+      //editAction->setChecked(false);
+      //addNodeAction->setChecked(false);
+      //addEdgeAction->setChecked(false);
+      // GetMapModel()->GetMessageLabel()->clear(); 
+      //GetMap()->GetLMessage()->clear();
+      //GetMapModel()->GetIconLabel()->clear(); 
+      //GetMap()->GetLIcon()->clear();
+      GetMapModel()->SetMBEditModel(false);
+    GetMapModel()->m_addNode=false;
+    GetMapModel()->m_addEdge=false;
+  }
 }
 
 void
