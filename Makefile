@@ -5,6 +5,7 @@ EXTERNALLIBS = $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE)
 default_target:  $(EXTERNALLIBS) vizmo
 
 vizmo:
+	$(MAKE) clean;
 	cd GL; ${MAKE}
 	cd modelgraph; ${MAKE}
 	cd Plum; ${MAKE}
