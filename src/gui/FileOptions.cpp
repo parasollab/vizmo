@@ -98,13 +98,13 @@ FileOptions::LoadFile(){
   QFileInfo fi(fn);
 
   if (!fn.isEmpty()){
-    GetMainWin()->GetArgs().push_back(fn.latin1()); //access the actual main window 
+    GetMainWin()->GetArgs().push_back(QString(fn.toLatin1()).toStdString()); //access the actual main window 
     GetMainWin()->SetVizmoInit(false);
-    GetMainWin()->setCaption("Vizmo++ - "+fi.baseName()+ " environment");
-    GetMainWin()->statusBar()->message("File Loaded : "+fn);
+    GetMainWin()->setWindowTitle("Vizmo++ - "+fi.baseName()+ " environment");
+    GetMainWin()->statusBar()->showMessage("File Loaded : "+fn);
   }
   else 
-    GetMainWin()->statusBar()->message("Loading aborted");
+    GetMainWin()->statusBar()->showMessage("Loading aborted");
 
   GetMainWin()->GetGLScene()->resetTransTool();
   GetMainWin()->GetGLScene()->updateGL();
@@ -114,9 +114,9 @@ void
 FileOptions::UpdateFiles(){
 
   GetMainWin()->SetVizmoInit(false); 	
-  FileListDialog* flDialog = new FileListDialog(this, "Vizmo File List"); 
+  m_flDialog = new FileListDialog(this); 
 
-  if(flDialog->exec() != QDialog::Accepted)
+  if(m_flDialog->exec() != QDialog::Accepted)
     return; 	
 
   if(GetVizmo().InitVizmoObject() == false)
@@ -146,7 +146,7 @@ FileOptions::SaveEnv(){
   } 
 
   else{ 
-    GetMainWin()->statusBar()->message("Saving aborted", 2000);
+    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
   }
   GetMainWin()->GetGLScene()->updateGL();
 } 
@@ -166,7 +166,7 @@ FileOptions::SaveQryFile(){
   } 
 
   else {
-    GetMainWin()->statusBar()->message("Saving aborted", 2000);
+    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
   }
 
   GetMainWin()->GetGLScene()->updateGL();
@@ -188,7 +188,7 @@ FileOptions::SaveRoadmap(){
   } 
 
   else{
-    GetMainWin()->statusBar()->message("Saving aborted", 2000);
+    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
   }
   GetMainWin()->GetGLScene()->updateGL();
 }

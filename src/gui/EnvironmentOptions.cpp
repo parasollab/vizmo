@@ -100,7 +100,7 @@ EnvironmentOptions::ShowBBox(){
 void
 EnvironmentOptions::AddObstacle(){
 
-  AddObjDial* addObj = new AddObjDial(this, "Add Object");
+ /* AddObjDial* addObj = new AddObjDial(this, "Add Object");
   bool create = addObj->create();
   if(create){  
     int r;
@@ -110,7 +110,7 @@ EnvironmentOptions::AddObstacle(){
   }
 
   else
-    return;	
+    return;*/	
 }
 
 

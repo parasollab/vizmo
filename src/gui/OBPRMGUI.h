@@ -1,4 +1,4 @@
-#ifndef VIZMO2_OBPRM_GUI
+/*#ifndef VIZMO2_OBPRM_GUI
 #define VIZMO2_OBPRM_GUI
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -269,4 +269,4 @@ private slots:
 
   void createFile();
   void execFile();
-};
+};*/ 

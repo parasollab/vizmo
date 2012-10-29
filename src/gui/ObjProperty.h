@@ -1,4 +1,4 @@
-#ifndef _VIZMO2_OBJ_PROPERTY_H_
+/*#ifndef _VIZMO2_OBJ_PROPERTY_H_
 #define _VIZMO2_OBJ_PROPERTY_H_
 
 #include <qdialog.h>
@@ -15,4 +15,4 @@ public:
 };
 
 #endif //_VIZMO2_OBJ_PROPERTY_H_
-
+*/ 

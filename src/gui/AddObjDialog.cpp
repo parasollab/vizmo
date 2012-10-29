@@ -1,4 +1,4 @@
-#include "AddObjDialog.h"
+/*#include "AddObjDialog.h"
 
 
 
@@ -235,4 +235,4 @@ string AddObjDial::getSubstr(string s, char c, int i){
 
 }
 
-
+*/ 

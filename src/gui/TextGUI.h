@@ -11,7 +11,7 @@ class TextGUI : public QTextEdit{
   Q_OBJECT
 
   public:
-    TextGUI(QWidget* _parent = NULL, char* _name = NULL); 
+    TextGUI(QWidget* _parent = NULL); 
 
   public slots:
     void SetText();  

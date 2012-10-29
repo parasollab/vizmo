@@ -96,23 +96,23 @@ void gliCamera::Draw( void )
 //** Handle Mouse Movement
 ///////////////////////////////////////////////////////////////////////
 
-bool gliCamera::MP( QMouseEvent * e )
+bool gliCamera::MP(QMouseEvent* e)
 {
-   if( e->state()&Qt::ControlButton ){
-      m_MousePressed=true;
+   if(e->buttons() && (e->modifiers() == Qt::ControlModifier)){  
+     m_MousePressed=true;
       m_PressedPt=e->pos();
       return true; //handled
-   }
+   }     
    return false;
 }
 
-bool gliCamera::MR( QMouseEvent * e )
+bool gliCamera::MR(QMouseEvent* e)
 {
-   if( !m_MousePressed ) 
+   if(!m_MousePressed) 
       return false; /// mouse is not pressed
 
    m_MousePressed=false;
-   for( int iD=0;iD<3;iD++ ){
+   for(int iD=0;iD<3;iD++){
       m_CameraPos[iD]+=m_deltaDis[iD];
       m_deltaDis[iD]=0;
    }
@@ -135,20 +135,17 @@ void RotateX(Vector3d& v, double degree);
 //** Mouse motion
 //////////////////////////////////////
 
-bool gliCamera::MM( QMouseEvent * e )  
-{       
+bool 
+gliCamera::MM(QMouseEvent* e){       
 
-   if( !m_MousePressed ) return false; //mouse is not pressed
-
-
-
-   //Qt::ButtonState state=e->buttons();
+  if(!m_MousePressed)    
+    return false; //mouse is not pressed
+  
+   //Qt::MouseButtons state=e->buttons();  
    QPoint drag=e->pos()-m_PressedPt;
 
-
-
    //displacement
-   if( e->state()&Qt::MidButton ){ //mid button only
+   if(e->buttons() & Qt::MidButton){ //mid button only
       if(m_cartesian){
          m_deltaDis.set(0,0,0);
          m_deltaDis[0] = drag.x()/10.0;
@@ -160,7 +157,7 @@ bool gliCamera::MM( QMouseEvent * e )
         m_deltaDis[1] = -(((m_CameraPos[1]>5)?m_CameraPos[1]:5)*drag.y()/10.0);
       }
    }
-   else if(e->state()&Qt::RightButton){ //right button only
+   else if(e->buttons() & Qt::RightButton){ //right button only
       if(m_cartesian){//Cartesian movement
          double motion = drag.y()/10;
          m_deltaDis.set(0,0,motion);
@@ -170,7 +167,7 @@ bool gliCamera::MM( QMouseEvent * e )
          m_deltaDis[2] = (((m_CameraPos[2]>10)?m_CameraPos[2]:10)*drag.y()/100);
       }
    }
-   else if((e->state()&Qt::LeftButton)){ //left button only
+   else if((e->buttons() & Qt::LeftButton)){ //left button only
 
       m_deltaAzim = drag.x()/5.0;
       m_deltaElev = drag.y()/5.0;

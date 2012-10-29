@@ -9,8 +9,8 @@
 
 using namespace std; 
 
-TextGUI::TextGUI(QWidget* _parent, char* _name)
-  :QTextEdit(_parent, _name){
+TextGUI::TextGUI(QWidget* _parent)
+  :QTextEdit(_parent){
     
   setFixedSize(205, 225);
   setReadOnly(true); 

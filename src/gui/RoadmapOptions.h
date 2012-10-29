@@ -8,8 +8,11 @@
 #include "OptionsBase.h"
 #include "Plum/MapObj/MapModel.h" 
 #include "vizmo2.h" 
+#include <string> 
+#include "QButtonGroup" 
 
 class QPushButton; 
+class NodeSizeDialog;
 
 class RoadmapOptions : public OptionsBase{
 
@@ -30,6 +33,8 @@ class RoadmapOptions : public OptionsBase{
       else
         return (MM*)GetVizmo().GetMap()->getModel();
     }   
+//    void SetNodeSize(double _nodeSize) {m_nodeSize = _nodeSize;}   
+    string GetNodeShape() {return (string)(m_nodeView->checkedButton())->text().toAscii();}  
 
   private slots:
     void ShowRoadmap();
@@ -57,7 +62,9 @@ class RoadmapOptions : public OptionsBase{
     QPushButton* m_pointButton; 
     QMenu* m_nodeShape;       //More submenus within the robot submenu 
     QMenu* m_modifySelected;
-    QMenu* m_modifyCCs;  
+    QMenu* m_modifyCCs; 
+
+    NodeSizeDialog* m_nodeSizeDialog; //Provides slider to scale nodes  
     
     size_t m_edgeThickness;
     double m_nodeSize; 

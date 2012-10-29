@@ -1,23 +1,17 @@
 #include "vizmo2.h"
 #include "AnimationGUI.h"
 #include "MainWin.h"   
-///////////////////////////////////////////////////////////////////////////////// 
 //// Include Qt Headers
 #include <QToolBar>   
-#include <qapplication.h>
-#include <qpixmap.h>
-#include <qaction.h>
-#include <qslider.h>
-#include <qlcdnumber.h>
+#include <QPixmap>
+#include <QAction>
+#include <QSlider>
 #include <QTimer>
-#include <qlineedit.h>
-#include <qlabel.h>
-#include <qvalidator.h>
-#include <qstring.h>
-#include <qmessagebox.h>
-
-///////////////////////////////////////////////////////////////////////////////// 
-// Icons
+#include <QLineEdit>
+#include <QLabel>
+#include <QValidator>
+#include <QString>
+//// Icons
 #include "icon/vcr/First.xpm"
 #include "icon/vcr/Last.xpm"
 #include "icon/vcr/Next.xpm"
@@ -138,13 +132,13 @@ bool VizmoAnimationGUI::CreateActions(){
   m_lastFrame=new QAction(QIcon(QPixmap(last)),tr("last"),this);
   connect(m_lastFrame,SIGNAL(activated()),SLOT(gotoLast()));
     
-  m_playPathAction->addTo(this);
-  m_playBackAction->addTo(this);
-  m_pausePathAction->addTo(this);
-  m_nextFrameAction->addTo(this);
-  m_previousFrameAction->addTo(this);
-  m_firstFrame->addTo(this);
-  m_lastFrame->addTo(this);
+  this->addAction(m_playPathAction);
+  this->addAction(m_playBackAction);
+  this->addAction(m_pausePathAction);
+  this->addAction(m_nextFrameAction);
+  this->addAction(m_previousFrameAction);
+  this->addAction(m_firstFrame);
+  this->addAction(m_lastFrame);
   
   return true;
 }
@@ -160,10 +154,10 @@ VizmoAnimationGUI::updateFrameCounter(int newValue){
 void 
 VizmoAnimationGUI::CreateSlider(){
 
-  m_slider = new QSlider(Qt::Horizontal,this,"slider");   
+  m_slider = new QSlider(Qt::Horizontal,this);   
   m_slider->setRange(0,0);
   m_slider->setFixedSize(300,22);
-  m_slider->setTickmarks(QSlider::Below);
+  m_slider->setTickPosition(QSlider::TicksBelow);
     
   connect(m_slider,SIGNAL(valueChanged(int)),this,SLOT(sliderMoved(int)));
   connect(m_slider,SIGNAL(valueChanged(int)),this,SLOT(updateFrameCounter(int)));

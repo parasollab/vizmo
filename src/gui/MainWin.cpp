@@ -8,9 +8,9 @@
 #include "TextGUI.h"     
 #include "FileListDialog.h"
 #include "ObjProperty.h"
-#include "OBPRMGUI.h"
+//#include "OBPRMGUI.h"
 #include "AddObjDialog.h"
-#include "VizmoEditor.h"
+//#include "VizmoEditor.h"
 #include "QueryGUI.h"
 #include "MainMenu.h" 
 #include "OptionsBase.h"
@@ -24,11 +24,11 @@
 
 /// CLASS VizmoMainWin
 ////////////////////////////////////////////////////////
-VizmoMainWin::VizmoMainWin(QWidget* _parent, const char* _name)
-  :QMainWindow(_parent, _name), m_bVizmoInit(false){ 
-    
+VizmoMainWin::VizmoMainWin(QWidget* _parent)
+  :QMainWindow(_parent), m_bVizmoInit(false){ 
+
   setMinimumSize(960, 700);   
-  setCaption("Vizmo++"); 
+  setWindowTitle("Vizmo++"); 
   m_GL=NULL;
   m_animationGUI = m_animationDebugGUI = NULL;
   move(0,0);
@@ -56,7 +56,7 @@ VizmoMainWin::~VizmoMainWin(){
 bool 
 VizmoMainWin::Init(){
     
-  this->setIcon(QPixmap(eye));
+  this->setWindowIcon(QPixmap(eye));
   m_layoutWidget = new QWidget(); 
   
   //Create GLModel
@@ -68,7 +68,7 @@ VizmoMainWin::Init(){
     return false;
   
   SetUpLayout(); 
-  statusBar()->message("Ready");
+  statusBar()->showMessage("Ready");
   return true;
 }
 
@@ -87,11 +87,10 @@ VizmoMainWin::InitVizmo(){
     we should use all of them to load files.
     */
   GetVizmo().GetAccessFiles(m_args[0]);
-  FileListDialog* flDialog = new FileListDialog(this,"Vizmo File List");
-  
-  if(flDialog->exec()!=QDialog::Accepted)
+  FileListDialog* flDialog = new FileListDialog(this);
+  if(flDialog->exec()!= QDialog::Accepted)
     return false;  
-  if(GetVizmo().InitVizmoObject()==false)  
+  if(GetVizmo().InitVizmoObject() == false)  
     return false; 
     
   resize(width(),height());
@@ -124,7 +123,7 @@ VizmoMainWin::CreateGUI(){
   
   m_mainMenu = new MainMenu(this);  //also creates the toolbars  
   
-  m_outbox = new TextGUI (this, (char*)"Vizmo Text Output");  
+  m_outbox = new TextGUI(this);  
 
   connect(m_animationDebugGUI,SIGNAL(callUpdate()), m_outbox, SLOT(SetText()));
   connect(m_objectSelection, SIGNAL(UpdateTextGUI()), m_outbox, SLOT(SetText())); 
@@ -204,7 +203,7 @@ VizmoMainWin::updateScreen(){
 void 
 VizmoMainWin::objectEdit(){
   
-  InvokeObjPropertyDialog(this);
+  //InvokeObjPropertyDialog(this);
 }
 
 /*void 
@@ -216,7 +215,7 @@ VizmoMainWin::runCode(){
     return;
 }*/ 
 
-void  //Hopefully moved out of main window after fixed! 
+/*void  
 VizmoMainWin::createQryFile(){
 
   QStringList command;
@@ -251,7 +250,7 @@ VizmoMainWin::createQryFile(){
   vizEditor->show();
 }
 
-
+*/ 
 
 
 

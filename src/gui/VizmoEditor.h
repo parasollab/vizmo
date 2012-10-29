@@ -1,4 +1,4 @@
-#ifndef VIZMO2_EDITOR
+/*#ifndef VIZMO2_EDITOR
 #define VIZMO2_EDITOR
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,4 +63,4 @@ private:
 
 
 #endif//VIZMO2_EDITOR
-
+*/ 

@@ -16,9 +16,11 @@
 #include <QTranslator>
 #include <QStatusBar>   
 #include <QColorDialog> 
-#include <QInputDialog> 
+#include <QInputDialog>
+#include <QMessageBox> 
 
 #include "RoadmapOptions.h"
+#include "NodeSizeDialog.h" 
 #include "OptionsBase.h" 
 #include "SceneWin.h"
 #include "MainWin.h"
@@ -97,6 +99,13 @@ void RoadmapOptions::CreateActions(){
 
   QAction* scaleNodes = new QAction(QPixmap(nodeSizeIcon), tr("Scale Nodes"), this);
   m_actions["scaleNodes"] = scaleNodes;
+  //NodeSizeDialog needs a plain QWidget as a parent, but to actually access
+  //this parent as RoadmapOptions within the dialog class, a RoadmapOptions
+  //pointer is stored there (hence, we have NodeSizeDialog(QWidget* _parent,
+  //RoadmapOptions* _accessParent) in the constructor). Alternatively, the
+  //constructor can just take the first argument, and the parent can be casted
+  //when needed in the dialog class. 
+  m_nodeSizeDialog = new NodeSizeDialog(this, this); 
 
   QAction* edgeThickness = new QAction(QPixmap(edgeThicknessIcon), tr("Change Edge Thickness"), this); 
   m_actions["edgeThickness"] = edgeThickness;
@@ -182,6 +191,7 @@ void RoadmapOptions::CreateActions(){
   connect(m_actions["saveGoal"], SIGNAL(activated()), this, SLOT(SaveQueryGoal())); 
   connect(m_actions["changeObjectColor"], SIGNAL(activated()), this, SLOT(ChangeObjectColor())); 
   connect(GetMainWin()->GetGLScene(), SIGNAL(selectByRMB()), this, SLOT(ShowObjectContextMenu())); 
+
 }
 
 void
@@ -263,6 +273,8 @@ RoadmapOptions::Reset(){
   m_robotButton->setEnabled(true); 
   m_boxButton->setEnabled(true); 
   m_pointButton->setEnabled(true); 
+  
+  ClickPoint(); //Make sure a button is actually selected by default! 
 
   ChangeNodeShape(); 	
 
@@ -281,6 +293,8 @@ RoadmapOptions::Reset(){
   m_actions["randomizeColors"]->setEnabled(true);
   m_actions["ccsOneColor"]->setEnabled(true);
 
+  m_nodeSizeDialog->Reset(); 
+  
   if(GetMapModel() != NULL){
     GetMapModel()->GetNodeList().clear(); 
     GetMapModel()->SetSize(0.5);  
@@ -345,9 +359,9 @@ void
 RoadmapOptions::ShowRoadmap(){
 
   static bool show=false;
-  show=!show;
+  show =!show;
   GetVizmo().ShowRoadMap(show);
-  Reset();
+ // Reset();
   GetVizmo().UpdateSelection();
   GetMainWin()->GetGLScene()->updateGL();
 }
@@ -357,7 +371,7 @@ RoadmapOptions::ChangeNodeShape(){
 
   if(GetVizmo().GetMap() != NULL || GetVizmo().GetDebug() != NULL){
     if(m_nodeView->checkedButton() != 0){   
-      string s = (string)(m_nodeView->checkedButton())->text().ascii();  //prev checked action 
+      string s = (string)(m_nodeView->checkedButton())->text().toAscii();  //prev checked action 
       GetVizmo().ChangeNodesShape(s); 
       GetMainWin()->GetGLScene()->updateGL();      
     }	
@@ -433,15 +447,11 @@ RoadmapOptions::MakeInvisible(){
 
 void RoadmapOptions::ScaleNodes(){
 
-  bool ok = false;
-  m_nodeSize = QInputDialog::getDouble(this, tr("Change Roadmap Node Size"), 
-      tr("Enter a positive number between 0 and 10 to scale the nodes"), m_nodeSize, 
-      0, 10, 2, &ok);
-
-  if(ok){
-    string shape = (string)(m_nodeView->checkedButton())->text().ascii();  
-    GetVizmo().ChangeNodesSize(m_nodeSize, shape);
-  }
+ if(!(GetNodeShape() == "Point")) //Can only resize from robot and box modes 
+  m_nodeSizeDialog->show();
+ else
+  //Not a true "about" box, but does exactly what is needed. 
+  QMessageBox::about(this, "Sorry!", "You can only resize the nodes in <b>Robot</b> or <b>Box</b> mode.");  
 }
 
 void
@@ -487,7 +497,7 @@ RoadmapOptions::ColorSelectedCC(){
 
   string s;
   if(m_nodeView->checkedButton() != 0)
-    s = (string)(m_nodeView->checkedButton())->text().ascii();
+    s = (string)(m_nodeView->checkedButton())->text().toAscii();
   GetVizmo().ChangeCCColor(R, G, B, s);
   GetMainWin()->GetGLScene()->updateGL(); 
 }
@@ -514,7 +524,7 @@ RoadmapOptions::MakeCCsOneColor(){
     B = (double)(color.blue()) / 255.0;
   }
   //also need to check that an action is indeed selected?  
-  string shape = (string)(m_nodeView->checkedButton())->text().ascii();
+  string shape = (string)(m_nodeView->checkedButton())->text().toAscii();
   GetVizmo().ChangeCCColor(R, G, B, shape);
 }   
 
@@ -546,9 +556,9 @@ RoadmapOptions::ShowObjectContextMenu(){
   }
   else
     cm.addAction(m_actions["makeInvisible"]); 
-  cm.addAction(m_actions["changeObjectColor"]);   
-  cm.insertSeparator();
-  /*LEAVE HERE*/  //cm.insertItem("Edit...", this,SLOT(objectEdit()));
+    cm.addAction(m_actions["changeObjectColor"]);   
+    cm.addSeparator();
+    /*LEAVE HERE*/  //cm.insertItem("Edit...", this,SLOT(objectEdit()));
 
   if(cm.exec(QCursor::pos())!= 0) //was -1 for q3 version (index based) 
     GetMainWin()->GetGLScene()->updateGL();    

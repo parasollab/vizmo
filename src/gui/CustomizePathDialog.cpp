@@ -8,8 +8,8 @@
 using namespace std; 
 
 CustomizePathDialog::CustomizePathDialog(QWidget* _parent)
-  :QDialog(_parent)
-{
+  :QDialog(_parent){
+  
   RestoreDefault();
   SetUpDialog(this);
 }

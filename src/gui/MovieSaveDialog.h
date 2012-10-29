@@ -10,6 +10,7 @@
 #include "MainWin.h"  //just because... 
 #include <QDialog> 
 
+class QGridLayout; 
 class QDialog; 
 class QLineEdit;
 class QLabel;  
@@ -21,7 +22,7 @@ class MovieSaveDialog : public QDialog{
   Q_OBJECT
 
   public:
-    MovieSaveDialog(QWidget* _parent, const char* _name, Qt::WFlags f=0);
+    MovieSaveDialog(QWidget* _parent, Qt::WFlags _f = 0);
     void UpdateAttributes();
 
   private slots:
@@ -29,12 +30,24 @@ class MovieSaveDialog : public QDialog{
     void ShowFileDialog();
 
   private:
+    void SetUpLayout(); 
     void StoreAttributes();
+    
+    QLineEdit* m_startFrameEdit;
+    QLineEdit* m_endFrameEdit;
+    QLineEdit* m_stepSizeEdit;
 
-    QLineEdit* m_startFrame;
-    QLineEdit* m_endFrame;
-    QLineEdit* m_stepSize;
-    QLabel* m_fnameLabel;
+    QLabel* m_startFrameLabel;
+    QLabel* m_endFrameLabel; 
+    QLabel* m_stepSizeLabel; 
+
+    QPushButton* m_selectNameButton;
+    QLabel* m_fileNameLabel;
+
+    QPushButton* m_go;    
+    QPushButton* m_cancel;
+
+    QGridLayout* m_layout; 
 
   public:
     int m_startIntFrame;

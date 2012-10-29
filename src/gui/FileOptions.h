@@ -8,6 +8,8 @@
 #include "OptionsBase.h"
 #include "vizmo2.h" 
 
+class FileListDialog; 
+
 class FileOptions : public OptionsBase{
 
   Q_OBJECT  
@@ -27,6 +29,7 @@ class FileOptions : public OptionsBase{
     void SaveRoadmap(); 
 
   private:
+    FileListDialog* m_flDialog; 
     void SaveNewRoadmap(const char* _filename); 
 };
 

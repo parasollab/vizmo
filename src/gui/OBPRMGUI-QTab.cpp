@@ -1,4 +1,4 @@
-#include "vizmo2.h"
+/*#include "vizmo2.h"
 #include "OBPRMGUI.h"
 
 #include "icon/Folder.xpm"
@@ -1447,4 +1447,4 @@ void textEditDialog::execFile(){
   i = system (fi.dirPath (TRUE)+"/test_env/l_tunnel/scripTest");
   if (i==-1) puts ("Error executing DIR");
   else puts ("Commands successfully executed");
-}
+}*/ 

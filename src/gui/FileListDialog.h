@@ -1,43 +1,52 @@
-#ifndef VIZMO2_FILE_LIST_DIALOG
-#define VIZMO2_FILE_LIST_DIALOG
+#ifndef FILE_LIST_DIALOG_H
+#define FILE_LIST_DIALOG_H
 
-///////////////////////////////////////////////////////////////////////////////
-// QT Headhers
-#include <q3mainwindow.h>
-#include <qnamespace.h>
-#include <qdialog.h>
-#include <q3toolbar.h>
-//Added by qt3to4:
-#include <QLabel>
+#include <QDialog>
 
 class QLabel;
+class QDialog; 
+class QPushButton; 
+class QGridLayout;
 
-class FileListDialog : public QDialog
-{
-    Q_OBJECT
+class FileListDialog : public QDialog{
+    
+  Q_OBJECT
         
-public:
-
-    FileListDialog(QWidget *parent, const char *name, Qt::WFlags f=0);
+  public:
+    FileListDialog(QWidget* _parent, Qt::WFlags _f = 0);
     
-private slots:
+  private slots:
+    void ChangeMap();
+    void ChangeEnv();
+    void ChangePath();
+    void ChangeDebug();
+    void ChangeQry();
     
-	void changeMap();
-	void changeEnv();
-	void changePath();
-	void changeDebug();
-	void changeQry();
+  private:
+    QGridLayout* m_layout;
+    void SetUpLayout(); 
+    //The bold, unchanging labels on the left side of the window
+    QLabel* m_mapLabel;  
+    QLabel* m_envLabel;
+    QLabel* m_pathLabel;
+    QLabel* m_debugLabel;
+    QLabel* m_queryLabel;
+
+    //The actual displayed file names/paths 
+    QLabel* m_mapFilename; 
+    QLabel* m_envFilename; 
+    QLabel* m_pathFilename; 
+    QLabel* m_debugFilename; 
+    QLabel* m_queryFilename; 
+
+    QPushButton* m_mapButton; 
+    QPushButton* m_envButton; 
+    QPushButton* m_pathButton; 
+    QPushButton* m_debugButton; 
+    QPushButton* m_queryButton; 
     
-private:
-
-    void storeAttributes();
-
-    QLabel * Map_label;
-    QLabel * Env_label;
-    QLabel * Path_label;
-    QLabel * Debug_label;
-    QLabel * Query_label;
+    QPushButton* m_doneButton; 
 };
 
-#endif//VIZMO2_FILE_LIST_DIALOG
+#endif//FILE_LIST_DIALOG_H
 

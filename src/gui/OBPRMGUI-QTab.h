@@ -1,4 +1,4 @@
-#ifndef VIZMO2_OBPRM_GUI
+/*#ifndef VIZMO2_OBPRM_GUI
 #define VIZMO2_OBPRM_GUI
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -8,9 +8,9 @@
 #include <qdialog.h>
 #include <q3toolbar.h>
 #include <qwidget.h>
-/*#include <qvbuttongroup.h>*/
+*//*#include <qvbuttongroup.h>*/
 /*#include <Q3VButtonGroup.h> */
-
+/*
 //Added by qt3to4:
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -332,4 +332,4 @@ public:
 };
 
 
-
+*/ 

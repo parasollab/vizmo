@@ -1,4 +1,4 @@
-#include "VizmoEditor.h"
+/*#include "VizmoEditor.h"
 
 #include <iostream>
 
@@ -296,4 +296,4 @@ void vizmoEditor::closeEvent( QCloseEvent* ce )
         ce->accept();
         break;
     }
-}
+}*/ 

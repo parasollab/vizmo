@@ -97,7 +97,7 @@ CaptureOptions::CreateActions(){
   m_actions["picture"] = picture; 
   QAction* movie = new QAction(QPixmap(camcorderIcon), tr("Movie"), this);
   m_actions["movie"] = movie;  
-  m_dialog = new MovieSaveDialog(this, "movie_save", Qt::Dialog); 
+  m_dialog = new MovieSaveDialog(this, Qt::Dialog); 
 
   //2. Set other specifications as necessary
   m_actions["crop"]->setEnabled(false); 
@@ -211,7 +211,10 @@ CaptureOptions::CapturePicture(){
   QString fileExt;
   
   if(fd->exec() == QDialog::Accepted){
-    fileName=fd->selectedFile();
+    QStringList files = fd->selectedFiles(); 
+    QString fileName; 
+    if(!files.empty())
+      fileName = files[0]; 
     string fname = fileName.toStdString();
     string ext = Filter2Ext(fd->selectedFilter().toStdString());
     dump(fname.c_str(), ext.c_str(),xOffset+1,yOffset+1,w-2,h-2);

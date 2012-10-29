@@ -29,7 +29,7 @@ class QWidget;
 
 using namespace std;
 
-class VizmoAnimationGUI : public QToolBar {
+class VizmoAnimationGUI : public QToolBar{
     
   Q_OBJECT
         

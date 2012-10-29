@@ -1,4 +1,4 @@
-#include "vizmo2.h"
+/*#include "vizmo2.h"
 #include "ObjProperty.h"
 #include "icon/Eye.xpm"
 
@@ -68,4 +68,4 @@ BasicPropertyDialog::BasicPropertyDialog
     QPushButton *go = new QPushButton("Done",controls);
     connect(go,SIGNAL(clicked()),this,SLOT(accept()));
 }
-
+*/ 

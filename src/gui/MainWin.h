@@ -46,7 +46,7 @@ class VizmoMainWin : public QMainWindow {
   Q_OBJECT
 
   public:
-    VizmoMainWin(QWidget* _parent = 0, const char* _name = 0);
+    VizmoMainWin(QWidget* _parent = 0);
     virtual ~VizmoMainWin(); 
     
     bool Init();
@@ -55,7 +55,7 @@ class VizmoMainWin : public QMainWindow {
     vector<string>& GetArgs() { return m_args; }  
     void SetArgs(vector<string> _args){ m_args = _args; }
     void SetVizmoInit(bool _tf) { m_bVizmoInit = _tf; } 
-    bool GetVizmoInit() { return m_bVizmoInit; } 
+    bool GetVizmoInit() { return m_bVizmoInit; }
     VizGLWin* GetGLScene() { return m_GL; } 
     TextGUI* GetOutbox(){ return m_outbox; }  
     VizmoAnimationGUI* GetAnimationGUI() { return m_animationGUI; }
@@ -78,14 +78,14 @@ class VizmoMainWin : public QMainWindow {
     void updateScreen();  // redraw GL scene
     void objectEdit();    // change object property
     //void runCode();       //Call obprm  *Does this work?  
-    void createQryFile(); // generate qry command line 
+   // void createQryFile(); // generate qry command line 
 
   private:
     void SetUpLayout();     //Set a QGridLayout for invisible central widget
     
     vector<string> m_args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.
- 
+
     QGridLayout* m_layout;
     QHBoxLayout* m_toolbarLayout;
     QToolBar* m_allTogether;       //all of the toolbars in one...keeps them together for window resize 
