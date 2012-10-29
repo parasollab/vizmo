@@ -159,10 +159,8 @@ DebugModel::BuildForward(){
       m_tempCfgs.push_back(atc->cfg);
       m_tempCfgs.back().Set(0,m_robot,NULL);
       m_tempCfgs.back().SetShape(CCfg::Robot);
-      if(atc->valid == 0)
+      if(!atc->valid)
         m_tempCfgs.back().SetColor(1, 0, 0, 1);
-      else if(atc->valid == 2)
-        m_tempCfgs.back().SetColor(m_currR, m_currG, m_currB, 1);
     }
     else if(ins->name == "AddTempRay"){
       //add temporary ray
@@ -175,8 +173,6 @@ DebugModel::BuildForward(){
       Edge e(1);
       e.Set(1, &ate->source, &ate->target);
       m_tempEdges.push_back(e);
-      m_tempEdges.back().SetThickness(5);
-      m_tempEdges.back().SetColor(m_currR, m_currG, m_currB, 1);
     }
     else if(ins->name == "ClearLastTemp"){
       //clear last temporary cfg, edge, ray
@@ -219,15 +215,6 @@ DebugModel::BuildForward(){
       ClearComments* cc = dynamic_cast<ClearComments*>(ins);
       cc->comments = m_comments;
       m_comments.clear();
-    }
-    else if(ins->name == "SetColor"){
-      SetColorIns* sc = dynamic_cast<SetColorIns*>(ins);
-      m_prevR = m_currR;
-      m_prevG = m_currG;
-      m_prevB = m_currB;
-      m_currR = sc->m_r;
-      m_currG = sc->m_g;
-      m_currB = sc->m_b;
     }
     else if(ins->name == "RemoveNode"){
       //remove an existing node
@@ -428,15 +415,6 @@ DebugModel::BuildBackward(){
       m_comments = cc->comments;
       cc->comments.clear();
     }
-    else if(ins->name == "SetColor"){
-      SetColorIns* sc =dynamic_cast<SetColorIns*>(ins);
-      m_currR = m_prevR;
-      m_currG = m_prevG;
-      m_currB = m_prevB;
-      m_prevR = sc->m_r;
-      m_prevG = sc->m_g;
-      m_prevB = sc->m_b;
-    }
     else if(ins->name == "RemoveNode"){
       //undo removal of node
       RemoveNode* rn = dynamic_cast<RemoveNode*>(ins);
@@ -518,36 +496,6 @@ DebugModel::Draw(GLenum _mode){
       glLineWidth(8);
       edge.Draw(_mode);
     }
-    
-    
-    glPushAttrib(GL_CURRENT_BIT);
-
-    //draw reference axis
-    glMatrixMode(GL_PROJECTION); //change to Ortho view
-    glPushMatrix(); 
-    glLoadIdentity();
-    gluOrtho2D(0,20,0,20);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glDisable(GL_LIGHTING);
-    //Draw text
-    glTranslated(0.25,19.75,0);
-    setfont("times roman", 24);
-    typedef vector<string>::iterator SIT;
-    for(SIT i=m_comments.begin();i!=m_comments.end();i++){
-      //////////////////////////////////////////////
-      glTranslated(0,-0.75,0);
-      glColor3f(0,0,0);
-      drawstr(0,0,0,i->c_str());
-    }   
-    glPopMatrix();
-    //pop GL_PROJECTION
-    glMatrixMode(GL_PROJECTION); //change to Pers view
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopAttrib();
-    setfont("helvetica", 12);
   }
 }
 
