@@ -57,7 +57,7 @@ bool CDebugLoader::ParseFile()
       }
       else if(instructionName=="AddTempCfg"){
         CCfg c;
-        bool valid;
+        size_t valid;
         iss>>c>>valid;
         if(valid) c.SetColor(0,0,0,0.25);
         else c.SetColor(1,0,0,0.25);
@@ -81,6 +81,11 @@ bool CDebugLoader::ParseFile()
       }
       else if(instructionName=="ClearComments"){
         m_iList.push_back(new ClearComments());
+      }
+      else if(instructionName=="SetColor"){
+        float r, g, b;
+        iss >> r >> g >> b;
+        m_iList.push_back(new SetColorIns(r, g, b));
       }
       else if(instructionName=="RemoveNode"){
         CCfg c;

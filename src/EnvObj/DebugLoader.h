@@ -44,9 +44,9 @@ struct AddEdge : public Instruction {
 };
 
 struct AddTempCfg : public Instruction {
-  AddTempCfg(CCfg c, bool v):cfg(c), valid(v){name = "AddTempCfg";};
+  AddTempCfg(CCfg c, size_t v):cfg(c), valid(v){name = "AddTempCfg";};
   CCfg cfg;
-  bool valid;
+  size_t valid;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<" Valid::"<<valid<<endl;
   }
@@ -98,6 +98,14 @@ struct ClearComments : public Instruction {
   ClearComments(){name = "ClearComments";}
   virtual void Print(ostream& oss){
     oss<<name<<endl;
+  }
+};
+
+struct SetColorIns : public Instruction {
+  float m_r, m_g, m_b;
+  SetColorIns(float _r, float _g, float _b):m_r(_r),m_g(_g),m_b(_b){name = "SetColor";}
+  virtual void Print(ostream& oss){
+    oss << name << m_r << " " << m_g << " " << m_b << endl;
   }
 };
 

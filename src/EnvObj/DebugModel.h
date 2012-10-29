@@ -66,7 +66,7 @@ class DebugModel : public CGLModel {
     vector<Edge> m_tempEdges, m_query;
     CCfg* m_tempRay;
     vector<string> m_comments;
-
+    float m_prevR, m_prevG, m_prevB, m_currR, m_currG, m_currB;
 };
 
 #endif // !defined(_PATHMODEL_H_)

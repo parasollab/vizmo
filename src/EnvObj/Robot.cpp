@@ -58,7 +58,7 @@ bool OBPRMView_Robot::BuildModels(){
    for(int i = 0; i<numMBody; i++ ){
       if( pMInfo[i].m_active ){
          if(pMInfo[i].m_pBodyInfo[0].m_bIsFixed)
-            m_RobotModel = new MultiBodyModel(pMInfo[0]);
+            m_RobotModel = new MultiBodyModel(pMInfo[i]);
          else
             m_RobotModel = new MultiBodyModel(pMInfo[i]);
 
