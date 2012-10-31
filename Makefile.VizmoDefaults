@@ -44,7 +44,7 @@ QT4DIR = /usr
 #QT4DIR = /usr/share/qt4
 endif
 ifeq ($(platform), LINUX_64_gcc)
-MOC      = /usr/lib/qt4/bin/moc
+MOC      = /usr/lib64/qt4/bin/moc
 QT4DIR = /usr
 endif
 ifeq ($(platform), MACOS_gcc)
