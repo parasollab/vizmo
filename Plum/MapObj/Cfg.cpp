@@ -144,8 +144,8 @@ namespace plum{
     glDisable(GL_LIGHTING);
     switch(m_shape){
 
-      case Robot: 
-        if( m_robot!=NULL ){
+      case Robot:   
+        if(m_robot!=NULL){
           
           vector<double> cfg = m_dofs; 
 
@@ -156,8 +156,8 @@ namespace plum{
 
           //change
           m_robot->SetColor(1,1,0,0);
-          m_robot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
-          m_robot->Scale(m_Scale[0],m_Scale[1],m_Scale[2]);
+          m_robot->SetColor(m_RGBA[0], m_RGBA[1], m_RGBA[2], 1);
+          m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
           m_robot->Configure(cfg);
           //delete[] cfg;
 
@@ -167,7 +167,7 @@ namespace plum{
           //restore
           m_robot->Restore();  
           m_robot->SetColor(origColor[0],origColor[1],origColor[2],origColor[3]);  
-        };
+        };  
         break;
 
       case Box:         

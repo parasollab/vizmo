@@ -1111,7 +1111,7 @@ void vizmo::UpdateSelection(){
         CMapModel<CCfg,Edge>* mmodel = (MM*)m_obj.m_Map->getModel();
         vector<CC*>& cc = mmodel->GetCCModels();
         if(m_s != "NULL"){
-          for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
+          for(CCIT ic=cc.begin();ic!=cc.end();ic++){
             typedef map<CC::VID, CCfg>::iterator NIT;
             for(NIT i=(*ic)->m_Nodes.begin(); i!=(*ic)->m_Nodes.end(); i++)
               if(StringToInt(m_s, m_i)){
@@ -1119,8 +1119,6 @@ void vizmo::UpdateSelection(){
                   (*ic)->DrawSelect();
                   (*ic)->newColor = true;
                   (*ic)->ReBuildAll();            
-                  (*ic)->DrawRobotNodes(GL_RENDER);
-                  (*ic)->DrawSelect();
                 }
               }
           }
