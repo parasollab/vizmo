@@ -120,7 +120,6 @@ VizGLWin::SetLight(){
 
 void 
 VizGLWin::mousePressEvent(QMouseEvent* e){
-
   if( gliMP(e) ){ 
     updateGL(); 
     return; 

@@ -111,7 +111,7 @@ namespace plum{
       OBPRMView_Robot* GetRobot() const {return m_robot;}
 
       static void SetDof(int _d) { m_dof = _d; }
-      void SetShape(Shape _shape){ m_shape=_shape; }
+      void SetShape(Shape _shape){ m_shape =_shape; }
       //set new values to dofs vector
       void SetCfg(vector<double> _newCfg);
       void SetIndex(int _i) { m_index = _i; } 
@@ -135,6 +135,7 @@ namespace plum{
         return m_defaultDOF;}
 
 
+      static Shape m_shape;
     //////////////////////////////////////////////////////////////////////
     //      Protected Method & Data
     //////////////////////////////////////////////////////////////////////
@@ -144,7 +145,6 @@ namespace plum{
       vector<double> m_dofs;
       int m_index;
       double m_unknow1, m_unknow2, m_unknow3;
-      Shape m_shape;
       CCModelBase* m_cc;       
 
     //////////////////////////////////////////////////////////////////////

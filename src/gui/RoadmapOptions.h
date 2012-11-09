@@ -12,7 +12,7 @@
 #include "QButtonGroup" 
 
 class QPushButton; 
-class NodeSizeDialog;
+class SizeSliderDialog;
 
 class RoadmapOptions : public OptionsBase{
 
@@ -64,8 +64,9 @@ class RoadmapOptions : public OptionsBase{
     QMenu* m_modifySelected;
     QMenu* m_modifyCCs; 
 
-    NodeSizeDialog* m_nodeSizeDialog; //Provides slider to scale nodes  
-    
+    SizeSliderDialog* m_nodeSizeDialog; //Provides slider to scale nodes  
+    SizeSliderDialog* m_edgeThicknessDialog; //Slider to scale the edges 
+
     size_t m_edgeThickness;
     double m_nodeSize; 
     //  queryGUI* m_nodeGUI;  ***TEMPORARY DISABLE 

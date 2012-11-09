@@ -914,18 +914,24 @@ vizmo::ChangeEdgeThickness(size_t _t){
 }
 
 void vizmo::ChangeNodesShape(string s){
-  if(m_obj.m_Robot==NULL) 
+  if(m_obj.m_Robot==NULL)  
     return;
 
   if(m_obj.m_Map==NULL && m_obj.m_Debug==NULL) 
-    return;
+    return; 
 
+  if(s == "Robot")
+    CCfg::m_shape = CCfg::Robot; 
+  if(s == "Box")
+    CCfg::m_shape = CCfg::Box; 
+  else   
+    CCfg::m_shape = CCfg::Point;
 
   typedef CMapModel<CCfg,Edge> MM;
   typedef CCModel<CCfg,Edge> CC;
   typedef vector<CC*>::iterator CCIT;
 
-  if(m_obj.m_Map!=NULL){
+  if(m_obj.m_Map!=NULL){ 
     CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->getModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){

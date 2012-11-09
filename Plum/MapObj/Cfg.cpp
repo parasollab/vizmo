@@ -13,6 +13,7 @@ namespace plum{
   CCfg CCfg::m_invalidCfg;
   int CCfg::m_dof = 0;
   double CCfg::m_defaultDOF = 0;
+  CCfg::Shape CCfg::m_shape = CCfg::Point;
 
   //////////////////////////////////////////////////////////////////////
   // Construction/Destruction
@@ -23,7 +24,6 @@ namespace plum{
     m_unknow2 = LONG_MAX;
     m_unknow3 = LONG_MAX;
     m_index = -1;
-    m_shape=Point;
     m_coll = false;
     m_dofs.clear();
   }
@@ -37,7 +37,6 @@ namespace plum{
     m_cc = _cfg.m_cc;
     m_coll = _cfg.m_coll;
     m_dofs = _cfg.m_dofs;
-    m_shape = _cfg.m_shape; 
 
     m_unknow1 = _cfg.m_unknow1;
     m_unknow2 = _cfg.m_unknow2;
@@ -122,7 +121,8 @@ namespace plum{
   void 
   CCfg::Draw(GLenum _mode){
     glPushName(m_index);
-    switch(m_shape){
+    Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->getShape());
+    switch(shape){
       case Robot:
         DrawRobot();
         break;
@@ -142,7 +142,8 @@ namespace plum{
   CCfg::DrawSelect() { 
     glColor3d(1,1,0);
     glDisable(GL_LIGHTING);
-    switch(m_shape){
+    Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->getShape());
+    switch(shape){
 
       case Robot:   
         if(m_robot!=NULL){
@@ -170,7 +171,7 @@ namespace plum{
         };  
         break;
 
-      case Box:         
+      case Box:     
         glLineWidth(2);
         glPushMatrix();
         glTranslated( m_dofs[0], m_dofs[1], m_dofs[2] );

@@ -20,7 +20,7 @@
 #include <QMessageBox> 
 
 #include "RoadmapOptions.h"
-#include "NodeSizeDialog.h" 
+#include "SizeSliderDialog.h" 
 #include "OptionsBase.h" 
 #include "SceneWin.h"
 #include "MainWin.h"
@@ -99,16 +99,17 @@ void RoadmapOptions::CreateActions(){
 
   QAction* scaleNodes = new QAction(QPixmap(nodeSizeIcon), tr("Scale Nodes"), this);
   m_actions["scaleNodes"] = scaleNodes;
-  //NodeSizeDialog needs a plain QWidget as a parent, but to actually access
+  //SizeSliderDialog needs a plain QWidget as a parent, but to actually access
   //this parent as RoadmapOptions within the dialog class, a RoadmapOptions
-  //pointer is stored there (hence, we have NodeSizeDialog(QWidget* _parent,
+  //pointer is stored there (hence, we have SizeSliderDialog(QWidget* _parent,
   //RoadmapOptions* _accessParent) in the constructor). Alternatively, the
   //constructor can just take the first argument, and the parent can be casted
   //when needed in the dialog class. 
-  m_nodeSizeDialog = new NodeSizeDialog(this, this); 
+  m_nodeSizeDialog = new SizeSliderDialog("node", this, this); //String argument is the dialog mode 
 
   QAction* edgeThickness = new QAction(QPixmap(edgeThicknessIcon), tr("Change Edge Thickness"), this); 
   m_actions["edgeThickness"] = edgeThickness;
+  m_edgeThicknessDialog = new SizeSliderDialog("edge", this, this); 
 
   QAction* colorSelected = new QAction(QPixmap(ccColor), tr("Change Color of Selected"), this);  
   m_actions["colorSelected"] = colorSelected; 
@@ -293,7 +294,8 @@ RoadmapOptions::Reset(){
   m_actions["randomizeColors"]->setEnabled(true);
   m_actions["ccsOneColor"]->setEnabled(true);
 
-  m_nodeSizeDialog->Reset(); 
+  m_nodeSizeDialog->Reset();
+  m_edgeThicknessDialog->Reset(); 
   
   if(GetMapModel() != NULL){
     GetMapModel()->GetNodeList().clear(); 
@@ -457,13 +459,14 @@ void RoadmapOptions::ScaleNodes(){
 void
 RoadmapOptions::ChangeEdgeThickness(){
 
-  bool ok = false;
-  m_edgeThickness = QInputDialog::getDouble(this, tr("Change Roadmap Edge Thickness"), 
-      tr("Enter a positive number between 1 and 10 to scale the thickness of the edges"), 
-      m_edgeThickness, 1, 10, 2, &ok); //TO DO: Fix minor display issue  
+  m_edgeThicknessDialog->show(); 
+  //  bool ok = false;
+//  m_edgeThickness = QInputDialog::getDouble(this, tr("Change Roadmap Edge Thickness"), 
+//      tr("Enter a positive number between 1 and 10 to scale the thickness of the edges"), 
+//      m_edgeThickness, 1, 10, 2, &ok); //TO DO: Fix minor display issue  
 
-  if(ok)
-    GetVizmo().ChangeEdgeThickness(m_edgeThickness);
+ // if(ok)
+ //   GetVizmo().ChangeEdgeThickness(m_edgeThickness);
 }
 
 void 
