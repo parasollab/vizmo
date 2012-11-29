@@ -66,7 +66,7 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f)
   :QDialog(_parent, _f)
 {
   m_sFileName = "vizmo_movie";
-  m_sFileExt = "jpg";
+  m_sFileExt = ".jpg";
   m_frameDigit = 5;
   
   //1. Create subwidgets/members 
@@ -83,7 +83,7 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f)
   m_stepSizeEdit->setValidator(new QIntValidator(this));
 
   m_selectNameButton = new QPushButton("Select Name", this);
-  m_fileNameLabel = new QLabel((m_sFileName+"#####." + m_sFileExt), this);
+  m_fileNameLabel = new QLabel((m_sFileName+"#####" + m_sFileExt), this);
 
   m_go = new QPushButton("Go", this);
   m_cancel = new QPushButton("Cancel", this);
