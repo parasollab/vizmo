@@ -231,9 +231,6 @@ void OBPRMView_Robot::Configure( double * cfg) {
   Vector3d position;
   Orientation orientation;
 
-  static double TwoPI=3.1415926535*2.0;
-
-
   /////////////////////////////////////////////////////////////////////////////
   for( int iM=0; iM<numMBody; iM++ ){
     if( MBInfo[iM].m_active )
@@ -272,13 +269,13 @@ void OBPRMView_Robot::Configure( double * cfg) {
       if(rit->m_baseMovement == Robot::ROTATIONAL){
         if(rit->m_base==Robot::PLANAR){
           index++;
-          gamma = cfg[posIndex+2] * TwoPI;
+          gamma = cfg[posIndex+2] * PI;
         }
         else{
           index+=3;
-          alpha = cfg[posIndex+3] * TwoPI;
-          beta = cfg[posIndex+4] * TwoPI;
-          gamma = cfg[posIndex+5] * TwoPI;
+          alpha = cfg[posIndex+3] * PI;
+          beta = cfg[posIndex+4] * PI;
+          gamma = cfg[posIndex+5] * PI;
         }
       }
     }
@@ -314,11 +311,11 @@ void OBPRMView_Robot::Configure( double * cfg) {
     //Compute position and orientation for all of the links left
     typedef Robot::JointMap::iterator MIT;
     for(MIT mit = rit->m_joints.begin(); mit!=rit->m_joints.end(); mit++){
-      double theta = cfg[index] * TwoPI;
+      double theta = cfg[index] * PI;
       index++;
       double alpha = 0;
       if(mit->second == Robot::SPHERICAL){
-        alpha = cfg[index] * TwoPI;
+        alpha = cfg[index] * PI;
         index++;
       }
 
@@ -390,8 +387,6 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 
    CGLModel * rl;
 
-   double TwoPI=3.1415926535*2.0;    
-
    list<CGLModel*> robotList;
    m_RobotModel->GetChildren(robotList);
 
@@ -438,9 +433,9 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             //set new angles for first polyhedron
             //NOTE:: This works for **FREE** robots
 
-            currCfg[3] =  m_RobotModel->rx()/TwoPI;
-            currCfg[4] =  m_RobotModel->ry()/TwoPI;
-            currCfg[5] =  m_RobotModel->rz()/TwoPI;
+            currCfg[3] =  m_RobotModel->rx()/PI;
+            currCfg[4] =  m_RobotModel->ry()/PI;
+            currCfg[5] =  m_RobotModel->rz()/PI;
 
 
             //currCfg[3] = rl->rx();
@@ -491,9 +486,9 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             //set new angles for first polyhedron
             //NOTE:: This works for **FREE** robots
 
-            currCfg[3] =  m_RobotModel->rx()/TwoPI;
-            currCfg[4] =  m_RobotModel->ry()/TwoPI;
-            currCfg[5] =  m_RobotModel->rz()/TwoPI;
+            currCfg[3] =  m_RobotModel->rx()/PI;
+            currCfg[4] =  m_RobotModel->ry()/PI;
+            currCfg[5] =  m_RobotModel->rz()/PI;
 
          }
          else{
@@ -501,9 +496,9 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             currCfg[0] = m_RobotModel->tx() + cfg[0][0];
             currCfg[1] = m_RobotModel->ty() + cfg[0][1];
             currCfg[2] = m_RobotModel->tz() + cfg[0][2];
-            currCfg[3] = vRot[0]/TwoPI;
-            currCfg[4] = vRot[1]/TwoPI;
-            currCfg[5] = vRot[2]/TwoPI;
+            currCfg[3] = vRot[0]/PI;
+            currCfg[4] = vRot[1]/PI;
+            currCfg[5] = vRot[2]/PI;
          }
 
       }
@@ -552,9 +547,9 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
       //set new angles for first polyhedron
       //NOTE:: This works for **FREE** robots
 
-      currCfg[3] =  m_RobotModel->rx()/TwoPI;
-      currCfg[4] =  m_RobotModel->ry()/TwoPI;
-      currCfg[5] =  m_RobotModel->rz()/TwoPI;	
+      currCfg[3] =  m_RobotModel->rx()/PI;
+      currCfg[4] =  m_RobotModel->ry()/PI;
+      currCfg[5] =  m_RobotModel->rz()/PI;	
 
       vCfg.push_back(currCfg);
       this->storeCfg(vCfg, ch, dof);
@@ -573,8 +568,6 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
   vector<double *> vCfg;
 
   CGLModel * rl;
-
-  double TwoPI=3.1415926535*2.0;    
 
   list<CGLModel*> robotList;
   m_RobotModel->GetChildren(robotList);
@@ -627,9 +620,9 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
         //set new angles for first polyhedron
         //NOTE:: This works for **FREE** robots
 
-        currCfg[3] =  m_RobotModel->rx()/TwoPI;
-        currCfg[4] =  m_RobotModel->ry()/TwoPI;
-        currCfg[5] =  m_RobotModel->rz()/TwoPI;
+        currCfg[3] =  m_RobotModel->rx()/PI;
+        currCfg[4] =  m_RobotModel->ry()/PI;
+        currCfg[5] =  m_RobotModel->rz()/PI;
       }
     }
     else{ //user moved robot by hand 
@@ -675,9 +668,9 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
         //set new angles for first polyhedron
         //NOTE:: This works for **FREE** robots
 
-        currCfg[3] =  m_RobotModel->rx()/TwoPI;
-        currCfg[4] =  m_RobotModel->ry()/TwoPI;
-        currCfg[5] =  m_RobotModel->rz()/TwoPI;
+        currCfg[3] =  m_RobotModel->rx()/PI;
+        currCfg[4] =  m_RobotModel->ry()/PI;
+        currCfg[5] =  m_RobotModel->rz()/PI;
 
       }
       else{
@@ -685,9 +678,9 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
         currCfg[1] = m_RobotModel->ty();
         currCfg[2] = m_RobotModel->tz();
 
-        currCfg[3] = vRot[0]/TwoPI;
-        currCfg[4] = vRot[1]/TwoPI;
-        currCfg[5] = vRot[2]/TwoPI;
+        currCfg[3] = vRot[0]/PI;
+        currCfg[4] = vRot[1]/PI;
+        currCfg[5] = vRot[2]/PI;
       }
 
     }
@@ -738,9 +731,9 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
     //set new angles for first polyhedron
     //NOTE:: This works for **FREE** robots
 
-    currCfg[3] =  m_RobotModel->rx()/TwoPI;
-    currCfg[4] =  m_RobotModel->ry()/TwoPI;
-    currCfg[5] =  m_RobotModel->rz()/TwoPI;	
+    currCfg[3] =  m_RobotModel->rx()/PI;
+    currCfg[4] =  m_RobotModel->ry()/PI;
+    currCfg[5] =  m_RobotModel->rz()/PI;	
 
 
     m_RobotModel->SetCfg(currCfg);
