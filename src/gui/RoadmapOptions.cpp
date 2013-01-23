@@ -460,13 +460,6 @@ void
 RoadmapOptions::ChangeEdgeThickness(){
 
   m_edgeThicknessDialog->show(); 
-  //  bool ok = false;
-//  m_edgeThickness = QInputDialog::getDouble(this, tr("Change Roadmap Edge Thickness"), 
-//      tr("Enter a positive number between 1 and 10 to scale the thickness of the edges"), 
-//      m_edgeThickness, 1, 10, 2, &ok); //TO DO: Fix minor display issue  
-
- // if(ok)
- //   GetVizmo().ChangeEdgeThickness(m_edgeThickness);
 }
 
 void 
@@ -480,7 +473,7 @@ RoadmapOptions::ColorSelectedCC(){
   typedef vector<gliObj>::iterator SI;
   string m_sO;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    CGLModel *gl = (CGLModel*)(*i);
+    CGLModel* gl = (CGLModel*)(*i);
     m_sO = gl->GetName();
   }
 
@@ -489,20 +482,22 @@ RoadmapOptions::ColorSelectedCC(){
 
   position = m_sO.find("CC",0);
 
-  if(position != string::npos){
+  if(position != string::npos){ //Label "CC" has been found   
     QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
     if (color.isValid()){
       R = (double)(color.red()) / 255.0;
       G = (double)(color.green()) / 255.0;
       B = (double)(color.blue()) / 255.0;
     }
-  }
 
   string s;
   if(m_nodeView->checkedButton() != 0)
     s = (string)(m_nodeView->checkedButton())->text().toAscii();
   GetVizmo().ChangeCCColor(R, G, B, s);
   GetMainWin()->GetGLScene()->updateGL(); 
+  } 
+  else
+    QMessageBox::about(this, "", "Please select a connected component from the <b>Environment Objects</b> menu.");   
 }
 
 void 
