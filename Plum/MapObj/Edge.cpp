@@ -159,6 +159,10 @@ namespace plum{
     _cfg.m_dofs.clear();
     int dof=CCfg::m_dof;
 
+    //For now, read in and discard robot index;
+    int robotIndex;
+    _in >> robotIndex;
+
     for(int i = 0; i < dof; i++){
       double value;
       _in >> value;
@@ -169,7 +173,7 @@ namespace plum{
   }
 
   ostream&
-  operator<<(ostream& _out, const Edge& _edge) {
+    operator<<(ostream& _out, const Edge& _edge) {
       _out << _edge.m_lp << " " << _edge.m_weight << " ";
       return _out;
     }

@@ -35,9 +35,11 @@ bool CPathLoader::ParseFile()
     
     /////////////////////////////////////////////////////////////////////////////////////////
     //Read file info
-    char garbige[100];
-    fin.getline(garbige,99);        //the garbege of path file
-    fin.getline(garbige,99);
+    //We throw out the first two lines, which gives path version
+    //and which line to start on (always 1)
+    string garbage;
+    getline(fin, garbage);
+    getline(fin, garbage);
     
     unsigned int iPathSize=0;
     fin>>iPathSize;
@@ -47,13 +49,17 @@ bool CPathLoader::ParseFile()
     for( unsigned int iF=0;iF<iPathSize;iF++ )
     {
       vector<double> dCfg(dof);
+      //need to track robot index
+      //for now just discard
+      int robotIndex;
+      fin >> robotIndex;
 
       for(int j=0; j<dof; j++){
-	fin>>dCfg[j];
+        fin>>dCfg[j];
       }
       m_pList.push_back(dCfg);
     }
-    
+
     /////////////////////////////////////////////////////////////////////////////////////////
     //bye bye!!
     fin.close();
@@ -62,10 +68,10 @@ bool CPathLoader::ParseFile()
 
 vector<double>
 CPathLoader::GetConfiguration(int frame) {
-	if(frame>=(int)m_pList.size()) frame=m_pList.size()-1;
-	if(frame<0 ) frame=0;
-	vector<double> currentCfg = GetConfigure(false, frame);    
-	return currentCfg;
+  if(frame>=(int)m_pList.size()) frame=m_pList.size()-1;
+  if(frame<0 ) frame=0;
+  vector<double> currentCfg = GetConfigure(false, frame);    
+  return currentCfg;
 }
 
 vector<double> 
@@ -74,12 +80,12 @@ CPathLoader::GetConfigure( bool bOutputFrameNumber, int & index ) {
 
   if( bOutputFrameNumber )
     cout<< "- ChainMaiViewer Mag : Current Frame # = " << index
-        << "/"<< m_pList.size()-1 <<endl;
+      << "/"<< m_pList.size()-1 <<endl;
 
   return currentCfg;
 }
 
 void 
 CPathLoader::FreePathList(){
-    m_pList.clear();
+  m_pList.clear();
 }
