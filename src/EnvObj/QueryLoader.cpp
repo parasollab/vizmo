@@ -48,6 +48,11 @@ bool CQueryLoader::ParseFile()
     for( unsigned int iF=0;iF<iFileSize;iF++ )
     {
       dCfg=new double[dof];
+
+      //read in Robot Index and throw it away for now
+      double robotIndex;
+      fin >> robotIndex;
+
       for(int j=0; j<dof; j++){
         fin>>dCfg[j];
       }
