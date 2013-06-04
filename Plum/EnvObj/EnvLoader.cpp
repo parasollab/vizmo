@@ -5,6 +5,8 @@
 #include "EnvLoader.h"
 #include "MultiBodyInfo.h"
 #include "MapObj/Cfg.h"
+#include "src/EnvObj/BoundingBoxModel.h"
+#include "src/EnvObj/BoundingSphereModel.h"
 
 #define  PI_180 3.1415926535/180 
 
@@ -18,6 +20,7 @@ namespace plum{
     m_cNumberOfMultiBody = 0;
     m_pMBInfo=NULL;
     m_ContainsSurfaces=false; //this trigger will cause objs to not be offset
+    m_boundary = NULL;
   }
 
   CEnvLoader::~CEnvLoader() {
@@ -29,7 +32,7 @@ namespace plum{
   //////////////////////////////////////////////////////////////////////
 
   bool 
-    CEnvLoader::ParseFile( ) {
+    CEnvLoader::ParseFile() {
       if(CheckCurrentStatus()==false)
 	return false;
 
@@ -61,9 +64,41 @@ namespace plum{
     cout<<"- Geo Dir   : "<<m_strModelDataDir<<endl;
   }
 
-  bool CEnvLoader::ParseFileHeader( ifstream & ifs ) {
+  bool CEnvLoader::ParseFileHeader(ifstream & ifs) {
+    //read boundary
+    string b = ReadFieldString(ifs, "Boundary Tag");
+    if(b != "BOUNDARY") {
+      cerr << "Error reading boundary tag." << endl;
+      return false;
+    }
+    if(!ParseBoundary(ifs)){
+      cerr << "Error parsing boundary." << endl;
+      return false;
+    }
+    
+    //read number of multibodies
+    string mb = ReadFieldString(ifs, "Number of Multibodies tag");
+    if(mb != "MULTIBODIES"){
+      cerr << "Error reading environment multibodies tag." << endl;
+      return false;
+    }
     m_cNumberOfMultiBody = ReadField<int>(ifs, "Number of Multibodies");
     return true;
+  }
+  
+  bool CEnvLoader::ParseBoundary(ifstream& _ifs) {
+    string type = ReadFieldString(_ifs, "Boundary type");
+    if(type == "BOX"){
+      m_boundary = new BoundingBoxModel();
+    }
+    else if(type == "SPHERE"){
+      m_boundary = new BoundingSphereModel();
+    }
+    else{
+      cerr << "Error reading boundary type " << type << ". Choices are BOX or SPHERE." << endl;
+      return false;
+    }
+    return m_boundary->Parse(_ifs);
   }
 
   bool CEnvLoader::ParseFileBody( ifstream & ifs ) {

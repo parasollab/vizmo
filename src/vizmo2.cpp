@@ -300,10 +300,6 @@ void vizmo_obj::Clean(){
       delete m_Robot->getModel(); delete m_Robot->getLoader(); delete m_Robot;
    }
 
-   if( m_BBox!=NULL ){
-      delete m_BBox->getModel(); delete m_BBox->getLoader(); delete m_BBox;
-   }
-
    if( m_Qry!=NULL ){
       delete m_Qry->getModel(); delete m_Qry->getLoader(); delete m_Qry;
    }
@@ -323,7 +319,7 @@ void vizmo_obj::Clean(){
    if( m_Map!=NULL ){
       delete m_Map->getModel(); delete m_Map->getLoader(); delete m_Map;
    }
-   m_Robot=m_BBox=m_Qry=m_Path=m_Debug=m_Env=m_Map=NULL;
+   m_Robot = m_Qry = m_Path = m_Debug = m_Env = m_Map = NULL;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -332,7 +328,6 @@ void vizmo_obj::Clean(){
 
 vizmo::vizmo()
 {
-   m_obj.m_show_BBox=true;
    m_obj.m_show_Qry=false; 
    m_obj.m_show_Path=false;       
    m_obj.m_show_Debug=false;       
@@ -438,12 +433,11 @@ bool vizmo::InitVizmoObject()
    }
 
    //create bbx
-   if(!CreateBBoxObj(m_obj)){
-     return false;}
+   //if(!CreateBBoxObj(m_obj)){
+   //  return false;}
 
    //add all of them into plum
 
-   m_Plum.AddPlumObject(m_obj.m_BBox);
    m_Plum.AddPlumObject(m_obj.m_Robot);
    m_Plum.AddPlumObject(m_obj.m_Env);
    m_Plum.AddPlumObject(m_obj.m_Path);
@@ -469,7 +463,6 @@ bool vizmo::InitVizmoObject()
    ShowPathFrame(m_obj.m_show_Path);
    ShowDebugFrame(m_obj.m_show_Debug);
    ShowQueryFrame(m_obj.m_show_Qry);
-   ShowBBox(m_obj.m_show_BBox);
 
    return true;
 }
@@ -705,20 +698,6 @@ void vizmo::ShowQueryFrame(bool bShow){
    else 
       m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
 } 
-
-// Code to show or hide bouding box!!!!
-// BSS
-
-void vizmo::ShowBBox(bool bShow){
-   m_obj.m_show_BBox=bShow;
-   if(m_obj.m_BBox==NULL) 
-     return;
-   CGLModel * m=m_obj.m_BBox->getModel();
-   if(bShow)
-      m->SetRenderMode(CPlumState::MV_SOLID_MODE);
-   else
-      m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
-}
 
 // Code To change the appearance of the env.. 
 // BSS
@@ -1185,11 +1164,6 @@ void vizmo::ChangeNodeColor(double r, double g, double b, string s){
       vector<CC*>& cc=mmodel->GetCCModels();
       if(m_s != "NULL"){
          for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-            CC::Shape shape=CC::Point;
-            if( s=="Robot" ) 
-              shape=CC::Robot;
-            else if( s=="Box" ) 
-              shape=CC::Box;
             typedef map<CC::VID, CCfg>::iterator NIT;
             for(NIT i=(*ic)->m_Nodes.begin();i!=(*ic)->m_Nodes.end();i++)
                if(StringToInt(m_s, m_i)){
@@ -1323,25 +1297,6 @@ bool vizmo::CreateQueryObj( vizmo_obj& obj, const string& fname )
       qmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
    obj.m_Qry=new PlumObject(qmodel,qloader);
    return (obj.m_Qry!=NULL);
-}
-
-bool vizmo::CreateBBoxObj( vizmo_obj& obj )
-{
-   if( obj.m_Map==NULL ) 
-     return true; //can't build
-   CMapHeaderLoader * maploader=(CMapHeaderLoader*)obj.m_Map->getLoader();
-   if( maploader->ParseHeader()==false ) 
-     return false;
-   const string command=maploader->GetPreamble();
-   CBoundingBoxParser * bloader=new CBoundingBoxParser();
-   CBoundingBoxesModel * bmodel=new CBoundingBoxesModel();
-   if( bloader==NULL || bmodel==NULL ){ 
-      return false;}
-   //well, this time we view filename as command
-   bloader->SetDataFileName(command);
-   bmodel->SetBBXParser(bloader);
-   obj.m_BBox=new PlumObject(bmodel,bloader);
-   return (obj.m_BBox!=NULL);
 }
 
 bool vizmo::CreateRobotObj( vizmo_obj& obj )

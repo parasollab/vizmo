@@ -18,6 +18,11 @@ namespace plum {
   bool CEnvModel::BuildModels(){
     if( m_envLoader==NULL ) return false;
 
+    //build boundary model
+    m_boundary = m_envLoader->GetBoundaryModel();
+    if(!m_boundary) return false;
+    if(!m_boundary->BuildModels()) return false;
+
     //create MutileBody Model
     int MBSize = m_envLoader->GetNumberOfMultiBody();
     m_pMBModel.reserve(MBSize);
@@ -49,8 +54,14 @@ namespace plum {
     if( mode==GL_SELECT && !m_enableSelection ) 
       return;
 
+    int MBSize = m_pMBModel.size();
+    if(mode == GL_SELECT)
+      glPushName(MBSize);
+    m_boundary->Draw(mode);
+    if(mode == GL_SELECT)
+      glPopName();
+    
     glLineWidth(1);
-    int MBSize=m_pMBModel.size();
     for( int iP=0; iP<MBSize; iP++ ) {
       if(m_pMBModel[iP]->IsFixed()){
         if( mode==GL_SELECT ) 
@@ -64,25 +75,25 @@ namespace plum {
 
 
   void CEnvModel::ChangeColor(){
-    int MBSize=m_pMBModel.size();
+    int MBSize = m_pMBModel.size();
     float R, G, B;
-
-    for( int iP=0; iP<MBSize; iP++ ){
+    for(int iP=0; iP<MBSize; iP++){
       R  = ((float)rand())/RAND_MAX;
       G = ((float)rand())/RAND_MAX;
       B = ((float)rand())/RAND_MAX;
       m_pMBModel[iP]->SetColor( R, G, B, 1);
     }
-
   }
 
   void CEnvModel::Select( unsigned int * index, vector<gliObj>& sel ) {    
     //cout << "selecting env object" << endl;
     //unselect old one       
-    if( index==NULL ) return;
-    if( *index>=m_pMBModel.size() ) //input error
+    if( !index || *index>m_pMBModel.size() ) //input error
       return;
-    m_pMBModel[index[0]]->Select(index+1,sel);
+    else if(*index == m_pMBModel.size())
+      m_boundary->Select(index+1, sel);
+    else
+      m_pMBModel[index[0]]->Select(index+1,sel);
   }
 
   vector<string> 

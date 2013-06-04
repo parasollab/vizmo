@@ -2,8 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_BOUNDINGBOXESMODEL_H__26E04623_BE82_4DD5_8A16_7B6C7D222149__INCLUDED_)
-#define AFX_BOUNDINGBOXESMODEL_H__26E04623_BE82_4DD5_8A16_7B6C7D222149__INCLUDED_
+#ifndef BOUNDINGBOXESMODEL_H_
+#define BOUNDINGBOXESMODEL_H_
 
 //////////////////////////////////////////////////////////////////////
 //Plum Headers
@@ -39,7 +39,7 @@ class CBoundingBoxesModel : public CGLModel
       virtual vector<string> GetInfo() const;
       virtual void Select( unsigned int * index, vector<gliObj>& sel );
       virtual void GetChildren( list<CGLModel*>& models ){
-         typedef vector<CBoundingBoxModel*>::iterator BIT;
+         typedef vector<BoundingBoxModel*>::iterator BIT;
          for(BIT i=m_BBXModels.begin();i!=m_BBXModels.end();i++)
             models.push_back(*i);
       }
@@ -49,14 +49,14 @@ class CBoundingBoxesModel : public CGLModel
       //////////////////////////////////////////////////////////////////////
    private:
       CBoundingBoxParser * m_pBBXParser;
-      vector<CBoundingBoxModel*> m_BBXModels;
+      vector<BoundingBoxModel*> m_BBXModels;
 
       enum overlapType {O,EN,EP,D};
-      vector<CBoundingBoxModel*> m_BBXOverlaps;
+      vector<BoundingBoxModel*> m_BBXOverlaps;
 
-      overlapType classify(double min1, double max1, double min2, double max2);
-      vector<double> overlap(vector<double>& a, vector<double>& b);
-      void BuildOverlapModel(vector<double>& a, vector<double>& b);
+      //overlapType classify(double min1, double max1, double min2, double max2);
+      //vector<double> overlap(vector<double>& a, vector<double>& b);
+      //void BuildOverlapModel(vector<double>& a, vector<double>& b);
 };
 
-#endif // !defined(AFX_BOUNDINGBOXESMODEL_H__26E04623_BE82_4DD5_8A16_7B6C7D222149__INCLUDED_)
+#endif

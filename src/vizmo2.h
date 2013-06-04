@@ -178,12 +178,11 @@ class vizmo_obj{
 
       //////////////////////////////////////////////////////////////////////
       // Construction/Destruction
-      vizmo_obj(){m_Robot=m_BBox=m_Qry=m_Path=m_Env=m_Map=NULL;}
+      vizmo_obj(){m_Robot = m_Qry = m_Path = m_Env = m_Map = NULL;}
       ~vizmo_obj(){Clean();}
       void Clean();
 
       PlumObject* m_Robot;   
-      PlumObject* m_BBox;    bool m_show_BBox;
       PlumObject* m_Qry;     bool m_show_Qry;  string m_QryFile;
       PlumObject* m_Path;    bool m_show_Path; string m_PathFile;
       PlumObject* m_Env;                       string m_EnvFile;
@@ -296,10 +295,6 @@ class vizmo
       PlumObject * GetRobot() const {  return m_obj.m_Robot; }
 
       /////////////////////////////////////////////////////////////////////
-      // Bounding Box Related Function
-      void ShowBBox(bool bShow=true);
-
-      /////////////////////////////////////////////////////////////////////
       // Environment Related Functions
 
       // Change the appearance of an object - Hidden/ Wire / Soid
@@ -408,11 +403,6 @@ class vizmo
        * Create Query Plum Object.
        */
       bool CreateQueryObj( vizmo_obj& obj, const string& fname );
-
-      /**
-       * Create BBX Plum Object.
-       */
-      bool CreateBBoxObj( vizmo_obj& obj );
 
       /**
        * Create Robot Plum Object.

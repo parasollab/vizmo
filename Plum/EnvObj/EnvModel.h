@@ -8,6 +8,7 @@
 #include "GLModel.h"
 #include "MultiBodyModel.h"
 #include "EnvLoader.h"
+#include "src/EnvObj/BoundaryModel.h"
 
 namespace plum{
 
@@ -53,10 +54,11 @@ namespace plum{
           if((*i)->IsFixed())
             models.push_back(*i);
         }
+        models.push_back(m_boundary);
       }
       virtual vector<string> GetInfo() const;
 
-
+      BoundaryModel* GetBoundary() {return m_boundary;}
 
     private:
       CEnvLoader * m_envLoader;      //a pointer to CEnvLoader
@@ -64,6 +66,8 @@ namespace plum{
 
       double m_R;    ///radius
       Point3d m_COM; ///center of mass
+
+      BoundaryModel* m_boundary;
   };
 
 }//namespace plum

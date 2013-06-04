@@ -27,7 +27,7 @@ bool CBoundingBoxesModel::BuildModels(){
    if( m_pBBXParser==NULL ) return false;
 
    for(int i = 0; i<m_pBBXParser->getNumBBXs(); i++){
-      CBoundingBoxModel* cbbm = new CBoundingBoxModel(i, m_pBBXParser->getBBXValue(i));
+      BoundingBoxModel* cbbm = new BoundingBoxModel();
       cbbm->BuildModels();
       m_BBXModels.push_back(cbbm);
    }
@@ -35,7 +35,7 @@ bool CBoundingBoxesModel::BuildModels(){
    for(unsigned int i = 0; i<m_BBXModels.size(); i++){
       for(unsigned int j = i; j<m_BBXModels.size(); j++){
          if(i!=j){
-            BuildOverlapModel(m_BBXModels[i]->getBBX(), m_BBXModels[j]->getBBX());
+            //BuildOverlapModel(m_BBXModels[i]->getBBX(), m_BBXModels[j]->getBBX());
          }
       }
    }
@@ -46,14 +46,14 @@ bool CBoundingBoxesModel::BuildModels(){
 void CBoundingBoxesModel::Draw( GLenum mode ){
    glEnable(GL_CULL_FACE);
    glCullFace(GL_BACK);
-   typedef vector<CBoundingBoxModel*>::iterator BIT;
+   typedef vector<BoundingBoxModel*>::iterator BIT;
    for(BIT bit=m_BBXModels.begin(); bit!=m_BBXModels.end(); bit++){
       (*bit)->Draw(mode);
    }
    glDisable(GL_CULL_FACE);
-   for(BIT obit = m_BBXOverlaps.begin(); obit != m_BBXOverlaps.end(); obit++){
+   /*for(BIT obit = m_BBXOverlaps.begin(); obit != m_BBXOverlaps.end(); obit++){
       (*obit)->DrawLines(mode);
-   }
+   }*/
 }
 
 vector<string> 
@@ -77,7 +77,7 @@ void CBoundingBoxesModel::Select( unsigned int * index, vector<gliObj>& sel )
    m_BBXModels[index[0]]->Select(index+1,sel);
 }
 
-
+/*
 CBoundingBoxesModel::overlapType CBoundingBoxesModel::classify(double min1, double max1, double min2, double max2){
    double a = max1-min1;
    double b = max2-min2;
@@ -115,8 +115,9 @@ void CBoundingBoxesModel::BuildOverlapModel(vector<double>& a, vector<double>& b
 
    if(accept){
       vector<double> ov = overlap(a,b);
-      CBoundingBoxModel* cbbm = new CBoundingBoxModel(m_BBXModels.size()+1+m_BBXOverlaps.size(), ov);
+      BoundingBoxModel* cbbm = new BoundingBoxModel(m_BBXModels.size() + 1 + m_BBXOverlaps.size(), ov);
       cbbm->BuildModels();
       m_BBXOverlaps.push_back(cbbm);
    }
 }
+*/

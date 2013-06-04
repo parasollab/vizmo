@@ -21,7 +21,6 @@ class EnvironmentOptions : public OptionsBase{
   private slots:
     void RefreshEnv(); 
     void RandomizeEnvColors();
-    void ShowBBox();
     void AddObstacle();   
 }; 
 

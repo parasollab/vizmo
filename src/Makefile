@@ -9,7 +9,8 @@ TARGET = ../vizmo++
 
 OBJS =  main.o vizmo2.o
 
-ENVOBJS = ${Env_DIR}/BoundingBoxModel.o  ${Env_DIR}/BoundingBoxParser.o \
+ENVOBJS = ${Env_DIR}/BoundaryModel.o ${Env_DIR}/BoundingBoxModel.o \
+	  ${Env_DIR}/BoundingSphereModel.o ${Env_DIR}/BoundingBoxParser.o \
 	 ${Env_DIR}/BoundingBoxesModel.o ${Env_DIR}/PathLoader.o  \
          ${Env_DIR}/PathModel.o  ${Env_DIR}/QueryLoader.o \
          ${Env_DIR}/QueryModel.o  ${Env_DIR}/Robot.o \

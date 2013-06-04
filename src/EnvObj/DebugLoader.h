@@ -15,6 +15,7 @@ using namespace std;
 using namespace plum;
 
 struct Instruction{
+  virtual ~Instruction(){};
   string name;
   virtual void Print(ostream& oss)=0;
 };

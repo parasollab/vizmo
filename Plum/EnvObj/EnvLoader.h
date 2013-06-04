@@ -13,6 +13,8 @@
 #include <algorithms/graph_input_output.h>
 #include <algorithms/connected_components.h>
 
+class BoundaryModel;
+
 namespace plum{
 
   class CMultiBodyInfo;
@@ -57,7 +59,9 @@ namespace plum{
       int getDOF(){return DoF;}
 
       vector<Robot>& GetRobots(){return robotVec;}
-      
+     
+      BoundaryModel* GetBoundaryModel(){return m_boundary;}
+
       ////////////////////////////////
       //Objects Deleted from Scene
       ///////////////////////////////
@@ -75,6 +79,7 @@ namespace plum{
       void Free_Memory();
       
       virtual bool ParseFileHeader(ifstream & ifs);
+      virtual bool ParseBoundary(ifstream& _ifs);
       virtual bool ParseFileBody(ifstream & ifs);
       virtual bool ParseMultiBody(ifstream & ifs, CMultiBodyInfo & MBInfo);
       virtual bool ParseActiveBody(ifstream & ifs, CBodyInfo & BodyInfo);
@@ -103,6 +108,8 @@ namespace plum{
       typedef stapl::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
       RobotGraph m_robotGraph;
       vector<Robot> robotVec;
+
+      BoundaryModel* m_boundary;
     };
   
 }//namespace plum
