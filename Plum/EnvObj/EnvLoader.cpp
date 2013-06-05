@@ -356,6 +356,33 @@ namespace plum{
     string connectionTypeTag = ReadFieldString(ifs, "Connection Type");
     jointType = Robot::GetJointTypeFromTag(connectionTypeTag);
 
+    //grab the joint limits for revolute and spherical joints
+    pair<double, double> jointLimits[2];
+    if(jointType == Robot::REVOLUTE || jointType == Robot::SPHERICAL){
+      jointLimits[0].first = jointLimits[1].first = -1;
+      jointLimits[0].second = jointLimits[1].second = 1;
+      size_t numRange = jointType == Robot::REVOLUTE ? 1 : 2;
+      for(size_t i = 0; i<numRange; i++){
+        string tok;
+        if(ifs >> tok){
+          size_t del = tok.find(":");
+          if(del == string::npos){
+            cerr << "Error::Reading joint range " << i << ". Should be delimited by ':'." << endl;
+            exit(1);
+          }
+          istringstream minv(tok.substr(0,del)), maxv(tok.substr(del+1, tok.length()));
+          if(!(minv>>jointLimits[i].first && maxv>>jointLimits[i].second)){
+            cerr << "Error::Reading joint range " << i << "." << endl;
+            exit(1);
+          }
+        }
+        else if(numRange == 2 && i==1) { //error. only 1 token provided.
+          cerr << "Error::Reading spherical joint ranges. Only one provided." << endl;
+          exit(1);
+        }
+      }
+    }
+
     //transformation to DHFrame
     Vector3D positionToDHFrame = ReadField<Vector3D>(ifs, "Translation to DHFrame");
     Vector3D rotationToDHFrame = ReadField<Vector3D>(ifs, "Rotation to DHFrame");
