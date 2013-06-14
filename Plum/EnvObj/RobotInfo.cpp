@@ -2,10 +2,20 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "MultiBodyInfo.h"
+
+class IsConnectionGloballyFirst {
+  public:
+    bool operator()(const shared_ptr<plum::CConnectionInfo>& _a, const shared_ptr<plum::CConnectionInfo>& _b) const {
+      return _a->m_globalIndex < _b->m_globalIndex;
+    }
+} connectionComparitor;
+
 Robot::Robot(Base _base, BaseMovement _baseMovement, 
     JointMap _joints, int _bodyIndex) : 
   m_base(_base), m_baseMovement(_baseMovement), 
   m_joints(_joints), m_bodyIndex(_bodyIndex) {
+    std::sort(m_joints.begin(), m_joints.end(), connectionComparitor);
   }
 
 Robot::Base Robot::GetBaseFromTag(const string _tag){
@@ -36,14 +46,3 @@ Robot::BaseMovement Robot::GetMovementFromTag(const string _tag){
   }
 }
 
-Robot::JointType Robot::GetJointTypeFromTag(const string _tag){
-  if(_tag == "REVOLUTE")
-    return Robot::REVOLUTE;
-  else if (_tag == "SPHERICAL")
-    return Robot::SPHERICAL;
-  else {
-    cerr << "Error::Incorrect Joint Type Specified::" << _tag << endl;
-    cerr << "Choices are:: Revolute or Spherical" << endl;
-    exit(1);
-  }
-}

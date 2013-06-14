@@ -259,6 +259,19 @@ namespace plum{
     m_orient2Z = other.m_orient2Z;
   }
 
+  CConnectionInfo::JointType
+  CConnectionInfo::GetJointTypeFromTag(const string _tag){
+    if(_tag == "REVOLUTE")
+      return CConnectionInfo::REVOLUTE;
+    else if (_tag == "SPHERICAL")
+      return CConnectionInfo::SPHERICAL;
+    else {
+      cerr << "Error::Incorrect Joint Type Specified::" << _tag << endl;
+      cerr << "Choices are:: Revolute or Spherical" << endl;
+      exit(1);
+    }
+  }
+
   ostream & operator<<( ostream & out, const CConnectionInfo & con ){
 
     const char* s;;
@@ -278,5 +291,6 @@ namespace plum{
     return out;
   }
 
+  size_t CConnectionInfo::m_globalCounter = 0;
 }//end of plum
 

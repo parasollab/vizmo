@@ -309,19 +309,19 @@ void OBPRMView_Robot::Configure( double * cfg) {
     //this code from PMPL
     //configuration of links after the base
     //Compute position and orientation for all of the links left
-    typedef Robot::JointMap::iterator MIT;
-    for(MIT mit = rit->m_joints.begin(); mit!=rit->m_joints.end(); mit++){
+    typedef Robot::JointMap::const_iterator MIT;
+    for(MIT mit = rit->GetJointMap().begin(); mit!=rit->GetJointMap().end(); mit++){
       double theta = cfg[index] * PI;
       index++;
       double alpha = 0;
-      if(mit->second == Robot::SPHERICAL){
+      if((*mit)->GetJointType() == CConnectionInfo::SPHERICAL){
         alpha = cfg[index] * PI;
         index++;
       }
 
-      int currentBodyIdx = mit->first.first; //index of current Body
+      int currentBodyIdx = (*mit)->GetPreviousBody(); //index of current Body
       CBodyInfo& currentBody = MBInfo[robIndx].m_pBodyInfo[currentBodyIdx];
-      int nextBodyIdx = mit->first.second; //index of next Body
+      int nextBodyIdx = (*mit)->GetNextBody(); //index of next Body
       CBodyInfo& nextBody = MBInfo[robIndx].m_pBodyInfo[nextBodyIdx];
 
       for( int i=0; i<currentBody.m_cNumberOfConnection; i++ ){

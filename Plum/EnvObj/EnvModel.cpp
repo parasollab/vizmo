@@ -264,17 +264,17 @@ namespace plum {
         //write Connection info.
         if(MBI[i].m_NumberOfConnections !=0){
           const char* str;
-          int numConn = MBI[i].listConnections.size();
+          int numConn = MBI[i].GetJointMap().size();
 
           for(int l=0; l<numConn; l++){
-            int indexList = MBI[i].listConnections[l].first;
+            int indexList = MBI[i].GetJointMap()[l]->GetPreviousBody();
             if(MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo->m_actuated)
               str= "Actuated";
             else
               str = "NonActuated";
 
-            fprintf(envFile,"%d %d  %s\n",MBI[i].listConnections[l].first,
-                MBI[i].listConnections[l].second, str);
+            fprintf(envFile,"%d %d  %s\n",indexList,
+                MBI[i].GetJointMap()[l]->GetNextBody(), str);
 
             //get info. from current Body and current connection
             int index=0;
@@ -283,7 +283,7 @@ namespace plum {
 
               int n = MBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[b].m_nextIndex;
 
-              if( MBI[i].listConnections[l].second == n){
+              if( MBI[i].GetJointMap()[l]->GetNextBody() == n){
                 index = b;
                 break;
               }

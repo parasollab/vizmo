@@ -81,7 +81,7 @@ namespace plum{
       virtual bool ParseMultiBody(ifstream & ifs, CMultiBodyInfo & MBInfo);
       virtual bool ParseActiveBody(ifstream & ifs, CBodyInfo & BodyInfo);
       virtual bool ParseOtherBody(ifstream & ifs, CBodyInfo & BodyInfo);
-      virtual bool ParseConnections(ifstream & ifs, CBodyInfo *BodyInfo);
+      virtual bool ParseConnections(ifstream & ifs, CMultiBodyInfo & MBInfo);
       
       void BuildRobotStructure(); 
 
@@ -97,8 +97,6 @@ namespace plum{
       string m_strModelDataDir;
       int m_cNumberOfMultiBody;
       CMultiBodyInfo * m_pMBInfo;
-      int previousBodyIndex, nextBodyIndex;
-      Robot::JointType jointType;
 
       bool m_ContainsSurfaces;
     

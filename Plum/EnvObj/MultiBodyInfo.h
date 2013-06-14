@@ -38,8 +38,8 @@ namespace plum{
       bool m_surface;//is surface? default is false
 
       CBodyInfo * m_pBodyInfo;
-      vector< pair<int, int> > listConnections;     
   
+      const Robot::JointMap& GetJointMap() const {return jointMap;}
       Robot::JointMap& GetJointMap() {return jointMap;}
       Robot::JointMap jointMap;
   };
@@ -115,6 +115,8 @@ namespace plum{
   class CConnectionInfo {
 
     public:
+      enum JointType {REVOLUTE, SPHERICAL}; //1dof vs 2dof rotational joints
+
       //////////////////////////////////////////////////////////////////////
       // Constructor/Destructor
       //////////////////////////////////////////////////////////////////////
@@ -127,8 +129,11 @@ namespace plum{
       ///@Compute and return the transformation to DH frame
       Transformation  transformToDHframe();
       ///@Return id of the body THIS body is connected to
-      int getNextBody(){return m_nextIndex;}
+      int GetNextBody(){return m_nextIndex;}
+      int GetPreviousBody(){return m_preIndex;}
+      JointType GetJointType(){return m_jointType;}
       void operator=( const CConnectionInfo & other );
+      static JointType GetJointTypeFromTag(const string _tag);
       friend ostream & operator<<( ostream & out, const CConnectionInfo & con );
 
       int m_preIndex;
@@ -144,6 +149,12 @@ namespace plum{
       //translation and rotation to DHFrame
       double m_pos2X, m_pos2Y, m_pos2Z;
       double m_orient2X, m_orient2Y, m_orient2Z;
+
+      JointType m_jointType;
+
+      //ordering information
+      size_t m_globalIndex;
+      static size_t m_globalCounter;
 
   };
 

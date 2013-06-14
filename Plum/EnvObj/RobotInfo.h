@@ -3,21 +3,26 @@
 
 #include <vector>
 #include <string>
+#include "boost/shared_ptr.hpp"
+using boost::shared_ptr;
 
 using namespace std;
+
+namespace plum {
+  class CConnectionInfo;
+}
 
 struct Robot{
   enum Base {PLANAR, VOLUMETRIC, FIXED, JOINT}; //2D plane vs 3D
   enum BaseMovement {ROTATIONAL, TRANSLATIONAL}; //rotation+translation, just translation, no movement
-  enum JointType {REVOLUTE, SPHERICAL}; //1dof vs 2dof rotational joints
-  typedef vector<pair<pair<size_t, size_t>, JointType> > JointMap; //size_t is Joint
-                                                          //index of next body, 
-                                                          //joint type
+  typedef shared_ptr<plum::CConnectionInfo> Joint;
+  typedef vector<Joint> JointMap;
+  //index of next body, 
+  //joint type
   typedef JointMap::iterator JointIT;
 
   Base m_base; //Base Type
   BaseMovement m_baseMovement; //can the base rotate? is the base fixed?
-  JointMap m_joints; //Joints associated with robot
   int m_bodyIndex; //free body index for base
 
   Robot(Base _base, BaseMovement _baseMovement, 
@@ -25,7 +30,10 @@ struct Robot{
 
   static Base GetBaseFromTag(const string _tag);      
   static BaseMovement GetMovementFromTag(const string _tag);  
-  static JointType GetJointTypeFromTag(const string _tag);
+  const JointMap& GetJointMap() const {return m_joints;}
+
+  private:
+  JointMap m_joints; //Joints associated with robot
 };
 
 #endif

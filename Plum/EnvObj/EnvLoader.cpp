@@ -172,11 +172,8 @@ namespace plum{
             cout<<"COULDN'T CREATE CONNECTION INFO"<<endl; return false;}
         }
         for( int iB=0; iB<numberOfRobotConnections; iB++ ){
-          if( ParseConnections(ifs, MBInfo.m_pBodyInfo)==false )
+          if( ParseConnections(ifs, MBInfo)==false )
             return false;
-          MBInfo.listConnections.push_back(pair<int,int>(previousBodyIndex,nextBodyIndex));
-          MBInfo.jointMap.push_back(make_pair(
-                  make_pair(previousBodyIndex, nextBodyIndex), jointType));
         }
       }
     }
@@ -337,17 +334,22 @@ namespace plum{
     return true;
   }
 
-  bool CEnvLoader::ParseConnections(ifstream & ifs, CBodyInfo *BodyInfo ) {
+  bool CEnvLoader::ParseConnections(ifstream & ifs, CMultiBodyInfo & MBInfo) {
     //body indices
-    previousBodyIndex = ReadField<int>(ifs, "Previous Body Index");
-    nextBodyIndex = ReadField<int>(ifs, "Next Body Index");
+    int previousBodyIndex = ReadField<int>(ifs, "Previous Body Index");
+    int nextBodyIndex = ReadField<int>(ifs, "Next Body Index");
 
     //Increment m_cNumberOfConnection for each body
-    CBodyInfo& previousBody = BodyInfo[previousBodyIndex];
+    CBodyInfo& previousBody = MBInfo.m_pBodyInfo[previousBodyIndex];
     previousBody.m_cNumberOfConnection++;
 
     //Get connection index for this body
     CConnectionInfo& conn = previousBody.m_pConnectionInfo[previousBody.m_cNumberOfConnection - 1];
+    Robot::Joint connPtr(&conn);
+    MBInfo.jointMap.push_back(connPtr);
+
+    //set global index
+    conn.m_globalIndex = CConnectionInfo::m_globalCounter++;
 
     //set next and pre index
     conn.m_preIndex = previousBodyIndex;
@@ -358,14 +360,14 @@ namespace plum{
 
     //grab the joint type
     string connectionTypeTag = ReadFieldString(ifs, "Connection Type");
-    jointType = Robot::GetJointTypeFromTag(connectionTypeTag);
+    conn.m_jointType = CConnectionInfo::GetJointTypeFromTag(connectionTypeTag);
 
     //grab the joint limits for revolute and spherical joints
     pair<double, double> jointLimits[2];
-    if(jointType == Robot::REVOLUTE || jointType == Robot::SPHERICAL){
+    if(conn.m_jointType == CConnectionInfo::REVOLUTE || conn.m_jointType == CConnectionInfo::SPHERICAL){
       jointLimits[0].first = jointLimits[1].first = -1;
       jointLimits[0].second = jointLimits[1].second = 1;
-      size_t numRange = jointType == Robot::REVOLUTE ? 1 : 2;
+      size_t numRange = (conn.m_jointType == CConnectionInfo::REVOLUTE) ? 1 : 2;
       for(size_t i = 0; i<numRange; i++){
         string tok;
         if(ifs >> tok){
@@ -515,12 +517,12 @@ namespace plum{
           size_t index = m_robotGraph.find_vertex(cc[j])->property();
           typedef Robot::JointMap::iterator MIT;
           for(MIT mit = robot.GetJointMap().begin(); mit!=robot.GetJointMap().end(); mit++){
-            if(mit->first.first == index){
+            if((*mit)->m_preIndex == index){
               jm.push_back(*mit);
-              if(mit->second == Robot::REVOLUTE){
+              if((*mit)->m_jointType == CConnectionInfo::REVOLUTE){
                 DoF += 1;
               }
-              else if(mit->second == Robot::SPHERICAL){
+              else if((*mit)->m_jointType == CConnectionInfo::SPHERICAL){
                 DoF += 2;
               }
             }
