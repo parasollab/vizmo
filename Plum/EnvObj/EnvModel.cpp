@@ -99,7 +99,7 @@ namespace plum {
   vector<string> 
   CEnvModel::GetInfo() const { 
     vector<string> info; 
-    info.push_back(string(m_envLoader->GetFileName()));
+    info.push_back(m_envLoader->GetFilename());
 
     ostringstream temp;
     temp<<"There are "<<m_pMBModel.size()<<" multibodies";

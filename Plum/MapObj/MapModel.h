@@ -159,7 +159,7 @@ namespace plum {
   template <class Cfg, class WEIGHT>
     CMapModel<Cfg, WEIGHT>::CMapModel() {
       m_mapLoader = NULL;
-      m_RenderMode = CPlumState::MV_INVISIBLE_MODE;
+      m_RenderMode = PlumState::MV_INVISIBLE_MODE;
       m_pRobot=NULL;
       m_enableSelection=true; //disable selection
 
@@ -211,7 +211,7 @@ namespace plum {
   template <class Cfg, class WEIGHT>
     void CMapModel<Cfg, WEIGHT>::Draw(GLenum mode) {
 
-      if( m_RenderMode == CPlumState::MV_INVISIBLE_MODE ) return;
+      if( m_RenderMode == PlumState::MV_INVISIBLE_MODE ) return;
       if( mode==GL_SELECT && !m_enableSelection ) return;
       //Draw each CC
       int size = 0;
@@ -239,7 +239,7 @@ namespace plum {
   template <class Cfg, class WEIGHT>
     vector<string> CMapModel<Cfg, WEIGHT>::GetInfo() const { 
       vector<string> info; 
-      info.push_back(string(m_mapLoader->GetFileName()));
+      info.push_back(m_mapLoader->GetFilename());
       ostringstream temp;
       temp<<"There are "<<m_CCModels.size()<<" connected components";
       info.push_back(temp.str());

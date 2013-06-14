@@ -354,7 +354,7 @@ void vizmo::GetAccessFiles(const string& filename)
       m_obj.m_MapFile=mapname;
       //parse header of map to get env filename
       CMapHeaderLoader maploader;
-      maploader.SetDataFileName(mapname);
+      maploader.SetFilename(mapname);
       maploader.ParseFile();
       envname=maploader.GetEnvFileName();
    }
@@ -447,9 +447,9 @@ bool vizmo::InitVizmoObject()
 
 
    //let plum do what he needs to do
-   if(m_Plum.ParseFile()==CPlumState::PARSE_ERROR){
+   if(!m_Plum.ParseFile()){
      return false;}
-   if(m_Plum.BuildModels()!=CPlumState::BUILD_MODEL_OK){
+   if(m_Plum.BuildModels()!=PlumState::BUILD_MODEL_OK){
      return false;}
 
    //put robot in start cfg, if availiable
@@ -473,7 +473,7 @@ void vizmo::RefreshEnv()
      return;
    CGLModel *m=m_obj.m_Env->getModel();
 
-   m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+   m->SetRenderMode(PlumState::MV_SOLID_MODE);
 }
 
 
@@ -658,9 +658,9 @@ void vizmo::ShowRoadMap( bool bShow ){
    CGLModel* m=m_obj.m_Map->getModel();
 
    if( bShow )
-      m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+      m->SetRenderMode(PlumState::MV_SOLID_MODE);
    else
-      m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);   
+      m->SetRenderMode(PlumState::MV_INVISIBLE_MODE);   
 
 }
 
@@ -671,9 +671,9 @@ void vizmo::ShowPathFrame( bool bShow ){
    CGLModel * m=m_obj.m_Path->getModel();
 
    if( bShow )
-      m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+      m->SetRenderMode(PlumState::MV_SOLID_MODE);
    else
-      m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+      m->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
 }
 
 void vizmo::ShowDebugFrame( bool bShow ){
@@ -683,9 +683,9 @@ void vizmo::ShowDebugFrame( bool bShow ){
    CGLModel * m=m_obj.m_Debug->getModel();
 
    if( bShow )
-      m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+      m->SetRenderMode(PlumState::MV_SOLID_MODE);
    else
-      m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+      m->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
 }
 
 void vizmo::ShowQueryFrame(bool bShow){
@@ -694,9 +694,9 @@ void vizmo::ShowQueryFrame(bool bShow){
      return;
    CGLModel* m = m_obj.m_Qry->getModel();
    if (bShow)
-      m->SetRenderMode(CPlumState::MV_SOLID_MODE);
+      m->SetRenderMode(PlumState::MV_SOLID_MODE);
    else 
-      m->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+      m->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
 } 
 
 // Code To change the appearance of the env.. 
@@ -717,11 +717,11 @@ void vizmo::ChangeAppearance(int status)
    {
       CGLModel *model=(CGLModel *)(*ig);
       if(status==0)
-         model->SetRenderMode(CPlumState::MV_SOLID_MODE);
+         model->SetRenderMode(PlumState::MV_SOLID_MODE);
       else if(status==1)
-         model->SetRenderMode(CPlumState::MV_WIRE_MODE);
+         model->SetRenderMode(PlumState::MV_WIRE_MODE);
       else if(status==2){
-         model->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+         model->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
          MultiBodyModel* mbl=(MultiBodyModel*)(*ig);
          DeleteObject(mbl);
       }
@@ -1248,7 +1248,7 @@ bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
    CMapModel<CCfg,Edge> * mmodel = new CMapModel<CCfg,Edge>();
    if (mloader==NULL || mmodel==NULL) 
       return false;
-   mloader->SetDataFileName(fname);
+   mloader->SetFilename(fname);
    mmodel->SetMapLoader(mloader);
    if(obj.m_Robot != NULL){
       mmodel->SetRobotModel( (OBPRMView_Robot*)obj.m_Robot->getModel() );
@@ -1263,7 +1263,7 @@ bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
    PathModel* pmodel=new PathModel();
    if( ploader==NULL || pmodel==NULL ) 
      return false;
-   ploader->SetDataFileName(fname);
+   ploader->SetFilename(fname);
    pmodel->SetPathLoader(ploader);
    if( obj.m_Robot!=NULL )
       pmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
@@ -1277,7 +1277,7 @@ bool vizmo::CreateDebugObj( vizmo_obj& obj, const string& fname )
    DebugModel * dmodel=new DebugModel();
    if( dloader==NULL || dmodel==NULL ) 
      return false;
-   dloader->SetDataFileName(fname);
+   dloader->SetFilename(fname);
    dmodel->SetDebugLoader(dloader);
    if( obj.m_Robot!=NULL )
       dmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
@@ -1291,7 +1291,7 @@ bool vizmo::CreateQueryObj( vizmo_obj& obj, const string& fname )
    CQueryModel * qmodel=new CQueryModel();
    if( qloader==NULL || qmodel==NULL ) 
      return false;
-   qloader->SetDataFileName(fname);
+   qloader->SetFilename(fname);
    qmodel->SetQueryLoader(qloader);
    if( obj.m_Robot!=NULL )
       qmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
@@ -1331,7 +1331,7 @@ void vizmo::PlaceRobot()
          cfg = vector<double>(d);
       }
       if(m_obj.m_Debug!=NULL){
-        r->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+        r->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
       }
       if(!cfg.empty()){
          r->Configure(cfg);

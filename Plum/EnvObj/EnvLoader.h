@@ -5,9 +5,7 @@
 #ifndef ENVLOADER_H_
 #define ENVLOADER_H_
 
-//ILoadable included using angle brackets
-//This seems to resolve an issue when compiling on Mac OSX Lion
-#include <Plum/ILoadable.h>
+#include "Loadable.h"
 #include "RobotInfo.h"
 #include <graph.h>
 #include <algorithms/graph_input_output.h>
@@ -24,8 +22,7 @@ namespace plum{
   /**
    * This class load env file.
    */
-  class CEnvLoader : public I_Loadable
-    {
+  class CEnvLoader : public Loadable {
       //////////////////////////////////////////////////////////////////////
       //
       // Constructor/Destructor

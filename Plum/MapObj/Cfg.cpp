@@ -1,11 +1,10 @@
-/////////////////////////////////////////////////////////////////////
-//Implementation for Cfg  
-//////////////////////////////////////////////////////////////////////
-#include <stdlib.h>
-
 #include "Cfg.h"
-#include "Plum.h"
+
+#include <stdlib.h>
 #include <limits.h>
+
+#include "Plum.h"
+#include "CCModel.h"
 
 namespace plum{
 
@@ -99,9 +98,9 @@ namespace plum{
     glScale();
     glTransform();
     glEnable(GL_NORMALIZE);
-    if(m_RenderMode == CPlumState::MV_SOLID_MODE)
+    if(m_RenderMode == PlumState::MV_SOLID_MODE)
       glutSolidCube(1);
-    if(m_RenderMode == CPlumState::MV_WIRE_MODE)
+    if(m_RenderMode == PlumState::MV_WIRE_MODE)
       glutWireCube(1);
     glDisable(GL_NORMALIZE);
     glPopMatrix();
@@ -112,8 +111,8 @@ namespace plum{
     glDisable(GL_LIGHTING);
     glBegin(GL_POINTS);
     glColor4f(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
-    if(m_RenderMode == CPlumState::MV_SOLID_MODE ||
-        m_RenderMode == CPlumState::MV_WIRE_MODE)
+    if(m_RenderMode == PlumState::MV_SOLID_MODE ||
+        m_RenderMode == PlumState::MV_WIRE_MODE)
       glVertex3d( m_dofs[0], m_dofs[1], m_dofs[2] );
     glEnd();
   }

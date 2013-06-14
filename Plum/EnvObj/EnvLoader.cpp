@@ -37,7 +37,7 @@ namespace plum{
 	return false;
 
       //Open file for reading datat
-      ifstream ifs(m_strFileName.c_str());
+      ifstream ifs(m_filename.c_str());
 
       if(ParseFileHeader(ifs)==false) 
 	return false;
@@ -145,7 +145,7 @@ namespace plum{
       MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
       if( MBInfo.m_pBodyInfo==NULL ) return false;
 
-      getColor(ifs);
+      GetColor(ifs);
 
       for( int iB=0; iB<MBInfo.m_cNumberOfBody; iB++ ) {
         if( ParseActiveBody(ifs, MBInfo.m_pBodyInfo[iB])==false )
@@ -186,7 +186,7 @@ namespace plum{
       MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
       if( MBInfo.m_pBodyInfo==NULL ) return false;
 
-      getColor(ifs);
+      GetColor(ifs);
 
       if( ParseOtherBody(ifs, MBInfo.m_pBodyInfo[0])==false )
         return false;
@@ -267,8 +267,10 @@ namespace plum{
     BodyInfo.doTransform();
 
     //set color information
-    if(m_rgb[0] != -1){
-      BodyInfo.rgb[0]=m_rgb[0];BodyInfo.rgb[1]=m_rgb[1];BodyInfo.rgb[2]=m_rgb[2];
+    if(m_color[0] != -1){
+      BodyInfo.rgb[0] = m_color[0];
+      BodyInfo.rgb[1] = m_color[1];
+      BodyInfo.rgb[2] = m_color[2];
     }
     else{
       if(BodyInfo.m_bIsFixed){
@@ -318,8 +320,10 @@ namespace plum{
     BodyInfo.doTransform();
 
     //set color information
-    if(m_rgb[0] != -1){
-      BodyInfo.rgb[0]=m_rgb[0];BodyInfo.rgb[1]=m_rgb[1];BodyInfo.rgb[2]=m_rgb[2];
+    if(m_color[0] != -1){
+      BodyInfo.rgb[0] = m_color[0];
+      BodyInfo.rgb[1] = m_color[1];
+      BodyInfo.rgb[2] = m_color[2];
     }
     else{
       if(BodyInfo.m_bIsFixed){

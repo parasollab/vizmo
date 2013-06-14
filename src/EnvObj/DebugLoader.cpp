@@ -29,7 +29,7 @@ bool CDebugLoader::ParseFile()
 		return true;
     }
 
-    ifstream fin(m_strFileName.c_str());
+    ifstream fin(m_filename.c_str());
 
     //reset every thing
     FreeDebugList();

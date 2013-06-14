@@ -5,9 +5,7 @@
 #ifndef _MOVIEBYULOADER_H_
 #define _MOVIEBYULOADER_H_
 
-//ILoadable included using angle brackets
-//This seems to resolve an issue when compiling on Mac OSX Lion
-#include <Plum/ILoadable.h>
+#include "Loadable.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 ///std header
@@ -28,7 +26,7 @@ typedef Vector<int>     Tri;       ///a triangle has 3 index for 3 points
 typedef vector<Tri> TriVector; ///a vector of trianlges
 
 //this file loads Movie.BYU file.
-class CMovieBYULoader : public I_Loadable
+class CMovieBYULoader : public Loadable
 {
 public:
 

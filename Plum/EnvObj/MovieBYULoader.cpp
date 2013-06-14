@@ -13,7 +13,7 @@ namespace plum{
             return false;
         
         //Open file for reading datat
-        ifstream fin(m_strFileName.c_str(), ios::in);
+        ifstream fin(m_filename.c_str());
         
         if( ParseSection1(fin)==false )
             return false;
@@ -70,14 +70,14 @@ namespace plum{
                 in>>id; index.push_back(id);
             }while(id>=0);
             if( in.eof() ){
-                cerr<<"! Error "<<m_strFileName<<" : Not enough triangle defined."<<endl;
+                cerr<<"! Error "<<m_filename<<" : Not enough triangle defined."<<endl;
                 cerr<<i-1<<" triangles found instead of "<<m_PolygonSize<<" triangles"<<endl;
                 exit(1);
             }
             
             int size=index.size();
             if( size!=3 ){
-                cerr<<"! Error "<<m_strFileName<<" : Please trianglate model first"<<endl;
+                cerr<<"! Error "<<m_filename<<" : Please trianglate model first"<<endl;
                 exit(1);
             }
             

@@ -2,13 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(_GLMODEL_H_)
-#define _GLMODEL_H_
-
-#if defined(WIN32)
-#include <windows.h>
-#pragma warning( disable : 4244 4786 )
-#endif
+#ifndef GLMODEL_H_
+#define GLMODEL_H_
 
 #include <GL/gl.h>
 #include <GL/gliDataStructure.h>
@@ -29,7 +24,7 @@ namespace plum{
          CGLModel()
          { 
             m_enableSelection=true; 
-            m_RenderMode=CPlumState::MV_SOLID_MODE;
+            m_RenderMode=PlumState::MV_SOLID_MODE;
             m_RGBA.clear();
             for(int i = 0; i < 4; i++) {
               m_RGBA.push_back(0.0);

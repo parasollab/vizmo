@@ -5,11 +5,11 @@
 #if !defined(AFX_BOUNDINGBOXPARSER_H__FF5525B3_FF61_4863_BEF1_6B872B99E3E7__INCLUDED_)
 #define AFX_BOUNDINGBOXPARSER_H__FF5525B3_FF61_4863_BEF1_6B872B99E3E7__INCLUDED_
 
-#include <ILoadable.h>
+#include "Loadable.h"
 #include <vector>
 using namespace plum;
 
-class CBoundingBoxParser : public I_Loadable
+class CBoundingBoxParser : public Loadable
 {
 public:
 

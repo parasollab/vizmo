@@ -1,103 +1,63 @@
-// Plum.h: interface for the CPlum class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(_PLUM_H_)
-#define _PLUM_H_
-
-#ifdef WIN32
-#pragma warning( disable : 4244 4786 )
-#endif 
+#ifndef PLUM_H_
+#define PLUM_H_
 
 #include <vector>
-#include <string>
+
+#include "GLModel.h"
+#include "GL/gliDataStructure.h"
+
 using namespace std;
-
-#include "MapObj/MapModel.h"
-#include "MapObj/MapLoader.h"
-#include "EnvObj/CmdParser.h"
-#include "EnvObj/EnvModel.h"
-#include "EnvObj/EnvLoader.h"
-
-#include "PlumState.h"
-#include "PlumObject.h"
 
 namespace plum{
 
-    class CPlum {
-    private:
-        
-        //////////////////////////////////////////////////////////////////////
-        // public data
-        //////////////////////////////////////////////////////////////////////
+  class PlumObject;
+
+  class Plum {
     public:
-        
-        //////////////////////////////////////////////////////////////////////
-        //
-        // Constructor/Destructor
-        //
-        //////////////////////////////////////////////////////////////////////
-        
-        CPlum();
-        virtual ~CPlum();
-        
-        //////////////////////////////////////////////////////////////////////
-        // Core function
-        //////////////////////////////////////////////////////////////////////
-        int ParseFile();
-        int BuildModels();
-        
-        //////////////////////////////////////////////////////////////////////
-        // Access functions
-        //////////////////////////////////////////////////////////////////////
-        void AddPlumObject( PlumObject * obj ){ 
-            if( obj!=NULL ) m_objList.push_back(obj); 
-        }
-        
-        vector<gliObj>& GetSelectedItem(){ return m_SelectedItem; }
-        vector<PlumObject *>& GetPlumObjects(){ return m_objList; }
 
-        //////////////////////////////////////////////////////////////////////
-        // Action functions
-        //////////////////////////////////////////////////////////////////////
-        
-        //dump message to std output about selected object
-        //void DumpSelected();
-        
-        //select object by given x, y screen coordinate.
-        void Select( const gliBox& box  );
-        
-        //draw/redraw
-        void Draw();
+      Plum() {}
 
-        //clean all objects stored in this plum.
-        void Clean();
-        void CleanSelectedItem();
-	void addSelectedItem(CGLModel *l) {m_SelectedItem.push_back(l);}
+      void AddPlumObject(PlumObject* obj){if( obj!=NULL ) m_plumObjects.push_back(obj);}
+      vector<PlumObject*>& GetPlumObjects() {return m_plumObjects;}
+      void CleanPlumObjects() {m_plumObjects.clear();}
+      
+      void AddSelectedItem(CGLModel* l) {m_selectedItems.push_back(l);}
+      vector<gliObj>& GetSelectedItems() {return m_selectedItems;}
+      void CleanSelectedItems() {m_selectedItems.clear();}
+
+      //clear both the plum objects vector and selected items vector
+      void Clean();
+
+      //parse data for plum object
+      bool ParseFile();
+      
+      //build models to draw
+      int BuildModels();
+      
+      //draw/redraw
+      void Draw();
+
+      //select object by given x, y screen coordinate.
+      void Select(const gliBox& box);
 
     protected:
 
-        /**
-         * Parse the Hit Buffer.
-         * Store selected obj into m_SelectedItem.
-         * @param all If true, all obj select will be put into #m_SelectedItem,
-         *        otherwise only the closest will be selected.
-         * @param buffer the hit buffer
-         * @param hit number of hit by this selection
-         */
-        virtual void SearchSelectedItem(int hit, void * buffer, bool all);
-        
-        ////////////////////////////////////////////////////////////////////////////
-        //
-        //      Private Methods and data members
-        //
-        ////////////////////////////////////////////////////////////////////////////
+      /**
+       * Parse the Hit Buffer.
+       * Store selected obj into m_selectedItems.
+       * 
+       * hit is the number of hit by this selection
+       * buffer is the hit buffer
+       * if all, all obj select will be put into m_selectedItems,
+       *  otherwise only the closest will be selected.
+       */
+      void SearchSelectedItems(int hit, void * buffer, bool all);
+
     private:
-        
-        vector<PlumObject *> m_objList;
-        vector<gliObj> m_SelectedItem;
-    };
+      vector<PlumObject*> m_plumObjects;
+      vector<gliObj> m_selectedItems;
+  };
 
-}//namespace plum
+}
 
-#endif // !defined(_PLUM_H_)
+#endif

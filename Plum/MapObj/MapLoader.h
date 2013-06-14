@@ -5,14 +5,7 @@
 #if !defined(_MAPLOADER_H_)
 #define _MAPLOADER_H_
 
-#ifdef WIN32
-#pragma warning( disable: 4018 )
-#define _STL_PORT
-#endif
-
-//ILoadable included using angle brackets
-//This seems to resolve an issue when compiling on Mac OSX Lion
-#include <Plum/ILoadable.h>
+#include "Loadable.h"
 #include <graph.h>
 #include <algorithms/graph_algo_util.h>
 #include <algorithms/graph_input_output.h>
@@ -22,7 +15,7 @@ using namespace stapl;
 namespace plum{
 
     //This class Responsilbe for load header part of map file
-    class CMapHeaderLoader : public I_Loadable
+    class CMapHeaderLoader : public Loadable
     {
     public:
         //////////////////////////////////////////////////////////////////////
@@ -155,29 +148,27 @@ namespace plum{
     //////////////////////////////////////////////////////////////////////
     // Implemetation of core function
     //////////////////////////////////////////////////////////////////////
-    template< class Cfg, class WEIGHT > bool 
-    CMapLoader<Cfg, WEIGHT>::ParseFile()
-      {      
-        if( CheckCurrentStatus()==false )
-            return false;
-        
-        ifstream fin(m_strFileName.c_str(), ios::in);
-        if( CMapHeaderLoader::ParseHeader( fin )==false ) 
-            return false;
-        
+    template<class Cfg, class WEIGHT>
+      bool CMapLoader<Cfg, WEIGHT>::ParseFile() {      
+        if(!CheckCurrentStatus())
+          return false;
+
+        ifstream fin(m_filename.c_str());
+        if(!CMapHeaderLoader::ParseHeader(fin)) 
+          return false;
+
         //Get Graph Data
-        char strData[MAX_LINE_LENGTH];
-        fin.getline(strData, MAX_LINE_LENGTH);
+        string s;
+        getline(fin, s);
         m_Graph =new Wg();
-        if( m_Graph==NULL ){ 
-            cout<<"Graph null ..."<<endl;
-            return false; 
+        if(m_Graph==NULL){ 
+          cout<<"Graph null ..."<<endl;
+          return false; 
         }
         read_graph(*m_Graph, fin);
-        fin.close();      
 
         return true;
-    }
+      }
 
     //called from VizmoRoadmapGUI::handleAddNode()
     template< class Cfg, class WEIGHT > void

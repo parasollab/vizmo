@@ -9,8 +9,8 @@ namespace plum{
     CEnvModel* envModel=new CEnvModel();
     if( envLoader==NULL || envModel==NULL ) return NULL;
 
-    envLoader->SetDataFileName( filename );
-    envLoader->SetModelDataDir( modelDir );
+    envLoader->SetFilename(filename);
+    envLoader->SetModelDataDir(modelDir);
     envModel->SetEnvLoader(envLoader);
 
     PlumObject* object=new PlumObject(envModel,envLoader);

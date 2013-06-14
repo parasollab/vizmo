@@ -337,12 +337,12 @@ class vizmo
       //////////////////////////////////////////////////////////////////////
       // Access
 
-      vector<gliObj>& GetSelectedItem(){ return m_Plum.GetSelectedItem();}
+      vector<gliObj>& GetSelectedItem(){ return m_Plum.GetSelectedItems();}
 
       vector<PlumObject*>& GetPlumObjects(){ return m_Plum.GetPlumObjects(); }
 
-      void cleanSelectedItem(){ m_Plum.CleanSelectedItem();}
-      void addSelectedItem(CGLModel *ml){ m_Plum.addSelectedItem(ml);}
+      void cleanSelectedItem(){ m_Plum.CleanSelectedItems();}
+      void addSelectedItem(CGLModel *ml){ m_Plum.AddSelectedItem(ml);}
 
       double GetEnvRadius();
 
@@ -436,7 +436,7 @@ class vizmo
 
       vizmo_obj m_obj;
 
-      CPlum m_Plum;
+      Plum m_Plum;
 };
 
 #endif // !defined(_VIZMO2_H_)

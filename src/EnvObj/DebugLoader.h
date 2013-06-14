@@ -11,7 +11,7 @@ using namespace std;
 #include "MapObj/Cfg.h"
 #include "MapObj/MapLoader.h"
 #include "MapObj/MapModel.h"
-#include <ILoadable.h>
+#include "Loadable.h"
 using namespace plum;
 
 struct Instruction{
@@ -145,7 +145,7 @@ struct Query : public Instruction {
 * GetNextConfigure.
 */
 typedef Instruction* FRAME;
-class CDebugLoader : public I_Loadable
+class CDebugLoader : public Loadable
 {
 public:
     //////////////////////////////////////////////////////////////////////

@@ -1,98 +1,72 @@
-// Plum.cpp
-//
-//////////////////////////////////////////////////////////////////////
+#include "Plum.h"
 
 #include <cstring>
-#include "Plum.h"
 #include <GL/glu.h>
+
+#include "Loadable.h"
+#include "PlumObject.h"
 
 namespace plum{
 
-   /*********************************************************************
-    *
-    *      Implementation of CPlum
-    *
-    *********************************************************************/
+  void
+    Plum::Clean() {
+      m_plumObjects.clear();
+      m_selectedItems.clear();
+    }
 
-   //////////////////////////////////////////////////////////////////////
-   // Construction/Destruction
-   //////////////////////////////////////////////////////////////////////
+  bool
+    Plum::ParseFile() {
+      typedef typename vector<PlumObject*>::iterator PIT;
+      for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit) {
+        Loadable* loader = (*pit)->getLoader();
+        if(!loader)
+          continue;
+        if(!loader->ParseFile())
+          return false;
+      }
+      return true;
+    }
 
-   CPlum::CPlum()
-   {
-      //m_SelectedSize = 0;
-      //m_SelectedName = NULL;
-   }
 
-   CPlum::~CPlum()
-   {
-   }
+  int
+    Plum::BuildModels() {
+      typedef typename vector<PlumObject*>::iterator PIT;
+      for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit) {
+        CGLModel* model = (*pit)->getModel();
+        if(!model) 
+          continue;
+        if(!model->BuildModels()){
+          cerr << "Couldn't build model..." << endl;
+          return PlumState::BUILD_CLIENT_MODEL_ERROR;
+        }
+      }
+      return PlumState::BUILD_MODEL_OK;
+    }
 
-   void CPlum::Clean()
-   {
-      m_objList.clear();
-      m_SelectedItem.clear();
-   }
-
-   void CPlum::CleanSelectedItem()
-   {
-      m_SelectedItem.clear();
-   }
-
-   int 
-      CPlum::ParseFile()
-      {
-         int objSize=m_objList.size();
-         for( int iCM=0; iCM<objSize; iCM++ ){
-            I_Loadable * loader=m_objList[iCM]->getLoader();
-            if( loader==NULL ) continue;
-            if( loader->ParseFile()==false ) return CPlumState::PARSE_ERROR;
-         }
-
-         return CPlumState::PARSE_OK;
+  void 
+    Plum::Draw() {
+      typedef typename vector<PlumObject*>::iterator PIT;
+      for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit) {
+        CGLModel* model = (*pit)->getModel();
+        if(!model)
+          continue;
+        glEnable(GL_LIGHTING);
+        model->Draw(GL_RENDER);
       }
 
-
-   int CPlum::BuildModels(){
-
-      /////////////////////////////////////////////////////
-      int objSize=m_objList.size();
-      for( int iCM=0; iCM<objSize; iCM++ ){
-
-         CGLModel * model=m_objList[iCM]->getModel();
-         if( model==NULL ) continue;
-         if( model->BuildModels()==false ){
-            cout<<"Couldn't build model..."<<endl;
-            return CPlumState::BUILD_CLIENT_MODEL_ERROR;
-         }
-      }
-
-      return CPlumState::BUILD_MODEL_OK;
-   }
-
-   void CPlum::Draw(){  
-      
-     int objSize=m_objList.size();
-      for( int iCM=0; iCM<objSize; iCM++ ){
-         CGLModel* model=m_objList[iCM]->getModel();
-         if(model==NULL) continue;
-         glEnable(GL_LIGHTING);
-         model->Draw(GL_RENDER);
-      }
       typedef vector<gliObj>::iterator GIT;
-          
-      for(GIT ig=m_SelectedItem.begin();ig!=m_SelectedItem.end();ig++){
+      for(GIT ig=m_selectedItems.begin();ig!=m_selectedItems.end();ig++){
         CGLModel* model=(CGLModel*)(*ig);
         if(model != NULL)
           model->DrawSelect();
       }
-      
-   }
+
+    }
 
 #define BUFFER_SIZE 1024
 
-   void CPlum::Select(const gliBox& box)
-   { 
+  void
+    Plum::Select(const gliBox& box) { 
       GLuint hitBuffer[BUFFER_SIZE];
       GLint viewport[4];
       GLuint hits;
@@ -123,28 +97,28 @@ namespace plum{
 
       //draw
       glMatrixMode( GL_MODELVIEW );
-      int objSize=m_objList.size();
+      int objSize=m_plumObjects.size();
       for( int iCM=0; iCM<objSize; iCM++ ){
-         glPushName(iCM);
-         CGLModel * model=m_objList[iCM]->getModel();
-         if( model==NULL ) continue;
-         model->Draw( GL_SELECT );
-         glPopName();
+        glPushName(iCM);
+        CGLModel * model=m_plumObjects[iCM]->getModel();
+        if( model==NULL ) continue;
+        model->Draw( GL_SELECT );
+        glPopName();
       }
 
       glMatrixMode( GL_PROJECTION );
       glPopMatrix();
 
       hits = glRenderMode( GL_RENDER );
-      SearchSelectedItem(hits, hitBuffer,(w*h)>100);
-   }
+      SearchSelectedItems(hits, hitBuffer,(w*h)>100);
+    }
 
-   //Parse the hitbuffer
-   void CPlum::SearchSelectedItem(int hits, void * buffer, bool all)
-   {
+  //Parse the hitbuffer
+  void
+    Plum::SearchSelectedItems(int hits, void * buffer, bool all) {
       /////////////////////////////////////////////////////
       // unselect everything first
-      m_SelectedItem.clear();
+      m_selectedItems.clear();
 
       //init local data
       GLuint * hitBuffer = (GLuint *)buffer;
@@ -158,47 +132,47 @@ namespace plum{
       double closeDistance = 1e3;
 
       for( int i=0; i<hits; i++ ) {
-         unsigned int * curName=NULL;
-         GLuint NameSize = *ptr; ptr++;
-         z1 = ((double)*ptr)/0x7fffffff; ptr++; //near z
-         ptr++; //far z, we don't use this info
+        unsigned int * curName=NULL;
+        GLuint NameSize = *ptr; ptr++;
+        z1 = ((double)*ptr)/0x7fffffff; ptr++; //near z
+        ptr++; //far z, we don't use this info
 
-         if((curName=new unsigned int[NameSize])==NULL) return;
-         for( unsigned int iN=0; iN<NameSize; iN++ ){
-            curName[iN] = (int)(*ptr);
-            ptr++;
-         }
-         if(!all) {//not all
-            if( z1<closeDistance ) {
-               closeDistance = z1;     // set current nearset to z1
-               delete [] selName;      //free preallocated mem
-               if((selName=new unsigned int[NameSize])==NULL) return;
-               memcpy(selName,curName,sizeof(unsigned int)*NameSize);
-            }
-         }
-         else{ //select all
-            if(curName[0] > m_objList.size()) 
-              return;
-            CGLModel* selectModel = m_objList[curName[0]]->getModel();
-            if(selectModel!=NULL) 
-               selectModel->Select(&curName[1], m_SelectedItem);
-         }
+        if((curName=new unsigned int[NameSize])==NULL) return;
+        for( unsigned int iN=0; iN<NameSize; iN++ ){
+          curName[iN] = (int)(*ptr);
+          ptr++;
+        }
+        if(!all) {//not all
+          if( z1<closeDistance ) {
+            closeDistance = z1;     // set current nearset to z1
+            delete [] selName;      //free preallocated mem
+            if((selName=new unsigned int[NameSize])==NULL) return;
+            memcpy(selName,curName,sizeof(unsigned int)*NameSize);
+          }
+        }
+        else{ //select all
+          if(curName[0] > m_plumObjects.size()) 
+            return;
+          CGLModel* selectModel = m_plumObjects[curName[0]]->getModel();
+          if(selectModel!=NULL) 
+            selectModel->Select(&curName[1], m_selectedItems);
+        }
 
-         delete [] curName;  //free preallocated mem
+        delete [] curName;  //free preallocated mem
       }//end for each hit
 
       //only the closest
       if( !all ){ //
-         // analyze selected item //not name which created in this lib
-         if(selName[0] > m_objList.size()) 
-           return;
-         CGLModel * selectModel=m_objList[selName[0]]->getModel();
-         if(selectModel != NULL){ 
-            selectModel->Select(&selName[1], m_SelectedItem);
-         }
+        // analyze selected item //not name which created in this lib
+        if(selName[0] > m_plumObjects.size()) 
+          return;
+        CGLModel * selectModel=m_plumObjects[selName[0]]->getModel();
+        if(selectModel != NULL){ 
+          selectModel->Select(&selName[1], m_selectedItems);
+        }
       }
       delete [] selName;
-   }
+    }
 
-}//namespace plum
+}
 

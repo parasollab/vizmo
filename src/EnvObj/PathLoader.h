@@ -10,7 +10,7 @@ using namespace std;
 
 #include "MapObj/Cfg.h"
 
-#include <ILoadable.h>
+#include "Loadable.h"
 using namespace plum;
 
 /**
@@ -19,7 +19,7 @@ using namespace plum;
 * read path form given file name and get individal cfg from 
 * GetNextConfigure.
 */
-class CPathLoader : public I_Loadable
+class CPathLoader : public Loadable
 {
 public:
     

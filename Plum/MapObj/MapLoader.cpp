@@ -23,7 +23,7 @@ namespace plum {
          if( CheckCurrentStatus()==false )
             return false;
 
-         ifstream fin(m_strFileName.c_str(), ios::in);
+         ifstream fin(m_filename.c_str());
          bool result = ParseHeader( fin );
          fin.close();
          return result;
@@ -36,39 +36,39 @@ namespace plum {
    bool CMapHeaderLoader::ParseHeader( istream & in )
    {
       //get path name
-      m_strFileDir=getPathName(m_strFileName);
+      m_strFileDir=GetPathName(m_filename);
 
       //Open file for reading data
-      char strData[MAX_LINE_LENGTH+1]="";
+      string s;
 
       //get version comment
-      GoToNext( in );
-      in >> strData >> strData >> strData >> strData; //Roadmap Version Number 061300
-      m_strVersionNumber=strData;
+      GoToNext(in);
+      in >> s >> s >> s >> s; //Roadmap Version Number 061300
+      m_strVersionNumber = s;
 
       //get preamble info
-      GoToNext( in );
-      in.getline(strData, MAX_LINE_LENGTH);
-      m_strPreamble=strData;
+      GoToNext(in);
+      getline(in, s);
+      m_strPreamble = s;
 
       //get env file name info
-      GoToNext( in );
-      in.getline(strData, MAX_LINE_LENGTH);
+      GoToNext(in);
+      getline(in, s);
       //see if we need to add directory
-      if( strData[0] != '/')
-         m_strEnvFileName = m_strFileDir+strData;
+      if(s[0] != '/')
+         m_strEnvFileName = m_strFileDir + s;
       else
-         m_strEnvFileName = strData;
+         m_strEnvFileName = s;
 
       unsigned int number=0;
       //get lp info
       GoToNext( in );
       in >> number; //# of lps
       for( unsigned int iLP=0; iLP<number; iLP++ ) {
-         GoToNext( in );
-         in.getline(strData, MAX_LINE_LENGTH);
-         if( m_strLPs.size() != number){
-            m_strLPs.push_back(strData);   
+         GoToNext(in);
+         getline(in, s);
+         if(m_strLPs.size() != number){
+            m_strLPs.push_back(s);
          }
       }
 
@@ -76,10 +76,10 @@ namespace plum {
       GoToNext( in );
       in >> number; //# of lps
       for( unsigned int iCD=0; iCD<number; iCD++ ) {
-         GoToNext( in );
-         in.getline(strData, MAX_LINE_LENGTH);
+         GoToNext(in);
+         getline(in, s);
          if( m_strCDs.size() != number){
-            m_strCDs.push_back(strData);
+            m_strCDs.push_back(s);
          }
       }
 
@@ -87,10 +87,10 @@ namespace plum {
       GoToNext( in );
       in >> number;
       for( unsigned int iDM=0; iDM<number; iDM++ ) {
-         GoToNext( in );
-         in.getline(strData, MAX_LINE_LENGTH);
+         GoToNext(in);
+         getline(in, s);
          if( m_strDMs.size() != number){
-            m_strDMs.push_back(strData);   
+            m_strDMs.push_back(s);   
          }
       }
 
@@ -99,9 +99,9 @@ namespace plum {
       // ask whether this has the RNGSEEDSTART tag:
       string s_ver = m_strVersionNumber;
       if( s_ver == "041805"){
-         GoToNext( in );
-         in.getline(strData, MAX_LINE_LENGTH);
-         m_seed = strData;
+         GoToNext(in);
+         getline(in, s);
+         m_seed = s;
       }
 
       return true;

@@ -410,7 +410,7 @@ RoadmapOptions::MakeSolid(){
   typedef vector<gliObj>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     CGLModel* gl = (CGLModel*)(*i);
-    gl->SetRenderMode(CPlumState::MV_SOLID_MODE);
+    gl->SetRenderMode(PlumState::MV_SOLID_MODE);
     s = gl->GetName();
     k++;
   }
@@ -427,7 +427,7 @@ RoadmapOptions::MakeWired(){
   typedef vector<gliObj>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     CGLModel *gl = (CGLModel*)(*i);
-    gl->SetRenderMode(CPlumState::MV_WIRE_MODE);
+    gl->SetRenderMode(PlumState::MV_WIRE_MODE);
   }
   GetVizmo().UpdateSelection();
   GetMainWin()->GetGLScene()->updateGL(); 
@@ -441,7 +441,7 @@ RoadmapOptions::MakeInvisible(){
   typedef vector<gliObj>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     CGLModel* gl = (CGLModel*)(*i);
-    gl->SetRenderMode(CPlumState::MV_INVISIBLE_MODE);
+    gl->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
   }
   GetVizmo().UpdateSelection();
   GetMainWin()->GetGLScene()->updateGL(); 

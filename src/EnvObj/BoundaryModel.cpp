@@ -11,7 +11,7 @@ BoundaryModel::Select(unsigned int* _index, vector<gliObj>& _sel){
 
 void
 BoundaryModel::Draw(GLenum _mode){
-  if(m_RenderMode == CPlumState::MV_INVISIBLE_MODE) return;
+  if(m_RenderMode == PlumState::MV_INVISIBLE_MODE) return;
   if(m_displayID != -1){
     glDisable(GL_LIGHTING);
     glCallList(m_displayID);

@@ -10,7 +10,7 @@ using namespace std;
 
 #include "MapObj/Cfg.h"
 
-#include <ILoadable.h>
+#include "Loadable.h"
 using namespace plum;
 
 #include <GLModel.h>
@@ -18,7 +18,7 @@ using namespace plum;
 /**
 * This class reads .query file to visualize start and goal positions.
 */
-class CQueryLoader : public I_Loadable
+class CQueryLoader : public Loadable
 {
 public:
     
