@@ -13,7 +13,6 @@
 
 #include "MapLoader.h"
 #include "CCModel.h"
-#include "PlumState.h"
 
 namespace plum{
 

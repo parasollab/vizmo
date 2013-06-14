@@ -5,10 +5,6 @@
 #ifndef GLMODEL_H_
 #define GLMODEL_H_
 
-#include <GL/gl.h>
-#include <GL/gliDataStructure.h>
-
-#include "PlumState.h"
 #include <list>
 #include <string>
 #include <sstream>
@@ -16,7 +12,13 @@
 
 #include <QKeyEvent>
 
+#include "GL/gl.h"
+#include "GL/gliDataStructure.h"
+
 namespace plum{
+  
+  enum RenderMode {WIRE_MODE, SOLID_MODE, INVISIBLE_MODE};
+  enum BuildState {MODEL_OK, ENV_MODEL_ERROR, MAP_MODEL_ERROR, CLIENT_MODEL_ERROR};
 
    class CGLModel : public gliTransform
    {
@@ -24,7 +26,7 @@ namespace plum{
          CGLModel()
          { 
             m_enableSelection=true; 
-            m_RenderMode=PlumState::MV_SOLID_MODE;
+            m_RenderMode = SOLID_MODE;
             m_RGBA.clear();
             for(int i = 0; i < 4; i++) {
               m_RGBA.push_back(0.0);
@@ -60,7 +62,7 @@ namespace plum{
             virtual void DrawSelect(){/*nothing*/} 
 
             //set wire/solid/hide
-            virtual void SetRenderMode( int mode ){ m_RenderMode=mode; }
+            virtual void SetRenderMode(RenderMode mode){m_RenderMode = mode;}
 
             //get/set color
             virtual void SetColor( float r, float g, float b, float a ){
@@ -84,7 +86,7 @@ namespace plum{
 
       public:
             bool  m_enableSelection;
-            int   m_RenderMode;     //wire or solid or hide
+            RenderMode   m_RenderMode;     //wire or solid or hide
 
             vector<float> m_RGBA;  //Color  
    };

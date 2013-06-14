@@ -33,7 +33,7 @@ DebugModel::DebugModel(){
   m_mapLoader = new CMapLoader<CCfg, Edge>();
   m_mapLoader->InitGraph();
   m_robot=NULL;
-  m_RenderMode=PlumState::MV_INVISIBLE_MODE;
+  m_RenderMode = INVISIBLE_MODE;
   m_mapModel=NULL;
   m_edgeNum=-1;
 }
@@ -61,7 +61,7 @@ DebugModel::BuildModels(){
   m_mapModel->SetMapLoader(m_mapLoader);
   m_mapModel->SetRobotModel(m_robot);
   m_mapModel->BuildModels();
-  m_mapModel->SetRenderMode(PlumState::MV_SOLID_MODE);
+  m_mapModel->SetRenderMode(SOLID_MODE);
 
   return true;
 }
@@ -277,7 +277,7 @@ DebugModel::BuildForward(){
 
   //rebuild map model since graph may have changed
   m_mapModel->BuildModels();
-  m_mapModel->SetRenderMode(PlumState::MV_SOLID_MODE);
+  m_mapModel->SetRenderMode(SOLID_MODE);
 
 }
 
@@ -446,7 +446,7 @@ DebugModel::BuildBackward(){
 
   //rebuild map model since graph may have changed
   m_mapModel->BuildModels();
-  m_mapModel->SetRenderMode(PlumState::MV_SOLID_MODE);
+  m_mapModel->SetRenderMode(SOLID_MODE);
 
 }
 

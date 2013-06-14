@@ -52,9 +52,9 @@ class OBPRMView_Robot : public CGLModel{
     virtual void Select( unsigned int * index, vector<gliObj>& sel );
 
     //set wire/solid to all items
-    virtual void SetRenderMode( int mode ){
-      CGLModel::SetRenderMode(mode);
-      if(m_RobotModel!=NULL) m_RobotModel->SetRenderMode(mode); 
+    virtual void SetRenderMode(RenderMode _mode){
+      CGLModel::SetRenderMode(_mode);
+      if(m_RobotModel!=NULL) m_RobotModel->SetRenderMode(_mode); 
     }
 
     virtual void SetColor( float r, float g, float b, float a ){
@@ -212,7 +212,7 @@ class OBPRMView_Robot : public CGLModel{
     //store ORIGINAL size and color
     double originalR, originalG, originalB, originalSize[3];
     float m_rR, m_rG, m_rB;
-    int m_RenderModeBackUp;
+    RenderMode m_RenderModeBackUp;
 };
 
 #endif

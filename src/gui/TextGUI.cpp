@@ -41,7 +41,7 @@ TextGUI::SetText(){
 
   //If we are trying to view VDebug comments, add those to the infoVect
   if(GetVizmo().GetDebug()!=NULL){ 
-    DebugModel* cdm = (DebugModel*)GetVizmo().GetDebug()->getModel();
+    DebugModel* cdm = (DebugModel*)GetVizmo().GetDebug()->GetModel();
     if(cdm != NULL){
       vector<string> comments = cdm->GetComments();
       if(!comments.empty())

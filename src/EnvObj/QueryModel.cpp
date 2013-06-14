@@ -21,7 +21,7 @@ CQueryModel::CQueryModel()
     m_DLIndex=-1;
     m_pQueryLoader=NULL;
     m_pRobot=NULL;
-    m_RenderMode=PlumState::MV_INVISIBLE_MODE;
+    m_RenderMode = INVISIBLE_MODE;
 }
 
 CQueryModel::~CQueryModel()
@@ -50,7 +50,7 @@ bool CQueryModel::BuildModels(){
     
     glMatrixMode( GL_MODELVIEW );
     m_DLIndex=glGenLists(1);
-    m_pRobot->SetRenderMode(PlumState::MV_WIRE_MODE);
+    m_pRobot->SetRenderMode(WIRE_MODE);
     //remember
    
     vector<float> col = m_pRobot->GetColor(); //remember old color
@@ -75,14 +75,14 @@ bool CQueryModel::BuildModels(){
     
     //set back
     m_pRobot->SetColor(oldcol[0],oldcol[1],oldcol[2],oldcol[3]);
-    m_pRobot->SetRenderMode(PlumState::MV_SOLID_MODE);
+    m_pRobot->SetRenderMode(SOLID_MODE);
     return true;
 }
 
 void CQueryModel::Draw( GLenum mode ){
 
     if( mode==GL_SELECT ) return; //not draw anything
-    if( m_RenderMode==PlumState::MV_INVISIBLE_MODE ) return;
+    if( m_RenderMode == INVISIBLE_MODE ) return;
 
     if( m_DLIndex==-1 )
         return;

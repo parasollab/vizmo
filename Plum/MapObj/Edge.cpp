@@ -50,8 +50,8 @@ namespace plum{
 
       typedef vector<CCfg>::iterator CFGIT;
       glPushName(m_id);
-      if(m_RenderMode == PlumState::MV_SOLID_MODE ||
-          m_RenderMode == PlumState::MV_WIRE_MODE){
+      if(m_RenderMode == SOLID_MODE ||
+          m_RenderMode == WIRE_MODE){
        
         float* arr_m_RGBA = &m_RGBA[0]; 
         glColor4fv(arr_m_RGBA);
@@ -75,7 +75,7 @@ namespace plum{
           for(CFGIT c = m_intermediateCfgs.begin(); 
               c != m_intermediateCfgs.end(); c++) { 
             c->SetShape(m_cfgShape);
-            c->SetRenderMode(PlumState::MV_WIRE_MODE);
+            c->SetRenderMode(WIRE_MODE);
             c->Draw(_mode);
           }
         } 

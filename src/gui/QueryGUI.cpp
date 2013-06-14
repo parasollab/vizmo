@@ -21,7 +21,7 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
   
     PlumObject * m_Rob, m_Env;
     m_Rob = GetVizmo().GetRobot();
-    OBPRMView_Robot * r = (OBPRMView_Robot*)m_Rob->getModel();
+    OBPRMView_Robot* r = (OBPRMView_Robot*)m_Rob->GetModel();
     m_dof = (r->getEnvLoader())->getDOF();
 
     //here I should put query values...
@@ -162,7 +162,7 @@ void queryGUI::newCfg(const QString&){
       
       PlumObject * m_Rob;
       m_Rob = GetVizmo().GetRobot();
-      OBPRMView_Robot * r = (OBPRMView_Robot*)m_Rob->getModel();
+      OBPRMView_Robot* r = (OBPRMView_Robot*)m_Rob->GetModel();
       r->BackUp();
       Quaternion qx(0,Vector3d(1,0,0));
       Quaternion qy(0,Vector3d(0,1,0));
@@ -213,7 +213,7 @@ void queryGUI::updateQryCfg(){
 
   PlumObject * m_Rob;
   m_Rob = GetVizmo().GetRobot();
-  OBPRMView_Robot * r = (OBPRMView_Robot*)m_Rob->getModel();
+  OBPRMView_Robot* r = (OBPRMView_Robot*)m_Rob->GetModel();
   vector<double> Qcfg3  = r->getFinalCfg();
 
   stx->setValue(Qcfg3[0]);

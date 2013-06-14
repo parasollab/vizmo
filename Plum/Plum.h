@@ -8,8 +8,8 @@
 
 using namespace std;
 
-namespace plum{
-
+namespace plum {
+  
   class PlumObject;
 
   class Plum {
@@ -32,7 +32,7 @@ namespace plum{
       bool ParseFile();
       
       //build models to draw
-      int BuildModels();
+      BuildState BuildModels();
       
       //draw/redraw
       void Draw();

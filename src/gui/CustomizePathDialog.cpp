@@ -63,7 +63,7 @@ CustomizePathDialog::AddColor(){
 void
 CustomizePathDialog::AcceptData(){ 
   
-  PathModel* path = (PathModel*)GetVizmo().GetPath()->getModel();
+  PathModel* path = (PathModel*)GetVizmo().GetPath()->GetModel();
   
   double width = (m_widthLineEdit->text()).toDouble(); 
   path->SetLineWidth(width); 

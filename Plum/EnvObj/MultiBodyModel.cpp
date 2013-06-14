@@ -1,6 +1,4 @@
 #include "MultiBodyModel.h"
-#include "PlumState.h"
-#include <src/vizmo2.h>
 
 namespace plum{
 
@@ -110,12 +108,13 @@ namespace plum{
     glPopMatrix();
   }
 
-  void MultiBodyModel::SetRenderMode(int mode) {
-    m_RenderMode=mode;
-    
-    for(size_t i=0; i<m_poly.size(); i++)
-      m_poly[i].SetRenderMode(mode);
-  }
+  void
+    MultiBodyModel::SetRenderMode(RenderMode _mode) {
+      m_RenderMode = _mode;
+
+      for(size_t i=0; i<m_poly.size(); i++)
+        m_poly[i].SetRenderMode(_mode);
+    }
 
   void MultiBodyModel::SetColor(float r, float g, float b, float a) {
     CGLModel::SetColor(r,g,b,a);

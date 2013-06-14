@@ -5,7 +5,7 @@ Map_DIR = MapObj
 
 TARGET=../lib/libPlum.a
 
-OBJS = Plum.o PlumState.o PlumUtil.o
+OBJS = Plum.o
 
 ENVOBJS = ${Env_DIR}/CmdParser.o ${Env_DIR}/EnvLoader.o  ${Env_DIR}/EnvModel.o  \
          ${Env_DIR}/MovieBYULoader.o  ${Env_DIR}/PolyhedronModel.o \

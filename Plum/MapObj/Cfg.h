@@ -64,9 +64,6 @@ namespace plum{
         CGLModel::SetColor(_r,_g,_b,_a);
       }
       
-      virtual void 
-      SetRenderMode(int _mode){ m_RenderMode = _mode; }
-
       void DrawRobot();
       void DrawBox();
       //void DrawBox(double scale);

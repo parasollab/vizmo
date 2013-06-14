@@ -32,7 +32,7 @@ VizmoItemSelectionGUI::FillTree(vector<PlumObject*>& _obj){
 
   typedef vector<PlumObject*>::iterator PIT;
   for(PIT i = _obj.begin(); i != _obj.end(); i++){
-    CGLModel* m = (*i)->getModel();
+    CGLModel* m = (*i)->GetModel();
     if(m == NULL) 
       continue;
     CreateItem(NULL,m);

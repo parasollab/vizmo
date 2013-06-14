@@ -100,7 +100,7 @@ bool gliCameraKEY( QKeyEvent * e )
 
 bool gliRobotKEY( QKeyEvent * e)
 {
-	 if( GetVizmo().GetRobot()->getModel()->KP(e) )return true;
+	 if( GetVizmo().GetRobot()->GetModel()->KP(e) )return true;
 	 return false;
 }
 

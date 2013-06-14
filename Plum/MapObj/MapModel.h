@@ -13,8 +13,6 @@
 
 #include "MapLoader.h"
 #include "CCModel.h"
-#include "PlumState.h"
-//#include "src/vizmo2.h" 
 #include <algorithms/graph_algo_util.h>
 
 using namespace stapl;
@@ -95,7 +93,7 @@ namespace plum {
       virtual void Draw(GLenum mode);
       void Select(unsigned int* index, vector<gliObj>& sel);
       //set wire/solid/hide
-      virtual void SetRenderMode(int mode);
+      virtual void SetRenderMode(RenderMode _mode);
       virtual const string GetName() const {return "Map";}
 
       virtual void 
@@ -159,7 +157,7 @@ namespace plum {
   template <class Cfg, class WEIGHT>
     CMapModel<Cfg, WEIGHT>::CMapModel() {
       m_mapLoader = NULL;
-      m_RenderMode = PlumState::MV_INVISIBLE_MODE;
+      m_RenderMode = INVISIBLE_MODE;
       m_pRobot=NULL;
       m_enableSelection=true; //disable selection
 
@@ -211,8 +209,8 @@ namespace plum {
   template <class Cfg, class WEIGHT>
     void CMapModel<Cfg, WEIGHT>::Draw(GLenum mode) {
 
-      if( m_RenderMode == PlumState::MV_INVISIBLE_MODE ) return;
-      if( mode==GL_SELECT && !m_enableSelection ) return;
+      if(m_RenderMode == INVISIBLE_MODE) return;
+      if(mode==GL_SELECT && !m_enableSelection) return;
       //Draw each CC
       int size = 0;
       typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
@@ -228,11 +226,11 @@ namespace plum {
     }
 
   template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::SetRenderMode( int mode ){ 
-      m_RenderMode=mode;
+    void CMapModel<Cfg, WEIGHT>::SetRenderMode(RenderMode _mode) { 
+      m_RenderMode = _mode;
       typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
-      for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
-        (*ic)->SetRenderMode(mode);
+      for(CIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++){
+        (*ic)->SetRenderMode(_mode);
       }
     }
 

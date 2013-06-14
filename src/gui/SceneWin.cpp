@@ -265,7 +265,7 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
     updateGL(); 
     return;
   }
-  if((OBPRMView_Robot*)(GetVizmo().GetRobot()->getModel())->KP(_e)){
+  if((OBPRMView_Robot*)(GetVizmo().GetRobot()->GetModel())->KP(_e)){
     updateGL(); 
     return;
   }

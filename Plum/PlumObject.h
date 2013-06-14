@@ -1,32 +1,28 @@
-#if !defined( _PLUMObJECT_H_ )
-#define _PLUMObJECT_H_
-
-/**
- * This is an interface for object that is going to insert into Plum.
+/* PlumObject
+ *
+ * A PlumObject is composed of both a Loadable and a CGLModel
  */
-namespace plum{
 
-    class CGLModel;     //the interface for gl display
-    class Loadable;   //the interface for loading files.
+#ifndef PLUMOBJECT_H_
+#define PLUMOBJECT_H_
 
-    class PlumObject {
+namespace plum {
 
+  class CGLModel;
+  class Loadable;
+
+  class PlumObject {
     public:
-        PlumObject(CGLModel* model=0, Loadable* load=0)
-        { 
-            m_pModel=model; m_pLoad=load; 
-        }
+      PlumObject(CGLModel* _model = NULL, Loadable* _loader = NULL) : 
+        m_model(_model), m_loader(_loader) {}
 
-        CGLModel*   getModel() const { return m_pModel; }
-        Loadable* getLoader() const { return m_pLoad; }
+      CGLModel* GetModel() const {return m_model;}
+      Loadable* GetLoader() const {return m_loader;}
 
     protected:
+      CGLModel* m_model;
+      Loadable* m_loader;
+  };
+}
 
-        CGLModel* m_pModel;
-        Loadable* m_pLoad;
-    };
-
-}//namespace plum
-
-#endif //_PLUMObJECT_H_
-
+#endif

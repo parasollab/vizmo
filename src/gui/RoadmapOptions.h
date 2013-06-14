@@ -28,10 +28,10 @@ class RoadmapOptions : public OptionsBase{
     
     typedef CMapModel<CCfg, Edge> MM; 
     MM* GetMapModel() {
-      if(GetVizmo().GetMap() == NULL)
+      if(!GetVizmo().GetMap())
         return NULL;
       else
-        return (MM*)GetVizmo().GetMap()->getModel();
+        return (MM*)GetVizmo().GetMap()->GetModel();
     }   
 //    void SetNodeSize(double _nodeSize) {m_nodeSize = _nodeSize;}   
     string GetNodeShape() {return (string)(m_nodeView->checkedButton())->text().toAscii();}  

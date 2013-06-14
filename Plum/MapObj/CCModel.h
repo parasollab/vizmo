@@ -38,7 +38,7 @@ namespace plum{
       m_id = _ID; 
       id = _ID;
       m_enableSelection = true;
-      m_RenderMode = PlumState::MV_INVISIBLE_MODE;
+      m_RenderMode = INVISIBLE_MODE;
       //Set random Color
       m_RGBA.clear(); 
       m_RGBA.push_back(((float)rand())/RAND_MAX);
@@ -277,7 +277,7 @@ namespace plum{
         }
 
         void change_properties(Shape _s, float _size, vector<float> _color, bool _isNew){ 
-          m_RenderMode = PlumState::MV_SOLID_MODE;
+          m_RenderMode = SOLID_MODE;
           m_sNodeShape = _s;
           if(_s == 0){ 
             m_fRobotScale = _size;
@@ -544,7 +544,7 @@ namespace plum{
    ///////////////////////////////////////////////////////////////////////////
   template <class Cfg, class WEIGHT>
   void CCModel<Cfg, WEIGHT>::Draw(GLenum _mode) {
-    if(m_RenderMode == PlumState::MV_INVISIBLE_MODE)
+    if(m_RenderMode == INVISIBLE_MODE)
       return;
     if(_mode==GL_SELECT && !m_enableSelection)
       return;

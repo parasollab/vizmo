@@ -25,7 +25,7 @@ namespace plum{
       virtual void DrawSelect();
 
       //set wire/solid/hide
-      virtual void SetRenderMode( int mode );
+      virtual void SetRenderMode(RenderMode _mode);
       virtual void SetColor(float r, float g, float b, float a);
       const float * GetColor() const;
 

@@ -199,7 +199,7 @@ FileOptions::SaveNewRoadmap(const char* _filename){
   PlumObject* m_Map;
   m_Map = GetVizmo().GetMap();
 
-  CMapHeaderLoader* maploader = (CMapHeaderLoader*)m_Map->getLoader();
+  CMapHeaderLoader* maploader = (CMapHeaderLoader*)m_Map->GetLoader();
 
   ofstream outfile (_filename);
 
@@ -247,7 +247,7 @@ FileOptions::SaveNewRoadmap(const char* _filename){
 
   typedef CMapLoader<CCfg,Edge>::Wg WG;
   WG* graph;
-  CMapLoader<CCfg,Edge> *m_loader=(CMapLoader<CCfg,Edge>*)m_Map->getLoader();
+  CMapLoader<CCfg,Edge> *m_loader=(CMapLoader<CCfg,Edge>*)m_Map->GetLoader();
   graph = m_loader->GetGraph();
 
   write_graph(*graph, outfile);

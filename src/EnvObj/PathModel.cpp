@@ -10,7 +10,7 @@ PathModel::PathModel()
   : m_glListIndex(-1), m_lineWidth(1),
   m_displayInterval(3), m_pathLoader(NULL), 
   m_robot(NULL) {
-    m_RenderMode=PlumState::MV_INVISIBLE_MODE;
+    m_RenderMode = INVISIBLE_MODE;
     //set default stop colors for path gradient 
     RGBAcolor cyan, green, yellow;
     cyan.push_back(0);
@@ -47,7 +47,7 @@ PathModel::BuildModels(){
 
   //Build Path Model
   size_t iPathSize = m_pathLoader->GetPathSize();
-  m_robot->SetRenderMode(PlumState::MV_WIRE_MODE);
+  m_robot->SetRenderMode(WIRE_MODE);
   
   vector<float> col = m_robot->GetColor(); //old color 
   vector<float> oldcol = col; 
@@ -102,7 +102,7 @@ PathModel::BuildModels(){
   glEndList();
 
   //set back
-  m_robot->SetRenderMode(PlumState::MV_SOLID_MODE);
+  m_robot->SetRenderMode(SOLID_MODE);
   m_robot->SetColor(oldcol[0],oldcol[1],oldcol[2],oldcol[3]);
 
   return true;
@@ -111,7 +111,7 @@ PathModel::BuildModels(){
 void PathModel::Draw(GLenum mode){
   if(mode==GL_SELECT) 
     return; //not draw any thing
-  if(m_RenderMode==PlumState::MV_INVISIBLE_MODE) 
+  if(m_RenderMode == INVISIBLE_MODE) 
     return;
   if(m_glListIndex==(size_t)-1)
     return;

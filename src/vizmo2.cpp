@@ -17,7 +17,6 @@ using namespace std;
 #include <MapObj/MapLoader.h>
 #include <EnvObj/MovieBYULoader.h>
 #include <PlumObject.h>
-#include <PlumUtil.h>
 
 #include "../Plum/GLModel.h"
 
@@ -56,7 +55,7 @@ vizmo& GetVizmo(){ return g_vizmo2; }
 
 //////////////////////////////////////////////////////////////////////
 //Define Robot function
-OBPRMView_Robot* GetRobot(){return (OBPRMView_Robot*)(GetVizmo().GetRobot()->getModel());}
+OBPRMView_Robot* GetRobot(){return (OBPRMView_Robot*)(GetVizmo().GetRobot()->GetModel());}
 //////////////////////////////////////////////////////////////////////
 
 
@@ -297,27 +296,27 @@ hduVector3Dd PhantomManager::getVelocity(){
 
 void vizmo_obj::Clean(){
    if(m_Robot!=NULL){
-      delete m_Robot->getModel(); delete m_Robot->getLoader(); delete m_Robot;
+      delete m_Robot->GetModel(); delete m_Robot->GetLoader(); delete m_Robot;
    }
 
    if( m_Qry!=NULL ){
-      delete m_Qry->getModel(); delete m_Qry->getLoader(); delete m_Qry;
+      delete m_Qry->GetModel(); delete m_Qry->GetLoader(); delete m_Qry;
    }
 
    if( m_Path!=NULL ){
-      delete m_Path->getModel(); delete m_Path->getLoader(); delete m_Path;
+      delete m_Path->GetModel(); delete m_Path->GetLoader(); delete m_Path;
    }
 
    if( m_Debug!=NULL ){
-      delete m_Debug->getModel(); delete m_Debug->getLoader(); delete m_Debug;
+      delete m_Debug->GetModel(); delete m_Debug->GetLoader(); delete m_Debug;
    }
 
    if( m_Env!=NULL ){
-      delete m_Env->getModel(); delete m_Env->getLoader(); delete m_Env;
+      delete m_Env->GetModel(); delete m_Env->GetLoader(); delete m_Env;
    }
 
    if( m_Map!=NULL ){
-      delete m_Map->getModel(); delete m_Map->getLoader(); delete m_Map;
+      delete m_Map->GetModel(); delete m_Map->GetLoader(); delete m_Map;
    }
    m_Robot = m_Qry = m_Path = m_Debug = m_Env = m_Map = NULL;
 }
@@ -449,7 +448,7 @@ bool vizmo::InitVizmoObject()
    //let plum do what he needs to do
    if(!m_Plum.ParseFile()){
      return false;}
-   if(m_Plum.BuildModels()!=PlumState::BUILD_MODEL_OK){
+   if(m_Plum.BuildModels() != MODEL_OK){
      return false;}
 
    //put robot in start cfg, if availiable
@@ -471,9 +470,9 @@ void vizmo::RefreshEnv()
 {
    if(m_obj.m_Env==NULL) 
      return;
-   CGLModel *m=m_obj.m_Env->getModel();
+   CGLModel *m=m_obj.m_Env->GetModel();
 
-   m->SetRenderMode(PlumState::MV_SOLID_MODE);
+   m->SetRenderMode(SOLID_MODE);
 }
 
 
@@ -510,12 +509,12 @@ void vizmo::TurnOn_CD(){
    for(OIT i=sel.begin();i!=sel.end();i++){
       m_objName = ((CGLModel*)(*i))->GetName();
    }
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
-   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
+   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
+   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
    if(envLoader != NULL){
       int MBnum = envLoader->GetNumberOfMultiBody();
 
-      OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+      OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
 
       list<CGLModel*> robotList,modelList;
       //obtain robot model	  
@@ -574,8 +573,8 @@ void vizmo::TurnOn_CD(){
 
 bool vizmo::SaveEnv(const char *filename)
 {
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
-   env=(CEnvModel*)m_obj.m_Env->getModel();
+   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
+   env=(CEnvModel*)m_obj.m_Env->GetModel();
 
    env->SaveFile(filename);
    return 1;
@@ -587,7 +586,7 @@ void vizmo::SaveQryCfg(char ch){
   string name;
   CGLModel * gl;
 
-  OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+  OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
 
   for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
   {
@@ -603,7 +602,7 @@ void vizmo::SaveQryCfg(char ch){
     int dof = CCfg::m_dof;
     if(m_obj.m_Qry != NULL){
       //get original Cfgs from QueryLoader
-      CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
+      CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->GetLoader();
 
       unsigned int iQSize = q->GetQuerySize();
 
@@ -629,7 +628,7 @@ bool vizmo::SaveQry(const char *filename){
    vector<double *> cfg;
    FILE *qryFile;
 
-   OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+   OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
    vector<vector<double> > vSG = robot->getNewStartAndGoal();
 
    if(!vSG.empty()){
@@ -655,12 +654,12 @@ void vizmo::ShowRoadMap( bool bShow ){
    m_obj.m_show_Map=bShow;
    if( m_obj.m_Map==NULL ) 
      return;
-   CGLModel* m=m_obj.m_Map->getModel();
+   CGLModel* m=m_obj.m_Map->GetModel();
 
    if( bShow )
-      m->SetRenderMode(PlumState::MV_SOLID_MODE);
+      m->SetRenderMode(SOLID_MODE);
    else
-      m->SetRenderMode(PlumState::MV_INVISIBLE_MODE);   
+      m->SetRenderMode(INVISIBLE_MODE);   
 
 }
 
@@ -668,35 +667,35 @@ void vizmo::ShowPathFrame( bool bShow ){
    m_obj.m_show_Path=bShow;
    if( m_obj.m_Path==NULL ) 
      return;
-   CGLModel * m=m_obj.m_Path->getModel();
+   CGLModel * m=m_obj.m_Path->GetModel();
 
    if( bShow )
-      m->SetRenderMode(PlumState::MV_SOLID_MODE);
+      m->SetRenderMode(SOLID_MODE);
    else
-      m->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
+      m->SetRenderMode(INVISIBLE_MODE);
 }
 
 void vizmo::ShowDebugFrame( bool bShow ){
    m_obj.m_show_Debug=bShow;
    if( m_obj.m_Debug==NULL ) 
      return;
-   CGLModel * m=m_obj.m_Debug->getModel();
+   CGLModel * m=m_obj.m_Debug->GetModel();
 
    if( bShow )
-      m->SetRenderMode(PlumState::MV_SOLID_MODE);
+      m->SetRenderMode(SOLID_MODE);
    else
-      m->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
+      m->SetRenderMode(INVISIBLE_MODE);
 }
 
 void vizmo::ShowQueryFrame(bool bShow){
    m_obj.m_show_Qry=bShow;
    if(m_obj.m_Qry==NULL) 
      return;
-   CGLModel* m = m_obj.m_Qry->getModel();
+   CGLModel* m = m_obj.m_Qry->GetModel();
    if (bShow)
-      m->SetRenderMode(PlumState::MV_SOLID_MODE);
+      m->SetRenderMode(SOLID_MODE);
    else 
-      m->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
+      m->SetRenderMode(INVISIBLE_MODE);
 } 
 
 // Code To change the appearance of the env.. 
@@ -710,18 +709,18 @@ void vizmo::ChangeAppearance(int status)
 
    typedef vector<gliObj>::iterator GIT;
 
-   OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+   OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
    robot->BackUp();   
 
    for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
    {
       CGLModel *model=(CGLModel *)(*ig);
       if(status==0)
-         model->SetRenderMode(PlumState::MV_SOLID_MODE);
+         model->SetRenderMode(SOLID_MODE);
       else if(status==1)
-         model->SetRenderMode(PlumState::MV_WIRE_MODE);
+         model->SetRenderMode(WIRE_MODE);
       else if(status==2){
-         model->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
+         model->SetRenderMode(INVISIBLE_MODE);
          MultiBodyModel* mbl=(MultiBodyModel*)(*ig);
          DeleteObject(mbl);
       }
@@ -755,7 +754,7 @@ void vizmo::ChangeAppearance(int status)
 
 void vizmo::DeleteObject(MultiBodyModel *mbl){
 
-   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
+   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
    int MBnum = envLoader->GetNumberOfMultiBody();
 
    const CMultiBodyInfo * mbi;
@@ -782,7 +781,7 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
    //////////////////////////////////////////////////////////
    //  Recreate MBModel: some elements could've been deleted
    //////////////////////////////////////////////////////////
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
    env->DeleteMBModel(mbl);
 
 }
@@ -791,8 +790,8 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
   void vizmo::Animate(int frame){
     if( m_obj.m_Robot==NULL || m_obj.m_Path==NULL)
       return;
-    CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
-    OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+    CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->GetLoader();
+    OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
 
     //Get Cfg
     vector<double> dCfg=ploader->GetConfiguration(frame);
@@ -807,7 +806,7 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
     if( m_obj.m_Robot==NULL || m_obj.m_Debug==NULL)
       return;
     m_obj.m_show_Debug = true;
-    DebugModel* dmodel=(DebugModel*)m_obj.m_Debug->getModel();
+    DebugModel* dmodel=(DebugModel*)m_obj.m_Debug->GetModel();
 
     dmodel->ConfigureFrame(frame);
   }
@@ -815,14 +814,14 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
 int vizmo::GetPathSize(){ 
    if(m_obj.m_Path==NULL) 
      return 0; 
-   CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->getLoader();
+   CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->GetLoader();
    return ploader->GetPathSize();
 }
 
 int vizmo::GetDebugSize(){ 
    if(m_obj.m_Debug==NULL) 
      return 0; 
-   CDebugLoader* dloader=(CDebugLoader*)m_obj.m_Debug->getLoader();
+   CDebugLoader* dloader=(CDebugLoader*)m_obj.m_Debug->GetLoader();
    return dloader->GetDebugSize();
 }
 
@@ -838,7 +837,7 @@ void vizmo::ChangeNodesSize(float s, string str){
   typedef vector<CC*>::iterator CCIT;
 
   if(m_obj.m_Map!=NULL){
-    MM* mmodel =(MM*)m_obj.m_Map->getModel();
+    MM* mmodel =(MM*)m_obj.m_Map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){
       CC::Shape shape=CC::Point;
@@ -850,7 +849,7 @@ void vizmo::ChangeNodesSize(float s, string str){
     }
   }
   if(m_obj.m_Debug!=NULL){
-    DebugModel* dmodel = ((DebugModel*)m_obj.m_Debug->getModel()); 
+    DebugModel* dmodel = ((DebugModel*)m_obj.m_Debug->GetModel()); 
     vector<CC*>& cc=dmodel->GetMapModel()->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
       CC::Shape shape = CC::Point;
@@ -878,14 +877,14 @@ vizmo::ChangeEdgeThickness(size_t _t){
   typedef vector<CC*>::iterator CCIT;
   
   if(m_obj.m_Map != NULL){ 
-    MM* mmodel = (MM*)m_obj.m_Map->getModel(); 
+    MM* mmodel = (MM*)m_obj.m_Map->GetModel(); 
     vector<CC*> cc = mmodel->GetCCModels(); 
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++)
       (*ic)->ScaleEdges(_t); 
   }
     
   if(m_obj.m_Debug != NULL){
-    DebugModel* dmodel = ((DebugModel*)m_obj.m_Debug->getModel()); 
+    DebugModel* dmodel = ((DebugModel*)m_obj.m_Debug->GetModel()); 
     vector<CC*>& cc = dmodel->GetMapModel()->GetCCModels(); 
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++)
       (*ic)->ScaleEdges(_t); 
@@ -911,7 +910,7 @@ void vizmo::ChangeNodesShape(string s){
   typedef vector<CC*>::iterator CCIT;
 
   if(m_obj.m_Map!=NULL){ 
-    CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->getModel();
+    CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){
       CC::Shape shape=CC::Point;
@@ -923,7 +922,7 @@ void vizmo::ChangeNodesShape(string s){
     }
   }
   if(m_obj.m_Debug!=NULL){
-    DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->getModel(); 
+    DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->GetModel(); 
     vector<CC*>& cc=dmodel->GetMapModel()->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
       CC::Shape shape = CC::Point;
@@ -965,7 +964,7 @@ void vizmo::ChangeCCColor(double r, double g, double b, string s){
   }   
 
   if(m_obj.m_Map!=NULL){
-    CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->getModel();
+    CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     if(m_s != "NULL"){
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
@@ -1014,7 +1013,7 @@ void vizmo::ChangeCCColor(double r, double g, double b, string s){
     }
   }
   if(m_obj.m_Debug!=NULL){
-    DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->getModel(); 
+    DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->GetModel(); 
     vector<CC*>& cc=dmodel->GetMapModel()->GetCCModels();
     if(m_s != "NULL"){
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
@@ -1093,7 +1092,7 @@ void vizmo::UpdateSelection(){
       }   
 
       if(m_obj.m_Map!=NULL){
-        CMapModel<CCfg,Edge>* mmodel = (MM*)m_obj.m_Map->getModel();
+        CMapModel<CCfg,Edge>* mmodel = (MM*)m_obj.m_Map->GetModel();
         vector<CC*>& cc = mmodel->GetCCModels();
         if(m_s != "NULL"){
           for(CCIT ic=cc.begin();ic!=cc.end();ic++){
@@ -1111,7 +1110,7 @@ void vizmo::UpdateSelection(){
       }
       
       if(m_obj.m_Debug!=NULL){
-        DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->getModel(); 
+        DebugModel* dmodel = (DebugModel*)m_obj.m_Debug->GetModel(); 
         vector<CC*>& cc = dmodel->GetMapModel()->GetCCModels();
         if(m_s != "NULL"){
           for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
@@ -1160,7 +1159,7 @@ void vizmo::ChangeNodeColor(double r, double g, double b, string s){
          m_s = m_sO.substr(position+4, m_sO.length());
       }   
 
-      CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->getModel();
+      CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->GetModel();
       vector<CC*>& cc=mmodel->GetCCModels();
       if(m_s != "NULL"){
          for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
@@ -1193,7 +1192,7 @@ void vizmo::ChangeNodesRandomColor(){
    typedef vector<CC*>::iterator CCIT; 
 
    //change color
-   CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->getModel();
+   CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_Map->GetModel();
    vector<CC*>& cc=mmodel->GetCCModels();
    for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
       float r = ((float)rand())/RAND_MAX; 
@@ -1215,14 +1214,14 @@ bool vizmo::StringToInt(const string &s, int &i){
 
 void vizmo::envObjsRandomColor(){
 
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
    env->ChangeColor();
 
 }
 
 double vizmo::GetEnvRadius(){ 
    if(m_obj.m_Env!=NULL ){
-      CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+      CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
       return env->GetRadius();
    }
    return 200;
@@ -1237,9 +1236,17 @@ bool vizmo::CreateEnvObj( vizmo_obj& obj, const string& fname )
    string dir=fname.substr(0,pos);
    ///////////////////////////////////////////////////////////////////////
    //create environment
-   obj.m_Env=createEnvObj(fname , dir);
+   CEnvLoader* envLoader = new CEnvLoader();
+   CEnvModel* envModel = new CEnvModel();
+   if(!envLoader || !envModel) return false;
 
-   return (obj.m_Env!=NULL);
+   envLoader->SetFilename(fname);
+   envLoader->SetModelDataDir(dir);
+   envModel->SetEnvLoader(envLoader);
+
+   obj.m_Env = new PlumObject(envModel, envLoader);
+
+   return obj.m_Env;
 }
 
 bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
@@ -1251,7 +1258,7 @@ bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
    mloader->SetFilename(fname);
    mmodel->SetMapLoader(mloader);
    if(obj.m_Robot != NULL){
-      mmodel->SetRobotModel( (OBPRMView_Robot*)obj.m_Robot->getModel() );
+      mmodel->SetRobotModel( (OBPRMView_Robot*)obj.m_Robot->GetModel() );
    }
    obj.m_Map = new PlumObject(mmodel, mloader); 
    return (obj.m_Map != NULL);
@@ -1266,7 +1273,7 @@ bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
    ploader->SetFilename(fname);
    pmodel->SetPathLoader(ploader);
    if( obj.m_Robot!=NULL )
-      pmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
+      pmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->GetModel());
    obj.m_Path=new PlumObject(pmodel,ploader);
    return (obj.m_Path!=NULL);
 }
@@ -1280,7 +1287,7 @@ bool vizmo::CreateDebugObj( vizmo_obj& obj, const string& fname )
    dloader->SetFilename(fname);
    dmodel->SetDebugLoader(dloader);
    if( obj.m_Robot!=NULL )
-      dmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
+      dmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->GetModel());
    obj.m_Debug=new PlumObject(dmodel,dloader);
    return (obj.m_Debug!=NULL);
 }
@@ -1294,7 +1301,7 @@ bool vizmo::CreateQueryObj( vizmo_obj& obj, const string& fname )
    qloader->SetFilename(fname);
    qmodel->SetQueryLoader(qloader);
    if( obj.m_Robot!=NULL )
-      qmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->getModel());
+      qmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->GetModel());
    obj.m_Qry=new PlumObject(qmodel,qloader);
    return (obj.m_Qry!=NULL);
 }
@@ -1304,7 +1311,7 @@ bool vizmo::CreateRobotObj( vizmo_obj& obj )
    if( m_obj.m_Env==NULL ) 
      return true; //can't build
 
-   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
+   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
    OBPRMView_Robot * r=new OBPRMView_Robot(envLoader);
    if( r==NULL ) 
      return false;
@@ -1314,24 +1321,24 @@ bool vizmo::CreateRobotObj( vizmo_obj& obj )
 
 void vizmo::PlaceRobot()
 {
-   OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+   OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
    if( r!=NULL ){
       vector<double> cfg;
       if( m_obj.m_Qry!=NULL ){//check query loader
-         CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->getLoader();
+         CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->GetLoader();
          cfg=q->GetStartGoal(0);
       }
       else if( m_obj.m_Path!=NULL ){//check path loader
-         CPathLoader * p=(CPathLoader*)m_obj.m_Path->getLoader();
+         CPathLoader * p=(CPathLoader*)m_obj.m_Path->GetLoader();
          cfg=p->GetConfiguration(0);
       }
       else {
-         CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
+         CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
          int d = envLoader->getDOF();
          cfg = vector<double>(d);
       }
       if(m_obj.m_Debug!=NULL){
-        r->SetRenderMode(PlumState::MV_INVISIBLE_MODE);
+        r->SetRenderMode(INVISIBLE_MODE);
       }
       if(!cfg.empty()){
          r->Configure(cfg);
@@ -1343,7 +1350,7 @@ void vizmo::PlaceRobot()
 
 void vizmo::ResetRobot(){
 /*
-   OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+   OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
    if( r!=NULL )
       r->RestoreInitCfg();*/
 }
@@ -1360,7 +1367,7 @@ void vizmo::getRoboCfg(){
 
 int vizmo::getNumJoints(){
 
-   OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->getModel();
+   OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
    if( r!=NULL )
       return r->getNumJoints();
    return -1;
@@ -1400,12 +1407,12 @@ void vizmo::setCommLine(QStringList comm){
 bool vizmo::envChanged(){
    env_changed = false;
 
-   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->getLoader();
+   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
    int numBod = envLoader->GetNumberOfMultiBody();
    const CMultiBodyInfo * mbi;
    mbi = envLoader->GetMultiBodyInfo();
 
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->getModel();
+   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
    vector<MultiBodyModel *> mbm = env->getMBody();
 
 

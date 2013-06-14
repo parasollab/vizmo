@@ -207,7 +207,7 @@ namespace plum{
 
   void CPolyhedronModel::Draw( GLenum mode ) {
     if( m_SolidID==-1 ) return;
-    if(m_RenderMode==PlumState::MV_INVISIBLE_MODE) return;
+    if(m_RenderMode == INVISIBLE_MODE) return;
 
     ////////////////////////////////////////////////////////////////////////////////
     
@@ -217,7 +217,7 @@ namespace plum{
     glTransform();
     //new May-24-04
     glScale();
-    if(m_RenderMode==PlumState::MV_SOLID_MODE){           
+    if(m_RenderMode == SOLID_MODE){           
       glEnable( GL_POLYGON_OFFSET_FILL );
       glPolygonOffset( 2.0, 2.0 );
       glEnable(GL_NORMALIZE);
