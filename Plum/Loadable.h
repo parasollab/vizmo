@@ -51,9 +51,11 @@ namespace plum{
       static void GoToNext(istream& _in) {
         string line;
         while(!_in.eof()) {
-          char c = _in.peek();
-          while(isspace(c))
-            _in >> c;
+          char c;
+          while(isspace(_in.peek()))
+            _in.get(c);
+
+          c = _in.peek();
           if(!IsCommentLine(c))
             return;
           else
@@ -83,9 +85,11 @@ namespace plum{
       void GetColor(istream& _in){
         string line;
         while(!_in.eof()){
-          char c = _in.peek();
-          while(isspace(c))
-            _in >> c;
+          char c;
+          while(isspace(_in.peek()))
+            _in.get(c);
+
+          c = _in.peek();
           if(!IsCommentLine(c))
             return;
           else {
