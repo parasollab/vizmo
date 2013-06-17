@@ -9,10 +9,12 @@ INTERNALLIBS = $(GLI_LIBFILE) $(MODELGRAPH_LIBFILE) \
 	       $(PLUM_LIBFILE) $(CD_LIBFILE) \
 	       $(VGUI_LIBFILE) $(ENVOBJ_LIBFILE)
 
-default_target: $(EXTERNALLIBS) $(INTERNALLIBS) $(OBJECTS) vizmo
+default_target: $(EXTERNALLIBS) $(INTERNALLIBS) $(OBJECTS) vizmo++
 
-vizmo: $(EXTERNALLIBS) $(INTERNALLIBS) $(OBJECTS)
+vizmo++: $(EXTERNALLIBS) $(INTERNALLIBS) $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS) ${LIB}
+
+CLEAN= $(OBJECTS) vizmo++
 
 reallyclean:
 	@${MAKE} clean
