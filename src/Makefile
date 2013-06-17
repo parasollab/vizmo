@@ -14,7 +14,7 @@ ifndef VIZMO_DIR
 endif
 
 ifndef UTILS_DIR
-UTILS_DIR = $(VIZMO_DIR)/../utils
+  UTILS_DIR = $(VIZMO_DIR)/../utils
 endif
 
 # include makefile defaults
@@ -26,7 +26,6 @@ INCL = $(VIZMO_INCL)
 LIBS = $(VIZMO_LIBS)
 
 default_target: $(UTILS_LIBFILES) $(VIZMO_LIBFILE) vizmo++
-
 
 vizmo++: $(UTILS_LIBFILES) $(VIZMO_OBJECTS)
 	$(CXX) $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) main.cpp $(VIZMO_LIBFILE) $(LIBS) -o $@ 
