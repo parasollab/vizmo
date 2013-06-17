@@ -8,7 +8,7 @@
 
 #include <math.h>
 #include "Gauss.h"
-#include "src/EnvObj/Robot.h"
+#include "EnvObj/Robot.h"
 #include "Plum/PlumObject.h" 
 
 #include "MapLoader.h"

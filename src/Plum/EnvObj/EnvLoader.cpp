@@ -5,8 +5,8 @@
 #include "EnvLoader.h"
 #include "MultiBodyInfo.h"
 #include "MapObj/Cfg.h"
-#include "src/EnvObj/BoundingBoxModel.h"
-#include "src/EnvObj/BoundingSphereModel.h"
+#include "EnvObj/BoundingBoxModel.h"
+#include "EnvObj/BoundingSphereModel.h"
 
 #define  PI_180 3.1415926535/180 
 

@@ -26,7 +26,7 @@
 #include "Plum/EnvObj/PolyhedronModel.h"
 using namespace plum;
 
-#include "src/EnvObj/Robot.h"
+#include "EnvObj/Robot.h"
 
 #include <RAPID.H>
 

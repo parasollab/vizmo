@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "src/EnvObj/Robot.h"
+#include "EnvObj/Robot.h"
 
 using namespace std;
 

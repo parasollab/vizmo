@@ -12,8 +12,10 @@ endif
 ifndef VIZMO_DIR
   VIZMO_DIR = .
 endif
+VIZMO_INCL = -I$(VIZMO_DIR)
+VIZMO_LIB = -L$(VIZMO_DIR)/lib
 
-UTILS_DIR = $(VIZMO_DIR)/utils
+UTILS_DIR = $(VIZMO_DIR)/../utils
 
 # include makefile defaults
 include ${UTILS_DIR}/makefile_includes/Makefile.defaults
@@ -22,20 +24,38 @@ include ${UTILS_DIR}/makefile_includes/Makefile.defaults
 
 GL_LIB = -lglut -lGLU -lGL
 GL_INCL = -I/usr/include/GL
-GLI_LIB = -lgli
 
-VIZMO_INCL = -I$(VIZMO_DIR)
-VIZMO_LIB = -L$(VIZMO_DIR)/lib
+GLI_DIR = $(VIZMO_DIR)/GL
+GLI_LIB = -lgli
+GLI_LIBFILE = ${GLI_DIR}/libgli.a
+${GLI_DIR}/libgli.a:
+	cd ${GLI_DIR}; ${MAKE};
 
 MODELGRAPH_DIR = $(VIZMO_DIR)/modelgraph
 MODELGRAPH_INCL = -I$(MODELGRAPH_DIR)
 MODELGRAPH_LIB = -lmodelgraph
+MODELGRAPH_LIBFILE = ${MODELGRAPH_DIR}/libmodelgraph.a
+${MODELGRAPH_DIR}/libmodelgraph.a:
+	cd ${MODELGRAPH_DIR}; ${MAKE};
 
 PLUM_DIR = $(VIZMO_DIR)/Plum
 PLUM_INCL = -I$(PLUM_DIR)
 PLUM_LIB = -lPlum
+PLUM_LIBFILE = ${PLUM_DIR}/libPlum.a
+${PLUM_DIR}/libPlum.a:
+	cd ${PLUM_DIR}; ${MAKE};
 
+VGUI_DIR = $(VIZMO_DIR)/gui
 VGUI_LIB = -lvgui
+VGUI_LIBFILE = ${VGUI_DIR}/libvgui.a
+${VGUI_DIR}/libvgui.a:
+	cd ${VGUI_DIR}; ${MAKE};
+
+ENVOBJ_DIR = $(VIZMO_DIR)/EnvObj
+ENVOBJ_LIB = -lEnvObj
+ENVOBJ_LIBFILE = ${ENVOBJ_DIR}/libEnvObj.a
+${ENVOBJ_DIR}/libEnvObj.a:
+	cd ${ENVOBJ_DIR}; ${MAKE};
 
 ifeq ($(platform), LINUX_gcc)
 MOC	 = /usr/lib64/qt4/bin/moc
@@ -62,19 +82,17 @@ GRAPH_INCL = -I$(GRAPH_DIR)
 MATHTOOL_DIR = ${UTILS_DIR}/mathtool
 MATHTOOL_LIB = -L${MATHTOOL_DIR} -lmathtool
 MATHTOOL_INCL = -I${MATHTOOL_DIR}
-${MATHTOOL_DIR}/libmathtool.a:
-	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libmathtool.a ../../lib
-
 MATHTOOL_LIBFILE = ${MATHTOOL_DIR}/libmathtool.a
+${MATHTOOL_DIR}/libmathtool.a:
+	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libmathtool.a ../../src/lib
 
 # modelloader
 MODELLOADER_DIR = ${UTILS_DIR}/modelloader
 MODELLOADER_LIB = -L${MODELLOADER_DIR} -lmodloader
 MODELLOADER_INCL = -I${MODELLOADER_DIR}
+MODELLOADER_LIBFILE = ${MODELLOADER_DIR}/libmodloader.a
 ${MODELLOADER_DIR}/libmodloader.a: 
 	cd ${MODELLOADER_DIR}; ${MAKE} platform=${platform} debug=${debug}
-
-MODELLOADER_LIBFILE = ${MODELLOADER_DIR}/libmodloader.a
 
 #--------------------------------------------------------------------------
 # collision detection
@@ -82,20 +100,23 @@ MODELLOADER_LIBFILE = ${MODELLOADER_DIR}/libmodloader.a
 RAPID_DIR     = $(UTILS_DIR)/geom/CD-libs/RAPID
 RAPID_LIB      = -L$(RAPID_DIR) -lRAPID
 RAPID_INCL    = -I${RAPID_DIR}
-${RAPID_DIR}/libRAPID.a:
-	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libRAPID.a ../../../../lib
-
 RAPID_LIBFILE = ${RAPID_DIR}/libRAPID.a
+${RAPID_DIR}/libRAPID.a:
+	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libRAPID.a ../../../../src/lib
 
 CD_DIR = $(VIZMO_DIR)/CollisionDetection
 CD_INCL = -I$(CD_DIR)
 CD_LIB = -lCD
+CD_LIBFILE = ${CD_DIR}/libCD.a
+${CD_DIR}/libCD.a:
+	cd ${CD_DIR}; ${MAKE};
+
 #-------------------------------------------------------------------------
 
 INCLUDE = $(VIZMO_INCL) $(PLUM_INCL) $(MODELGRAPH_INCL) $(GLI_INCL) $(CD_INCL) \
           $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL)
 LIB = $(VIZMO_LIB) $(PLUM_LIB) $(MODELGRAPH_LIB) $(VGUI_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(CD_LIB) ${RAPID_LIB} \
-      ${Phantom_LIB} $(MATHTOOL_LIB) $(MODELLOADER_LIB)
+      ${Phantom_LIB} $(MATHTOOL_LIB) $(MODELLOADER_LIB) $(ENVOBJ_LIB)
 
 # macros
 OPTS += -MMD

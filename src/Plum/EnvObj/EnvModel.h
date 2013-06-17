@@ -8,7 +8,7 @@
 #include "GLModel.h"
 #include "MultiBodyModel.h"
 #include "EnvLoader.h"
-#include "src/EnvObj/BoundaryModel.h"
+#include "EnvObj/BoundaryModel.h"
 
 namespace plum{
 

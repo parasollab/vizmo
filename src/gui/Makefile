@@ -1,7 +1,7 @@
 INCPATH = -I..
-VIZMO_DIR = ../..
+VIZMO_DIR = ../
 
-TARGET   = ../../lib/libvgui.a
+TARGET   = ../lib/libvgui.a
 
 OBJS = GUI.o MainWin.o SceneWin.o AnimationGUI.o \
           ItemSelectionGUI.o FileListDialog.o \

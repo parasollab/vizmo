@@ -15,7 +15,7 @@
 #include "Cfg.h"
 #include "Edge.h" 
 #include "MapLoader.h"
-#include "src/EnvObj/Robot.h"
+#include "EnvObj/Robot.h"
 
 using namespace std;
 using namespace stapl;

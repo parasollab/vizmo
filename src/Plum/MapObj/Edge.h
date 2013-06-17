@@ -5,16 +5,12 @@
 #ifndef EDGE_H_
 #define EDGE_H_ 
       
-#ifdef WIN32
-#include <windows.h>
-#endif
-          
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <iostream>
 #include <string>
 #include "Cfg.h"                
-#include "src/EnvObj/Robot.h"
+#include "EnvObj/Robot.h"
                  
 using namespace std;
                    
