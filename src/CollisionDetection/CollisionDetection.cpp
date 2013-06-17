@@ -48,7 +48,6 @@ bool CollisionDetection::IsInCollision(int numMB,
    int robIndx = 0;
    bool collision = false;
    bool value = false;
-   MultiBodyModel *m_robot;
 
    ////// Making a copy of the robot
    /// use this new robot to work...
@@ -81,7 +80,6 @@ bool CollisionDetection::IsInCollision(int numMB,
    for(int i = 0; i<numMB; i++){ 
       if(MBI[i].m_active){ 
          //if this MBody is ROBOT
-         m_robot =  MBmodel[i];
          robIndx = i;
          break;
       } 

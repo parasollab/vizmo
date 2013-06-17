@@ -119,22 +119,14 @@ namespace plum{
   }
 
   bool CEnvLoader::ParseMultiBody( ifstream & ifs, CMultiBodyInfo & MBInfo ) {
-    bool bActive=false;
-    bool bInternal=false;
-    bool bSurface=false;
     
     string multibodyType = ReadFieldString(ifs,
         "Multibody Type (Active, Passive, Internal, Surface)");
 
     if(multibodyType == "ACTIVE"){
-      bActive=true;
       MBInfo.m_active = true;
     }
-    else if(multibodyType == "INTERNAL") {
-      bInternal = true;
-    }
     else if(multibodyType == "SURFACE") {
-      bSurface=true;
       MBInfo.m_surface = true;
       m_ContainsSurfaces = true;
     }
@@ -514,7 +506,7 @@ namespace plum{
         }
         Robot::JointMap jm;
         for(size_t j = 0; j<cc.size(); j++){
-          size_t index = m_robotGraph.find_vertex(cc[j])->property();
+          int index = m_robotGraph.find_vertex(cc[j])->property();
           typedef Robot::JointMap::iterator MIT;
           for(MIT mit = robot.GetJointMap().begin(); mit!=robot.GetJointMap().end(); mit++){
             if((*mit)->m_preIndex == index){

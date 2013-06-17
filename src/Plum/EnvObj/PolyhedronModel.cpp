@@ -154,8 +154,8 @@ namespace plum{
 	const Tri & tri=*t;
 	n[t-tris.begin()].get(value);
 	glNormal3dv(value);
-	GLuint id[3]={tri[0],tri[1],tri[2]};
-	glDrawElements( GL_TRIANGLES, 3, GL_UNSIGNED_INT, id );
+	GLint id[3]={tri[0],tri[1],tri[2]};
+	glDrawElements( GL_TRIANGLES, 3, GL_INT, id );
       }
 
       glPopMatrix();
@@ -193,8 +193,8 @@ namespace plum{
 	else if( (1-fabs(n[tri_l]*n[tri_r]))>1e-3 ) draw=true;
 
 	if( draw ){
-	  GLuint id[2]={edge->getStartPt(),edge->getEndPt()};
-	  glDrawElements( GL_LINES, 2, GL_UNSIGNED_INT, id );
+	  GLint id[2]={edge->getStartPt(),edge->getEndPt()};
+	  glDrawElements( GL_LINES, 2, GL_INT, id );
 	}
 	edge=edge->getNext();
       }
