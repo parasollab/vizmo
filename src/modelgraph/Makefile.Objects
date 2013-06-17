@@ -1,0 +1,4 @@
+OBJECTS += \
+	   modelgraph/ModelGraph.o \
+	   modelgraph/ModelNode.o \
+	   modelgraph/ModelEdge.o

@@ -3,11 +3,11 @@
 
 //////////////////////////////////////////////////////////////////////
 //Plum Headers
-#include <EnvObj/MultiBodyModel.h>
-#include <EnvObj/EnvLoader.h>
-#include <GLModel.h>
-#include <EnvObj/MultiBodyInfo.h>
-#include <EnvObj/Transformation.h>
+#include <Plum/EnvObj/MultiBodyModel.h>
+#include <Plum/EnvObj/EnvLoader.h>
+#include <Plum/GLModel.h>
+#include <Plum/EnvObj/MultiBodyInfo.h>
+#include <Plum/EnvObj/Transformation.h>
 #include <GL/gliCamera.h>
 
 #include <QKeyEvent>

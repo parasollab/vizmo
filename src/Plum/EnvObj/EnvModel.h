@@ -5,7 +5,7 @@
 #ifndef ENVMODEL_H_
 #define ENVMODEL_H_
 
-#include "GLModel.h"
+#include "Plum/GLModel.h"
 #include "MultiBodyModel.h"
 #include "EnvLoader.h"
 #include "EnvObj/BoundaryModel.h"

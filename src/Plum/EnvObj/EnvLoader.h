@@ -5,7 +5,7 @@
 #ifndef ENVLOADER_H_
 #define ENVLOADER_H_
 
-#include "Loadable.h"
+#include "Plum/Loadable.h"
 #include "RobotInfo.h"
 #include <graph.h>
 #include <algorithms/graph_input_output.h>

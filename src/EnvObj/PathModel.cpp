@@ -1,6 +1,6 @@
 #include "PathModel.h"
 #include "Robot.h"
-#include <Plum.h>
+#include "Plum/Plum.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

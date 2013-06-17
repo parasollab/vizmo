@@ -13,12 +13,11 @@
 using namespace std;
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
-#include <MapObj/Cfg.h>
-#include <MapObj/MapLoader.h>
-#include <EnvObj/MovieBYULoader.h>
-#include <PlumObject.h>
-
-#include "../Plum/GLModel.h"
+#include "Plum/MapObj/Cfg.h"
+#include "Plum/MapObj/MapLoader.h"
+#include "Plum/EnvObj/MovieBYULoader.h"
+#include "Plum/PlumObject.h"
+#include "Plum/GLModel.h"
 
 using namespace plum;
 

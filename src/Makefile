@@ -1,33 +1,53 @@
+# set default platform
+ifndef platform
+  platform = LINUX_64_gcc
+endif
+
+# set default debug
+ifndef debug
+  debug = 0
+endif
+
+# set directory paths
+ifndef VIZMO_DIR
+  VIZMO_DIR = .
+endif
+
+ifndef UTILS_DIR
+UTILS_DIR = $(VIZMO_DIR)/../utils
+endif
+
+# include makefile defaults
+include ${UTILS_DIR}/makefile_includes/Makefile.defaults
 include Makefile.VizmoDefaults
 
-INCPATH = -I.
+# macros
+INCL = $(VIZMO_INCL)
+LIBS = $(VIZMO_LIBS)
 
-OBJECTS =  main.o vizmo2.o
+default_target: $(UTILS_LIBFILES) $(VIZMO_LIBFILE) vizmo++
 
-EXTERNALLIBS = $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE)
-INTERNALLIBS = $(GLI_LIBFILE) $(MODELGRAPH_LIBFILE) \
-	       $(PLUM_LIBFILE) $(CD_LIBFILE) \
-	       $(VGUI_LIBFILE) $(ENVOBJ_LIBFILE)
 
-default_target: $(EXTERNALLIBS) $(INTERNALLIBS) $(OBJECTS) vizmo++
+vizmo++: $(UTILS_LIBFILES) $(VIZMO_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) main.cpp $(VIZMO_LIBFILE) $(LIBS) -o $@ 
 
-vizmo++: $(EXTERNALLIBS) $(INTERNALLIBS) $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS) ${LIB}
+%.o: %.cpp
+	@${MAKE} -s check_platform
+	${CXX} -c ${CXXFLAGS} ${OPTS} -MMD ${DEFS} ${INCL} ${DEPS} $< -o $@
+	cat $*.d >> Dependencies
+	rm -f $*.d
 
-CLEAN= $(OBJECTS) vizmo++
+CLEAN= $(VIZMO_LIBFILE) vizmo++
 
 reallyclean:
 	@${MAKE} clean
-	cd GL; ${MAKE} clean
-	cd modelgraph; ${MAKE} clean
-	cd Plum; ${MAKE} clean
-	cd CollisionDetection; ${MAKE} clean
-	cd gui; ${MAKE} clean
-	cd EnvObj; ${MAKE} clean
-	rm -f lib/*.a
+	rm -f $(VIZMO_OBJECTS) $(VIZMO_SRCMOC) Dependencies
 
 reallyreallyclean:
 	@${MAKE} reallyclean
 	cd $(RAPID_DIR); ${MAKE} clean
 	cd $(MATHTOOL_DIR); ${MAKE} clean
 	cd $(MODELLOADER_DIR); ${MAKE} clean
+
+-include Dependencies
+

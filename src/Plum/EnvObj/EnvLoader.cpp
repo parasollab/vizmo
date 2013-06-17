@@ -4,7 +4,7 @@
 
 #include "EnvLoader.h"
 #include "MultiBodyInfo.h"
-#include "MapObj/Cfg.h"
+#include "Plum/MapObj/Cfg.h"
 #include "EnvObj/BoundingBoxModel.h"
 #include "EnvObj/BoundingSphereModel.h"
 

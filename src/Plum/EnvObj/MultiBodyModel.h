@@ -2,7 +2,7 @@
 #define MULTIBODYMODEL_H_
 
 #include "MultiBodyInfo.h"
-#include "GLModel.h"
+#include "Plum/GLModel.h"
 #include "PolyhedronModel.h"
 
 namespace plum{

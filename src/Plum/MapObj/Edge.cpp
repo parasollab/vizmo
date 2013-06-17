@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "Edge.h"
-#include "Plum.h"
+#include "Plum/Plum.h"
 #include <limits.h> 
 
 namespace plum{

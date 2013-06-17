@@ -1,0 +1,8 @@
+OBJECTS += \
+	   GL/gli.o \
+	   GL/gliCamera.o \
+	   GL/gliDataStructure.o \
+	   GL/gliPickBox.o \
+	   GL/gliTransTool.o \
+	   GL/gliFont.o \
+	   GL/gliDump.o

@@ -5,7 +5,7 @@
 #if !defined(_MULTIPOLYHEDRONMODEL_H_)
 #define _MULTIPOLYHEDRONMODEL_H_
 
-#include "GLModel.h"
+#include "Plum/GLModel.h"
 #include "MovieBYULoader.h"
 #include "MultiBodyInfo.h"
 #include "Transformation.h"

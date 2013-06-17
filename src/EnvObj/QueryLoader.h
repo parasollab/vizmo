@@ -8,13 +8,13 @@
 #include <vector>
 using namespace std;
 
-#include "MapObj/Cfg.h"
+#include "Plum/MapObj/Cfg.h"
 
-#include "Loadable.h"
+#include "Plum/Loadable.h"
+
+#include "Plum/GLModel.h"
 using namespace plum;
 
-#include <GLModel.h>
-using namespace plum;
 /**
 * This class reads .query file to visualize start and goal positions.
 */

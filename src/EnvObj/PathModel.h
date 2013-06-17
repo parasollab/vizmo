@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#include <GLModel.h>
+#include "Plum/GLModel.h"
 using namespace plum;
 
 #include "PathLoader.h"

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "Plum.h"
+#include "Plum/Plum.h"
 #include "CCModel.h"
 
 namespace plum{

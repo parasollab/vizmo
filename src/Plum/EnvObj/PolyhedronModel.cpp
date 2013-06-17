@@ -4,10 +4,10 @@
 
 #include "PolyhedronModel.h"
 #include "EnvLoader.h"  //for CMultiBodyInfo
-#include "Plum.h"
+#include "Plum/Plum.h"
 #include <math.h>
 
-#include <ModelGraph.h>
+#include "modelgraph/ModelGraph.h"
 using namespace modelgraph;
 
 ///////////////////////////////////////////////////////////////////////////

@@ -8,10 +8,10 @@
 #include <vector>
 using namespace std;
 
-#include "MapObj/Cfg.h"
-#include "MapObj/MapLoader.h"
-#include "MapObj/MapModel.h"
-#include "Loadable.h"
+#include "Plum/MapObj/Cfg.h"
+#include "Plum/MapObj/MapLoader.h"
+#include "Plum/MapObj/MapModel.h"
+#include "Plum/Loadable.h"
 using namespace plum;
 
 struct Instruction{

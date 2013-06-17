@@ -10,7 +10,7 @@
 #include <string>
 
 
-#include "GLModel.h"
+#include "Plum/GLModel.h"
 //#include "SimpleCfg.h"
 #include "Cfg.h"
 #include "Edge.h" 

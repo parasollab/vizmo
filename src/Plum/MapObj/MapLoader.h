@@ -5,7 +5,7 @@
 #if !defined(_MAPLOADER_H_)
 #define _MAPLOADER_H_
 
-#include "Loadable.h"
+#include "Plum/Loadable.h"
 #include <graph.h>
 #include <algorithms/graph_algo_util.h>
 #include <algorithms/graph_input_output.h>

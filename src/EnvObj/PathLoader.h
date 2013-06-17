@@ -8,9 +8,9 @@
 #include <vector>
 using namespace std;
 
-#include "MapObj/Cfg.h"
+#include "Plum/MapObj/Cfg.h"
 
-#include "Loadable.h"
+#include "Plum/Loadable.h"
 using namespace plum;
 
 /**

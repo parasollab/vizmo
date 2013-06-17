@@ -13,19 +13,19 @@ using namespace std;
 #include<stdio.h>
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
-#include <MapObj/MapModel.h>
+#include "Plum/MapObj/MapModel.h"
 
 namespace plum{
   class CPlum;
 }
 
 
-#include <Plum.h>
-#include <EnvObj/MultiBodyModel.h>
+#include <Plum/Plum.h>
+#include <Plum/EnvObj/MultiBodyModel.h>
 using namespace plum;
 
 
-#include <CollisionDetection.h>
+#include <CollisionDetection/CollisionDetection.h>
 
 #include <qstringlist.h> 
 

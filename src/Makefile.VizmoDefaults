@@ -1,141 +1,86 @@
-# set default platform
-ifndef platform
-  platform = LINUX_64_gcc
-endif
-
-# set default debug
-ifndef debug
-  debug = 0
-endif
-
-# set directory paths
-ifndef VIZMO_DIR
-  VIZMO_DIR = .
-endif
-VIZMO_INCL = -I$(VIZMO_DIR)
-VIZMO_LIB = -L$(VIZMO_DIR)/lib
-
-UTILS_DIR = $(VIZMO_DIR)/../utils
-
-# include makefile defaults
-include ${UTILS_DIR}/makefile_includes/Makefile.defaults
-
-#Phantom_LIB = -lHD -lHDU -lrt
-
-GL_LIB = -lglut -lGLU -lGL
+################################################################################
+#GL and QT
+################################################################################
+#open gl
 GL_INCL = -I/usr/include/GL
+GL_LIBS = -lglut -lGLU -lGL
 
-GLI_DIR = $(VIZMO_DIR)/GL
-GLI_LIB = -lgli
-GLI_LIBFILE = ${GLI_DIR}/libgli.a
-${GLI_DIR}/libgli.a:
-	cd ${GLI_DIR}; ${MAKE};
-
-MODELGRAPH_DIR = $(VIZMO_DIR)/modelgraph
-MODELGRAPH_INCL = -I$(MODELGRAPH_DIR)
-MODELGRAPH_LIB = -lmodelgraph
-MODELGRAPH_LIBFILE = ${MODELGRAPH_DIR}/libmodelgraph.a
-${MODELGRAPH_DIR}/libmodelgraph.a:
-	cd ${MODELGRAPH_DIR}; ${MAKE};
-
-PLUM_DIR = $(VIZMO_DIR)/Plum
-PLUM_INCL = -I$(PLUM_DIR)
-PLUM_LIB = -lPlum
-PLUM_LIBFILE = ${PLUM_DIR}/libPlum.a
-${PLUM_DIR}/libPlum.a:
-	cd ${PLUM_DIR}; ${MAKE};
-
-VGUI_DIR = $(VIZMO_DIR)/gui
-VGUI_LIB = -lvgui
-VGUI_LIBFILE = ${VGUI_DIR}/libvgui.a
-${VGUI_DIR}/libvgui.a:
-	cd ${VGUI_DIR}; ${MAKE};
-
-ENVOBJ_DIR = $(VIZMO_DIR)/EnvObj
-ENVOBJ_LIB = -lEnvObj
-ENVOBJ_LIBFILE = ${ENVOBJ_DIR}/libEnvObj.a
-${ENVOBJ_DIR}/libEnvObj.a:
-	cd ${ENVOBJ_DIR}; ${MAKE};
-
+#qt
 ifeq ($(platform), LINUX_gcc)
-MOC	 = /usr/lib64/qt4/bin/moc
-#MOC	 = /usr/share/qt4/bin/moc
-QT4DIR = /usr
-#QT4DIR = /usr/share/qt4
+  MOC = /usr/lib64/qt4/bin/moc
+  QT4DIR = /usr
+else
+  ifeq ($(platform), LINUX_64_gcc)
+  MOC = /usr/lib64/qt4/bin/moc
+  QT4DIR = /usr
+else
+  ifeq ($(platform), MACOS_gcc)
+  MOC = /sw/lib/qt4-x11/bin/moc
+  QT4DIR = /sw/lib/qt4-x11/
+else
+  $(error Qt and moc are undefined for platform: $(platform).)
 endif
-ifeq ($(platform), LINUX_64_gcc)
-MOC      = /usr/lib64/qt4/bin/moc
-QT4DIR = /usr
 endif
-ifeq ($(platform), MACOS_gcc)
-MOC = /sw/lib/qt4-x11/bin/moc
-QT4DIR = /sw/lib/qt4-x11/
 endif
-
-QT_INC = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL 
+QT_INCL = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL 
 QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL  
 
+################################################################################
+#Vizmo Utilities
+################################################################################
+#stapl graph
 GRAPH_DIR = $(UTILS_DIR)/graph
 GRAPH_INCL = -I$(GRAPH_DIR)
 
-# mathtool
+#mathtool
 MATHTOOL_DIR = ${UTILS_DIR}/mathtool
-MATHTOOL_LIB = -L${MATHTOOL_DIR} -lmathtool
 MATHTOOL_INCL = -I${MATHTOOL_DIR}
-MATHTOOL_LIBFILE = ${MATHTOOL_DIR}/libmathtool.a
-${MATHTOOL_DIR}/libmathtool.a:
-	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libmathtool.a ../../src/lib
+MATHTOOL_LIB = -L${MATHTOOL_DIR} -lmathtool
+MATHTOOL_LIBFILE = $(MATHTOOL_DIR)/libmathtool.a
+$(MATHTOOL_DIR)/libmathtool.a:
+	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug};
 
-# modelloader
+#modelloader
 MODELLOADER_DIR = ${UTILS_DIR}/modelloader
-MODELLOADER_LIB = -L${MODELLOADER_DIR} -lmodloader
 MODELLOADER_INCL = -I${MODELLOADER_DIR}
-MODELLOADER_LIBFILE = ${MODELLOADER_DIR}/libmodloader.a
-${MODELLOADER_DIR}/libmodloader.a: 
-	cd ${MODELLOADER_DIR}; ${MAKE} platform=${platform} debug=${debug}
+MODELLOADER_LIB = -L${MODELLOADER_DIR} -lmodloader
+MODELLOADER_LIBFILE = $(MODELLOADER_DIR)/libmodloader.a
+$(MODELLOADER_DIR)/libmodloader.a:
+	cd ${MODELLOADER_DIR}; ${MAKE} platform=${platform} debug=${debug};
 
-#--------------------------------------------------------------------------
-# collision detection
-#--------------------------------------------------------------------------
-RAPID_DIR     = $(UTILS_DIR)/geom/CD-libs/RAPID
-RAPID_LIB      = -L$(RAPID_DIR) -lRAPID
-RAPID_INCL    = -I${RAPID_DIR}
-RAPID_LIBFILE = ${RAPID_DIR}/libRAPID.a
-${RAPID_DIR}/libRAPID.a:
-	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug}; cp libRAPID.a ../../../../src/lib
+#RAPID collision detection
+RAPID_DIR = $(UTILS_DIR)/geom/CD-libs/RAPID
+RAPID_INCL = -I${RAPID_DIR}
+RAPID_LIB = -L$(RAPID_DIR) -lRAPID
+RAPID_LIBFILE = $(RAPID_DIR)/libRAPID.a
+$(RAPID_DIR)/libRAPID.a:
+	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug};
 
-CD_DIR = $(VIZMO_DIR)/CollisionDetection
-CD_INCL = -I$(CD_DIR)
-CD_LIB = -lCD
-CD_LIBFILE = ${CD_DIR}/libCD.a
-${CD_DIR}/libCD.a:
-	cd ${CD_DIR}; ${MAKE};
+UTILS_INCL = $(GRAPH_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL) $(RAPID_INCL)
+UTILS_LIBS = $(MATHTOOL_LIB) $(MODELLOADER_LIB) $(RAPID_LIB)
+UTILS_LIBFILES = $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE)
 
-#-------------------------------------------------------------------------
+################################################################################
+#Vizmo src objects
+################################################################################
+#Define Vizmo Objects
+OBJECTS =
+SRCMOC =
+include $(VIZMO_DIR)/GL/Makefile.Objects
+include $(VIZMO_DIR)/modelgraph/Makefile.Objects
+include $(VIZMO_DIR)/Plum/Makefile.Objects
+include $(VIZMO_DIR)/CollisionDetection/Makefile.Objects
+include $(VIZMO_DIR)/gui/Makefile.Objects
+include $(VIZMO_DIR)/EnvObj/Makefile.Objects
+VIZMO_OBJECTS = $(OBJECTS) vizmo2.o
+VIZMO_SRCMOC = $(SRCMOC)
+VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(UTILS_INCL)
+VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(UTILS_LIBS)
+VIZMO_LIBFILE = $(VIZMO_DIR)/libvizmo.a
+$(VIZMO_DIR)/libvizmo.a: $(VIZMO_OBJECTS)
+	ar rc $@ $(VIZMO_OBJECTS)
 
-INCLUDE = $(VIZMO_INCL) $(PLUM_INCL) $(MODELGRAPH_INCL) $(GLI_INCL) $(CD_INCL) \
-          $(GRAPH_INCL) $(QT_INC) $(GL_INCL) $(INCPATH) $(RAPID_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL)
-LIB = $(VIZMO_LIB) $(PLUM_LIB) $(MODELGRAPH_LIB) $(VGUI_LIB) $(GLI_LIB) $(QT_LIBS) $(GL_LIB) $(CD_LIB) ${RAPID_LIB} \
-      ${Phantom_LIB} $(MATHTOOL_LIB) $(MODELLOADER_LIB) $(ENVOBJ_LIB)
-
-# macros
-OPTS += -MMD
-INCL = $(INCLUDE)
-LIBS = $(LIB)
-
-default_target: $(TARGET)
-$(TARGET): $(OBJECTS)
-
-%.o: %.cpp
-	@${MAKE} -s check_platform
-	${CXX} -c ${CXXFLAGS} ${OPTS} ${DEFS} ${INCL} ${DEPS} $< -o $@
-	cat $*.d >> Dependencies
-	rm -f $*.d
-
-%.a: $(OBJECTS)
-	$(AR) $@ $(OBJECTS)
-
-CLEAN= $(TARGET) $(OBJECTS) Dependencies *~
-
--include Dependencies
-
+################################################################################
+# OLD PHANTOM DEFINES
+################################################################################
+#Phantom_LIB = -lHD -lHDU -lrt

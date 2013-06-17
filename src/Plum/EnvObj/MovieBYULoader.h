@@ -5,7 +5,7 @@
 #ifndef _MOVIEBYULOADER_H_
 #define _MOVIEBYULOADER_H_
 
-#include "Loadable.h"
+#include "Plum/Loadable.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 ///std header
