@@ -155,7 +155,7 @@ namespace plum{
 	n[t-tris.begin()].get(value);
 	glNormal3dv(value);
 	GLint id[3]={tri[0],tri[1],tri[2]};
-	glDrawElements( GL_TRIANGLES, 3, GL_INT, id );
+	glDrawElements( GL_TRIANGLES, 3, GL_UNSIGNED_INT, id );
       }
 
       glPopMatrix();
@@ -194,7 +194,7 @@ namespace plum{
 
 	if( draw ){
 	  GLint id[2]={edge->getStartPt(),edge->getEndPt()};
-	  glDrawElements( GL_LINES, 2, GL_INT, id );
+	  glDrawElements( GL_LINES, 2, GL_UNSIGNED_INT, id );
 	}
 	edge=edge->getNext();
       }
