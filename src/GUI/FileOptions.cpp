@@ -16,8 +16,8 @@
 #include "OptionsBase.h" 
 #include "MainWin.h"   
 #include "vizmo2.h"  
-#include "icon/Folder.xpm"
-#include "icon/Update.xpm"
+#include "Icons/Folder.xpm"
+#include "Icons/Update.xpm"
 
 FileOptions::FileOptions(QWidget* _parent, VizmoMainWin* _mainWin)
   :OptionsBase(_parent, _mainWin)

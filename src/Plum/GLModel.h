@@ -12,8 +12,8 @@
 
 #include <QKeyEvent>
 
-#include "GL/gl.h"
-#include "GL/gliDataStructure.h"
+#include <gl.h>
+#include "Utilities/GL/gliDataStructure.h"
 
 namespace plum{
   

@@ -22,7 +22,7 @@ else
 endif
 endif
 endif
-QT_INCL = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL 
+QT_INCL = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL
 QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL  
 
 ################################################################################
@@ -66,12 +66,12 @@ UTILS_LIBFILES = $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE)
 #Define Vizmo Objects
 OBJECTS =
 SRCMOC =
-include $(VIZMO_DIR)/GL/Makefile.Objects
-include $(VIZMO_DIR)/modelgraph/Makefile.Objects
+include $(VIZMO_DIR)/Utilities/GL/Makefile.Objects
+include $(VIZMO_DIR)/Utilities/Makefile.Objects
+include $(VIZMO_DIR)/Models/ModelGraph/Makefile.Objects
 include $(VIZMO_DIR)/Plum/Makefile.Objects
-include $(VIZMO_DIR)/CollisionDetection/Makefile.Objects
-include $(VIZMO_DIR)/gui/Makefile.Objects
 include $(VIZMO_DIR)/EnvObj/Makefile.Objects
+include $(VIZMO_DIR)/GUI/Makefile.Objects
 VIZMO_OBJECTS = $(OBJECTS) vizmo2.o
 VIZMO_SRCMOC = $(SRCMOC)
 VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(UTILS_INCL)

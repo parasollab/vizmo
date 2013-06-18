@@ -25,7 +25,7 @@ namespace plum{
 using namespace plum;
 
 
-#include <CollisionDetection/CollisionDetection.h>
+#include <Utilities/CollisionDetection.h>
 
 #include <qstringlist.h> 
 

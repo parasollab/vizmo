@@ -1,7 +1,7 @@
 #include "vizmo2.h"
 #include "FileListDialog.h"
-#include "icon/Folder.xpm"
-#include "icon/Eye.xpm"
+#include "Icons/Folder.xpm"
+#include "Icons/Eye.xpm"
 
 #include <QDialog> 
 #include <QGridLayout>

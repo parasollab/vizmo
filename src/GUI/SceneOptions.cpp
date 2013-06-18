@@ -9,13 +9,13 @@
 #include <iostream>
 #include <sstream>  
 #include <Point.h>
-#include <GL/gliCamera.h>  
+#include "Utilities/GL/gliCamera.h"
 #include "SceneOptions.h"
 #include "MainWin.h"
 #include "SceneWin.h" 
 #include "CameraPosDialog.h" 
-#include "icon/ResetCamera.xpm"  
-#include "icon/BgColor.xpm" 
+#include "Icons/ResetCamera.xpm"  
+#include "Icons/BgColor.xpm" 
 
 SceneOptions::SceneOptions(QWidget* _parent, VizmoMainWin* _mainWin)
   :OptionsBase(_parent, _mainWin)

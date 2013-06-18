@@ -4,13 +4,13 @@
 
 #include "DebugModel.h"
 #include "Robot.h"
-#include "gui/SceneWin.h" //to call new drawText 
+#include "GUI/SceneWin.h" //to call new drawText 
 #include <algorithms/dijkstra.h>
 
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
 #include "Plum/Plum.h"
-#include "GL/gliFont.h"
+#include "Utilities/GL/gliFont.h"
 using namespace stapl;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

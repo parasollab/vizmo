@@ -1,4 +1,4 @@
-#include "gui/GUI.h"
+#include "GUI/GUI.h"
 #include "vizmo2.h"
 
 int main( int argc, char ** argv )

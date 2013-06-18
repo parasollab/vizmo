@@ -9,7 +9,7 @@
 #include "ItemSelectionGUI.h" 
 #include "AddObjDialog.h" 
 #include "vizmo2.h" 
-#include "icon/RandEnv.xpm"
+#include "Icons/RandEnv.xpm"
 
   EnvironmentOptions::EnvironmentOptions(QWidget* _parent, VizmoMainWin* _mainWin)
 :OptionsBase(_parent, _mainWin)

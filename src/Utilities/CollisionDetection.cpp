@@ -8,7 +8,7 @@
 
 #include "CollisionDetection.h"
 #include <math.h>
-#include <GL/gliFont.h>
+#include <Utilities/GL/gliFont.h>
 
 //////////////////////////////
 // Constructor / Destructor

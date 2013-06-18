@@ -8,7 +8,7 @@
 #include <Plum/GLModel.h>
 #include <Plum/EnvObj/MultiBodyInfo.h>
 #include <Plum/EnvObj/Transformation.h>
-#include <GL/gliCamera.h>
+#include <Utilities/GL/gliCamera.h>
 
 #include <QKeyEvent>
 

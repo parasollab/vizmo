@@ -7,7 +7,7 @@
 #include "Plum/Plum.h"
 #include <math.h>
 
-#include "modelgraph/ModelGraph.h"
+#include "Models/ModelGraph/ModelGraph.h"
 using namespace modelgraph;
 
 ///////////////////////////////////////////////////////////////////////////

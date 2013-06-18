@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "GLModel.h"
-#include "GL/gliDataStructure.h"
+#include "Utilities/GL/gliDataStructure.h"
 
 using namespace std;
 

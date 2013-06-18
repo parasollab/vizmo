@@ -12,8 +12,8 @@
 #include "EnvObj/QueryLoader.h"
 #include "EnvObj/DebugModel.h"   
 #include "vizmo2.h"  
-#include "icon/Pen.xpm"  
-#include "icon/Flag.xpm" 
+#include "Icons/Pen.xpm"  
+#include "Icons/Flag.xpm" 
 
 PathOptions::PathOptions(QWidget* _parent, VizmoMainWin* _mainWin)
   :OptionsBase(_parent, _mainWin)

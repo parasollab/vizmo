@@ -1,10 +1,10 @@
 #include "vizmo2.h"
 #include "SceneWin.h"
 #include "MainWin.h"
-#include <GL/gli.h>
-#include <GL/gliCamera.h>
-#include <GL/gliFont.h>
-#include <GL/glut.h>
+#include "Utilities/GL/gli.h"
+#include "Utilities/GL/gliCamera.h"
+#include "Utilities/GL/gliFont.h"
+#include <glut.h>
 //Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>

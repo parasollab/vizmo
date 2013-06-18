@@ -12,13 +12,13 @@
 #include <QValidator>
 #include <QString>
 //// Icons
-#include "icon/vcr/First.xpm"
-#include "icon/vcr/Last.xpm"
-#include "icon/vcr/Next.xpm"
-#include "icon/vcr/Previous.xpm"
-#include "icon/vcr/Play.xpm"
-#include "icon/vcr/Playback.xpm"
-#include "icon/vcr/Pause.xpm"
+#include "Icons/First.xpm"
+#include "Icons/Last.xpm"
+#include "Icons/Next.xpm"
+#include "Icons/Previous.xpm"
+#include "Icons/Play.xpm"
+#include "Icons/Playback.xpm"
+#include "Icons/Pause.xpm"
 
 ///////////////////////////////////////////////////////////////////////////////// 
 

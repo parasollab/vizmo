@@ -13,7 +13,7 @@
 #include <QKeyEvent>
 #include <QGLWidget> 
 // BSS
-#include <GL/gli.h>
+#include <Utilities/GL/gli.h>
 #include <list>
 #include "TextGUI.h"
 #include "MainWin.h"

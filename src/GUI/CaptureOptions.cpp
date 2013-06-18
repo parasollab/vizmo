@@ -12,11 +12,11 @@
 #include "MovieSaveDialog.h"
 #include "AnimationGUI.h" 
 #include "vizmo2.h"
-#include <GL/gliDump.h>
-#include <GL/gliPickBox.h> 
-#include "icon/Crop.xpm"
-#include "icon/Camera.xpm"
-#include "icon/Camcorder.xpm" 
+#include "Utilities/GL/gliDump.h"
+#include "Utilities/GL/gliPickBox.h"
+#include "Icons/Crop.xpm"
+#include "Icons/Camera.xpm"
+#include "Icons/Camcorder.xpm" 
 
 inline QStringList& Filters(){
 

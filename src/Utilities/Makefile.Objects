@@ -1,0 +1,2 @@
+OBJECTS += \
+	  Utilities/CollisionDetection.o

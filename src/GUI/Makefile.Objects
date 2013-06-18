@@ -1,0 +1,35 @@
+SRCMOC += $(patsubst GUI/%.h, GUI/moc_%.cpp, $(shell grep -l Q_OBJECT GUI/*.h))
+OBJMOC = $(patsubst GUI/%.h, GUI/moc_%.o, $(shell grep -l Q_OBJECT GUI/*.h))
+OBJECTS += \
+	   $(OBJMOC) \
+	   GUI/GUI.o \
+	   GUI/MainWin.o \
+	   GUI/SceneWin.o \
+	   GUI/AnimationGUI.o \
+	   GUI/ItemSelectionGUI.o \
+	   GUI/FileListDialog.o \
+	   GUI/ObjProperty.o \
+	   GUI/OBPRMGUI.o \
+	   GUI/AddObjDialog.o \
+	   GUI/VizmoEditor.o \
+	   GUI/QueryGUI.o \
+	   GUI/CameraPosDialog.o \
+	   GUI/CustomizePathDialog.o \
+	   GUI/TextGUI.o \
+	   GUI/MainMenu.o \
+	   GUI/FileOptions.o \
+	   GUI/SceneOptions.o \
+	   GUI/RobotOptions.o \
+	   GUI/EnvironmentOptions.o \
+	   GUI/RoadmapOptions.o \
+	   GUI/PathOptions.o \
+	   GUI/CaptureOptions.o \
+	   GUI/HelpOptions.o \
+	   GUI/MovieSaveDialog.o \
+	   GUI/SizeSliderDialog.o 
+
+####### MOC
+.SECONDARY: $(SRCMOC)
+
+moc_%.cpp: %.h
+	$(MOC) $< -o $@
