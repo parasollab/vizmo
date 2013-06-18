@@ -29,13 +29,6 @@ VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
 }
 
 void 
-VizGLWin::getWidthHeight(int *w,int *h){
-
-  *w=width();
-  *h=height();
-}
-
-void 
 VizGLWin::toggleSelectionSlot(){
 
   takingSnapShot=!takingSnapShot;
@@ -133,12 +126,6 @@ VizGLWin::simulateMouseUpSlot(){
 
   gliSimMouseUp();
   updateGL();
-}
-
-void 
-VizGLWin::getBoxDimensions(int *xOffset, int *yOffset,int *w,int *h){
-
-  gliPickBoxDim(xOffset,yOffset,w,h);
 }
 
 void 
@@ -292,10 +279,27 @@ VizGLWin::resetTransTool(){
   gliReset();
 }
 
+//save an image of the GL scene with the given filename
+//Note: filename must have appropriate extension for QImage::save or no file
+//will be written
+void
+VizGLWin::SaveImage(QString _filename, bool _crop) {
+  QRect imageRect = GetImageRect(_crop);
+  //grab the gl scene. Copy into new QImage with size of imageRect. This will
+  //crop the image appropriately.
+  QImage crop = grabFrameBuffer().copy(imageRect);
+  crop.save(_filename);
+}
 
-
-
-
-
-
-
+//Grab the size of image for saving. If crop is true, use the cropBox to
+//size the image down.
+QRect
+VizGLWin::GetImageRect(bool _crop){
+  if(_crop) {
+    int xOff, yOff, w, h;
+    gliPickBoxDim(&xOff, &yOff, &w, &h);
+    return QRect(xOff+1, height()-yOff+1, w-2, h-2);
+  }   
+  else
+    return QRect(0, 0, width(), height());
+}

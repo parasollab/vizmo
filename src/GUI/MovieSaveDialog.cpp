@@ -1,105 +1,67 @@
+#include "MovieSaveDialog.h"
+
+#include <limits>
+
 #include <QGridLayout> 
 #include <QLabel>
 #include <QLineEdit>   
-#include <QDialog> 
 #include <QIntValidator> 
 #include <QPushButton> 
 #include <QFileDialog> 
-#include <string> 
 
-#include "MovieSaveDialog.h"
+#include "vizmo2.h"
+#include "Utilities/ImageFilters.h"
 
-inline QStringList& 
-Filters(){
+MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
+  QDialog(_parent, _f), 
+  m_startFrame(0), m_endFrame(-1), m_stepSize(10),
+  m_frameDigits(5), m_frameDigitStart(11),
+  m_filename("vizmo_movie#####.jpg") {
 
-  static QStringList filters;
+    int maxint = std::numeric_limits<int>::max();
 
-  filters+="JPEG (*.jpg)";
-  filters+="GIF (*.gif)";
-  filters+="Encapsulated PostScript file (*.eps)";
-  filters+="targa (*.tga)";
-  filters+="Portable Network Graphics (*.png)";
-  filters+="Microsoft Bitmap (*.bmp)";
-  filters+="Computer Graphics Metafile (*.cgm)";
-  filters+="PostScript Interchange (*.epi)";
-  filters+="Microsoft Icon (*.ico)";
-  filters+="Paintbrush File (*.pcx)";
-  filters+="Portable Pixmap (*.ppm)";
-  filters+="Adobe Portable Document Format (*.pdf)";
+    if(GetVizmo().GetPathSize() > 0){ 
+      m_endFrame = GetVizmo().GetPathSize()-1;
+    }
+    else if(GetVizmo().GetDebugSize() > 0){
+      m_endFrame = GetVizmo().GetDebugSize()-1;
+    }
 
-  return filters;
-}
+    //1. Create subwidgets/members
 
-inline string 
-Filter2Ext(const string filter){
+    QString tmp;
+    m_startFrameLabel = new QLabel("Start Frame", this);
+    tmp.setNum(m_startFrame);
+    m_startFrameEdit = new QLineEdit(tmp, this);
+    m_startFrameEdit->setValidator(new QIntValidator(0, maxint, this));   
 
-  if(filter.find("jpg")!=string::npos)
-    return ".jpg";
-  if(filter.find("gif")!=string::npos)
-    return ".gif";
-  if(filter.find("eps")!=string::npos)
-    return ".eps";
-  if(filter.find("tga")!=string::npos)
-    return ".tga";
-  if(filter.find("png")!=string::npos)
-    return ".png";
-  if(filter.find("pdf")!=string::npos)
-    return ".pdf";
-  if(filter.find("bmp")!=string::npos)
-    return ".bmp";
-  if(filter.find("epi")!=string::npos)
-    return ".epi";
-  if(filter.find("cgm")!=string::npos)
-    return ".cgm";
-  if(filter.find("ico")!=string::npos)
-    return ".ico";
-  if(filter.find("pcx")!=string::npos)
-    return ".pcx";
-  if(filter.find("ppm")!=string::npos)
-    return ".ppm";
-  if(filter.find("pdf")!=string::npos)
-    return ".pdf";
-  return "";
-}
+    m_endFrameLabel = new QLabel("EndFrame", this); 
+    tmp.setNum(m_endFrame);
+    m_endFrameEdit = new QLineEdit(tmp, this);
+    m_endFrameEdit->setValidator(new QIntValidator(0, maxint, this));
 
-MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f)
-  :QDialog(_parent, _f)
-{
-  m_sFileName = "vizmo_movie";
-  m_sFileExt = ".jpg";
-  m_frameDigit = 5;
-  
-  //1. Create subwidgets/members 
-  m_startFrameLabel = new QLabel("Start Frame", this); 
-  m_startFrameEdit = new QLineEdit(this);
-  m_startFrameEdit->setValidator(new QIntValidator(this));   
+    m_stepSizeLabel = new QLabel("Step Size", this); 
+    tmp.setNum(m_stepSize);
+    m_stepSizeEdit = new QLineEdit(tmp, this);
+    m_stepSizeEdit->setValidator(new QIntValidator(0, maxint, this));
 
-  m_endFrameLabel = new QLabel("EndFrame", this); 
-  m_endFrameEdit = new QLineEdit(this);
-  m_endFrameEdit->setValidator(new QIntValidator(this));
+    m_selectNameButton = new QPushButton("Select Name", this);
+    m_fileNameLabel = new QLabel(m_filename, this);
 
-  m_stepSizeLabel = new QLabel("Step Size", this); 
-  m_stepSizeEdit = new QLineEdit(this);
-  m_stepSizeEdit->setValidator(new QIntValidator(this));
+    m_go = new QPushButton("Go", this);
+    m_cancel = new QPushButton("Cancel", this);
 
-  m_selectNameButton = new QPushButton("Select Name", this);
-  m_fileNameLabel = new QLabel((m_sFileName+"#####" + m_sFileExt), this);
+    //2. Make connections
+    connect(m_selectNameButton, SIGNAL(clicked()), this, SLOT(ShowFileDialog()));
+    connect(m_cancel, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(m_go, SIGNAL(clicked()), this, SLOT(SaveImages()));
 
-  m_go = new QPushButton("Go", this);
-  m_cancel = new QPushButton("Cancel", this);
-
-  //2. Make connections
-  connect(m_selectNameButton, SIGNAL(clicked()), this, SLOT(ShowFileDialog()));
-  connect(m_cancel, SIGNAL(clicked()), this, SLOT(reject()));
-  connect(m_go, SIGNAL(clicked()), this, SLOT(SaveImages()));
-
-  //3. Set up layout
-  SetUpLayout(); 
-}
+    //3. Set up layout
+    SetUpLayout(); 
+  }
 
 void 
 MovieSaveDialog::SetUpLayout(){
-
   m_layout = new QGridLayout;
   this->setLayout(m_layout); 
 
@@ -119,74 +81,38 @@ MovieSaveDialog::SetUpLayout(){
 
 void
 MovieSaveDialog::SaveImages(){
-
-  StoreAttributes(); 
+  m_startFrame = m_startFrameEdit->text().toUInt();
+  m_endFrame = m_endFrameEdit->text().toUInt();
+  m_stepSize = m_stepSizeEdit->text().toUInt();
+  
   QDialog::accept(); 
 }
 
 void 
-MovieSaveDialog::UpdateAttributes(){
-
-  QString tempStorage;
-
-  tempStorage.setNum(m_startIntFrame);
-  m_startFrameEdit->setText(tempStorage);
-
-  tempStorage.setNum(m_endIntFrame);
-  m_endFrameEdit->setText(tempStorage);
-
-  tempStorage.setNum(m_stepIntSize);
-  m_stepSizeEdit->setText(tempStorage);
-}
-
-void 
-MovieSaveDialog::StoreAttributes(){
-
-  QString tempStorage;
-  bool conv;
-
-  tempStorage = m_startFrameEdit->text();
-  m_startIntFrame = tempStorage.toInt(&conv, 10);
-
-  tempStorage = m_endFrameEdit->text();
-  m_endIntFrame = tempStorage.toInt(&conv, 10);
-
-  tempStorage = m_stepSizeEdit->text();
-  m_stepIntSize = tempStorage.toInt(&conv, 10);    
-}
-
-void 
 MovieSaveDialog::ShowFileDialog(){
+  //set up the file dialog to select image filename
+  QFileDialog fd(this, "Choose a name", ".", QString::null);
+  fd.setFileMode(QFileDialog::AnyFile); 
+  fd.setAcceptMode(QFileDialog::AcceptSave); 
+  fd.setFilters(imageFilters);
 
-  QFileDialog* fd = new QFileDialog(this, "File name", ".", QString::null);
-  fd->setFileMode(QFileDialog::AnyFile); 
-  fd->setAcceptMode(QFileDialog::AcceptSave); 
-  fd->setFilters(Filters());
-  if(fd->exec() == QDialog::Accepted){
-    QStringList files = fd->selectedFiles(); 
-    if(!files.isEmpty())
-      m_sFileName = files[0]; 
-    m_sFileExt = Filter2Ext(fd->selectedFilter().toStdString()).c_str(); 
-    m_fileNameLabel->setText(m_sFileName + m_sFileExt); 
+  //if filename exists save image
+  if(fd.exec() == QDialog::Accepted){
+    QStringList files = fd.selectedFiles(); 
+    if(!files.isEmpty()) {
+      m_filename = GrabFilename(files[0], fd.selectedFilter());
+      m_fileNameLabel->setText(m_filename); 
 
-    //find digit
-    int _s = m_sFileName.indexOf('#');
-    int _g = m_sFileName.lastIndexOf('#');
-    m_frameDigit=_g-_s;
-    if(_s == _g) 
-      m_frameDigit=4;
-    m_sFileName = m_sFileName.left(_s);
+      //find digit
+      int f = m_filename.indexOf('#');
+      int l = m_filename.lastIndexOf('#');
+      m_frameDigits = l - f + 1;
+      m_frameDigitStart = f;
+      if(m_frameDigitStart == -1){
+        m_frameDigits = 0;
+        m_frameDigitStart = m_filename.lastIndexOf('.');
+      }
+    }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 

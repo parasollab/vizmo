@@ -4,26 +4,21 @@
  * Used in close conjunction with SnapshotGUI utilities...
  **************************************************************/
 
-#ifndef MOVIE_SAVE_DIALOG_H
-#define MOVIE_SAVE_DIALOG_H
+#ifndef MOVIESAVEDIALOG_H
+#define MOVIESAVEDIALOG_H
 
-#include "MainWin.h"  //just because... 
 #include <QDialog> 
 
 class QGridLayout; 
-class QDialog; 
 class QLineEdit;
 class QLabel;  
 
-using namespace std; 
-
-class MovieSaveDialog : public QDialog{
+class MovieSaveDialog : public QDialog {
 
   Q_OBJECT
 
   public:
     MovieSaveDialog(QWidget* _parent, Qt::WFlags _f = 0);
-    void UpdateAttributes();
 
   private slots:
     void SaveImages();
@@ -31,8 +26,7 @@ class MovieSaveDialog : public QDialog{
 
   private:
     void SetUpLayout(); 
-    void StoreAttributes();
-    
+
     QLineEdit* m_startFrameEdit;
     QLineEdit* m_endFrameEdit;
     QLineEdit* m_stepSizeEdit;
@@ -50,12 +44,12 @@ class MovieSaveDialog : public QDialog{
     QGridLayout* m_layout; 
 
   public:
-    int m_startIntFrame;
-    int m_endIntFrame;
-    int m_stepIntSize;
-    QString m_sFileName;
-    QString m_sFileExt;
-    int m_frameDigit;
+    size_t m_startFrame; //start frame of video
+    size_t m_endFrame; //end frame of video
+    size_t m_stepSize; //step size for video
+    size_t m_frameDigits; //number of # in the filename
+    size_t m_frameDigitStart; //first index of # in the filename
+    QString m_filename; //base filename for movie
 };
 
 #endif 

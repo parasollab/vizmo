@@ -1,2 +1,3 @@
 OBJECTS += \
-	  Utilities/CollisionDetection.o
+	  Utilities/CollisionDetection.o \
+	  Utilities/ImageFilters.o

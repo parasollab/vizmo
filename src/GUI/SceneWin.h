@@ -22,8 +22,7 @@ using namespace std;
 
 class TextGUI; 
 
-class VizGLWin : public QGLWidget
-{
+class VizGLWin : public QGLWidget {
   Q_OBJECT
 
   public:
@@ -34,8 +33,6 @@ class VizGLWin : public QGLWidget
     // BSS
     vector<gliObj>* objs2;
 
-    void getWidthHeight(int*,int*);
-    
     void setClearColor(double r, double g, double b) const {
       glClearColor(r, g, b, 0);
     }
@@ -44,6 +41,11 @@ class VizGLWin : public QGLWidget
     // reset tranformation tool
     // it calls class gli::gliReset()
     void resetTransTool();
+
+    //save an image of the GL scene with the given filename
+    //Note: filename must have appropriate extension for QImage::save or no file
+    //will be written
+    void SaveImage(QString _filename, bool _crop);
 
   signals:
     void selectByRMB();
@@ -67,7 +69,6 @@ class VizGLWin : public QGLWidget
 
   private slots:
     void toggleSelectionSlot();
-    void getBoxDimensions(int*, int*, int*, int*); 
     void simulateMouseUpSlot();
 
   private:
@@ -81,6 +82,10 @@ class VizGLWin : public QGLWidget
       static GLfloat light_position2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
       glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
     }
+
+    //Grab the size of image for saving. If crop is true, use the cropBox to
+    //size the image down.
+    QRect GetImageRect(bool _crop);
 
     bool takingSnapShot;
     bool m_bShowGrid, m_bShowAxis;

@@ -1,90 +1,29 @@
+#include "CaptureOptions.h"
+
 #include <QAction>  
 #include <QToolBar>
 #include <QPixmap>
-#include <QTranslator>  
 #include <QFileDialog> 
 #include <QProgressDialog>
-#include <QApplication> 
+#include <QApplication>
 
-#include "CaptureOptions.h"
+#include "Utilities/ImageFilters.h"
+#include "vizmo2.h"
 #include "MainWin.h"
 #include "SceneWin.h" 
 #include "MovieSaveDialog.h"
 #include "AnimationGUI.h" 
-#include "vizmo2.h"
-#include "Utilities/GL/gliDump.h"
-#include "Utilities/GL/gliPickBox.h"
+
 #include "Icons/Crop.xpm"
 #include "Icons/Camera.xpm"
 #include "Icons/Camcorder.xpm" 
 
-inline QStringList& Filters(){
-
-  static QStringList filters;
-     
-  filters+="JPEG (*.jpg)";
-  filters+="GIF (*.gif)";
-  filters+="Encapsulated PostScript file (*.eps)";
-  filters+="targa (*.tga)";
-  filters+="Portable Network Graphics (*.png)";
-  filters+="Microsoft Bitmap (*.bmp)";
-  filters+="Computer Graphics Metafile (*.cgm)";
-  filters+="PostScript Interchange (*.epi)";
-  filters+="Microsoft Icon (*.ico)";
-  filters+="Paintbrush File (*.pcx)";
-  filters+="Portable Pixmap (*.ppm)";
-  filters+="Adobe Portable Document Format (*.pdf)";
- 
-  return filters;
-}
-
-inline string Filter2Ext(const string filter){
-
-  if(filter.find("jpg")!=string::npos) 
-    return ".jpg";
-  if(filter.find("gif")!=string::npos) 
-    return ".gif";
-  if(filter.find("eps")!=string::npos) 
-    return ".eps";   
-  if(filter.find("tga")!=string::npos)
-    return ".tga";
-  if(filter.find("png")!=string::npos)
-    return ".png";
-  if(filter.find("pdf")!=string::npos)
-    return ".pdf";
-  if(filter.find("bmp")!=string::npos)
-    return ".bmp";
-  if(filter.find("epi")!=string::npos)
-    return ".epi";
-  if(filter.find("cgm")!=string::npos)
-    return ".cgm";
-  if(filter.find("ico")!=string::npos)
-    return ".ico";
-  if(filter.find("pcx")!=string::npos)
-    return ".pcx";
-  if(filter.find("ppm")!=string::npos)
-    return ".ppm";
-  if(filter.find("pdf")!=string::npos)
-    return ".pdf";
-  return "";
-}
-
-CaptureOptions::CaptureOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  :OptionsBase(_parent, _mainWin)
-{
-  m_dialog = NULL; 	
-	
+CaptureOptions::CaptureOptions(QWidget* _parent, VizmoMainWin* _mainWin) : OptionsBase(_parent, _mainWin) {
   CreateActions(); 
   SetUpSubmenu("Capture"); 
   SetUpToolbar(); 
   SetHelpTips(); 
-
   m_cropBox = false; 
-}
-
-CaptureOptions::~CaptureOptions(){
-
-  delete m_dialog; 
 }
 
 void
@@ -97,7 +36,6 @@ CaptureOptions::CreateActions(){
   m_actions["picture"] = picture; 
   QAction* movie = new QAction(QPixmap(camcorderIcon), tr("Movie"), this);
   m_actions["movie"] = movie;  
-  m_dialog = new MovieSaveDialog(this, Qt::Dialog); 
 
   //2. Set other specifications as necessary
   m_actions["crop"]->setEnabled(false); 
@@ -108,25 +46,19 @@ CaptureOptions::CreateActions(){
   m_actions["movie"]->setEnabled(false); 
   m_actions["movie"]->setStatusTip(tr("Save movie")); 
 
-  m_dialog->setModal(true); 
-
   //3. Make connections 
   connect(m_actions["crop"], SIGNAL(activated()), this, SLOT(CropRegion())); 
   connect(m_actions["picture"], SIGNAL(activated()), this, SLOT(CapturePicture())); 
   connect(m_actions["movie"], SIGNAL(activated()), this, SLOT(CaptureMovie()));
 
-  connect(this, SIGNAL(GetScreenSize(int*, int*)), this, SLOT(GetOpenGLSize(int*, int*))); //???
   connect(this, SIGNAL(ToggleSelectionSignal()), GetMainWin()->GetGLScene(), SLOT(toggleSelectionSlot()));
-  connect(this, SIGNAL(GetBoxDimensions(int*, int*, int*, int*)) , GetMainWin()->GetGLScene(), 
-    SLOT(getBoxDimensions(int*, int*, int*, int*)));
   connect(this, SIGNAL(CallUpdate()), GetMainWin(), SLOT(updateScreen()));
   connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationGUI(), SLOT(goToFrame(int)));
   connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationDebugGUI(), SLOT(goToFrame(int)));
 }
 
 void 
-CaptureOptions::SetUpToolbar(){
-
+CaptureOptions::SetUpToolbar() {
   m_toolbar = new QToolBar(GetMainWin()); 
   m_toolbar->addAction(m_actions["crop"]); 
   m_toolbar->addAction(m_actions["picture"]); 
@@ -134,164 +66,91 @@ CaptureOptions::SetUpToolbar(){
 }
 
 void
-CaptureOptions::Reset(){
-
-  if(m_dialog != NULL){
-    if(GetVizmo().GetPathSize() > 0){ 
-      m_dialog->m_endIntFrame = GetVizmo().GetPathSize()-1;
-    }
-    else if(GetVizmo().GetDebugSize() > 0){
-      m_dialog->m_endIntFrame = GetVizmo().GetDebugSize()-1;
-    }  
-    else{
-      m_dialog->m_endIntFrame = -1; 
-    }
-    m_dialog->m_startIntFrame = 0; 
-    m_dialog->m_stepIntSize = 10; 
-    m_dialog->UpdateAttributes(); 
-  }	
-
-  if(m_actions["movie"] != NULL){    
-    m_actions["crop"]->setEnabled(true); 
-    m_actions["picture"]->setEnabled(true); 
-    if(GetVizmo().GetPathSize()==0 && GetVizmo().GetDebugSize()==0)
-      m_actions["movie"]->setEnabled(false);
-    else	
-      m_actions["movie"]->setEnabled(true); 
-    
-  }
+CaptureOptions::SetHelpTips() {
+  m_actions["crop"]->setWhatsThis(tr("Click and drag to specify a"
+        " cropping area. You can then use the <b>Picture</b> button to"
+        " save a screenshot.")); 
+  m_actions["picture"]->setWhatsThis(tr("Click this button to save" 
+        " a screenshot of the scene. If no cropping area is specified,"
+        " the entire scene will be saved."));
+  m_actions["movie"]->setWhatsThis(tr("Click this button to save a"
+        " movie.")); //If someone knows a better way to word this, please do.
 }
 
 void
-CaptureOptions::SetHelpTips(){
-
-  m_actions["crop"]->setWhatsThis(tr("Click and drag to specify a"
-    " cropping area. You can then use the <b>Picture</b> button to"
-    " save a screenshot.")); 
-  m_actions["picture"]->setWhatsThis(tr("Click this button to save" 
-    " a screenshot of the scene. If no cropping area is specified,"
-    " the entire scene will be saved."));
-  m_actions["movie"]->setWhatsThis(tr("Click this button to save a"
-    " movie.")); //If someone knows a better way to word this, please do.
+CaptureOptions::Reset(){
+  m_actions["crop"]->setEnabled(true); 
+  m_actions["picture"]->setEnabled(true); 
+  m_actions["movie"]->setEnabled(GetVizmo().GetPathSize() || GetVizmo().GetDebugSize());
 }
 
 //Slots
-
 void 
-CaptureOptions::CropRegion(){
-
+CaptureOptions::CropRegion() {
   m_cropBox =! m_cropBox;
-  
+
   if(!m_cropBox)
     emit SimulateMouseUp();
-  
+
   emit CallUpdate();
   emit ToggleSelectionSignal();   
 }
 
 void
 CaptureOptions::CapturePicture(){
+  //set up the file dialog to select image filename
+  QFileDialog fd(this, "Choose a name", ".", QString::null);
+  fd.setFileMode(QFileDialog::AnyFile);
+  fd.setFilters(imageFilters);
+  fd.setAcceptMode(QFileDialog::AcceptSave);
 
-  int w, h, xOffset, yOffset;
-   
-  if(!m_cropBox){
-    emit GetScreenSize(&w,&h);
-    xOffset=0;
-    yOffset=0;
-  }
-  else
-    emit GetBoxDimensions(&xOffset, &yOffset, &w, &h);
-
-  QFileDialog* fd = new QFileDialog(this,"Choose a name",".",QString::null);
-  //fd->setMode(QFileDialog::ExistingFile);
-  fd->setFileMode(QFileDialog::AnyFile);
-  fd->setFilters(Filters());
-  fd->setAcceptMode(QFileDialog::AcceptSave);
-  QString fileName;
-  QString fileExt;
-  
-  if(fd->exec() == QDialog::Accepted){
-    QStringList files = fd->selectedFiles(); 
-    QString fileName; 
-    if(!files.empty())
-      fileName = files[0]; 
-    string fname = fileName.toStdString();
-    string ext = Filter2Ext(fd->selectedFilter().toStdString());
-    dump(fname.c_str(), ext.c_str(),xOffset+1,yOffset+1,w-2,h-2);
+  //if filename exists save image
+  if(fd.exec() == QDialog::Accepted){
+    QStringList files = fd.selectedFiles(); 
+    if(!files.empty()) {
+      QString filename = GrabFilename(files[0], fd.selectedFilter());
+      GetMainWin()->GetGLScene()->SaveImage(filename, m_cropBox);
+    }
   }
 }
 
 void
 CaptureOptions::CaptureMovie(){
+  //Pop up a MovieSaveDialog
+  MovieSaveDialog msd(this, Qt::Dialog); 
+  if(msd.exec() == QDialog::Accepted){ 
+    size_t digits = max(msd.m_frameDigits, log10(msd.m_endFrame/msd.m_stepSize) + 2);
 
-  //Pop up the dialog
-  int result;
-  QString localFileName;
-  result = m_dialog->exec();
-  if(!result) 
-  	return;
-    
-  //Save
-  int startFrame = m_dialog->m_startIntFrame;
-  int endFrame = m_dialog->m_endIntFrame;
-  int stepSize = m_dialog->m_stepIntSize;
-  //const char * extName=(char *) mDialog->sFileExt.data();
-  string sExtName = m_dialog->m_sFileExt.toStdString();
-  const char*  extName = sExtName.c_str();
-     
-  int w, h, xOffset, yOffset;
-  if(!m_cropBox){
-    emit GetScreenSize(&w, &h);
-    xOffset=0;
-    yOffset=0;
-  }   
-  else
-    emit GetBoxDimensions(&xOffset, &yOffset, &w, &h);
-   
-  QString temp;
-  QString qfname;
-  char number[32];
-  //char *number;
-  char cmd[32];
-  sprintf(cmd,"%s%d%s","%0", m_dialog->m_frameDigit,"d");
- 
-  QProgressDialog progress("Saving images...", "Abort", startFrame, endFrame, this);
-  int FID=0;
-  for(int i=startFrame; i<=endFrame; i+=stepSize, FID++){
-    progress.setValue(i-startFrame);
-    qApp->processEvents();
-    if(progress.wasCanceled()) 
-      break;
-    // dump the image
-    emit GoToFrame(i);
-    sprintf(number, cmd, FID);
-    qfname = m_dialog-> m_sFileName + (QString)number;
-    const char* charQfname = (qfname.toStdString()).c_str();
-    dump(charQfname, extName, xOffset+1, yOffset+1, w-2, h-2);
+    //Create the progress bar for saving images
+    QProgressDialog progress("Saving images...", "Abort", msd.m_startFrame, msd.m_endFrame, this);
+
+    //for each frame, update the image, compute a filename, and save the image
+    size_t frame = 0;
+    for(int i = msd.m_startFrame; i <= msd.m_endFrame; i += msd.m_stepSize, ++frame){
+      //update progress bar
+      progress.setValue(i - msd.m_startFrame);
+      qApp->processEvents();
+      if(progress.wasCanceled())
+        break;
+
+      // update the GLScene
+      emit GoToFrame(i);
+      
+      //grab string for frame number
+      ostringstream oss;
+      oss << frame;
+      string num = oss.str();
+      size_t l = num.length();
+      for(size_t j = 0; j < digits - l; ++j)
+        num = "0" + num;
+
+      //create the filename
+      QString filename = msd.m_filename;
+      filename.replace(msd.m_frameDigitStart, msd.m_frameDigits, num.c_str());
+
+      //save the image
+      GetMainWin()->GetGLScene()->SaveImage(filename, m_cropBox);
+    }
   }
-  progress.setValue(endFrame - startFrame);
 }
-
-void
-CaptureOptions::GetOpenGLSize(int* _w, int* _h){
-
-  GetMainWin()->GetGLScene()->getWidthHeight(_w, _h); 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
- 
 

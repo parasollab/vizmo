@@ -150,9 +150,9 @@ bool gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h)
         *xOffset=(int)box.r;
     
     if(box.b<box.t)
-        *yOffset=(int)box.b;
-    else
         *yOffset=(int)box.t;
+    else
+        *yOffset=(int)box.b;
     
     *w=(int)(box.r-box.l);
     *h=(int)(box.b-box.t);
