@@ -19,7 +19,7 @@ Group: Application/Engineering
 Source: %{name}-%{version}-%{date}.tar.gz
 URL: http://parasol.tamu.edu/groups/amatogroup/research/vizmo++/
 Packager: Jory Denny <jdenny@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot/
 Requires: qt4
 BuildRequires: qt4-devel
 %ifarch x86_64
@@ -43,14 +43,15 @@ users to interact with and edit the environment.
 %setup -n %{name}-%{version}-%{date}
 
 %build
+cd src
 make reallyreallyclean
-make platform=%{PLATFORM}
+make platform=%{PLATFORM} -j4
 
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/bin
 rm -f %{buildroot}/usr/bin/vizmo++
-install %{name} %{buildroot}/usr/bin
+install src/%{name} %{buildroot}/usr/bin
 cd ..
 
 %clean
