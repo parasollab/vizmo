@@ -6,11 +6,15 @@
 #define _MULTIPOLYHEDRONMODEL_H_
 
 #include "Plum/GLModel.h"
-#include "MovieBYULoader.h"
+//#include "IModel.h"
+//#include "MovieBYULoader.h"
 #include "MultiBodyInfo.h"
 #include "Transformation.h"
 
 #include <RAPID.H>
+
+#include <Point.h>
+using namespace mathtool;
 
 namespace plum{
 
@@ -20,6 +24,10 @@ namespace plum{
   class CPolyhedronModel : public CGLModel
   {
     public:
+      typedef Vector<int,  3> Tri;
+      typedef vector<Point3d> PtVector;
+      typedef vector<Tri> TriVector;
+
       //////////////////////////////////////////////////////////////////////
       // Constructor/Destructor
       //////////////////////////////////////////////////////////////////////

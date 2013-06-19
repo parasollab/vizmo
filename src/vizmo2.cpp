@@ -15,7 +15,6 @@ using namespace std;
 // Include Plum headers
 #include "Plum/MapObj/Cfg.h"
 #include "Plum/MapObj/MapLoader.h"
-#include "Plum/EnvObj/MovieBYULoader.h"
 #include "Plum/PlumObject.h"
 #include "Plum/GLModel.h"
 
