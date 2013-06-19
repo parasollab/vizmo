@@ -49,7 +49,6 @@ class VizmoMainWin : public QMainWindow {
     bool InitVizmo();
 
     vector<string>& GetArgs() { return m_args; }  
-    void SetArgs(vector<string> _args){ m_args = _args; }
     void SetVizmoInit(bool _tf) { m_bVizmoInit = _tf; } 
     bool GetVizmoInit() { return m_bVizmoInit; }
     VizGLWin* GetGLScene() { return m_GL; } 
@@ -80,7 +79,6 @@ class VizmoMainWin : public QMainWindow {
     bool m_bVizmoInit;     //true if vizmo is init.
 
     QGridLayout* m_layout;
-    QHBoxLayout* m_toolbarLayout;
     QToolBar* m_allTogether;       //all of the toolbars in one...keeps them together for window resize 
     QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextGUI 
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls 

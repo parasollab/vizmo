@@ -33,19 +33,22 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
 }
 
 VizmoMainWin::~VizmoMainWin(){
-
-  delete m_GL; 
-  delete m_mainMenu; 
-  delete m_layout; 
-  delete m_toolbarLayout; 
-  delete m_allTogether; 
-  delete m_objTextLayout; 
-  delete m_outbox;
-  delete m_animationBarLayout; 
-  delete m_layoutWidget; 
+  //delete gl scene
+  delete m_GL;
+  //delete the animation bars
   delete m_animationGUI; 
   delete m_animationDebugGUI; 
-  delete m_objectSelection; 
+  delete m_animationBarLayout;
+  //delete item selection
+  delete m_objectSelection;
+  delete m_outbox;
+  delete m_objTextLayout; 
+  //delete the menus
+  delete m_mainMenu;
+  delete m_allTogether; 
+  //delete the layouts last
+  delete m_layout; 
+  delete m_layoutWidget; 
 }
 
 bool 

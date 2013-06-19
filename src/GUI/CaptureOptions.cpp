@@ -126,7 +126,7 @@ CaptureOptions::CaptureMovie(){
 
     //for each frame, update the image, compute a filename, and save the image
     size_t frame = 0;
-    for(int i = msd.m_startFrame; i <= msd.m_endFrame; i += msd.m_stepSize, ++frame){
+    for(size_t i = msd.m_startFrame; i <= msd.m_endFrame; i += msd.m_stepSize, ++frame){
       //update progress bar
       progress.setValue(i - msd.m_startFrame);
       qApp->processEvents();

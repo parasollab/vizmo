@@ -2,7 +2,6 @@ SRCMOC += $(patsubst GUI/%.h, GUI/moc_%.cpp, $(shell grep -l Q_OBJECT GUI/*.h))
 OBJMOC = $(patsubst GUI/%.h, GUI/moc_%.o, $(shell grep -l Q_OBJECT GUI/*.h))
 OBJECTS += \
 	   $(OBJMOC) \
-	   GUI/GUI.o \
 	   GUI/MainWin.o \
 	   GUI/SceneWin.o \
 	   GUI/AnimationGUI.o \
