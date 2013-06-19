@@ -7,7 +7,6 @@
 #include "MainWin.h"
 #include "SceneWin.h"
 #include "ItemSelectionGUI.h" 
-#include "AddObjDialog.h" 
 #include "vizmo2.h" 
 #include "Icons/RandEnv.xpm"
 
@@ -80,15 +79,5 @@ EnvironmentOptions::RandomizeEnvColors(){
 
 void
 EnvironmentOptions::AddObstacle(){
- /* AddObjDial* addObj = new AddObjDial(this, "Add Object");
-  bool create = addObj->create();
-  if(create){  
-    int r;
-    r =   addObj->exec();
-    //if(!r) return;
-    GetMainWin()->GetObjectSelection()->reset();
-  }
-
-  else
-    return;*/	
+  //TODO: Add back in functionality for adding obstacles
 }

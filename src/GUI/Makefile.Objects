@@ -8,10 +8,6 @@ OBJECTS += \
 	   GUI/AnimationGUI.o \
 	   GUI/ItemSelectionGUI.o \
 	   GUI/FileListDialog.o \
-	   GUI/ObjProperty.o \
-	   GUI/OBPRMGUI.o \
-	   GUI/AddObjDialog.o \
-	   GUI/VizmoEditor.o \
 	   GUI/QueryGUI.o \
 	   GUI/CameraPosDialog.o \
 	   GUI/CustomizePathDialog.o \

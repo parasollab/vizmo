@@ -7,10 +7,6 @@
 #include "ItemSelectionGUI.h"
 #include "TextGUI.h"     
 #include "FileListDialog.h"
-#include "ObjProperty.h"
-//#include "OBPRMGUI.h"
-#include "AddObjDialog.h"
-//#include "VizmoEditor.h"
 #include "QueryGUI.h"
 #include "MainMenu.h" 
 #include "OptionsBase.h"
@@ -198,62 +194,4 @@ VizmoMainWin::updateScreen(){
     
     m_GL->updateGL();
 }
-
-void 
-VizmoMainWin::objectEdit(){
-  
-  //InvokeObjPropertyDialog(this);
-}
-
-/*void 
-VizmoMainWin::runCode(){
-
-  obprmGUI* obprmWindow = new obprmGUI(this, "OBPRM Interface");
-  obprmWindow->caller = "runCode";
-  if(obprmWindow->exec()!= QDialog::Accepted)
-    return;
-}*/ 
-
-/*void  
-VizmoMainWin::createQryFile(){
-
-  QStringList command;
-  QFileInfo fi(GetVizmo().getEnvFileName().c_str());
-  QString qryPath;
-
-  //Users will give the name of the qry executable
-  //we assume it is in the PATH
-
-  QDialog *dial = new QDialog(this);
-  QPushButton *button1 = new QPushButton("Generate");
-  connect(button1, SIGNAL(clicked()), dial, SLOT(accept()));
-  QWidget *main = new QWidget(dial);
-  QLineEdit *l_edit = new QLineEdit;
-
-  QVBoxLayout *lay = new QVBoxLayout;
-  lay->addWidget(l_edit);
-  lay->addWidget(button1);
-
-  main->setLayout(lay);
-  main->show();
-  dial->exec();
-
-  QString s;
-  s = l_edit->text();
-  s.append(" -f ");
-  s.append(fi.baseName());
-  
-  vizmoEditor* vizEditor = new vizmoEditor(this, "VizmoEditor");
-  vizEditor->setCaption("Query Editor");
-  vizEditor->e->setText(s);
-  vizEditor->show();
-}
-
-*/ 
-
-
-
-
-
-
 

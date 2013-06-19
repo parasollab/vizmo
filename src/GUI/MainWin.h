@@ -1,10 +1,6 @@
 #ifndef _MAIN_WIN_H_
 #define _MAIN_WIN_H_
 
-#ifdef WIN32
-#pragma warning(disable : 4786)
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // Qt Headers
 #include <QMainWindow>  
@@ -76,9 +72,6 @@ class VizmoMainWin : public QMainWindow {
 
   private slots:
     void updateScreen();  // redraw GL scene
-    void objectEdit();    // change object property
-    //void runCode();       //Call obprm  *Does this work?  
-   // void createQryFile(); // generate qry command line 
 
   private:
     void SetUpLayout();     //Set a QGridLayout for invisible central widget
