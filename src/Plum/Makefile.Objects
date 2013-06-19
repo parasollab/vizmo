@@ -1,6 +1,5 @@
 OBJECTS += \
 	   Plum/Plum.o \
-	   Plum/EnvObj/CmdParser.o \
 	   Plum/EnvObj/EnvLoader.o  \
 	   Plum/EnvObj/EnvModel.o  \
 	   Plum/EnvObj/MovieBYULoader.o \
