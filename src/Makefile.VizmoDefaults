@@ -69,6 +69,7 @@ SRCMOC =
 include $(VIZMO_DIR)/Utilities/GL/Makefile.Objects
 include $(VIZMO_DIR)/Utilities/Makefile.Objects
 include $(VIZMO_DIR)/Models/ModelGraph/Makefile.Objects
+include $(VIZMO_DIR)/Models/Makefile.Objects
 include $(VIZMO_DIR)/Plum/Makefile.Objects
 include $(VIZMO_DIR)/EnvObj/Makefile.Objects
 include $(VIZMO_DIR)/GUI/Makefile.Objects

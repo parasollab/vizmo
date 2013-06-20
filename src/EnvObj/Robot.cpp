@@ -13,7 +13,6 @@ OBPRMView_Robot::OBPRMView_Robot(CEnvLoader * pEnv)
    tempCfg = new double[dof];
    currentCfg = new double[dof]; 
    rotation_axis = new double[3];
-   pPolyBackUp = NULL;
    mbRobotBackUp = NULL;
    RotFstBody = NULL;
 
@@ -117,7 +116,7 @@ void OBPRMView_Robot::InitialCfg(vector<double>& cfg){
    }
 
    //save original size and color
-   CPolyhedronModel& poly = m_RobotModel->GetPolyhedron()[0];
+   PolyhedronModel& poly = m_RobotModel->GetPolyhedron()[0];
    originalR = poly.GetColor()[0];
    originalG = poly.GetColor()[1];
    originalB = poly.GetColor()[2];
@@ -146,25 +145,20 @@ void OBPRMView_Robot::RestoreInitCfg(){
    //set robot to its current color and original size
    this->Scale(originalSize[0],originalSize[1],originalSize[2]);
    //this->SetColor(originalR,originalG,originalB,this->GetColor()[3]);  
-   CPolyhedronModel& poly = m_RobotModel->GetPolyhedron()[0];
+   PolyhedronModel& poly = m_RobotModel->GetPolyhedron()[0];
    this->SetColor(poly.GetColor()[0], poly.GetColor()[1],
        poly.GetColor()[2], poly.GetColor()[3]);
 }
 
 void OBPRMView_Robot::BackUp(){
   m_RenderModeBackUp = m_RenderMode;
-   vector<CPolyhedronModel>& polys = m_RobotModel->GetPolyhedron();
+   vector<PolyhedronModel>& polys = m_RobotModel->GetPolyhedron();
    const CMultiBodyInfo * MBInfo = m_pEnvLoader->GetMultiBodyInfo();
    int numMBody=MBInfo[0].m_cNumberOfBody;
-   if(pPolyBackUp == NULL)
-      pPolyBackUp = new CPolyhedronModel[numMBody];
-   for( int iM=0; iM<numMBody; iM++ ){
-      pPolyBackUp[iM].tx()=polys[iM].tx();
-      pPolyBackUp[iM].ty()=polys[iM].ty();
-      pPolyBackUp[iM].tz()=polys[iM].tz();
-      pPolyBackUp[iM].q(polys[iM].q());
 
-   }
+   m_polyXBack = polys[0].tx();
+   m_polyYBack = polys[0].ty();
+   m_polyZBack = polys[0].tz();
 
    R=polys[0].GetColor()[0];
    G=polys[0].GetColor()[1];
@@ -202,9 +196,9 @@ void OBPRMView_Robot::Restore(){
    m_RobotModel->q(MBq);
 
    //The nex lines are to keep the translation Tool ON the object
-   m_RobotModel->m_PosPoly[0] = pPolyBackUp[0].tx();
-   m_RobotModel->m_PosPoly[1] = pPolyBackUp[0].ty();
-   m_RobotModel->m_PosPoly[2] = pPolyBackUp[0].tz();
+   m_RobotModel->m_PosPoly[0] = m_polyXBack;
+   m_RobotModel->m_PosPoly[1] = m_polyYBack;
+   m_RobotModel->m_PosPoly[2] = m_polyZBack;
 
   SetRenderMode(m_RenderModeBackUp);
   RestoreInitCfg();
@@ -226,7 +220,7 @@ void OBPRMView_Robot::Configure( double * cfg) {
   int robIndx = 0;
   vector<Robot>& robots = m_pEnvLoader->GetRobots();
 
-  vector<CPolyhedronModel>& pPoly = m_RobotModel->GetPolyhedron();
+  vector<PolyhedronModel>& pPoly = m_RobotModel->GetPolyhedron();
 
   Vector3d position;
   Orientation orientation;

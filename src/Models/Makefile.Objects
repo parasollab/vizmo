@@ -1,0 +1,2 @@
+OBJECTS += \
+	   Models/PolyhedronModel.o

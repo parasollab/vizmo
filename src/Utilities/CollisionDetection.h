@@ -22,21 +22,15 @@
 
 //EnvModel.h includes MultiBodyModel.h and EnvLoader.h
 #include "Plum/EnvObj/EnvModel.h"
-#include "Plum/EnvObj/Transformation.h"
-#include "Plum/EnvObj/PolyhedronModel.h"
 using namespace plum;
 
 #include "EnvObj/Robot.h"
 
 #include <RAPID.H>
 
-
-/* class CollisionDetectionMethod; */
-/* class CEnvLoader;*/
-/* class CEnvModel; */
-/*class MultiBodyModel;*/
-
-//class Rapid;
+namespace plum {
+class CEnvModel;
+}
 
 #ifndef Rapid
 class Rapid;

@@ -108,10 +108,10 @@ namespace plum {
     return info;
   }
 
-  vector<vector<CPolyhedronModel> > CEnvModel::getPoly(){
+  vector<vector<PolyhedronModel> > CEnvModel::getPoly(){
 
     int MBSize=m_pMBModel.size();
-    vector<vector<CPolyhedronModel> > pPoly; 
+    vector<vector<PolyhedronModel> > pPoly; 
 
     for(int i=0; i<MBSize; i++){
       pPoly.push_back(m_pMBModel[i]->GetPolyhedron());

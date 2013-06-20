@@ -106,7 +106,7 @@ bool CollisionDetection::IsInCollision(int numMB,
    if(!value && !rapid->test_node){
       const CMultiBodyInfo& rMBInfo = robotModel->GetMBinfo();
       int NumBodiesRob= rMBInfo.m_cNumberOfBody;
-      vector<CPolyhedronModel>& rPoly = robotModel->GetPolyhedron();
+      vector<PolyhedronModel>& rPoly = robotModel->GetPolyhedron();
       int c;
       for(c=0; c<NumBodiesRob; c++){
          //rPoly[c].SetColor(1, 0, 0, 1);
@@ -177,8 +177,8 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
     **  each obstacle's bodies
     ******************************************************/
 
-   vector<CPolyhedronModel>& rPoly = robot->GetPolyhedron();
-   vector<CPolyhedronModel>& oPoly = obstacle->GetPolyhedron();
+   vector<PolyhedronModel>& rPoly = robot->GetPolyhedron();
+   vector<PolyhedronModel>& oPoly = obstacle->GetPolyhedron();
 
    //////////////////////////////////////////////////////////////////////////
    //

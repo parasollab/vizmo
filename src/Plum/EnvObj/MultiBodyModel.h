@@ -3,7 +3,7 @@
 
 #include "MultiBodyInfo.h"
 #include "Plum/GLModel.h"
-#include "PolyhedronModel.h"
+#include "Models/PolyhedronModel.h"
 
 namespace plum{
 
@@ -31,7 +31,7 @@ namespace plum{
 
       virtual const string GetName() const { return "MultiBody"; }
 
-      virtual void GetChildren( list<CGLModel*>& models ){ 
+      virtual void GetChildren(list<CGLModel*>& models){ 
 	for(size_t i=0; i<m_poly.size(); i++ )
 	  models.push_back(&m_poly[i]);
       }
@@ -50,7 +50,7 @@ namespace plum{
       
       double GetRadius() const{return m_radius;}
       const Point3d& GetCOM() const{return m_COM;}
-      vector<CPolyhedronModel>& GetPolyhedron(){return m_poly;}
+      vector<PolyhedronModel>& GetPolyhedron(){return m_poly;}
       const CMultiBodyInfo& GetMBinfo(){return m_MBInfo;}
       bool IsFixed() const{return m_bFixed;}
 
@@ -60,7 +60,7 @@ namespace plum{
     
     private:
       const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
-      vector<CPolyhedronModel> m_poly;
+      vector<PolyhedronModel> m_poly;
 
       bool m_bFixed; //is this multibody fixed. i.e obstacle
       double m_radius; //Radius

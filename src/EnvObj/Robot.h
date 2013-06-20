@@ -194,8 +194,8 @@ class OBPRMView_Robot : public CGLModel{
     const CMultiBodyInfo * m_RobotInfo;
     MultiBodyModel * m_RobotModel;
 
-    CPolyhedronModel * pPolyBackUp;// * m_poly;
-    vector<CPolyhedronModel> m_poly;
+    double m_polyXBack, m_polyYBack, m_polyZBack;
+    vector<PolyhedronModel> m_poly;
     //MultiBodyModel * mbRobotBackUp;
     double * mbRobotBackUp;
     double * tempCfg;
