@@ -56,7 +56,7 @@ namespace plum{
          //the scale may be difficult for some models....
          virtual void Scale( double x, double y, double z )
          { 
-            m_scale[0]=x; m_scale[1]=y; m_scale[2]=z; };
+            m_Scale[0]=x; m_Scale[1]=y; m_Scale[2]=z; };
 
             //this function is called when this obj is selected
             virtual void DrawSelect(){/*nothing*/} 

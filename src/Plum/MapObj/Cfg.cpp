@@ -79,7 +79,7 @@ namespace plum{
     glColor4fv(rgbaArray);
     m_robot->SetRenderMode(m_renderMode);
     m_robot->SetColor(m_RGBA[0], m_RGBA[1], m_RGBA[2], 1);
-    m_robot->Scale(m_scale[0], m_scale[1], m_scale[2]);
+    m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
     m_robot->Configure(cfg);   
     m_robot->Draw(GL_RENDER);
     m_robot->Restore();
@@ -118,9 +118,9 @@ namespace plum{
     glTransform();
     glEnable(GL_NORMALIZE);
     if(m_renderMode == SOLID_MODE)
-      glutSolidCube(m_scale[0]); 
+      glutSolidCube(m_Scale[0]); 
     if(m_renderMode == WIRE_MODE)
-      glutWireCube(m_scale[0]); 
+      glutWireCube(m_Scale[0]); 
     glDisable(GL_NORMALIZE);
     glPopMatrix();
   }
@@ -129,7 +129,7 @@ namespace plum{
   CCfg::DrawPoint(){
     
     glDisable(GL_LIGHTING);
-    glPointSize(m_scale[0]); 
+    glPointSize(m_Scale[0]); 
     glBegin(GL_POINTS);
     glColor4f(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
     if(m_renderMode == SOLID_MODE ||
@@ -178,7 +178,7 @@ namespace plum{
           //change
           m_robot->SetColor(1,1,0,0);
           m_robot->SetColor(m_RGBA[0], m_RGBA[1], m_RGBA[2], 1);
-          m_robot->Scale(m_scale[0], m_scale[1], m_scale[2]);
+          m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
           m_robot->Configure(cfg);
           //delete[] cfg;
           //draw 
@@ -209,13 +209,13 @@ namespace plum{
         
         //TODO:Fix different paces of item and selection box
         //outline rescaling 
-        glutWireCube(m_scale[0]+0.1);
+        glutWireCube(m_Scale[0]+0.1);
         
         glPopMatrix(); 
         break;
 
       case Point: 
-        glPointSize(m_scale[0] + 3); 
+        glPointSize(m_Scale[0] + 3); 
         glDisable(GL_LIGHTING);
         glBegin(GL_POINTS);
         if(m_isPlanarRobot)
