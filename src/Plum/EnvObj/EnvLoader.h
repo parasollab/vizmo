@@ -96,7 +96,7 @@ namespace plum{
       
       string m_strModelDataDir;
       int m_cNumberOfMultiBody;
-      CMultiBodyInfo * m_pMBInfo;
+      CMultiBodyInfo* m_pMBInfo;
 
       bool m_ContainsSurfaces;
     

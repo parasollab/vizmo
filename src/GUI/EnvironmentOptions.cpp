@@ -79,5 +79,5 @@ EnvironmentOptions::RandomizeEnvColors(){
 
 void
 EnvironmentOptions::AddObstacle(){
-  //TODO: Add back in functionality for adding obstacles
+  //TODO: Add back in functionality for adding obstacles 
 }

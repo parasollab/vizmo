@@ -46,10 +46,6 @@ namespace plum {
       vector<myCCModel*>& GetCCModels() {return m_CCModels;}
       list<CGLModel*>& GetNodeList() {return m_nodes;} 
       vector<CGLModel*>& GetNodesToConnect() {return m_nodesToConnect;} //prev. Node_Edge  
-      //(Some other class besides QLabel*) GetCfgLabel() {return m_cfgLabel;}
-      //("") GetRobCfgLabel() {return m_robCfgLabel;}   
-      //("") GetMessageLabel() {return m_messageLabel;}
-      //("") GetIconLabel() {return m_iconLabel;}   
       void SetMBEditModel(bool _setting) {m_bEditModel = _setting;} 
       void SetSize(double _size) {m_size = _size;}
 
@@ -90,8 +86,8 @@ namespace plum {
       //////////////////////////////////////////////////////////////////////
 
       virtual bool BuildModels();
-      virtual void Draw(GLenum mode);
-      void Select(unsigned int* index, vector<gliObj>& sel);
+      virtual void Draw(GLenum _mode);
+      void Select(unsigned int* _index, vector<gliObj>& _sel);
       //set wire/solid/hide
       virtual void SetRenderMode(RenderMode _mode);
       virtual const string GetName() const {return "Map";}
@@ -137,10 +133,6 @@ namespace plum {
       double m_oldT[3], m_oldR[3];  //old_T 
       double m_size;                //check purpose of this variable  
       //    bool m_robCfgOn;  ALSO FROM ROADMAP 
-      //  (Some other class besides QLabel*) m_cfgLabel; //previously l_cfg 
-      //  ("") m_robCfgLabel;  //l_robCfg
-      //  ("") m_messageLabel;  //l_message or something
-      //  ("") m_iconLabel; //l_icon
       string m_cfgString, m_robCfgString; //s_cfg, s_robCfg  
       bool m_bEditModel;
       bool m_noMap; //noMap
@@ -157,7 +149,7 @@ namespace plum {
   template <class Cfg, class WEIGHT>
     CMapModel<Cfg, WEIGHT>::CMapModel() {
       m_mapLoader = NULL;
-      m_RenderMode = INVISIBLE_MODE;
+      m_renderMode = INVISIBLE_MODE;
       m_pRobot=NULL;
       m_enableSelection=true; //disable selection
 
@@ -207,27 +199,29 @@ namespace plum {
     }
 
   template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::Draw(GLenum mode) {
+  void 
+  CMapModel<Cfg, WEIGHT>::Draw(GLenum _mode){
 
-      if(m_RenderMode == INVISIBLE_MODE) return;
-      if(mode==GL_SELECT && !m_enableSelection) return;
+      if(m_renderMode == INVISIBLE_MODE)
+        return;
+      if(_mode==GL_SELECT && !m_enableSelection)
+        return; 
       //Draw each CC
       int size = 0;
       typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
-      for( CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++ ){
-        if( mode==GL_SELECT ) glPushName( (*ic)->ID() ); 
-
-        (*ic)->Draw(mode);
-
-        if( mode==GL_SELECT ) glPopName();
+      for(CIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++){
+        if(_mode == GL_SELECT) 
+          glPushName((*ic)->ID()); 
+        (*ic)->Draw(_mode);
+        if(_mode == GL_SELECT) 
+          glPopName();
         size++;
       }
-      //m_pRobot->size = 1;
-    }
+  }
 
   template <class Cfg, class WEIGHT>
     void CMapModel<Cfg, WEIGHT>::SetRenderMode(RenderMode _mode) { 
-      m_RenderMode = _mode;
+      m_renderMode = _mode;
       typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
       for(CIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++){
         (*ic)->SetRenderMode(_mode);
@@ -245,11 +239,15 @@ namespace plum {
     }
 
   template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::Select(unsigned int* index, vector<gliObj>& sel){
-      if( m_mapLoader==NULL ) return; //status error
-      if( index==NULL ) return;
-      m_CCModels[index[0]]->Select(&index[1],sel); 
-    }
+  void 
+  CMapModel<Cfg, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){
+  
+    if(m_mapLoader == NULL) 
+      return; //status error
+    if(_index == NULL) 
+      return;
+    m_CCModels[_index[0]]->Select(&_index[1],_sel); 
+  }
 
   //Commented out functions below are from Roadmap.h/.cpp and did not work there
   //(or need other attn.) 

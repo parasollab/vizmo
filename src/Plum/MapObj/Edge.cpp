@@ -33,8 +33,8 @@ namespace plum{
         CCfg* _c1, CCfg* _c2,
         OBPRMView_Robot* _robot) {
     m_id = _id;
-    m_s = *_c1;
-    m_e = *_c2;
+    m_startCfg = *_c1;
+    m_endCfg = *_c2;
 
     typedef vector<CCfg>::iterator CIT;
 
@@ -50,24 +50,24 @@ namespace plum{
 
       typedef vector<CCfg>::iterator CFGIT;
       glPushName(m_id);
-      if(m_RenderMode == SOLID_MODE ||
-          m_RenderMode == WIRE_MODE){
+      if(m_renderMode == SOLID_MODE ||
+          m_renderMode == WIRE_MODE){
        
-        float* arr_m_RGBA = &m_RGBA[0]; 
+        float* arr_m_RGBA = &m_RGBA[0];
         glColor4fv(arr_m_RGBA);
 
         glLineWidth(m_edgeThickness); 
         
         glBegin(GL_LINES);
-        glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );
+        glVertex3d(m_startCfg.tx(),m_startCfg.ty(),m_startCfg.tz());
 
         for(CFGIT c = m_intermediateCfgs.begin();
             c != m_intermediateCfgs.end(); c++) {
-          glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
-          glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
+          glVertex3d (c->tx(), c->ty(), c->tz()); //ending point of prev line
+          glVertex3d (c->tx(), c->ty(), c->tz()); //starting point of next line
         }
 
-        glVertex3d( m_e.tx(),m_e.ty(),m_e.tz() );
+        glVertex3d( m_endCfg.tx(),m_endCfg.ty(),m_endCfg.tz() );
         glEnd();
 
         //draw intermediate configurations
@@ -96,13 +96,13 @@ namespace plum{
     glLineWidth(m_edgeThickness+4);
 
     glBegin( GL_LINES );
-    glVertex3d( m_s.tx(),m_s.ty(),m_s.tz() );
+    glVertex3d(m_startCfg.tx(),m_startCfg.ty(),m_startCfg.tz());
     for(CFGIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++) {
       glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
       glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
     }
-    glVertex3d( m_e.tx(),m_e.ty(),m_e.tz() );
+    glVertex3d( m_endCfg.tx(),m_endCfg.ty(),m_endCfg.tz() );
     glEnd();
   }
 
@@ -124,7 +124,7 @@ namespace plum{
     vector<string> info; 
     ostringstream temp;
     temp << "Edge, ID= " << m_id << ", ";
-    temp << "connects Node " << m_s.GetIndex() << " and Node " << m_e.GetIndex();
+    temp << "connects Node " << m_startCfg.GetIndex() << " and Node " << m_endCfg.GetIndex();
     temp << "Intermediates | ";
     typedef vector<CCfg>::const_iterator CFGIT;
     for(CFGIT c = m_intermediateCfgs.begin(); c!=m_intermediateCfgs.end(); c++)
@@ -136,8 +136,8 @@ namespace plum{
   vector<int> 
   Edge::GetEdgeNodes(){
     vector<int> v;
-    v.push_back(m_s.GetIndex());
-    v.push_back(m_e.GetIndex());
+    v.push_back(m_startCfg.GetIndex());
+    v.push_back(m_endCfg.GetIndex());
     return v;
   }
 

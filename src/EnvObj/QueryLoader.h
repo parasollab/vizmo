@@ -11,10 +11,10 @@ using namespace std;
 #include "Plum/MapObj/Cfg.h"
 
 #include "Plum/Loadable.h"
-
-#include "Plum/GLModel.h"
 using namespace plum;
 
+#include "Plum/GLModel.h" 
+using namespace plum;
 /**
 * This class reads .query file to visualize start and goal positions.
 */

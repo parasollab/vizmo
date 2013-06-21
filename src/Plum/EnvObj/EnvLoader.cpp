@@ -18,8 +18,8 @@ namespace plum{
 
   CEnvLoader::CEnvLoader() {
     m_cNumberOfMultiBody = 0;
-    m_pMBInfo=NULL;
-    m_ContainsSurfaces=false; //this trigger will cause objs to not be offset
+    m_pMBInfo = NULL;
+    m_ContainsSurfaces = false; //this trigger will cause objs to not be offset
     m_boundary = NULL;
   }
 
@@ -54,9 +54,10 @@ namespace plum{
   //      Protected Member Functions
   //////////////////////////////////////////////////////////////////////
 
-  void CEnvLoader::Free_Memory() {      
-    delete [] m_pMBInfo;
-    m_pMBInfo=NULL;
+  void CEnvLoader::Free_Memory() {     
+    if(m_pMBInfo != NULL) 
+      delete [] m_pMBInfo;
+    m_pMBInfo = NULL;
   }
 
   void CEnvLoader::SetModelDataDir( const string strModelDataDir ) {
@@ -101,12 +102,14 @@ namespace plum{
     return m_boundary->Parse(_ifs);
   }
 
-  bool CEnvLoader::ParseFileBody( ifstream & ifs ) {
+  bool CEnvLoader::ParseFileBody(ifstream& ifs){
+    
     m_pMBInfo = new CMultiBodyInfo[m_cNumberOfMultiBody];
-    if( m_pMBInfo==NULL ) return false;
+    if(m_pMBInfo == NULL) 
+      return false;
 
-    for( int iM=0; iM<m_cNumberOfMultiBody; iM++ ) {
-      if( ParseMultiBody(ifs, m_pMBInfo[iM])==false )
+    for(int iM = 0; iM < m_cNumberOfMultiBody; iM++){
+      if(ParseMultiBody(ifs, m_pMBInfo[iM])== false)
 	return false;
     }
   
@@ -118,70 +121,75 @@ namespace plum{
     return true;
   }
 
-  bool CEnvLoader::ParseMultiBody( ifstream & ifs, CMultiBodyInfo & MBInfo ) {
+  bool CEnvLoader::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
     
-    string multibodyType = ReadFieldString(ifs,
+    string multibodyType = ReadFieldString(_ifs,
         "Multibody Type (Active, Passive, Internal, Surface)");
 
-    if(multibodyType == "ACTIVE"){
-      MBInfo.m_active = true;
-    }
-    else if(multibodyType == "SURFACE") {
-      MBInfo.m_surface = true;
+    if(multibodyType == "ACTIVE") 
+      _mBInfo.m_active = true;
+  
+    else if(multibodyType == "SURFACE"){
+      _mBInfo.m_surface = true;
       m_ContainsSurfaces = true;
     }
 
     if(multibodyType == "ACTIVE"){
-      MBInfo.m_cNumberOfBody = ReadField<int>(ifs, "Body Count");
+      _mBInfo.m_cNumberOfBody = ReadField<int>(_ifs, "Body Count");
 
-      MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
-      if( MBInfo.m_pBodyInfo==NULL ) return false;
+      _mBInfo.m_pBodyInfo = new CBodyInfo[_mBInfo.m_cNumberOfBody];
 
-      GetColor(ifs);
+      if(_mBInfo.m_pBodyInfo == NULL) 
+        return false;
 
-      for( int iB=0; iB<MBInfo.m_cNumberOfBody; iB++ ) {
-        if( ParseActiveBody(ifs, MBInfo.m_pBodyInfo[iB])==false )
+      GetColor(_ifs);
+
+      for(int i = 0; i < _mBInfo.m_cNumberOfBody; i++){
+        if(ParseActiveBody(_ifs, _mBInfo.m_pBodyInfo[i]) == false)
           return false;
       }
 
       //get connection info
-      string connectionTag = ReadFieldString(ifs, "Connections tag");
-      int numberOfRobotConnections = ReadField<int>(ifs, "Number of Connections");
-      MBInfo.m_NumberOfConnections = numberOfRobotConnections;
+      string connectionTag = ReadFieldString(_ifs, "Connections tag");
+      int numberOfRobotConnections = ReadField<int>(_ifs, "Number of Connections");
+      _mBInfo.m_NumberOfConnections = numberOfRobotConnections;
 
       int currentBody = 0; //index of current Body
 
       //Do transformation for body0, the base. This is always needed.	 
-      MBInfo.m_pBodyInfo[currentBody].doTransform();
+      _mBInfo.m_pBodyInfo[currentBody].doTransform();
 
-      if( numberOfRobotConnections!=0 ){
+      if(numberOfRobotConnections != 0){
         //initialize the MBInfo.m_pBodyInfo[i].m_pConnectionInfo for each body
-        for(int i=0; i<MBInfo.m_cNumberOfBody; i++){
-          MBInfo.m_pBodyInfo[i].m_pConnectionInfo = 
+        for(int i = 0; i < _mBInfo.m_cNumberOfBody; i++){
+          _mBInfo.m_pBodyInfo[i].m_pConnectionInfo = 
             new CConnectionInfo[numberOfRobotConnections];
 
-          if( MBInfo.m_pBodyInfo[i].m_pConnectionInfo==NULL ) { 
-            cout<<"COULDN'T CREATE CONNECTION INFO"<<endl; return false;}
+          if(_mBInfo.m_pBodyInfo[i].m_pConnectionInfo == NULL){ 
+            cout<<"COULDN'T CREATE CONNECTION INFO"<<endl; 
+            return false;
+          }
         }
-        for( int iB=0; iB<numberOfRobotConnections; iB++ ){
-          if( ParseConnections(ifs, MBInfo)==false )
+        for(int iB = 0; iB < numberOfRobotConnections; iB++){
+          if(ParseConnections(_ifs, _mBInfo) == false)
             return false;
         }
       }
     }
     else if(multibodyType == "INTERNAL" || multibodyType == "SURFACE" ||
         multibodyType == "PASSIVE"){
-      MBInfo.m_cNumberOfBody = 1;
-      MBInfo.m_pBodyInfo = new CBodyInfo[MBInfo.m_cNumberOfBody];
-      if( MBInfo.m_pBodyInfo==NULL ) return false;
+      _mBInfo.m_cNumberOfBody = 1;
+      _mBInfo.m_pBodyInfo = new CBodyInfo[_mBInfo.m_cNumberOfBody];
+      
+      if(_mBInfo.m_pBodyInfo == NULL) 
+        return false;
 
-      GetColor(ifs);
+      GetColor(_ifs);
 
-      if( ParseOtherBody(ifs, MBInfo.m_pBodyInfo[0])==false )
+      if(ParseOtherBody(_ifs, _mBInfo.m_pBodyInfo[0]) == false)
         return false;
 
       return true;
-
     }
     else{
       cerr << "Error:: Unsupported body type" << endl;
@@ -278,6 +286,7 @@ namespace plum{
     BodyInfo.m_IsBase = true;
     BodyInfo.m_strFileName = ReadFieldString(ifs,
         "Body Filename (geometry file)", false);
+
 
     if( !m_strModelDataDir.empty() ) {
       //store just the path of the current directory
@@ -432,11 +441,8 @@ namespace plum{
 
 
   void CEnvLoader::SetNewMultiBodyInfo(CMultiBodyInfo * mbi){
-    for(int i=0; i<m_cNumberOfMultiBody; i++){
-
+    for(int i = 0; i < m_cNumberOfMultiBody; i++)
       m_pMBInfo[i] = mbi[i];
-    }
-
   }
 
   void

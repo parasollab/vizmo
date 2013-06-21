@@ -33,7 +33,7 @@ DebugModel::DebugModel(){
   m_mapLoader = new CMapLoader<CCfg, Edge>();
   m_mapLoader->InitGraph();
   m_robot=NULL;
-  m_RenderMode = INVISIBLE_MODE;
+  m_renderMode = INVISIBLE_MODE;
   m_mapModel=NULL;
   m_edgeNum=-1;
 }

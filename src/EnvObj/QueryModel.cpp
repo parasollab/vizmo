@@ -21,7 +21,7 @@ CQueryModel::CQueryModel()
     m_DLIndex=-1;
     m_pQueryLoader=NULL;
     m_pRobot=NULL;
-    m_RenderMode = INVISIBLE_MODE;
+    m_renderMode = INVISIBLE_MODE;
 }
 
 CQueryModel::~CQueryModel()
@@ -79,16 +79,17 @@ bool CQueryModel::BuildModels(){
     return true;
 }
 
-void CQueryModel::Draw( GLenum mode ){
+void CQueryModel::Draw(GLenum mode){
 
-    if( mode==GL_SELECT ) return; //not draw anything
-    if( m_RenderMode == INVISIBLE_MODE ) return;
-
-    if( m_DLIndex==-1 )
-        return;
+    if(mode == GL_SELECT) 
+      return; //not draw anything
+    if(m_renderMode == INVISIBLE_MODE) 
+      return;
+    if(m_DLIndex == -1)
+      return;
 
     glLineWidth(2.0);
-    glCallList( m_DLIndex );
+    glCallList(m_DLIndex);
 }
 
 vector<string> 

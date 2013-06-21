@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //Icons
 #include "Icons/Eye.xpm"
+#include "Icons/Pallet.xpm"
 
 /// CLASS VizmoMainWin
 ////////////////////////////////////////////////////////
@@ -33,11 +34,12 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
 }
 
 VizmoMainWin::~VizmoMainWin(){
-  //delete gl scene
+
+  //delete GL scene
   delete m_GL;
-  //delete the animation bars
+  //delete the animation bars 
   delete m_animationGUI; 
-  delete m_animationDebugGUI; 
+  delete m_animationDebugGUI;
   delete m_animationBarLayout;
   //delete item selection
   delete m_objectSelection;

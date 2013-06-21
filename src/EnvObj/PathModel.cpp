@@ -1,6 +1,6 @@
 #include "PathModel.h"
 #include "Robot.h"
-#include "Plum/Plum.h"
+#include "Plum/Plum.h"   
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -10,7 +10,8 @@ PathModel::PathModel()
   : m_glListIndex(-1), m_lineWidth(1),
   m_displayInterval(3), m_pathLoader(NULL), 
   m_robot(NULL) {
-    m_RenderMode = INVISIBLE_MODE;
+    m_renderMode = INVISIBLE_MODE;
+    
     //set default stop colors for path gradient 
     RGBAcolor cyan, green, yellow;
     cyan.push_back(0);
@@ -111,7 +112,7 @@ PathModel::BuildModels(){
 void PathModel::Draw(GLenum mode){
   if(mode==GL_SELECT) 
     return; //not draw any thing
-  if(m_RenderMode == INVISIBLE_MODE) 
+  if(m_renderMode == INVISIBLE_MODE) 
     return;
   if(m_glListIndex==(size_t)-1)
     return;

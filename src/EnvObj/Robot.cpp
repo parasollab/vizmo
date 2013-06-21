@@ -151,7 +151,7 @@ void OBPRMView_Robot::RestoreInitCfg(){
 }
 
 void OBPRMView_Robot::BackUp(){
-  m_RenderModeBackUp = m_RenderMode;
+  m_RenderModeBackUp = m_renderMode;
    vector<PolyhedronModel>& polys = m_RobotModel->GetPolyhedron();
    const CMultiBodyInfo * MBInfo = m_pEnvLoader->GetMultiBodyInfo();
    int numMBody=MBInfo[0].m_cNumberOfBody;

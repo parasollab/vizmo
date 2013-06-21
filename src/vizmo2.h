@@ -13,7 +13,7 @@ using namespace std;
 #include<stdio.h>
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
-#include "Plum/MapObj/MapModel.h"
+#include "Plum/MapObj/MapModel.h" 
 
 namespace plum{
   class CPlum;
@@ -178,7 +178,7 @@ class vizmo_obj{
 
       //////////////////////////////////////////////////////////////////////
       // Construction/Destruction
-      vizmo_obj(){m_Robot = m_Qry = m_Path = m_Env = m_Map = NULL;}
+      vizmo_obj(){m_Robot = m_Qry = m_Path = m_Env = m_map = NULL;}
       ~vizmo_obj(){Clean();}
       void Clean();
 
@@ -186,8 +186,8 @@ class vizmo_obj{
       PlumObject* m_Qry;     bool m_show_Qry;  string m_QryFile;
       PlumObject* m_Path;    bool m_show_Path; string m_PathFile;
       PlumObject* m_Env;                       string m_EnvFile;
-      PlumObject* m_Map;     bool m_show_Map;  string m_MapFile;
-      PlumObject* m_Debug;     bool m_show_Debug;  string m_DebugFile;
+      PlumObject* m_map;     bool m_show_Map;  string m_MapFile;
+      PlumObject* m_debug;     bool m_show_Debug;  string m_DebugFile;
 };
 
 /**
@@ -238,17 +238,17 @@ class vizmo
 
       //////////////////////////////////////////////////////////////////////
       // Roadmap Related Function
-      void ShowRoadMap( bool bShow=true );
-      bool isRoadMapShown() const { return m_obj.m_show_Map; }
-      void ChangeNodesSize(float s, string str);
+      void ShowRoadMap(bool _show = true);
+      bool IsRoadMapShown() const { return m_obj.m_show_Map; }
+      void ChangeNodesSize(float _s, string _str);
       void ChangeEdgeThickness(size_t _t); 
-      void ChangeNodesShape(string s);
-      bool IsRoadMapLoaded(){ return m_obj.m_Map!=NULL; }
-      void ChangeCCColor(double r, double g, double b, string s);
-      void ChangeNodeColor(double r, double g, double b, string s);
+      void ChangeNodesShape(string _s);
+      bool IsRoadMapLoaded(){return m_obj.m_map != NULL;}
+      void ChangeCCColor(double _r, double _g, double _b, string _s);
+      void ChangeNodeColor(double _r, double _g, double _b, string _s);
       void UpdateSelection();
       void ChangeNodesRandomColor();
-      PlumObject * GetMap() const { return m_obj.m_Map; }
+      PlumObject * GetMap() const {return m_obj.m_map;}
 
       void setMapObj(CMapLoader<CCfg,Edge> *ml, CMapModel<CCfg,Edge> * mm);
 
@@ -263,8 +263,8 @@ class vizmo
       // Debug Related Function
       void ShowDebugFrame( bool bShow=true );
       int GetDebugSize();
-      bool IsDebugLoaded(){ return m_obj.m_Debug!=NULL; }
-      PlumObject * GetDebug() const { return m_obj.m_Debug; }
+      bool IsDebugLoaded(){return m_obj.m_debug != NULL;}
+      PlumObject * GetDebug() const {return m_obj.m_debug;}
 
       //////////////////////////////////////////////////////////////////////
       // Query Related Function

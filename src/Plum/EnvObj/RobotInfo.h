@@ -3,8 +3,6 @@
 
 #include <vector>
 #include <string>
-#include "boost/shared_ptr.hpp"
-using boost::shared_ptr;
 
 using namespace std;
 
@@ -15,7 +13,7 @@ namespace plum {
 struct Robot{
   enum Base {PLANAR, VOLUMETRIC, FIXED, JOINT}; //2D plane vs 3D
   enum BaseMovement {ROTATIONAL, TRANSLATIONAL}; //rotation+translation, just translation, no movement
-  typedef shared_ptr<plum::CConnectionInfo> Joint;
+  typedef plum::CConnectionInfo* Joint; 
   typedef vector<Joint> JointMap;
   //index of next body, 
   //joint type

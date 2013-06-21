@@ -4,7 +4,7 @@
 
 #ifndef EDGE_H_
 #define EDGE_H_ 
-      
+          
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <iostream>
@@ -75,7 +75,7 @@ namespace plum {
       double& GetWeight(){ return m_weight; }
       double& Weight(){ return m_weight; }
       int GetID() { return m_id; }
-      const CCfg& GetStartCfg() { return m_s; }
+      const CCfg& GetStartCfg() { return m_startCfg; }
 
       //////////////////////////////////////////////////////////////////////
       //      Protected Method & Data
@@ -83,7 +83,7 @@ namespace plum {
     
     protected:
 
-      CCfg m_s, m_e;
+      CCfg m_startCfg, m_endCfg;
     
       int m_lp;
       double m_weight;

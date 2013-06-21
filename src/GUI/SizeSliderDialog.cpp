@@ -34,7 +34,7 @@ SizeSliderDialog::SetUpDialog(QDialog* _dialog){
   m_slider->setGeometry(QRect(19, 60, 441, 20));
   m_slider->setOrientation(Qt::Horizontal);
   //QSlider only works on ints, so value will be divided to map for actual scaling
-  m_slider->setRange(0, 10000);
+  m_slider->setRange(0, 2500);
   m_slider->setSliderPosition(1000);
 
   if(m_mode == "node")
@@ -68,14 +68,14 @@ SizeSliderDialog::ResizeNodes(){
     oss << (resize*100) << "%";
     QString qs((oss.str()).c_str()); 
     m_value->setText(qs); 
-    //Make sure correct shape appears: choose order based on current mode 
-    //Probably inefficient...but not detectably slow   
-    if(m_parent->GetNodeShape() == "Robot"){
+    //Resize the other mode as well to prevent abrupt size change when switching
+    //back and using the slider again 
+    if(m_parent->GetNodeShape() == "Point"){
       GetVizmo().ChangeNodesSize(resize, "Box"); 
-      GetVizmo().ChangeNodesSize(resize, "Robot"); 
-    }
+      GetVizmo().ChangeNodesSize(resize, "Point"); 
+    }    
     else if(m_parent->GetNodeShape() == "Box"){
-      GetVizmo().ChangeNodesSize(resize, "Robot"); 
+      GetVizmo().ChangeNodesSize(resize, "Point"); 
       GetVizmo().ChangeNodesSize(resize, "Box"); 
     }
     m_parent->GetMainWin()->GetGLScene()->updateGL(); 

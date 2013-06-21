@@ -1,7 +1,7 @@
 #ifndef BOUNDARYMODEL_H_
 #define BOUNDARYMODEL_H_
 
-#include "Plum/GLModel.h"
+#include "Plum/GLModel.h" 
 using namespace plum;
 
 class BoundaryModel : public CGLModel {

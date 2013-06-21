@@ -1,8 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Cfg.h: interface for the CCfg class. Edge class moved from here to its
-// own files. 
+// Cfg.h: interface for the CCfg class.  
 ///////////////////////////////////////////////////////////////////////////////
-
 #ifndef CFG_H_
 #define CFG_H_ 
 
@@ -17,47 +15,26 @@ using namespace std;
 
 namespace plum{
 
-   //////////////////////////////////////////////////////////////////////
-   //
-   //      CCfg 
-   //      To support articulated robots.
-   //
-   //////////////////////////////////////////////////////////////////////
   class CCModelBase;
-  class CCfg : public CGLModel {
-    friend ostream& operator<<( ostream& _out, const CCfg& _cfg );
-    friend istream& operator>>( istream& _in, CCfg& _cfg );
+  class CCfg : public CGLModel{
+    
+    friend ostream& operator<<(ostream& _out, const CCfg& _cfg);
+    friend istream& operator>>(istream& _in, CCfg& _cfg);
 
     public:
-    //type for the shape of node representation
-      enum Shape { Robot, Box, Point};
-
-    //////////////////////////////////////////
-    // DOF variable
-    /////////////////////////////////////////
-
+      //type for the shape of node representation
+      enum Shape { Robot, Box, Point };
       static int m_dof;
-
-    /////////////////////////
-    // for collison detection 
-    //////////////////////////
-
-      bool m_coll;
-
-    //testing:
-      OBPRMView_Robot* m_robot;
-
-    //////////////////////////////////////////////////////////////////////
-    //      Constructor/Destructor
-    //////////////////////////////////////////////////////////////////////
+      bool m_coll; //For collision detection 
+      
+      OBPRMView_Robot* m_robot; //Testing 
 
       CCfg();
       ~CCfg();
-
       CCfg(const CCfg& _cfg);
 
       bool operator==(const CCfg& _other) const;
-      void Set(int _index , OBPRMView_Robot* _robot, CCModelBase* _cc);
+      void Set(int _index, OBPRMView_Robot* _robot, CCModelBase* _cc);
 
       virtual void 
       SetColor( float _r, float _g, float _b, float _a ) {
@@ -66,10 +43,7 @@ namespace plum{
       
       void DrawRobot();
       void DrawBox();
-      //void DrawBox(double scale);
       void DrawPoint();
-
-      //////////////////////////////////////////////////////////////////////
       bool BuildModels(){ /*do nothing*/ return true; }
       void Draw(GLenum _mode);
       void DrawSelect();
@@ -84,9 +58,6 @@ namespace plum{
       vector<string> GetInfo() const;
       vector<string> GetNodeInfo() const;
 
-      //////////////////////////////////////////////////////////////////////
-      //      Access Method
-      //////////////////////////////////////////////////////////////////////
       static CCfg& InvalidData(){ return m_invalidCfg; }
       virtual void Dump();
 
@@ -105,7 +76,7 @@ namespace plum{
       
       static int GetDof(void) { return m_dof; }
       CCModelBase* GetCC() const { return m_cc; }
-      OBPRMView_Robot* GetRobot() const {return m_robot;}
+      OBPRMView_Robot* GetRobot() const { return m_robot; }
 
       static void SetDof(int _d) { m_dof = _d; }
       void SetShape(Shape _shape){ m_shape =_shape; }
@@ -122,20 +93,14 @@ namespace plum{
       }
 
       ///Translation
-      double& tx(){ ObjName="Node";  CopyCfg(); return m_dofs[0]; }
-      double& ty(){ return m_dofs[1]; }
-      double& tz(){ if(m_dofs.size()>2) return m_dofs[2]; else return
-        m_defaultDOF;}
-      const double& tx() const { return m_dofs[0]; }
-      const double& ty() const { return m_dofs[1]; }
-      const double& tz() const { if(m_dofs.size()>2) return m_dofs[2]; else
-        return m_defaultDOF;}
-
+      double& tx(); 
+      double& ty(); 
+      double& tz(); 
+      const double& tx() const; 
+      const double& ty() const; 
+      const double& tz() const; 
 
       static Shape m_shape;
-    //////////////////////////////////////////////////////////////////////
-    //      Protected Method & Data
-    //////////////////////////////////////////////////////////////////////
 
     protected:
 
@@ -144,13 +109,12 @@ namespace plum{
       double m_unknow1, m_unknow2, m_unknow3;
       CCModelBase* m_cc;       
 
-    //////////////////////////////////////////////////////////////////////
-    //      Private Method & Data
-    //////////////////////////////////////////////////////////////////////
     private:
       static CCfg m_invalidCfg;
       static double m_defaultDOF;
-
+      static bool m_isPlanarRobot;
+      static bool m_isVolumetricRobot;
+      static bool m_isRotationalRobot; 
   };
 
 }//namespace plum

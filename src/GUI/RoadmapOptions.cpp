@@ -449,11 +449,13 @@ RoadmapOptions::MakeInvisible(){
 
 void RoadmapOptions::ScaleNodes(){
 
- if(!(GetNodeShape() == "Point")) //Can only resize from robot and box modes 
+ //For now, resizing only enabled for point and box abstractions. For robot,
+ //would require extensive local coordinate system aspects  
+ if(GetNodeShape() != "Robot")  
   m_nodeSizeDialog->show();
  else
   //Not a true "about" box, but does exactly what is needed. 
-  QMessageBox::about(this, "Sorry!", "You can only resize the nodes in <b>Robot</b> or <b>Box</b> mode.");  
+  QMessageBox::about(this, "Sorry!", "You can only resize the nodes in <b>Point</b> or <b>Box</b> mode.");  
 }
 
 void

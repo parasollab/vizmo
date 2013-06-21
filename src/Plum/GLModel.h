@@ -26,7 +26,7 @@ namespace plum{
          CGLModel()
          { 
             m_enableSelection=true; 
-            m_RenderMode = SOLID_MODE;
+            m_renderMode = SOLID_MODE;
             m_RGBA.clear();
             for(int i = 0; i < 4; i++) {
               m_RGBA.push_back(0.0);
@@ -36,7 +36,7 @@ namespace plum{
          CGLModel(const CGLModel& other) : gliTransform(other)
       {
          m_enableSelection=other.m_enableSelection;
-         m_RenderMode=other.m_RenderMode;
+         m_renderMode = other.m_renderMode;
          m_RGBA = other.m_RGBA; 
       }
 
@@ -56,13 +56,13 @@ namespace plum{
          //the scale may be difficult for some models....
          virtual void Scale( double x, double y, double z )
          { 
-            m_Scale[0]=x; m_Scale[1]=y; m_Scale[2]=z; };
+            m_scale[0]=x; m_scale[1]=y; m_scale[2]=z; };
 
             //this function is called when this obj is selected
             virtual void DrawSelect(){/*nothing*/} 
 
             //set wire/solid/hide
-            virtual void SetRenderMode(RenderMode mode){m_RenderMode = mode;}
+            virtual void SetRenderMode(RenderMode mode){m_renderMode = mode;}
 
             //get/set color
             virtual void SetColor( float r, float g, float b, float a ){
@@ -86,7 +86,7 @@ namespace plum{
 
       public:
             bool  m_enableSelection;
-            RenderMode   m_RenderMode;     //wire or solid or hide
+            RenderMode   m_renderMode;     //wire or solid or hide
 
             vector<float> m_RGBA;  //Color  
    };

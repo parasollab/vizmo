@@ -15,13 +15,14 @@ namespace plum{
     m_surface = false;
   }
 
-  CMultiBodyInfo::CMultiBodyInfo( const CMultiBodyInfo & other ) {
+  CMultiBodyInfo::CMultiBodyInfo(const CMultiBodyInfo & other) {
     *this = other;
   }
 
   CMultiBodyInfo::~CMultiBodyInfo() {
     m_cNumberOfBody = 0;
-    delete [] m_pBodyInfo;
+    if(m_pBodyInfo != NULL)
+      delete [] m_pBodyInfo;
     m_pBodyInfo = NULL;
   }
 
@@ -83,7 +84,8 @@ namespace plum{
     m_Alpha=0; m_Beta=0; m_Gamma=0;
 
     m_cNumberOfConnection =0;
-    delete [] m_pConnectionInfo;
+    if(m_pConnectionInfo != NULL)
+      delete [] m_pConnectionInfo;
     m_pConnectionInfo=NULL;
   }
 

@@ -6,7 +6,7 @@
 
 class IsConnectionGloballyFirst {
   public:
-    bool operator()(const shared_ptr<plum::CConnectionInfo>& _a, const shared_ptr<plum::CConnectionInfo>& _b) const {
+    bool operator()(const plum::CConnectionInfo* _a, const plum::CConnectionInfo* _b) const {
       return _a->m_globalIndex < _b->m_globalIndex;
     }
 } connectionComparitor;
