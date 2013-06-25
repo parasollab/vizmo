@@ -330,7 +330,7 @@ vizmo_obj::Clean(){
     delete m_map->GetLoader(); 
     delete m_map;
   }
-  //m_Robot = m_Qry = m_Path = m_debug = m_Env = m_map = NULL;
+  m_Robot = m_Qry = m_Path = m_debug = m_Env = m_map = NULL;
 }
 
 //////////////////////////////////////////////////////////////////////

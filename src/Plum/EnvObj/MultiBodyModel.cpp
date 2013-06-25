@@ -17,16 +17,16 @@ namespace plum{
   // Core
   //////////////////////////////////////////////////////////////////////
   bool MultiBodyModel::BuildModels() {
-    //build for each body and compute com
-    for(size_t i=0; i<m_MBInfo.m_cNumberOfBody; i++ ){
-      CBodyInfo& info=m_MBInfo.m_pBodyInfo[i];
+    
+    //build for each body and compute com     
+    for(size_t i = 0; i< m_MBInfo.m_cNumberOfBody; i++){
+      CBodyInfo& info = m_MBInfo.m_pBodyInfo[i];
       //only build fixed, free body will not be built (when m_bFixed is set)
-      if( !info.m_bIsFixed && m_bFixed==true )
-        continue;
-
+      if(!info.m_bIsFixed && m_bFixed == true)
+        continue; 
       m_poly.push_back(PolyhedronModel(info));
 
-      if( m_poly[i].BuildModels()==false) {
+      if(m_poly[i].BuildModels() == false){
         cout<<"Couldn't build models in Polyhedron class"<<endl;
         return false;
       }
@@ -36,7 +36,7 @@ namespace plum{
       m_COM[0]+=info.m_X;
       m_COM[1]+=info.m_Y;
       m_COM[2]+=info.m_Z;
-    }
+    }   
 
     for(int i=0; i<3; i++) 
       m_COM[i] /= (double)m_poly.size();
@@ -64,7 +64,7 @@ namespace plum{
     return true;
   }
 
-  void MultiBodyModel::Select( unsigned int * index, vector<gliObj>& sel ) {
+  void MultiBodyModel::Select(unsigned int* index, vector<gliObj>& sel){
     if(index!=NULL)
       sel.push_back(this);
   }

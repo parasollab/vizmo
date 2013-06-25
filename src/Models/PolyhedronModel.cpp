@@ -1,8 +1,10 @@
 #include "PolyhedronModel.h"
 
 #include <cmath>
+#include <algorithm> 
 
 #include <RAPID.H>
+#include <obb.H> 
 
 #include "ModelGraph/ModelGraph.h"
 using namespace modelgraph;
@@ -14,8 +16,17 @@ PolyhedronModel::PolyhedronModel(plum::CBodyInfo& _bodyInfo) :
   m_bodyInfo(_bodyInfo), m_rapidModel(NULL) {
   }
 
-PolyhedronModel::~PolyhedronModel() {
-  delete m_rapidModel;
+PolyhedronModel::PolyhedronModel(const PolyhedronModel& _other) : 
+  m_solidID(_other.m_solidID), m_wiredID(_other.m_wiredID), 
+  m_bodyInfo(_other.m_bodyInfo) {
+    
+    if(_other.m_rapidModel != NULL)
+      CopyRapidModel(_other); 
+  }
+
+PolyhedronModel::~PolyhedronModel(){
+  if(m_rapidModel != NULL) 
+    delete m_rapidModel;
   glDeleteLists(m_wiredID,1);
   glDeleteLists(m_solidID,1);
 }
@@ -149,9 +160,10 @@ PolyhedronModel::ComputeNormals(const PtVector& _points, const TriVector& _tris,
 
 void
 PolyhedronModel::BuildRapid(const PtVector& _points, const TriVector& _tris) {
+  
   m_rapidModel = new RAPID_model;
   m_rapidModel->BeginModel();
-
+  
   typedef TriVector::const_iterator TRIT;
   for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
     const Tri& tri= *trit;
@@ -163,7 +175,6 @@ PolyhedronModel::BuildRapid(const PtVector& _points, const TriVector& _tris) {
 
     m_rapidModel->AddTri(p1, p2, p3, trit - _tris.begin());
   }
-
   m_rapidModel->EndModel();
 }
 
@@ -257,4 +268,29 @@ PolyhedronModel::Radius(const PtVector& _points) {
       m_radius = d;
   }
   m_radius = sqrt(m_radius);
-}    
+}   
+
+void
+PolyhedronModel::CopyRapidModel(const PolyhedronModel& _source){
+
+  m_rapidModel = new RAPID_model;
+
+  m_rapidModel->num_tris = (_source.m_rapidModel)->num_tris; 
+  m_rapidModel->build_state = (_source.m_rapidModel)->build_state; 
+  m_rapidModel->num_tris_alloced = (_source.m_rapidModel)->num_tris_alloced; 
+  m_rapidModel->num_boxes_alloced = (_source.m_rapidModel)->num_boxes_alloced; 
+  
+  m_rapidModel->b = new box[(_source.m_rapidModel)->num_boxes_alloced];
+  box* boxBeginPtr = &((_source.m_rapidModel)->b)[0];
+  box* boxEndPtr = &((_source.m_rapidModel)->b)[m_rapidModel->num_boxes_alloced]; 
+  copy(boxBeginPtr, boxEndPtr, &(m_rapidModel->b)[0]);  
+
+  m_rapidModel->tris = new tri[(_source.m_rapidModel)->num_tris_alloced]; 
+  tri* triBeginPtr = &((_source.m_rapidModel)->tris)[0]; 
+  tri* triEndPtr = &((_source.m_rapidModel)->tris)[m_rapidModel->num_tris_alloced];
+  copy(triBeginPtr, triEndPtr, &(m_rapidModel->tris)[0]);
+}
+
+
+
+
