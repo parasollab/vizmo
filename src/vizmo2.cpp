@@ -495,12 +495,12 @@ void vizmo::RefreshEnv()
 //* Node_CD is called from roadmap.cpp
 //* receives the cfg of the node moved
 //* which will be tested for collision
-void vizmo::Node_CD(CCfg *cfg){
+void vizmo::Node_CD(Cfg *cfg){
 
-   //cfg->coll = false; //used to write message in CCfg::GetInfo()
+   //cfg->coll = false; //used to write message in Cfg::GetInfo()
    m_cfg = cfg;
 
-   int dof = CCfg::m_dof;
+   int dof = Cfg::m_dof;
    m_IsNode = true;
    vector<double> dataCfg;
    dataCfg = cfg->GetDataCfg();
@@ -535,7 +535,7 @@ void vizmo::TurnOn_CD(){
 
       //If we'll test a node, copy Cfg to CD class
       if(m_IsNode){
-         int dof = CCfg::m_dof;
+         int dof = Cfg::m_dof;
          CD.CopyNodeCfg(m_nodeCfg, dof);
       }
 
@@ -611,7 +611,7 @@ void vizmo::SaveQryCfg(char ch){
     //to store a single cfg
     vector<vector<double> > cfg;
 
-    int dof = CCfg::m_dof;
+    int dof = Cfg::m_dof;
     if(m_obj.m_Qry != NULL){
       //get original Cfgs from QueryLoader
       CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->GetLoader();
@@ -636,7 +636,7 @@ void vizmo::SaveQryCfg(char ch){
 }
 
 bool vizmo::SaveQry(const char *filename){
-   int dof = CCfg::m_dof;
+   int dof = Cfg::m_dof;
    vector<double *> cfg;
    FILE *qryFile;
 
@@ -845,8 +845,8 @@ vizmo::ChangeNodesSize(float _s, string _str){
   if(m_obj.m_map==NULL && m_obj.m_debug==NULL) 
     return;
 
-  typedef CMapModel<CCfg,Edge> MM;
-  typedef CCModel<CCfg,Edge> CC;
+  typedef CMapModel<Cfg,Edge> MM;
+  typedef CCModel<Cfg,Edge> CC;
   typedef vector<CC*>::iterator CCIT;
 
   if(m_obj.m_map!=NULL){
@@ -883,8 +883,8 @@ vizmo::ChangeEdgeThickness(size_t _t){
   if(m_obj.m_map == NULL && m_obj.m_debug == NULL)
     return; 
    
-  typedef CMapModel<CCfg, Edge> MM; 
-  typedef CCModel<CCfg, Edge> CC; 
+  typedef CMapModel<Cfg, Edge> MM; 
+  typedef CCModel<Cfg, Edge> CC; 
   typedef vector<CC*>::iterator CCIT;
   
   if(m_obj.m_map != NULL){ 
@@ -910,18 +910,18 @@ void vizmo::ChangeNodesShape(string _s){
     return; 
 
   if(_s == "Robot")
-    CCfg::m_shape = CCfg::Robot; 
+    Cfg::m_shape = Cfg::Robot; 
   if(_s == "Box")
-    CCfg::m_shape = CCfg::Box; 
+    Cfg::m_shape = Cfg::Box; 
   else   
-    CCfg::m_shape = CCfg::Point;
+    Cfg::m_shape = Cfg::Point;
 
-  typedef CMapModel<CCfg,Edge> MM;
-  typedef CCModel<CCfg,Edge> CC;
+  typedef CMapModel<Cfg,Edge> MM;
+  typedef CCModel<Cfg,Edge> CC;
   typedef vector<CC*>::iterator CCIT;
 
   if(m_obj.m_map!=NULL){ 
-    CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_map->GetModel();
+    CMapModel<Cfg,Edge>* mmodel =(MM*)m_obj.m_map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){
       CC::Shape shape=CC::Point;
@@ -955,8 +955,8 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
   if(m_obj.m_map == NULL && m_obj.m_debug == NULL)
     return;
 
-  typedef CMapModel<CCfg,Edge> MM;
-  typedef CCModel<CCfg,Edge> CC;
+  typedef CMapModel<Cfg,Edge> MM;
+  typedef CCModel<Cfg,Edge> CC;
   typedef vector<CC*>::iterator CCIT; 
 
   //change color of one CC at a time
@@ -975,7 +975,7 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
   }   
 
   if(m_obj.m_map!=NULL){
-    CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_map->GetModel();
+    CMapModel<Cfg,Edge>* mmodel =(MM*)m_obj.m_map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     if(m_s != "NULL"){
       for(CCIT ic = cc.begin(); ic!= cc.end(); ic++){
@@ -1053,8 +1053,8 @@ void vizmo::UpdateSelection(){
    if( m_obj.m_map==NULL && m_obj.m_debug==NULL) 
      return;
 
-   typedef CMapModel<CCfg,Edge> MM;
-   typedef CCModel<CCfg,Edge> CC;
+   typedef CMapModel<Cfg,Edge> MM;
+   typedef CCModel<Cfg,Edge> CC;
    typedef vector<CC*>::iterator CCIT;
 
    //change color of one CC at a time
@@ -1073,11 +1073,11 @@ void vizmo::UpdateSelection(){
       }   
 
       if(m_obj.m_map!=NULL){
-        CMapModel<CCfg,Edge>* mmodel = (MM*)m_obj.m_map->GetModel();
+        CMapModel<Cfg,Edge>* mmodel = (MM*)m_obj.m_map->GetModel();
         vector<CC*>& cc = mmodel->GetCCModels();
         if(m_s != "NULL"){
           for(CCIT ic=cc.begin();ic!=cc.end();ic++){
-            typedef map<CC::VID, CCfg>::iterator NIT;
+            typedef map<CC::VID, Cfg>::iterator NIT;
             for(NIT i = (*ic)->m_nodes.begin(); i!=(*ic)->m_nodes.end(); i++)
               if(StringToInt(m_s, m_i)){
                 if(m_i == i->second.GetIndex()){   
@@ -1095,7 +1095,7 @@ void vizmo::UpdateSelection(){
         vector<CC*>& cc = dmodel->GetMapModel()->GetCCModels();
         if(m_s != "NULL"){
           for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-            typedef map<CC::VID, CCfg>::iterator NIT;
+            typedef map<CC::VID, Cfg>::iterator NIT;
             for(NIT i = (*ic)->m_nodes.begin(); i != (*ic)->m_nodes.end(); i++)
               if(StringToInt(m_s, m_i)){
                 if(m_i == i->second.GetIndex()){   
@@ -1121,8 +1121,8 @@ void vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
    if(m_obj.m_map == NULL) 
      return;
 
-   typedef CMapModel<CCfg,Edge> MM;
-   typedef CCModel<CCfg,Edge> CC;
+   typedef CMapModel<Cfg,Edge> MM;
+   typedef CCModel<Cfg,Edge> CC;
    typedef vector<CC*>::iterator CCIT; 
 
    //change color of one CC at a time
@@ -1140,11 +1140,11 @@ void vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
          m_s = m_sO.substr(position+4, m_sO.length());
       }   
 
-      CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_map->GetModel();
+      CMapModel<Cfg,Edge>* mmodel =(MM*)m_obj.m_map->GetModel();
       vector<CC*>& cc=mmodel->GetCCModels();
       if(m_s != "NULL"){
          for(CCIT ic=cc.begin();ic!=cc.end();ic++){
-            typedef map<CC::VID, CCfg>::iterator NIT;
+            typedef map<CC::VID, Cfg>::iterator NIT;
             for(NIT i = (*ic)->m_nodes.begin(); i != (*ic)->m_nodes.end(); i++)
                if(StringToInt(m_s, m_i)){
                   if(m_i == i->second.GetIndex()){  
@@ -1168,12 +1168,12 @@ void vizmo::ChangeNodesRandomColor(){
    if( m_obj.m_map==NULL ) 
      return;
 
-   typedef CMapModel<CCfg,Edge> MM;
-   typedef CCModel<CCfg,Edge> CC;
+   typedef CMapModel<Cfg,Edge> MM;
+   typedef CCModel<Cfg,Edge> CC;
    typedef vector<CC*>::iterator CCIT; 
 
    //change color
-   CMapModel<CCfg,Edge>* mmodel =(MM*)m_obj.m_map->GetModel();
+   CMapModel<Cfg,Edge>* mmodel =(MM*)m_obj.m_map->GetModel();
    vector<CC*>& cc=mmodel->GetCCModels();
    for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
       float r = ((float)rand())/RAND_MAX; 
@@ -1232,8 +1232,8 @@ bool vizmo::CreateEnvObj( vizmo_obj& obj, const string& fname )
 
 bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
 {
-   CMapLoader<CCfg,Edge> * mloader=new CMapLoader<CCfg,Edge>();
-   CMapModel<CCfg,Edge> * mmodel = new CMapModel<CCfg,Edge>();
+   CMapLoader<Cfg,Edge> * mloader=new CMapLoader<Cfg,Edge>();
+   CMapModel<Cfg,Edge> * mmodel = new CMapModel<Cfg,Edge>();
    if (mloader==NULL || mmodel==NULL) 
       return false;
    mloader->SetFilename(fname);
@@ -1424,7 +1424,7 @@ void vizmo::changeQryStatus(bool status){
 }
 
 
-void vizmo::setMapObj(CMapLoader<CCfg,Edge> *ml, CMapModel<CCfg,Edge> * mm){
+void vizmo::setMapObj(CMapLoader<Cfg,Edge> *ml, CMapModel<Cfg,Edge> * mm){
    
    m_obj.m_map = new PlumObject(mm, ml); 
    m_Plum.AddPlumObject(m_obj.m_map);

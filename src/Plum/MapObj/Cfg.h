@@ -1,6 +1,7 @@
-///////////////////////////////////////////////////////////////////////////////
-// Cfg.h: interface for the CCfg class.  
-///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////
+// Cfg.h: interface for the Cfg class.  
+///////////////////////////////////////
+
 #ifndef CFG_H_
 #define CFG_H_ 
 
@@ -16,28 +17,27 @@ using namespace std;
 namespace plum{
 
   class CCModelBase;
-  class CCfg : public CGLModel{
+  class Cfg : public CGLModel{
     
-    friend ostream& operator<<(ostream& _out, const CCfg& _cfg);
-    friend istream& operator>>(istream& _in, CCfg& _cfg);
+    friend ostream& operator<<(ostream& _out, const Cfg& _cfg);
+    friend istream& operator>>(istream& _in, Cfg& _cfg);
 
     public:
-      //type for the shape of node representation
-      enum Shape { Robot, Box, Point };
+      enum Shape { Robot, Box, Point }; //Node representation 
       static int m_dof;
       bool m_coll; //For collision detection 
       
       OBPRMView_Robot* m_robot; //Testing 
 
-      CCfg();
-      ~CCfg();
-      CCfg(const CCfg& _cfg);
+      Cfg();
+      ~Cfg();
+      Cfg(const Cfg& _cfg);
 
-      bool operator==(const CCfg& _other) const;
+      bool operator==(const Cfg& _other) const;
       void Set(int _index, OBPRMView_Robot* _robot, CCModelBase* _cc);
 
       virtual void 
-      SetColor( float _r, float _g, float _b, float _a ) {
+      SetColor(float _r, float _g, float _b, float _a){
         CGLModel::SetColor(_r,_g,_b,_a);
       }
       
@@ -58,13 +58,13 @@ namespace plum{
       vector<string> GetInfo() const;
       vector<string> GetNodeInfo() const;
 
-      static CCfg& InvalidData(){ return m_invalidCfg; }
+      static Cfg& InvalidData(){ return m_invalidCfg; }
       virtual void Dump();
 
       int GetIndex() const { return m_index; }  
       int GetCC_ID();
       vector<double> GetDataCfg() { return m_dofs; }
-      //function accessed to write data into a new .map file
+      //Function accessed to write data into a new .map file
       vector<double> 
       GetUnknown(){
         vector<double> v;
@@ -110,13 +110,12 @@ namespace plum{
       CCModelBase* m_cc;       
 
     private:
-      static CCfg m_invalidCfg;
+      static Cfg m_invalidCfg;
       static double m_defaultDOF;
       static bool m_isPlanarRobot;
       static bool m_isVolumetricRobot;
       static bool m_isRotationalRobot; 
   };
-
 }//namespace plum
 
 #endif 

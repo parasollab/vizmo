@@ -28,8 +28,8 @@ struct Default : public Instruction{
 };
 
 struct AddNode : public Instruction {
-  AddNode(CCfg c):cfg(c){name = "AddNode";};
-  CCfg cfg;
+  AddNode(Cfg c):cfg(c){name = "AddNode";};
+  Cfg cfg;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<endl;
   }
@@ -37,16 +37,16 @@ struct AddNode : public Instruction {
 
 struct AddEdge : public Instruction {
   float target_color[3], source_color[3];
-  AddEdge(CCfg s, CCfg t):source(s), target(t){name = "AddEdge";};
-  CCfg source, target;
+  AddEdge(Cfg s, Cfg t):source(s), target(t){name = "AddEdge";};
+  Cfg source, target;
   virtual void Print(ostream& oss){
     oss<<name<<"\tsource: "<<source<<"\ttarget: "<<target<<endl;
   }
 };
 
 struct AddTempCfg : public Instruction {
-  AddTempCfg(CCfg c, bool v):cfg(c), valid(v){name = "AddTempCfg";};
-  CCfg cfg;
+  AddTempCfg(Cfg c, bool v):cfg(c), valid(v){name = "AddTempCfg";};
+  Cfg cfg;
   bool valid;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<" Valid::"<<valid<<endl;
@@ -54,24 +54,24 @@ struct AddTempCfg : public Instruction {
 };
 
 struct AddTempRay : public Instruction {
-  AddTempRay(CCfg c):cfg(c){name = "AddTempRay";};
-  CCfg cfg;
+  AddTempRay(Cfg c):cfg(c){name = "AddTempRay";};
+  Cfg cfg;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<endl;
   }
 };
 
 struct AddTempEdge : public Instruction {
-  AddTempEdge(CCfg s, CCfg t):source(s), target(t){name = "AddTempEdge";};
-  CCfg source, target;
+  AddTempEdge(Cfg s, Cfg t):source(s), target(t){name = "AddTempEdge";};
+  Cfg source, target;
   virtual void Print(ostream& oss){
     oss<<name<<"\tsource: "<<source<<"\ttarget: "<<target<<endl;
   }
 };
 
 struct ClearLastTemp : public Instruction {
-  CCfg* tempRay;
-  vector<CCfg> lastTempCfgs;
+  Cfg* tempRay;
+  vector<Cfg> lastTempCfgs;
   vector<Edge> lastTempEdges;
 
   ClearLastTemp(){name = "ClearLastTemp";}
@@ -81,8 +81,8 @@ struct ClearLastTemp : public Instruction {
 };
 
 struct ClearAll : public Instruction {
-  CCfg* tempRay;
-  vector<CCfg> tempCfgs;
+  Cfg* tempRay;
+  vector<Cfg> tempCfgs;
   vector<Edge> tempEdges;
   vector<Edge> query;
   vector<string> comments;
@@ -103,8 +103,8 @@ struct ClearComments : public Instruction {
 };
 
 struct RemoveNode : public Instruction {
-  RemoveNode(CCfg c):cfg(c){name = "RemoveNode";}
-  CCfg cfg;
+  RemoveNode(Cfg c):cfg(c){name = "RemoveNode";}
+  Cfg cfg;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<endl;
   }
@@ -112,8 +112,8 @@ struct RemoveNode : public Instruction {
 
 struct RemoveEdge : public Instruction {
   int edgeNum;
-  RemoveEdge(CCfg s, CCfg t):source(s), target(t){name = "RemoveEdge";};
-  CCfg source, target;
+  RemoveEdge(Cfg s, Cfg t):source(s), target(t){name = "RemoveEdge";};
+  Cfg source, target;
   virtual void Print(ostream& oss){
     oss<<name<<"\tsource: "<<source<<"\ttarget: "<<target<<endl;
   }
@@ -129,8 +129,8 @@ struct Comment : public Instruction {
 
 struct Query : public Instruction {
   vector<Edge> query;
-  Query(CCfg s, CCfg t):source(s), target(t){name = "Query";};
-  CCfg source, target;
+  Query(Cfg s, Cfg t):source(s), target(t){name = "Query";};
+  Cfg source, target;
   virtual void Print(ostream& oss){
     oss<<name<<"\tsource: "<<source<<"\ttarget: "<<target<<endl;
   }

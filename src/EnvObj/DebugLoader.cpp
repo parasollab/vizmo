@@ -14,7 +14,7 @@ using namespace std;
 
 CDebugLoader::CDebugLoader()
 {
-  //m_mapLoader = new CMapLoader<CCfg, CSimpleEdge>();
+  //m_mapLoader = new CMapLoader<Cfg, CSimpleEdge>();
 }
 
 CDebugLoader::~CDebugLoader()
@@ -45,18 +45,18 @@ bool CDebugLoader::ParseFile()
       string instructionName;
       iss>>instructionName;
       if(instructionName=="AddNode"){
-        CCfg c;
+        Cfg c;
         iss>>c;
         c.SetColor(((float)rand())/RAND_MAX,((float)rand())/RAND_MAX, ((float)rand())/RAND_MAX,1);
         m_iList.push_back(new AddNode(c));
       }
       else if(instructionName=="AddEdge"){
-        CCfg s, t;
+        Cfg s, t;
         iss>>s>>t;
         m_iList.push_back(new AddEdge(s,t));
       }
       else if(instructionName=="AddTempCfg"){
-        CCfg c;
+        Cfg c;
         bool valid;
         iss>>c>>valid;
         if(valid) c.SetColor(0,0,0,0.25);
@@ -64,12 +64,12 @@ bool CDebugLoader::ParseFile()
         m_iList.push_back(new AddTempCfg(c, valid));
       }
       else if(instructionName=="AddTempRay"){
-        CCfg c;
+        Cfg c;
         iss>>c;
         m_iList.push_back(new AddTempRay(c));
       }
       else if(instructionName=="AddTempEdge"){
-        CCfg s, t;
+        Cfg s, t;
         iss>>s>>t;
         m_iList.push_back(new AddTempEdge(s,t));
       }
@@ -83,12 +83,12 @@ bool CDebugLoader::ParseFile()
         m_iList.push_back(new ClearComments());
       }
       else if(instructionName=="RemoveNode"){
-        CCfg c;
+        Cfg c;
         iss>>c;
         m_iList.push_back(new RemoveNode(c));
       }
       else if(instructionName=="RemoveEdge"){
-        CCfg s, t;
+        Cfg s, t;
         iss>>s>>t;
         m_iList.push_back(new RemoveEdge(s,t));
       }
@@ -96,7 +96,7 @@ bool CDebugLoader::ParseFile()
         m_iList.push_back(new Comment(iss.str().substr(8,iss.str().length())));
       }
       else if(instructionName=="Query"){
-        CCfg s, t;
+        Cfg s, t;
         iss>>s>>t;
         m_iList.push_back(new Query(s,t));
       }

@@ -30,7 +30,7 @@ struct my_edge_access_functor{
 DebugModel::DebugModel(){
   m_index=-1;
   m_debugLoader=NULL;
-  m_mapLoader = new CMapLoader<CCfg, Edge>();
+  m_mapLoader = new CMapLoader<Cfg, Edge>();
   m_mapLoader->InitGraph();
   m_robot=NULL;
   m_renderMode = INVISIBLE_MODE;
@@ -57,7 +57,7 @@ DebugModel::BuildModels(){
   m_edgeNum = 0;
   m_tempRay = NULL;
 
-  m_mapModel = new CMapModel<CCfg, Edge>();
+  m_mapModel = new CMapModel<Cfg, Edge>();
   m_mapModel->SetMapLoader(m_mapLoader);
   m_mapModel->SetRobotModel(m_robot);
   m_mapModel->BuildModels();
@@ -68,7 +68,7 @@ DebugModel::BuildModels(){
 
 void 
 DebugModel::BuildForward(){
-  typedef graph<DIRECTED,MULTIEDGES,CCfg,Edge> WG;
+  typedef graph<DIRECTED,MULTIEDGES,Cfg,Edge> WG;
   typedef WG::vertex_iterator VI;
   typedef WG::vertex_descriptor VID;
   typedef WG::adj_edge_iterator EI;
@@ -99,8 +99,8 @@ DebugModel::BuildForward(){
       
       VID svid = m_mapLoader->Cfg2VID(ae->source); 
       VID tvid = m_mapLoader->Cfg2VID(ae->target); 
-      CCfg& source = m_mapLoader->GetGraph()->find_vertex(svid)->property();
-      CCfg& target = m_mapLoader->GetGraph()->find_vertex(tvid)->property();
+      Cfg& source = m_mapLoader->GetGraph()->find_vertex(svid)->property();
+      Cfg& target = m_mapLoader->GetGraph()->find_vertex(tvid)->property();
       
       //set properties of edge and increase the edge count
       edge.Set(m_edgeNum++, &source, &target);
@@ -138,7 +138,7 @@ DebugModel::BuildForward(){
       //change color of smaller CC to that of larger CC
       for(ITVID it = (*smaller_cc).begin(); it != (*smaller_cc).end(); ++it) {
         VI vi = m_mapLoader->GetGraph()->find_vertex(*it);
-        CCfg* cfgcc = &(vi->property());
+        Cfg* cfgcc = &(vi->property());
         cfgcc->SetColor(color[0],color[1],color[2],1);
         
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
@@ -158,7 +158,7 @@ DebugModel::BuildForward(){
       AddTempCfg* atc = dynamic_cast<AddTempCfg*>(ins);
       m_tempCfgs.push_back(atc->cfg);
       m_tempCfgs.back().Set(0,m_robot,NULL);
-      m_tempCfgs.back().SetShape(CCfg::Robot);
+      m_tempCfgs.back().SetShape(Cfg::Robot);
       if(!atc->valid)
         m_tempCfgs.back().SetColor(1, 0, 0, 1);
     }
@@ -260,8 +260,8 @@ DebugModel::BuildForward(){
       find_path_dijkstra(*(m_mapLoader->GetGraph()), edge_map, svid,tvid, path);
      
       //store edges of query
-      CCfg source = q->source;
-      CCfg target;
+      Cfg source = q->source;
+      Cfg target;
       if(path.size()>0){
         for(ITVID pit = path.begin()+1; pit != path.end(); pit++){
           target = m_mapLoader->GetGraph()->find_vertex(*pit)->property();
@@ -283,7 +283,7 @@ DebugModel::BuildForward(){
 
 void
 DebugModel::BuildBackward(){
-  typedef graph<DIRECTED,MULTIEDGES,CCfg,Edge> WG;
+  typedef graph<DIRECTED,MULTIEDGES,Cfg,Edge> WG;
   typedef WG::vertex_iterator VI;
   typedef WG::vertex_descriptor VID;
   typedef WG::edge_descriptor EID;
@@ -333,7 +333,7 @@ DebugModel::BuildBackward(){
       //restore color of target's CC
       for(ITVID it = ccnid1.begin(); it != ccnid1.end(); ++it){
         VI vi = m_mapLoader->GetGraph()->find_vertex(*it);
-        CCfg* cfgcc = &(vi->property());
+        Cfg* cfgcc = &(vi->property());
         cfgcc->SetColor(color[0],color[1],color[2],1);
 
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
@@ -350,7 +350,7 @@ DebugModel::BuildBackward(){
       //restore color of source's CC
       for(ITVID it = ccnid2.begin(); it != ccnid2.end(); ++it){
         VI vi = m_mapLoader->GetGraph()->find_vertex(*it);
-        CCfg* cfgcc = &(vi->property());
+        Cfg* cfgcc = &(vi->property());
         cfgcc->SetColor(color[0],color[1],color[2],1);
         
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
@@ -453,7 +453,7 @@ DebugModel::BuildBackward(){
 void
 DebugModel::Draw(GLenum _mode){
 
-  typedef vector<CCfg>::iterator CIT;
+  typedef vector<Cfg>::iterator CIT;
   typedef vector<Edge>::iterator EIT;
   
   //update the map model in either the forward or backward direction
@@ -484,9 +484,9 @@ DebugModel::Draw(GLenum _mode){
     }
     if(m_tempRay!=NULL && m_tempCfgs.size()>0){
       Edge edge;
-      CCfg ray = *m_tempRay;
+      Cfg ray = *m_tempRay;
       vector<double> cfg = ray.GetDataCfg(); 
-      CCfg* tmp = &(m_tempCfgs.back());
+      Cfg* tmp = &(m_tempCfgs.back());
       cfg[0]+=tmp->tx();
       cfg[1]+=tmp->ty();
       cfg[2]+=tmp->tz();

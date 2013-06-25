@@ -387,7 +387,7 @@ namespace plum{
     for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){      
       glPushName(cit->first);
       cit->second.Scale(m_robotScale,m_robotScale,m_robotScale);
-      cit->second.SetShape(CCfg::Robot); 
+      cit->second.SetShape(Cfg::Robot); 
       m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
       cit->second.Draw(_mode);//draw robot; 
       glPopName();
@@ -407,7 +407,7 @@ namespace plum{
     for(CIT cit = m_nodes.begin(); cit!=m_nodes.end(); cit++){      
       glPushName(cit->first);
       cit->second.Scale(m_boxScale,m_boxScale,m_boxScale);
-      cit->second.SetShape(CCfg::Box);
+      cit->second.SetShape(Cfg::Box);
       cit->second.Draw(_mode); 
       glPopName();
     }
@@ -423,7 +423,7 @@ namespace plum{
     for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){      
       glPushName(cit->first);
       cit->second.Scale(m_pointScale, m_pointScale, m_pointScale); 
-      cit->second.SetShape(CCfg::Point);
+      cit->second.SetShape(Cfg::Point);
       cit->second.Draw(_mode); 
       glPopName();
     }

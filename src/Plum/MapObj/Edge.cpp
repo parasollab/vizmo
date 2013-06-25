@@ -1,19 +1,15 @@
-///////////////////////////////////////////////////////////////////////
-//Implementation for Edge. Moved from Cfg.cpp and renamed from CSimpleEdge 
-//////////////////////////////////////////////////////////////////////
-
-#include <stdlib.h>
+/////////////////////////// 
+//Implementation for Edge. 
+//////////////////////////
 
 #include "Edge.h"
 #include "Plum/Plum.h"
+
 #include <limits.h> 
+#include <stdlib.h>
 
 namespace plum{
-
-  //////////////////////////////////////////////////////////////////////
-  // Construction/Destruction
-  //////////////////////////////////////////////////////////////////////
-
+  
   Edge::Edge() {
     m_lp = INT_MAX;
     m_weight = LONG_MAX;
@@ -29,15 +25,12 @@ namespace plum{
   }
 
   void
-  Edge::Set(int _id,
-        CCfg* _c1, CCfg* _c2,
-        OBPRMView_Robot* _robot) {
+  Edge::Set(int _id, Cfg* _c1, Cfg* _c2, OBPRMView_Robot* _robot){
     m_id = _id;
     m_startCfg = *_c1;
     m_endCfg = *_c2;
 
-    typedef vector<CCfg>::iterator CIT;
-
+    typedef vector<Cfg>::iterator CIT;
     for(CIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++) {
       c->m_robot = _robot;
@@ -48,40 +41,39 @@ namespace plum{
   void
   Edge::Draw(GLenum _mode) {
 
-      typedef vector<CCfg>::iterator CFGIT;
-      glPushName(m_id);
-      if(m_renderMode == SOLID_MODE ||
-          m_renderMode == WIRE_MODE){
-       
-        float* arr_m_RGBA = &m_RGBA[0];
-        glColor4fv(arr_m_RGBA);
-
-        glLineWidth(m_edgeThickness); 
+    typedef vector<Cfg>::iterator CFGIT;
+    glPushName(m_id);
+    
+    if(m_renderMode == SOLID_MODE || m_renderMode == WIRE_MODE){
+    
+      float* arr_m_RGBA = &m_RGBA[0];
+      glColor4fv(arr_m_RGBA);
+      glLineWidth(m_edgeThickness); 
         
-        glBegin(GL_LINES);
-        glVertex3d(m_startCfg.tx(),m_startCfg.ty(),m_startCfg.tz());
+      glBegin(GL_LINES);
+      glVertex3d(m_startCfg.tx(), m_startCfg.ty(), m_startCfg.tz());
 
-        for(CFGIT c = m_intermediateCfgs.begin();
-            c != m_intermediateCfgs.end(); c++) {
+      for(CFGIT c = m_intermediateCfgs.begin();
+          c != m_intermediateCfgs.end(); c++) {
           glVertex3d (c->tx(), c->ty(), c->tz()); //ending point of prev line
           glVertex3d (c->tx(), c->ty(), c->tz()); //starting point of next line
-        }
+      }
 
-        glVertex3d( m_endCfg.tx(),m_endCfg.ty(),m_endCfg.tz() );
-        glEnd();
+      glVertex3d(m_endCfg.tx(), m_endCfg.ty(), m_endCfg.tz());
+      glEnd();
 
-        //draw intermediate configurations
-        if(m_cfgShape == CCfg::Box || m_cfgShape == CCfg::Robot) {
-          for(CFGIT c = m_intermediateCfgs.begin(); 
-              c != m_intermediateCfgs.end(); c++) { 
+      //draw intermediate configurations
+      if(m_cfgShape == Cfg::Box || m_cfgShape == Cfg::Robot){
+        for(CFGIT c = m_intermediateCfgs.begin(); 
+            c != m_intermediateCfgs.end(); c++){ 
             c->SetShape(m_cfgShape);
             c->SetRenderMode(WIRE_MODE);
             c->Draw(_mode);
-          }
-        } 
-      }
-      glPopName();
+        }
+      } 
     }
+    glPopName();
+  }
 
   //Changing edge thickness: step 5
   void
@@ -91,17 +83,20 @@ namespace plum{
 
   void 
   Edge::DrawSelect() {
-    typedef vector<CCfg>::iterator CFGIT;
+    
+    typedef vector<Cfg>::iterator CFGIT;
     glColor3d(1,1,0);
-    glLineWidth(m_edgeThickness+4);
+    glLineWidth(m_edgeThickness + 4); //Ensure visibility around edge itself 
 
-    glBegin( GL_LINES );
-    glVertex3d(m_startCfg.tx(),m_startCfg.ty(),m_startCfg.tz());
+    glBegin(GL_LINES);
+    glVertex3d(m_startCfg.tx(), m_startCfg.ty(), m_startCfg.tz());
+    
     for(CFGIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++) {
-      glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
-      glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
+        glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
+        glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
     }
+    
     glVertex3d( m_endCfg.tx(),m_endCfg.ty(),m_endCfg.tz() );
     glEnd();
   }
@@ -111,22 +106,22 @@ namespace plum{
     m_weight = LONG_MAX;
   }
 
-
   bool 
-  Edge::operator==( const Edge& _other ){
-    if( m_lp != _other.m_lp || m_weight != _other.m_weight ) 
+  Edge::operator==(const Edge& _other){
+    if(m_lp != _other.m_lp || m_weight != _other.m_weight) 
       return false;        
     return true;
   }
 
   vector<string> 
   Edge::GetInfo() const {  
+    
     vector<string> info; 
     ostringstream temp;
     temp << "Edge, ID= " << m_id << ", ";
     temp << "connects Node " << m_startCfg.GetIndex() << " and Node " << m_endCfg.GetIndex();
     temp << "Intermediates | ";
-    typedef vector<CCfg>::const_iterator CFGIT;
+    typedef vector<Cfg>::const_iterator CFGIT;
     for(CFGIT c = m_intermediateCfgs.begin(); c!=m_intermediateCfgs.end(); c++)
       temp << *c << " | ";
     info.push_back(temp.str());
@@ -141,13 +136,9 @@ namespace plum{
     return v;
   }
 
-  //////////////////////////////////////////////////////////////////////
-  // Opers
-  //////////////////////////////////////////////////////////////////////
-
   ostream& 
-  operator<<( ostream& _out, const CCfg& _cfg ) {
-    for( unsigned int iC=0; iC < _cfg.m_dofs.size(); iC++ ){
+  operator<<(ostream& _out, const Cfg& _cfg){    
+    for(unsigned int iC = 0; iC < _cfg.m_dofs.size(); iC++){
       _out << _cfg.m_dofs[iC] << " ";
     }
     _out << " ";
@@ -155,9 +146,9 @@ namespace plum{
   }
 
   istream& 
-  operator>>(istream& _in, CCfg& _cfg) {
+  operator>>(istream& _in, Cfg& _cfg){
     _cfg.m_dofs.clear();
-    int dof=CCfg::m_dof;
+    int dof=Cfg::m_dof;
 
     //For now, read in and discard robot index;
     int robotIndex;
@@ -173,26 +164,26 @@ namespace plum{
   }
 
   ostream&
-    operator<<(ostream& _out, const Edge& _edge) {
-      _out << _edge.m_lp << " " << _edge.m_weight << " ";
-      return _out;
-    }
+  operator<<(ostream& _out, const Edge& _edge){
+    _out << _edge.m_lp << " " << _edge.m_weight << " ";
+    return _out;
+  }
 
   istream&
-    operator>>( istream&  _in, Edge& _edge ) {
-      _edge.m_intermediateCfgs.clear();
-      int numIntermediates = 0;
-      CCfg cfgtmp;
-      _in >> numIntermediates;
+  operator>>(istream&  _in, Edge& _edge){
+    _edge.m_intermediateCfgs.clear();
+    int numIntermediates = 0;
+    Cfg cfgtmp;
+    _in >> numIntermediates;
 
-      for(int i = 0; i < numIntermediates; i++) {
-        _in >> cfgtmp;
-        _edge.m_intermediateCfgs.push_back(cfgtmp);
-      }
-
-      _in >> _edge.m_weight;
-      return _in;
+    for(int i = 0; i < numIntermediates; i++){
+      _in >> cfgtmp;
+      _edge.m_intermediateCfgs.push_back(cfgtmp);
     }
+
+    _in >> _edge.m_weight;
+      return _in;
+  }
 }//namespace plum 
 
 

@@ -18,7 +18,7 @@ namespace plum{
 
   void testMapModel()
   {
-  CMapModel<CCfg,Edge> model;
+  CMapModel<Cfg,Edge> model;
   }
 
 }//end namespace plum

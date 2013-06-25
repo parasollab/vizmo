@@ -9,16 +9,15 @@
 
 namespace plum{
 
-  //init m_invalidCfg and DOF
-  CCfg CCfg::m_invalidCfg;
-  int CCfg::m_dof = 0;
-  double CCfg::m_defaultDOF = 0;
-  CCfg::Shape CCfg::m_shape = CCfg::Point;
-  bool CCfg::m_isPlanarRobot = false; 
-  bool CCfg::m_isVolumetricRobot = false; 
-  bool CCfg::m_isRotationalRobot = false; 
+  Cfg Cfg::m_invalidCfg;
+  int Cfg::m_dof = 0;
+  double Cfg::m_defaultDOF = 0;
+  Cfg::Shape Cfg::m_shape = Cfg::Point;
+  bool Cfg::m_isPlanarRobot = false; 
+  bool Cfg::m_isVolumetricRobot = false; 
+  bool Cfg::m_isRotationalRobot = false; 
 
-  CCfg::CCfg(){
+  Cfg::Cfg(){
     
     m_unknow1 = LONG_MAX;
     m_unknow2 = LONG_MAX;
@@ -28,9 +27,9 @@ namespace plum{
     m_dofs.clear();
   }
 
-  CCfg::~CCfg() {}
+  Cfg::~Cfg() {}
 
-  CCfg::CCfg(const CCfg& _cfg){
+  Cfg::Cfg(const Cfg& _cfg){
     m_index = _cfg.m_index;
     m_robot = _cfg.m_robot;
     m_cc = _cfg.m_cc;
@@ -46,7 +45,7 @@ namespace plum{
   }
 
   void 
-  CCfg::Set(int _index , OBPRMView_Robot* _robot, CCModelBase* _cc){   
+  Cfg::Set(int _index , OBPRMView_Robot* _robot, CCModelBase* _cc){   
     m_index = _index;
     m_robot = _robot;
     m_cc = _cc;
@@ -59,15 +58,15 @@ namespace plum{
   }
 
   int 
-  CCfg::GetCC_ID(){
+  Cfg::GetCC_ID(){
     int i = m_cc->ID(); 
     return i; 
   }
 
   void 
-  CCfg::DrawRobot(){
+  Cfg::DrawRobot(){
     
-    if(m_robot==NULL)
+    if(m_robot == NULL)
       return;
 
     vector<double> cfg = m_dofs;  
@@ -87,7 +86,7 @@ namespace plum{
   }
 
   void 
-  CCfg::DrawBox(){
+  Cfg::DrawBox(){
 
     glEnable(GL_LIGHTING);
     glPushMatrix();
@@ -126,7 +125,7 @@ namespace plum{
   }
 
   void 
-  CCfg::DrawPoint(){
+  Cfg::DrawPoint(){
     
     glDisable(GL_LIGHTING);
     glPointSize(m_Scale[0]); 
@@ -143,7 +142,7 @@ namespace plum{
   }
 
   void 
-  CCfg::Draw(GLenum _mode){
+  Cfg::Draw(GLenum _mode){
     
     glPushName(m_index);
     Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->getShape());
@@ -164,7 +163,7 @@ namespace plum{
   }
 
   void 
-  CCfg::DrawSelect(){ 
+  Cfg::DrawSelect(){ 
     
     glColor3d(1,1,0);
     glDisable(GL_LIGHTING);
@@ -228,7 +227,7 @@ namespace plum{
   } //end DrawSelect 
 
   bool 
-  CCfg::operator==(const CCfg& _other) const{
+  Cfg::operator==(const Cfg& _other) const{
 
     for(vector<double>::const_iterator dit1 = m_dofs.begin(), dit2 = _other.m_dofs.begin();
         dit1 != m_dofs.end() && dit2 != _other.m_dofs.end(); ++dit1, ++dit2){
@@ -240,13 +239,13 @@ namespace plum{
 
   // Fucntion not used:   
   // this information is controlled by VizmoRoadmapGUI::printNodeCfg() 
-  // in roadmap.cpp, which calls CCfg::GetNodeInfo()
+  // in roadmap.cpp, which calls Cfg::GetNodeInfo()
 
   vector<string> 
-  CCfg::GetInfo() const{
+  Cfg::GetInfo() const{
     
     vector<string> info; 
-    int dof = CCfg::m_dof;
+    int dof = Cfg::m_dof;
     ostringstream temp;
     temp << "Node ID = " << m_index << " ";
     temp << " Cfg ( ";
@@ -271,10 +270,10 @@ namespace plum{
   }
 
   vector<string> 
-  CCfg::GetNodeInfo() const{
+  Cfg::GetNodeInfo() const{
     
     vector<string> info; 
-    int dof = CCfg::m_dof;
+    int dof = Cfg::m_dof;
     ostringstream temp;
 
     temp << "Node ID = " << m_index << " ";
@@ -294,13 +293,13 @@ namespace plum{
   }
 
   void 
-  CCfg::Dump(){
+  Cfg::Dump(){
     
     cout << "- ID = " << m_index << endl;
     cout << "- Position = (" << m_dofs[0] << ", " <<
       m_dofs[1] << ", " << m_dofs[2] << ")" << endl;
     cout << "- Orientation = (";
-    int dof = CCfg::m_dof;
+    int dof = Cfg::m_dof;
     for(int i=0; i<dof-3; i++){
       printf("%f ", m_dofs[i+3]*360);
     }
@@ -308,30 +307,30 @@ namespace plum{
   }
 
   void 
-  CCfg::SetCfg(vector<double> _newCfg){
+  Cfg::SetCfg(vector<double> _newCfg){
     m_dofs.assign(_newCfg.begin(), _newCfg.end());
     m_unknow1 = m_unknow2 = m_unknow3 = -1;
   }   
 
   void 
-  CCfg::SetCCModel(CCModelBase* _cc){
+  Cfg::SetCCModel(CCModelBase* _cc){
     m_cc = _cc;
   }
 
   double& 
-  CCfg::tx(){ 
+  Cfg::tx(){ 
     ObjName="Node";  
     CopyCfg(); 
     return m_dofs[0]; 
   }
   
   double& 
-  CCfg::ty(){ 
+  Cfg::ty(){ 
     return m_dofs[1]; 
   }
   
   double& 
-  CCfg::tz(){
+  Cfg::tz(){
     if(m_isVolumetricRobot){ 
       return m_dofs[2]; 
     }
@@ -340,17 +339,17 @@ namespace plum{
   }
   
   const double& 
-  CCfg::tx() const{ 
+  Cfg::tx() const{ 
     return m_dofs[0]; 
   }
   
   const double& 
-  CCfg::ty() const{ 
+  Cfg::ty() const{ 
     return m_dofs[1]; 
   }
   
   const double& 
-  CCfg::tz() const{ 
+  Cfg::tz() const{ 
     if(m_isVolumetricRobot)
       return m_dofs[2]; 
     else
