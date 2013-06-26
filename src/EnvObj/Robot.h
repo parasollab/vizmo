@@ -83,7 +83,7 @@ class OBPRMView_Robot : public CGLModel{
     //copy query configuration
     //this info. is used to set the *actual* position and
     //orientation of the robot. 
-    //void setQueryCfg(double * Cfg);
+    //void setQueryCfg(double * CfgModel);
 
     int returnDOF(){ return dof; }
     //////////////////////////////////////////////////////////////////////

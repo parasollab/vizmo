@@ -594,8 +594,8 @@ RoadmapOptions::ChangeObjectColor(){
   if(m_nodeGUI != NULL && m_nodeGUI->isVisible() && m_nodeGUI->filledFirstTime==false){
   if(!GetMapModel()->GetNodeList().empty()){
   CGLModel* n = GetMapModel()->GetNodeList().front(); 
-  CCfg* cfg = (CCfg*)n;   
-  vector<double> VNodeCfg;
+  CCfg* cfg = (CCfgModel*)n;   
+  vector<double> VNodeCfgModel;
   VNodeCfg.clear();
 
   VNodeCfg =  m_nodeGUI->getNodeCfg();

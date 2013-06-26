@@ -3,8 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "MapModel.h"
-#include "Cfg.h"
-#include "Edge.h" 
+#include "CfgModel.h"
+#include "EdgeModel.h" 
 
 #include <math.h>
 #include "Gauss.h"
@@ -18,7 +18,7 @@ namespace plum{
 
   void testMapModel()
   {
-  CMapModel<Cfg,Edge> model;
+  CMapModel<CfgModel,EdgeModel> model;
   }
 
 }//end namespace plum

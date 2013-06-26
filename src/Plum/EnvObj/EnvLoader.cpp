@@ -4,7 +4,7 @@
 
 #include "EnvLoader.h"
 #include "MultiBodyInfo.h"
-#include "Plum/MapObj/Cfg.h"
+#include "Plum/MapObj/CfgModel.h"
 #include "EnvObj/BoundingBoxModel.h"
 #include "EnvObj/BoundingSphereModel.h"
 
@@ -115,8 +115,8 @@ namespace plum{
   
     BuildRobotStructure();
 
-    Cfg::m_dof=DoF;
-    cout<< "DOF's: "<<Cfg::m_dof<<endl<<flush; 
+    CfgModel::m_dof=DoF;
+    cout<< "DOF's: "<<CfgModel::m_dof<<endl<<flush; 
     
     return true;
   }

@@ -9,5 +9,5 @@ OBJECTS += \
 	   Plum/EnvObj/RobotInfo.o \
 	   Plum/MapObj/MapLoader.o \
 	   Plum/MapObj/MapModel.o \
-	   Plum/MapObj/Cfg.o \
-	   Plum/MapObj/Edge.o 
+	   Plum/MapObj/CfgModel.o \
+	   Plum/MapObj/EdgeModel.o 

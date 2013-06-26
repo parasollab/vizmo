@@ -8,7 +8,7 @@
 #include <vector>
 using namespace std;
 
-#include "Plum/MapObj/Cfg.h"
+#include "Plum/MapObj/CfgModel.h"
 #include "Plum/MapObj/MapLoader.h"
 #include "Plum/MapObj/MapModel.h"
 #include "Plum/Loadable.h"
@@ -28,8 +28,8 @@ struct Default : public Instruction{
 };
 
 struct AddNode : public Instruction {
-  AddNode(Cfg c):cfg(c){name = "AddNode";};
-  Cfg cfg;
+  AddNode(CfgModel c):cfg(c){name = "AddNode";};
+  CfgModel cfg;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<endl;
   }
@@ -37,16 +37,16 @@ struct AddNode : public Instruction {
 
 struct AddEdge : public Instruction {
   float target_color[3], source_color[3];
-  AddEdge(Cfg s, Cfg t):source(s), target(t){name = "AddEdge";};
-  Cfg source, target;
+  AddEdge(CfgModel s, CfgModel t):source(s), target(t){name = "AddEdge";};
+  CfgModel source, target;
   virtual void Print(ostream& oss){
     oss<<name<<"\tsource: "<<source<<"\ttarget: "<<target<<endl;
   }
 };
 
 struct AddTempCfg : public Instruction {
-  AddTempCfg(Cfg c, bool v):cfg(c), valid(v){name = "AddTempCfg";};
-  Cfg cfg;
+  AddTempCfg(CfgModel c, bool v):cfg(c), valid(v){name = "AddTempCfg";};
+  CfgModel cfg;
   bool valid;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<" Valid::"<<valid<<endl;
@@ -54,25 +54,25 @@ struct AddTempCfg : public Instruction {
 };
 
 struct AddTempRay : public Instruction {
-  AddTempRay(Cfg c):cfg(c){name = "AddTempRay";};
-  Cfg cfg;
+  AddTempRay(CfgModel c):cfg(c){name = "AddTempRay";};
+  CfgModel cfg;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<endl;
   }
 };
 
 struct AddTempEdge : public Instruction {
-  AddTempEdge(Cfg s, Cfg t):source(s), target(t){name = "AddTempEdge";};
-  Cfg source, target;
+  AddTempEdge(CfgModel s, CfgModel t):source(s), target(t){name = "AddTempEdge";};
+  CfgModel source, target;
   virtual void Print(ostream& oss){
     oss<<name<<"\tsource: "<<source<<"\ttarget: "<<target<<endl;
   }
 };
 
 struct ClearLastTemp : public Instruction {
-  Cfg* tempRay;
-  vector<Cfg> lastTempCfgs;
-  vector<Edge> lastTempEdges;
+  CfgModel* tempRay;
+  vector<CfgModel> lastTempCfgs;
+  vector<EdgeModel> lastTempEdges;
 
   ClearLastTemp(){name = "ClearLastTemp";}
   virtual void Print(ostream& oss){
@@ -81,10 +81,10 @@ struct ClearLastTemp : public Instruction {
 };
 
 struct ClearAll : public Instruction {
-  Cfg* tempRay;
-  vector<Cfg> tempCfgs;
-  vector<Edge> tempEdges;
-  vector<Edge> query;
+  CfgModel* tempRay;
+  vector<CfgModel> tempCfgs;
+  vector<EdgeModel> tempEdges;
+  vector<EdgeModel> query;
   vector<string> comments;
   
   
@@ -103,8 +103,8 @@ struct ClearComments : public Instruction {
 };
 
 struct RemoveNode : public Instruction {
-  RemoveNode(Cfg c):cfg(c){name = "RemoveNode";}
-  Cfg cfg;
+  RemoveNode(CfgModel c):cfg(c){name = "RemoveNode";}
+  CfgModel cfg;
   virtual void Print(ostream& oss){
     oss<<name<<" "<<cfg<<endl;
   }
@@ -112,8 +112,8 @@ struct RemoveNode : public Instruction {
 
 struct RemoveEdge : public Instruction {
   int edgeNum;
-  RemoveEdge(Cfg s, Cfg t):source(s), target(t){name = "RemoveEdge";};
-  Cfg source, target;
+  RemoveEdge(CfgModel s, CfgModel t):source(s), target(t){name = "RemoveEdge";};
+  CfgModel source, target;
   virtual void Print(ostream& oss){
     oss<<name<<"\tsource: "<<source<<"\ttarget: "<<target<<endl;
   }
@@ -128,9 +128,9 @@ struct Comment : public Instruction {
 };
 
 struct Query : public Instruction {
-  vector<Edge> query;
-  Query(Cfg s, Cfg t):source(s), target(t){name = "Query";};
-  Cfg source, target;
+  vector<EdgeModel> query;
+  Query(CfgModel s, CfgModel t):source(s), target(t){name = "Query";};
+  CfgModel source, target;
   virtual void Print(ostream& oss){
     oss<<name<<"\tsource: "<<source<<"\ttarget: "<<target<<endl;
   }

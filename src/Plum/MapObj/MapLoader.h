@@ -66,7 +66,7 @@ namespace plum{
 	string m_seed;
     };
 
-    template< class Cfg, class WEIGHT >
+    template< class CfgModel, class WEIGHT >
     class CMapLoader : public CMapHeaderLoader 
     {
     public:
@@ -86,8 +86,8 @@ namespace plum{
         // Access function
         //////////////////////////////////////////////////////////////////////
         //these two functions are only accessed from CMapModeler
-        //WeightedMultiDiGraph<Cfg,WEIGHT> * GetGraph() { return m_Graph; }
-        typedef graph<DIRECTED,MULTIEDGES,Cfg,WEIGHT> Wg;
+        //WeightedMultiDiGraph<CfgModel,WEIGHT> * GetGraph() { return m_Graph; }
+        typedef graph<DIRECTED,MULTIEDGES,CfgModel,WEIGHT> Wg;
         typedef typename Wg::vertex_descriptor VID;
         typedef typename Wg::vertex_iterator VI;
 	
@@ -95,7 +95,7 @@ namespace plum{
         Wg * GetGraph() { return m_Graph; }
         void InitGraph() {m_Graph = new Wg();}
         //void KillGraph(){ delete m_Graph; m_Graph=NULL; }
-        VID Cfg2VID(Cfg target){
+        VID Cfg2VID(CfgModel target){
           VI vi;
           VID tvid = -1;
           for(vi=GetGraph()->begin();vi!=GetGraph()->end();vi++){
@@ -132,14 +132,14 @@ namespace plum{
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
 
-    template< class Cfg, class WEIGHT >
-    CMapLoader<Cfg, WEIGHT>::CMapLoader()
+    template< class CfgModel, class WEIGHT >
+    CMapLoader<CfgModel, WEIGHT>::CMapLoader()
     {
         m_Graph=NULL;
     }
 
-    template< class Cfg, class WEIGHT >
-    CMapLoader<Cfg, WEIGHT>::~CMapLoader()
+    template< class CfgModel, class WEIGHT >
+    CMapLoader<CfgModel, WEIGHT>::~CMapLoader()
     {
         //KillGraph();
 		delete m_Graph; m_Graph=NULL;
@@ -148,8 +148,8 @@ namespace plum{
     //////////////////////////////////////////////////////////////////////
     // Implemetation of core function
     //////////////////////////////////////////////////////////////////////
-    template<class Cfg, class WEIGHT>
-      bool CMapLoader<Cfg, WEIGHT>::ParseFile() {      
+    template<class CfgModel, class WEIGHT>
+      bool CMapLoader<CfgModel, WEIGHT>::ParseFile() {      
         if(!CheckCurrentStatus())
           return false;
 
@@ -171,8 +171,8 @@ namespace plum{
       }
 
     //called from VizmoRoadmapGUI::handleAddNode()
-    template< class Cfg, class WEIGHT > void
-      CMapLoader<Cfg, WEIGHT>::genGraph()
+    template< class CfgModel, class WEIGHT > void
+      CMapLoader<CfgModel, WEIGHT>::genGraph()
       {
 	m_Graph =new Wg();
       }

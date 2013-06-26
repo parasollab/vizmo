@@ -245,9 +245,9 @@ FileOptions::SaveNewRoadmap(const char* _filename){
     }
   }
 
-  typedef CMapLoader<Cfg,Edge>::Wg WG;
+  typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
   WG* graph;
-  CMapLoader<Cfg,Edge> *m_loader=(CMapLoader<Cfg,Edge>*)m_Map->GetLoader();
+  CMapLoader<CfgModel,EdgeModel> *m_loader=(CMapLoader<CfgModel,EdgeModel>*)m_Map->GetLoader();
   graph = m_loader->GetGraph();
 
   write_graph(*graph, outfile);

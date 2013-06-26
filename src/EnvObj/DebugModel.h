@@ -21,7 +21,7 @@ class OBPRMView_Robot;
 
 class DebugModel : public CGLModel {
   public:
-    typedef CMapModel<Cfg, Edge> MapModel;
+    typedef CMapModel<CfgModel, EdgeModel> MapModel;
 
     //////////////////////////////////////////////////////////////////////
     // Construction/Destruction
@@ -58,13 +58,13 @@ class DebugModel : public CGLModel {
     int m_prevIndex;
     CDebugLoader* m_debugLoader;
     OBPRMView_Robot* m_robot;
-    CMapLoader<Cfg,Edge>* m_mapLoader;
+    CMapLoader<CfgModel,EdgeModel>* m_mapLoader;
 
     int m_edgeNum;
     MapModel* m_mapModel;
-    vector<Cfg> m_tempCfgs;
-    vector<Edge> m_tempEdges, m_query;
-    Cfg* m_tempRay;
+    vector<CfgModel> m_tempCfgs;
+    vector<EdgeModel> m_tempEdges, m_query;
+    CfgModel* m_tempRay;
     vector<string> m_comments;
 
 };

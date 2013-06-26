@@ -14,7 +14,7 @@ using namespace std;
 
 CDebugLoader::CDebugLoader()
 {
-  //m_mapLoader = new CMapLoader<Cfg, CSimpleEdge>();
+  //m_mapLoader = new CMapLoader<CfgModel, CSimpleEdge>();
 }
 
 CDebugLoader::~CDebugLoader()
@@ -45,18 +45,18 @@ bool CDebugLoader::ParseFile()
       string instructionName;
       iss>>instructionName;
       if(instructionName=="AddNode"){
-        Cfg c;
+        CfgModel c;
         iss>>c;
         c.SetColor(((float)rand())/RAND_MAX,((float)rand())/RAND_MAX, ((float)rand())/RAND_MAX,1);
         m_iList.push_back(new AddNode(c));
       }
       else if(instructionName=="AddEdge"){
-        Cfg s, t;
+        CfgModel s, t;
         iss>>s>>t;
         m_iList.push_back(new AddEdge(s,t));
       }
       else if(instructionName=="AddTempCfg"){
-        Cfg c;
+        CfgModel c;
         bool valid;
         iss>>c>>valid;
         if(valid) c.SetColor(0,0,0,0.25);
@@ -64,12 +64,12 @@ bool CDebugLoader::ParseFile()
         m_iList.push_back(new AddTempCfg(c, valid));
       }
       else if(instructionName=="AddTempRay"){
-        Cfg c;
+        CfgModel c;
         iss>>c;
         m_iList.push_back(new AddTempRay(c));
       }
       else if(instructionName=="AddTempEdge"){
-        Cfg s, t;
+        CfgModel s, t;
         iss>>s>>t;
         m_iList.push_back(new AddTempEdge(s,t));
       }
@@ -83,12 +83,12 @@ bool CDebugLoader::ParseFile()
         m_iList.push_back(new ClearComments());
       }
       else if(instructionName=="RemoveNode"){
-        Cfg c;
+        CfgModel c;
         iss>>c;
         m_iList.push_back(new RemoveNode(c));
       }
       else if(instructionName=="RemoveEdge"){
-        Cfg s, t;
+        CfgModel s, t;
         iss>>s>>t;
         m_iList.push_back(new RemoveEdge(s,t));
       }
@@ -96,7 +96,7 @@ bool CDebugLoader::ParseFile()
         m_iList.push_back(new Comment(iss.str().substr(8,iss.str().length())));
       }
       else if(instructionName=="Query"){
-        Cfg s, t;
+        CfgModel s, t;
         iss>>s>>t;
         m_iList.push_back(new Query(s,t));
       }

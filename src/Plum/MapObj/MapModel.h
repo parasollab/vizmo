@@ -20,13 +20,13 @@ using namespace std;
 
 namespace plum {
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   class CMapModel : public CGLModel {
       
     private:
-      typedef CCModel<Cfg,WEIGHT> myCCModel;
-      typedef CMapLoader<Cfg,WEIGHT> Loader;
-      typedef graph<DIRECTED,MULTIEDGES,Cfg,WEIGHT> Weg;
+      typedef CCModel<CfgModel,WEIGHT> myCCModel;
+      typedef CMapLoader<CfgModel,WEIGHT> Loader;
+      typedef graph<DIRECTED,MULTIEDGES,CfgModel,WEIGHT> Weg;
       typedef typename Weg::vertex_descriptor VID;
       typedef vector_property_map<Weg, size_t> color_map_t;
       color_map_t cmap;
@@ -146,8 +146,8 @@ namespace plum {
   // Template function definitions
   //////////////////////////////////////////////////////////////////////
 
-  template <class Cfg, class WEIGHT>
-    CMapModel<Cfg, WEIGHT>::CMapModel() {
+  template <class CfgModel, class WEIGHT>
+    CMapModel<CfgModel, WEIGHT>::CMapModel() {
       m_mapLoader = NULL;
       m_renderMode = INVISIBLE_MODE;
       m_pRobot=NULL;
@@ -162,16 +162,16 @@ namespace plum {
       m_size = 0.5; 
     }
 
-  template <class Cfg, class WEIGHT>
-    CMapModel<Cfg, WEIGHT>::~CMapModel() {
+  template <class CfgModel, class WEIGHT>
+    CMapModel<CfgModel, WEIGHT>::~CMapModel() {
       typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
       for(CIT ic=m_CCModels.begin();ic!=m_CCModels.end();ic++){
         delete *ic;
       }//end for
     }
 
-  template <class Cfg, class WEIGHT>
-    bool CMapModel<Cfg, WEIGHT>::BuildModels() {
+  template <class CfgModel, class WEIGHT>
+    bool CMapModel<CfgModel, WEIGHT>::BuildModels() {
       typedef typename vector<myCCModel*>::iterator CCIT;//CC iterator
       //get graph
       if( m_mapLoader==NULL ) return false;
@@ -198,9 +198,9 @@ namespace plum {
       return true;
     }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void 
-  CMapModel<Cfg, WEIGHT>::Draw(GLenum _mode){
+  CMapModel<CfgModel, WEIGHT>::Draw(GLenum _mode){
 
       if(m_renderMode == INVISIBLE_MODE)
         return;
@@ -219,8 +219,8 @@ namespace plum {
       }
   }
 
-  template <class Cfg, class WEIGHT>
-    void CMapModel<Cfg, WEIGHT>::SetRenderMode(RenderMode _mode) { 
+  template <class CfgModel, class WEIGHT>
+    void CMapModel<CfgModel, WEIGHT>::SetRenderMode(RenderMode _mode) { 
       m_renderMode = _mode;
       typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
       for(CIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++){
@@ -228,8 +228,8 @@ namespace plum {
       }
     }
 
-  template <class Cfg, class WEIGHT>
-    vector<string> CMapModel<Cfg, WEIGHT>::GetInfo() const { 
+  template <class CfgModel, class WEIGHT>
+    vector<string> CMapModel<CfgModel, WEIGHT>::GetInfo() const { 
       vector<string> info; 
       info.push_back(m_mapLoader->GetFilename());
       ostringstream temp;
@@ -238,9 +238,9 @@ namespace plum {
       return info;
     }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void 
-  CMapModel<Cfg, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){
+  CMapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){
   
     if(m_mapLoader == NULL) 
       return; //status error
@@ -253,8 +253,8 @@ namespace plum {
   //(or need other attn.) 
   //They should probably be here when fixed. 
 
-  /* template <class Cfg, class WEIGHT>
-     void CMapModel<Cfg, WEIGHT>::HandleSelect(){
+  /* template <class CfgModel, class WEIGHT>
+     void CMapModel<CfgModel, WEIGHT>::HandleSelect(){
 
   //find nodes
   m_nodes.clear();
@@ -278,7 +278,7 @@ namespace plum {
 
   if(m_nodes.size() > 0){
   CGLModel* n = m_nodes.front();
-  //   printNodeCfg((CCfg*)n); MAY NEED TO RESTORE THIS
+  //   printNodeCfg((CfgModel*)n); MAY NEED TO RESTORE THIS
   }
 
   if(m_addEdge)
@@ -289,17 +289,17 @@ namespace plum {
   //   handleEditMap();
   }*/
 
-  /*  template <class Cfg, class WEIGHT>
-      void CMapModel<Cfg, WEIGHT>::HandleAddEdge(){
+  /*  template <class CfgModel, class WEIGHT>
+      void CMapModel<CfgModel, WEIGHT>::HandleAddEdge(){
 
 //find two nodes...
 PlumObject* m_Map;
 m_Map = this->GetVizmo().GetMap();
-CCfg *cfg1, *cfg2;
+CfgModel *cfg1, *cfg2;
 
-typedef CMapLoader<CCfg,Edge>::Wg WG;
+typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
 WG* graph;
-CMapLoader<CCfg,Edge>* m_loader=(CMapLoader<CCfg,Edge>*)m_Map->getLoader();
+CMapLoader<CfgModel,EdgeModel>* m_loader=(CMapLoader<CfgModel,EdgeModel>*)m_Map->getLoader();
 graph = m_loader->GetGraph();
 
 //get from m_nodes node1 and node2
@@ -311,22 +311,22 @@ for(it = m_nodes.begin(); it != m_nodes.end(); it++){
 m_nodesToConnect.push_back(*it);
 }
 if(m_nodesToConnect.size() == 2){
-cfg1 = (CCfg*)m_nodesToConnect[0];
-cfg2 = (CCfg*)m_nodesToConnect[1];
+cfg1 = (CfgModel*)m_nodesToConnect[0];
+cfg2 = (CfgModel*)m_nodesToConnect[1];
 graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);  
   //////////  Jun 16-05 ///////////////
   // Add edge to CCModel:
   // get a CC id
   int CC_id = cfg1->GetCC_ID();
   //get mapModel
-  CMapModel<CCfg,Edge>* mmodel =(CMapModel<CCfg,Edge>*)m_Map->getModel();
-  //get the CCModel of Cfg
-  CCModel<CCfg,Edge>* m_CCModel = mmodel->GetCCModel(CC_id);
+  CMapModel<CfgModel,EdgeModel>* mmodel =(CMapModel<CfgModel,EdgeModel>*)m_Map->getModel();
+  //get the CCModel of CfgModel
+  CCModel<CfgModel,EdgeModel>* m_CCModel = mmodel->GetCCModel(CC_id);
   //add edge to CC 
   //m_CCModel->addEdge(cfg1, cfg2); Jul 17-12 
 
   //backUp current prpoperties:
-  CCModel<CCfg,Edge>::Shape shape = m_CCModel->getShape();
+  CCModel<CfgModel,EdgeModel>::Shape shape = m_CCModel->getShape();
   float size;
   if(shape == 0)
   size = m_CCModel->getRobotSize();
@@ -346,14 +346,14 @@ graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);
   }
   }
 
-  template <class Cfg, class WEIGHT>
-  void CMapModel<Cfg, WEIGHT>::HandleAddNode(){
+  template <class CfgModel, class WEIGHT>
+  void CMapModel<CfgModel, WEIGHT>::HandleAddNode(){
 
   vector<gliObj>& sel = this->GetVizmo().GetSelectedItem();
   if(sel.size() !=0){ 
   if(!m_nodes.empty()){
   CGLModel* n = m_nodes.front(); 
-  CCfg* cfg = (CCfg*)n;   
+  CfgModel* cfg = (CfgModel*)n;   
   //get current node's cfg
   vector<double> c = cfg->GetDataCfg();
   m_cfg = new double [c.size()];
@@ -375,8 +375,8 @@ m_addNode = false;
 else{ //no node selected and assumes there is not roadmap....
 
   if (this->GetVizmo().GetMap() == NULL) {
-    CMapLoader<CCfg,Edge>* mloader=new CMapLoader<CCfg,Edge>();
-    CMapModel<CCfg,Edge>* mmodel = new CMapModel<CCfg,Edge>();
+    CMapLoader<CfgModel,EdgeModel>* mloader=new CMapLoader<CfgModel,EdgeModel>();
+    CMapModel<CfgModel,EdgeModel>* mmodel = new CMapModel<CfgModel,EdgeModel>();
 
     mmodel->SetMapLoader(mloader);
 
@@ -391,10 +391,10 @@ else{ //no node selected and assumes there is not roadmap....
     mloader->genGraph();
 
     //add node to graph
-    typedef CMapLoader<CCfg,Edge>::Wg WG;
+    typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
     WG* graph;
     graph = mloader->GetGraph();
-    CCfg* cfgNew = new CCfg(); 
+    CfgModel* cfgNew = new CfgModel(); 
     //get robot's current cfg
     m_dof = r->returnDOF();
 
@@ -443,8 +443,8 @@ else{ //no node selected and assumes there is not roadmap....
 }
 */
 /*
-   template <class Cfg, class WEIGHT>
-   void CMapModel<Cfg, WEIGHT>::HandleEditMap(){
+   template <class CfgModel, class WEIGHT>
+   void CMapModel<CfgModel, WEIGHT>::HandleEditMap(){
 
    if(m_nodes.empty()==false){
    CGLModel* n = m_nodes.front();
@@ -459,8 +459,8 @@ else{ //no node selected and assumes there is not roadmap....
    }
    */
 
-/*template <class Cfg, class WEIGHT>
-  void CMapModel<Cfg, WEIGHT>::MoveNode(){
+/*template <class CfgModel, class WEIGHT>
+  void CMapModel<CfgModel, WEIGHT>::MoveNode(){
 
   if(m_Nodes.empty()) return;
   CGLModel * n=m_Nodes.front();
@@ -474,18 +474,18 @@ else{ //no node selected and assumes there is not roadmap....
   if(diff > 1e-10){
   vector<gliObj>& sel=GetVizmo().GetSelectedItem();
   if(sel.size() !=0){
-  GetVizmo().Node_CD((CCfg*)n);
+  GetVizmo().Node_CD((CfgModel*)n);
   }
 
   typedef vector<gliObj>::iterator OIT;
   for(OIT i=sel.begin();i!=sel.end();i++){
   if(((CGLModel*)(*i))->GetName()=="Node") 
-  printNodeCfg((CCfg*)n);
+  printNodeCfg((CfgModel*)n);
   }
 
   if(nodeGUI!= NULL){
   if(nodeGUI->isVisible()){
-  v_cfg = ((CCfg*)n)->GetDataCfg();
+  v_cfg = ((CfgModel*)n)->GetDataCfg();
   double* new_cfg = new double [v_cfg.size()];
   for(unsigned int v= 0; v<v_cfg.size(); v++)
   new_cfg[v] = v_cfg[v];

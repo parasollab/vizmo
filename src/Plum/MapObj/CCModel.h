@@ -11,8 +11,8 @@
 
 
 #include "Plum/GLModel.h"
-#include "Cfg.h"
-#include "Edge.h" 
+#include "CfgModel.h"
+#include "EdgeModel.h" 
 #include "MapLoader.h"
 #include "EnvObj/Robot.h"
 
@@ -136,11 +136,11 @@ namespace plum{
   // CCModel
   ////////////////////////////////////////////////////////////////
 
-  template <class Cfg, class WEIGHT> 
+  template <class CfgModel, class WEIGHT> 
   class CCModel : public CCModelBase{
   
     public:
-      typedef typename CMapLoader<Cfg,WEIGHT>::Wg WG;
+      typedef typename CMapLoader<CfgModel,WEIGHT>::Wg WG;
       typedef typename WG::vertex_descriptor VID;
       typedef typename WG::edge_descriptor EID;
       typedef vector_property_map<WG, size_t> color_map_t;
@@ -165,7 +165,7 @@ namespace plum{
       // Functions to be accessed to get nodes and edges info.
       //to write a new *.map file (this functions are 
       //currently accessed from vizmo2.ccp: vizmo::GetNodeInfo()
-      map<VID, Cfg>& GetNodesInfo() {return m_nodes;}
+      map<VID, CfgModel>& GetNodesInfo() {return m_nodes;}
       vector<WEIGHT>& GetEdgesInfo() {return m_edges;}
       WG* GetGraph(){return m_graph;}
 
@@ -184,7 +184,7 @@ namespace plum{
 
         //add a new Edge (from the 'add edge' option) 
         //June 16-05
-        void addEdge(Cfg* _c1, Cfg* _c2){
+        void addEdge(CfgModel* _c1, CfgModel* _c2){
           typename WG::vertex_iterator vi;
           typename WG::adj_edge_iterator ei;
           EID ed(_c1->GetIndex(),_c2->GetIndex());
@@ -220,7 +220,7 @@ namespace plum{
         }
 
         virtual void GetChildren(list<CGLModel*>& _models){ 
-          typedef typename map<VID, Cfg>::iterator CIT;
+          typedef typename map<VID, CfgModel>::iterator CIT;
           for(CIT cit=m_nodes.begin(); cit!=m_nodes.end(); cit++)
             _models.push_back(&cit->second);
 
@@ -231,7 +231,7 @@ namespace plum{
 
         void BuildNodeModels(GLenum _mode);
 
-        map<VID, Cfg> m_nodes;
+        map<VID, CfgModel> m_nodes;
         vector<WEIGHT> m_edges;
     };
 
@@ -241,28 +241,28 @@ namespace plum{
   *      Implementation of CCModel
   *
   *********************************************************************/
-  template <class Cfg, class WEIGHT>
-  CCModel<Cfg, WEIGHT>::CCModel(unsigned int _ID) : CCModelBase(_ID){
+  template <class CfgModel, class WEIGHT>
+  CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _ID) : CCModelBase(_ID){
     m_graph = NULL;
   }
 
-  template <class Cfg, class WEIGHT>
-  CCModel<Cfg, WEIGHT>::~CCModel() {
+  template <class CfgModel, class WEIGHT>
+  CCModel<CfgModel, WEIGHT>::~CCModel() {
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   bool 
-  CCModel<Cfg, WEIGHT>::BuildModels() {
+  CCModel<CfgModel, WEIGHT>::BuildModels() {
     //do not call this function
-    cerr  << "CCModel<Cfg, WEIGHT>::BuildModels() : Do not call this function\n"
-          << "call CCModel<Cfg, WEIGHT>::BuildModel(VID id,WG* g)"
+    cerr  << "CCModel<CfgModel, WEIGHT>::BuildModels() : Do not call this function\n"
+          << "call CCModel<CfgModel, WEIGHT>::BuildModel(VID id,WG* g)"
           << " instead" << endl;
     return false;
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   bool 
-  CCModel<Cfg, WEIGHT>::BuildModels(VID _id, WG* _g){ 
+  CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){ 
     if(_g == NULL){
       cerr<<"Graph is null"<<endl;
       return false;
@@ -279,7 +279,7 @@ namespace plum{
     m_nodes.clear();
     for(int iN=0; iN<nSize; iN++){
       VID nid=cc[iN];    
-      Cfg cfg = (_g->find_vertex(nid))->property();
+      CfgModel cfg = (_g->find_vertex(nid))->property();
       cfg.Set(nid,m_pRobot,this);
       m_nodes[nid] = cfg;
     }
@@ -296,9 +296,9 @@ namespace plum{
       if(ccedges[iE].first<ccedges[iE].second)
         continue;
 
-      Cfg* cfg1 = &((_g->find_vertex(ccedges[iE].first))->property());
+      CfgModel* cfg1 = &((_g->find_vertex(ccedges[iE].first))->property());
       cfg1->SetIndex(ccedges[iE].first); 
-      Cfg* cfg2 = &((_g->find_vertex(ccedges[iE].second))->property());
+      CfgModel* cfg2 = &((_g->find_vertex(ccedges[iE].second))->property());
       cfg2->SetIndex(ccedges[iE].second); 
       EID ed(ccedges[iE].first,ccedges[iE].second);
       _g->find_edge(ed, vi, ei);
@@ -309,9 +309,9 @@ namespace plum{
     return true;
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void
-  CCModel<Cfg, WEIGHT>::BuildRobotNodes(GLenum _mode){
+  CCModel<CfgModel, WEIGHT>::BuildRobotNodes(GLenum _mode){
 
     glDeleteLists(m_idRobot, 1); 
     m_idRobot = glGenLists(1); 
@@ -320,9 +320,9 @@ namespace plum{
     glEndList(); 
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void
-  CCModel<Cfg, WEIGHT>::BuildBoxNodes(GLenum _mode){
+  CCModel<CfgModel, WEIGHT>::BuildBoxNodes(GLenum _mode){
 
     glDeleteLists(m_idBox, 1); 
     m_idBox = glGenLists(1); 
@@ -331,9 +331,9 @@ namespace plum{
     glEndList(); 
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void
-  CCModel<Cfg, WEIGHT>::BuildPointNodes(GLenum _mode){
+  CCModel<CfgModel, WEIGHT>::BuildPointNodes(GLenum _mode){
 
     glDeleteLists(m_idPt, 1); 
     m_idPt = glGenLists(1); 
@@ -342,9 +342,9 @@ namespace plum{
     glEndList(); 
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void
-  CCModel<Cfg, WEIGHT>::SetColor(float _r, float _g, float _b, float _a){
+  CCModel<CfgModel, WEIGHT>::SetColor(float _r, float _g, float _b, float _a){
     
     ReBuildAll();
 
@@ -353,7 +353,7 @@ namespace plum{
     m_RGBA.push_back(_g);
     m_RGBA.push_back(_b);
 
-    typedef typename map<VID, Cfg>::iterator CIT;
+    typedef typename map<VID, CfgModel>::iterator CIT;
     for(CIT cit=m_nodes.begin(); cit!=m_nodes.end(); cit++){
       cit->second.m_RGBA.clear(); 
       cit->second.m_RGBA.push_back(_r);
@@ -370,9 +370,9 @@ namespace plum{
     }
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void 
-  CCModel<Cfg, WEIGHT>::DrawRobotNodes(GLenum _mode){
+  CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
   
     if(m_pRobot == NULL)
       return;
@@ -383,11 +383,11 @@ namespace plum{
     if(_mode == GL_RENDER)  
       glEnable(GL_LIGHTING);
     
-    typedef typename map<VID, Cfg>::iterator CIT;
+    typedef typename map<VID, CfgModel>::iterator CIT;
     for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){      
       glPushName(cit->first);
       cit->second.Scale(m_robotScale,m_robotScale,m_robotScale);
-      cit->second.SetShape(Cfg::Robot); 
+      cit->second.SetShape(CfgModel::Robot); 
       m_pRobot->SetColor(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
       cit->second.Draw(_mode);//draw robot; 
       glPopName();
@@ -397,33 +397,33 @@ namespace plum{
     m_pRobot->SetColor(origColor[0],origColor[1],origColor[2],origColor[3]);
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void 
-  CCModel<Cfg, WEIGHT>::DrawBoxNodes(GLenum _mode){
+  CCModel<CfgModel, WEIGHT>::DrawBoxNodes(GLenum _mode){
     
     glEnable(GL_LIGHTING);
-    typedef typename map<VID, Cfg>::iterator CIT;
+    typedef typename map<VID, CfgModel>::iterator CIT;
     
     for(CIT cit = m_nodes.begin(); cit!=m_nodes.end(); cit++){      
       glPushName(cit->first);
       cit->second.Scale(m_boxScale,m_boxScale,m_boxScale);
-      cit->second.SetShape(Cfg::Box);
+      cit->second.SetShape(CfgModel::Box);
       cit->second.Draw(_mode); 
       glPopName();
     }
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void 
-  CCModel<Cfg, WEIGHT>::DrawPointNodes(GLenum _mode){ 
+  CCModel<CfgModel, WEIGHT>::DrawPointNodes(GLenum _mode){ 
     
     glDisable(GL_LIGHTING);
     glPointSize(m_pointScale); 
-    typedef typename map<VID, Cfg>::iterator CIT;
+    typedef typename map<VID, CfgModel>::iterator CIT;
     for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){      
       glPushName(cit->first);
       cit->second.Scale(m_pointScale, m_pointScale, m_pointScale); 
-      cit->second.SetShape(Cfg::Point);
+      cit->second.SetShape(CfgModel::Point);
       cit->second.Draw(_mode); 
       glPopName();
     }
@@ -433,9 +433,9 @@ namespace plum{
   //Changing edge thickness: step 4
   //This function sets the thickness member of the edge itself
   //and then calls Edge's Draw
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void 
-  CCModel<Cfg, WEIGHT>::BuildEdges(){
+  CCModel<CfgModel, WEIGHT>::BuildEdges(){
     //build edges
     m_idEdges = glGenLists(1);
     glNewList(m_idEdges, GL_COMPILE);
@@ -449,8 +449,8 @@ namespace plum{
     glEndList();
   }
 
-  template <class Cfg, class WEIGHT>
-  void CCModel<Cfg, WEIGHT>::Draw(GLenum _mode) {
+  template <class CfgModel, class WEIGHT>
+  void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
     if(m_renderMode == INVISIBLE_MODE)
       return;
     if(_mode==GL_SELECT && !m_enableSelection)
@@ -508,9 +508,9 @@ namespace plum{
   }
 
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void 
-  CCModel<Cfg, WEIGHT>::DrawSelect(){
+  CCModel<CfgModel, WEIGHT>::DrawSelect(){
     if(m_idEdges==-1) 
       BuildEdges();
     glColor3f(1,1,0);
@@ -519,9 +519,9 @@ namespace plum{
     glLineWidth(1);
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   void 
-  CCModel<Cfg, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){ 
+  CCModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){ 
     typename WG::vertex_iterator cvi;
     if(_index==NULL || m_graph==NULL)
       return;
@@ -532,17 +532,17 @@ namespace plum{
       _sel.push_back(&m_edges[_index[1]]);
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   const string 
-  CCModel<Cfg, WEIGHT>::GetName() const{ 
+  CCModel<CfgModel, WEIGHT>::GetName() const{ 
     ostringstream temp;
     temp<<"CC"<<m_id;
     return temp.str(); 
   }
 
-  template <class Cfg, class WEIGHT>
+  template <class CfgModel, class WEIGHT>
   vector<string> 
-  CCModel<Cfg, WEIGHT>::GetInfo() const{ 
+  CCModel<CfgModel, WEIGHT>::GetInfo() const{ 
 
     vector<string> info; 
     ostringstream temp,temp2;

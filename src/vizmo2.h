@@ -250,7 +250,7 @@ class vizmo
       void ChangeNodesRandomColor();
       PlumObject * GetMap() const {return m_obj.m_map;}
 
-      void setMapObj(CMapLoader<Cfg,Edge> *ml, CMapModel<Cfg,Edge> * mm);
+      void setMapObj(CMapLoader<CfgModel,EdgeModel> *ml, CMapModel<CfgModel,EdgeModel> * mm);
 
       //////////////////////////////////////////////////////////////////////
       // Path Related Function
@@ -319,12 +319,12 @@ class vizmo
       CollisionDetection CD;
       void TurnOn_CD();
       bool IsCDOn();
-      Cfg * m_cfg;
+      CfgModel * m_cfg;
       bool is_collison; //used in roadmap.cpp:printRobCfg()
       bool getCD_value(){ return is_collison;}//used in roadmap.cpp:printRobCfg()
 
       void Node_CD(double *cfg);
-      void Node_CD(Cfg * cfg);
+      void Node_CD(CfgModel * cfg);
       double * m_nodeCfg;
       bool m_IsNode;
 
