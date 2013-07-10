@@ -27,7 +27,7 @@ LIBS = $(VIZMO_LIBS)
 
 default_target: $(UTILS_LIBFILES) $(VIZMO_LIBFILE) vizmo++
 
-vizmo++: $(UTILS_LIBFILES) $(VIZMO_OBJECTS) main.cpp
+vizmo++: $(UTILS_LIBFILES) $(VIZMO_OBJECTS) $(VIZMO_LIBFILE) main.cpp
 	$(CXX) $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) main.cpp $(VIZMO_LIBFILE) $(LIBS) -o $@ 
 
 %.o: %.cpp
