@@ -35,10 +35,6 @@ GRAPH_INCL = -I$(GRAPH_DIR)
 #mathtool
 MATHTOOL_DIR = ${UTILS_DIR}/mathtool
 MATHTOOL_INCL = -I${MATHTOOL_DIR}
-MATHTOOL_LIB = -L${MATHTOOL_DIR} -lmathtool
-MATHTOOL_LIBFILE = $(MATHTOOL_DIR)/libmathtool.a
-$(MATHTOOL_DIR)/libmathtool.a:
-	cd ${MATHTOOL_DIR}; ${MAKE} platform=${platform} debug=${debug};
 
 #modelloader
 MODELLOADER_DIR = ${UTILS_DIR}/modelloader
@@ -57,8 +53,8 @@ $(RAPID_DIR)/libRAPID.a:
 	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug};
 
 UTILS_INCL = $(GRAPH_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL) $(RAPID_INCL)
-UTILS_LIBS = $(MATHTOOL_LIB) $(MODELLOADER_LIB) $(RAPID_LIB)
-UTILS_LIBFILES = $(RAPID_LIBFILE) $(MATHTOOL_LIBFILE) $(MODELLOADER_LIBFILE)
+UTILS_LIBS = $(MODELLOADER_LIB) $(RAPID_LIB)
+UTILS_LIBFILES = $(RAPID_LIBFILE) $(MODELLOADER_LIBFILE)
 
 ################################################################################
 #Vizmo src objects

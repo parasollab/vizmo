@@ -9,9 +9,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //Include headers
+#include <iostream>
+using namespace std;
 
-#include<Vector.h>
-#include<Matrix.h>
+#include <Vector.h>
+#include <Matrix.h>
+using namespace mathtool;
 
 namespace plum{
 

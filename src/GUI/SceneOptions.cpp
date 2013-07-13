@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include <sstream>  
-#include <Point.h>
 #include "Utilities/GL/gliCamera.h"
 #include "SceneOptions.h"
 #include "MainWin.h"

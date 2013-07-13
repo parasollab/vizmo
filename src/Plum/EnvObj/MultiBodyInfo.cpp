@@ -92,8 +92,7 @@ namespace plum{
   void CBodyInfo::doTransform(){
 
     if(m_IsBase){
-      Vector3d position;
-      position.set(m_X, m_Y, m_Z);
+      Vector3d position(m_X, m_Y, m_Z);
       Orientation orientation(Orientation::FixedXYZ, m_Alpha, m_Beta, m_Gamma);
       m_currentTransform = Transformation(orientation, position);
     }
@@ -207,16 +206,12 @@ namespace plum{
   }
 
   Vector4d CConnectionInfo::getDH(){
-
-    Vector4d v; 
-    v.set(alpha, a, d, theta);
-    return v;
+    return Vector4d(alpha, a, d, theta);
   }
 
   Transformation CConnectionInfo::transformToBody2(){
 
-    Vector3d position;
-    position.set(m_posX, m_posY, m_posZ);
+    Vector3d position(m_posX, m_posY, m_posZ);
 
     Orientation orientation(Orientation::FixedXYZ, m_orientX, m_orientY, m_orientZ);
     Transformation x(orientation, position);
@@ -227,8 +222,7 @@ namespace plum{
 
   Transformation  CConnectionInfo::transformToDHframe(){
 
-    Vector3d position;
-    position.set(m_pos2X, m_pos2Y, m_pos2Z);
+    Vector3d position(m_pos2X, m_pos2Y, m_pos2Z);
 
     Orientation orientation(Orientation::FixedXYZ, m_orient2X, m_orient2Y, m_orient2Z);
     Transformation t(orientation,position);

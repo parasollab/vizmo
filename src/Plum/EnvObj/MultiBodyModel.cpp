@@ -19,7 +19,7 @@ namespace plum{
   bool MultiBodyModel::BuildModels() {
     
     //build for each body and compute com     
-    for(size_t i = 0; i< m_MBInfo.m_cNumberOfBody; i++){
+    for(size_t i = 0; i< size_t(m_MBInfo.m_cNumberOfBody); i++){
       CBodyInfo& info = m_MBInfo.m_pBodyInfo[i];
       //only build fixed, free body will not be built (when m_bFixed is set)
       if(!info.m_bIsFixed && m_bFixed == true)

@@ -1399,17 +1399,16 @@ bool vizmo::envChanged(){
 
    for(int i=0; i<numBod; i++){
 
-      Quaternion qtmp2;
-      qtmp2 = mbm[i]->q();
-      Matrix3x3 fm2 = qtmp2.getMatrix();
-      Vector3d fv2 = qtmp2.MatrixToEuler(fm2);
+      Quaternion qtmp2 = mbm[i]->q();
+      EulerAngle e;
+      convertFromQuaternion(e, qtmp2);
 
       if( ( (mbi[i].m_pBodyInfo[0].m_X != mbm[i]->tx())||
                (mbi[i].m_pBodyInfo[0].m_Y != mbm[i]->ty())||
                (mbi[i].m_pBodyInfo[0].m_Z != mbm[i]->tz()) ) ||
-            ( (mbi[i].m_pBodyInfo[0].m_Alpha!= fv2[0]) ||
-              (mbi[i].m_pBodyInfo[0].m_Beta != fv2[1]) ||
-              (mbi[i].m_pBodyInfo[0].m_Beta != fv2[2]) ) ){
+            ( (mbi[i].m_pBodyInfo[0].m_Alpha!= e.alpha()) ||
+              (mbi[i].m_pBodyInfo[0].m_Beta != e.beta()) ||
+              (mbi[i].m_pBodyInfo[0].m_Beta != e.gamma()) ) ){
 
          env_changed = true;
          break;

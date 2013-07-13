@@ -1,7 +1,6 @@
 #ifndef _GLI_CAMERA_H_
 #define _GLI_CAMERA_H_
 
-#include<Point.h>
 #include<Vector.h>
 using namespace mathtool;
 

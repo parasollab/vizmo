@@ -224,8 +224,8 @@ namespace plum{
         "Base Tag (Planar, Volumetric, Fixed, Joint");
     baseType = Robot::GetBaseFromTag(baseTag);
 
-    Vector3D bodyPosition;
-    Vector3D bodyRotation;
+    Vector3d bodyPosition;
+    Vector3d bodyRotation;
 
     if(baseType == Robot::VOLUMETRIC || baseType == Robot::PLANAR){
       isBase = true;
@@ -236,8 +236,8 @@ namespace plum{
     }
     else if(baseType == Robot::FIXED){
       isBase = true;
-      bodyPosition = ReadField<Vector3D>(ifs, "Body Position");
-      bodyRotation = ReadField<Vector3D>(ifs, "Body Orientation");
+      bodyPosition = ReadField<Vector3d>(ifs, "Body Position");
+      bodyRotation = ReadField<Vector3d>(ifs, "Body Orientation");
     }
 
     //save this for when these classes utilize only transformations instead
@@ -297,8 +297,8 @@ namespace plum{
     }
     BodyInfo.m_strModelDataFileName += BodyInfo.m_strFileName;
 
-    Vector3D bodyPosition = ReadField<Vector3D>(ifs, "Body Position");
-    Vector3D bodyRotation = ReadField<Vector3D>(ifs, "Body Orientation");
+    Vector3d bodyPosition = ReadField<Vector3d>(ifs, "Body Position");
+    Vector3d bodyRotation = ReadField<Vector3d>(ifs, "Body Orientation");
 
     //save this for when body utilizes only transformation not
     //x,y,z,alpha,beta,gama
@@ -391,8 +391,8 @@ namespace plum{
     }
 
     //transformation to DHFrame
-    Vector3D positionToDHFrame = ReadField<Vector3D>(ifs, "Translation to DHFrame");
-    Vector3D rotationToDHFrame = ReadField<Vector3D>(ifs, "Rotation to DHFrame");
+    Vector3d positionToDHFrame = ReadField<Vector3d>(ifs, "Translation to DHFrame");
+    Vector3d rotationToDHFrame = ReadField<Vector3d>(ifs, "Rotation to DHFrame");
 
     /*Orientation orientationToDHFrame = Orientation(Orientation::FixedXYZ,
       rotationToDHFrame[2]*TWOPI/360.0,
@@ -420,8 +420,8 @@ namespace plum{
       conn.theta;
 
     //transformation to next body
-    Vector3D positionToNextBody = ReadField<Vector3D>(ifs, "Translation to Next Body");
-    Vector3D rotationToNextBody = ReadField<Vector3D>(ifs, "Rotation to Next Body");
+    Vector3d positionToNextBody = ReadField<Vector3d>(ifs, "Translation to Next Body");
+    Vector3d rotationToNextBody = ReadField<Vector3d>(ifs, "Rotation to Next Body");
 
     /*Orientation orientationToNextBody = Orientation(Orientation::FixedXYZ,
       rotationToNextBody[2]*TWOPI/360.0, 

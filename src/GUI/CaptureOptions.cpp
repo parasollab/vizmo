@@ -119,7 +119,7 @@ CaptureOptions::CaptureMovie(){
   //Pop up a MovieSaveDialog
   MovieSaveDialog msd(this, Qt::Dialog); 
   if(msd.exec() == QDialog::Accepted){ 
-    size_t digits = max(msd.m_frameDigits, log10(msd.m_endFrame/msd.m_stepSize) + 2);
+    size_t digits = max(double(msd.m_frameDigits), log10(msd.m_endFrame/msd.m_stepSize) + 2);
 
     //Create the progress bar for saving images
     QProgressDialog progress("Saving images...", "Abort", msd.m_startFrame, msd.m_endFrame, this);

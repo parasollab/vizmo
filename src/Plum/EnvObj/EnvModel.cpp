@@ -152,9 +152,6 @@ namespace plum {
 
     const CMultiBodyInfo* MBI = m_envLoader->GetMultiBodyInfo();
 
-    //alpha, beta, and gamma are in DEGREES
-    double PI_180=3.1415926535/180;
-
     FILE *envFile;
     if((envFile = fopen(filename, "a")) == NULL){
       cout<<"Couldn't open the file"<<endl;
@@ -231,25 +228,20 @@ namespace plum {
           list<CGLModel*> objList;
           MBmodel[i]->GetChildren(objList);
           CGLModel* om = objList.front();
-          //get current quaternion from polyhedron0
-          Quaternion qt0;
-          qt0 = om->q();
-          Matrix3x3 pm = qt0.getMatrix();
-          Vector3d pv = qt0.MatrixToEuler(pm);
 
           //multiply polyhedron0 and multiBody quaternions
           //to get new rotation
           Quaternion finalQ;
-          finalQ = qtmp * qt0;
+          finalQ = qtmp * om->q();
 
-          Matrix3x3 fm = finalQ.getMatrix();
-          Vector3d fv = qt0.MatrixToEuler(fm);
+          EulerAngle e;
+          convertFromQuaternion(e, finalQ);
 
           fprintf(envFile,"%.1f %.1f %.1f %.1f %.1f %.1f\n",
               MBmodel[i]->tx(), MBmodel[i]->ty(), MBmodel[i]->tz(),
-              fv[0]/PI_180, 
-              fv[1]/PI_180, 
-              fv[2]/PI_180);
+              radToDeg(e.alpha()), 
+              radToDeg(e.beta()), 
+              radToDeg(e.gamma()));
 
         }
         //write Connection tag

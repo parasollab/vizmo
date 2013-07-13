@@ -153,7 +153,6 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
    double mR[3][3], mO[3][3], pR[3],  pO[3];
    double pRt[3];
-   double TwoPI= M_PI * 2;
    RAPID_model *RMobst, *RMrobot;
 
 
@@ -225,14 +224,13 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
             Quaternion finalQ;
             finalQ = qrm * qt0;
 
-            Matrix3x3 fm = finalQ.getMatrix();
-            //Vector3d fv = qt0.MatrixToEuler(fm);
-            fv = qt0.MatrixToEuler(fm);
+            EulerAngle etmp;
+            convertFromQuaternion(etmp, finalQ);
 
             if(i == 0){
                pR[0] = pRt[0]; pR[1] = pRt[1]; pR[2] = pRt[2];
                Orientation r_obst(Orientation::FixedXYZ,
-                     fv[0],fv[1],fv[2]);
+                     etmp.alpha(), etmp.beta(), etmp.gamma());
                m = r_obst.matrix;
             }
             else{
@@ -253,9 +251,9 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
                   double *CurrCfg = new double[dof];
                   CurrCfg[0] = pRt[0]; CurrCfg[1] = pRt[1];  CurrCfg[2] = pRt[2]; 
-                  CurrCfg[3] = fv[0]/TwoPI; 
-                  CurrCfg[4] = fv[1]/TwoPI; 
-                  CurrCfg[5] = fv[2]/TwoPI;
+                  CurrCfg[3] = etmp.alpha(); 
+                  CurrCfg[4] = etmp.beta(); 
+                  CurrCfg[5] = etmp.gamma();
 
                   vector<double> Cfg = robotObj->returnCurrCfg(dof);
 
@@ -270,11 +268,11 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
                   pR[2] = rPoly[i].tz();
 
                   Quaternion qtmp = rPoly[i].q();
-                  Matrix3x3 mtmp = qtmp.getMatrix();
-                  Vector3d vtmp = qtmp.MatrixToEuler(mtmp);
-
+                  EulerAngle etmp;
+                  convertFromQuaternion(etmp, qtmp);
+                  
                   Orientation r_obst(Orientation::FixedXYZ,
-                        vtmp[0],vtmp[1],vtmp[2]);
+                        etmp.alpha(), etmp.beta(), etmp.gamma());
 
                   m = r_obst.matrix;
 
@@ -302,11 +300,11 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
                pR[2] = rPoly[i].tz();
 
                Quaternion qtmp = rPoly[i].q();
-               Matrix3x3 mtmp = qtmp.getMatrix();
-               Vector3d vtmp = qtmp.MatrixToEuler(mtmp);
+               EulerAngle etmp;
+               convertFromQuaternion(etmp, qtmp);
 
                Orientation r_rob(Orientation::FixedXYZ,
-                     vtmp[0],vtmp[1],vtmp[2]);
+                     etmp.alpha(), etmp.beta(), etmp.gamma());
                m = r_rob.matrix;
             }     
          }// NODE

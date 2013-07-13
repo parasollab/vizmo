@@ -1,6 +1,7 @@
 #include "RobotInfo.h"
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 
 #include "MultiBodyInfo.h"
 
@@ -15,7 +16,7 @@ Robot::Robot(Base _base, BaseMovement _baseMovement,
     JointMap _joints, int _bodyIndex) : 
   m_base(_base), m_baseMovement(_baseMovement), 
   m_bodyIndex(_bodyIndex), m_joints(_joints) {
-    std::sort(m_joints.begin(), m_joints.end(), connectionComparitor);
+    sort(m_joints.begin(), m_joints.end(), connectionComparitor);
   }
 
 Robot::Base Robot::GetBaseFromTag(const string _tag){

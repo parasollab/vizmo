@@ -17,8 +17,8 @@
    m_currentAzim=m_deltaAzim=
       m_currentElev=m_deltaElev=0;
    m_MousePressed=false;
-   m_WindowX.set(1,0,0);
-   m_WindowY.set(0,1,0);
+   m_WindowX(1, 0, 0);
+   m_WindowY(0, 1, 0);
    m_speed=.5;
    m_angle=.5;
    m_cartesian=false;
@@ -147,7 +147,7 @@ gliCamera::MM(QMouseEvent* e){
    //displacement
    if(e->buttons() & Qt::MidButton){ //mid button only
       if(m_cartesian){
-         m_deltaDis.set(0,0,0);
+         m_deltaDis(0, 0, 0);
          m_deltaDis[0] = drag.x()/10.0;
          m_deltaDis[1] = -drag.y()/10.0;
          RotateX(m_deltaDis, -m_currentElev+m_deltaElev);
@@ -160,7 +160,7 @@ gliCamera::MM(QMouseEvent* e){
    else if(e->buttons() & Qt::RightButton){ //right button only
       if(m_cartesian){//Cartesian movement
          double motion = drag.y()/10;
-         m_deltaDis.set(0,0,motion);
+         m_deltaDis(0, 0, motion);
          RotateX(m_deltaDis, -m_currentElev+m_deltaElev);
          RotateY(m_deltaDis, -m_currentAzim+m_deltaAzim);
       }else{//Spherical movement
@@ -172,8 +172,8 @@ gliCamera::MM(QMouseEvent* e){
       m_deltaAzim = drag.x()/5.0;
       m_deltaElev = drag.y()/5.0;
       //compute window x, y dir
-      m_WindowX.set(1,0,0);
-      m_WindowY.set(0,1,0);
+      m_WindowX(1, 0, 0);
+      m_WindowY(0, 1, 0);
       RotateX(m_WindowX, m_currentElev+m_deltaElev);
       RotateY(m_WindowX, m_currentAzim+m_deltaAzim);
       m_WindowX[2]=-m_WindowX[2];
@@ -351,8 +351,8 @@ void gliCamera::CartesianToSpherical( void ){
 }
 
 void gliCamera::Move(void){
-   m_WindowX.set(1,0,0);
-   m_WindowY.set(0,1,0);
+   m_WindowX(1, 0, 0);
+   m_WindowY(0, 1, 0);
    RotateX(m_WindowX, m_currentElev);
    RotateY(m_WindowX, m_currentAzim);
    m_WindowX[2]=-m_WindowX[2];

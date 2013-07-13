@@ -145,7 +145,7 @@ bool gliMoveTool::MP( QMouseEvent * e ) //mouse button pressed
     if( m_pSObj==NULL ) return false; 
     if( e->button()&Qt::LeftButton ) return false; //not LMB
     if( Select(e->pos().x(),e->pos().y()) ){
-        m_SObjPosC.set(m_pSObj->tx(),m_pSObj->ty(),m_pSObj->tz()); //store old pos
+        m_SObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz()); //store old pos
         m_SObjPrjC=m_SObjPrj;
         m_HitX=e->pos().x(); m_HitY=m_H-e->pos().y();
         m_HitUnPrj=gliUnProj2World(m_SObjPosC,m_HitX,m_HitY);   
@@ -169,9 +169,9 @@ bool gliMoveTool::MM( QMouseEvent * e )  //mouse motion
     Point3d cur_pos=gliUnProj2World(m_SObjPosC,x,y);
     Vector3d v=cur_pos-m_HitUnPrj;
 
-    if( m_SelType==X_AXIS ){ v.set(v[0],0,0); m_pSObj->tx()=m_SObjPosC[0]+v[0]; }
-    if( m_SelType==Y_AXIS ){ v.set(0,v[1],0); m_pSObj->ty()=m_SObjPosC[1]+v[1]; }
-    if( m_SelType==Z_AXIS ){ v.set(0,0,v[2]); m_pSObj->tz()=m_SObjPosC[2]+v[2]; }
+    if( m_SelType==X_AXIS ){ v(v[0], 0, 0); m_pSObj->tx()=m_SObjPosC[0]+v[0]; }
+    if( m_SelType==Y_AXIS ){ v(0, v[1], 0); m_pSObj->ty()=m_SObjPosC[1]+v[1]; }
+    if( m_SelType==Z_AXIS ){ v(0, 0, v[2]); m_pSObj->tz()=m_SObjPosC[2]+v[2]; }
     if( m_SelType==VIEW_PLANE ){ 
         Point3d npos=m_SObjPosC+v;
         m_pSObj->tx()=npos[0]; m_pSObj->ty()=npos[1]; m_pSObj->tz()=npos[2];
@@ -306,7 +306,7 @@ bool gliScaleTool::MP( QMouseEvent * e ) //mouse button pressed
     if( m_pSObj==NULL ) return false; 
     if( e->button()&Qt::LeftButton ) return false; //not LMB
     if( Select(e->pos().x(),e->pos().y()) ){
-        m_SObjPosC.set(m_pSObj->tx(),m_pSObj->ty(),m_pSObj->tz()); //store old pos
+        m_SObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz()); //store old pos
         m_SObjPrjC=m_SObjPrj;
         m_HitX=e->pos().x(); m_HitY=m_H-e->pos().y();
         m_HitUnPrj=gliUnProj2World(m_SObjPosC,m_HitX,m_HitY);   
@@ -485,7 +485,7 @@ bool gliRotateTool::MP( QMouseEvent * e ) //mouse button pressed
     if( Select(x,y) ){
         y=m_H-y;
         //gliCamera* pcam=gliGetCameraFactory().getCurrentCamera();
-        m_SObjPosC.set(m_pSObj->tx(),m_pSObj->ty(),m_pSObj->tz());
+        m_SObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz());
         m_SObjQC = m_pSObj->q();
         for( int id=0;id<3;id++ ) m_LAC[id]=m_LA[id];
         Vector3d axis, v1, v2; //rotation axis
@@ -551,12 +551,12 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
 
     double da=(m_CurAngle-m_HitAngle); //displacement angle
     //clamp between PI and -PI
-    if( da>PI ) da-=PI2; 
-    else if( da<-PI ) da+=PI2;
+    if( da>PI ) da -= TWOPI; 
+    else if( da<-PI ) da += TWOPI;
 
     //compute new q
-    Quaternion q(cos(da/2),sin(da/2)*axis);
-    m_pSObj->q((q*m_SObjQC).normalize());
+    Quaternion q(cos(da/2), sin(da/2) * axis);
+    m_pSObj->q((q*m_SObjQC).normalized());
 
     //update rotation variables for this body
     //m_pSObj->Quaternion2Euler();  
@@ -564,8 +564,6 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
     m = m_pSObj->getMatrix();
     Vector3d v;
     v = m_pSObj->MatrixToEuler(m);
-    //double TwoPI=3.1415926535*2.0;
-    //double PI_180=3.1415926535/180;
 
     //values in radians
     m_pSObj->m_RotPoly[0] = v[0];
@@ -646,7 +644,7 @@ void gliRotateTool::ComputAngles
     Vector3d e=n%view;
     angle[0]=atan2(s*v2,s*v1);
     angle[1]=atan2(e*v2,e*v1);
-    if( angle[1]<angle[0] ) angle[1]+=PI2;
+    if( angle[1]<angle[0] ) angle[1]+=TWOPI;
 }
 
 void gliRotateTool::ComputLocalAxis()
@@ -658,9 +656,9 @@ void gliRotateTool::ComputLocalAxis()
     static Vector3d z(0,0,1);
     const Quaternion& q=m_pSObj->q();
 
-    m_LA[0]=(q*x*(-q)).getComplex();
-    m_LA[1]=(q*y*(-q)).getComplex();
-    m_LA[2]=(q*z*(-q)).getComplex();
+    m_LA[0]=(q*x*(-q)).imaginary();
+    m_LA[1]=(q*y*(-q)).imaginary();
+    m_LA[2]=(q*z*(-q)).imaginary();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -125,7 +125,7 @@ inline void gliProject2Window(Point3d* pts, int size)
         gluProject(pts[i][0], pts[i][1], pts[i][2], 
                    ModelViewM, ProjM, ViewPort, 
                    &proj[0],&proj[1],&proj[2]);
-        pts[i].set(proj);
+        pts[i] = proj;
     }
 }
 
@@ -198,24 +198,19 @@ inline void gliDrawCircle2D(double radius)
     glEnd();
 }
 
-
-// Draw arc from radius s to e with radius, r, on plane made by v1,v2
-inline void gliDrawArc
-(double r,double s, double e, const Vector3d& v1, const Vector3d& v2)
-{
-    float t;
-    double data[3];
-    Vector3d pt;
-    glBegin(GL_LINE_STRIP);
-    for(t=s; t<e; t+=0.2f ){
-        pt=r*cos(t)*v1+r*sin(t)*v2;
-        pt.get(data);
-        glVertex3dv(data);
-    }
-    pt=r*cos(e)*v1+r*sin(e)*v2;
-    pt.get(data);
-    glVertex3dv(data);
-    glEnd();
+//Draw arc from radius s to e with radius, r, on plane made by v1, v2
+inline void
+gliDrawArc(double r, double s, double e, const Vector3d& v1, const Vector3d& v2) {
+  float t;
+  Vector3d pt;
+  glBegin(GL_LINE_STRIP);
+  for(t=s; t<e; t+=0.2f) {
+    pt = r*cos(t)*v1 + r*sin(t)*v2;
+    glVertex3dv(pt);
+  }
+  pt = r*cos(e)*v1 + r*sin(e)*v2;
+  glVertex3dv(pt);
+  glEnd();
 }
 
 #endif //_GLI_TOOL_H_

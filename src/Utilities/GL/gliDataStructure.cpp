@@ -10,13 +10,13 @@ vector<gliObj>& gliGetPickedSceneObjs()
     
 void gliTransform::glTransform(){
     static double r2a=180/PI; //radian to angle
-    glTranslated(m_Pos[0],m_Pos[1],m_Pos[2]);
-    const Vector3d& v=m_q.getComplex();
-    double c_2=m_q.getReal();
-    double s_2=v.norm();
-    double t=atan2(s_2,c_2)*2*r2a;
-    glRotated(t,v[0],v[1],v[2]);
-    glScaled(m_Scale[0],m_Scale[1],m_Scale[2]);
+    glTranslated(m_Pos[0], m_Pos[1], m_Pos[2]);
+    const Vector3d& v = m_q.imaginary();
+    double c_2 = m_q.real();
+    double s_2 = v.norm();
+    double t = atan2(s_2,c_2)*2*r2a;
+    glRotated(t, v[0], v[1], v[2]);
+    glScaled(m_Scale[0], m_Scale[1], m_Scale[2]);
 }
 
 void gliTransform::Euiler2Quaternion()

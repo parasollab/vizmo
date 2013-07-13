@@ -18,7 +18,7 @@ namespace plum{
 ///////////////////////////////////////////////////////////////////////////////////////////
 /** This class contains transformational information and operations.
   * Orientation and position of object are stored in the instance of this class.
-  * Position of object is stored as instance of Vector3D.
+  * Position of object is stored as instance of Vector3d.
   */
 
   class Transformation {

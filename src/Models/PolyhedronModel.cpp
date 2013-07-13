@@ -65,7 +65,7 @@ PolyhedronModel::BuildModels() {
 
   typedef PtVector::const_iterator PIT;
   for(PIT pit = points.begin(); pit!=points.end(); ++pit)
-    pit->get(vertice + (pit-points.begin())*3);
+    copy(pit->begin(), pit->end(), vertice + (pit-points.begin())*3);
 
   vector<Vector3d> normals;
   ComputeNormals(points, tris, normals);
@@ -113,7 +113,7 @@ PolyhedronModel::BuildModels() {
 }
 
 void PolyhedronModel::Draw(GLenum _mode) {
-  if(m_solidID == -1) return;
+  if(m_solidID == size_t(-1)) return;
   if(m_renderMode == plum::INVISIBLE_MODE) return;
 
   float* color = &m_RGBA[0]; 
@@ -166,12 +166,11 @@ PolyhedronModel::BuildRapid(const PtVector& _points, const TriVector& _tris) {
   
   typedef TriVector::const_iterator TRIT;
   for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
-    const Tri& tri= *trit;
+    const Tri& tri = *trit;
 
-    double p1[3], p2[3], p3[3];
-    (_points[tri[0]] - m_com).get(p1);
-    (_points[tri[1]] - m_com).get(p2);
-    (_points[tri[2]] - m_com).get(p3);
+    Vector3d p1 = _points[tri[0]] - m_com;
+    Vector3d p2 = _points[tri[1]] - m_com;
+    Vector3d p3 = _points[tri[2]] - m_com;
 
     m_rapidModel->AddTri(p1, p2, p3, trit - _tris.begin());
   }
@@ -190,12 +189,10 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   //draw
-  double value[3];
   typedef TriVector::const_iterator TRIT;
   for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
     const Tri& tri = *trit;
-    _norms[trit-_tris.begin()].get(value);
-    glNormal3dv(value);
+    glNormal3dv(_norms[trit-_tris.begin()]);
     GLint id[3] = {tri[0], tri[1], tri[2]};
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, id);
   }

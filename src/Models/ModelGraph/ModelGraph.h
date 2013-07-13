@@ -12,7 +12,6 @@
 using namespace std;
 
 #include <Vector.h>
-#include <Point.h>
 using namespace mathtool;
 
 namespace modelgraph
@@ -23,7 +22,7 @@ namespace modelgraph
     public:
         
         typedef vector<Point3d> PtVector;
-        typedef Vector<int>     Tri;
+        typedef Vector<int, 3>     Tri;
         typedef vector<Tri>     TriVector;
 
         //////////////////////////////////////////////////////////////////////

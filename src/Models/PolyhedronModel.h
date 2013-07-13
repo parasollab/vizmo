@@ -4,9 +4,6 @@
 #include "Plum/GLModel.h"
 #include "Plum/EnvObj/MultiBodyInfo.h"
 
-#include <Point.h>
-using namespace mathtool;
-
 class RAPID_model;
 
 class PolyhedronModel : public plum::CGLModel {

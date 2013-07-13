@@ -4,7 +4,8 @@
 #include <vector>
 using namespace std;
 
-#include <Quaternion.h>
+#include <RotationConversions.h>
+using namespace mathtool;
 
 #include <string>
 
@@ -39,44 +40,44 @@ public:
     vector<double> GetCfg() {return ObjCfg;}
     vector<double> ObjCfg;
 
-    Matrix3x3 getMatrix(){ return m_q.getMatrix();}
-    Vector3d MatrixToEuler(Matrix3x3 m){ return m_q.MatrixToEuler(m); }
+    Matrix3x3 getMatrix(){
+      Matrix3x3 m;
+      convertFromQuaternion(m, m_q);
+      return m;
+    }
+    Vector3d MatrixToEuler(Matrix3x3 m) {
+      EulerAngle e;
+      convertFromMatrix(e, m);
+      return Vector3d(e.alpha(), e.beta(), e.gamma());
+    }
 
     ///Translation
-    //@{
     virtual double& tx(){ return m_Pos[0]; }
     virtual double& ty(){ return m_Pos[1]; }
     virtual double& tz(){ return m_Pos[2]; }
     const double& tx() const { return m_Pos[0]; }
     const double& ty() const { return m_Pos[1]; }
     const double& tz() const { return m_Pos[2]; }
-    ///@}
 
-    ///Sacle
-    ///@{
+    ///Scale
     virtual double& sx(){ return m_Scale[0]; }
     virtual double& sy(){ return m_Scale[1]; }
     virtual double& sz(){ return m_Scale[2]; }
     const double& sx() const { return m_Scale[0]; }
     const double& sy() const { return m_Scale[1]; }
     const double& sz() const { return m_Scale[2]; }
-    ///@}
 
     ///Rotation
-    ///@{
     virtual double& rx(){ return m_Rot[0]; }
     virtual double& ry(){ return m_Rot[1]; }
     virtual double& rz(){ return m_Rot[2]; }
     const double& rx() const { return m_Rot[0]; }
     const double& ry() const { return m_Rot[1]; }
     const double& rz() const { return m_Rot[2]; }
-    //@}
     
     //Get&Set Quaternion
-    ///@{
     const Quaternion& q() const {return m_q;}
     void q(const Quaternion& q){ m_q=q; }
-    ///@}
     
 protected:
     double m_Pos[3];         //Position

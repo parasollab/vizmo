@@ -17,18 +17,14 @@ namespace plum{
   //===================================================================
   //  Constructors and Destructor
   //===================================================================
-  Transformation::Transformation() 
-  {
-    
-    m_position.set(0.0, 0.0, 0.0);
-    m_orientation.matrix.identity();
-    
+  Transformation::Transformation() : m_position(0.0, 0.0, 0.0) {
+    identity(m_orientation.matrix);
   }
   
   Transformation::Transformation(Orientation _orientation, Vector3d _position) 
   {
-    m_position.set(_position);
-    originalPosition.set(_position);
+    m_position = _position;
+    originalPosition = _position;
 
     m_orientation.matrix = _orientation.matrix;
   }
@@ -46,33 +42,22 @@ namespace plum{
     d = dh[2];
     theta = dh[3];
     
-    m_position.set(a, -sin(alpha)* d, cos(alpha)* d);
+    m_position(a, -sin(alpha)* d, cos(alpha)* d);
  
-    m_orientation.matrix.set(cos(theta),
-			     -sin(theta), 
-			     0.0,
-			     sin(theta)*cos(alpha), 
-			     cos(theta)*cos(alpha),
-			     -sin(alpha),
-			     sin(theta)*sin(alpha),
-			     cos(theta)*sin(alpha),
-			     cos(alpha) );
+    getMatrix3x3(m_orientation.matrix,
+        cos(theta), -sin(theta), 0.0,
+	sin(theta)*cos(alpha), cos(theta)*cos(alpha), -sin(alpha),
+	sin(theta)*sin(alpha), cos(theta)*sin(alpha), cos(alpha));
   }
   
   void Transformation::ResetTransformation(){
-
-    m_position.set(0.0, 0.0, 0.0);
-    m_orientation.matrix.identity();
+    m_position(0.0, 0.0, 0.0);
+    identity(m_orientation.matrix);
     m_orientation.alpha = m_orientation.beta = m_orientation.gamma = 0;
-
   }
   
   Transformation::Transformation(const Transformation & _t) :
-    
-    m_orientation(_t.m_orientation)
-  {
-    m_position.set(_t.m_position);
-  }
+    m_position(_t.m_position), m_orientation(_t.m_orientation) {}
   
   Transformation::~Transformation() {
     
@@ -113,7 +98,7 @@ namespace plum{
   
   
   Transformation & Transformation::operator=(const Transformation & _t) {
-    m_position.set(_t.m_position);
+    m_position = _t.m_position;
     m_orientation = _t.m_orientation;
     
     return *this;

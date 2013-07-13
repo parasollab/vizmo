@@ -1,7 +1,6 @@
 #ifndef _GLI_TANSFORM_TOOL_H_
 #define _GLI_TANSFORM_TOOL_H_
 
-#include<Point.h>
 #include<Vector.h>
 #include<Quaternion.h>
 using namespace mathtool;

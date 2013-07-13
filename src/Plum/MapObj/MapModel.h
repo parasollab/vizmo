@@ -7,7 +7,6 @@
 #define _MAPMODEL_H_
 
 #include <math.h>
-#include "Gauss.h"
 #include "EnvObj/Robot.h"
 #include "Plum/PlumObject.h" 
 

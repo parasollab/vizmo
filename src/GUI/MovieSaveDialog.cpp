@@ -108,7 +108,7 @@ MovieSaveDialog::ShowFileDialog(){
       int l = m_filename.lastIndexOf('#');
       m_frameDigits = l - f + 1;
       m_frameDigitStart = f;
-      if(m_frameDigitStart == -1){
+      if(m_frameDigitStart == size_t(-1)){
         m_frameDigits = 0;
         m_frameDigitStart = m_filename.lastIndexOf('.');
       }

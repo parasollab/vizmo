@@ -23,7 +23,7 @@ namespace plum{
     type = _type;
     
     if (type == Matrix) {
-      matrix.identity();
+      identity(matrix);
     } 
     else {
       alpha = 0.0;
@@ -102,9 +102,10 @@ namespace plum{
 
     //EULER ZYX    Craig (2.64)
     
-    matrix.set(ca*cb, ca*sb*sg - sa*cg, ca*sb*cg + sa*sg,
-	       sa*cb, sa*sb*sg + ca*cg, sa*sb*cg - ca*sg,
-	       -sb, cb*sg, cb*cg);    
+    getMatrix3x3(matrix,
+        ca*cb, ca*sb*sg - sa*cg, ca*sb*cg + sa*sg,
+        sa*cb, sa*sb*sg + ca*cg, sa*sb*cg - ca*sg,
+        -sb, cb*sg, cb*cg);    
     
   }
   

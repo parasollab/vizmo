@@ -172,26 +172,15 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
             mbl->GetChildren(modelList);
             gl = modelList.front();
 
-            //get initial quaternion from polyhedron
-            Quaternion qt0;
-            qt0 = gl->q();
-            //Quaternion qt0(gl->q());
-
-            //get current/new rotation from objs var.
-            Quaternion qrm;
-            qrm = objs[0]->q();
-
             //multiply polyhedron0 and multiBody quaternions
             //to get new rotation
-            Quaternion finalQ;
-            finalQ = qrm * qt0;
+            Quaternion finalQ = objs[0]->q() * gl->q();
+            EulerAngle e;
+            convertFromQuaternion(e, finalQ);
 
-            Matrix3x3 fm = finalQ.getMatrix();
-            Vector3d fv = finalQ.MatrixToEuler(fm);
-
-            mbl->rx() = fv[0];
-            mbl->ry() = fv[1];
-            mbl->rz() = fv[2];
+            mbl->rx() = e.alpha();
+            mbl->ry() = e.beta();
+            mbl->rz() = e.gamma();
           } 
         }//end IF  ...actually, this appears to be end for -NJ 
       }//end for

@@ -16,7 +16,7 @@ class BoundingSphereModel : public BoundaryModel {
     virtual bool Parse(istream& _is);
 
   private:
-    Vector3D m_center;
+    Vector3d m_center;
     double m_radius;
 };
 

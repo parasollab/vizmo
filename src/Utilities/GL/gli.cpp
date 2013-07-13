@@ -3,7 +3,7 @@
 #include "gliUtility.h"
 #include "gliPickBox.h"
 #include "gliTransTool.h"
-#include "../src/vizmo2.h"
+#include "vizmo2.h"
 //Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>

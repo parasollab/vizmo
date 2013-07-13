@@ -153,8 +153,6 @@ void OBPRMView_Robot::RestoreInitCfg(){
 void OBPRMView_Robot::BackUp(){
   m_RenderModeBackUp = m_renderMode;
    vector<PolyhedronModel>& polys = m_RobotModel->GetPolyhedron();
-   const CMultiBodyInfo * MBInfo = m_pEnvLoader->GetMultiBodyInfo();
-   int numMBody=MBInfo[0].m_cNumberOfBody;
 
    m_polyXBack = polys[0].tx();
    m_polyYBack = polys[0].ty();
@@ -280,7 +278,7 @@ void OBPRMView_Robot::Configure( double * cfg) {
     pPoly[baseIndex].ty()=y; 
     pPoly[baseIndex].tz()=z;
 
-    position.set(x, y, z);
+    position(x, y, z);
     Orientation orientation_tmp(Orientation::FixedXYZ, alpha, beta, gamma);
     orientation = orientation_tmp;
 
@@ -292,10 +290,10 @@ void OBPRMView_Robot::Configure( double * cfg) {
     MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform = b;
 
     //compute rotation
-    Quaternion q1, q2;
-    q2 = q1.getQuaternionFromMatrix(
+    Quaternion q;
+    convertFromMatrix(q, 
         MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform.m_orientation.matrix);
-    pPoly[baseIndex].q(q2.normalize()); //set new q
+    pPoly[baseIndex].q(q.normalized()); //set new q
 
     MBInfo[robIndx].m_pBodyInfo[baseIndex].m_transformDone = true;
 
@@ -338,10 +336,10 @@ void OBPRMView_Robot::Configure( double * cfg) {
         pPoly[nextBodyIdx].tz()=nextBody.m_currentTransform.m_position[2];  
 
         //compute rotation
-        Quaternion q1, q2;
-        q2 = q1.getQuaternionFromMatrix(
+        Quaternion q;
+        convertFromMatrix(q,
             nextBody.m_currentTransform.m_orientation.matrix);
-        pPoly[nextBodyIdx].q(q2.normalize()); //set new q
+        pPoly[nextBodyIdx].q(q.normalized()); //set new q
 
         nextBody.m_transformDone = true;
       }    
@@ -399,11 +397,6 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             //Need to compute rotation from Quaternion
 
             CGLModel* rm = robotList.front();
-            //get current quaternion from polyhedron0
-            Quaternion qt0;
-            qt0 = rm->q();
-            Matrix3x3 pm = qt0.getMatrix();
-            Vector3d pv = qt0.MatrixToEuler(pm);
 
             //get new rotation from GL
             Quaternion qrm;
@@ -412,17 +405,15 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             //multiply polyhedron0 and multiBody quaternions
             //to get new rotation
             Quaternion finalQ;
-            finalQ = qrm * qt0;
+            finalQ = qrm * rm->q();
 
             //set new rotation angles to multiBody rx(), ry(), and rz()
+            EulerAngle eFinal;
+            convertFromQuaternion(eFinal, finalQ);
 
-            Matrix3x3 mFinal; Vector3d vFinal;
-            mFinal = finalQ.getMatrix();
-            vFinal = finalQ.MatrixToEuler(mFinal);
-
-            m_RobotModel->rx() = vFinal[0];
-            m_RobotModel->ry() = vFinal[1];
-            m_RobotModel->rz() = vFinal[2];
+            m_RobotModel->rx() = eFinal.alpha();
+            m_RobotModel->ry() = eFinal.beta();
+            m_RobotModel->rz() = eFinal.gamma();
 
             //set new angles for first polyhedron
             //NOTE:: This works for **FREE** robots
@@ -430,7 +421,6 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             currCfg[3] =  m_RobotModel->rx()/PI;
             currCfg[4] =  m_RobotModel->ry()/PI;
             currCfg[5] =  m_RobotModel->rz()/PI;
-
 
             //currCfg[3] = rl->rx();
             //currCfg[4] = rl->ry();
@@ -452,11 +442,6 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             //Need to compute rotation from Quaternion
 
             CGLModel* rm = robotList.front();
-            //get current quaternion from polyhedron0
-            Quaternion qt0;
-            qt0 = rm->q();
-            Matrix3x3 pm = qt0.getMatrix();
-            Vector3d pv = qt0.MatrixToEuler(pm);
 
             //get new rotation from GL
             Quaternion qrm;
@@ -465,17 +450,15 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             //multiply polyhedron0 and multiBody quaternions
             //to get new rotation
             Quaternion finalQ;
-            finalQ = qrm * qt0;
+            finalQ = qrm * rm->q();
 
             //set new rotation angles to multiBody rx(), ry(), and rz()
+            EulerAngle eFinal;
+            convertFromQuaternion(eFinal, finalQ);
 
-            Matrix3x3 mFinal; Vector3d vFinal;
-            mFinal = finalQ.getMatrix();
-            vFinal = finalQ.MatrixToEuler(mFinal);
-
-            m_RobotModel->rx() = vFinal[0];
-            m_RobotModel->ry() = vFinal[1];
-            m_RobotModel->rz() = vFinal[2];
+            m_RobotModel->rx() = eFinal.alpha();
+            m_RobotModel->ry() = eFinal.beta();
+            m_RobotModel->rz() = eFinal.gamma();
 
             //set new angles for first polyhedron
             //NOTE:: This works for **FREE** robots
@@ -513,11 +496,6 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
       //Need to compute rotation from Quaternion
 
       CGLModel* rm = robotList.front();
-      //get current quaternion from polyhedron0
-      Quaternion qt0;
-      qt0 = rm->q();
-      Matrix3x3 pm = qt0.getMatrix();
-      Vector3d pv = qt0.MatrixToEuler(pm);
 
       //get new rotation from multiBody 
       Quaternion qrm;
@@ -526,17 +504,15 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
       //multiply polyhedron0 and multiBody quaternions
       //to get new rotation
       Quaternion finalQ;
-      finalQ = qrm * qt0;
+      finalQ = qrm * rm->q();
 
       //set new rotation angles to multiBody rx(), ry(), and rz()
+      EulerAngle eFinal;
+      convertFromQuaternion(eFinal, finalQ);
 
-      Matrix3x3 mFinal; Vector3d vFinal;
-      mFinal = finalQ.getMatrix();
-      vFinal = finalQ.MatrixToEuler(mFinal);
-
-      m_RobotModel->rx() = vFinal[0];
-      m_RobotModel->ry() = vFinal[1];
-      m_RobotModel->rz() = vFinal[2];
+      m_RobotModel->rx() = eFinal.alpha();
+      m_RobotModel->ry() = eFinal.beta();
+      m_RobotModel->rz() = eFinal.gamma();
 
       //set new angles for first polyhedron
       //NOTE:: This works for **FREE** robots
@@ -586,11 +562,6 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
         //Need to compute rotation from Quaternion
 
         CGLModel* rm = robotList.front();
-        //get current quaternion from polyhedron0
-        Quaternion qt0;
-        qt0 = rm->q();
-        Matrix3x3 pm = qt0.getMatrix();
-        Vector3d pv = qt0.MatrixToEuler(pm);
 
         //get new rotation from GL
         Quaternion qrm;
@@ -598,18 +569,15 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 
         //multiply polyhedron0 and multiBody quaternions
         //to get new rotation
-        Quaternion finalQ;
-        finalQ = qrm * qt0;
+        Quaternion finalQ = qrm * rm->q();
 
         //set new rotation angles to multiBody rx(), ry(), and rz()
+        EulerAngle eFinal;
+        convertFromQuaternion(eFinal, finalQ);
 
-        Matrix3x3 mFinal; Vector3d vFinal;
-        mFinal = finalQ.getMatrix();
-        vFinal = finalQ.MatrixToEuler(mFinal);
-
-        m_RobotModel->rx() = vFinal[0];
-        m_RobotModel->ry() = vFinal[1];
-        m_RobotModel->rz() = vFinal[2];
+        m_RobotModel->rx() = eFinal.alpha();
+        m_RobotModel->ry() = eFinal.beta();
+        m_RobotModel->rz() = eFinal.gamma();
 
         //set new angles for first polyhedron
         //NOTE:: This works for **FREE** robots
@@ -634,11 +602,6 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
         //Need to compute rotation from Quaternion
 
         CGLModel* rm = robotList.front();
-        //get current quaternion from polyhedron0
-        Quaternion qt0;
-        qt0 = rm->q();
-        Matrix3x3 pm = qt0.getMatrix();
-        Vector3d pv = qt0.MatrixToEuler(pm);
 
         //get new rotation from GL
         Quaternion qrm;
@@ -647,17 +610,15 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
         //multiply polyhedron0 and multiBody quaternions
         //to get new rotation
         Quaternion finalQ;
-        finalQ = qrm * qt0;
+        finalQ = qrm * rm->q();
 
         //set new rotation angles to multiBody rx(), ry(), and rz()
+        EulerAngle eFinal;
+        convertFromQuaternion(eFinal, finalQ);
 
-        Matrix3x3 mFinal; Vector3d vFinal;
-        mFinal = finalQ.getMatrix();
-        vFinal = finalQ.MatrixToEuler(mFinal);
-
-        m_RobotModel->rx() = vFinal[0];
-        m_RobotModel->ry() = vFinal[1];
-        m_RobotModel->rz() = vFinal[2];
+        m_RobotModel->rx() = eFinal.alpha();
+        m_RobotModel->ry() = eFinal.beta();
+        m_RobotModel->rz() = eFinal.gamma();
 
         //set new angles for first polyhedron
         //NOTE:: This works for **FREE** robots
@@ -697,11 +658,6 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
     //Need to compute rotation from Quaternion
 
     CGLModel* rm = robotList.front();
-    //get current quaternion from polyhedron0
-    Quaternion qt0;
-    qt0 = rm->q();
-    Matrix3x3 pm = qt0.getMatrix();
-    Vector3d pv = qt0.MatrixToEuler(pm);
 
     //get new rotation from multiBody 
     Quaternion qrm;
@@ -709,18 +665,15 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 
     //multiply polyhedron0 and multiBody quaternions
     //to get new rotation
-    Quaternion finalQ;
-    finalQ = qrm * qt0;
+    Quaternion finalQ = qrm * rm->q();
 
     //set new rotation angles to multiBody rx(), ry(), and rz()
+    EulerAngle eFinal;
+    convertFromQuaternion(eFinal, finalQ);
 
-    Matrix3x3 mFinal; Vector3d vFinal;
-    mFinal = finalQ.getMatrix();
-    vFinal = finalQ.MatrixToEuler(mFinal);
-
-    m_RobotModel->rx() = vFinal[0];
-    m_RobotModel->ry() = vFinal[1];
-    m_RobotModel->rz() = vFinal[2];
+    m_RobotModel->rx() = eFinal.alpha();
+    m_RobotModel->ry() = eFinal.beta();
+    m_RobotModel->rz() = eFinal.gamma();
 
     //set new angles for first polyhedron
     //NOTE:: This works for **FREE** robots
