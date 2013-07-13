@@ -1,23 +1,21 @@
 #ifndef OBPRMVIEWROBOT_H_
 #define OBPRMVIEWROBOT_H_
 
-//////////////////////////////////////////////////////////////////////
-//Plum Headers
+#include <QKeyEvent>
+
+#include <Vector.h>
+#include <Matrix.h>
+#include <Transformation.h>
+
+using namespace mathtool;
+
 #include <Plum/EnvObj/MultiBodyModel.h>
 #include <Plum/EnvObj/EnvLoader.h>
 #include <Plum/GLModel.h>
 #include <Plum/EnvObj/MultiBodyInfo.h>
-#include <Plum/EnvObj/Transformation.h>
 #include <Utilities/GL/gliCamera.h>
 
-#include <QKeyEvent>
-
 using namespace plum;
-
-#include<Vector.h>
-#include<Matrix.h>
-
-using namespace mathtool;
 
 class OBPRMView_Robot : public CGLModel{
 

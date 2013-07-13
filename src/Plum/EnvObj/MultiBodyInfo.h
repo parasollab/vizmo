@@ -5,7 +5,9 @@
 #include <string>
 using namespace std;
 
-#include "Transformation.h"
+#include <Transformation.h>
+using namespace mathtool;
+
 #include "RobotInfo.h"
 
 //class Transformation;
@@ -123,7 +125,7 @@ namespace plum{
       CConnectionInfo();
       CConnectionInfo( const CConnectionInfo & other );
       ///@Return DH params. as a Vecto4d
-      Vector4d getDH();
+      Transformation DHTransform();
       ///@Compute ad return the transformation from body1 to body2
       Transformation  transformToBody2();
       ///@Compute and return the transformation to DH frame

@@ -240,8 +240,8 @@ void OBPRMView_Robot::Configure( double * cfg) {
   }
 
   for( int i=0; i<numBody; i++ ){
-    MBInfo[robIndx].m_pBodyInfo[i].m_currentTransform.ResetTransformation();
-    MBInfo[robIndx].m_pBodyInfo[i].m_prevTransform.ResetTransformation();
+    MBInfo[robIndx].m_pBodyInfo[i].m_currentTransform = Transformation();
+    MBInfo[robIndx].m_pBodyInfo[i].m_prevTransform = Transformation();
     MBInfo[robIndx].m_pBodyInfo[i].m_transformDone = false;
   }
 
@@ -278,21 +278,17 @@ void OBPRMView_Robot::Configure( double * cfg) {
     pPoly[baseIndex].ty()=y; 
     pPoly[baseIndex].tz()=z;
 
-    position(x, y, z);
-    Orientation orientation_tmp(Orientation::FixedXYZ, alpha, beta, gamma);
-    orientation = orientation_tmp;
-
     pPoly[baseIndex].rx() = alpha;
     pPoly[baseIndex].ry() = beta;
     pPoly[baseIndex].rz() = gamma;
     
-    Transformation b(orientation, position);
-    MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform = b;
+    MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform = 
+      Transformation(Vector3d(x, y, z), Orientation(EulerAngle(gamma, beta, alpha)));
 
     //compute rotation
     Quaternion q;
     convertFromMatrix(q, 
-        MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform.m_orientation.matrix);
+        MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform.rotation().matrix());
     pPoly[baseIndex].q(q.normalized()); //set new q
 
     MBInfo[robIndx].m_pBodyInfo[baseIndex].m_transformDone = true;
@@ -331,14 +327,14 @@ void OBPRMView_Robot::Configure( double * cfg) {
         nextBody.setPrevTransform(t); 
         nextBody.computeTransform(currentBody, nextBodyIdx);
 
-        pPoly[nextBodyIdx].tx()=nextBody.m_currentTransform.m_position[0]; 
-        pPoly[nextBodyIdx].ty()=nextBody.m_currentTransform.m_position[1]; 
-        pPoly[nextBodyIdx].tz()=nextBody.m_currentTransform.m_position[2];  
+        pPoly[nextBodyIdx].tx()=nextBody.m_currentTransform.translation()[0]; 
+        pPoly[nextBodyIdx].ty()=nextBody.m_currentTransform.translation()[1]; 
+        pPoly[nextBodyIdx].tz()=nextBody.m_currentTransform.translation()[2];  
 
         //compute rotation
         Quaternion q;
         convertFromMatrix(q,
-            nextBody.m_currentTransform.m_orientation.matrix);
+            nextBody.m_currentTransform.rotation().matrix());
         pPoly[nextBodyIdx].q(q.normalized()); //set new q
 
         nextBody.m_transformDone = true;

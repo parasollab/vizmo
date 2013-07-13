@@ -4,8 +4,6 @@ OBJECTS += \
 	   Plum/EnvObj/EnvModel.o  \
 	   Plum/EnvObj/MultiBodyInfo.o \
 	   Plum/EnvObj/MultiBodyModel.o \
-	   Plum/EnvObj/Transformation.o \
-	   Plum/EnvObj/Orientation.o \
 	   Plum/EnvObj/RobotInfo.o \
 	   Plum/MapObj/MapLoader.o \
 	   Plum/MapObj/MapModel.o \

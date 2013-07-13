@@ -229,9 +229,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
             if(i == 0){
                pR[0] = pRt[0]; pR[1] = pRt[1]; pR[2] = pRt[2];
-               Orientation r_obst(Orientation::FixedXYZ,
-                     etmp.alpha(), etmp.beta(), etmp.gamma());
-               m = r_obst.matrix;
+               convertFromEuler(m, etmp);
             }
             else{
                ////////////////////////////////////////////////////////////////
@@ -268,13 +266,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
                   pR[2] = rPoly[i].tz();
 
                   Quaternion qtmp = rPoly[i].q();
-                  EulerAngle etmp;
-                  convertFromQuaternion(etmp, qtmp);
-                  
-                  Orientation r_obst(Orientation::FixedXYZ,
-                        etmp.alpha(), etmp.beta(), etmp.gamma());
-
-                  m = r_obst.matrix;
+                  convertFromQuaternion(m, qtmp); 
 
                   robotObj->Restore();
                }
@@ -289,10 +281,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
                pR[0] = pRt[0]; pR[1] = pRt[1]; pR[2] = pRt[2];
 
-               Orientation r_rob(Orientation::FixedXYZ,
-                     fv[0], fv[1], fv[2]);
-               m = r_rob.matrix;
-
+               convertFromEuler(m, EulerAngle(fv[2], fv[1], fv[0]));
             }
             else{
                pR[0] = rPoly[i].tx();
@@ -300,12 +289,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
                pR[2] = rPoly[i].tz();
 
                Quaternion qtmp = rPoly[i].q();
-               EulerAngle etmp;
-               convertFromQuaternion(etmp, qtmp);
-
-               Orientation r_rob(Orientation::FixedXYZ,
-                     etmp.alpha(), etmp.beta(), etmp.gamma());
-               m = r_rob.matrix;
+               convertFromQuaternion(m, qtmp);
             }     
          }// NODE
 
@@ -325,13 +309,9 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
          pO[1] = obstacle->ty();
          pO[2] = obstacle->tz();
 
-         //Set current orientation of Obstacle
-
-         Orientation o_obst(Orientation::FixedXYZ,
-               obstacle->rx(), obstacle->ry(), obstacle->rz());
-
          //get matrix
-         Matrix3x3 mObs = o_obst.matrix;
+         Matrix3x3 mObs;
+         convertFromEuler(mObs, EulerAngle(obstacle->rz(), obstacle->ry(), obstacle->rx()));
 
          for(int a =0; a<3; a++){
             for(int b=0; b<3; b++){

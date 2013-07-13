@@ -90,14 +90,11 @@ namespace plum{
   }
 
   void CBodyInfo::doTransform(){
-
     if(m_IsBase){
       Vector3d position(m_X, m_Y, m_Z);
-      Orientation orientation(Orientation::FixedXYZ, m_Alpha, m_Beta, m_Gamma);
-      m_currentTransform = Transformation(orientation, position);
+      Orientation orientation(EulerAngle(m_Gamma, m_Beta, m_Alpha));
+      m_currentTransform = Transformation(position, orientation);
     }
-
-
   }
 
   Transformation CBodyInfo::getTransform(){
@@ -121,7 +118,7 @@ namespace plum{
       }
     }
 
-    Transformation dh(BodyInfo.m_pConnectionInfo[connection].getDH());
+    Transformation dh = BodyInfo.m_pConnectionInfo[connection].DHTransform();
 
     Transformation Tbody2 = BodyInfo.m_pConnectionInfo[connection].transformToBody2();
 
@@ -205,30 +202,26 @@ namespace plum{
     *this = other;
   }
 
-  Vector4d CConnectionInfo::getDH(){
-    return Vector4d(alpha, a, d, theta);
+  Transformation CConnectionInfo::DHTransform() {
+    Vector3d pos(a, -sin(alpha)* d, cos(alpha)* d);
+    Matrix3x3 rot;
+    getMatrix3x3(rot, 
+        cos(theta), -sin(theta), 0.0,
+	sin(theta)*cos(alpha), cos(theta)*cos(alpha), -sin(alpha),
+	sin(theta)*sin(alpha), cos(theta)*sin(alpha), cos(alpha));
+    return Transformation(pos, Orientation(rot));
   }
 
-  Transformation CConnectionInfo::transformToBody2(){
-
-    Vector3d position(m_posX, m_posY, m_posZ);
-
-    Orientation orientation(Orientation::FixedXYZ, m_orientX, m_orientY, m_orientZ);
-    Transformation x(orientation, position);
-
-    return x;
-
+  Transformation CConnectionInfo::transformToBody2() {
+    return Transformation(
+        Vector3d(m_posX, m_posY, m_posZ),
+        Orientation(EulerAngle(m_orientZ, m_orientY, m_orientX)));
   }
 
   Transformation  CConnectionInfo::transformToDHframe(){
-
-    Vector3d position(m_pos2X, m_pos2Y, m_pos2Z);
-
-    Orientation orientation(Orientation::FixedXYZ, m_orient2X, m_orient2Y, m_orient2Z);
-    Transformation t(orientation,position);
-
-    return t;
-
+    return Transformation(
+        Vector3d(m_pos2X, m_pos2Y, m_pos2Z),
+        Orientation(EulerAngle(m_orient2Z, m_orient2Y, m_orient2X)));
   }
 
 
