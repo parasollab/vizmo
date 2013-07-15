@@ -20,7 +20,7 @@
 #include<Vector.h>
 #include<Matrix.h>
 
-//EnvModel.h includes MultiBodyModel.h and EnvLoader.h
+//EnvModel.h includes MultiBodyModel.h  
 #include "Plum/EnvObj/EnvModel.h"
 using namespace plum;
 
@@ -29,7 +29,7 @@ using namespace plum;
 #include <RAPID.H>
 
 namespace plum {
-class CEnvModel;
+class EnvModel;
 }
 
 #ifndef Rapid
@@ -46,23 +46,31 @@ class CollisionDetection{
    *@return true if Robot collides with Obstacle(s).
    */
   
-  bool IsInCollision(plum::CEnvLoader* envLoader, 
-		     plum::MultiBodyModel* robot, 
+  /*bool IsInCollision(plum::CEnvLoader* envLoader, 
+  		     plum::MultiBodyModel* robot, 
 		     plum::MultiBodyModel* obstacle);
 
   bool IsInCollision(int numMB, plum::CEnvModel* env, 
 		     plum::CEnvLoader* envLoader,
 		     plum::MultiBodyModel * robotModel,
-		     OBPRMView_Robot * robotObj);
+		     OBPRMView_Robot * robotObj);*/
+  
+  bool IsInCollision(plum::EnvModel* _envModel, 
+  		     plum::MultiBodyModel* _robot, 
+		     plum::MultiBodyModel* _obstacle);
 
-  void CopyNodeCfg(double * cfg, int dof);
-  double *nodeCfg;
+  bool IsInCollision(int _numMB, plum::EnvModel* _envModel, 
+		     plum::MultiBodyModel* _robotModel,
+		     OBPRMView_Robot* _robotObj);
+
+  void CopyNodeCfg(double* cfg, int dof);
+  double* nodeCfg;
   bool TestNode;
   //  CollisionDetectionMethod cdMethod;
 
-  RAPID_model * m_rapid;
+  RAPID_model* m_rapid;
 
-  Rapid *rapid;
+  Rapid* rapid;
 
 };
 

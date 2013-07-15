@@ -17,7 +17,7 @@ using namespace std;
 namespace plum {
   
   class CfgModel;
-  class EdgeModel : public CGLModel{
+  class EdgeModel : public GLModel{
     
     friend ostream& operator<<(ostream& _out, const EdgeModel& _edge);
     friend istream& operator>>(istream& _in, EdgeModel& _edge);

@@ -21,7 +21,7 @@ namespace plum{
   class CMultiBodyInfo;
 
   //a class construct a polyhedron body
-  class CPolyhedronModel : public CGLModel
+  class CPolyhedronModel : public GLModel
   {
     public:
       typedef Vector<int, 3> Tri; 

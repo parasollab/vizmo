@@ -4,7 +4,7 @@
 #include "Plum/GLModel.h" 
 using namespace plum;
 
-class BoundaryModel : public CGLModel {
+class BoundaryModel : public GLModel {
   public:
     BoundaryModel();
     virtual ~BoundaryModel() {}

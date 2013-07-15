@@ -50,11 +50,14 @@ namespace plum{
     m_robot = _robot;
     m_cc = _cc;
     
-    vector<struct Robot>& exampleBots = m_robot->m_pEnvLoader->GetRobots(); 
-    const struct Robot& exampleBot = *(exampleBots.begin());  
-    m_isPlanarRobot = (exampleBot.m_base == Robot::PLANAR) ? true : false; 
-    m_isVolumetricRobot = (exampleBot.m_base == Robot::VOLUMETRIC) ? true : false;
-    m_isRotationalRobot = (exampleBot.m_baseMovement == Robot::ROTATIONAL) ? true : false; 
+    if(m_robot != NULL){
+      vector<struct Robot>& exampleBots = m_robot->m_envModel->GetRobots(); 
+      const struct Robot& exampleBot = *(exampleBots.begin());  
+      m_isPlanarRobot = (exampleBot.m_base == Robot::PLANAR) ? true : false; 
+      m_isVolumetricRobot = (exampleBot.m_base == Robot::VOLUMETRIC) ? true : false;
+      m_isRotationalRobot = (exampleBot.m_baseMovement == Robot::ROTATIONAL) ? true : false; 
+    }
+    else cout<<"NULL ROBOT in CfgModel::Set!"<<endl; 
   }
 
   int 
@@ -143,7 +146,6 @@ namespace plum{
 
   void 
   CfgModel::Draw(GLenum _mode){
-    
     glPushName(m_index);
     Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->getShape());
     switch(shape){
@@ -246,6 +248,7 @@ namespace plum{
     
     vector<string> info; 
     int dof = CfgModel::m_dof;
+    
     ostringstream temp;
     temp << "Node ID = " << m_index << " ";
     temp << " Cfg ( ";
@@ -274,8 +277,8 @@ namespace plum{
     
     vector<string> info; 
     int dof = CfgModel::m_dof;
+    
     ostringstream temp;
-
     temp << "Node ID = " << m_index << " ";
 
     for(int i=0; i<dof; i++){

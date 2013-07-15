@@ -13,7 +13,7 @@
 #include "Plum/GLModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h" 
-#include "MapLoader.h"
+#include "MapModel.h" 
 #include "EnvObj/Robot.h"
 
 using namespace std;
@@ -22,7 +22,10 @@ using namespace plum;
 
 namespace plum{
 
-  class CCModelBase : public CGLModel{
+  template<typename, typename>
+  class MapModel; 
+  
+  class CCModelBase : public GLModel{
     
   public:
     enum Shape {Robot, Box, Point}; //Node representation 
@@ -140,7 +143,7 @@ namespace plum{
   class CCModel : public CCModelBase{
   
     public:
-      typedef typename CMapLoader<CfgModel,WEIGHT>::Wg WG;
+      typedef typename MapModel<CfgModel, WEIGHT>::Wg WG; 
       typedef typename WG::vertex_descriptor VID;
       typedef typename WG::edge_descriptor EID;
       typedef vector_property_map<WG, size_t> color_map_t;
@@ -219,7 +222,7 @@ namespace plum{
             SetColor(_color[0], _color[1], _color[2], 1); 
         }
 
-        virtual void GetChildren(list<CGLModel*>& _models){ 
+        virtual void GetChildren(list<GLModel*>& _models){ 
           typedef typename map<VID, CfgModel>::iterator CIT;
           for(CIT cit=m_nodes.begin(); cit!=m_nodes.end(); cit++)
             _models.push_back(&cit->second);

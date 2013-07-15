@@ -196,10 +196,12 @@ FileOptions::SaveRoadmap(){
 void
 FileOptions::SaveNewRoadmap(const char* _filename){
 
-  PlumObject* m_Map;
-  m_Map = GetVizmo().GetMap();
-
-  CMapHeaderLoader* maploader = (CMapHeaderLoader*)m_Map->GetLoader();
+  PlumObject* map;
+  map = GetVizmo().GetMap();
+  
+  //CMapHeaderLoader* maploader = (CMapHeaderLoader*)map->GetLoader();
+  //Probably not ideal, but accounts for loader class removal for now 
+  MapModel<CfgModel, EdgeModel>* maploader = (MapModel<CfgModel, EdgeModel>*)map->GetModel(); 
 
   ofstream outfile (_filename);
 
@@ -245,9 +247,11 @@ FileOptions::SaveNewRoadmap(const char* _filename){
     }
   }
 
-  typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
+  //typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
+  typedef MapModel<CfgModel,EdgeModel>::Wg WG;
   WG* graph;
-  CMapLoader<CfgModel,EdgeModel> *m_loader=(CMapLoader<CfgModel,EdgeModel>*)m_Map->GetLoader();
+  //CMapLoader<CfgModel,EdgeModel> *m_loader=(CMapLoader<CfgModel,EdgeModel>*)map->GetLoader();
+  MapModel<CfgModel, EdgeModel>* m_loader = (MapModel<CfgModel, EdgeModel>*)map->GetModel(); 
   graph = m_loader->GetGraph();
 
   write_graph(*graph, outfile);

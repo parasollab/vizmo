@@ -21,7 +21,7 @@ namespace plum {
       vector<PlumObject*>& GetPlumObjects() {return m_plumObjects;}
       void CleanPlumObjects() {m_plumObjects.clear();}
       
-      void AddSelectedItem(CGLModel* l) {m_selectedItems.push_back(l);}
+      void AddSelectedItem(GLModel* l) {m_selectedItems.push_back(l);}
       vector<gliObj>& GetSelectedItems() {return m_selectedItems;}
       void CleanSelectedItems() {m_selectedItems.clear();}
 

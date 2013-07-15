@@ -32,7 +32,7 @@ VizmoItemSelectionGUI::FillTree(vector<PlumObject*>& _obj){
 
   typedef vector<PlumObject*>::iterator PIT;
   for(PIT i = _obj.begin(); i != _obj.end(); i++){
-    CGLModel* m = (*i)->GetModel();
+    GLModel* m = (*i)->GetModel();
     if(m == NULL) 
       continue;
     CreateItem(NULL,m);
@@ -40,7 +40,7 @@ VizmoItemSelectionGUI::FillTree(vector<PlumObject*>& _obj){
 }
 
 VizmoListViewItem*
-VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, CGLModel* _model)
+VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model)
 {
   VizmoListViewItem* item = NULL;
   if(_p == NULL){
@@ -54,12 +54,12 @@ VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, CGLModel* _model)
   item->setText(0, qstr); //Set the text to column 0, which is the only column in this tree widget  
   m_items.push_back(item);
 
-  list<CGLModel*> objlist;
+  list<GLModel*> objlist;
   _model->GetChildren(objlist);
   if(objlist.empty()) 
     return item;
   
-  typedef list<CGLModel*>::iterator OIT;
+  typedef list<GLModel*>::iterator OIT;
   for(OIT i = objlist.begin(); i != objlist.end(); i++)
     CreateItem(item,*i);  
   return item;

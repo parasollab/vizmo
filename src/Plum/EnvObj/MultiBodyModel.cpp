@@ -9,7 +9,7 @@ namespace plum{
       SetColor(0.4f,0.4f,0.4f,1);
       m_bFixed = !MBInfo.m_active;
       m_radius = 0;
-    }
+  }
 
   MultiBodyModel::~MultiBodyModel() {}
 
@@ -93,7 +93,6 @@ namespace plum{
   }
 
 
-
   void MultiBodyModel::DrawSelect() {
     glPushMatrix();
     glTranslated(m_poly[0].tx(), m_poly[0].ty(), m_poly[0].tz());
@@ -115,7 +114,7 @@ namespace plum{
     }
 
   void MultiBodyModel::SetColor(float r, float g, float b, float a) {
-    CGLModel::SetColor(r,g,b,a);
+    GLModel::SetColor(r,g,b,a);
     
     for(size_t i=0; i<m_poly.size(); i++)
       m_poly[i].SetColor(r,g,b,a);
@@ -127,7 +126,7 @@ namespace plum{
   }
 
   void MultiBodyModel::Scale(double x, double y, double z) {
-    CGLModel::Scale(x,y,z);
+    GLModel::Scale(x,y,z);
   }
 
   vector<string> 

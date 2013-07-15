@@ -1,4 +1,4 @@
-// GLModel.h: interface for the CGLModel class.
+// GLModel.h: interface for the GLModel class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -20,10 +20,10 @@ namespace plum{
   enum RenderMode {WIRE_MODE, SOLID_MODE, INVISIBLE_MODE};
   enum BuildState {MODEL_OK, ENV_MODEL_ERROR, MAP_MODEL_ERROR, CLIENT_MODEL_ERROR};
 
-   class CGLModel : public gliTransform
+   class GLModel : public gliTransform
    {
       public:
-         CGLModel()
+         GLModel()
          { 
             m_enableSelection=true; 
             m_renderMode = SOLID_MODE;
@@ -33,14 +33,16 @@ namespace plum{
             }
          }
 
-         CGLModel(const CGLModel& other) : gliTransform(other)
+         GLModel(const GLModel& other) : gliTransform(other)
       {
          m_enableSelection=other.m_enableSelection;
          m_renderMode = other.m_renderMode;
          m_RGBA = other.m_RGBA; 
       }
 
-         virtual ~CGLModel(){/*do nothing*/}
+         virtual ~GLModel(){/*do nothing*/}
+         const string GetFilename() const { return m_filename; }
+         void SetFilename(string _filename){ m_filename = _filename; }
 
          //////////////////////////////////////////////////////////////////////
          // Action functions
@@ -50,6 +52,7 @@ namespace plum{
          }
 
          virtual void Select( unsigned int * index, vector<gliObj>& sel ){/*nothing*/}
+         virtual bool ParseFile(){ return true; }  //pure eventually 
          virtual bool BuildModels() =0;
          virtual void Draw( GLenum mode ) =0;
 
@@ -69,14 +72,14 @@ namespace plum{
               m_RGBA.clear(); 
               m_RGBA.push_back(r); m_RGBA.push_back(g); m_RGBA.push_back(b); m_RGBA.push_back(a);
             }
-            //virtual const float * GetColor() const { return m_RGBA; }
+            
             vector<float> GetColor() const { return m_RGBA; } 
 
             //Get the name information
             virtual const string GetName() const =0;//{ return "unknow"; }
 
             //get the contained children if any
-            virtual void GetChildren( list<CGLModel*>& models )
+            virtual void GetChildren( list<GLModel*>& models )
             { /*do nothing as default*/ }
 
             //Get more detailde information
@@ -87,8 +90,10 @@ namespace plum{
       public:
             bool  m_enableSelection;
             RenderMode   m_renderMode;     //wire or solid or hide
+            vector<float> m_RGBA;  //Color 
 
-            vector<float> m_RGBA;  //Color  
+      private:
+            string m_filename; 
    };
 
 }//namespace plum

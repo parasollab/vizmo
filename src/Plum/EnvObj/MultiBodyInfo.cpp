@@ -13,6 +13,7 @@ namespace plum{
     m_pBodyInfo = NULL;
     m_active = false;
     m_surface = false;
+    m_NumberOfConnections = 0; 
   }
 
   CMultiBodyInfo::CMultiBodyInfo(const CMultiBodyInfo & other) {

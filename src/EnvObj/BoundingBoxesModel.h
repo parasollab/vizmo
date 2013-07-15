@@ -15,7 +15,7 @@ using namespace plum;
 #include "BoundingBoxParser.h"
 #include "BoundingBoxModel.h"
 
-class CBoundingBoxesModel : public CGLModel
+class CBoundingBoxesModel : public GLModel
 {
    public:
       //////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ class CBoundingBoxesModel : public CGLModel
       virtual const string GetName() const { return "Bounding Box"; }
       virtual vector<string> GetInfo() const;
       virtual void Select( unsigned int * index, vector<gliObj>& sel );
-      virtual void GetChildren( list<CGLModel*>& models ){
+      virtual void GetChildren( list<GLModel*>& models ){
          typedef vector<BoundingBoxModel*>::iterator BIT;
          for(BIT i=m_BBXModels.begin();i!=m_BBXModels.end();i++)
             models.push_back(*i);

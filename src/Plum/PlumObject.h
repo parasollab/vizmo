@@ -1,6 +1,6 @@
 /* PlumObject
  *
- * A PlumObject is composed of both a Loadable and a CGLModel
+ * A PlumObject is composed of both a Loadable and a GLModel
  */
 
 #ifndef PLUMOBJECT_H_
@@ -8,19 +8,19 @@
 
 namespace plum {
 
-  class CGLModel;
+  class GLModel;
   class Loadable;
 
   class PlumObject {
     public:
-      PlumObject(CGLModel* _model = NULL, Loadable* _loader = NULL) : 
+      PlumObject(GLModel* _model = NULL, Loadable* _loader = NULL) : 
         m_model(_model), m_loader(_loader) {}
 
-      CGLModel* GetModel() const {return m_model;}
+      GLModel* GetModel() const {return m_model;}
       Loadable* GetLoader() const {return m_loader;}
 
-    protected:
-      CGLModel* m_model;
+    protected:    
+      GLModel* m_model;
       Loadable* m_loader;
   };
 }

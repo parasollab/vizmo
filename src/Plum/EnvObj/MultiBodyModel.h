@@ -7,7 +7,7 @@
 
 namespace plum{
 
-  class MultiBodyModel : public CGLModel {
+  class MultiBodyModel : public GLModel {
     public:
       //////////////////////////////////////////////////////////////////////
       // Cons/Des
@@ -31,7 +31,7 @@ namespace plum{
 
       virtual const string GetName() const { return "MultiBody"; }
 
-      virtual void GetChildren(list<CGLModel*>& models){ 
+      virtual void GetChildren(list<GLModel*>& models){ 
 	for(size_t i=0; i<m_poly.size(); i++ )
 	  models.push_back(&m_poly[i]);
       }
@@ -56,7 +56,7 @@ namespace plum{
 
       //public variables
       double posX, posY, posZ;
-      list<CGLModel *> objlist; // to have access from glitransTool class
+      list<GLModel *> objlist; // to have access from glitransTool class
     
     private:
       const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo

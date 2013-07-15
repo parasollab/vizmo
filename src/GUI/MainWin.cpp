@@ -1,5 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-//Include Vizmo2 Headers
 #include "vizmo2.h"
 #include "MainWin.h"  
 #include "SceneWin.h"
@@ -10,21 +8,17 @@
 #include "QueryGUI.h"
 #include "MainMenu.h" 
 #include "OptionsBase.h"
-///////////////////////////////////////////////////////////////////////////////
-//Include Qt Headers
+
 #include <QKeyEvent>
-///////////////////////////////////////////////////////////////////////////////
-//Icons
+
 #include "Icons/Eye.xpm"
 
-/// CLASS VizmoMainWin
-////////////////////////////////////////////////////////
 VizmoMainWin::VizmoMainWin(QWidget* _parent)
   :QMainWindow(_parent), m_bVizmoInit(false){ 
 
   setMinimumSize(960, 700);   
   setWindowTitle("Vizmo++"); 
-  m_GL=NULL;
+  m_GL = NULL;
   m_animationGUI = m_animationDebugGUI = NULL;
   move(0,0);
   m_setQS = false;
@@ -85,10 +79,12 @@ VizmoMainWin::InitVizmo(){
     Here we use the first argument, but in the future
     we should use all of them to load files.
     */
-  GetVizmo().GetAccessFiles(m_args[0]);
+  GetVizmo().GetAccessFiles(m_args[0]); 
   FileListDialog* flDialog = new FileListDialog(this);
+  
   if(flDialog->exec()!= QDialog::Accepted)
     return false;  
+  
   if(GetVizmo().InitVizmoObject() == false)  
     return false; 
     
@@ -176,7 +172,7 @@ VizmoMainWin::SetUpLayout(){
   m_layout->setRowStretch(3, 3); 
   m_layout->setRowStretch(4, 3); 
 
-  for(int i=6; i<=25; i++)
+  for(int i = 6; i <= 25; i++)
     m_layout->setColumnStretch(i, 2); //...also helps GL scene expand better  
   
   //The menubar

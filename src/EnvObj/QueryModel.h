@@ -19,7 +19,7 @@ using namespace plum;
 #include "QueryLoader.h"
 class OBPRMView_Robot;
 
-class CQueryModel : public CGLModel
+class CQueryModel : public GLModel
 {
 public:
     

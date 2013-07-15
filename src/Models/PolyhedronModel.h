@@ -6,7 +6,7 @@
 
 class RAPID_model;
 
-class PolyhedronModel : public plum::CGLModel {
+class PolyhedronModel : public plum::GLModel {
   public:
     typedef Vector<int,  3> Tri;
     typedef vector<Point3d> PtVector;

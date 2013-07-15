@@ -30,7 +30,7 @@ TextGUI::SetText(){
   //infoVect
   if(sel.size() > 0){
     for(SIT i=sel.begin(); i!=sel.end(); i++){
-      CGLModel* gl = (CGLModel *)(*i);
+      GLModel* gl = (GLModel *)(*i);
       if(gl != NULL){
         vector<string> info = gl->GetInfo();
         if(info.size() > 0)

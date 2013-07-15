@@ -409,7 +409,7 @@ RoadmapOptions::MakeSolid(){
   vector<gliObj>& sel = GetVizmo().GetSelectedItem();
   typedef vector<gliObj>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    CGLModel* gl = (CGLModel*)(*i);
+    GLModel* gl = (GLModel*)(*i);
     gl->SetRenderMode(SOLID_MODE);
     s = gl->GetName();
     k++;
@@ -426,7 +426,7 @@ RoadmapOptions::MakeWired(){
   vector<gliObj>& sel = GetVizmo().GetSelectedItem();
   typedef vector<gliObj>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    CGLModel *gl = (CGLModel*)(*i);
+    GLModel *gl = (GLModel*)(*i);
     gl->SetRenderMode(WIRE_MODE);
   }
   GetVizmo().UpdateSelection();
@@ -440,7 +440,7 @@ RoadmapOptions::MakeInvisible(){
   vector<gliObj>& sel = GetVizmo().GetSelectedItem();
   typedef vector<gliObj>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    CGLModel* gl = (CGLModel*)(*i);
+    GLModel* gl = (GLModel*)(*i);
     gl->SetRenderMode(INVISIBLE_MODE);
   }
   GetVizmo().UpdateSelection();
@@ -475,7 +475,7 @@ RoadmapOptions::ColorSelectedCC(){
   typedef vector<gliObj>::iterator SI;
   string m_sO;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    CGLModel* gl = (CGLModel*)(*i);
+    GLModel* gl = (GLModel*)(*i);
     m_sO = gl->GetName();
   }
 
@@ -542,7 +542,7 @@ RoadmapOptions::ShowObjectContextMenu(){
 
   for(GIT ig = GetVizmo().GetSelectedItem().begin(); 
       ig!=GetVizmo().GetSelectedItem().end(); ig++){
-    CGLModel* gl=(CGLModel*)(*ig);
+    GLModel* gl=(GLModel*)(*ig);
     vector<string> info=gl->GetInfo();
     str = info.front();
   }
@@ -593,7 +593,7 @@ RoadmapOptions::ChangeObjectColor(){
 
   if(m_nodeGUI != NULL && m_nodeGUI->isVisible() && m_nodeGUI->filledFirstTime==false){
   if(!GetMapModel()->GetNodeList().empty()){
-  CGLModel* n = GetMapModel()->GetNodeList().front(); 
+  GLModel* n = GetMapModel()->GetNodeList().front(); 
   CCfg* cfg = (CCfgModel*)n;   
   vector<double> VNodeCfgModel;
   VNodeCfg.clear();

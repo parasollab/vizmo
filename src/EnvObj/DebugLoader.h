@@ -1,4 +1,4 @@
-// PathLoader.h: interface for the CDebugLoader class.
+// DebugLoader.h: interface for the CDebugLoader class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -9,7 +9,6 @@
 using namespace std;
 
 #include "Plum/MapObj/CfgModel.h"
-#include "Plum/MapObj/MapLoader.h"
 #include "Plum/MapObj/MapModel.h"
 #include "Plum/Loadable.h"
 using namespace plum;

@@ -1,67 +1,76 @@
+#include <cstring> 
+
 #include "Plum.h"
-
-#include <cstring>
 #include <GL/glu.h>
-
 #include "Loadable.h"
 #include "PlumObject.h"
 
 namespace plum {
 
   void
-    Plum::Clean() {
-      m_plumObjects.clear();
-      m_selectedItems.clear();
-    }
+  Plum::Clean() {
+    
+    m_plumObjects.clear();
+    m_selectedItems.clear();
+  }
 
   bool
-    Plum::ParseFile() {
-      typedef typename vector<PlumObject*>::iterator PIT;
-      for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit) {
-        Loadable* loader = (*pit)->GetLoader();
-        if(!loader)
-          continue;
-        if(!loader->ParseFile())
-          return false;
+  Plum::ParseFile(){
+    
+    typedef typename vector<PlumObject*>::iterator PIT;
+    for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit){
+      Loadable* loader = (*pit)->GetLoader();
+      //When all loaders are gone, virtual function ParseFile will be called
+      //on all MODELS instead and this can be default rather than checked.       
+      //Or, ParseFile() can happen in model constructors if dependencies
+      //allow  
+      if(!loader){ 
+        //cout<<"No loader for " <<(*pit)->GetModel()->GetName()<<"; using model's ParseFile()"<<endl; 
+        ((*pit)->GetModel())->ParseFile(); 
+        continue;
       }
-      return true;
-    }
-
+      
+      if(!loader->ParseFile()) //current default that will go away... 
+        return false;        
+    }   
+    return true;
+  }
 
   BuildState
-    Plum::BuildModels() {
-      typedef typename vector<PlumObject*>::iterator PIT;
-      for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit) {
-        CGLModel* model = (*pit)->GetModel();
-        if(!model) 
-          continue;
-        if(!model->BuildModels()){
-          cerr << "Couldn't build model..." << endl;
-          return CLIENT_MODEL_ERROR;
-        }
+  Plum::BuildModels(){
+  
+    typedef typename vector<PlumObject*>::iterator PIT;
+    for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit){
+      GLModel* model = (*pit)->GetModel();
+      if(!model) 
+        continue;
+      if(!model->BuildModels()){
+        cerr << "Couldn't build model: " << model->GetName()<< endl;
+        return CLIENT_MODEL_ERROR;
       }
-      return MODEL_OK;
     }
+    return MODEL_OK;
+  }
 
   void 
-    Plum::Draw() {
-      typedef typename vector<PlumObject*>::iterator PIT;
-      for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit) {
-        CGLModel* model = (*pit)->GetModel();
-        if(!model)
-          continue;
-        glEnable(GL_LIGHTING);
-        model->Draw(GL_RENDER);
-      }
-
-      typedef vector<gliObj>::iterator GIT;
-      for(GIT ig = m_selectedItems.begin(); ig != m_selectedItems.end(); ig++){
-        CGLModel* model=(CGLModel*)(*ig);
-        if(model != NULL)
-          model->DrawSelect();
-      }
-
+  Plum::Draw(){
+  
+    typedef typename vector<PlumObject*>::iterator PIT;
+    for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit){
+      GLModel* model = (*pit)->GetModel();
+      if(!model)
+        continue;
+      glEnable(GL_LIGHTING);
+      model->Draw(GL_RENDER);
     }
+
+    typedef vector<gliObj>::iterator GIT;
+    for(GIT ig = m_selectedItems.begin(); ig != m_selectedItems.end(); ig++){
+      GLModel* model = (GLModel*)(*ig);
+      if(model != NULL)
+        model->DrawSelect();
+    }
+  }
 
 #define BUFFER_SIZE 1024
 
@@ -100,7 +109,7 @@ namespace plum {
       int objSize=m_plumObjects.size();
       for( int iCM=0; iCM<objSize; iCM++ ){
         glPushName(iCM);
-        CGLModel* model = m_plumObjects[iCM]->GetModel();
+        GLModel* model = m_plumObjects[iCM]->GetModel();
         if( model==NULL ) continue;
         model->Draw( GL_SELECT );
         glPopName();
@@ -153,7 +162,7 @@ namespace plum {
         else{ //select all
           if(curName[0] > m_plumObjects.size()) 
             return;
-          CGLModel* selectModel = m_plumObjects[curName[0]]->GetModel();
+          GLModel* selectModel = m_plumObjects[curName[0]]->GetModel();
           if(selectModel!=NULL) 
             selectModel->Select(&curName[1], m_selectedItems);
         }
@@ -166,7 +175,7 @@ namespace plum {
         // analyze selected item //not name which created in this lib
         if(selName[0] > m_plumObjects.size()) 
           return;
-        CGLModel* selectModel = m_plumObjects[selName[0]]->GetModel();
+        GLModel* selectModel = m_plumObjects[selName[0]]->GetModel();
         if(selectModel != NULL){ 
           selectModel->Select(&selName[1], m_selectedItems);
         }

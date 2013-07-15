@@ -10,18 +10,17 @@
 using namespace mathtool;
 
 #include <Plum/EnvObj/MultiBodyModel.h>
-#include <Plum/EnvObj/EnvLoader.h>
+#include <Plum/EnvObj/EnvModel.h> 
 #include <Plum/GLModel.h>
 #include <Plum/EnvObj/MultiBodyInfo.h>
 #include <Utilities/GL/gliCamera.h>
 
 using namespace plum;
 
-class OBPRMView_Robot : public CGLModel{
+class OBPRMView_Robot : public GLModel{
 
   public:
 
-    /////////////////////////////////////////////////////////////////////
     void Print(){
       std::cout << m_RobotModel->tx() << " "
         << m_RobotModel->ty() << " "
@@ -30,33 +29,27 @@ class OBPRMView_Robot : public CGLModel{
         << m_RobotModel->ry() << " "
         << m_RobotModel->rz() << endl;
     }
-    /////////////////////////////////////////////////////////////////////
 
 
-    //////////////////////////////////////////////////////////////////////
-    // Constructor/Destructor
-    //////////////////////////////////////////////////////////////////////
-    OBPRMView_Robot(CEnvLoader* _pEnv);
+    OBPRMView_Robot(EnvModel* _env);
     OBPRMView_Robot(const OBPRMView_Robot& _otherRobot);
     ~OBPRMView_Robot();
 
-    //////////////////////////////////////////////////////////////////////
-    // Action functions
-    //////////////////////////////////////////////////////////////////////
-    virtual bool BuildModels();
+    EnvModel* GetEnvModel()const { return m_envModel; } 
 
+    virtual bool BuildModels();
     virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
     virtual void Select( unsigned int * index, vector<gliObj>& sel );
 
     //set wire/solid to all items
     virtual void SetRenderMode(RenderMode _mode){
-      CGLModel::SetRenderMode(_mode);
+      GLModel::SetRenderMode(_mode);
       if(m_RobotModel!=NULL) m_RobotModel->SetRenderMode(_mode); 
     }
 
     virtual void SetColor( float r, float g, float b, float a ){
-      CGLModel::SetColor(r,g,b,a);
+      GLModel::SetColor(r,g,b,a);
       if(m_RobotModel!=NULL)
         m_RobotModel->SetColor(r,g,b,a);
     }
@@ -71,7 +64,7 @@ class OBPRMView_Robot : public CGLModel{
       return "No Robot"; 
     }
 
-    virtual void GetChildren( list<CGLModel*>& models ){ 
+    virtual void GetChildren( list<GLModel*>& models ){ 
       if( m_RobotModel!=NULL )
         models.push_back(m_RobotModel);
     }
@@ -93,8 +86,7 @@ class OBPRMView_Robot : public CGLModel{
     //return current configuration
     vector<double> getFinalCfg();
 
-    CEnvLoader * getEnvLoader() const;
-    MultiBodyModel * getRobotModel() const;
+    MultiBodyModel* getRobotModel() const;
     int getNumJoints();
     void BackUp();
     void Restore();
@@ -188,7 +180,7 @@ class OBPRMView_Robot : public CGLModel{
     double delta;
     double phantomdelta;
 
-    CEnvLoader * m_pEnvLoader;
+    EnvModel* m_envModel; 
     const CMultiBodyInfo * m_RobotInfo;
     MultiBodyModel * m_RobotModel;
 

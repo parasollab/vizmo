@@ -158,11 +158,11 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
     vector<gliObj>& sel=GetVizmo().GetSelectedItem();
     typedef vector<gliObj>::iterator OIT;
     for(OIT oit = sel.begin(); oit != sel.end(); oit++){
-      if(((CGLModel*)(*oit))->GetName() != "Node") {
+      if(((GLModel*)(*oit))->GetName() != "Node") {
         typedef vector<gliObj>::iterator GIT;
         MultiBodyModel* mbl;
-        list<CGLModel*> modelList;
-        CGLModel* gl;
+        list<GLModel*> modelList;
+        GLModel* gl;
         int i=0;
         for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++){
           if(!modelList.empty()){

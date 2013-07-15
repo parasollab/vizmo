@@ -2,36 +2,31 @@
 #include "vizmo2.h"
 
 
-OBPRMView_Robot::OBPRMView_Robot(CEnvLoader * pEnv)
-{
-   m_pEnvLoader=pEnv;
-   dof=1000;
-   m_RobotModel=NULL;
-   mode = 0;
-   delta = .1;
-   phantomdelta = .1;
-   tempCfg = new double[dof];
-   currentCfg = new double[dof]; 
-   rotation_axis = new double[3];
-   mbRobotBackUp = NULL;
-   RotFstBody = NULL;
+OBPRMView_Robot::OBPRMView_Robot(EnvModel* _env){
+  
+  m_envModel = _env;
+  dof = 1000;
+  m_RobotModel = NULL;
+  mode = 0;
+  delta = .1;
+  phantomdelta = .1;
+  tempCfg = new double[dof];
+  currentCfg = new double[dof]; 
+  rotation_axis = new double[3];
+  mbRobotBackUp = NULL;
+  RotFstBody = NULL;
 
-   pthread_mutex_init(&mutex,NULL);
-
+  pthread_mutex_init(&mutex, NULL);
 }
 
-   OBPRMView_Robot::OBPRMView_Robot(const OBPRMView_Robot &other_robot)
-:CGLModel(other_robot)
-{
-   m_pEnvLoader=other_robot.getEnvLoader();
-   m_RobotModel = other_robot.getRobotModel();
+OBPRMView_Robot::OBPRMView_Robot(const OBPRMView_Robot& _otherRobot)
+  :GLModel(_otherRobot){
+    
+   m_envModel = _otherRobot.GetEnvModel();
+   m_RobotModel = _otherRobot.getRobotModel();
 }
 
-CEnvLoader * OBPRMView_Robot::getEnvLoader() const {
-   return m_pEnvLoader;
-}
-
-MultiBodyModel * OBPRMView_Robot::getRobotModel() const {
+MultiBodyModel* OBPRMView_Robot::getRobotModel() const {
    return m_RobotModel;
 }
 
@@ -43,9 +38,9 @@ OBPRMView_Robot::~OBPRMView_Robot()
 bool OBPRMView_Robot::BuildModels(){
 
    //find robot name
-   const CMultiBodyInfo * pMInfo = m_pEnvLoader->GetMultiBodyInfo();
-   int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
-   m_RobotInfo = m_pEnvLoader->GetMultiBodyInfo();
+   const CMultiBodyInfo* pMInfo = m_envModel->GetMultiBodyInfo();
+   int numMBody=m_envModel->GetNumberOfMultiBody();
+   m_RobotInfo = m_envModel->GetMultiBodyInfo();
    //     int iM=0;
    //     for( ; iM<numMBody; iM++ ){
    //       if( !pMInfo[iM].m_pBodyInfo[0].m_bIsFixed ){
@@ -108,8 +103,7 @@ void OBPRMView_Robot::DrawSelect()
 
 void OBPRMView_Robot::InitialCfg(vector<double>& cfg){
    //save initial Cfg.
-   dof = m_pEnvLoader->getDOF();
-   //cout << "InitialCfg" << endl;
+   dof = m_envModel->GetDOF();
    StCfg = new double[dof];
    for(int i=0; i<dof; i++){
       StCfg[i] = cfg[i];
@@ -213,10 +207,10 @@ void OBPRMView_Robot::Configure( double * cfg) {
 
   pthread_mutex_lock(&mutex);
 
-  const CMultiBodyInfo * MBInfo = m_pEnvLoader->GetMultiBodyInfo();
-  int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
+  const CMultiBodyInfo* MBInfo = m_envModel->GetMultiBodyInfo();
+  int numMBody = m_envModel->GetNumberOfMultiBody();
   int robIndx = 0;
-  vector<Robot>& robots = m_pEnvLoader->GetRobots();
+  vector<Robot>& robots = m_envModel->GetRobots();
 
   vector<PolyhedronModel>& pPoly = m_RobotModel->GetPolyhedron();
 
@@ -228,7 +222,7 @@ void OBPRMView_Robot::Configure( double * cfg) {
     if( MBInfo[iM].m_active )
       robIndx = iM;
   }
-  int myDOF=m_pEnvLoader->getDOF();
+  int myDOF = m_envModel->GetDOF();
 
   int numBody=MBInfo[robIndx].m_cNumberOfBody;
 
@@ -365,7 +359,7 @@ vector<double> OBPRMView_Robot::returnCurrCfg( int dof){
 
 void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 
-   int dof = m_pEnvLoader->getDOF();
+   int dof = m_envModel->GetDOF();
    //to store actual cfg
    vector<double> currCfg(dof);
    //to store cfg. to be sent to Robot::setStart
@@ -373,9 +367,9 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 
 
 
-   CGLModel * rl;
+   GLModel * rl;
 
-   list<CGLModel*> robotList;
+   list<GLModel*> robotList;
    m_RobotModel->GetChildren(robotList);
 
    if(dof == 6){ //rigid body
@@ -383,16 +377,16 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
       //if user didn't move robot by hand, this means
       //the animation tool was used
       if(m_RobotModel->tx() == 0 && m_RobotModel->ty() == 0 && m_RobotModel->tz() == 0){
-         typedef list<CGLModel *>::iterator RI;
+         typedef list<GLModel *>::iterator RI;
 
          for(RI i=robotList.begin(); i!=robotList.end(); i++){
-            rl = (CGLModel*)(*i);
+            rl = (GLModel*)(*i);
             currCfg[0] = rl->tx();
             currCfg[1] = rl->ty();
             currCfg[2] = rl->tz();
             //Need to compute rotation from Quaternion
 
-            CGLModel* rm = robotList.front();
+            GLModel* rm = robotList.front();
 
             //get new rotation from GL
             Quaternion qrm;
@@ -437,7 +431,7 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 
             //Need to compute rotation from Quaternion
 
-            CGLModel* rm = robotList.front();
+            GLModel* rm = robotList.front();
 
             //get new rotation from GL
             Quaternion qrm;
@@ -491,7 +485,7 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 
       //Need to compute rotation from Quaternion
 
-      CGLModel* rm = robotList.front();
+      GLModel* rm = robotList.front();
 
       //get new rotation from multiBody 
       Quaternion qrm;
@@ -527,15 +521,15 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 
 vector<double> OBPRMView_Robot::getFinalCfg(){
 
-  int dof = m_pEnvLoader->getDOF();
+  int dof = m_envModel->GetDOF();
   //to store actual cfg
   vector<double> currCfg(dof);
   //to store cfg. to be sent to Robot::setStart
   vector<double *> vCfg;
 
-  CGLModel * rl;
+  GLModel * rl;
 
-  list<CGLModel*> robotList;
+  list<GLModel*> robotList;
   m_RobotModel->GetChildren(robotList);
 
   //bool tool = false;
@@ -545,10 +539,10 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
     //if user didn't move robot by hand, this means
     //the animation tool was used
     if(m_RobotModel->tx() == 0 && m_RobotModel->ty() == 0 && m_RobotModel->tz() == 0){
-      typedef list<CGLModel *>::iterator RI;
+      typedef list<GLModel *>::iterator RI;
 
       for(RI i=robotList.begin(); i!=robotList.end(); i++){
-        rl = (CGLModel*)(*i);
+        rl = (GLModel*)(*i);
 
         currCfg[0] = rl->tx();
         currCfg[1] = rl->ty();
@@ -557,7 +551,7 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 
         //Need to compute rotation from Quaternion
 
-        CGLModel* rm = robotList.front();
+        GLModel* rm = robotList.front();
 
         //get new rotation from GL
         Quaternion qrm;
@@ -597,7 +591,7 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 
         //Need to compute rotation from Quaternion
 
-        CGLModel* rm = robotList.front();
+        GLModel* rm = robotList.front();
 
         //get new rotation from GL
         Quaternion qrm;
@@ -653,7 +647,7 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 
     //Need to compute rotation from Quaternion
 
-    CGLModel* rm = robotList.front();
+    GLModel* rm = robotList.front();
 
     //get new rotation from multiBody 
     Quaternion qrm;
@@ -689,14 +683,11 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 }
 
 
-int OBPRMView_Robot::getNumJoints(){
+int 
+OBPRMView_Robot::getNumJoints(){
 
-   //const CMultiBodyInfo * pMInfo = m_pEnvLoader->GetMultiBodyInfo();
-   //int numMBody=m_pEnvLoader->GetNumberOfMultiBody();
-   m_RobotInfo = m_pEnvLoader->GetMultiBodyInfo();
-
+   m_RobotInfo = m_envModel->GetMultiBodyInfo();
    return m_RobotInfo[0].m_NumberOfConnections;
-
 }
 
 

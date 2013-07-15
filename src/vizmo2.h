@@ -1,41 +1,21 @@
-// OBPRMView.h: interface for the vizmo class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined(_VIZMO2_H_)
 #define _VIZMO2_H_
 
-//////////////////////////////////////////////////////////////////////
-// Include std headers
 #include <vector>
 #include <string>
-using namespace std;
-#include<stdio.h>
-//////////////////////////////////////////////////////////////////////
-// Include Plum headers
-#include "Plum/MapObj/MapModel.h" 
-
-namespace plum{
-  class CPlum;
-}
-
-
-#include <Plum/Plum.h>
-#include <Plum/EnvObj/MultiBodyModel.h>
-using namespace plum;
-
-
-#include <Utilities/CollisionDetection.h>
+#include <stdio.h>
 
 #include <qstringlist.h> 
 
+#include "Plum/MapObj/MapModel.h" 
+#include <Plum/Plum.h>
+#include <Plum/EnvObj/MultiBodyModel.h>
+#include <Utilities/CollisionDetection.h>
 
 #ifdef USE_PHANTOM
 #include <HD/hd.h>
-
 #include <HDU/hduError.h>
 #include <HDU/hduVector.h>
-
 //#include <HL/hl.h>
 //#include <HDU/hduMath.h>
 //#include <HDU/hduMatrix.h>
@@ -44,16 +24,19 @@ using namespace plum;
 //#include <HLU/hlu.h>
 #endif
 
+namespace plum{
+  class CPlum;
+}
+
+using namespace std; 
+using namespace plum;
+
 class gliCamera;
 gliCamera* GetCamera();
 void SetCamera(gliCamera* s_camera);
 
-
-
 class OBPRMView_Robot;
 OBPRMView_Robot* GetRobot();
-
-
 
 #ifdef USE_PHANTOM
 //Define singleton
@@ -218,7 +201,8 @@ class vizmo
       /**
        * Create vizmo_obj.
        */
-      bool InitVizmoObject();
+      //bool InitVizmoObject(const string& _filename); 
+      bool InitVizmoObject(); 
 
       /**
        * Display OpenGL Scene
@@ -250,7 +234,7 @@ class vizmo
       void ChangeNodesRandomColor();
       PlumObject * GetMap() const {return m_obj.m_map;}
 
-      void setMapObj(CMapLoader<CfgModel,EdgeModel> *ml, CMapModel<CfgModel,EdgeModel> * mm);
+      void SetMapObj(MapModel<CfgModel,EdgeModel>* _mm);
 
       //////////////////////////////////////////////////////////////////////
       // Path Related Function
@@ -308,9 +292,9 @@ class vizmo
       void SaveQryCfg(char ch); //save start or goal cfg.
       void DeleteObject(MultiBodyModel * mbl);
       //called form main_win::autoMkmp()
-      bool env_changed;
-      bool envChanged();
-      bool isEnvChanged() {return env_changed;}
+      bool m_envChanged;
+      bool EnvChanged();
+      bool IsEnvChanged() { return m_envChanged; }
       PlumObject * GetEnv() const { return m_obj.m_Env; }
 
       /////////////////////////////////////////////////////////////////////
@@ -342,7 +326,7 @@ class vizmo
       vector<PlumObject*>& GetPlumObjects(){ return m_Plum.GetPlumObjects(); }
 
       void cleanSelectedItem(){ m_Plum.CleanSelectedItems();}
-      void addSelectedItem(CGLModel *ml){ m_Plum.AddSelectedItem(ml);}
+      void addSelectedItem(GLModel *ml){ m_Plum.AddSelectedItem(ml);}
 
       double GetEnvRadius();
 
@@ -429,7 +413,7 @@ class vizmo
        * Check if given filename exists.
        * @return ture if file is found.
        */
-      bool FileExits(const string& filename) const;
+      bool FileExists(const string& _filename) const;
       bool m_bShowRobot;
 
       // list<vizmo_obj> m_objs; //for future reference

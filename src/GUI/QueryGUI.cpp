@@ -13,7 +13,7 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
   QString qs;
   //int I=0;
   for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++){
-      CGLModel * gl=(CGLModel *)(*ig);
+      GLModel * gl=(GLModel *)(*ig);
       //objname = gl->GetInfo();
       objname = gl->GetName();
   }
@@ -22,7 +22,7 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
     PlumObject * m_Rob, m_Env;
     m_Rob = GetVizmo().GetRobot();
     OBPRMView_Robot* r = (OBPRMView_Robot*)m_Rob->GetModel();
-    m_dof = (r->getEnvLoader())->getDOF();
+    m_dof = (r->GetEnvModel())->GetDOF();
 
     //here I should put query values...
     vector<double> Qcfg = r->getFinalCfg();

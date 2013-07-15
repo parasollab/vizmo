@@ -27,24 +27,23 @@ CollisionDetection::~CollisionDetection(){
 
 }
 
-bool CollisionDetection::IsInCollision(plum::CEnvLoader* envLoader, 
-      plum::MultiBodyModel* robot, 
-      plum::MultiBodyModel* obstacle){
+bool CollisionDetection::IsInCollision(plum::EnvModel* _envModel,       
+      plum::MultiBodyModel* _robot, 
+      plum::MultiBodyModel* _obstacle){
 
    return true;
 }
 
 
-bool CollisionDetection::IsInCollision(int numMB, 
-      plum::CEnvModel* env, 
-      plum::CEnvLoader* envLoader,
-      plum::MultiBodyModel * robotModel,
-      OBPRMView_Robot * robotObj) {
+bool CollisionDetection::IsInCollision(int _numMB, 
+      plum::EnvModel* _envModel, 
+      plum::MultiBodyModel* _robotModel,
+      OBPRMView_Robot* _robotObj) {
 
 
-   vector<MultiBodyModel *> MBmodel = env->getMBody();
-   const CMultiBodyInfo* MBI = envLoader->GetMultiBodyInfo();
-   int dof = envLoader->getDOF();
+   vector<MultiBodyModel*> MBmodel = _envModel->GetMBody();
+   const CMultiBodyInfo* MBI = _envModel->GetMultiBodyInfo();
+   int dof = _envModel->GetDOF();
    int robIndx = 0;
    bool collision = false;
    bool value = false;
@@ -52,16 +51,16 @@ bool CollisionDetection::IsInCollision(int numMB,
    ////// Making a copy of the robot
    /// use this new robot to work...
 
-   OBPRMView_Robot* robotCpy(robotObj);
+   OBPRMView_Robot* robotCpy(_robotObj);
 
-   list<CGLModel*> robotList,modelList;
+   list<GLModel*> robotList,modelList;
    //obtain robot model	  
    robotCpy->GetChildren(modelList);
    MultiBodyModel * m_robotModel = (MultiBodyModel*)modelList.front();
 
 
    //get current color of robot
-   //  CGLModel* m_gl = modelList.front();
+   //  GLModel* m_gl = modelList.front();
    //const float * curr_color = m_gl->GetColor();
 
    rapid = new Rapid();
@@ -77,7 +76,7 @@ bool CollisionDetection::IsInCollision(int numMB,
    ////////////////////////////////////////////////
 
    //look for the robot 
-   for(int i = 0; i<numMB; i++){ 
+   for(int i = 0; i < _numMB; i++){ 
       if(MBI[i].m_active){ 
          //if this MBody is ROBOT
          robIndx = i;
@@ -87,7 +86,7 @@ bool CollisionDetection::IsInCollision(int numMB,
 
    //rapid->DoF = envLoader->getDOF();
 
-   for(int i=0; i<numMB; i++){
+   for(int i = 0; i < _numMB; i++){
       if(i != robIndx){
          collision = rapid->IsInCollision(m_robotModel, robotCpy, dof, MBmodel[i]);
          if(collision){
@@ -104,9 +103,9 @@ bool CollisionDetection::IsInCollision(int numMB,
    //rapid->test_node = false;
 
    if(!value && !rapid->test_node){
-      const CMultiBodyInfo& rMBInfo = robotModel->GetMBinfo();
+      const CMultiBodyInfo& rMBInfo = _robotModel->GetMBinfo();
       int NumBodiesRob= rMBInfo.m_cNumberOfBody;
-      vector<PolyhedronModel>& rPoly = robotModel->GetPolyhedron();
+      vector<PolyhedronModel>& rPoly = _robotModel->GetPolyhedron();
       int c;
       for(c=0; c<NumBodiesRob; c++){
          //rPoly[c].SetColor(1, 0, 0, 1);
@@ -208,8 +207,8 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
             //rotation link0
             //Need to compute rotation from Quaternion
 
-            list<CGLModel*> modelList;
-            CGLModel* gl;
+            list<GLModel*> modelList;
+            GLModel* gl;
             robot->GetChildren(modelList);
             gl = modelList.front();
             //get initial quaternion from polyhedron

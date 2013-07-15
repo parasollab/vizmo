@@ -19,14 +19,14 @@ using namespace plum;
 
 class OBPRMView_Robot;
 
-class DebugModel : public CGLModel {
+class DebugModel : public GLModel {
   public:
-    typedef CMapModel<CfgModel, EdgeModel> MapModel;
+    typedef MapModel<CfgModel, EdgeModel> MM;
 
     //////////////////////////////////////////////////////////////////////
     // Construction/Destruction
     //////////////////////////////////////////////////////////////////////
-    DebugModel();
+    DebugModel(); 
     virtual ~DebugModel();
     
     //////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ class DebugModel : public CGLModel {
     virtual vector<string> GetInfo() const;
     vector<string> GetComments();  
 
-    MapModel* GetMapModel(){return m_mapModel;}
+    MM* GetMapModel(){return m_mapModel;}
 
     void ConfigureFrame(int _frame);//{m_index = f;}
 
@@ -58,10 +58,8 @@ class DebugModel : public CGLModel {
     int m_prevIndex;
     CDebugLoader* m_debugLoader;
     OBPRMView_Robot* m_robot;
-    CMapLoader<CfgModel,EdgeModel>* m_mapLoader;
-
+    MM* m_mapModel;
     int m_edgeNum;
-    MapModel* m_mapModel;
     vector<CfgModel> m_tempCfgs;
     vector<EdgeModel> m_tempEdges, m_query;
     CfgModel* m_tempRay;

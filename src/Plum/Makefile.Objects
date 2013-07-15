@@ -1,11 +1,9 @@
 OBJECTS += \
 	   Plum/Plum.o \
-	   Plum/EnvObj/EnvLoader.o  \
 	   Plum/EnvObj/EnvModel.o  \
 	   Plum/EnvObj/MultiBodyInfo.o \
 	   Plum/EnvObj/MultiBodyModel.o \
 	   Plum/EnvObj/RobotInfo.o \
-	   Plum/MapObj/MapLoader.o \
 	   Plum/MapObj/MapModel.o \
 	   Plum/MapObj/CfgModel.o \
 	   Plum/MapObj/EdgeModel.o 

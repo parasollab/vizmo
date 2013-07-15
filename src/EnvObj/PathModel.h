@@ -10,7 +10,7 @@ using namespace plum;
 
 class OBPRMView_Robot;
 
-class PathModel : public CGLModel {
+class PathModel : public GLModel {
   public:
     typedef vector<float> RGBAcolor; 
 

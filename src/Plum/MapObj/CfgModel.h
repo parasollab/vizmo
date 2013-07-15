@@ -17,7 +17,7 @@ using namespace std;
 namespace plum{
 
   class CCModelBase;
-  class CfgModel : public CGLModel{
+  class CfgModel : public GLModel{
     
     friend ostream& operator<<(ostream& _out, const CfgModel& _cfg);
     friend istream& operator>>(istream& _in, CfgModel& _cfg);
@@ -38,7 +38,7 @@ namespace plum{
 
       virtual void 
       SetColor(float _r, float _g, float _b, float _a){
-        CGLModel::SetColor(_r,_g,_b,_a);
+        GLModel::SetColor(_r,_g,_b,_a);
       }
       
       void DrawRobot();

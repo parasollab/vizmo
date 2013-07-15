@@ -26,7 +26,7 @@ class RoadmapOptions : public OptionsBase{
     void Reset();
     void SetHelpTips(); 
     
-    typedef CMapModel<CfgModel, EdgeModel> MM; 
+    typedef MapModel<CfgModel, EdgeModel> MM; 
     MM* GetMapModel() {
       if(!GetVizmo().GetMap())
         return NULL;

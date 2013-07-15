@@ -14,7 +14,6 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
 #include "Plum/MapObj/CfgModel.h"
-#include "Plum/MapObj/MapLoader.h"
 #include "Plum/PlumObject.h" 
 #include "Plum/GLModel.h"
 
@@ -321,13 +320,11 @@ vizmo_obj::Clean(){
 
   if(m_Env != NULL){
     delete m_Env->GetModel(); 
-    delete m_Env->GetLoader(); 
     delete m_Env;
   }      
 
   if(m_map != NULL){
     delete m_map->GetModel(); 
-    delete m_map->GetLoader(); 
     delete m_map;
   }
   m_Robot = m_Qry = m_Path = m_debug = m_Env = m_map = NULL;
@@ -347,146 +344,153 @@ vizmo::vizmo()
    query_changed = false;
 }
 
-vizmo::~vizmo()
-{
-}
+vizmo::~vizmo(){}
 
 //////////////////////////////////////////////////////////////////////
 // Core 
 //////////////////////////////////////////////////////////////////////
-void vizmo::GetAccessFiles(const string& filename)
-{
-   int pos=filename.rfind('.');
-   string name=filename.substr(0,pos);
-   //test if files exist
-   string envname; //env file name
-   string mapname=name+".map";
-   if( FileExits(mapname) ){ //check map and get env file name
-      m_obj.m_MapFile=mapname;
-      //parse header of map to get env filename
-      CMapHeaderLoader maploader;
-      maploader.SetFilename(mapname);
-      maploader.ParseFile();
-      envname=maploader.GetEnvFileName();
-   }
-   else m_obj.m_MapFile="";
-
-   if(envname.empty()) 
-     envname=name+".env";
-   if(FileExits(envname)){ 
-     m_obj.m_EnvFile=envname;}
-   else 
-     m_obj.m_EnvFile="";
-   //guess path and query file name
-   if(FileExits(name+".path")){
-     m_obj.m_PathFile=name+".path";}
-   else 
-     m_obj.m_PathFile="";
-   if(FileExits(name+".vd")){
-     m_obj.m_DebugFile=name+".vd";}
-   else 
-     m_obj.m_DebugFile="";
-   if(FileExits(name+".query")){
-     m_obj.m_QryFile=name+".query";}
-   else 
-     m_obj.m_QryFile="";
+void 
+vizmo::GetAccessFiles(const string& _filename){
+  
+  int pos = _filename.rfind('.');
+  string name = _filename.substr(0, pos);
+  
+  //test if files exist
+  string mapname = name + ".map";
+  string envname = "";
+  if(FileExists(mapname)){ 
+    m_obj.m_MapFile = mapname;
+    MapModel<CfgModel,EdgeModel> headerParser; 
+    headerParser.SetFilename(mapname); 
+    headerParser.ParseHeader(); 
+    envname = headerParser.GetEnvFileName();
+  }
+  else 
+    m_obj.m_MapFile = "";
+  
+  if(envname.empty()) 
+    envname = name + ".env";
+    
+  if(FileExists(envname)) 
+    m_obj.m_EnvFile = envname;
+  else  
+    m_obj.m_EnvFile = "";
+   
+  //guess path and query file name
+  if(FileExists(name+".path"))
+    m_obj.m_PathFile = name + ".path";
+  else 
+    m_obj.m_PathFile = "";
+  
+  if(FileExists(name + ".vd"))
+    m_obj.m_DebugFile = name + ".vd";
+  else 
+    m_obj.m_DebugFile = "";
+   
+  if(FileExists(name + ".query"))
+    m_obj.m_QryFile = name + ".query";
+  else 
+    m_obj.m_QryFile = "";
 }
 
-bool vizmo::InitVizmoObject()
-{
-   //delete old stuff
-   m_Plum.Clean();
-   m_obj.Clean();
+bool 
+vizmo::InitVizmoObject(){ 
 
-   //create env first
-   string name;
-   name=m_obj.m_EnvFile; //FindName("env",filenames);
-   if(!name.empty()){
-      if(!CreateEnvObj(m_obj,name)) 
-        return false;
-      cout<<"Load Environment File : "<<name<<endl;
-   }
+  //Delete old stuff
+  m_Plum.Clean();
+  m_obj.Clean();
 
-   //create robot
-   if(!CreateRobotObj(m_obj)) 
-     return false;
+  //Create environment first
+  string envFilename = m_obj.m_EnvFile; 
+  if(envFilename.empty() == false){
+    if(CreateEnvObj(m_obj, envFilename) == false){ 
+      cout << "Failed to create Environment." << endl; 
+      return false;
+    }
+    cout << "Load Environment File : "<< envFilename << endl;
+  }
 
-   //create map
-   name=m_obj.m_MapFile;//FindName("map",filenames); 
-   if(!name.empty()){
-      if(!CreateMapObj(m_obj,name)) 
-        return false;
-      cout<<"Load Map File : "<<name<<endl;
-   }
+  //Create robot
+  if(CreateRobotObj(m_obj) == false) 
+    return false;
 
-   //create path
-   name=m_obj.m_PathFile;//FindName("path",filenames);
-   if(!name.empty()){
-      if(!CreatePathObj(m_obj,name)) 
-        return false;
-      cout<<"Load Path File : "<<name<<endl;
-   }
+  //Create map
+  string mapFilename = m_obj.m_MapFile; 
+  if(mapFilename.empty() == false){   
+    if(CreateMapObj(m_obj, mapFilename) == false){ 
+      cout << "Failed to create Map." << endl; 
+      return false;
+    }
+    cout << "Load Map File : " << mapFilename << endl;
+  }
+   
+  //Create path
+  string pathFilename = m_obj.m_PathFile;
+  if(pathFilename.empty() == false){
+    if(CreatePathObj(m_obj, pathFilename) == false) 
+      return false;
+    cout << "Load Path File : " << pathFilename << endl;
+  }
 
-   //create debug
-   name=m_obj.m_DebugFile;//FindName("path",filenames);
-   if(!name.empty()){
-      if(!CreateDebugObj(m_obj,name)) 
-        return false;
-      cout<<"Load Debug File : "<<name<<endl;
-   }
+  //Create debug
+  string debugFilename = m_obj.m_DebugFile; 
+  if(debugFilename.empty() == false){
+    if(CreateDebugObj(m_obj, debugFilename) == false) 
+      return false;
+    cout << "Load Debug File : " << debugFilename << endl;
+  }
 
-   //create qry
-   name=m_obj.m_QryFile;//FindName("query",filenames);
-   if(!name.empty()){
-      if(!CreateQueryObj(m_obj,name)) 
-        return false;
-      cout<<"Load Query File : "<<name<<endl;
-   }
+  //Create qry
+  string qryFilename = m_obj.m_QryFile; 
+  if(qryFilename.empty() == false){
+    if(CreateQueryObj(m_obj, qryFilename) == false) 
+      return false;
+    cout << "Load Query File : " << qryFilename << endl;
+  }
 
-   //create bbx
-   //if(!CreateBBoxObj(m_obj)){
-   //  return false;}
+  //create bbx
+  //if(!CreateBBoxObj(m_obj)){
+  //  return false;}
 
-   //add all of them into plum
+  //Add all of them into plum
+  m_Plum.AddPlumObject(m_obj.m_Robot);
+  m_Plum.AddPlumObject(m_obj.m_Env);
+  m_Plum.AddPlumObject(m_obj.m_Path);
+  m_Plum.AddPlumObject(m_obj.m_debug);
+  m_Plum.AddPlumObject(m_obj.m_Qry);
+  m_Plum.AddPlumObject(m_obj.m_map);
 
-   m_Plum.AddPlumObject(m_obj.m_Robot);
-   m_Plum.AddPlumObject(m_obj.m_Env);
-   m_Plum.AddPlumObject(m_obj.m_Path);
-   m_Plum.AddPlumObject(m_obj.m_debug);
-   m_Plum.AddPlumObject(m_obj.m_Qry);
-   m_Plum.AddPlumObject(m_obj.m_map);
+  //let plum do what he needs to do
+  if(!m_Plum.ParseFile())
+    return false;
+   
+  if(m_Plum.BuildModels() != MODEL_OK)  
+    return false;
 
+  //Put robot in start cfg, if availiable
+  if(m_obj.m_Robot != NULL)
+    PlaceRobot();
 
-   //let plum do what he needs to do
-   if(!m_Plum.ParseFile()){
-     return false;}
-   if(m_Plum.BuildModels() != MODEL_OK){
-     return false;}
+  //Init. variables used to change color of env. objects
+  mR = mG = mB = 0;
 
-   //put robot in start cfg, if availiable
-   PlaceRobot();
+  //Set up visibility
+  ShowRoadMap(m_obj.m_show_Map);
+  ShowPathFrame(m_obj.m_show_Path);
+  ShowDebugFrame(m_obj.m_show_Debug);
+  ShowQueryFrame(m_obj.m_show_Qry);
 
-   // Init. variables used to change color of env. objects
-   mR = mG = mB = 0;
-
-   //setup visibility
-   ShowRoadMap(m_obj.m_show_Map);
-   ShowPathFrame(m_obj.m_show_Path);
-   ShowDebugFrame(m_obj.m_show_Debug);
-   ShowQueryFrame(m_obj.m_show_Qry);
-
-   return true;
+  return true;
 }
 
-void vizmo::RefreshEnv()
-{
-   if(m_obj.m_Env==NULL) 
-     return;
-   CGLModel *m=m_obj.m_Env->GetModel();
-
-   m->SetRenderMode(SOLID_MODE);
+void 
+vizmo::RefreshEnv(){
+   
+  if(m_obj.m_Env == NULL) 
+    return;
+  GLModel* m = m_obj.m_Env->GetModel();
+  m->SetRenderMode(SOLID_MODE);
 }
-
 
 //////////////////////////////////////////////////
 // Collision Detection related functions
@@ -511,7 +515,6 @@ void vizmo::Node_CD(CfgModel *cfg){
    }
 }
 
-
 void vizmo::TurnOn_CD(){
    
     string m_objName;
@@ -519,19 +522,20 @@ void vizmo::TurnOn_CD(){
    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
    typedef vector<gliObj>::iterator OIT;
    for(OIT i=sel.begin();i!=sel.end();i++){
-      m_objName = ((CGLModel*)(*i))->GetName();
+      m_objName = ((GLModel*)(*i))->GetName();
    }
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
-   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
-   if(envLoader != NULL){
-      int MBnum = envLoader->GetNumberOfMultiBody();
+   EnvModel* env = (EnvModel*)m_obj.m_Env->GetModel();
+   //CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
+   if(env != NULL){ //previously checked if loader was null 
+      //int MBnum = envLoader->GetNumberOfMultiBody();
+      int MBnum = env->GetNumberOfMultiBody();
 
       OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
 
-      list<CGLModel*> robotList,modelList;
+      list<GLModel*> robotList,modelList;
       //obtain robot model	  
       robot->GetChildren(modelList);
-      MultiBodyModel * robotModel = (MultiBodyModel*)modelList.front();
+      MultiBodyModel* robotModel = (MultiBodyModel*)modelList.front();
 
       //If we'll test a node, copy CfgModel to CD class
       if(m_IsNode){
@@ -544,7 +548,7 @@ void vizmo::TurnOn_CD(){
       }
 
       bool b = false;
-      b = CD.IsInCollision(MBnum, env, envLoader, robotModel, robot);
+      b = CD.IsInCollision(MBnum, env, robotModel, robot);
       is_collison = b;
 
       if (b){
@@ -567,8 +571,6 @@ void vizmo::TurnOn_CD(){
 #endif
       }
    }
-
-
 }
 
 
@@ -583,26 +585,26 @@ void vizmo::TurnOn_CD(){
 // 
 ///////////////////////////////////////////////////
 
-bool vizmo::SaveEnv(const char *filename)
-{
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
-   env=(CEnvModel*)m_obj.m_Env->GetModel();
+bool 
+vizmo::SaveEnv(const char* _filename){
 
-   env->SaveFile(filename);
-   return 1;
+  EnvModel* env = (EnvModel*)m_obj.m_Env->GetModel();
+  env = (EnvModel*)m_obj.m_Env->GetModel();
+  env->SaveFile(_filename);
+  return 1; //Why? 
 }
 
 void vizmo::SaveQryCfg(char ch){
 
   typedef vector<gliObj>::iterator GIT;
   string name;
-  CGLModel * gl;
+  GLModel * gl;
 
   OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
 
   for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
   {
-    gl=(CGLModel *)(*ig);
+    gl=(GLModel *)(*ig);
     vector<string> info=gl->GetInfo();
     name = info.front();
   }
@@ -662,51 +664,64 @@ bool vizmo::SaveQry(const char *filename){
    return 1;
 }
 
-void vizmo::ShowRoadMap( bool bShow ){
-   m_obj.m_show_Map=bShow;
-   if( m_obj.m_map==NULL ) 
-     return;
-   CGLModel* m=m_obj.m_map->GetModel();
-
-   if( bShow )
-      m->SetRenderMode(SOLID_MODE);
-   else
-      m->SetRenderMode(INVISIBLE_MODE);   
+void 
+vizmo::ShowRoadMap(bool _show){
+   
+  m_obj.m_show_Map = _show;  
+  
+  if(m_obj.m_map == NULL) 
+    return;
+  
+  GLModel* m = m_obj.m_map->GetModel();
+  if(_show)
+    m->SetRenderMode(SOLID_MODE);
+  else
+    m->SetRenderMode(INVISIBLE_MODE);   
 }
 
-void vizmo::ShowPathFrame( bool bShow ){
-   m_obj.m_show_Path=bShow;
-   if( m_obj.m_Path==NULL ) 
-     return;
-   CGLModel * m=m_obj.m_Path->GetModel();
+void 
+vizmo::ShowPathFrame(bool _show){
 
-   if( bShow )
-      m->SetRenderMode(SOLID_MODE);
-   else
-      m->SetRenderMode(INVISIBLE_MODE);
+  m_obj.m_show_Path = _show;
+  
+  if(m_obj.m_Path == NULL) 
+    return;
+  
+  GLModel* m = m_obj.m_Path->GetModel();
+  if(_show)
+    m->SetRenderMode(SOLID_MODE);
+  else
+    m->SetRenderMode(INVISIBLE_MODE);
 }
 
-void vizmo::ShowDebugFrame( bool bShow ){
-   m_obj.m_show_Debug=bShow;
-   if( m_obj.m_debug==NULL ) 
-     return;
-   CGLModel * m=m_obj.m_debug->GetModel();
-
-   if( bShow )
-      m->SetRenderMode(SOLID_MODE);
-   else
-      m->SetRenderMode(INVISIBLE_MODE);
+void 
+vizmo::ShowDebugFrame(bool _show){
+  
+  m_obj.m_show_Debug = _show;
+  
+  if(m_obj.m_debug == NULL) 
+    return;
+  
+  GLModel* m = m_obj.m_debug->GetModel();
+  if(_show)
+    m->SetRenderMode(SOLID_MODE);
+  else
+    m->SetRenderMode(INVISIBLE_MODE);
 }
 
-void vizmo::ShowQueryFrame(bool bShow){
-   m_obj.m_show_Qry=bShow;
-   if(m_obj.m_Qry==NULL) 
-     return;
-   CGLModel* m = m_obj.m_Qry->GetModel();
-   if (bShow)
-      m->SetRenderMode(SOLID_MODE);
-   else 
-      m->SetRenderMode(INVISIBLE_MODE);
+void 
+vizmo::ShowQueryFrame(bool _show){
+  
+  m_obj.m_show_Qry = _show;
+   
+  if(m_obj.m_Qry==NULL) 
+    return;
+   
+  GLModel* m = m_obj.m_Qry->GetModel();
+  if(_show)
+    m->SetRenderMode(SOLID_MODE);
+  else 
+    m->SetRenderMode(INVISIBLE_MODE);
 } 
 
 // Code To change the appearance of the env.. 
@@ -725,7 +740,7 @@ void vizmo::ChangeAppearance(int status)
 
    for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
    {
-      CGLModel *model=(CGLModel *)(*ig);
+      GLModel *model=(GLModel *)(*ig);
       if(status==0)
          model->SetRenderMode(SOLID_MODE);
       else if(status==1)
@@ -765,13 +780,15 @@ void vizmo::ChangeAppearance(int status)
 
 void vizmo::DeleteObject(MultiBodyModel *mbl){
 
-   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
-   int MBnum = envLoader->GetNumberOfMultiBody();
+   //CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
+   //int MBnum = envLoader->GetNumberOfMultiBody();
+   EnvModel* envModel = (EnvModel*)m_obj.m_Env->GetModel();
+   int MBnum = envModel->GetNumberOfMultiBody();
 
    const CMultiBodyInfo * mbi;
    CMultiBodyInfo *mbiTmp;
    mbiTmp = new CMultiBodyInfo [MBnum];
-   mbi = envLoader->GetMultiBodyInfo();
+   mbi = envModel->GetMultiBodyInfo();
 
    int j=0;
    for(int i=0; i<MBnum; i++){
@@ -786,17 +803,17 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
       }
    }
 
-   envLoader->DecreaseNumMB();
-   envLoader->SetNewMultiBodyInfo(mbiTmp);
+   //envLoader->DecreaseNumMB();
+   //envLoader->SetNewMultiBodyInfo(mbiTmp);
+   envModel->DecreaseNumMB();
+   envModel->SetNewMultiBodyInfo(mbiTmp);
 
    //////////////////////////////////////////////////////////
    //  Recreate MBModel: some elements could've been deleted
    //////////////////////////////////////////////////////////
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
-   env->DeleteMBModel(mbl);
-
+   //CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
+   envModel->DeleteMBModel(mbl);
 }
-
 
   void vizmo::Animate(int frame){
     if( m_obj.m_Robot==NULL || m_obj.m_Path==NULL)
@@ -845,7 +862,7 @@ vizmo::ChangeNodesSize(float _s, string _str){
   if(m_obj.m_map==NULL && m_obj.m_debug==NULL) 
     return;
 
-  typedef CMapModel<CfgModel,EdgeModel> MM;
+  typedef MapModel<CfgModel,EdgeModel> MM;
   typedef CCModel<CfgModel,EdgeModel> CC;
   typedef vector<CC*>::iterator CCIT;
 
@@ -883,7 +900,7 @@ vizmo::ChangeEdgeThickness(size_t _t){
   if(m_obj.m_map == NULL && m_obj.m_debug == NULL)
     return; 
    
-  typedef CMapModel<CfgModel, EdgeModel> MM; 
+  typedef MapModel<CfgModel, EdgeModel> MM; 
   typedef CCModel<CfgModel, EdgeModel> CC; 
   typedef vector<CC*>::iterator CCIT;
   
@@ -916,12 +933,12 @@ void vizmo::ChangeNodesShape(string _s){
   else   
     CfgModel::m_shape = CfgModel::Point;
 
-  typedef CMapModel<CfgModel,EdgeModel> MM;
+  typedef MapModel<CfgModel,EdgeModel> MM;
   typedef CCModel<CfgModel,EdgeModel> CC;
   typedef vector<CC*>::iterator CCIT;
 
   if(m_obj.m_map!=NULL){ 
-    CMapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
+    MapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){
       CC::Shape shape=CC::Point;
@@ -943,9 +960,8 @@ void vizmo::ChangeNodesShape(string _s){
         shape=CC::Box;
       (*ic)->ChangeShape(shape);
     }
-  }
+  } 
 }
-
 
 void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
 
@@ -955,7 +971,7 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
   if(m_obj.m_map == NULL && m_obj.m_debug == NULL)
     return;
 
-  typedef CMapModel<CfgModel,EdgeModel> MM;
+  typedef MapModel<CfgModel,EdgeModel> MM;
   typedef CCModel<CfgModel,EdgeModel> CC;
   typedef vector<CC*>::iterator CCIT; 
 
@@ -965,7 +981,7 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
   int m_i;
   string m_sO;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    CGLModel *gl = (CGLModel*)(*i);
+    GLModel *gl = (GLModel*)(*i);
     m_sO = gl->GetName();
   }
   string m_s="NULL";
@@ -975,7 +991,7 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
   }   
 
   if(m_obj.m_map!=NULL){
-    CMapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
+    MapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     if(m_s != "NULL"){
       for(CCIT ic = cc.begin(); ic!= cc.end(); ic++){
@@ -1053,7 +1069,7 @@ void vizmo::UpdateSelection(){
    if( m_obj.m_map==NULL && m_obj.m_debug==NULL) 
      return;
 
-   typedef CMapModel<CfgModel,EdgeModel> MM;
+   typedef MapModel<CfgModel,EdgeModel> MM;
    typedef CCModel<CfgModel,EdgeModel> CC;
    typedef vector<CC*>::iterator CCIT;
 
@@ -1063,7 +1079,7 @@ void vizmo::UpdateSelection(){
    int m_i;
    string m_sO;
    for(SI i = sel.begin(); i!= sel.end(); i++){
-      CGLModel *gl = (CGLModel*)(*i);
+      GLModel *gl = (GLModel*)(*i);
       m_sO = gl->GetName();
 
       string m_s="NULL";
@@ -1073,7 +1089,7 @@ void vizmo::UpdateSelection(){
       }   
 
       if(m_obj.m_map!=NULL){
-        CMapModel<CfgModel,EdgeModel>* mmodel = (MM*)m_obj.m_map->GetModel();
+        MapModel<CfgModel,EdgeModel>* mmodel = (MM*)m_obj.m_map->GetModel();
         vector<CC*>& cc = mmodel->GetCCModels();
         if(m_s != "NULL"){
           for(CCIT ic=cc.begin();ic!=cc.end();ic++){
@@ -1121,7 +1137,7 @@ void vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
    if(m_obj.m_map == NULL) 
      return;
 
-   typedef CMapModel<CfgModel,EdgeModel> MM;
+   typedef MapModel<CfgModel,EdgeModel> MM;
    typedef CCModel<CfgModel,EdgeModel> CC;
    typedef vector<CC*>::iterator CCIT; 
 
@@ -1131,7 +1147,7 @@ void vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
    int m_i;
    string m_sO;
    for(SI i = sel.begin(); i!= sel.end(); i++){
-      CGLModel *gl = (CGLModel*)(*i);
+      GLModel *gl = (GLModel*)(*i);
       m_sO = gl->GetName();
 
       string m_s="NULL";
@@ -1140,7 +1156,7 @@ void vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
          m_s = m_sO.substr(position+4, m_sO.length());
       }   
 
-      CMapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
+      MapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
       vector<CC*>& cc=mmodel->GetCCModels();
       if(m_s != "NULL"){
          for(CCIT ic=cc.begin();ic!=cc.end();ic++){
@@ -1168,12 +1184,12 @@ void vizmo::ChangeNodesRandomColor(){
    if( m_obj.m_map==NULL ) 
      return;
 
-   typedef CMapModel<CfgModel,EdgeModel> MM;
+   typedef MapModel<CfgModel,EdgeModel> MM;
    typedef CCModel<CfgModel,EdgeModel> CC;
    typedef vector<CC*>::iterator CCIT; 
 
    //change color
-   CMapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
+   MapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
    vector<CC*>& cc=mmodel->GetCCModels();
    for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
       float r = ((float)rand())/RAND_MAX; 
@@ -1195,138 +1211,156 @@ bool vizmo::StringToInt(const string &s, int &i){
 
 void vizmo::envObjsRandomColor(){
 
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
+   EnvModel* env=(EnvModel*)m_obj.m_Env->GetModel();
    env->ChangeColor();
 
 }
 
 double vizmo::GetEnvRadius(){ 
    if(m_obj.m_Env!=NULL ){
-      CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
+      EnvModel* env=(EnvModel*)m_obj.m_Env->GetModel();
       return env->GetRadius();
    }
    return 200;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Protected Functions
-///////////////////////////////////////////////////////////////////////////////
-bool vizmo::CreateEnvObj( vizmo_obj& obj, const string& fname )
-{
-   int pos=fname.rfind('/');
-   string dir=fname.substr(0,pos);
-   ///////////////////////////////////////////////////////////////////////
-   //create environment
-   CEnvLoader* envLoader = new CEnvLoader();
-   CEnvModel* envModel = new CEnvModel();
-   if(!envLoader || !envModel) return false;
+bool 
+vizmo::CreateEnvObj(vizmo_obj& _obj, const string& _fname){
+   
+  int pos = _fname.rfind('/');
+  string dir = _fname.substr(0, pos);
+  //EnvModel* envModel = new EnvModel(_fname);
+  EnvModel* envModel = new EnvModel();
+  envModel->SetFilename(_fname); 
+  envModel->SetModelDataDir(dir); 
 
-   envLoader->SetFilename(fname);
-   envLoader->SetModelDataDir(dir);
-   envModel->SetEnvLoader(envLoader);
-
-   obj.m_Env = new PlumObject(envModel, envLoader);
-
-   return obj.m_Env;
+  if(!envModel) 
+    return false;
+   
+  _obj.m_Env = new PlumObject(envModel, NULL);
+  return _obj.m_Env;
 }
 
-bool vizmo::CreateMapObj( vizmo_obj& obj, const string& fname )
-{
-   CMapLoader<CfgModel,EdgeModel> * mloader=new CMapLoader<CfgModel,EdgeModel>();
-   CMapModel<CfgModel,EdgeModel> * mmodel = new CMapModel<CfgModel,EdgeModel>();
-   if (mloader==NULL || mmodel==NULL) 
-      return false;
-   mloader->SetFilename(fname);
-   mmodel->SetMapLoader(mloader);
-   if(obj.m_Robot != NULL){
-      mmodel->SetRobotModel( (OBPRMView_Robot*)obj.m_Robot->GetModel() );
-   }
-   obj.m_map = new PlumObject(mmodel, mloader); 
-   return (obj.m_map != NULL);
+bool 
+vizmo::CreateMapObj(vizmo_obj& _obj, const string& _fname){
+
+  MapModel<CfgModel, EdgeModel>* mmodel = new MapModel<CfgModel, EdgeModel>(); 
+  mmodel->SetFilename(_fname); 
+
+  if(mmodel == NULL)
+    return false;
+  if(_obj.m_Robot != NULL)
+    mmodel->SetRobotModel((OBPRMView_Robot*)_obj.m_Robot->GetModel());
+   
+  _obj.m_map = new PlumObject(mmodel, NULL); 
+  return (_obj.m_map != NULL);
 }
 
-bool vizmo::CreatePathObj( vizmo_obj& obj, const string& fname )
-{
-   CPathLoader* ploader=new CPathLoader();
-   PathModel* pmodel=new PathModel();
-   if( ploader==NULL || pmodel==NULL ) 
-     return false;
-   ploader->SetFilename(fname);
-   pmodel->SetPathLoader(ploader);
-   if( obj.m_Robot!=NULL )
-      pmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->GetModel());
-   obj.m_Path=new PlumObject(pmodel,ploader);
-   return (obj.m_Path!=NULL);
+bool 
+vizmo::CreatePathObj(vizmo_obj& _obj, const string& _fname){
+
+  CPathLoader* ploader = new CPathLoader();
+  PathModel* pmodel = new PathModel();
+  
+  if(ploader == NULL || pmodel == NULL) 
+    return false;
+  ploader->SetFilename(_fname);
+  pmodel->SetPathLoader(ploader);
+  
+  if(_obj.m_Robot != NULL)
+    pmodel->SetModel((OBPRMView_Robot *)_obj.m_Robot->GetModel());
+  
+  _obj.m_Path = new PlumObject(pmodel,ploader);
+  return (_obj.m_Path!=NULL);
 }
 
-bool vizmo::CreateDebugObj( vizmo_obj& obj, const string& fname )
-{
-   CDebugLoader * dloader=new CDebugLoader();
-   DebugModel * dmodel=new DebugModel();
-   if( dloader==NULL || dmodel==NULL ) 
-     return false;
-   dloader->SetFilename(fname);
-   dmodel->SetDebugLoader(dloader);
-   if( obj.m_Robot!=NULL )
-      dmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->GetModel());
-   obj.m_debug=new PlumObject(dmodel,dloader);
-   return (obj.m_debug!=NULL);
+bool 
+vizmo::CreateDebugObj(vizmo_obj& _obj, const string& _fname){
+
+  CDebugLoader* dloader = new CDebugLoader();
+  DebugModel* dmodel = new DebugModel(); 
+  
+  //dloader->SetFilename(_fname);
+  //DebugModel* dmodel = new DebugModel((MapModel<CfgModel, EdgeModel>*)((_obj.m_map)->m_model));
+  //DebugModel* dmodel = new DebugModel(); 
+  if(dloader == NULL || dmodel == NULL) 
+    return false;
+  
+  dloader->SetFilename(_fname);
+  dmodel->SetDebugLoader(dloader);
+  
+  if(_obj.m_Robot != NULL)
+    dmodel->SetModel((OBPRMView_Robot *)_obj.m_Robot->GetModel());
+  
+  _obj.m_debug = new PlumObject(dmodel, dloader);
+  return (_obj.m_debug != NULL);
 }
 
-bool vizmo::CreateQueryObj( vizmo_obj& obj, const string& fname )
-{
-   CQueryLoader * qloader=new CQueryLoader();
-   CQueryModel * qmodel=new CQueryModel();
-   if( qloader==NULL || qmodel==NULL ) 
-     return false;
-   qloader->SetFilename(fname);
-   qmodel->SetQueryLoader(qloader);
-   if( obj.m_Robot!=NULL )
-      qmodel->SetModel((OBPRMView_Robot *)obj.m_Robot->GetModel());
-   obj.m_Qry=new PlumObject(qmodel,qloader);
-   return (obj.m_Qry!=NULL);
+bool 
+vizmo::CreateQueryObj(vizmo_obj& _obj, const string& _fname){
+
+  CQueryLoader* qloader = new CQueryLoader();
+  CQueryModel* qmodel = new CQueryModel();
+  
+  if(qloader == NULL || qmodel == NULL) 
+    return false;
+   
+  qloader->SetFilename(_fname);
+  qmodel->SetQueryLoader(qloader);
+  
+  if(_obj.m_Robot != NULL)
+    qmodel->SetModel((OBPRMView_Robot *)_obj.m_Robot->GetModel());
+  
+  _obj.m_Qry = new PlumObject(qmodel, qloader);
+  return (_obj.m_Qry != NULL);
 }
 
-bool vizmo::CreateRobotObj( vizmo_obj& obj )
-{
-   if( m_obj.m_Env==NULL ) 
-     return true; //can't build
+bool 
+vizmo::CreateRobotObj(vizmo_obj& _obj){
 
-   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
-   OBPRMView_Robot * r=new OBPRMView_Robot(envLoader);
-   if( r==NULL ) 
-     return false;
-   obj.m_Robot=new PlumObject(r,NULL);
-   return (obj.m_Robot!=NULL);
+  if(m_obj.m_Env == NULL) 
+    return true; //can't build
+
+  EnvModel* envModel = (EnvModel*)m_obj.m_Env->GetModel(); 
+  OBPRMView_Robot* r = new OBPRMView_Robot(envModel);
+  
+  if(r == NULL)  
+    return false;
+  
+  _obj.m_Robot = new PlumObject(r,NULL);
+  return (_obj.m_Robot != NULL);
 }
 
-void vizmo::PlaceRobot()
-{
-   OBPRMView_Robot * r=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
-   if( r!=NULL ){
-      vector<double> cfg;
-      if( m_obj.m_Qry!=NULL ){//check query loader
-         CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->GetLoader();
-         cfg=q->GetStartGoal(0);
-      }
-      else if( m_obj.m_Path!=NULL ){//check path loader
-         CPathLoader * p=(CPathLoader*)m_obj.m_Path->GetLoader();
-         cfg=p->GetConfiguration(0);
-      }
-      else {
-         CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
-         int d = envLoader->getDOF();
-         cfg = vector<double>(d);
-      }
-      if(m_obj.m_debug!=NULL){
-        r->SetRenderMode(INVISIBLE_MODE);
-      }
-      if(!cfg.empty()){
-         r->Configure(cfg);
-         //copy initial cfg. to OBPRMView_Robot
-         r->InitialCfg(cfg);
-      }
-   }
+void 
+vizmo::PlaceRobot(){
+
+  OBPRMView_Robot* r = (OBPRMView_Robot*)m_obj.m_Robot->GetModel();
+  
+  if(r != NULL){
+    vector<double> cfg;
+    if(m_obj.m_Qry != NULL){ 
+      CQueryLoader* q = (CQueryLoader*)m_obj.m_Qry->GetLoader();
+      cfg = q->GetStartGoal(0);
+    }
+    else if(m_obj.m_Path != NULL){
+      CPathLoader* p = (CPathLoader*)m_obj.m_Path->GetLoader();
+      cfg = p->GetConfiguration(0);
+    }
+    else{
+      EnvModel* envModel = (EnvModel*)m_obj.m_Env->GetModel();
+      int d = envModel->GetDOF();
+      cfg = vector<double>(d);
+    }
+    
+    if(m_obj.m_debug != NULL)
+      r->SetRenderMode(INVISIBLE_MODE);
+    
+    if(!cfg.empty()){
+      r->Configure(cfg);
+      //copy initial cfg. to OBPRMView_Robot
+      r->InitialCfg(cfg);
+    }
+  }
 }
 
 void vizmo::ResetRobot(){
@@ -1341,7 +1375,7 @@ void vizmo::getRoboCfg(){
    vector<gliObj>& sel=GetSelectedItem();
    typedef vector<gliObj>::iterator SIT;
    for(SIT i=sel.begin();i!=sel.end();i++){
-      CGLModel * gl=(CGLModel *)(*i);
+      GLModel * gl=(GLModel *)(*i);
       info=gl->GetInfo();
    }
 }
@@ -1373,61 +1407,60 @@ int vizmo::getNumJoints(){
    }
  */
 
-bool vizmo::FileExits(const string& filename) const
-{
-   ifstream fin(filename.c_str());
-   bool result=fin.good();
-   fin.close();
-   return result;
+bool 
+vizmo::FileExists(const string& _filename) const{
+  
+  #include <unistd.h>
+  char* dir = getcwd(NULL,0);   
+  printf("Current dir: %s\n", dir); 
+  
+  ifstream fin(_filename.c_str());
+  bool result = fin.good();
+  fin.close();
+  return result;
 }
 
 void vizmo::setCommLine(QStringList comm){
    m_commandList = comm;
 }
 
-bool vizmo::envChanged(){
-   env_changed = false;
+bool 
+vizmo::EnvChanged(){
+   
+  m_envChanged = false;
 
-   CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
-   int numBod = envLoader->GetNumberOfMultiBody();
-   const CMultiBodyInfo * mbi;
-   mbi = envLoader->GetMultiBodyInfo();
+  EnvModel* envModel = (EnvModel*)m_obj.m_Env->GetModel();
+  int numBod = envModel->GetNumberOfMultiBody();
+  const CMultiBodyInfo* mbi = envModel->GetMultiBodyInfo();
+  vector<MultiBodyModel *> mbm = envModel->GetMBody();
 
-   CEnvModel* env=(CEnvModel*)m_obj.m_Env->GetModel();
-   vector<MultiBodyModel *> mbm = env->getMBody();
+  for(int i = 0; i < numBod; i++){
+    Quaternion qtmp2 = mbm[i]->q();
+    EulerAngle e;
+    convertFromQuaternion(e, qtmp2);
 
+    if( ( (mbi[i].m_pBodyInfo[0].m_X != mbm[i]->tx())||
+              (mbi[i].m_pBodyInfo[0].m_Y != mbm[i]->ty())||
+              (mbi[i].m_pBodyInfo[0].m_Z != mbm[i]->tz()) ) ||
+          ( (mbi[i].m_pBodyInfo[0].m_Alpha!= e.alpha()) ||
+            (mbi[i].m_pBodyInfo[0].m_Beta != e.beta()) ||
+            (mbi[i].m_pBodyInfo[0].m_Beta != e.gamma()) ) ){
 
-   for(int i=0; i<numBod; i++){
+        m_envChanged = true;
+        break;
+    }
+  }
 
-      Quaternion qtmp2 = mbm[i]->q();
-      EulerAngle e;
-      convertFromQuaternion(e, qtmp2);
-
-      if( ( (mbi[i].m_pBodyInfo[0].m_X != mbm[i]->tx())||
-               (mbi[i].m_pBodyInfo[0].m_Y != mbm[i]->ty())||
-               (mbi[i].m_pBodyInfo[0].m_Z != mbm[i]->tz()) ) ||
-            ( (mbi[i].m_pBodyInfo[0].m_Alpha!= e.alpha()) ||
-              (mbi[i].m_pBodyInfo[0].m_Beta != e.beta()) ||
-              (mbi[i].m_pBodyInfo[0].m_Beta != e.gamma()) ) ){
-
-         env_changed = true;
-         break;
-      }
-   }
-
-   return env_changed;
+  return m_envChanged;
 }
 
 void vizmo::changeQryStatus(bool status){
    query_changed = status;
 }
 
-
-void vizmo::setMapObj(CMapLoader<CfgModel,EdgeModel> *ml, CMapModel<CfgModel,EdgeModel> * mm){
-   
-   m_obj.m_map = new PlumObject(mm, ml); 
-   m_Plum.AddPlumObject(m_obj.m_map);
-
-   //ShowRoadMap(true);
-
+void 
+vizmo::SetMapObj(MapModel<CfgModel,EdgeModel>* _mm){
+  
+  m_obj.m_map = new PlumObject(_mm, NULL); 
+  m_Plum.AddPlumObject(m_obj.m_map);
 }

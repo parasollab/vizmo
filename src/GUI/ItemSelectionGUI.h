@@ -26,7 +26,7 @@ class VizmoListViewItem : public QTreeWidgetItem {
   public:   
     VizmoListViewItem(QTreeWidget* _parent):QTreeWidgetItem(_parent){m_model=NULL;}
     VizmoListViewItem(QTreeWidgetItem* _parent):QTreeWidgetItem(_parent){m_model=NULL;}
-    CGLModel* m_model;
+    GLModel* m_model;
 };
 
 class VizmoItemSelectionGUI : public QTreeWidget{
@@ -37,7 +37,7 @@ class VizmoItemSelectionGUI : public QTreeWidget{
     VizmoItemSelectionGUI(QWidget* _parent = NULL); 	
     void ResetLists();
     void FillTree(vector<PlumObject*>& _objs);
-    VizmoListViewItem* CreateItem(VizmoListViewItem* _p, CGLModel* _model);
+    VizmoListViewItem* CreateItem(VizmoListViewItem* _p, GLModel* _model);
 	
   public slots:
     void Select();
