@@ -14,9 +14,13 @@
 
 using namespace std;
 
-namespace plum{
+template <typename, typename>  
+class CCModel;
 
-  class CCModelBase;
+namespace plum{
+  
+  class EdgeModel; 
+
   class CfgModel : public GLModel{
     
     friend ostream& operator<<(ostream& _out, const CfgModel& _cfg);
@@ -34,7 +38,7 @@ namespace plum{
       CfgModel(const CfgModel& _cfg);
 
       bool operator==(const CfgModel& _other) const;
-      void Set(int _index, OBPRMView_Robot* _robot, CCModelBase* _cc);
+      void Set(int _index, OBPRMView_Robot* _robot, CCModel<CfgModel, EdgeModel>* _cc);
 
       virtual void 
       SetColor(float _r, float _g, float _b, float _a){
@@ -75,7 +79,7 @@ namespace plum{
       }
       
       static int GetDof(void) { return m_dof; }
-      CCModelBase* GetCC() const { return m_cc; }
+      CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
       OBPRMView_Robot* GetRobot() const { return m_robot; }
 
       static void SetDof(int _d) { m_dof = _d; }
@@ -83,7 +87,7 @@ namespace plum{
       //set new values to dofs vector
       void SetCfg(vector<double> _newCfg);
       void SetIndex(int _i) { m_index = _i; } 
-      void SetCCModel(CCModelBase* _cc);
+      void SetCCModel(CCModel<CfgModel, EdgeModel>* _cc);
 
       //function accessed from gliDataStructure
       void 
@@ -107,7 +111,7 @@ namespace plum{
       vector<double> m_dofs;
       int m_index;
       double m_unknow1, m_unknow2, m_unknow3;
-      CCModelBase* m_cc;       
+      CCModel<CfgModel, EdgeModel>* m_cc;       
 
     private:
       static CfgModel m_invalidCfg;

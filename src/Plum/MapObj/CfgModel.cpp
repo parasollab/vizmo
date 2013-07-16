@@ -5,7 +5,7 @@
 
 #include "Plum/Plum.h"
 #include "Plum/EnvObj/RobotInfo.h"   
-#include "CCModel.h"
+#include "Models/CCModel.h"
 
 namespace plum{
 
@@ -45,7 +45,8 @@ namespace plum{
   }
 
   void 
-  CfgModel::Set(int _index , OBPRMView_Robot* _robot, CCModelBase* _cc){   
+  CfgModel::Set(int _index , OBPRMView_Robot* _robot, 
+                CCModel<CfgModel, EdgeModel>* _cc){   
     m_index = _index;
     m_robot = _robot;
     m_cc = _cc;
@@ -62,7 +63,7 @@ namespace plum{
 
   int 
   CfgModel::GetCC_ID(){
-    int i = m_cc->ID(); 
+    int i = m_cc->GetID(); 
     return i; 
   }
 
@@ -77,10 +78,10 @@ namespace plum{
     
     m_robot->RestoreInitCfg();
     m_robot->BackUp();
-    float* rgbaArray = &m_RGBA[0];  
+    float* rgbaArray = &m_rGBA[0];  
     glColor4fv(rgbaArray);
     m_robot->SetRenderMode(m_renderMode);
-    m_robot->SetColor(m_RGBA[0], m_RGBA[1], m_RGBA[2], 1);
+    m_robot->SetColor(m_rGBA[0], m_rGBA[1], m_rGBA[2], 1);
     m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
     m_robot->Configure(cfg);   
     m_robot->Draw(GL_RENDER);
@@ -93,9 +94,9 @@ namespace plum{
 
     glEnable(GL_LIGHTING);
     glPushMatrix();
-    float* rgbaArray = &m_RGBA[0]; 
+    float* rgbaArray = &m_rGBA[0]; 
     glColor4fv(rgbaArray);
-    glColor4f(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
+    glColor4f(m_rGBA[0],m_rGBA[1],m_rGBA[2],1);
    
     //If base is not FIXED, perform translations
     //Additionally, perform rotations if base is also ROTATIONAL 
@@ -133,7 +134,7 @@ namespace plum{
     glDisable(GL_LIGHTING);
     glPointSize(m_Scale[0]); 
     glBegin(GL_POINTS);
-    glColor4f(m_RGBA[0],m_RGBA[1],m_RGBA[2],1);
+    glColor4f(m_rGBA[0],m_rGBA[1],m_rGBA[2],1);
     if(m_renderMode == SOLID_MODE ||
         m_renderMode == WIRE_MODE){
       if(m_isPlanarRobot)
@@ -147,7 +148,7 @@ namespace plum{
   void 
   CfgModel::Draw(GLenum _mode){
     glPushName(m_index);
-    Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->getShape());
+    Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->GetShape());
     switch(shape){
       case Robot:
         DrawRobot();
@@ -169,7 +170,7 @@ namespace plum{
     
     glColor3d(1,1,0);
     glDisable(GL_LIGHTING);
-    Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->getShape());
+    Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->GetShape());
     switch(shape){
       case Robot:   
         if(m_robot!=NULL){
@@ -178,7 +179,7 @@ namespace plum{
           vector<float> origColor = m_robot->GetColor();   
           //change
           m_robot->SetColor(1,1,0,0);
-          m_robot->SetColor(m_RGBA[0], m_RGBA[1], m_RGBA[2], 1);
+          m_robot->SetColor(m_rGBA[0], m_rGBA[1], m_rGBA[2], 1);
           m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
           m_robot->Configure(cfg);
           //delete[] cfg;
@@ -316,7 +317,7 @@ namespace plum{
   }   
 
   void 
-  CfgModel::SetCCModel(CCModelBase* _cc){
+  CfgModel::SetCCModel(CCModel<CfgModel, EdgeModel>* _cc){
     m_cc = _cc;
   }
 

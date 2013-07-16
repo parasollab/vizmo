@@ -1,4 +1,4 @@
 OBJECTS += \
 	   Models/PolyhedronModel.o \
 	   Models/EnvModel.o \
-	   Models/MapModel.o
+	   Models/MapModel.o \

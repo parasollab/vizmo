@@ -758,9 +758,9 @@ void vizmo::ChangeAppearance(int status)
          }
          
          else if((model->GetInfo()).front() == "Node" || (model->GetInfo()).front() == "Edge"){
-            model->m_RGBA[0]=mR;
-            model->m_RGBA[1]=mG;
-            model->m_RGBA[2]=mB;
+            model->m_rGBA[0]=mR;
+            model->m_rGBA[1]=mG;
+            model->m_rGBA[2]=mB;
 
          }
          
@@ -996,9 +996,9 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
     if(m_s != "NULL"){
       for(CCIT ic = cc.begin(); ic!= cc.end(); ic++){
         if(StringToInt(m_s, m_i)){
-          if(m_i == (*ic)->ID()){
+          if(m_i == (*ic)->GetID()){
             (*ic)->DrawSelect();
-            (*ic)->newColor = true;
+            (*ic)->SetColorChanged(true);
             (*ic)->SetColor(_r, _g, _b, 1); 
             (*ic)->DrawRobotNodes((*ic)->m_renderMode);
           }
@@ -1007,7 +1007,7 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
     }
     else if(m_s == "NULL" && oneColor){
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        (*ic)->newColor = true;
+        (*ic)->SetColorChanged(true); 
         (*ic)->SetColor(_r, _g, _b, 1); 
         (*ic)->DrawRobotNodes((*ic)->m_renderMode);
       }
@@ -1015,7 +1015,7 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
     }
     else{
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        (*ic)->newColor = true;
+        (*ic)->SetColorChanged(true);
         _r = ((float)rand())/RAND_MAX; 
         _g = ((float)rand())/RAND_MAX; 
         _b = ((float)rand())/RAND_MAX; 
@@ -1030,9 +1030,9 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
     if(m_s != "NULL"){
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
         if(StringToInt(m_s, m_i)){
-          if(m_i == (*ic)->ID()){
+          if(m_i == (*ic)->GetID()){
             (*ic)->DrawSelect();
-            (*ic)->newColor = true;
+            (*ic)->SetColorChanged(true);
             (*ic)->SetColor(_r, _g, _b, 1); 
             (*ic)->DrawRobotNodes((*ic)->m_renderMode);
           }
@@ -1041,7 +1041,7 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
     }
     else if(m_s == "NULL" && oneColor){
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        (*ic)->newColor = true;
+        (*ic)->SetColorChanged(true);
         (*ic)->SetColor(_r, _g, _b, 1); 
         (*ic)->DrawRobotNodes((*ic)->m_renderMode);
       }
@@ -1049,7 +1049,7 @@ void vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
     }
     else{
       for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-        (*ic)->newColor = true;
+        (*ic)->SetColorChanged(true); 
         _r = ((float)rand())/RAND_MAX; 
         _g = ((float)rand())/RAND_MAX; 
         _b = ((float)rand())/RAND_MAX; 
@@ -1094,12 +1094,12 @@ void vizmo::UpdateSelection(){
         if(m_s != "NULL"){
           for(CCIT ic=cc.begin();ic!=cc.end();ic++){
             typedef map<CC::VID, CfgModel>::iterator NIT;
-            for(NIT i = (*ic)->m_nodes.begin(); i!=(*ic)->m_nodes.end(); i++)
+            for(NIT i = (*ic)->GetNodesInfo().begin(); i!=(*ic)->GetNodesInfo().end(); i++)
               if(StringToInt(m_s, m_i)){
                 if(m_i == i->second.GetIndex()){   
                   (*ic)->DrawSelect();
-                  (*ic)->newColor = true;
-                  (*ic)->ReBuildAll();            
+                  (*ic)->SetColorChanged(true); 
+                  (*ic)->RebuildAll();            
                 }
               }
           }
@@ -1112,12 +1112,12 @@ void vizmo::UpdateSelection(){
         if(m_s != "NULL"){
           for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
             typedef map<CC::VID, CfgModel>::iterator NIT;
-            for(NIT i = (*ic)->m_nodes.begin(); i != (*ic)->m_nodes.end(); i++)
+            for(NIT i = (*ic)->GetNodesInfo().begin(); i != (*ic)->GetNodesInfo().end(); i++)
               if(StringToInt(m_s, m_i)){
                 if(m_i == i->second.GetIndex()){   
                   (*ic)->DrawSelect();
-                  (*ic)->newColor = true;
-                  (*ic)->ReBuildAll();            
+                  (*ic)->SetColorChanged(true);
+                  (*ic)->RebuildAll();            
                   (*ic)->DrawRobotNodes(GL_RENDER);
                   (*ic)->DrawSelect();
                 }
@@ -1161,13 +1161,13 @@ void vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
       if(m_s != "NULL"){
          for(CCIT ic=cc.begin();ic!=cc.end();ic++){
             typedef map<CC::VID, CfgModel>::iterator NIT;
-            for(NIT i = (*ic)->m_nodes.begin(); i != (*ic)->m_nodes.end(); i++)
+            for(NIT i = (*ic)->GetNodesInfo().begin(); i != (*ic)->GetNodesInfo().end(); i++)
                if(StringToInt(m_s, m_i)){
                   if(m_i == i->second.GetIndex()){  
-                     (*ic)->ReBuildAll();
-                     i->second.m_RGBA[0] = _r;
-                     i->second.m_RGBA[1] = _g;
-                     i->second.m_RGBA[2] = _b;
+                     (*ic)->RebuildAll();
+                     i->second.m_rGBA[0] = _r;
+                     i->second.m_rGBA[1] = _g;
+                     i->second.m_rGBA[2] = _b;
                      (*ic)->DrawRobotNodes((*ic)->m_renderMode);
                      (*ic)->DrawSelect();
                   }
@@ -1409,10 +1409,6 @@ int vizmo::getNumJoints(){
 
 bool 
 vizmo::FileExists(const string& _filename) const{
-  
-  #include <unistd.h>
-  char* dir = getcwd(NULL,0);   
-  printf("Current dir: %s\n", dir); 
   
   ifstream fin(_filename.c_str());
   bool result = fin.good();

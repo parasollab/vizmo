@@ -1,5 +1,5 @@
 #include "ItemSelectionGUI.h"
-#include "Plum/MapObj/CCModel.h"
+#include "Models/CCModel.h"
 
 #include <QString>
 

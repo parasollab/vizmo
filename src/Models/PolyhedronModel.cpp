@@ -115,7 +115,7 @@ void PolyhedronModel::Draw(GLenum _mode) {
   if(m_solidID == size_t(-1)) return;
   if(m_renderMode == plum::INVISIBLE_MODE) return;
 
-  float* color = &m_RGBA[0]; 
+  float* color = &m_rGBA[0]; 
   glColor4fv(color); 
   glPushMatrix();
   glTransform();

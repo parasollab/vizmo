@@ -9,17 +9,15 @@
 
 #include "EnvObj/Robot.h"
 #include "Plum/PlumObject.h" 
-#include "Plum/MapObj/CCModel.h"
+#include "CCModel.h"
 #include "Plum/MapObj/CfgModel.h"
 #include "Plum/MapObj/EdgeModel.h"
 
 using namespace stapl;
 using namespace std;
 
-namespace plum{
-  template<typename, typename>
-  class CCModel;
-}
+template<typename, typename>
+class CCModel;
 
 template <class CfgModel, class WEIGHT>
 class MapModel : public plum::GLModel{
@@ -28,8 +26,8 @@ class MapModel : public plum::GLModel{
     typedef CCModel<CfgModel, WEIGHT> CCM;
     typedef graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT> Wg;
     typedef typename Wg::vertex_descriptor VID;
-    typedef vector_property_map<Wg, size_t> color_map_t;
-    color_map_t cmap;
+    typedef vector_property_map<Wg, size_t> ColorMap;
+    ColorMap m_colorMap;
     typedef typename Wg::vertex_iterator VI;
   
     MapModel();
@@ -365,14 +363,14 @@ MapModel<CfgModel, WEIGHT>::BuildModels() {
   //Get CCs
   typedef typename vector< pair<size_t,VID> >::iterator CIT; 
   vector<pair<size_t,VID> > ccs;
-  cmap.reset();
-  get_cc_stats(*m_graph,cmap,ccs);  
+  m_colorMap.reset();
+  get_cc_stats(*m_graph, m_colorMap, ccs);  
 
   int CCSize = ccs.size();
   m_cCModels.reserve(CCSize);
   for(CIT ic = ccs.begin(); ic != ccs.end(); ic++){
     CCM* cc = new CCM(ic-ccs.begin());
-    cc->RobotModel(m_robot);    
+    cc->SetRobotModel(m_robot);    
     cc->BuildModels(ic->second, m_graph);   
     m_cCModels.push_back(cc);
   }
@@ -392,7 +390,7 @@ MapModel<CfgModel, WEIGHT>::Draw(GLenum _mode){
     typedef typename vector<CCM*>::iterator CIT;//CC iterator
     for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++){
       if(_mode == GL_SELECT) 
-        glPushName((*ic)->ID()); 
+        glPushName((*ic)->GetID()); 
       (*ic)->Draw(_mode);
       if(_mode == GL_SELECT) 
         glPopName();

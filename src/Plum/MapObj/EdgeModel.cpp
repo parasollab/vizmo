@@ -46,7 +46,7 @@ namespace plum{
     
     if(m_renderMode == SOLID_MODE || m_renderMode == WIRE_MODE){
     
-      float* arr_m_RGBA = &m_RGBA[0];
+      float* arr_m_RGBA = &m_rGBA[0];
       glColor4fv(arr_m_RGBA);
       glLineWidth(m_edgeThickness); 
         
