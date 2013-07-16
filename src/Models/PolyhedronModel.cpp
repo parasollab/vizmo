@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <algorithm> 
+#include <numeric>
 
 #include <RAPID.H>
 #include <obb.H> 
@@ -19,14 +20,12 @@ PolyhedronModel::PolyhedronModel(plum::CBodyInfo& _bodyInfo) :
 PolyhedronModel::PolyhedronModel(const PolyhedronModel& _other) : 
   m_solidID(_other.m_solidID), m_wiredID(_other.m_wiredID), 
   m_bodyInfo(_other.m_bodyInfo) {
-    
     if(_other.m_rapidModel != NULL)
       CopyRapidModel(_other); 
   }
 
 PolyhedronModel::~PolyhedronModel(){
-  if(m_rapidModel != NULL) 
-    delete m_rapidModel;
+  delete m_rapidModel;
   glDeleteLists(m_wiredID,1);
   glDeleteLists(m_solidID,1);
 }
@@ -53,7 +52,7 @@ PolyhedronModel::BuildModels() {
 
   const PtVector& points=imodel->GetVertices();
   const TriVector& tris=imodel->GetTriP(); //GetTriangles();
- 
+
   //compute center of mass and radius
   COM(points);
   Radius(points);
@@ -94,7 +93,7 @@ PolyhedronModel::BuildModels() {
     rx() = m_bodyInfo.m_Alpha;
     ry() = m_bodyInfo.m_Beta;
     rz() = m_bodyInfo.m_Gamma;
-    
+
     double cx2 = cos(m_bodyInfo.m_Alpha/2);
     double sx2 = sin(m_bodyInfo.m_Alpha/2);
     double cy2 = cos(m_bodyInfo.m_Beta/2);
@@ -121,7 +120,7 @@ void PolyhedronModel::Draw(GLenum _mode) {
   glPushMatrix();
   glTransform();
   glScale();
-  
+
   if(m_renderMode == plum::SOLID_MODE){           
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(2.0, 2.0);
@@ -132,7 +131,7 @@ void PolyhedronModel::Draw(GLenum _mode) {
   }
   else
     glCallList(m_wiredID);
-  
+
   glPopMatrix();
 }
 
@@ -154,16 +153,15 @@ PolyhedronModel::ComputeNormals(const PtVector& _points, const TriVector& _tris,
     const Tri& tri= *trit;
     Vector3d v1 = _points[tri[1]] - _points[tri[0]];
     Vector3d v2 = _points[tri[2]] - _points[tri[0]];
-    _norms.push_back((v1%v2).normalize());
+    _norms.push_back((v1%v2).normalized());
   }
 }
 
 void
 PolyhedronModel::BuildRapid(const PtVector& _points, const TriVector& _tris) {
-  
   m_rapidModel = new RAPID_model;
   m_rapidModel->BeginModel();
-  
+
   typedef TriVector::const_iterator TRIT;
   for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
     const Tri& tri = *trit;
@@ -185,7 +183,7 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
   glEnable(GL_LIGHTING);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  
+
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   //draw
@@ -239,18 +237,8 @@ PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, con
 //set m_com to center of mass of _points
 void
 PolyhedronModel::COM(const PtVector& _points) {
-  m_com = Point3d(0, 0, 0);
-  for(PtVector::const_iterator i = _points.begin(); i!=_points.end(); ++i) {
-    const Point3d tmp = *i;
-    m_com[0]+=tmp[0];
-    m_com[1]+=tmp[1];
-    m_com[2]+=tmp[2];
-  }
-  double size = _points.size();
-  m_com[0]/=size;
-  m_com[1]/=size;
-  m_com[2]/=size;
-
+  m_com = accumulate(_points.begin(), _points.end(), Point3d(0, 0, 0));
+  m_com /= _points.size();
   if(m_bodyInfo.m_IsSurface)
     m_com[1] = 0;
 }
@@ -269,14 +257,13 @@ PolyhedronModel::Radius(const PtVector& _points) {
 
 void
 PolyhedronModel::CopyRapidModel(const PolyhedronModel& _source){
-
   m_rapidModel = new RAPID_model;
 
   m_rapidModel->num_tris = (_source.m_rapidModel)->num_tris; 
   m_rapidModel->build_state = (_source.m_rapidModel)->build_state; 
   m_rapidModel->num_tris_alloced = (_source.m_rapidModel)->num_tris_alloced; 
   m_rapidModel->num_boxes_alloced = (_source.m_rapidModel)->num_boxes_alloced; 
-  
+
   m_rapidModel->b = new box[(_source.m_rapidModel)->num_boxes_alloced];
   box* boxBeginPtr = &((_source.m_rapidModel)->b)[0];
   box* boxEndPtr = &((_source.m_rapidModel)->b)[m_rapidModel->num_boxes_alloced]; 
