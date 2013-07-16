@@ -6,7 +6,7 @@
 #define ROADMAP_OPTIONS_H
 
 #include "OptionsBase.h"
-#include "Plum/MapObj/MapModel.h" 
+#include "Models/MapModel.h" 
 #include "vizmo2.h" 
 #include <string> 
 #include "QButtonGroup" 

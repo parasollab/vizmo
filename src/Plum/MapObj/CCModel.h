@@ -9,21 +9,20 @@
 #include <map> 
 #include <string>
 
-
 #include "Plum/GLModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h" 
-#include "MapModel.h" 
+#include "Models/MapModel.h" 
 #include "EnvObj/Robot.h"
 
 using namespace std;
 using namespace stapl;
 using namespace plum;
 
-namespace plum{
+template<typename, typename>
+class MapModel; 
 
-  template<typename, typename>
-  class MapModel; 
+namespace plum{
   
   class CCModelBase : public GLModel{
     

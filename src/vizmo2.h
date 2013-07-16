@@ -7,7 +7,7 @@
 
 #include <qstringlist.h> 
 
-#include "Plum/MapObj/MapModel.h" 
+#include "Models/MapModel.h" 
 #include <Plum/Plum.h>
 #include <Plum/EnvObj/MultiBodyModel.h>
 #include <Utilities/CollisionDetection.h>

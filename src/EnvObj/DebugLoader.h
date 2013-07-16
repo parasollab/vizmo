@@ -9,7 +9,7 @@
 using namespace std;
 
 #include "Plum/MapObj/CfgModel.h"
-#include "Plum/MapObj/MapModel.h"
+#include "Models/MapModel.h"
 #include "Plum/Loadable.h"
 using namespace plum;
 

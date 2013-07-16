@@ -299,12 +299,12 @@ RoadmapOptions::Reset(){
   
   if(GetMapModel() != NULL){
     GetMapModel()->GetNodeList().clear(); 
-    GetMapModel()->SetSize(0.5);  
+    //GetMapModel()->SetSize(0.5);  
     GetMapModel()->GetNodesToConnect().clear(); 
     // GetMapModel()->GetCfgLabel()->clear(); temporarily removed/what is it for? 
     //GetMap()->l_cfg->clear();
 
-    if(GetMapModel()->m_robCfgOn==false)
+    if(GetMapModel()->RobCfgOn() == false)
       //**MORE TEMPORARY(?) REMOVALS
       //  GetMapModel()->GetRobCfgLabel()->clear;  
       //GetMap()->l_robCfg->clear();
@@ -317,8 +317,8 @@ RoadmapOptions::Reset(){
       //GetMapModel()->GetIconLabel()->clear(); 
       //GetMap()->GetLIcon()->clear();
       GetMapModel()->SetMBEditModel(false);
-    GetMapModel()->m_addNode=false;
-    GetMapModel()->m_addEdge=false;
+      GetMapModel()->SetAddNode(false);
+      GetMapModel()->SetAddEdge(false);
   }
 }
 

@@ -1,131 +1,32 @@
-#if !defined(_MAPMODEL_H_)
-#define _MAPMODEL_H_
+//////////////////////////////////////////////////////////////////////
+// MapModel.cpp: implementation of the CMapModel class.
+//////////////////////////////////////////////////////////////////////
+/*
+#include "MapModel.h"
+#include "CfgModel.h"
+#include "EdgeModel.h" 
 
+<<<<<<< .mine
 #include <math.h>
+#include "Gauss.h"
 #include "EnvObj/Robot.h"
 #include "Plum/PlumObject.h" 
 
-#include <graph.h>
-#include <algorithms/graph_algo_util.h>
-#include <algorithms/graph_input_output.h>
+//#include "MapLoader.h"
 #include "CCModel.h"
-#include "CfgModel.h"
-#include "EdgeModel.h"
 
-using namespace stapl;
-using namespace std;
-
-namespace plum{
-
-  template<typename, typename>
-  class CCModel;
-
+=======
+>>>>>>> .r357
+namespace plum{ //NOT ANYMORE 
+<<<<<<< .mine
+  
   template <class CfgModel, class WEIGHT>
-  class MapModel : public GLModel{
-     
-    public: 
-      typedef CCModel<CfgModel,WEIGHT> myCCModel;
-      typedef graph<DIRECTED,MULTIEDGES,CfgModel,WEIGHT> Wg;
-      typedef typename Wg::vertex_descriptor VID;
-      typedef vector_property_map<Wg, size_t> color_map_t;
-      color_map_t cmap;
-      typedef typename Wg::vertex_iterator VI;
+  CMapModel<CfgModel, WEIGHT>::CMapModel(){
     
-      MapModel();
-      //MapModel(const string& _filename); 
-      virtual ~MapModel();
-
-      //Load functions
-      //Moving generic load functions to virtual in GLModel.h 
-      const string  GetVersionNumber() const{ return m_strVersionNumber; }
-      const string  GetPreamble() const{ return m_strPreamble; }
-      const string  GetEnvFileName() const{ return m_strEnvFileName; }
-      const string  GetFileDir() const{ return m_strFileDir; }
-      const list<string> & GetLPs() const{ return m_strLPs; }
-      const list<string> & GetCDs() const{ return m_strCDs; }
-      const list<string> & GetDMs() const{ return m_strDMs; }
-      const string GetSeed() const {return m_seed; }
-      Wg* GetGraph(){ return m_graph; }
-      void InitGraph(){ m_graph = new Wg(); }
-
-      //void WriteMapFile(const char *filename);
-      bool FileExists() const; 
-      void GoToNext(istream& _in); 
-      bool IsCommentLine(char _c); 
-      string GetPathName(const string& _filename); 
-      bool ParseHeader(); 
-      bool ParseHeader(istream& _in);
-      virtual bool ParseFile(); 
-      virtual bool ParseFile(const string& _filename); 
-      bool WriteMapFile();
-      VID Cfg2VID(CfgModel _target);
-      void GenGraph(); 
-      
-      //Display fuctions 
-      void SetRobotModel(OBPRMView_Robot* pRobot){ m_pRobot = pRobot; }     
-      vector<myCCModel*>& GetCCModels(){ return m_CCModels; }
-      list<GLModel*>& GetNodeList(){ return m_nodes; } 
-      vector<GLModel*>& GetNodesToConnect(){ return m_nodesToConnect; } 
-      void SetMBEditModel(bool _setting){ m_bEditModel = _setting; } 
-      void SetSize(double _size){ m_size = _size; }
-      virtual const string GetName() const {return "Map";}
-      myCCModel* GetCCModel(int id){ return m_CCModels[id]; }
-      int NumberOfCC(){return m_CCModels.size();}
-
-      virtual bool BuildModels();
-      virtual void Draw(GLenum _mode);
-      void Select(unsigned int* _index, vector<gliObj>& _sel);
-      //set wire/solid/invisible 
-      virtual void SetRenderMode(RenderMode _mode);
-      bool AddCC(int _vid); 
-      virtual void GetChildren(list<GLModel*>& _models); 
-      virtual vector<string> GetInfo() const;
-      void SetProperties(typename myCCModel::Shape _s, float _size, 
-                         vector<float> _color, bool _isNew); 
-      //  void HandleSelect(); ORIGINALLY IN ROADMAP.H/.CPP  
-      //  void HandleAddEdge();
-      //  void HandleAddNode();
-      //  void HandleEditMap();
-      //  void MoveNode(); 
-
-      string  m_strVersionNumber;
-      string  m_strPreamble;
-      string  m_strEnvFileName;
-      string  m_strFileDir;
-      list<string> m_strLPs;
-      list<string> m_strCDs;
-      list<string> m_strDMs;
-      string m_seed;
-      bool m_robCfgOn; //Move to private...hopefully 
-      bool m_addNode; 
-      bool m_addEdge;
-      double* m_cfg; 
-      int m_dof; 
-
-    private:
-      OBPRMView_Robot* m_pRobot;
-      vector<myCCModel*> m_CCModels;
-      list<GLModel*> m_nodes; //moved from obsolete Roadmap.h! 
-      vector<GLModel*> m_nodesToConnect; //nodes to be connected
-      double m_oldT[3], m_oldR[3];  //old_T 
-      double m_size;                //check purpose of this variable  
-      //bool m_robCfgOn;  ALSO FROM ROADMAP 
-      string m_cfgString, m_robCfgString; //s_cfg, s_robCfg  
-      bool m_bEditModel;
-      bool m_noMap; 
-
-    protected:
-      Wg* m_graph;
-      //virtual void DumpNode();
-      //virtual void SelectNode( bool bSel );
-  };
-
-  template <class CfgModel, class WEIGHT>
-  MapModel<CfgModel, WEIGHT>::MapModel(){
-    
+    //m_mapLoader = NULL;
     m_renderMode = INVISIBLE_MODE;
     m_pRobot = NULL;
-    m_graph = NULL; 
+    m_Graph = NULL; 
     m_enableSelection = true; //disable selection
     m_bEditModel = false;
     m_addNode = false;
@@ -134,32 +35,31 @@ namespace plum{
     m_robCfgString = "";
     m_noMap = false;
     m_size = 0.5; 
-
-    //It may be preferable to do all model ParseFiles within constructors,
-    //but for now it seems there are some problematic dependencies 
-    //ParseFile(_filename); 
   }
 
   template <class CfgModel, class WEIGHT>
-  MapModel<CfgModel, WEIGHT>::~MapModel(){
+  CMapModel<CfgModel, WEIGHT>::~CMapModel(){
   
     typedef typename vector<myCCModel*>::iterator CIT;
     for(CIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++)
       delete *ic;
-    delete m_graph; 
-    m_graph = NULL;
+    delete m_Graph; 
+    m_Graph = NULL;
+=======
+  void testMapModel() {
+    CMapModel<CfgModel,EdgeModel> model;
+>>>>>>> .r357
   }
-
-  ///////////Load functions////////// 
+  //Load functions/////////////////////////////////////////////////////
  
   template <class CfgModel, class WEIGHT>
   bool
-  MapModel<CfgModel, WEIGHT>::FileExists() const{
+  CMapModel<CfgModel, WEIGHT>::CheckCurrentStatus() const{
 
     //Check if file exists
-    ifstream fin(GetFilename().c_str());
+    ifstream fin(m_filename.c_str());
     if(!fin.good()){
-      cerr << "File (" << GetFilename() << ") not found";
+      cerr << "File (" << m_filename << ") not found";
       return false;
     }
     return true;
@@ -167,7 +67,7 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   void
-  MapModel<CfgModel, WEIGHT>::GoToNext(istream& _in){
+  CMapModel<CfgModel, WEIGHT>::GoToNext(istream& _in){
   
     string line;
     while(!_in.eof()){
@@ -185,13 +85,13 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   bool
-  MapModel<CfgModel, WEIGHT>::IsCommentLine(char _c){
+  CMapModel<CfgModel, WEIGHT>::IsCommentLine(char _c){
     return _c == '#'; 
   }
 
   template <class CfgModel, class WEIGHT>
   string
-  MapModel<CfgModel, WEIGHT>::GetPathName(const string& _filename){
+  CMapModel<CfgModel, WEIGHT>::GetPathName(const string& _filename){
     
     size_t pos = _filename.rfind('/');
     if(pos == string::npos)
@@ -201,12 +101,12 @@ namespace plum{
   
   template <class CfgModel, class WEIGHT>
   bool
-  MapModel<CfgModel, WEIGHT>::ParseHeader(){
+  CMapModel<CfgModel, WEIGHT>::ParseHeader(){
   
-    if(FileExists() == false)
+    if(CheckCurrentStatus() == false)
       return false;
 
-    ifstream fin(GetFilename().c_str());
+    ifstream fin(m_filename.c_str());
     bool result = ParseHeader(fin);
     fin.close();
     return result;
@@ -214,9 +114,9 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   bool 
-  MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
+  CMapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
     
-    m_strFileDir = GetPathName(GetFilename());
+    m_strFileDir = GetPathName(m_filename);
 
     //Open file for reading data
     string s;
@@ -253,7 +153,7 @@ namespace plum{
         m_strLPs.push_back(s);
     }
 
-    //get cd info  
+    //get cd info
     GoToNext(_in);
     _in >> number; //# of lps
     for(unsigned int iCD = 0; iCD < number; iCD++){
@@ -269,7 +169,7 @@ namespace plum{
     for(unsigned int iDM = 0; iDM < number; iDM++){
       GoToNext(_in);
       getline(_in, s);
-      if(m_strDMs.size() != number) 
+      if(m_strDMs.size() != number)
         m_strDMs.push_back(s);   
     }
 
@@ -285,52 +185,48 @@ namespace plum{
     return true;
   }
 
-  template<class CfgModel, class WEIGHT>
-  bool
-  MapModel<CfgModel,WEIGHT>::ParseFile(){
-    return ParseFile(GetFilename());     
-  }
 
   template<class CfgModel, class WEIGHT>
   bool 
-  MapModel<CfgModel, WEIGHT>::ParseFile(const string& _filename){      
-    
-    if(FileExists() == false)
+  CMapModel<CfgModel, WEIGHT>::ParseFile(){      
+      
+    if(CheckCurrentStatus() == false)
       return false;
 
-    ifstream fin(GetFilename().c_str());
+    ifstream fin(m_filename.c_str());
     if(ParseHeader(fin) == false) 
       return false;
 
     //Get Graph Data
     string s;
     getline(fin, s);
-    m_graph  = new Wg();
-    if(m_graph == NULL) 
+    m_Graph  = new Wg();
+    if(m_Graph == NULL){ 
+      cout<<"Graph null ..."<<endl;
       return false; 
-    
-    read_graph(*m_graph, fin);
-    fin.close(); 
+    }
+    read_graph(*m_Graph, fin);
+
     return true;
   }
 
   template <class CfgModel, class WEIGHT>
   bool 
-  MapModel<CfgModel, WEIGHT>::WriteMapFile(){
+  CMapModel<CfgModel, WEIGHT>::WriteMapFile(){
 
-    //m_graph->WriteGraph(filename);
+    //m_Graph->WriteGraph(filename);
     return true;
   }
 
   template <class CfgModel, class WEIGHT>
-  //VID 
+  //VID
   typename graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT>::vertex_descriptor 
-  MapModel<CfgModel, WEIGHT>::Cfg2VID(CfgModel _target){
+  CMapModel<CfgModel, WEIGHT>::Cfg2VID(CfgModel _target){
     
     VI vi;
-    //typename VID tvid = -1;
+    //VID tvid = -1;
     typename graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT>::vertex_descriptor tvid = -1; 
-    for(vi = m_graph->begin(); vi != m_graph->end(); vi++){
+    for(vi = m_Graph->begin(); vi != m_Graph->end(); vi++){
       if(_target == (*vi).property()){
         tvid=(*vi).descriptor();   
         break;
@@ -341,39 +237,39 @@ namespace plum{
   
   template<class CfgModel, class WEIGHT> 
   void
-  MapModel<CfgModel, WEIGHT>::GenGraph(){
-    m_graph  = new Wg();
+  CMapModel<CfgModel, WEIGHT>::GenGraph(){
+    m_Graph  = new Wg();
   }
 
   
-  //////////Display functions//////////
+  //Display functions//////////////////////////////////////////////////
 
   template <class CfgModel, class WEIGHT>
   bool 
-  MapModel<CfgModel, WEIGHT>::BuildModels() {
-    
-    typedef typename vector<myCCModel*>::iterator CCIT; 
-    
-    if(m_graph == NULL)
+  CMapModel<CfgModel, WEIGHT>::BuildModels() {
+      
+    typedef typename vector<myCCModel*>::iterator CCIT;//CC iterator
+    //typedef graph<DIRECTED,MULTIEDGES,CfgModel,WEIGHT> Wg;
+    //get graph
+    //if( m_mapLoader==NULL ) return false;
+    //typename Wg* graph = GetGraph();  ///NOW REDUNDANT!!!!!!!!!!!11111
+    if(m_Graph == NULL) 
       return false;
-    
     for(CCIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++)
       delete (*ic);
-    
     m_CCModels.clear(); //new line Jul-01-05
-    
     //Get CCs
-    typedef typename vector< pair<size_t,VID> >::iterator CIT; 
+    typedef typename vector< pair<size_t,VID> >::iterator CIT;//CC iterator
     vector<pair<size_t,VID> > ccs;
     cmap.reset();
-    get_cc_stats(*m_graph,cmap,ccs);  
+    get_cc_stats(*m_Graph,cmap,ccs);  
 
-    int CCSize = ccs.size();
+    int CCSize=ccs.size();
     m_CCModels.reserve(CCSize);
-    for(CIT ic = ccs.begin(); ic != ccs.end(); ic++){
+    for( CIT ic=ccs.begin();ic!=ccs.end();ic++ ){
       myCCModel* cc = new myCCModel(ic-ccs.begin());
       cc->RobotModel(m_pRobot);    
-      cc->BuildModels(ic->second, m_graph);   
+      cc->BuildModels(ic->second,m_Graph);   
       m_CCModels.push_back(cc);
     }
     return true;
@@ -381,7 +277,7 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   void 
-  MapModel<CfgModel, WEIGHT>::Draw(GLenum _mode){
+  CMapModel<CfgModel, WEIGHT>::Draw(GLenum _mode){
 
       if(m_renderMode == INVISIBLE_MODE)
         return;
@@ -402,7 +298,7 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   void 
-  MapModel<CfgModel, WEIGHT>::SetRenderMode(RenderMode _mode){ 
+  CMapModel<CfgModel, WEIGHT>::SetRenderMode(RenderMode _mode){ 
     m_renderMode = _mode;
     typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
     for(CIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++){
@@ -413,13 +309,17 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   bool 
-  MapModel<CfgModel, WEIGHT>::AddCC(int _vid){
+  CMapModel<CfgModel, WEIGHT>::AddCC(int _vid){
     
-    if(m_graph == NULL) 
+    //get graph
+    //if(m_mapLoader==NULL) 
+    //  return false;
+    //typename Wg* graph = GetGraph();
+    if(m_Graph == NULL) 
       return false;
     myCCModel* cc = new myCCModel(m_CCModels.size());
     cc->RobotModel(m_pRobot);  
-    cc->BuildModels(_vid, m_graph); 
+    cc->BuildModels(_vid, m_Graph); 
     float size;
     vector<float> color; 
     if(m_CCModels[m_CCModels.size()-1]->getShape() == 0)
@@ -436,10 +336,10 @@ namespace plum{
 
     return true;
   }
-
-  template <class CfgModel, class WEIGHT>
-  /*virtual*/ void 
-  MapModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
+*/
+//  template <class CfgModel, class WEIGHT>
+//  /*virtual*/ void 
+/*  CMapModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
 
     typedef typename vector<myCCModel*>::iterator CIT;
     for(CIT ic = m_CCModels.begin(); ic != m_CCModels.end(); ic++)
@@ -448,9 +348,9 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   vector<string> 
-  MapModel<CfgModel, WEIGHT>::GetInfo() const{ 
-    
-    vector<string> info;
+  CMapModel<CfgModel, WEIGHT>::GetInfo() const{ 
+  
+    vector<string> info; 
     info.push_back(GetFilename());
     ostringstream temp;
     temp<< "There are " << m_CCModels.size() << " connected components";
@@ -460,7 +360,7 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   void 
-  MapModel<CfgModel, WEIGHT>::SetProperties(typename myCCModel::Shape _s, float _size, 
+  CMapModel<CfgModel, WEIGHT>::SetProperties(typename myCCModel::Shape _s, float _size, 
                 vector<float> _color, bool _isNew){
     
     typedef typename vector<myCCModel*>::iterator CIT;//CC iterator
@@ -470,20 +370,22 @@ namespace plum{
 
   template <class CfgModel, class WEIGHT>
   void 
-  MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){
+  CMapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){
   
+    //if(m_mapLoader == NULL) 
+    //  return; //status error
     if(_index == NULL) 
       return;
     m_CCModels[_index[0]]->Select(&_index[1],_sel); 
   }
-} //namespace plum 
 
+*/
   //Commented out functions below are from Roadmap.h/.cpp and did not work there
   //(or need other attn.) 
   //They should probably be here when fixed. 
 
   /* template <class CfgModel, class WEIGHT>
-     void MapModel<CfgModel, WEIGHT>::HandleSelect(){
+     void CMapModel<CfgModel, WEIGHT>::HandleSelect(){
 
   //find nodes
   m_nodes.clear();
@@ -519,7 +421,7 @@ namespace plum{
   }*/
 
   /*  template <class CfgModel, class WEIGHT>
-      void MapModel<CfgModel, WEIGHT>::HandleAddEdge(){
+      void CMapModel<CfgModel, WEIGHT>::HandleAddEdge(){
 
 //find two nodes...
 PlumObject* m_Map;
@@ -548,7 +450,7 @@ graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);
   // get a CC id
   int CC_id = cfg1->GetCC_ID();
   //get mapModel
-  MapModel<CfgModel,EdgeModel>* mmodel =(MapModel<CfgModel,EdgeModel>*)m_Map->getModel();
+  CMapModel<CfgModel,EdgeModel>* mmodel =(CMapModel<CfgModel,EdgeModel>*)m_Map->getModel();
   //get the CCModel of CfgModel
   CCModel<CfgModel,EdgeModel>* m_CCModel = mmodel->GetCCModel(CC_id);
   //add edge to CC 
@@ -576,7 +478,7 @@ graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);
   }
 
   template <class CfgModel, class WEIGHT>
-  void MapModel<CfgModel, WEIGHT>::HandleAddNode(){
+  void CMapModel<CfgModel, WEIGHT>::HandleAddNode(){
 
   vector<gliObj>& sel = this->GetVizmo().GetSelectedItem();
   if(sel.size() !=0){ 
@@ -605,7 +507,7 @@ else{ //no node selected and assumes there is not roadmap....
 
   if (this->GetVizmo().GetMap() == NULL) {
     CMapLoader<CfgModel,EdgeModel>* mloader=new CMapLoader<CfgModel,EdgeModel>();
-    MapModel<CfgModel,EdgeModel>* mmodel = new MapModel<CfgModel,EdgeModel>();
+    CMapModel<CfgModel,EdgeModel>* mmodel = new CMapModel<CfgModel,EdgeModel>();
 
     mmodel->SetMapLoader(mloader);
 
@@ -673,7 +575,7 @@ else{ //no node selected and assumes there is not roadmap....
 */
 /*
    template <class CfgModel, class WEIGHT>
-   void MapModel<CfgModel, WEIGHT>::HandleEditMap(){
+   void CMapModel<CfgModel, WEIGHT>::HandleEditMap(){
 
    if(m_nodes.empty()==false){
    GLModel* n = m_nodes.front();
@@ -689,7 +591,7 @@ else{ //no node selected and assumes there is not roadmap....
    */
 
 /*template <class CfgModel, class WEIGHT>
-  void MapModel<CfgModel, WEIGHT>::MoveNode(){
+  void CMapModel<CfgModel, WEIGHT>::MoveNode(){
 
   if(m_Nodes.empty()) return;
   GLModel * n=m_Nodes.front();
@@ -730,8 +632,36 @@ else{ //no node selected and assumes there is not roadmap....
   
 //  void 
 //  TestMapModel(){
-//    MapModel<CfgModel,EdgeModel> model;
+//    CMapModel<CfgModel,EdgeModel> model;
 //  }
-//} //namespace plum 
 
-#endif 
+//}//end namespace plum
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
