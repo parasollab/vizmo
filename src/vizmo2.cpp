@@ -528,7 +528,7 @@ void vizmo::TurnOn_CD(){
    //CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
    if(env != NULL){ //previously checked if loader was null 
       //int MBnum = envLoader->GetNumberOfMultiBody();
-      int MBnum = env->GetNumberOfMultiBody();
+      int MBnum = env->GetNumMultiBodies();
 
       OBPRMView_Robot* robot=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
 
@@ -783,7 +783,7 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
    //CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_Env->GetLoader();
    //int MBnum = envLoader->GetNumberOfMultiBody();
    EnvModel* envModel = (EnvModel*)m_obj.m_Env->GetModel();
-   int MBnum = envModel->GetNumberOfMultiBody();
+   int MBnum = envModel->GetNumMultiBodies();
 
    const CMultiBodyInfo * mbi;
    CMultiBodyInfo *mbiTmp;
@@ -1430,9 +1430,9 @@ vizmo::EnvChanged(){
   m_envChanged = false;
 
   EnvModel* envModel = (EnvModel*)m_obj.m_Env->GetModel();
-  int numBod = envModel->GetNumberOfMultiBody();
+  int numBod = envModel->GetNumMultiBodies();
   const CMultiBodyInfo* mbi = envModel->GetMultiBodyInfo();
-  vector<MultiBodyModel *> mbm = envModel->GetMBody();
+  vector<MultiBodyModel *> mbm = envModel->GetMultiBodies();
 
   for(int i = 0; i < numBod; i++){
     Quaternion qtmp2 = mbm[i]->q();

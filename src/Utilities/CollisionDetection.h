@@ -21,16 +21,14 @@
 #include<Matrix.h>
 
 //EnvModel.h includes MultiBodyModel.h  
-#include "Plum/EnvObj/EnvModel.h"
+#include "Models/EnvModel.h"
 using namespace plum;
 
 #include "EnvObj/Robot.h"
 
 #include <RAPID.H>
 
-namespace plum {
 class EnvModel;
-}
 
 #ifndef Rapid
 class Rapid;
@@ -55,11 +53,11 @@ class CollisionDetection{
 		     plum::MultiBodyModel * robotModel,
 		     OBPRMView_Robot * robotObj);*/
   
-  bool IsInCollision(plum::EnvModel* _envModel, 
+  bool IsInCollision(EnvModel* _envModel, 
   		     plum::MultiBodyModel* _robot, 
 		     plum::MultiBodyModel* _obstacle);
 
-  bool IsInCollision(int _numMB, plum::EnvModel* _envModel, 
+  bool IsInCollision(int _numMB, EnvModel* _envModel, 
 		     plum::MultiBodyModel* _robotModel,
 		     OBPRMView_Robot* _robotObj);
 

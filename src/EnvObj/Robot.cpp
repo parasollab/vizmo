@@ -39,7 +39,7 @@ bool OBPRMView_Robot::BuildModels(){
 
    //find robot name
    const CMultiBodyInfo* pMInfo = m_envModel->GetMultiBodyInfo();
-   int numMBody=m_envModel->GetNumberOfMultiBody();
+   int numMBody=m_envModel->GetNumMultiBodies();
    m_RobotInfo = m_envModel->GetMultiBodyInfo();
    //     int iM=0;
    //     for( ; iM<numMBody; iM++ ){
@@ -208,7 +208,7 @@ void OBPRMView_Robot::Configure( double * cfg) {
   pthread_mutex_lock(&mutex);
 
   const CMultiBodyInfo* MBInfo = m_envModel->GetMultiBodyInfo();
-  int numMBody = m_envModel->GetNumberOfMultiBody();
+  int numMBody = m_envModel->GetNumMultiBodies();
   int robIndx = 0;
   vector<Robot>& robots = m_envModel->GetRobots();
 

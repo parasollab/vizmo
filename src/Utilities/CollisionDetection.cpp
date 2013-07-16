@@ -27,7 +27,7 @@ CollisionDetection::~CollisionDetection(){
 
 }
 
-bool CollisionDetection::IsInCollision(plum::EnvModel* _envModel,       
+bool CollisionDetection::IsInCollision(EnvModel* _envModel,       
       plum::MultiBodyModel* _robot, 
       plum::MultiBodyModel* _obstacle){
 
@@ -36,12 +36,12 @@ bool CollisionDetection::IsInCollision(plum::EnvModel* _envModel,
 
 
 bool CollisionDetection::IsInCollision(int _numMB, 
-      plum::EnvModel* _envModel, 
+      EnvModel* _envModel, 
       plum::MultiBodyModel* _robotModel,
       OBPRMView_Robot* _robotObj) {
 
 
-   vector<MultiBodyModel*> MBmodel = _envModel->GetMBody();
+   vector<MultiBodyModel*> MBmodel = _envModel->GetMultiBodies();
    const CMultiBodyInfo* MBI = _envModel->GetMultiBodyInfo();
    int dof = _envModel->GetDOF();
    int robIndx = 0;

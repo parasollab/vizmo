@@ -1,2 +1,3 @@
 OBJECTS += \
-	   Models/PolyhedronModel.o
+	   Models/PolyhedronModel.o \
+	   Models/EnvModel.o

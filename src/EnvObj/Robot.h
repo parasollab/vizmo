@@ -10,7 +10,7 @@
 using namespace mathtool;
 
 #include <Plum/EnvObj/MultiBodyModel.h>
-#include <Plum/EnvObj/EnvModel.h> 
+#include <Models/EnvModel.h> 
 #include <Plum/GLModel.h>
 #include <Plum/EnvObj/MultiBodyInfo.h>
 #include <Utilities/GL/gliCamera.h>
