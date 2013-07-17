@@ -160,7 +160,7 @@ void
 SceneOptions::ShowGeneralContextMenu(){ 
 
   QMenu cm(this); 	
-  cm.addAction(m_actions["changeBGcolor"]);
+  cm.addAction(m_actions["changeBGColor"]); 
   cm.addAction(m_actions["resetCamera"]); 
   cm.addAction(m_actions["setCameraPosition"]);
   cm.addAction(m_actions["showGrid"]); 
