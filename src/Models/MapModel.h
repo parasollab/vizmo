@@ -10,8 +10,8 @@
 #include "EnvObj/Robot.h"
 #include "Plum/PlumObject.h" 
 #include "CCModel.h"
-#include "Plum/MapObj/CfgModel.h"
-#include "Plum/MapObj/EdgeModel.h"
+#include "CfgModel.h"
+#include "EdgeModel.h"
 
 using namespace stapl;
 using namespace std;

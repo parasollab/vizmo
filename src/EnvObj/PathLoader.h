@@ -8,8 +8,7 @@
 #include <vector>
 using namespace std;
 
-#include "Plum/MapObj/CfgModel.h"
-
+#include "Models/CfgModel.h"
 #include "Plum/Loadable.h"
 using namespace plum;
 
@@ -36,7 +35,7 @@ public:
     //Get a particular configuration
     virtual vector<double> GetConfiguration(int frame);
     virtual unsigned int GetPathSize(){ return m_pList.size(); }
-    virtual unsigned int GetDOF(){ return CfgModel::m_dof; }
+    virtual unsigned int GetDOF(){ return CfgModel::GetDOF(); }
 
     //////////////////////////////////////////////////////////////////////
     //    Protected Methods and Data

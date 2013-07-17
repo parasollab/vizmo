@@ -2,6 +2,4 @@ OBJECTS += \
 	   Plum/Plum.o \
 	   Plum/EnvObj/MultiBodyInfo.o \
 	   Plum/EnvObj/MultiBodyModel.o \
-	   Plum/EnvObj/RobotInfo.o \
-	   Plum/MapObj/CfgModel.o \
-	   Plum/MapObj/EdgeModel.o 
+	   Plum/EnvObj/RobotInfo.o  

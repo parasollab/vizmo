@@ -10,8 +10,8 @@
 #include <algorithms/connected_components.h>
 
 #include "Plum/GLModel.h"
-#include "Plum/MapObj/CfgModel.h"
-#include "Plum/MapObj/EdgeModel.h" 
+#include "CfgModel.h"
+#include "EdgeModel.h" 
 #include "MapModel.h" 
 #include "EnvObj/Robot.h"
 

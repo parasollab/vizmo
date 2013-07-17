@@ -44,7 +44,7 @@ bool CPathLoader::ParseFile()
     unsigned int iPathSize=0;
     fin>>iPathSize;
     
-    int dof=CfgModel::m_dof;
+    int dof = CfgModel::GetDOF();
 
     for( unsigned int iF=0;iF<iPathSize;iF++ )
     {

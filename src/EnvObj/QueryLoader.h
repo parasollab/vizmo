@@ -8,7 +8,7 @@
 #include <vector>
 using namespace std;
 
-#include "Plum/MapObj/CfgModel.h"
+#include "Models/CfgModel.h"
 
 #include "Plum/Loadable.h"
 using namespace plum;

@@ -1,6 +1,6 @@
 #include "EnvModel.h"
 #include "Plum/EnvObj/MultiBodyInfo.h"
-#include "Plum/MapObj/CfgModel.h"
+#include "CfgModel.h"
 #include "EnvObj/BoundingBoxModel.h"
 #include "EnvObj/BoundingSphereModel.h"
 
@@ -173,8 +173,9 @@ EnvModel::ParseFileBody(ifstream& _ifs){
   }
 
   BuildRobotStructure();
-  CfgModel::m_dof = m_dof;
-  cout<< "DOFs: "<< CfgModel::m_dof << endl << flush; 
+  //CfgModel::m_dof = m_dof;
+  CfgModel::SetDOF(m_dof); 
+  //cout<< "DOFs: "<< CfgModel::m_dof << endl << flush; 
   
   return true;
 }

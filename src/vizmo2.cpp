@@ -13,7 +13,7 @@
 using namespace std;
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
-#include "Plum/MapObj/CfgModel.h"
+#include "Models/CfgModel.h"
 #include "Plum/PlumObject.h" 
 #include "Plum/GLModel.h"
 
@@ -504,7 +504,7 @@ void vizmo::Node_CD(CfgModel *cfg){
    //cfg->coll = false; //used to write message in CfgModel::GetInfo()
    m_cfg = cfg;
 
-   int dof = CfgModel::m_dof;
+   int dof = CfgModel::GetDOF(); 
    m_IsNode = true;
    vector<double> dataCfg;
    dataCfg = cfg->GetDataCfg();
@@ -539,7 +539,7 @@ void vizmo::TurnOn_CD(){
 
       //If we'll test a node, copy CfgModel to CD class
       if(m_IsNode){
-         int dof = CfgModel::m_dof;
+         int dof = CfgModel::GetDOF(); 
          CD.CopyNodeCfg(m_nodeCfg, dof);
       }
 
@@ -554,7 +554,7 @@ void vizmo::TurnOn_CD(){
       if (b){
 
          if(m_cfg != NULL){
-            m_cfg->m_coll = true;
+            m_cfg->SetInCollision(true);
          }
 #ifdef USE_PHANTOM
          GetPhantomManager().Collision = 1;
@@ -563,7 +563,7 @@ void vizmo::TurnOn_CD(){
       else{
 
          if(m_cfg != NULL){
-            m_cfg->m_coll = false;
+            m_cfg->SetInCollision(false);  
          }
 
 #ifdef USE_PHANTOM
@@ -613,7 +613,7 @@ void vizmo::SaveQryCfg(char ch){
     //to store a single cfg
     vector<vector<double> > cfg;
 
-    int dof = CfgModel::m_dof;
+    int dof = CfgModel::GetDOF(); 
     if(m_obj.m_Qry != NULL){
       //get original Cfgs from QueryLoader
       CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->GetLoader();
@@ -638,7 +638,7 @@ void vizmo::SaveQryCfg(char ch){
 }
 
 bool vizmo::SaveQry(const char *filename){
-   int dof = CfgModel::m_dof;
+   int dof = CfgModel::GetDOF(); 
    vector<double *> cfg;
    FILE *qryFile;
 
@@ -927,11 +927,11 @@ void vizmo::ChangeNodesShape(string _s){
     return; 
 
   if(_s == "Robot")
-    CfgModel::m_shape = CfgModel::Robot; 
+    CfgModel::SetShape(CfgModel::Robot); 
   if(_s == "Box")
-    CfgModel::m_shape = CfgModel::Box; 
+    CfgModel::SetShape(CfgModel::Box); 
   else   
-    CfgModel::m_shape = CfgModel::Point;
+    CfgModel::SetShape(CfgModel::Point);  
 
   typedef MapModel<CfgModel,EdgeModel> MM;
   typedef CCModel<CfgModel,EdgeModel> CC;
