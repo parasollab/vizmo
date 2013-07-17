@@ -35,7 +35,6 @@ class EnvModel : public plum::GLModel {
     virtual void SetModelDataDir(const string _modelDataDir);
     void DecreaseNumMB(){ m_numMultiBodies = m_numMultiBodies - 1; }
     void IncreaseNumMB(){ m_numMultiBodies = m_numMultiBodies + 1; }
-    bool FileExists() const;
     string ReadFieldString(istream& _is, string _error, bool _toUpper = true); 
     void GetColor(istream& _in); 
     bool IsCommentLine(char _c); 

@@ -7,9 +7,9 @@
 
 #include <qstringlist.h> 
 
-#include "Models/MapModel.h" 
 #include <Plum/Plum.h>
 #include <Plum/EnvObj/MultiBodyModel.h>
+#include "Models/MapModel.h" 
 #include <Utilities/CollisionDetection.h>
 
 #ifdef USE_PHANTOM

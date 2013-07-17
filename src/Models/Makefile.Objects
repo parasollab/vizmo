@@ -1,6 +1,7 @@
 OBJECTS += \
-	   Models/PolyhedronModel.o \
+	   Models/CfgModel.o \
+	   Models/EdgeModel.o \
 	   Models/EnvModel.o \
 	   Models/MapModel.o \
-	   Models/EdgeModel.o \
-	   Models/CfgModel.o
+	   Models/PathModel.o \
+	   Models/PolyhedronModel.o

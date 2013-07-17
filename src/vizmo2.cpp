@@ -13,16 +13,13 @@
 using namespace std;
 //////////////////////////////////////////////////////////////////////
 // Include Plum headers
-#include "Models/CfgModel.h"
 #include "Plum/PlumObject.h" 
 #include "Plum/GLModel.h"
 
 using namespace plum;
 
-//////////////////////////////////////////////////////////////////////
-// Include OBPRMViewer headers
-#include "EnvObj/PathLoader.h"
-#include "EnvObj/PathModel.h"
+#include "Models/CfgModel.h"
+#include "Models/PathModel.h"
 #include "EnvObj/DebugLoader.h"
 #include "EnvObj/DebugModel.h"
 #include "EnvObj/BoundingBoxesModel.h"
@@ -30,8 +27,6 @@ using namespace plum;
 #include "EnvObj/Robot.h"
 #include "EnvObj/QueryLoader.h"
 #include "EnvObj/QueryModel.h"
-
-
 
 //////////////////////////////////////////////////////////////////////
 //Define Camera singleton
@@ -818,11 +813,12 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
   void vizmo::Animate(int frame){
     if( m_obj.m_Robot==NULL || m_obj.m_Path==NULL)
       return;
-    CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->GetLoader();
+    
+    PathModel* pathModel=(PathModel*)m_obj.m_Path->GetModel();
     OBPRMView_Robot* rmodel=(OBPRMView_Robot*)m_obj.m_Robot->GetModel();
 
     //Get Cfg
-    vector<double> dCfg=ploader->GetConfiguration(frame);
+    vector<double> dCfg = pathModel->GetConfiguration(frame);
 
     //reset robot's original position
     ResetRobot();
@@ -841,9 +837,10 @@ void vizmo::DeleteObject(MultiBodyModel *mbl){
 
 int vizmo::GetPathSize(){ 
    if(m_obj.m_Path==NULL) 
-     return 0; 
-   CPathLoader* ploader=(CPathLoader*)m_obj.m_Path->GetLoader();
-   return ploader->GetPathSize();
+     return 0;
+
+   PathModel* pathModel = (PathModel*)m_obj.m_Path->GetModel();
+   return pathModel->GetPathSize();
 }
 
 int vizmo::GetDebugSize(){ 
@@ -1259,18 +1256,12 @@ vizmo::CreateMapObj(vizmo_obj& _obj, const string& _fname){
 bool 
 vizmo::CreatePathObj(vizmo_obj& _obj, const string& _fname){
 
-  CPathLoader* ploader = new CPathLoader();
-  PathModel* pmodel = new PathModel();
-  
-  if(ploader == NULL || pmodel == NULL) 
-    return false;
-  ploader->SetFilename(_fname);
-  pmodel->SetPathLoader(ploader);
+  PathModel* pathModel = new PathModel(_fname);
   
   if(_obj.m_Robot != NULL)
-    pmodel->SetModel((OBPRMView_Robot *)_obj.m_Robot->GetModel());
+    pathModel->SetModel((OBPRMView_Robot *)_obj.m_Robot->GetModel());
   
-  _obj.m_Path = new PlumObject(pmodel,ploader);
+  _obj.m_Path = new PlumObject(pathModel, NULL);
   return (_obj.m_Path!=NULL);
 }
 
@@ -1343,8 +1334,8 @@ vizmo::PlaceRobot(){
       cfg = q->GetStartGoal(0);
     }
     else if(m_obj.m_Path != NULL){
-      CPathLoader* p = (CPathLoader*)m_obj.m_Path->GetLoader();
-      cfg = p->GetConfiguration(0);
+      PathModel* pathModel = (PathModel*)m_obj.m_Path->GetModel();
+      cfg = pathModel->GetConfiguration(0);
     }
     else{
       EnvModel* envModel = (EnvModel*)m_obj.m_Env->GetModel();

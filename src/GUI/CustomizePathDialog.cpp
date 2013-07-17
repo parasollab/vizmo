@@ -1,5 +1,5 @@
 #include "CustomizePathDialog.h"
-#include "EnvObj/PathModel.h" 
+#include "Models/PathModel.h" 
 #include "vizmo2.h" 
 
 #include <QPainter> 
@@ -74,14 +74,8 @@ CustomizePathDialog::AcceptData(){
 
   path->GetGradientVector().clear(); 
   typedef vector<QColor>::iterator QIT;
-  vector<float> stopColor; //a single (non-qt) RGBA color is a vector of 4 floats  
   for(QIT qit = m_colors.begin(); qit != m_colors.end(); qit++){
-    stopColor.clear(); 
-    stopColor.push_back(qit->redF());
-    stopColor.push_back(qit->greenF()); 
-    stopColor.push_back(qit->blueF()); 
-    stopColor.push_back(1.0);
-    path->GetGradientVector().push_back(stopColor); 
+    path->GetGradientVector().push_back(PathModel::Color4(qit->redF(), qit->greenF(), qit->blueF(), 1.0)); 
   } 
 
   path->BuildModels();

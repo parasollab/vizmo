@@ -1,10 +1,10 @@
 #include "EnvModel.h"
+
 #include "Plum/EnvObj/MultiBodyInfo.h"
 #include "CfgModel.h"
 #include "EnvObj/BoundingBoxModel.h"
 #include "EnvObj/BoundingSphereModel.h"
-
-#define  PI_180 3.1415926535/180 
+#include "Utilities/IOUtils.h"
 
 EnvModel::EnvModel(){
   
@@ -21,17 +21,6 @@ EnvModel::~EnvModel(){
 }
 
 //////////Load Functions////////// 
-bool 
-EnvModel::FileExists() const {           
-
-  ifstream fin(GetFilename().c_str());
-  if(!fin.good()){
-    cerr << "File (" << GetFilename() << ") not found";
-    return false;
-  }
-  return true;
-}
-
 string 
 EnvModel::ReadFieldString(istream& _is, string _error, bool _toUpper){
 
@@ -77,7 +66,7 @@ EnvModel::IsCommentLine(char _c){
 bool 
 EnvModel::ParseFile(){
 
-  if(FileExists() == false)
+  if(!FileExists(GetFilename()))
     return false;
 
   //Open file for reading datat
@@ -304,12 +293,6 @@ EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
 
   //save this for when these classes utilize only transformations instead
   //of x, y, z, alpha, beta, gamma, separately.
-  /*Orientation bodyOrientation(Orientation::FixedXYZ,
-    bodyRotation[2]*PI_180,
-    bodyRotation[1]*PI_180,
-    bodyRotation[0]*PI_180);
-    Transformation transformation(bodyOrientation, bodyPosition);
-   */
   _bodyInfo.m_IsBase = isBase;
   _bodyInfo.isBase = isBase;
   _bodyInfo.SetBase(baseType);
@@ -319,9 +302,9 @@ EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
   _bodyInfo.m_X = bodyPosition[0];
   _bodyInfo.m_Y = bodyPosition[1];
   _bodyInfo.m_Z = bodyPosition[2];
-  _bodyInfo.m_Alpha = bodyRotation[0]*PI_180;
-  _bodyInfo.m_Beta = bodyRotation[1]*PI_180;
-  _bodyInfo.m_Gamma = bodyRotation[2]*PI_180;
+  _bodyInfo.m_Alpha = degToRad(bodyRotation[0]);
+  _bodyInfo.m_Beta = degToRad(bodyRotation[1]);
+  _bodyInfo.m_Gamma = degToRad(bodyRotation[2]);
   _bodyInfo.doTransform();
 
   //Set color information
@@ -367,19 +350,13 @@ EnvModel::ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
 
   //save this for when body utilizes only transformation not
   //x,y,z,alpha,beta,gama
-  /*Orientation bodyOrientation(Orientation::FixedXYZ,
-    bodyRotation[2]*TWOPI/360.0,
-    bodyRotation[1]*TWOPI/360.0,
-    bodyRotation[0]*TWOPI/360.0);
-    Transformation transformation(bodyOrientation, bodyPosition);
-   */
 
   _bodyInfo.m_X = bodyPosition[0];
   _bodyInfo.m_Y = bodyPosition[1];
   _bodyInfo.m_Z = bodyPosition[2];
-  _bodyInfo.m_Alpha = bodyRotation[0]*PI_180;
-  _bodyInfo.m_Beta = bodyRotation[1]*PI_180;
-  _bodyInfo.m_Gamma = bodyRotation[2]*PI_180;
+  _bodyInfo.m_Alpha = degToRad(bodyRotation[0]);
+  _bodyInfo.m_Beta = degToRad(bodyRotation[1]);
+  _bodyInfo.m_Gamma = degToRad(bodyRotation[2]);
   _bodyInfo.doTransform();
 
   //Set color information
@@ -473,9 +450,9 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   conn.m_pos2Y = positionToDHFrame[1];
   conn.m_pos2Z = positionToDHFrame[2];
 
-  conn.m_orient2X = rotationToDHFrame[0]*PI_180;
-  conn.m_orient2Y = rotationToDHFrame[1]*PI_180;
-  conn.m_orient2Z = rotationToDHFrame[2]*PI_180;
+  conn.m_orient2X = degToRad(rotationToDHFrame[0]);
+  conn.m_orient2Y = degToRad(rotationToDHFrame[1]);
+  conn.m_orient2Z = degToRad(rotationToDHFrame[2]);
 
   //DH parameters
   Vector4d dhparameters = ReadField<Vector4d>(_ifs, "DH Parameters");
@@ -501,9 +478,9 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   conn.m_posY = positionToNextBody[1];
   conn.m_posZ = positionToNextBody[2];
 
-  conn.m_orientX = rotationToNextBody[0]*PI_180;
-  conn.m_orientY = rotationToNextBody[1]*PI_180;
-  conn.m_orientZ = rotationToNextBody[2]*PI_180;
+  conn.m_orientX = degToRad(rotationToNextBody[0]);
+  conn.m_orientY = degToRad(rotationToNextBody[1]);
+  conn.m_orientZ = degToRad(rotationToNextBody[2]);
 
   return true;
 }

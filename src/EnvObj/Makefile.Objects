@@ -4,8 +4,6 @@ OBJECTS += \
 	   EnvObj/BoundingSphereModel.o \
 	   EnvObj/BoundingBoxParser.o \
 	   EnvObj/BoundingBoxesModel.o \
-	   EnvObj/PathLoader.o \
-	   EnvObj/PathModel.o \
 	   EnvObj/QueryLoader.o \
 	   EnvObj/QueryModel.o \
 	   EnvObj/DebugLoader.o \

@@ -1,3 +1,4 @@
 OBJECTS += \
 	  Utilities/CollisionDetection.o \
-	  Utilities/ImageFilters.o
+	  Utilities/ImageFilters.o \
+	  Utilities/IOUtils.o

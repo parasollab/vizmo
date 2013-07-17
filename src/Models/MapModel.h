@@ -12,6 +12,7 @@
 #include "CCModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h"
+#include "Utilities/IOUtils.h"
 
 using namespace stapl;
 using namespace std;
@@ -61,7 +62,6 @@ class MapModel : public plum::GLModel{
     //Moving generic load functions to virtual in GLModel.h 
     void InitGraph(){ m_graph = new Wg(); }
     //void WriteMapFile(const char *filename);
-    bool FileExists() const; 
     void GoToNext(istream& _in); 
     bool IsCommentLine(char _c); 
     string GetPathName(const string& _filename); 
@@ -151,19 +151,6 @@ MapModel<CfgModel, WEIGHT>::~MapModel(){
 ///////////Load functions////////// 
 
 template <class CfgModel, class WEIGHT>
-bool
-MapModel<CfgModel, WEIGHT>::FileExists() const{
-
-  //Check if file exists
-  ifstream fin(GetFilename().c_str());
-  if(!fin.good()){
-    cerr << "File (" << GetFilename() << ") not found";
-    return false;
-  }
-  return true;
-}
-
-template <class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel, WEIGHT>::GoToNext(istream& _in){
 
@@ -201,7 +188,7 @@ template <class CfgModel, class WEIGHT>
 bool
 MapModel<CfgModel, WEIGHT>::ParseHeader(){
 
-  if(FileExists() == false)
+  if(!FileExists(GetFilename()))
     return false;
 
   ifstream fin(GetFilename().c_str());
@@ -293,7 +280,7 @@ template<class CfgModel, class WEIGHT>
 bool 
 MapModel<CfgModel, WEIGHT>::ParseFile(const string& _filename){      
   
-  if(FileExists() == false)
+  if(!FileExists(GetFilename()))
     return false;
 
   ifstream fin(GetFilename().c_str());
