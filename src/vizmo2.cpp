@@ -870,11 +870,11 @@ vizmo::ChangeNodesSize(float _s, string _str){
     MM* mmodel =(MM*)m_obj.m_map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){
-      CC::Shape shape=CC::Point;
+      CfgModel::Shape shape=CfgModel::Point;
       if(_str=="Robot") 
-        shape=CC::Robot;
+        shape=CfgModel::Robot;
       else if(_str=="Box") 
-        shape=CC::Box;
+        shape=CfgModel::Box;
       (*ic)->ScaleNode(_s, shape);
     }
   }
@@ -882,9 +882,9 @@ vizmo::ChangeNodesSize(float _s, string _str){
     DebugModel* dmodel = ((DebugModel*)m_obj.m_debug->GetModel()); 
     vector<CC*>& cc=dmodel->GetMapModel()->GetCCModels();
     for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-      CC::Shape shape = CC::Point;
+      CfgModel::Shape shape = CfgModel::Point;
       if(_str == "Box")
-        shape = CC::Box;  
+        shape = CfgModel::Box;  
       (*ic)->ScaleNode(_s, shape);
     }
   }
@@ -941,11 +941,11 @@ void vizmo::ChangeNodesShape(string _s){
     MapModel<CfgModel,EdgeModel>* mmodel =(MM*)m_obj.m_map->GetModel();
     vector<CC*>& cc=mmodel->GetCCModels();
     for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){
-      CC::Shape shape=CC::Point;
+      CfgModel::Shape shape=CfgModel::Point;
       if(_s=="Robot") 
-        shape=CC::Robot;
+        shape=CfgModel::Robot;
       else if(_s=="Box") 
-        shape=CC::Box;
+        shape=CfgModel::Box;
       (*ic)->ChangeShape(shape);
     }
   }
@@ -953,11 +953,11 @@ void vizmo::ChangeNodesShape(string _s){
     DebugModel* dmodel = (DebugModel*)m_obj.m_debug->GetModel(); 
     vector<CC*>& cc=dmodel->GetMapModel()->GetCCModels();
     for(CCIT ic=cc.begin();ic!=cc.end();ic++){
-      CC::Shape shape = CC::Point;
+      CfgModel::Shape shape = CfgModel::Point;
       if(_s=="Robot")
-        shape=CC::Robot;
+        shape=CfgModel::Robot;
       else if(_s=="Box")
-        shape=CC::Box;
+        shape=CfgModel::Box;
       (*ic)->ChangeShape(shape);
     }
   } 

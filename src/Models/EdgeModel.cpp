@@ -64,27 +64,6 @@ EdgeModel::SetThickness(size_t _thickness){
   m_edgeThickness = _thickness; 
 }
 
-void 
-EdgeModel::SetCfgShape(char _shape) {
-      
-  switch (_shape) {
-    case 'r':
-      m_cfgShape = CfgModel::Robot;
-      break;
-  
-    case 'b':
-      m_cfgShape = CfgModel::Box;
-      break;
-
-    case 'p':
-      m_cfgShape = CfgModel::Point;
-      break;
-
-    default:
-      break;
-  }
-} 
-
 bool 
 EdgeModel::operator==(const EdgeModel& _other){
   

@@ -33,7 +33,7 @@ class EdgeModel : public plum::GLModel{
     int GetID() { return m_id; }
     const CfgModel& GetStartCfg() { return m_startCfg; }
     void SetThickness(size_t _thickness); 
-    void SetCfgShape(char _shape); 
+    void SetCfgShape(CfgModel::Shape _s) { m_cfgShape = _s; } 
 
     bool operator==(const EdgeModel& _other);
     void Set(int _id, CfgModel* _c1, CfgModel* _c2, OBPRMView_Robot* _robot = NULL); 

@@ -20,13 +20,15 @@ using namespace stapl;
 using namespace plum;
 
 template<typename, typename>
-class MapModel; 
+class MapModel;
+
+class CfgModel; 
   
 template <class CfgModel, class WEIGHT> 
 class CCModel : public plum::GLModel{ 
 
   public:
-    enum Shape {Robot, Box, Point}; //Node representation 
+    typedef typename CfgModel::Shape Shape; 
     typedef typename MapModel<CfgModel, WEIGHT>::Wg WG;
     typedef typename WG::vertex_descriptor VID;
     typedef typename WG::edge_descriptor EID;
@@ -37,7 +39,7 @@ class CCModel : public plum::GLModel{
     
     const string GetName() const;
     int GetID() const {return m_id;}
-    Shape GetShape(){return m_nodeShape;}
+    Shape GetShape(){return m_cfgShape;}
     float GetRobotSize() {return  m_robotScale;}
     float GetBoxSize() {return m_boxScale;}
     float GetPointSize() {return m_pointScale;}   
@@ -85,7 +87,7 @@ class CCModel : public plum::GLModel{
     float m_boxScale;
     float m_pointScale;  
     size_t m_edgeThickness; 
-    Shape m_nodeShape;
+    Shape m_cfgShape;
     
     //display ids
     int m_edgeID; 
@@ -94,7 +96,6 @@ class CCModel : public plum::GLModel{
     int m_pointID;  
 
     bool m_newColor; //Have CC colors been changed?
-    char m_shape;    //'r' robot, 'b' box, 'p' point
     OBPRMView_Robot* m_robot;
     WG* m_graph;
     ColorMap m_colorMap;
@@ -117,7 +118,7 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
       m_robotScale = 1;
       m_boxScale = 1;
       m_pointScale = 10;  
-      m_nodeShape = Point;
+      m_cfgShape = CfgModel::Point;
       //display id
       m_edgeID = m_robotID = m_boxID = m_pointID = -1;
 
@@ -154,15 +155,15 @@ template <class CfgModel, class WEIGHT>
 void 
 CCModel<CfgModel, WEIGHT>::ScaleNode(float _scale, Shape _s){
         
-  m_nodeShape = _s; 
+  m_cfgShape = _s; 
 
-  if(m_nodeShape == Point && m_pointScale != _scale){
+  if(m_cfgShape == CfgModel::Point && m_pointScale != _scale){
     m_pointScale = _scale*10;
     glDeleteLists(m_pointID, 1); 
     m_pointID = -1; 
   }
         
-  else if(m_nodeShape == Box && m_boxScale != _scale){
+  else if(m_cfgShape == CfgModel::Box && m_boxScale != _scale){
     m_boxScale = _scale;
     glDeleteLists(m_boxID, 1); 
     m_boxID = -1; 
@@ -182,7 +183,7 @@ template <class CfgModel, class WEIGHT>
 void 
 CCModel<CfgModel, WEIGHT>::ChangeShape(Shape _s){ 
 
-  m_nodeShape= _s; 
+  m_cfgShape= _s; 
 }
 
 template <class CfgModel, class WEIGHT>
@@ -389,8 +390,8 @@ void
 CCModel<CfgModel, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew){ 
     
   m_renderMode = SOLID_MODE;
-  m_nodeShape = _s;
-  if(_s == Point){
+  m_cfgShape = _s;
+  if(_s == CfgModel::Point){
     m_pointScale = _size; 
     glDeleteLists(m_pointID, 1); 
     m_pointID = -1; 
@@ -436,7 +437,7 @@ CCModel<CfgModel, WEIGHT>::BuildEdges(){
     typedef typename vector<WEIGHT>::iterator EIT;
     for(EIT eit = m_edges.begin(); eit!=m_edges.end(); eit++){
       eit->SetThickness(m_edgeThickness); 
-      eit->SetCfgShape(m_shape);
+      eit->SetCfgShape(m_cfgShape);
       eit->Draw(m_renderMode);
     }
   glEndList();
@@ -452,29 +453,26 @@ void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
 
   int list = -1;  
 
-  switch(m_nodeShape){ 
-    case Robot:
+  switch(m_cfgShape){ 
+    case CfgModel::Robot:
       glDeleteLists(m_robotID, 1); 
       m_robotID = -1; 
       BuildRobotNodes(_mode); 
       list = m_robotID; 
-      m_shape = 'r'; 
     break;
 
-    case Box:
+    case CfgModel::Box:
       glDeleteLists(m_boxID, 1); 
       m_boxID = -1; 
       BuildBoxNodes(_mode); 
       list = m_boxID; 
-      m_shape='b';
     break;
 
-    case Point:
+    case CfgModel::Point:
       glDeleteLists(m_pointID, 1); 
       m_pointID = -1; 
       BuildPointNodes(_mode); 
       list = m_pointID; 
-      m_shape = 'p';
     break;
   }
   glDeleteLists(m_edgeID, 1); 
