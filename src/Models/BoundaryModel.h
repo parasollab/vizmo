@@ -7,7 +7,7 @@ using namespace plum;
 class BoundaryModel : public GLModel {
   public:
     BoundaryModel();
-    virtual ~BoundaryModel() {}
+    virtual ~BoundaryModel();
 
     virtual void Select(unsigned int* _index, vector<gliObj>& _sel);
     virtual bool BuildModels() = 0; 
@@ -20,7 +20,7 @@ class BoundaryModel : public GLModel {
     virtual bool Parse(istream& _is) = 0;
 
   protected:
-    int m_displayID, m_linesID;
+    size_t m_displayID, m_linesID;
 };
 
 #endif

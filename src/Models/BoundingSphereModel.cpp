@@ -5,13 +5,6 @@
 BoundingSphereModel::BoundingSphereModel() : BoundaryModel(), m_center(0.0, 0.0, 0.0), m_radius(numeric_limits<double>::max()) {
 }
 
-BoundingSphereModel::~BoundingSphereModel(){
-}
-
-//////////////////////////////////////////////////////////////////////
-// GLModel Methods
-//////////////////////////////////////////////////////////////////////
-
 bool BoundingSphereModel::BuildModels(){
   
   GLUquadricObj* quad =gluNewQuadric();

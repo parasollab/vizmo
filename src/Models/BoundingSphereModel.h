@@ -6,7 +6,6 @@
 class BoundingSphereModel : public BoundaryModel {
   public:
     BoundingSphereModel();
-    ~BoundingSphereModel();
 
     virtual bool BuildModels();
 

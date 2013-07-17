@@ -13,7 +13,7 @@ using namespace plum;
 //////////////////////////////////////////////////////////////////////
 //OBPRMView Headers
 #include "BoundingBoxParser.h"
-#include "BoundingBoxModel.h"
+#include "Models/BoundingBoxModel.h"
 
 class CBoundingBoxesModel : public GLModel
 {

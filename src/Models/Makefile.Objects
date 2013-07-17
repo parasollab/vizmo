@@ -1,4 +1,7 @@
 OBJECTS += \
+	   Models/BoundingBoxModel.o \
+	   Models/BoundaryModel.o \
+	   Models/BoundingSphereModel.o \
 	   Models/CfgModel.o \
 	   Models/EdgeModel.o \
 	   Models/EnvModel.o \

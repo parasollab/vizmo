@@ -8,13 +8,6 @@ BoundingBoxModel::BoundingBoxModel() : BoundaryModel() {
   }
 }
 
-BoundingBoxModel::~BoundingBoxModel(){
-}
-
-//////////////////////////////////////////////////////////////////////
-// GLModel Methods
-//////////////////////////////////////////////////////////////////////
-
 bool BoundingBoxModel::BuildModels(){
   double zmin = m_bbx[2].second == numeric_limits<double>::max() ? -1 : m_bbx[2].first;
   double zmax = m_bbx[2].second == numeric_limits<double>::max() ? 1 : m_bbx[2].second;

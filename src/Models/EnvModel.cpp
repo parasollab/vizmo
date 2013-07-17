@@ -2,8 +2,8 @@
 
 #include "Plum/EnvObj/MultiBodyInfo.h"
 #include "CfgModel.h"
-#include "EnvObj/BoundingBoxModel.h"
-#include "EnvObj/BoundingSphereModel.h"
+#include "Models/BoundingBoxModel.h"
+#include "Models/BoundingSphereModel.h"
 #include "Utilities/IOUtils.h"
 
 EnvModel::EnvModel(){
@@ -441,11 +441,6 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   Vector3d positionToDHFrame = ReadField<Vector3d>(_ifs, "Translation to DHFrame");
   Vector3d rotationToDHFrame = ReadField<Vector3d>(_ifs, "Rotation to DHFrame");
 
-  /*Orientation orientationToDHFrame = Orientation(Orientation::FixedXYZ,
-    rotationToDHFrame[2]*TWOPI/360.0,
-    rotationToDHFrame[1]*TWOPI/360.0,
-    rotationToDHFrame[0]*TWOPI/360.0);*/
-
   conn.m_pos2X = positionToDHFrame[0];
   conn.m_pos2Y = positionToDHFrame[1];
   conn.m_pos2Z = positionToDHFrame[2];
@@ -468,11 +463,6 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   //Transformation to next body
   Vector3d positionToNextBody = ReadField<Vector3d>(_ifs, "Translation to Next Body");
   Vector3d rotationToNextBody = ReadField<Vector3d>(_ifs, "Rotation to Next Body");
-
-  /*Orientation orientationToNextBody = Orientation(Orientation::FixedXYZ,
-    rotationToNextBody[2]*TWOPI/360.0, 
-    rotationToNextBody[1]*TWOPI/360.0, 
-    rotationToNextBody[0]*TWOPI/360.0);*/
 
   conn.m_posX = positionToNextBody[0];
   conn.m_posY = positionToNextBody[1];

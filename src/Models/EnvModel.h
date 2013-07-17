@@ -3,7 +3,7 @@
 
 #include "Plum/GLModel.h"
 #include "Plum/EnvObj/MultiBodyModel.h"
-#include "EnvObj/BoundaryModel.h"
+#include "Models/BoundaryModel.h"
 #include "Plum/EnvObj/RobotInfo.h"
 
 #include <graph.h>

@@ -1,7 +1,4 @@
 OBJECTS += \
-	   EnvObj/BoundaryModel.o \
-	   EnvObj/BoundingBoxModel.o \
-	   EnvObj/BoundingSphereModel.o \
 	   EnvObj/BoundingBoxParser.o \
 	   EnvObj/BoundingBoxesModel.o \
 	   EnvObj/QueryLoader.o \
