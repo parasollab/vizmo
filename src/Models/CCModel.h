@@ -117,7 +117,7 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
       //size
       m_robotScale = 1;
       m_boxScale = 1;
-      m_pointScale = 10;  
+      m_pointScale = 5;
       m_cfgShape = CfgModel::Point;
       //display id
       m_edgeID = m_robotID = m_boxID = m_pointID = -1;

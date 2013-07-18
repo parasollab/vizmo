@@ -12,8 +12,7 @@ class PolyhedronModel : public plum::GLModel {
     typedef vector<Point3d> PtVector;
     typedef vector<Tri> TriVector;
 
-    PolyhedronModel(plum::CBodyInfo& _bodyInfo);
-    PolyhedronModel(const PolyhedronModel& _other); 
+    PolyhedronModel();
     ~PolyhedronModel();
 
     const string GetName() const;
@@ -23,6 +22,8 @@ class PolyhedronModel : public plum::GLModel {
     const Point3d& GetCOM() const {return m_com;}
 
     RAPID_model* GetRapidModel() {return m_rapidModel;}
+
+    void SetBodyInfo(const plum::CBodyInfo& _bodyInfo) {m_bodyInfo = _bodyInfo;}
 
     bool BuildModels();
     void Draw(GLenum _mode);

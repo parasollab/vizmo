@@ -5,9 +5,8 @@
 #include "Utilities/IOUtils.h"
 
 PathModel::PathModel(string _filename) 
-  : m_glPathIndex(-1), m_lineWidth(1),
-  m_displayInterval(3), 
-  m_robot(NULL) {
+  : m_glPathIndex(-1), m_robot(NULL),
+  m_lineWidth(1), m_displayInterval(3) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
 

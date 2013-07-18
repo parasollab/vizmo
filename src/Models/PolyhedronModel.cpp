@@ -12,17 +12,8 @@ using namespace modelgraph;
 
 #include "ModelFactory.h"
 
-PolyhedronModel::PolyhedronModel(plum::CBodyInfo& _bodyInfo) : 
-  m_solidID(-1), m_wiredID(-1), 
-  m_bodyInfo(_bodyInfo), m_rapidModel(NULL) {
-  }
-
-PolyhedronModel::PolyhedronModel(const PolyhedronModel& _other) : 
-  m_solidID(_other.m_solidID), m_wiredID(_other.m_wiredID), 
-  m_bodyInfo(_other.m_bodyInfo) {
-    if(_other.m_rapidModel != NULL)
-      CopyRapidModel(_other); 
-  }
+PolyhedronModel::PolyhedronModel() : m_solidID(-1), m_wiredID(-1), m_rapidModel(NULL) {
+}
 
 PolyhedronModel::~PolyhedronModel(){
   delete m_rapidModel;
