@@ -30,7 +30,7 @@ bool BoundingBoxModel::BuildModels(){
   GLubyte id6[] = { 7, 6, 2, 3 }; //front
 
   //line index
-  GLubyte lineid[] = 
+  GLubyte lineid[] =
   { 0, 1, 1, 2, 2, 3, 3, 0,
     4, 5, 5, 6, 6, 7, 7, 4,
     0, 4, 1, 5, 2, 6, 3, 7};
@@ -38,7 +38,7 @@ bool BoundingBoxModel::BuildModels(){
   //set properties for this box
   m_displayID = glGenLists(1);
   glNewList(m_displayID, GL_COMPILE);
-  
+
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
   glPolygonMode(GL_FRONT, GL_FILL);
@@ -64,7 +64,7 @@ bool BoundingBoxModel::BuildModels(){
   glLineWidth(1);
   glColor3d(0.5, 0.5, 0.5);
   glDrawElements(GL_LINES, 24, GL_UNSIGNED_BYTE, lineid);
-  
+
   glDisable(GL_CULL_FACE);
   glEndList();
 
@@ -84,9 +84,9 @@ const string BoundingBoxModel::GetName() const{
   return "Bounding Box";
 }
 
-vector<string> 
-BoundingBoxModel::GetInfo() const { 
-  vector<string> info; 
+vector<string>
+BoundingBoxModel::GetInfo() const {
+  vector<string> info;
   info.push_back(GetName());
   info.push_back(" [ ");
   for(int i = 0; i < 3; ++i){

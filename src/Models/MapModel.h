@@ -8,7 +8,7 @@
 #include <algorithms/graph_input_output.h>
 
 #include "EnvObj/Robot.h"
-#include "Plum/PlumObject.h" 
+#include "Plum/PlumObject.h"
 #include "CCModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h"
@@ -22,15 +22,15 @@ class CCModel;
 
 template <class CfgModel, class WEIGHT>
 class MapModel : public plum::GLModel{
-   
-  public: 
+
+  public:
     typedef CCModel<CfgModel, WEIGHT> CCM;
     typedef graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT> Wg;
     typedef typename Wg::vertex_descriptor VID;
     typedef vector_property_map<Wg, size_t> ColorMap;
     ColorMap m_colorMap;
     typedef typename Wg::vertex_iterator VI;
-  
+
     MapModel();
     virtual ~MapModel();
 

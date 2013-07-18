@@ -3,7 +3,7 @@
 
 #include "CfgModel.h"
 #include "Plum/Plum.h"
-#include "Plum/EnvObj/RobotInfo.h"   
+#include "Plum/EnvObj/RobotInfo.h"
 #include "CCModel.h"
 
 
@@ -11,12 +11,12 @@ CfgModel CfgModel::m_invalidCfg;
 int CfgModel::m_dof = 0;
 double CfgModel::m_defaultDOF = 0;
 CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
-bool CfgModel::m_isPlanarRobot = false; 
-bool CfgModel::m_isVolumetricRobot = false; 
-bool CfgModel::m_isRotationalRobot = false; 
+bool CfgModel::m_isPlanarRobot = false;
+bool CfgModel::m_isVolumetricRobot = false;
+bool CfgModel::m_isRotationalRobot = false;
 
 CfgModel::CfgModel(){
-  
+
   m_unknown1 = LONG_MAX;
   m_unknown2 = LONG_MAX;
   m_unknown3 = LONG_MAX;
@@ -26,15 +26,15 @@ CfgModel::CfgModel(){
 }
 
 CfgModel::CfgModel(const CfgModel& _cfg){
-  
+
   m_index = _cfg.m_index;
   m_robot = _cfg.m_robot;
   m_cc = _cfg.m_cc;
   m_coll = _cfg.m_coll;
   m_dofs = _cfg.m_dofs;
-  m_isPlanarRobot = _cfg.m_isPlanarRobot; 
-  m_isVolumetricRobot = _cfg.m_isVolumetricRobot; 
-  m_isRotationalRobot = _cfg.m_isRotationalRobot; 
+  m_isPlanarRobot = _cfg.m_isPlanarRobot;
+  m_isVolumetricRobot = _cfg.m_isVolumetricRobot;
+  m_isRotationalRobot = _cfg.m_isRotationalRobot;
 
   m_unknown1 = _cfg.m_unknown1;
   m_unknown2 = _cfg.m_unknown2;
@@ -43,23 +43,23 @@ CfgModel::CfgModel(const CfgModel& _cfg){
 
 CfgModel::~CfgModel() {}
 
-const string 
+const string
 CfgModel::GetName() const {
-     
+
   ostringstream temp;
   temp << "Node" << m_index;
-  return temp.str(); 
-} 
+  return temp.str();
+}
 
-// Fucntion not used:   
-// this information is controlled by VizmoRoadmapGUI::printNodeCfg() 
+// Fucntion not used:
+// this information is controlled by VizmoRoadmapGUI::printNodeCfg()
 // in roadmap.cpp, which calls CfgModel::GetNodeInfo()
-vector<string> 
+vector<string>
 CfgModel::GetInfo() const {
-  
-  vector<string> info; 
+
+  vector<string> info;
   int dof = CfgModel::m_dof;
-  
+
   ostringstream temp;
   temp << "Node ID = " << m_index << " ";
   temp << " Cfg ( ";
@@ -83,12 +83,12 @@ CfgModel::GetInfo() const {
   return info;
 }
 
-vector<string> 
+vector<string>
 CfgModel::GetNodeInfo() const {
-  
-  vector<string> info; 
+
+  vector<string> info;
   int dof = CfgModel::m_dof;
-  
+
   ostringstream temp;
   temp << "Node ID = " << m_index << " ";
 
@@ -106,38 +106,38 @@ CfgModel::GetNodeInfo() const {
   return info;
 }
 
-int 
+int
 CfgModel::GetCCID(){
-  
-  int i = m_cc->GetID(); 
-  return i; 
+
+  int i = m_cc->GetID();
+  return i;
 }
 
 //Function accessed to write data into a new .map file
-vector<double> 
+vector<double>
 CfgModel::GetUnknowns(){
-    
+
   vector<double> v;
-  v.push_back(m_unknown1); 
+  v.push_back(m_unknown1);
   v.push_back(m_unknown2);
   v.push_back(m_unknown3);
   return v;
 }
 
-void 
+void
 CfgModel::SetColor(float _r, float _g, float _b, float _a){
-      
+
   GLModel::SetColor(_r,_g,_b,_a);
 }
 
-void 
+void
 CfgModel::SetCfg(vector<double> _newCfg){
-  
+
   m_dofs.assign(_newCfg.begin(), _newCfg.end());
   m_unknown1 = m_unknown2 = m_unknown3 = -1;
-}   
+}
 
-bool 
+bool
 CfgModel::operator==(const CfgModel& _other) const{
 
   for(vector<double>::const_iterator dit1 = m_dofs.begin(), dit2 = _other.m_dofs.begin();
@@ -148,26 +148,26 @@ CfgModel::operator==(const CfgModel& _other) const{
   return true;
 }
 
-void 
-CfgModel::Set(int _index , OBPRMView_Robot* _robot, CCModel<CfgModel, EdgeModel>* _cc){   
-  
+void
+CfgModel::Set(int _index , OBPRMView_Robot* _robot, CCModel<CfgModel, EdgeModel>* _cc){
+
   m_index = _index;
   m_robot = _robot;
   m_cc = _cc;
-  
+
   if(m_robot != NULL){
-    vector<struct Robot>& exampleBots = m_robot->m_envModel->GetRobots(); 
-    const struct Robot& exampleBot = *(exampleBots.begin());  
-    m_isPlanarRobot = (exampleBot.m_base == Robot::PLANAR) ? true : false; 
+    vector<struct Robot>& exampleBots = m_robot->m_envModel->GetRobots();
+    const struct Robot& exampleBot = *(exampleBots.begin());
+    m_isPlanarRobot = (exampleBot.m_base == Robot::PLANAR) ? true : false;
     m_isVolumetricRobot = (exampleBot.m_base == Robot::VOLUMETRIC) ? true : false;
-    m_isRotationalRobot = (exampleBot.m_baseMovement == Robot::ROTATIONAL) ? true : false; 
+    m_isRotationalRobot = (exampleBot.m_baseMovement == Robot::ROTATIONAL) ? true : false;
   }
-  else cout<<"NULL ROBOT in CfgModel::Set!"<<endl; 
+  else cout<<"NULL ROBOT in CfgModel::Set!"<<endl;
 }
 
-void 
+void
 CfgModel::Draw(GLenum _mode){
-  
+
   glPushName(m_index);
   Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->GetShape());
   switch(shape){
@@ -186,72 +186,72 @@ CfgModel::Draw(GLenum _mode){
   glPopName();
 }
 
-void 
+void
 CfgModel::DrawRobot(){
-  
+
   if(m_robot == NULL)
     return;
 
-  vector<double> cfg = m_dofs;  
-  vector<float> origColor = m_robot->GetColor();  
-  
+  vector<double> cfg = m_dofs;
+  vector<float> origColor = m_robot->GetColor();
+
   m_robot->RestoreInitCfg();
   m_robot->BackUp();
-  float* rgbaArray = &m_rGBA[0];  
+  float* rgbaArray = &m_rGBA[0];
   glColor4fv(rgbaArray);
   m_robot->SetRenderMode(m_renderMode);
   m_robot->SetColor(m_rGBA[0], m_rGBA[1], m_rGBA[2], 1);
   m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
-  m_robot->Configure(cfg);   
+  m_robot->Configure(cfg);
   m_robot->Draw(GL_RENDER);
   m_robot->Restore();
-  m_robot->SetColor(origColor[0],origColor[1],origColor[2],origColor[3]); 
+  m_robot->SetColor(origColor[0],origColor[1],origColor[2],origColor[3]);
 }
 
-void 
+void
 CfgModel::DrawBox(){
 
   glEnable(GL_LIGHTING);
   glPushMatrix();
-  float* rgbaArray = &m_rGBA[0]; 
+  float* rgbaArray = &m_rGBA[0];
   glColor4fv(rgbaArray);
   glColor4f(m_rGBA[0],m_rGBA[1],m_rGBA[2],1);
- 
+
   //If base is not FIXED, perform translations
-  //Additionally, perform rotations if base is also ROTATIONAL 
-  if(m_isPlanarRobot){  
+  //Additionally, perform rotations if base is also ROTATIONAL
+  if(m_isPlanarRobot){
     glTranslated(m_dofs[0], m_dofs[1], 0);
-    if(m_isRotationalRobot){    
+    if(m_isRotationalRobot){
       //2D planar robot can have one rotational DOF
-      glRotated(m_dofs[2]*360, 0, 0, 1); 
+      glRotated(m_dofs[2]*360, 0, 0, 1);
     }
   }
   else if(m_isVolumetricRobot){
     glTranslated(m_dofs[0], m_dofs[1], m_dofs[2]);
-    if(m_isRotationalRobot){   
+    if(m_isRotationalRobot){
       //3D volumetric robot can have 3 rotational DOFs
       glRotated(m_dofs[5]*360, 0, 0, 1);
       glRotated(m_dofs[4]*360, 0, 1, 0);
       glRotated(m_dofs[3]*360, 1, 0, 0);
     }
   }
-  
-  //glScale(); What does this call do? 
+
+  //glScale(); What does this call do?
   glTransform();
   glEnable(GL_NORMALIZE);
   if(m_renderMode == SOLID_MODE)
-    glutSolidCube(m_Scale[0]); 
+    glutSolidCube(m_Scale[0]);
   if(m_renderMode == WIRE_MODE)
-    glutWireCube(m_Scale[0]); 
+    glutWireCube(m_Scale[0]);
   glDisable(GL_NORMALIZE);
   glPopMatrix();
 }
 
-void 
+void
 CfgModel::DrawPoint(){
-  
+
   glDisable(GL_LIGHTING);
-  glPointSize(m_Scale[0]); 
+  glPointSize(m_Scale[0]);
   glBegin(GL_POINTS);
   glColor4f(m_rGBA[0],m_rGBA[1],m_rGBA[2],1);
   if(m_renderMode == SOLID_MODE ||
@@ -264,41 +264,41 @@ CfgModel::DrawPoint(){
   glEnd();
 }
 
-void 
-CfgModel::DrawSelect(){ 
-  
+void
+CfgModel::DrawSelect(){
+
   glColor3d(1,1,0);
   glDisable(GL_LIGHTING);
   Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->GetShape());
   switch(shape){
-    case Robot:   
+    case Robot:
       if(m_robot!=NULL){
-        vector<double> cfg = m_dofs; 
+        vector<double> cfg = m_dofs;
         m_robot->BackUp();
-        vector<float> origColor = m_robot->GetColor();   
+        vector<float> origColor = m_robot->GetColor();
         //change
         m_robot->SetColor(1,1,0,0);
         m_robot->SetColor(m_rGBA[0], m_rGBA[1], m_rGBA[2], 1);
         m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
         m_robot->Configure(cfg);
         //delete[] cfg;
-        //draw 
+        //draw
         m_robot->DrawSelect();
-        m_robot->Restore();  
-        m_robot->SetColor(origColor[0],origColor[1],origColor[2],origColor[3]);  
-      };  
+        m_robot->Restore();
+        m_robot->SetColor(origColor[0],origColor[1],origColor[2],origColor[3]);
+      };
       break;
 
-    case Box:     
+    case Box:
       glLineWidth(2);
       glPushMatrix();
-      
+
       if(m_isPlanarRobot){
         glTranslated(m_dofs[0], m_dofs[1], 0);
         if(m_isRotationalRobot)
-          glRotated(m_dofs[2]*360, 0, 0, 1);  
+          glRotated(m_dofs[2]*360, 0, 0, 1);
       }
-      
+
       else if(m_isVolumetricRobot){
         glTranslated(m_dofs[0], m_dofs[1], m_dofs[2]);
         if(m_isRotationalRobot){
@@ -307,89 +307,89 @@ CfgModel::DrawSelect(){
           glRotated(m_dofs[3]*360, 1, 0, 0);
         }
       }
-      
+
       //TODO:Fix different paces of item and selection box
-      //outline rescaling 
+      //outline rescaling
       glutWireCube(m_Scale[0]+0.1);
-      
-      glPopMatrix(); 
+
+      glPopMatrix();
       break;
 
-    case Point: 
-      glPointSize(m_Scale[0] + 3); 
+    case Point:
+      glPointSize(m_Scale[0] + 3);
       glDisable(GL_LIGHTING);
       glBegin(GL_POINTS);
       if(m_isPlanarRobot)
-        glVertex3d(m_dofs[0], m_dofs[1], 0); 
+        glVertex3d(m_dofs[0], m_dofs[1], 0);
       else if(m_isVolumetricRobot)
         glVertex3d(m_dofs[0], m_dofs[1], m_dofs[2]);
       glEnd();
       break;
-  } 
-} //end DrawSelect 
+  }
+} //end DrawSelect
 
-void 
+void
 CfgModel::Dump(){
-  
+
   cout << "- ID = " << m_index << endl;
-  cout << "- Position = (" << m_dofs[0] << ", " 
+  cout << "- Position = (" << m_dofs[0] << ", "
        << m_dofs[1] << ", " << m_dofs[2] << ")" << endl;
   cout << "- Orientation = (";
-  
+
   int dof = CfgModel::m_dof;
   for(int i=0; i<dof-3; i++)
     printf("%f ", m_dofs[i+3]*360);
   cout << ")" << endl;
 }
 
-void 
+void
 CfgModel::CopyCfg() {
-  
+
   ObjCfg.clear();
   ObjCfg.assign(m_dofs.begin(), m_dofs.end());
-}    
-
-double& 
-CfgModel::tx(){ 
-  
-  ObjName = "Node";  
-  CopyCfg(); 
-  return m_dofs[0]; 
 }
 
-double& 
-CfgModel::ty(){ 
-  
-  return m_dofs[1]; 
+double&
+CfgModel::tx(){
+
+  ObjName = "Node";
+  CopyCfg();
+  return m_dofs[0];
 }
 
-double& 
+double&
+CfgModel::ty(){
+
+  return m_dofs[1];
+}
+
+double&
 CfgModel::tz(){
-  
-  if(m_isVolumetricRobot){ 
-    return m_dofs[2]; 
+
+  if(m_isVolumetricRobot){
+    return m_dofs[2];
   }
   else
     return m_defaultDOF; //Planar robot; m_dofs[2] is possible rotation
 }
 
-const double& 
-CfgModel::tx() const { 
-  
-  return m_dofs[0]; 
+const double&
+CfgModel::tx() const {
+
+  return m_dofs[0];
 }
 
-const double& 
-CfgModel::ty() const { 
-  
-  return m_dofs[1]; 
+const double&
+CfgModel::ty() const {
+
+  return m_dofs[1];
 }
 
-const double& 
-CfgModel::tz() const { 
-  
+const double&
+CfgModel::tz() const {
+
   if(m_isVolumetricRobot)
-    return m_dofs[2]; 
+    return m_dofs[2];
   else
     return m_defaultDOF; //Planar robot; m_dofs[2] is possible rotation
 }

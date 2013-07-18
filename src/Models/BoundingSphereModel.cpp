@@ -6,9 +6,9 @@ BoundingSphereModel::BoundingSphereModel() : BoundaryModel(), m_center(0.0, 0.0,
 }
 
 bool BoundingSphereModel::BuildModels(){
-  
+
   GLUquadricObj* quad =gluNewQuadric();
-  
+
   m_displayID = glGenLists(1);
   glNewList(m_displayID, GL_COMPILE);
   glEnable(GL_CULL_FACE);
@@ -36,9 +36,9 @@ bool BoundingSphereModel::BuildModels(){
   return true;
 }
 
-vector<string> 
-BoundingSphereModel::GetInfo() const { 
-  vector<string> info; 
+vector<string>
+BoundingSphereModel::GetInfo() const {
+  vector<string> info;
   info.push_back(GetName());
   info.push_back(" [ ");
   ostringstream tmp;

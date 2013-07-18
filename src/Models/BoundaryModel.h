@@ -1,7 +1,7 @@
 #ifndef BOUNDARYMODEL_H_
 #define BOUNDARYMODEL_H_
 
-#include "Plum/GLModel.h" 
+#include "Plum/GLModel.h"
 using namespace plum;
 
 class BoundaryModel : public GLModel {
@@ -10,7 +10,7 @@ class BoundaryModel : public GLModel {
     virtual ~BoundaryModel();
 
     virtual void Select(unsigned int* _index, vector<gliObj>& _sel);
-    virtual bool BuildModels() = 0; 
+    virtual bool BuildModels() = 0;
     virtual void Draw(GLenum mode);
     virtual void DrawSelect();
 
