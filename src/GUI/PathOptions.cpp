@@ -8,7 +8,6 @@
 #include "SceneWin.h" 
 #include "CustomizePathDialog.h"  
 #include "QueryGUI.h" 
-#include "EnvObj/QueryLoader.h"
 #include "EnvObj/DebugModel.h"   
 #include "vizmo2.h"  
 #include "Icons/Pen.xpm"  

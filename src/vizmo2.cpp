@@ -20,13 +20,12 @@ using namespace plum;
 
 #include "Models/CfgModel.h"
 #include "Models/PathModel.h"
+#include "Models/QueryModel.h"
 #include "EnvObj/DebugLoader.h"
 #include "EnvObj/DebugModel.h"
 #include "EnvObj/BoundingBoxesModel.h"
 #include "EnvObj/BoundingBoxParser.h"
 #include "EnvObj/Robot.h"
-#include "EnvObj/QueryLoader.h"
-#include "EnvObj/QueryModel.h"
 
 //////////////////////////////////////////////////////////////////////
 //Define Camera singleton
@@ -608,16 +607,16 @@ void vizmo::SaveQryCfg(char ch){
     //to store a single cfg
     vector<vector<double> > cfg;
 
-    int dof = CfgModel::GetDOF(); 
+    int dof = CfgModel::GetDOF();
     if(m_obj.m_Qry != NULL){
-      //get original Cfgs from QueryLoader
-      CQueryLoader * q=(CQueryLoader*)m_obj.m_Qry->GetLoader();
+      //get original Cfgs from QueryModel
+      QueryModel * q=(QueryModel*)m_obj.m_Qry->GetModel();
 
-      unsigned int iQSize = q->GetQuerySize();
+      size_t iQSize = q->GetQuerySize();
 
-      for( unsigned int iQ=0; iQ<iQSize; iQ++ ){
+      for(size_t iQ=0; iQ<iQSize; iQ++){
         vector<double> Cfg(dof);
-        Cfg = q->GetStartGoal(iQ); 
+        Cfg = q->GetStartGoal(iQ);
         cfg.push_back(Cfg);
       }
     }
@@ -1287,50 +1286,46 @@ vizmo::CreateDebugObj(vizmo_obj& _obj, const string& _fname){
   return (_obj.m_debug != NULL);
 }
 
-bool 
+bool
 vizmo::CreateQueryObj(vizmo_obj& _obj, const string& _fname){
 
-  CQueryLoader* qloader = new CQueryLoader();
-  CQueryModel* qmodel = new CQueryModel();
-  
-  if(qloader == NULL || qmodel == NULL) 
+  QueryModel* qmodel = new QueryModel(_fname);
+
+  if(qmodel == NULL)
     return false;
-   
-  qloader->SetFilename(_fname);
-  qmodel->SetQueryLoader(qloader);
-  
+
   if(_obj.m_Robot != NULL)
     qmodel->SetModel((OBPRMView_Robot *)_obj.m_Robot->GetModel());
-  
-  _obj.m_Qry = new PlumObject(qmodel, qloader);
+
+  _obj.m_Qry = new PlumObject(qmodel, NULL);
   return (_obj.m_Qry != NULL);
 }
 
-bool 
+bool
 vizmo::CreateRobotObj(vizmo_obj& _obj){
 
-  if(m_obj.m_Env == NULL) 
+  if(m_obj.m_Env == NULL)
     return true; //can't build
 
   EnvModel* envModel = (EnvModel*)m_obj.m_Env->GetModel(); 
   OBPRMView_Robot* r = new OBPRMView_Robot(envModel);
-  
-  if(r == NULL)  
+
+  if(r == NULL)
     return false;
-  
+
   _obj.m_Robot = new PlumObject(r,NULL);
   return (_obj.m_Robot != NULL);
 }
 
-void 
+void
 vizmo::PlaceRobot(){
 
   OBPRMView_Robot* r = (OBPRMView_Robot*)m_obj.m_Robot->GetModel();
-  
+
   if(r != NULL){
     vector<double> cfg;
-    if(m_obj.m_Qry != NULL){ 
-      CQueryLoader* q = (CQueryLoader*)m_obj.m_Qry->GetLoader();
+    if(m_obj.m_Qry != NULL){
+      QueryModel* q = (QueryModel*)m_obj.m_Qry->GetModel();
       cfg = q->GetStartGoal(0);
     }
     else if(m_obj.m_Path != NULL){
@@ -1342,10 +1337,10 @@ vizmo::PlaceRobot(){
       int d = envModel->GetDOF();
       cfg = vector<double>(d);
     }
-    
+
     if(m_obj.m_debug != NULL)
       r->SetRenderMode(INVISIBLE_MODE);
-    
+
     if(!cfg.empty()){
       r->Configure(cfg);
       //copy initial cfg. to OBPRMView_Robot

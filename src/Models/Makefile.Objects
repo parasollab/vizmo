@@ -6,4 +6,5 @@ OBJECTS += \
 	   Models/EdgeModel.o \
 	   Models/EnvModel.o \
 	   Models/PathModel.o \
-	   Models/PolyhedronModel.o
+	   Models/PolyhedronModel.o \
+	   Models/QueryModel.o
