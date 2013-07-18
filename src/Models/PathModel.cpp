@@ -4,7 +4,7 @@
 #include "EnvObj/Robot.h"
 #include "Utilities/IOUtils.h"
 
-PathModel::PathModel(string _filename) 
+PathModel::PathModel(string _filename)
   : m_glPathIndex(-1), m_robot(NULL),
   m_lineWidth(1), m_displayInterval(3) {
     SetFilename(_filename);
@@ -12,14 +12,14 @@ PathModel::PathModel(string _filename)
 
     //set default stop colors for path gradient (cyan, green, yellow)
     Color4 cyan(0, 1, 1, 1), green(0, 1, 0, 1), yellow (1, 1, 0, 1);
-    m_stopColors.push_back(Color4(0, 1, 1, 1)); 
-    m_stopColors.push_back(Color4(0, 1, 0, 1)); 
-    m_stopColors.push_back(Color4(1, 1, 0, 1)); 
+    m_stopColors.push_back(Color4(0, 1, 1, 1));
+    m_stopColors.push_back(Color4(0, 1, 0, 1));
+    m_stopColors.push_back(Color4(1, 1, 0, 1));
   }
 
-vector<string> 
-PathModel::GetInfo() const { 
-  vector<string> info; 
+vector<string>
+PathModel::GetInfo() const {
+  vector<string> info;
   info.push_back(GetFilename());
   ostringstream temp;
   temp<<"There are " << m_path.size() << " path frames";
@@ -65,17 +65,17 @@ PathModel::ParseFile() {
   return true;
 }
 
-bool 
-PathModel::BuildModels(){   
+bool
+PathModel::BuildModels(){
   //can't build model without robot model
-  if(m_robot==NULL) 
+  if(m_robot==NULL)
     return false;
 
   //Build Path Model
   m_robot->SetRenderMode(WIRE_MODE);
 
-  vector<float> col = m_robot->GetColor(); //old color 
-  vector<float> oldcol = col; 
+  vector<float> col = m_robot->GetColor(); //old color
+  vector<float> oldcol = col;
 
   glMatrixMode(GL_MODELVIEW);
 
@@ -84,7 +84,7 @@ PathModel::BuildModels(){
 
   typedef vector<vector<double> >::iterator PIT;
   typedef vector<Color4>::iterator CIT; //for the stop colors- small vector
-  vector<Color4> allColors; //for the indiv. colors that give the gradation- large vector 
+  vector<Color4> allColors; //for the indiv. colors that give the gradation- large vector
 
   //set up all the colors for each frame along the path
   if(m_stopColors.size() > 1) {
@@ -97,7 +97,7 @@ PathModel::BuildModels(){
       }
     }
   }
-  else {     
+  else {
     for(PIT pit = m_path.begin(); pit!=m_path.end(); ++pit)
       allColors.push_back(m_stopColors[0]);
   }
@@ -106,21 +106,21 @@ PathModel::BuildModels(){
   for(CIT cit = allColors.begin(); cit!=allColors.end(); ++cit) {
     size_t i = cit-allColors.begin();
     if(i % m_displayInterval == 0){
-      m_robot->SetColor((*cit)[0], (*cit)[1], (*cit)[2], (*cit)[3]); 
+      m_robot->SetColor((*cit)[0], (*cit)[1], (*cit)[2], (*cit)[3]);
       m_robot->Configure(m_path[i]);
-      m_robot->Draw(GL_RENDER); 
+      m_robot->Draw(GL_RENDER);
     }
   }
 
   //gradient may not divide perfectly evenly, so remaining path components are
-  //given the last color 
+  //given the last color
   Color4 c = allColors.back();
   size_t remainder = m_path.size() % allColors.size();
   for(size_t j = 0; j<remainder; ++j){
     if(j%m_displayInterval==0){
-      m_robot->SetColor(c[0], c[1], c[2], c[3]); 
-      m_robot->Configure(m_path[allColors.size()+(j+1)]); 
-      m_robot->Draw(GL_RENDER); 
+      m_robot->SetColor(c[0], c[1], c[2], c[3]);
+      m_robot->Configure(m_path[allColors.size()+(j+1)]);
+      m_robot->Draw(GL_RENDER);
     }
   }
 
@@ -134,15 +134,15 @@ PathModel::BuildModels(){
 }
 
 void PathModel::Draw(GLenum _mode){
-  if(_mode==GL_SELECT || m_renderMode == INVISIBLE_MODE) 
+  if(_mode==GL_SELECT || m_renderMode == INVISIBLE_MODE)
     return; //not draw any thing
 
   //set to line represnet
-  glLineWidth(m_lineWidth); 
+  glLineWidth(m_lineWidth);
   glCallList(m_glPathIndex);
 }
 
-PathModel::Color4 
+PathModel::Color4
 PathModel::Mix(Color4& _a, Color4& _b, float _percent){
   return _a*(1-_percent) + _b*_percent;
 }

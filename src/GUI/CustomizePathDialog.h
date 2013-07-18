@@ -1,7 +1,7 @@
 /**********************************************************
  * A custom dialog for selection of path outline width and
- * gradient color scheme. 
- **********************************************************/ 
+ * gradient color scheme.
+ **********************************************************/
 
 #ifndef CUSTOMIZE_PATH_DIALOG_H
 #define CUSTOMIZE_PATH_DIALOG_H
@@ -18,50 +18,50 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QPixmap>
 #include <QtGui/QPainter>
-#include <QtGui/QColor> 
+#include <QtGui/QColor>
 #include <QtGui/QBrush>
 #include <QtGui/QGradient>
 #include <QtGui/QColorDialog>
-#include <QtGui/QFrame> 
+#include <QtGui/QFrame>
 
-using namespace std; 
+using namespace std;
 
 class CustomizePathDialog : public QDialog{
 
   Q_OBJECT
 
-  using QDialog::paintEvent; 
+  using QDialog::paintEvent;
 
   public:
-    CustomizePathDialog(QWidget* _parent = 0); 
+    CustomizePathDialog(QWidget* _parent = 0);
 
     QDialogButtonBox* m_okayCancel;
     QLabel* m_gradientLabel;
-    QLabel* m_instructions1; 
-    QLabel* m_instructions2; 
-    QLineEdit* m_widthLineEdit; 
-    QLineEdit* m_modLineEdit; 
+    QLabel* m_instructions1;
+    QLabel* m_instructions2;
+    QLineEdit* m_widthLineEdit;
+    QLineEdit* m_modLineEdit;
     QLabel* m_widthLabel;
-    QLabel* m_modLabel; 
+    QLabel* m_modLabel;
     QPushButton* m_addColorButton;
     QPushButton* m_clearGradButton;
-    QFrame* m_line; 
-    QColorDialog* m_addColorDialog; 
+    QFrame* m_line;
+    QColorDialog* m_addColorDialog;
     QBrush* m_brush;
     vector<QColor> m_colors; //larger units of color in the gradient
-    QGradient* m_gradient; 
+    QGradient* m_gradient;
 
-    bool m_isDefault; 
+    bool m_isDefault;
 
   public slots:
-    void AddColor(); 
+    void AddColor();
     void AcceptData();
-    void RestoreDefault(); //restore to default cyan-green-yellow gradient 
+    void RestoreDefault(); //restore to default cyan-green-yellow gradient
 
   public:
-    void paintEvent(QPaintEvent*);  //overridden to display gradient 
+    void paintEvent(QPaintEvent*);  //overridden to display gradient
     void SetUpDialog(QDialog* _dialog);
-}; 
-    
+};
+
 #endif // CUSTOMIZE_PATH_H
 

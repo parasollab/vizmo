@@ -40,7 +40,7 @@ namespace plum{
       bool m_surface;//is surface? default is false
 
       CBodyInfo * m_pBodyInfo;
-  
+
       const Robot::JointMap& GetJointMap() const {return jointMap;}
       Robot::JointMap& GetJointMap() {return jointMap;}
       Robot::JointMap jointMap;
@@ -66,11 +66,11 @@ namespace plum{
       // to compute the transformation of THIS body
       //////////////////////////////////////////////////////////////////////////
 
-      ///@If m_Index==0, then transform m_X, m_Y, m_Z,m_Alpha, m_Beta, m_Gamma 
+      ///@If m_Index==0, then transform m_X, m_Y, m_Z,m_Alpha, m_Beta, m_Gamma
       void doTransform();
       ///@Copy t to m_prevTransform
       void setPrevTransform(Transformation t);
-      ///@Return actual (previous*current) transformation 
+      ///@Return actual (previous*current) transformation
       Transformation getTransform();
       ///@Compute prevtranform * TDH * dh * TBody2
       ///@receives the Body THIS body is connected to, the id of that connection and the new thetha
@@ -146,7 +146,7 @@ namespace plum{
       double alpha, theta, a, d;
       // this will keep the original theta value read
       //for Revolute joints, theta is variable
-      double m_theta; 
+      double m_theta;
       bool m_actuated;
       //translation and rotation to DHFrame
       double m_pos2X, m_pos2Y, m_pos2Z;

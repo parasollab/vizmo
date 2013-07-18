@@ -12,7 +12,7 @@ using namespace std;
 //Determined from Write support of QImages.
 inline QStringList ImageFilters() {
   QStringList filters;
-  
+
   filters += "Windows Bitmap (*.bmp)";
   filters += "Joint Photographic Experts Group (*.jpg)";
   filters += "Portable Network Graphics (*.png)";
@@ -25,7 +25,7 @@ inline QStringList ImageFilters() {
 
 inline QStringList ImageExtensions() {
   QStringList extensions;
-  
+
   extensions += "bmp";
   extensions += "jpg";
   extensions += "png";

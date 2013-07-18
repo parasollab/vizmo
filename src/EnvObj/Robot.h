@@ -10,7 +10,7 @@
 using namespace mathtool;
 
 #include <Plum/EnvObj/MultiBodyModel.h>
-#include <Models/EnvModel.h> 
+#include <Models/EnvModel.h>
 #include <Plum/GLModel.h>
 #include <Plum/EnvObj/MultiBodyInfo.h>
 #include <Utilities/GL/gliCamera.h>
@@ -35,7 +35,7 @@ class OBPRMView_Robot : public GLModel{
     OBPRMView_Robot(const OBPRMView_Robot& _otherRobot);
     ~OBPRMView_Robot();
 
-    EnvModel* GetEnvModel()const { return m_envModel; } 
+    EnvModel* GetEnvModel()const { return m_envModel; }
 
     virtual bool BuildModels();
     virtual void Draw(GLenum _mode);
@@ -45,7 +45,7 @@ class OBPRMView_Robot : public GLModel{
     //set wire/solid to all items
     virtual void SetRenderMode(RenderMode _mode){
       GLModel::SetRenderMode(_mode);
-      if(m_RobotModel!=NULL) m_RobotModel->SetRenderMode(_mode); 
+      if(m_RobotModel!=NULL) m_RobotModel->SetRenderMode(_mode);
     }
 
     virtual void SetColor( float r, float g, float b, float a ){
@@ -55,16 +55,16 @@ class OBPRMView_Robot : public GLModel{
     }
     void keepColor(float r, float g, float b);
 
-    float Get_R() {return m_rR;}//return originalR; 
+    float Get_R() {return m_rR;}//return originalR;
     float Get_G() {return m_rG;}//return originalG;
     float Get_B() {return m_rB;}//return originalB;
 
-    virtual const string GetName() const { 
+    virtual const string GetName() const {
       if( m_RobotModel!=NULL ) return "Robot";
-      return "No Robot"; 
+      return "No Robot";
     }
 
-    virtual void GetChildren( list<GLModel*>& models ){ 
+    virtual void GetChildren( list<GLModel*>& models ){
       if( m_RobotModel!=NULL )
         models.push_back(m_RobotModel);
     }
@@ -73,14 +73,14 @@ class OBPRMView_Robot : public GLModel{
 
     //copy query configuration
     //this info. is used to set the *actual* position and
-    //orientation of the robot. 
+    //orientation of the robot.
     //void setQueryCfg(double * CfgModel);
 
     int returnDOF(){ return dof; }
     //////////////////////////////////////////////////////////////////////
     // Access Functions
     //////////////////////////////////////////////////////////////////////
-    //configure the Robot to cfg 
+    //configure the Robot to cfg
     void Configure(double * cfg);
     void Configure(vector<double>& _cfg);
     //return current configuration
@@ -90,7 +90,7 @@ class OBPRMView_Robot : public GLModel{
     int getNumJoints();
     void BackUp();
     void Restore();
-    //Keep initial Cfg. 
+    //Keep initial Cfg.
     void InitialCfg(vector<double>& cfg);
     void RestoreInitCfg();
 
@@ -100,7 +100,7 @@ class OBPRMView_Robot : public GLModel{
 
     void Scale(double x, double y, double z)
     {
-      if(m_RobotModel!=NULL) 
+      if(m_RobotModel!=NULL)
         m_RobotModel->Scale(x,y,z);
     }
 
@@ -110,10 +110,10 @@ class OBPRMView_Robot : public GLModel{
     vector<vector<double> > StartCfg;
     vector<vector<double> > GoalCfg;
     //////////////////////////////////////////////
-    // storeCfg:: 
-    //    cfg the cfg. to store    
-    //    c tells if cfg. is start or goal   
-    //////////////////////////////////////////////  
+    // storeCfg::
+    //    cfg the cfg. to store
+    //    c tells if cfg. is start or goal
+    //////////////////////////////////////////////
     void storeCfg(vector<vector<double> >& cfg, char c, int dof){
       typedef vector<vector<double> >::iterator IC;
       if(c == 's'){
@@ -127,13 +127,13 @@ class OBPRMView_Robot : public GLModel{
         for(IC ic=cfg.begin(); ic!=cfg.end(); ic++){
           GoalCfg.push_back(*ic);
         }
-      }  
+      }
     }
 
     double gettx(){
       if(m_RobotModel!=NULL)
         return m_RobotModel->tx();
-      else 
+      else
         return 0;
     }
 
@@ -147,7 +147,7 @@ class OBPRMView_Robot : public GLModel{
     double gettz(){
       if(m_RobotModel!=NULL)
         return m_RobotModel->tz();
-      else 
+      else
         return 0;
     }
 
@@ -180,7 +180,7 @@ class OBPRMView_Robot : public GLModel{
     double delta;
     double phantomdelta;
 
-    EnvModel* m_envModel; 
+    EnvModel* m_envModel;
     const CMultiBodyInfo * m_RobotInfo;
     MultiBodyModel * m_RobotModel;
 

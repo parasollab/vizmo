@@ -33,7 +33,7 @@ namespace plum{
       /**
        * Check if given file name is valid
        */
-      bool CheckCurrentStatus() const {           
+      bool CheckCurrentStatus() const {
         //Check if file exist
         ifstream fin(m_filename.c_str());
         if(!fin.good()) {
@@ -106,7 +106,7 @@ namespace plum{
         }
       }
 
-      template <class T>  
+      template <class T>
         T ReadField(istream& _is, string _error) {
           char c;
           string line;
@@ -120,7 +120,7 @@ namespace plum{
               if (!(_is >> element)) {
                 cerr << "Error in Reading Field::" << _error << endl;
                 exit(1);
-              }   
+              }
               else
                 break;
             }
@@ -136,7 +136,7 @@ namespace plum{
 
       string ReadFieldString(istream& _is, string _error, bool _toUpper = true){
         string s = ReadField<string>(_is, _error);
-        if(_toUpper) 
+        if(_toUpper)
           transform(s.begin(), s.end(), s.begin(), ::toupper);
         return s;
       };

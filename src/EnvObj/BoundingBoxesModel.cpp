@@ -56,10 +56,10 @@ void CBoundingBoxesModel::Draw( GLenum mode ){
    }*/
 }
 
-vector<string> 
+vector<string>
 CBoundingBoxesModel::GetInfo() const {
-   
-  vector<string> info; 
+
+  vector<string> info;
   info.push_back("Bounding Box");
   info.push_back("");
   string name = "Num Bounding Boxes=";

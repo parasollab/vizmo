@@ -1,11 +1,11 @@
 #include "PolyhedronModel.h"
 
 #include <cmath>
-#include <algorithm> 
+#include <algorithm>
 #include <numeric>
 
 #include <RAPID.H>
-#include <obb.H> 
+#include <obb.H>
 
 #include "ModelGraph/ModelGraph.h"
 using namespace modelgraph;
@@ -22,14 +22,14 @@ PolyhedronModel::~PolyhedronModel(){
 }
 
 const string
-PolyhedronModel::GetName() const { 
+PolyhedronModel::GetName() const {
   string filename = m_bodyInfo.m_strModelDataFileName;
   size_t pos = filename.find('/');
   return pos == string::npos ? filename : filename.substr(pos+1);
 }
 
-vector<string> 
-PolyhedronModel::GetInfo() const { 
+vector<string>
+PolyhedronModel::GetInfo() const {
   vector<string> info;
   info.push_back(m_bodyInfo.m_strModelDataFileName);
   return info;
@@ -97,7 +97,7 @@ PolyhedronModel::BuildModels() {
     Quaternion qz(cz2, Vector3d(0, 0, sz2));
     Quaternion nq = qz * qy * qx;
     q(nq.normalize());
-  }	
+  }
 
   return true;
 }
@@ -106,19 +106,19 @@ void PolyhedronModel::Draw(GLenum _mode) {
   if(m_solidID == size_t(-1)) return;
   if(m_renderMode == plum::INVISIBLE_MODE) return;
 
-  float* color = &m_rGBA[0]; 
-  glColor4fv(color); 
+  float* color = &m_rGBA[0];
+  glColor4fv(color);
   glPushMatrix();
   glTransform();
   glScale();
 
-  if(m_renderMode == plum::SOLID_MODE){           
+  if(m_renderMode == plum::SOLID_MODE){
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(2.0, 2.0);
     glEnable(GL_NORMALIZE);
-    glCallList(m_solidID);          
+    glCallList(m_solidID);
     glDisable(GL_NORMALIZE);
-    glDisable(GL_POLYGON_OFFSET_FILL); 
+    glDisable(GL_POLYGON_OFFSET_FILL);
   }
   else
     glCallList(m_wiredID);
@@ -192,7 +192,7 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
 
 //build wire frame
 bool
-PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {   
+PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {
   CModelGraph mg;
   if(!mg.doInit(_points, _tris))
     return false;
@@ -244,24 +244,24 @@ PolyhedronModel::Radius(const PtVector& _points) {
       m_radius = d;
   }
   m_radius = sqrt(m_radius);
-}   
+}
 
 void
 PolyhedronModel::CopyRapidModel(const PolyhedronModel& _source){
   m_rapidModel = new RAPID_model;
 
-  m_rapidModel->num_tris = (_source.m_rapidModel)->num_tris; 
-  m_rapidModel->build_state = (_source.m_rapidModel)->build_state; 
-  m_rapidModel->num_tris_alloced = (_source.m_rapidModel)->num_tris_alloced; 
-  m_rapidModel->num_boxes_alloced = (_source.m_rapidModel)->num_boxes_alloced; 
+  m_rapidModel->num_tris = (_source.m_rapidModel)->num_tris;
+  m_rapidModel->build_state = (_source.m_rapidModel)->build_state;
+  m_rapidModel->num_tris_alloced = (_source.m_rapidModel)->num_tris_alloced;
+  m_rapidModel->num_boxes_alloced = (_source.m_rapidModel)->num_boxes_alloced;
 
   m_rapidModel->b = new box[(_source.m_rapidModel)->num_boxes_alloced];
   box* boxBeginPtr = &((_source.m_rapidModel)->b)[0];
-  box* boxEndPtr = &((_source.m_rapidModel)->b)[m_rapidModel->num_boxes_alloced]; 
-  copy(boxBeginPtr, boxEndPtr, &(m_rapidModel->b)[0]);  
+  box* boxEndPtr = &((_source.m_rapidModel)->b)[m_rapidModel->num_boxes_alloced];
+  copy(boxBeginPtr, boxEndPtr, &(m_rapidModel->b)[0]);
 
-  m_rapidModel->tris = new tri[(_source.m_rapidModel)->num_tris_alloced]; 
-  tri* triBeginPtr = &((_source.m_rapidModel)->tris)[0]; 
+  m_rapidModel->tris = new tri[(_source.m_rapidModel)->num_tris_alloced];
+  tri* triBeginPtr = &((_source.m_rapidModel)->tris)[0];
   tri* triEndPtr = &((_source.m_rapidModel)->tris)[m_rapidModel->num_tris_alloced];
   copy(triBeginPtr, triEndPtr, &(m_rapidModel->tris)[0]);
 }

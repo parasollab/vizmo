@@ -5,11 +5,11 @@
 #include <string>
 #include <stdio.h>
 
-#include <qstringlist.h> 
+#include <qstringlist.h>
 
 #include <Plum/Plum.h>
 #include <Plum/EnvObj/MultiBodyModel.h>
-#include "Models/MapModel.h" 
+#include "Models/MapModel.h"
 #include <Utilities/CollisionDetection.h>
 
 #ifdef USE_PHANTOM
@@ -28,7 +28,7 @@ namespace plum{
   class CPlum;
 }
 
-using namespace std; 
+using namespace std;
 using namespace plum;
 
 class gliCamera;
@@ -62,8 +62,8 @@ void exitHandler();
 /*******************************************************************************
   Client callback.
   Use this callback synchronously.
-  Gets data, in a thread safe manner, that is constantly being modified by the 
-  haptics thread. 
+  Gets data, in a thread safe manner, that is constantly being modified by the
+  haptics thread.
  *******************************************************************************/
 HDCallbackCode HDCALLBACK DeviceStateCallback(void *pUserData);
 
@@ -151,7 +151,7 @@ vizmo& GetVizmo();
 
 /**
  * This class holds all vizmo objects.
- * When an item is NULL, it means this item is not availiable for 
+ * When an item is NULL, it means this item is not availiable for
  * current session.
  * Only vizmo can create this object.
  */
@@ -165,7 +165,7 @@ class vizmo_obj{
       ~vizmo_obj(){Clean();}
       void Clean();
 
-      PlumObject* m_Robot;   
+      PlumObject* m_Robot;
       PlumObject* m_Qry;     bool m_show_Qry;  string m_QryFile;
       PlumObject* m_Path;    bool m_show_Path; string m_PathFile;
       PlumObject* m_Env;                       string m_EnvFile;
@@ -177,7 +177,7 @@ class vizmo_obj{
  * vizmo is the main class that handles event from gui and
  * contains objects (vizmo_obj) for data loaded in.
  */
-class vizmo  
+class vizmo
 {
    public:
       //////////////////////////////////////////////////////////////////////
@@ -201,8 +201,8 @@ class vizmo
       /**
        * Create vizmo_obj.
        */
-      //bool InitVizmoObject(const string& _filename); 
-      bool InitVizmoObject(); 
+      //bool InitVizmoObject(const string& _filename);
+      bool InitVizmoObject();
 
       /**
        * Display OpenGL Scene
@@ -225,7 +225,7 @@ class vizmo
       void ShowRoadMap(bool _show = true);
       bool IsRoadMapShown() const { return m_obj.m_show_Map; }
       void ChangeNodesSize(float _s, string _str);
-      void ChangeEdgeThickness(size_t _t); 
+      void ChangeEdgeThickness(size_t _t);
       void ChangeNodesShape(string _s);
       bool IsRoadMapLoaded(){return m_obj.m_map != NULL;}
       void ChangeCCColor(double _r, double _g, double _b, string _s);
@@ -256,7 +256,7 @@ class vizmo
       bool IsQueryLoaded(){ return m_obj.m_Qry!=NULL; }
 
       //functions and variables used to determine if Query has changed.
-      // these are used by the autoQry() function in main_win 
+      // these are used by the autoQry() function in main_win
 
       bool query_changed;
       void changeQryStatus(bool status);
@@ -270,10 +270,10 @@ class vizmo
 
       // get the robot's cfg. to be drawn in the toolbar
       //getRoboCfg() called from scene_win::mouseMoveEvent()
-      void getRoboCfg(); 
+      void getRoboCfg();
       vector<string> info;
       //getRobCfgText() called from roadmap::printRobCfg()
-      vector<string> getRobCfgText(){return info;} 
+      vector<string> getRobCfgText(){return info;}
       int getNumJoints();
 
       PlumObject * GetRobot() const {  return m_obj.m_Robot; }
@@ -282,7 +282,7 @@ class vizmo
       // Environment Related Functions
 
       // Change the appearance of an object - Hidden/ Wire / Soid
-      void ChangeAppearance(int );   
+      void ChangeAppearance(int );
       void RefreshEnv();
       void envObjsRandomColor();
       bool SaveEnv(const char *filename); //save env. file
@@ -315,7 +315,7 @@ class vizmo
       //Miscelaneous
 
       bool StringToInt(const string &s, int &i);
-      bool oneColor; 
+      bool oneColor;
 
 
       //////////////////////////////////////////////////////////////////////
@@ -331,7 +331,7 @@ class vizmo
       double GetEnvRadius();
 
       /////////////////////////////////////
-      /// To get command line user set 
+      /// To get command line user set
       /// this information will be read
       // from main_win.cpp : getCommLine()
       //////////////////////////////////////
@@ -402,7 +402,7 @@ class vizmo
       //////////////////////////////////////////////////////////////////////
    private:
 
-      /** 
+      /**
        * Find filename in name with certain extension.
        * @param ext extention
        * @param names filenames

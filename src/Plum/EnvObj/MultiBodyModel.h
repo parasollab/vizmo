@@ -31,7 +31,7 @@ namespace plum{
 
       virtual const string GetName() const { return "MultiBody"; }
 
-      virtual void GetChildren(list<GLModel*>& models){ 
+      virtual void GetChildren(list<GLModel*>& models){
 	for(size_t i=0; i<m_poly.size(); i++ )
 	  models.push_back(&m_poly[i]);
       }
@@ -47,7 +47,7 @@ namespace plum{
       // Access
       //////////////////////////////////////////////////////////////////////
       void SetAsFree(bool free=true){m_bFixed = !free;}
-      
+
       double GetRadius() const{return m_radius;}
       const Point3d& GetCOM() const{return m_COM;}
       vector<PolyhedronModel>& GetPolyhedron(){return m_poly;}
@@ -57,7 +57,7 @@ namespace plum{
       //public variables
       double posX, posY, posZ;
       list<GLModel *> objlist; // to have access from glitransTool class
-    
+
     private:
       const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
       vector<PolyhedronModel> m_poly;

@@ -17,10 +17,10 @@ using namespace mathtool;
 namespace modelgraph
 {
 
-    class CModelGraph  
+    class CModelGraph
     {
     public:
-        
+
         typedef vector<Point3d> PtVector;
         typedef Vector<int, 3>     Tri;
         typedef vector<Tri>     TriVector;
@@ -29,7 +29,7 @@ namespace modelgraph
         // Constructor/Destructors
         CModelGraph();
         ~CModelGraph();
-    
+
         //////////////////////////////////////////////////////////////////////
         // Core Function
         //convert from tri to graph

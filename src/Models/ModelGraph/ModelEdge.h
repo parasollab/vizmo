@@ -9,7 +9,7 @@
 
 namespace modelgraph
 {
-    class CModelEdge  
+    class CModelEdge
     {
     public:
         //////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ namespace modelgraph
         //List Access
         CModelEdge * getNext() const { return m_Next; }
         void setNext(CModelEdge * e) { m_Next=e; }
-        
+
         //set left and right id
         void setLeftTri(int id)  { m_Tri[0]=id; }
         void setRightTri(int id) { m_Tri[1]=id; }
@@ -42,7 +42,7 @@ namespace modelgraph
         //////////////////////////////////////////////////////////////////
         int m_Key[2]; ///< 0->start, 1->end
         int m_Tri[2]; ///< 0->left, 1->right
-        
+
         //list link
         CModelEdge * m_Next;
     };

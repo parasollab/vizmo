@@ -13,7 +13,7 @@ namespace plum{
     m_pBodyInfo = NULL;
     m_active = false;
     m_surface = false;
-    m_NumberOfConnections = 0; 
+    m_NumberOfConnections = 0;
   }
 
   CMultiBodyInfo::CMultiBodyInfo(const CMultiBodyInfo & other) {
@@ -40,7 +40,7 @@ namespace plum{
   }
 
   ostream & operator<<( ostream & out, const CMultiBodyInfo & mbody ){
-    out<< "- Number of bodies = " <<mbody.m_cNumberOfBody << endl 
+    out<< "- Number of bodies = " <<mbody.m_cNumberOfBody << endl
       << "- Number of connections = "<< mbody.m_NumberOfConnections <<endl
       << "- Active/Passive = "<<mbody.m_active<<endl
       << "- Surface = "<<mbody.m_surface<<endl;
@@ -60,7 +60,7 @@ namespace plum{
   CBodyInfo::CBodyInfo() {
     m_bIsFixed = false;
     m_IsBase = false;
-    m_transformDone= false;	
+    m_transformDone= false;
     m_Index    = -1;
     m_X=0;     m_Y=0;    m_Z=0;
     m_Alpha=0; m_Beta=0; m_Gamma=0;
@@ -73,8 +73,8 @@ namespace plum{
   }
 
   CBodyInfo::CBodyInfo( const CBodyInfo & other ) {
-    *this = other;  
-    m_IsSurface = other.m_IsSurface; 
+    *this = other;
+    m_IsSurface = other.m_IsSurface;
   }
 
   CBodyInfo::~CBodyInfo() {
@@ -135,14 +135,14 @@ namespace plum{
 
   void CBodyInfo::operator=( const CBodyInfo & other ) {
     m_bIsFixed = other.m_bIsFixed;
-    m_IsBase = other.m_IsBase; 
-    m_Index = other.m_Index; 
-    m_X=other.m_X; 
-    m_Y=other.m_Y; 
-    m_Z=other.m_Z; 
-    m_Alpha=other.m_Alpha; 
-    m_Beta=other.m_Beta; 
-    m_Gamma=other.m_Gamma; 
+    m_IsBase = other.m_IsBase;
+    m_Index = other.m_Index;
+    m_X=other.m_X;
+    m_Y=other.m_Y;
+    m_Z=other.m_Z;
+    m_Alpha=other.m_Alpha;
+    m_Beta=other.m_Beta;
+    m_Gamma=other.m_Gamma;
     m_IsSurface=other.m_IsSurface;
 
     m_strFileName = other.m_strFileName;
@@ -150,7 +150,7 @@ namespace plum{
     m_isNew = other.m_isNew;
 
     m_strModelDataFileName[0]='\0';
-    m_strModelDataFileName=other.m_strModelDataFileName; 
+    m_strModelDataFileName=other.m_strModelDataFileName;
     rgb[0] = other.rgb[0];
     rgb[1] = other.rgb[1];
     rgb[2] = other.rgb[2];
@@ -206,7 +206,7 @@ namespace plum{
   Transformation CConnectionInfo::DHTransform() {
     Vector3d pos(a, -sin(alpha)* d, cos(alpha)* d);
     Matrix3x3 rot;
-    getMatrix3x3(rot, 
+    getMatrix3x3(rot,
         cos(theta), -sin(theta), 0.0,
 	sin(theta)*cos(alpha), cos(theta)*cos(alpha), -sin(alpha),
 	sin(theta)*sin(alpha), cos(theta)*sin(alpha), cos(alpha));
@@ -228,7 +228,7 @@ namespace plum{
 
   void CConnectionInfo::operator=( const CConnectionInfo & other ) {
     m_preIndex = other.m_preIndex;
-    m_nextIndex= other.m_nextIndex; 
+    m_nextIndex= other.m_nextIndex;
     m_posX = other.m_posX;
     m_posY = other.m_posY;
     m_posZ = other.m_posZ;

@@ -7,7 +7,7 @@
 #include "Utilities/IOUtils.h"
 
 EnvModel::EnvModel(){
-  
+
   m_radius = 0;
   m_numMultiBodies = 0;
   m_mBInfo = NULL;
@@ -17,25 +17,25 @@ EnvModel::EnvModel(){
 
 EnvModel::~EnvModel(){
 
-  FreeMemory(); 
+  FreeMemory();
 }
 
-//////////Load Functions////////// 
-string 
+//////////Load Functions//////////
+string
 EnvModel::ReadFieldString(istream& _is, string _error, bool _toUpper){
 
   string s = ReadField<string>(_is, _error);
-  if(_toUpper) 
+  if(_toUpper)
     transform(s.begin(), s.end(), s.begin(), ::toupper);
   return s;
 }
 
-void 
+void
 EnvModel::GetColor(istream& _in){
 
   string line;
   while(!_in.eof()){
-    
+
     char c;
     while(isspace(_in.peek()))
       _in.get(c);
@@ -60,10 +60,10 @@ EnvModel::GetColor(istream& _in){
 bool
 EnvModel::IsCommentLine(char _c){
 
-  return _c == '#'; 
+  return _c == '#';
 }
 
-bool 
+bool
 EnvModel::ParseFile(){
 
   if(!FileExists(GetFilename()))
@@ -72,10 +72,10 @@ EnvModel::ParseFile(){
   //Open file for reading datat
   ifstream ifs(GetFilename().c_str());
 
-  if(ParseFileHeader(ifs) == false) 
+  if(ParseFileHeader(ifs) == false)
     return false;
 
-  if(ParseFileBody(ifs) == false) 
+  if(ParseFileBody(ifs) == false)
     return false;
 
   ifs.close();
@@ -83,65 +83,65 @@ EnvModel::ParseFile(){
   return true;
 }
 
-void 
+void
 EnvModel::SetModelDataDir(const string _modelDataDir){
 
   m_modelDataDir = _modelDataDir;
   cout<<"- Geo Dir   : "<< m_modelDataDir << endl;
 }
 
-void 
+void
 EnvModel::SetNewMultiBodyInfo(CMultiBodyInfo* _mbi){
-  
+
   for(int i = 0; i < m_numMultiBodies; i++)
     m_mBInfo[i] = _mbi[i];
 }
 
-void 
-EnvModel::FreeMemory(){     
-  
-  if(m_mBInfo != NULL) 
+void
+EnvModel::FreeMemory(){
+
+  if(m_mBInfo != NULL)
     delete [] m_mBInfo;
   m_mBInfo = NULL;
 }
 
-bool 
+bool
 EnvModel::ParseFileHeader(ifstream& _ifs){
-  
+
   //Read boundary
   string b = ReadFieldString(_ifs, "Boundary Tag");
   if(b != "BOUNDARY") {
     cerr << "Error reading boundary tag." << endl;
     return false;
   }
-  
+
   if(!ParseBoundary(_ifs)){
     cerr << "Error parsing boundary." << endl;
     return false;
   }
-  
+
   //Read number of multibodies
   string mb = ReadFieldString(_ifs, "Number of Multibodies tag");
   if(mb != "MULTIBODIES"){
     cerr << "Error reading environment multibodies tag." << endl;
     return false;
   }
-  
+
   m_numMultiBodies = ReadField<int>(_ifs, "Number of Multibodies");
   return true;
 }
 
 bool
 EnvModel::ParseBoundary(ifstream& _ifs){
-  
+
   string type = ReadFieldString(_ifs, "Boundary type");
-  
+
   if(type == "BOX")
-    m_boundary = new BoundingBoxModel();    
-  
+    m_boundary = new BoundingBoxModel();
+
   else if(type == "SPHERE")
     m_boundary = new BoundingSphereModel();
-  
+
   else{
     cerr << "Error reading boundary type " << type << ". Choices are BOX or SPHERE." << endl;
     return false;
@@ -151,9 +151,9 @@ EnvModel::ParseBoundary(ifstream& _ifs){
 
 bool
 EnvModel::ParseFileBody(ifstream& _ifs){
-  
+
   m_mBInfo = new CMultiBodyInfo[m_numMultiBodies];
-  if(m_mBInfo == NULL) 
+  if(m_mBInfo == NULL)
     return false;
 
   for(int i = 0; i < m_numMultiBodies; i++){
@@ -163,19 +163,19 @@ EnvModel::ParseFileBody(ifstream& _ifs){
 
   BuildRobotStructure();
   //CfgModel::m_dof = m_dof;
-  CfgModel::SetDOF(m_dof); 
-  //cout<< "DOFs: "<< CfgModel::m_dof << endl << flush; 
-  
+  CfgModel::SetDOF(m_dof);
+  //cout<< "DOFs: "<< CfgModel::m_dof << endl << flush;
+
   return true;
 }
 
 bool
 EnvModel::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
-  
+
   string multibodyType = ReadFieldString(_ifs,
     "Multibody Type (Active, Passive, Internal, Surface)");
 
-  if(multibodyType == "ACTIVE") 
+  if(multibodyType == "ACTIVE")
     _mBInfo.m_active = true;
 
   else if(multibodyType == "SURFACE"){
@@ -187,7 +187,7 @@ EnvModel::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
     _mBInfo.m_cNumberOfBody = ReadField<int>(_ifs, "Body Count");
     _mBInfo.m_pBodyInfo = new CBodyInfo[_mBInfo.m_cNumberOfBody];
 
-    if(_mBInfo.m_pBodyInfo == NULL) 
+    if(_mBInfo.m_pBodyInfo == NULL)
       return false;
 
     GetColor(_ifs);
@@ -204,17 +204,17 @@ EnvModel::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
 
     int currentBody = 0; //index of current Body
 
-    //Do transformation for body0, the base. This is always needed.	 
+    //Do transformation for body0, the base. This is always needed.
     _mBInfo.m_pBodyInfo[currentBody].doTransform();
 
     if(numberOfRobotConnections != 0){
       //initialize the MBInfo.m_pBodyInfo[i].m_pConnectionInfo for each body
       for(int i = 0; i < _mBInfo.m_cNumberOfBody; i++){
-        _mBInfo.m_pBodyInfo[i].m_pConnectionInfo = 
+        _mBInfo.m_pBodyInfo[i].m_pConnectionInfo =
           new CConnectionInfo[numberOfRobotConnections];
-        
-        if(_mBInfo.m_pBodyInfo[i].m_pConnectionInfo == NULL){ 
-          cout<<"COULDN'T CREATE CONNECTION INFO"<<endl; 
+
+        if(_mBInfo.m_pBodyInfo[i].m_pConnectionInfo == NULL){
+          cout<<"COULDN'T CREATE CONNECTION INFO"<<endl;
           return false;
         }
       }
@@ -224,14 +224,14 @@ EnvModel::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
       }
     }
   }
-  
+
   else if(multibodyType == "INTERNAL" || multibodyType == "SURFACE" ||
           multibodyType == "PASSIVE"){
-    
+
     _mBInfo.m_cNumberOfBody = 1;
     _mBInfo.m_pBodyInfo = new CBodyInfo[_mBInfo.m_cNumberOfBody];
-    
-    if(_mBInfo.m_pBodyInfo == NULL) 
+
+    if(_mBInfo.m_pBodyInfo == NULL)
       return false;
 
     GetColor(_ifs);
@@ -241,7 +241,7 @@ EnvModel::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
 
     return true;
   }
-  
+
   else{
     cerr << "Error:: Unsupported body type" << endl;
     cerr << "Choices are Active, Passive, Internal, or Surface" << endl;
@@ -250,9 +250,9 @@ EnvModel::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   return true;
 }
 
-bool 
+bool
 EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
-  
+
   _bodyInfo.m_bIsFixed = false;
   bool isBase = false;
   Robot::Base baseType;
@@ -268,7 +268,7 @@ EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
     _bodyInfo.m_strModelDataFileName += m_modelDataDir;
     _bodyInfo.m_strModelDataFileName += "/";
   }
-  
+
   _bodyInfo.m_strModelDataFileName += _bodyInfo.m_strFileName;
 
   //Read for Base Type. If Planar or Volumetric, read in two more strings
@@ -296,7 +296,7 @@ EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
   _bodyInfo.m_IsBase = isBase;
   _bodyInfo.isBase = isBase;
   _bodyInfo.SetBase(baseType);
-  if(isBase) 
+  if(isBase)
     _bodyInfo.SetBaseMovement(baseMovementType);
 
   _bodyInfo.m_X = bodyPosition[0];
@@ -324,20 +324,20 @@ EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
       _bodyInfo.rgb[1] = 0;
       _bodyInfo.rgb[2] = 0;
     }
-  }	
+  }
   return true;
 }
 
-bool 
+bool
 EnvModel::ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
-  
+
   _bodyInfo.m_bIsFixed = true;
   _bodyInfo.m_IsBase = true;
   _bodyInfo.m_strFileName = ReadFieldString(_ifs,
     "Body Filename (geometry file)", false);
 
   if(m_modelDataDir.empty() == false){
-  
+
     //store just the path of the current directory
     _bodyInfo.m_strDirectory = m_modelDataDir;
     _bodyInfo.m_strModelDataFileName += m_modelDataDir;
@@ -373,16 +373,16 @@ EnvModel::ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
     }
     else{
       _bodyInfo.rgb[0] = 1;
-      _bodyInfo.rgb[1] = 0; 
+      _bodyInfo.rgb[1] = 0;
       _bodyInfo.rgb[2] = 0;
     }
-  }	
+  }
   return true;
 }
 
-bool 
+bool
 EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
-  
+
   //body indices
   int previousBodyIndex = ReadField<int>(_ifs, "Previous Body Index");
   int nextBodyIndex = ReadField<int>(_ifs, "Next Body Index");
@@ -457,7 +457,7 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   conn.d = dhparameters[2];
   conn.theta = dhparameters[3];
 
-  //Save original theta   
+  //Save original theta
   conn.m_theta = conn.theta;
 
   //Transformation to next body
@@ -477,7 +477,7 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
 
 void
 EnvModel::BuildRobotStructure(){
-  
+
   m_dof = 0;
   int robotIndex = 0;
   for(int i = 0; i < m_numMultiBodies; i++){
@@ -490,24 +490,24 @@ EnvModel::BuildRobotStructure(){
     //int fixedBodyCount = robot -> GetFixedBodyCount();
     //int freeBodyCount = robot->GetFreeBodyCount();
     //int numOfBodies = robot.m_cNumberOfBody;
-  for(int i = 0; i < robot.m_cNumberOfBody; i++) 
+  for(int i = 0; i < robot.m_cNumberOfBody; i++)
     m_robotGraph.add_vertex(i);
-    
+
   //Total amount of bodies in environment: free + fixed
   for (int i = 0; i < robot.m_cNumberOfBody; i++){
-    CBodyInfo& body = robot.m_pBodyInfo[i];  
-    //For each body, find forward connections and connect them 
+    CBodyInfo& body = robot.m_pBodyInfo[i];
+    //For each body, find forward connections and connect them
     for (int j = 0; j < body.m_cNumberOfConnection; j++){
       int nextIndex = body.m_pConnectionInfo[j].m_nextIndex;
       m_robotGraph.add_edge(i, nextIndex);
-    } 
+    }
   }
 
   //Robot ID typedef
-  typedef RobotGraph::vertex_descriptor RID; 
+  typedef RobotGraph::vertex_descriptor RID;
   vector<pair<size_t,RID> > ccs;
   stapl::vector_property_map<RobotGraph, size_t> cmap;
-  
+
   //Initialize CC information
   get_cc_stats(m_robotGraph, cmap, ccs);
   for(size_t i = 0; i < ccs.size(); i++){
@@ -516,7 +516,7 @@ EnvModel::BuildRobotStructure(){
     //Find CCs, construct robot objects
     get_cc(m_robotGraph, cmap, ccs[i].second, cc);
     size_t baseIndx = -1;
-    
+
     for(size_t j = 0; j < cc.size(); j++){
       size_t index = m_robotGraph.find_vertex(cc[j])->property();
       if(robot.m_pBodyInfo[index].IsBase()){
@@ -524,7 +524,7 @@ EnvModel::BuildRobotStructure(){
         break;
       }
     }
-    
+
     if(baseIndx == size_t(-1)){
       cerr << "Each robot must have at least one base. Please fix .env file." << endl;
       exit(1);
@@ -533,18 +533,18 @@ EnvModel::BuildRobotStructure(){
     Robot::Base bt = robot.m_pBodyInfo[baseIndx].GetBase();
     Robot::BaseMovement bm = robot.m_pBodyInfo[baseIndx].GetBaseMovement();
     if(bt == Robot::PLANAR){
-      m_dof += 2;   
+      m_dof += 2;
       if(bm == Robot::ROTATIONAL){
-        m_dof += 1; 
+        m_dof += 1;
       }
     }
     else if(bt == Robot::VOLUMETRIC){
-      m_dof += 3; 
+      m_dof += 3;
       if(bm == Robot::ROTATIONAL){
-        m_dof += 3;  
+        m_dof += 3;
       }
     }
-    
+
     Robot::JointMap jm;
     for(size_t j = 0; j<cc.size(); j++){
       int index = m_robotGraph.find_vertex(cc[j])->property();
@@ -561,21 +561,21 @@ EnvModel::BuildRobotStructure(){
         }
       }
     }
-    
+
     m_robots.push_back(Robot(bt, bm, jm, baseIndx));
   }
 }
 
-//////////Display functions////////// 
+//////////Display functions//////////
 
-bool 
+bool
 EnvModel::BuildModels(){
 
   //Build boundary model
   m_boundary = GetBoundary();
-  if(m_boundary == NULL) 
+  if(m_boundary == NULL)
     return false;
-  if(m_boundary->BuildModels() == false) 
+  if(m_boundary->BuildModels() == false)
     return false;
 
   //Create MutileBody Model
@@ -584,58 +584,58 @@ EnvModel::BuildModels(){
 
   //Build each
   Vector3d com;
-  for(int i = 0; i < numMBs; i++){      
+  for(int i = 0; i < numMBs; i++){
     MultiBodyModel* m = new MultiBodyModel(GetMultiBodyInfo()[i]);
-    if(m == NULL) 
+    if(m == NULL)
       return false;
     if(m->BuildModels() == false)
       return false;
     com = com + (m->GetCOM()-Point3d(0,0,0));
     m_mBModels.push_back(m);
   }
-  for(int i = 0; i < 3; i++) 
+  for(int i = 0; i < 3; i++)
     m_centerOfMass[i] = com[i]/numMBs;
 
   //Compute radius
   for(int i = 0; i < numMBs; i++){
     double dist = (m_mBModels[i]->GetCOM() - m_centerOfMass).norm()
     + m_mBModels[i]->GetRadius();
-    if(m_radius < dist) 
+    if(m_radius < dist)
       m_radius = dist;
   }
   return true;
 }
 
-void 
+void
 EnvModel::Draw(GLenum _mode){
 
-  if(_mode == GL_SELECT && m_enableSelection == false) 
+  if(_mode == GL_SELECT && m_enableSelection == false)
     return;
 
   int numMBs = m_mBModels.size();
   if(_mode == GL_SELECT)
     glPushName(numMBs);
-  
+
   m_boundary->Draw(_mode);
-  
+
   if(_mode == GL_SELECT)
     glPopName();
-  
+
   glLineWidth(1);
   for(int iP = 0; iP < numMBs; iP++){
     if(m_mBModels[iP]->IsFixed()){
-      if(_mode == GL_SELECT) 
+      if(_mode == GL_SELECT)
         glPushName(iP);
       m_mBModels[iP]->Draw(_mode);
-      if(_mode == GL_SELECT) 
+      if(_mode == GL_SELECT)
         glPopName();
     }
   }
 }
 
-void 
+void
 EnvModel::ChangeColor(){
-  
+
   int numMBs = m_mBModels.size();
   float r, g, b;
   for(int iP = 0; iP < numMBs; iP++){
@@ -646,11 +646,11 @@ EnvModel::ChangeColor(){
   }
 }
 
-void 
-EnvModel::Select(unsigned int* _index, vector<gliObj>& _sel){    
-  
+void
+EnvModel::Select(unsigned int* _index, vector<gliObj>& _sel){
+
   //cout << "selecting env object" << endl;
-  //unselect old one       
+  //unselect old one
   if(!_index || *_index > m_mBModels.size()) //input error
     return;
   else if(*_index == m_mBModels.size())
@@ -658,8 +658,8 @@ EnvModel::Select(unsigned int* _index, vector<gliObj>& _sel){
   else
     m_mBModels[_index[0]]->Select(_index+1, _sel);
 }
-    
-void 
+
+void
 EnvModel::GetChildren(list<GLModel*>& _models){
 
   typedef vector<MultiBodyModel *>::iterator MIT;
@@ -670,10 +670,10 @@ EnvModel::GetChildren(list<GLModel*>& _models){
   _models.push_back(m_boundary);
 }
 
-vector<string> 
-EnvModel::GetInfo() const{ 
-  
-  vector<string> info; 
+vector<string>
+EnvModel::GetInfo() const{
+
+  vector<string> info;
   info.push_back(GetFilename());
 
   ostringstream temp;
@@ -683,11 +683,11 @@ EnvModel::GetInfo() const{
   return info;
 }
 
-vector<vector<PolyhedronModel> > 
+vector<vector<PolyhedronModel> >
 EnvModel::GetMBPolyLists(){
 
   int numMBs = m_mBModels.size();
-  vector<vector<PolyhedronModel> > pPoly; 
+  vector<vector<PolyhedronModel> > pPoly;
 
   for(int i = 0; i < numMBs; i++)
     pPoly.push_back(m_mBModels[i]->GetPolyhedron());
@@ -695,40 +695,40 @@ EnvModel::GetMBPolyLists(){
   return pPoly;
 }
 
-void 
+void
 EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
 
-  vector<MultiBodyModel*>::iterator mbit; 
+  vector<MultiBodyModel*>::iterator mbit;
   for(mbit = m_mBModels.begin(); mbit != m_mBModels.end(); mbit++){
     if((*mbit) == _mbl){
       m_mBModels.erase(mbit);
       break;
-    }    
-  }      
+    }
+  }
 }
 
-void 
+void
 EnvModel::AddMBModel(CMultiBodyInfo _newMBI){
-  
+
   int numMBs = GetNumMultiBodies();
   int i = numMBs - 1;
 
-  MultiBodyModel* m = new MultiBodyModel(GetMultiBodyInfo()[i]); 
+  MultiBodyModel* m = new MultiBodyModel(GetMultiBodyInfo()[i]);
   m->BuildModels();
   Vector3d com;
   com = com+(m->GetCOM()-Point3d(0,0,0));
   m_mBModels.push_back(m);
 }
 
-bool 
+bool
 EnvModel::SaveFile(const char* _filename){
-  
+
   const CMultiBodyInfo* mBI = GetMultiBodyInfo();
 
   FILE* envFile;
   if((envFile = fopen(_filename, "a")) == NULL){
     cout<<"Couldn't open the file"<<endl;
-    return false;   
+    return false;
   }
 
   int numMBs = GetNumMultiBodies(); //number of objects in env.
@@ -756,17 +756,17 @@ EnvModel::SaveFile(const char* _filename){
       if(mBI[i].m_active){
         fprintf(envFile,"#VIZMO_COLOR %2f %2f %2f\n",
             mBI[i].m_pBodyInfo[0].rgb[0],
-            mBI[i].m_pBodyInfo[0].rgb[1], 
+            mBI[i].m_pBodyInfo[0].rgb[1],
             mBI[i].m_pBodyInfo[0].rgb[2]);
       }
-      else{	  
-        fprintf(envFile,"#VIZMO_COLOR %2f %2f %2f\n", 
-                om->GetColor()[0],om->GetColor()[1], om->GetColor()[2]);	
-      }  
+      else{
+        fprintf(envFile,"#VIZMO_COLOR %2f %2f %2f\n",
+                om->GetColor()[0],om->GetColor()[1], om->GetColor()[2]);
+      }
 
       for(int j = 0; j < nB; j++){
         if(mBI[i].m_pBodyInfo[j].m_bIsFixed)
-          fprintf(envFile,"FixedBody    "); 
+          fprintf(envFile,"FixedBody    ");
         else
           fprintf(envFile,"FreeBody    ");
 
@@ -793,7 +793,7 @@ EnvModel::SaveFile(const char* _filename){
 
         Quaternion qtmp = mBModels[i]->q();
         //Matrix3x3 mtmp = qtmp.getMatrix();
-        //Vector3d vtmp = qtmp.MatrixToEuler(mtmp); 
+        //Vector3d vtmp = qtmp.MatrixToEuler(mtmp);
 
         //get prev. rotation
 
@@ -811,19 +811,19 @@ EnvModel::SaveFile(const char* _filename){
 
         fprintf(envFile,"%.1f %.1f %.1f %.1f %.1f %.1f\n",
             mBModels[i]->tx(), mBModels[i]->ty(), mBModels[i]->tz(),
-            radToDeg(e.alpha()), 
-            radToDeg(e.beta()), 
+            radToDeg(e.alpha()),
+            radToDeg(e.beta()),
             radToDeg(e.gamma()));
 
       }
       //write Connection tag
 
       if(mBI[i].m_NumberOfConnections != 0)
-        fprintf(envFile, "\nConnection\n"); 
+        fprintf(envFile, "\nConnection\n");
       else
-        fprintf(envFile,"Connection\n"); 
+        fprintf(envFile,"Connection\n");
 
-      fprintf(envFile, "%d\n", mBI[i].m_NumberOfConnections); 
+      fprintf(envFile, "%d\n", mBI[i].m_NumberOfConnections);
 
       //write Connection info.
       if(mBI[i].m_NumberOfConnections != 0){
@@ -842,7 +842,7 @@ EnvModel::SaveFile(const char* _filename){
 
           //get info. from current Body and current connection
           int index = 0;
-          for(int b = 0; 
+          for(int b = 0;
               b<mBI[i].m_pBodyInfo[indexList].m_cNumberOfConnection; b++){
 
             int n = mBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[b].m_nextIndex;
@@ -866,7 +866,7 @@ EnvModel::SaveFile(const char* _filename){
           fprintf(envFile, "%.1f\t",
               mBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].m_orientZ* 57.29578);
 
-          fprintf(envFile, "%.1f ", 
+          fprintf(envFile, "%.1f ",
               mBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].alpha);
           fprintf(envFile, "%.1f ",
               mBI[i].m_pBodyInfo[indexList].m_pConnectionInfo[index].a);

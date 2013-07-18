@@ -1,54 +1,54 @@
 #include "CaptureOptions.h"
 
-#include <QAction>  
+#include <QAction>
 #include <QToolBar>
 #include <QPixmap>
-#include <QFileDialog> 
+#include <QFileDialog>
 #include <QProgressDialog>
 #include <QApplication>
 
 #include "Utilities/ImageFilters.h"
 #include "vizmo2.h"
 #include "MainWin.h"
-#include "SceneWin.h" 
+#include "SceneWin.h"
 #include "MovieSaveDialog.h"
-#include "AnimationGUI.h" 
+#include "AnimationGUI.h"
 
 #include "Icons/Crop.xpm"
 #include "Icons/Camera.xpm"
-#include "Icons/Camcorder.xpm" 
+#include "Icons/Camcorder.xpm"
 
 CaptureOptions::CaptureOptions(QWidget* _parent, VizmoMainWin* _mainWin) : OptionsBase(_parent, _mainWin) {
-  CreateActions(); 
-  SetUpSubmenu("Capture"); 
-  SetUpToolbar(); 
-  SetHelpTips(); 
-  m_cropBox = false; 
+  CreateActions();
+  SetUpSubmenu("Capture");
+  SetUpToolbar();
+  SetHelpTips();
+  m_cropBox = false;
 }
 
 void
 CaptureOptions::CreateActions(){
 
-  //1. Create actions and add them to map  
-  QAction* crop = new QAction(QPixmap(cropIcon), tr("Crop"), this);  
-  m_actions["crop"] = crop; 
-  QAction* picture = new QAction(QPixmap(cameraIcon), tr("Picture"), this); 
-  m_actions["picture"] = picture; 
+  //1. Create actions and add them to map
+  QAction* crop = new QAction(QPixmap(cropIcon), tr("Crop"), this);
+  m_actions["crop"] = crop;
+  QAction* picture = new QAction(QPixmap(cameraIcon), tr("Picture"), this);
+  m_actions["picture"] = picture;
   QAction* movie = new QAction(QPixmap(camcorderIcon), tr("Movie"), this);
-  m_actions["movie"] = movie;  
+  m_actions["movie"] = movie;
 
   //2. Set other specifications as necessary
-  m_actions["crop"]->setEnabled(false); 
-  m_actions["crop"]->setCheckable(true);  
-  m_actions["crop"]->setStatusTip(tr("Select area for screenshot"));  
-  m_actions["picture"]->setEnabled(false); 
-  m_actions["picture"]->setStatusTip(tr("Take picture")); 
-  m_actions["movie"]->setEnabled(false); 
-  m_actions["movie"]->setStatusTip(tr("Save movie")); 
+  m_actions["crop"]->setEnabled(false);
+  m_actions["crop"]->setCheckable(true);
+  m_actions["crop"]->setStatusTip(tr("Select area for screenshot"));
+  m_actions["picture"]->setEnabled(false);
+  m_actions["picture"]->setStatusTip(tr("Take picture"));
+  m_actions["movie"]->setEnabled(false);
+  m_actions["movie"]->setStatusTip(tr("Save movie"));
 
-  //3. Make connections 
-  connect(m_actions["crop"], SIGNAL(activated()), this, SLOT(CropRegion())); 
-  connect(m_actions["picture"], SIGNAL(activated()), this, SLOT(CapturePicture())); 
+  //3. Make connections
+  connect(m_actions["crop"], SIGNAL(activated()), this, SLOT(CropRegion()));
+  connect(m_actions["picture"], SIGNAL(activated()), this, SLOT(CapturePicture()));
   connect(m_actions["movie"], SIGNAL(activated()), this, SLOT(CaptureMovie()));
 
   connect(this, SIGNAL(ToggleSelectionSignal()), GetMainWin()->GetGLScene(), SLOT(toggleSelectionSlot()));
@@ -57,20 +57,20 @@ CaptureOptions::CreateActions(){
   connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationDebugGUI(), SLOT(goToFrame(int)));
 }
 
-void 
+void
 CaptureOptions::SetUpToolbar() {
-  m_toolbar = new QToolBar(GetMainWin()); 
-  m_toolbar->addAction(m_actions["crop"]); 
-  m_toolbar->addAction(m_actions["picture"]); 
-  m_toolbar->addAction(m_actions["movie"]); 
+  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar->addAction(m_actions["crop"]);
+  m_toolbar->addAction(m_actions["picture"]);
+  m_toolbar->addAction(m_actions["movie"]);
 }
 
 void
 CaptureOptions::SetHelpTips() {
   m_actions["crop"]->setWhatsThis(tr("Click and drag to specify a"
         " cropping area. You can then use the <b>Picture</b> button to"
-        " save a screenshot.")); 
-  m_actions["picture"]->setWhatsThis(tr("Click this button to save" 
+        " save a screenshot."));
+  m_actions["picture"]->setWhatsThis(tr("Click this button to save"
         " a screenshot of the scene. If no cropping area is specified,"
         " the entire scene will be saved."));
   m_actions["movie"]->setWhatsThis(tr("Click this button to save a"
@@ -79,13 +79,13 @@ CaptureOptions::SetHelpTips() {
 
 void
 CaptureOptions::Reset(){
-  m_actions["crop"]->setEnabled(true); 
-  m_actions["picture"]->setEnabled(true); 
+  m_actions["crop"]->setEnabled(true);
+  m_actions["picture"]->setEnabled(true);
   m_actions["movie"]->setEnabled(GetVizmo().GetPathSize() || GetVizmo().GetDebugSize());
 }
 
 //Slots
-void 
+void
 CaptureOptions::CropRegion() {
   m_cropBox =! m_cropBox;
 
@@ -93,7 +93,7 @@ CaptureOptions::CropRegion() {
     emit SimulateMouseUp();
 
   emit CallUpdate();
-  emit ToggleSelectionSignal();   
+  emit ToggleSelectionSignal();
 }
 
 void
@@ -106,7 +106,7 @@ CaptureOptions::CapturePicture(){
 
   //if filename exists save image
   if(fd.exec() == QDialog::Accepted){
-    QStringList files = fd.selectedFiles(); 
+    QStringList files = fd.selectedFiles();
     if(!files.empty()) {
       QString filename = GrabFilename(files[0], fd.selectedFilter());
       GetMainWin()->GetGLScene()->SaveImage(filename, m_cropBox);
@@ -117,8 +117,8 @@ CaptureOptions::CapturePicture(){
 void
 CaptureOptions::CaptureMovie(){
   //Pop up a MovieSaveDialog
-  MovieSaveDialog msd(this, Qt::Dialog); 
-  if(msd.exec() == QDialog::Accepted){ 
+  MovieSaveDialog msd(this, Qt::Dialog);
+  if(msd.exec() == QDialog::Accepted){
     size_t digits = max(double(msd.m_frameDigits), log10(msd.m_endFrame/msd.m_stepSize) + 2);
 
     //Create the progress bar for saving images
@@ -135,7 +135,7 @@ CaptureOptions::CaptureMovie(){
 
       // update the GLScene
       emit GoToFrame(i);
-      
+
       //grab string for frame number
       ostringstream oss;
       oss << frame;

@@ -40,7 +40,7 @@ inline void gliDrawRotateAxis( const gliCamera& camera )
 
     //draw reference axis
     glMatrixMode(GL_PROJECTION); //change to Ortho view
-    glPushMatrix(); 
+    glPushMatrix();
     glLoadIdentity();
     glOrtho(0,20,0,20,-20,20);
 
@@ -53,7 +53,7 @@ inline void gliDrawRotateAxis( const gliCamera& camera )
     glRotated(camera.getCameraAzim(), 0.0, 1.0, 0.0);
     glCallList(gid);
     glPopMatrix();
-    
+
     //pop GL_PROJECTION
     glMatrixMode(GL_PROJECTION); //change to Pers view
     glPopMatrix();
@@ -92,7 +92,7 @@ inline void gliDrawGrid()
 
         glEndList();
     }
-    
+
     glCallList(gid);
 
 }
@@ -106,8 +106,8 @@ inline Point3d gliProject2Window(const Point3d& pt)
     glGetDoublev( GL_PROJECTION_MATRIX, ProjM );
 
     Point3d proj;
-    gluProject(pt[0], pt[1], pt[2], 
-               ModelViewM, ProjM, ViewPort, 
+    gluProject(pt[0], pt[1], pt[2],
+               ModelViewM, ProjM, ViewPort,
                &proj[0],&proj[1],&proj[2]);
     return  proj;
 }
@@ -122,8 +122,8 @@ inline void gliProject2Window(Point3d* pts, int size)
 
     for( int i=0;i<size;i++ ){
         double proj[3];
-        gluProject(pts[i][0], pts[i][1], pts[i][2], 
-                   ModelViewM, ProjM, ViewPort, 
+        gluProject(pts[i][0], pts[i][1], pts[i][2],
+                   ModelViewM, ProjM, ViewPort,
                    &proj[0],&proj[1],&proj[2]);
         pts[i] = proj;
     }
@@ -145,11 +145,11 @@ inline Point3d gliUnProj2World
     Vector3d s,e; //start and end of ray
 
     /* unproject to plane defined by current x and y direction*/
-    gluUnProject((GLdouble)x, (GLdouble)y, 0.0,ModelViewM, 
+    gluUnProject((GLdouble)x, (GLdouble)y, 0.0,ModelViewM,
                  ProjM, ViewPort, &s[0], &s[1], &s[2]);
-    gluUnProject((GLdouble)x, (GLdouble)y, 1.0,ModelViewM, 
+    gluUnProject((GLdouble)x, (GLdouble)y, 1.0,ModelViewM,
                  ProjM, ViewPort, &e[0], &e[1], &e[2]);
-    
+
     double t=0;
     double base=((e-s)*n);
 
@@ -167,7 +167,7 @@ inline Point3d gliUnProj2World
         d1=fmod(d1,200);
         if( d1>100 ) d1=d1-200;
         else if( d1<-100 ) d1=200+d1;
-        
+
         double d2;
         if( d1>50 ){ d1=100-d1; d2=-sqrt(2500-d1*d1); }
         else if (d1<-50 ){ d1=-100-d1; d2=-sqrt(2500-d1*d1); }

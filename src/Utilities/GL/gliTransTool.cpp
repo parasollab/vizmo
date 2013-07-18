@@ -27,7 +27,7 @@ void gliTToolBase::Draw(void)
 {
     if( m_pSObj==NULL ) return;
     glMatrixMode(GL_PROJECTION); //change to Ortho view
-    glPushMatrix(); 
+    glPushMatrix();
     glLoadIdentity();
     glOrtho(0,m_W,0,m_H,-100,100);
     Draw(false);
@@ -38,7 +38,7 @@ void gliTToolBase::Draw(void)
     glMatrixMode(GL_MODELVIEW);
 }
 
-void gliTToolBase::Project2Win(){   
+void gliTToolBase::Project2Win(){
 
     if( m_pSObj==NULL ) return;
 
@@ -54,16 +54,16 @@ void gliTToolBase::Project2Win(){
 
     else if( m_pSObj->m_PosPoly[0] != -1){
 
-      x=m_pSObj->tx() + m_pSObj->m_PosPoly[0]; 
-      y=m_pSObj->ty() + m_pSObj->m_PosPoly[1]; 
+      x=m_pSObj->tx() + m_pSObj->m_PosPoly[0];
+      y=m_pSObj->ty() + m_pSObj->m_PosPoly[1];
       z=m_pSObj->tz() + m_pSObj->m_PosPoly[2];
     }
-    
+
     else{
 
-      x=m_pSObj->tx(); y=m_pSObj->ty(); z=m_pSObj->tz(); 
+      x=m_pSObj->tx(); y=m_pSObj->ty(); z=m_pSObj->tz();
     }
-    
+
     Point3d pts[4]={Point3d(x,y,z),Point3d(x+0.1,y,z),
                     Point3d(x,y+0.1,z),Point3d(x,y,z+0.1)};
     gliProject2Window(pts,4);
@@ -102,7 +102,7 @@ void gliMoveTool::Draw(bool bSelect)
     //draw x axis
     if( bSelect ) glLoadName(X_AXIS);
     glBegin(GL_LINES);
-    if( !bSelect ) glColor3f(1,0,0); 
+    if( !bSelect ) glColor3f(1,0,0);
     glVertex2d(ox,oy);
     glVertex2d(x_dir[0],x_dir[1]);
     glEnd();
@@ -142,13 +142,13 @@ void gliMoveTool::Draw(bool bSelect)
 bool gliMoveTool::MP( QMouseEvent * e ) //mouse button pressed
 {
     m_SelType=NON;
-    if( m_pSObj==NULL ) return false; 
+    if( m_pSObj==NULL ) return false;
     if( e->button()&Qt::LeftButton ) return false; //not LMB
     if( Select(e->pos().x(),e->pos().y()) ){
         m_SObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz()); //store old pos
         m_SObjPrjC=m_SObjPrj;
         m_HitX=e->pos().x(); m_HitY=m_H-e->pos().y();
-        m_HitUnPrj=gliUnProj2World(m_SObjPosC,m_HitX,m_HitY);   
+        m_HitUnPrj=gliUnProj2World(m_SObjPosC,m_HitX,m_HitY);
         return true;
     }
     return false;
@@ -172,7 +172,7 @@ bool gliMoveTool::MM( QMouseEvent * e )  //mouse motion
     if( m_SelType==X_AXIS ){ v(v[0], 0, 0); m_pSObj->tx()=m_SObjPosC[0]+v[0]; }
     if( m_SelType==Y_AXIS ){ v(0, v[1], 0); m_pSObj->ty()=m_SObjPosC[1]+v[1]; }
     if( m_SelType==Z_AXIS ){ v(0, 0, v[2]); m_pSObj->tz()=m_SObjPosC[2]+v[2]; }
-    if( m_SelType==VIEW_PLANE ){ 
+    if( m_SelType==VIEW_PLANE ){
         Point3d npos=m_SObjPosC+v;
         m_pSObj->tx()=npos[0]; m_pSObj->ty()=npos[1]; m_pSObj->tz()=npos[2];
     }
@@ -191,31 +191,31 @@ bool gliMoveTool::Select(int x, int y)
     //do selection buffer
     GLuint hitBuffer[1000000];
     GLint viewport[4];
-    
+
     // prepare for selection mode
     glSelectBuffer( 1000000, hitBuffer);
     glRenderMode( GL_SELECT );
-    
+
     // get view port
     glGetIntegerv( GL_VIEWPORT, viewport);
-    
-    // number stact 
+
+    // number stact
     glInitNames();
     glPushName(0);
-    
+
     // change view volume
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
     gluPickMatrix( x, y, 10, 10, viewport);
     glOrtho(0,m_W,0,m_H,-100,100);
-    
+
     //draw
     Draw(true);
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
     glFlush();
-    
+
     //check result
     if( glRenderMode( GL_RENDER )==0 ) return false;
     m_SelType=(SelType)(hitBuffer[3]);
@@ -303,13 +303,13 @@ void gliScaleTool::Draw(bool bSelect)
 bool gliScaleTool::MP( QMouseEvent * e ) //mouse button pressed
 {
     m_SelType=NON;
-    if( m_pSObj==NULL ) return false; 
+    if( m_pSObj==NULL ) return false;
     if( e->button()&Qt::LeftButton ) return false; //not LMB
     if( Select(e->pos().x(),e->pos().y()) ){
         m_SObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz()); //store old pos
         m_SObjPrjC=m_SObjPrj;
         m_HitX=e->pos().x(); m_HitY=m_H-e->pos().y();
-        m_HitUnPrj=gliUnProj2World(m_SObjPosC,m_HitX,m_HitY);   
+        m_HitUnPrj=gliUnProj2World(m_SObjPosC,m_HitX,m_HitY);
 		m_osX=m_pSObj->sx();
 		m_osY=m_pSObj->sy();
 		m_osZ=m_pSObj->sz();
@@ -336,10 +336,10 @@ bool gliScaleTool::MM( QMouseEvent * e )  //mouse motion
     if( m_SelType==X_AXIS ){ if(m_osX+v[0]>0) m_pSObj->sx()=m_osX+v[0]; }
     if( m_SelType==Y_AXIS ){ if(m_osY+v[1]>0) m_pSObj->sy()=m_osY+v[1]; }
     if( m_SelType==Z_AXIS ){ if(m_osZ+v[2]>0) m_pSObj->sz()=m_osZ+v[2]; }
-    if( m_SelType==VIEW_PLANE ){ 
+    if( m_SelType==VIEW_PLANE ){
         if(m_osX+v[0]>0 && m_osY+v[0]>0 && m_osZ+v[0]>0){
-			m_pSObj->sx()=m_osX+v[0]; 
-			 m_pSObj->sy()=m_osY+v[0]; 
+			m_pSObj->sx()=m_osX+v[0];
+			 m_pSObj->sy()=m_osY+v[0];
 			 m_pSObj->sz()=m_osZ+v[0];
 		}
     }
@@ -358,31 +358,31 @@ bool gliScaleTool::Select(int x, int y)
     //do selection buffer
     GLuint hitBuffer[1000000];
     GLint viewport[4];
-    
+
     // prepare for selection mode
     glSelectBuffer( 1000000, hitBuffer);
     glRenderMode( GL_SELECT );
-    
+
     // get view port
     glGetIntegerv( GL_VIEWPORT, viewport);
-    
-    // number stact 
+
+    // number stact
     glInitNames();
     glPushName(0);
-    
+
     // change view volum
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
     gluPickMatrix( x, y, 10, 10, viewport);
     glOrtho(0,m_W,0,m_H,-100,100);
-    
+
     //draw
     Draw(true);
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
     glFlush();
-    
+
     //check result
     if( glRenderMode( GL_RENDER )==0 ) return false;
     m_SelType=(SelType)(hitBuffer[3]);
@@ -431,7 +431,7 @@ void gliRotateTool::Draw(bool bSelect)
 
     //draw circle around x axis
     if( bSelect ) glLoadName(X_AXIS);
-    if( !bSelect ) glColor3f(1,0,0); 
+    if( !bSelect ) glColor3f(1,0,0);
     gliDrawArc(m_R,m_Arc[0][0],m_Arc[0][1],m_LA[1],m_LA[2]);
 
     //draw y axis
@@ -462,7 +462,7 @@ Point3d gliRotateTool::UnProj2World
 {
     GLint viewport[4];
     glGetIntegerv( GL_VIEWPORT, viewport);
-    
+
     // change view volum
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
@@ -478,7 +478,7 @@ Point3d gliRotateTool::UnProj2World
 bool gliRotateTool::MP( QMouseEvent * e ) //mouse button pressed
 {
     //SelType oldSelT=m_SelType; m_SelType=NON;
-    if( m_pSObj==NULL ) return false; 
+    if( m_pSObj==NULL ) return false;
     if( e->button()&Qt::LeftButton ) return false; //not LMB
 
     int x=e->pos().x(); int y=e->pos().y();
@@ -500,11 +500,11 @@ bool gliRotateTool::MP( QMouseEvent * e ) //mouse button pressed
         }
         else if( m_SelType==OUTLINE ){
             gliCamera* pcam=gliGetCameraFactory().getCurrentCamera();
-            axis=pcam->getWindowZ(); 
-            v1=pcam->getWindowX(); 
+            axis=pcam->getWindowZ();
+            v1=pcam->getWindowX();
             v2=pcam->getWindowY();
         }
-        
+
         Point3d prj=gliUnProj2World(m_SObjPosC,axis,x,y);
         Vector3d tmp=prj-m_SObjPosC;
         m_CurAngle=m_HitAngle=ComputAngle(tmp,v1,v2);
@@ -540,8 +540,8 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
     }
     else if( m_SelType==OUTLINE ){
         gliCamera* pcam=gliGetCameraFactory().getCurrentCamera();
-        axis=pcam->getWindowZ(); 
-        v1=pcam->getWindowX(); 
+        axis=pcam->getWindowZ();
+        v1=pcam->getWindowX();
         v2=pcam->getWindowY();
     }
 
@@ -551,7 +551,7 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
 
     double da=(m_CurAngle-m_HitAngle); //displacement angle
     //clamp between PI and -PI
-    if( da>PI ) da -= TWOPI; 
+    if( da>PI ) da -= TWOPI;
     else if( da<-PI ) da += TWOPI;
 
     //compute new q
@@ -559,7 +559,7 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
     m_pSObj->q((q*m_SObjQC).normalized());
 
     //update rotation variables for this body
-    //m_pSObj->Quaternion2Euler();  
+    //m_pSObj->Quaternion2Euler();
     Matrix3x3 m;
     m = m_pSObj->getMatrix();
     Vector3d v;
@@ -582,31 +582,31 @@ bool gliRotateTool::Select(int x, int y)
     //do selection buffer
     GLuint hitBuffer[1000000];
     GLint viewport[4];
-    
+
     // prepare for selection mode
     glSelectBuffer( 1000000, hitBuffer);
     glRenderMode( GL_SELECT );
-    
+
     // get view port
     glGetIntegerv( GL_VIEWPORT, viewport);
-    
-    // number stact 
+
+    // number stact
     glInitNames();
     glPushName(0);
-    
+
     // change view volum
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
     gluPickMatrix( x, y, 10, 10, viewport);
     glOrtho(0,m_W,0,m_H,-100,100);
-    
+
     //draw
     Draw(true);
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
     glFlush();
-    
+
     //check result
     if( glRenderMode( GL_RENDER )!=0 ){
         m_SelType=(SelType)(hitBuffer[3]);
@@ -616,12 +616,12 @@ bool gliRotateTool::Select(int x, int y)
     double dx=m_SObjPrj[0]-x; double dy=m_SObjPrj[1]-y;
     double dist=sqrt(dx*dx+dy*dy);
     if( dist<m_R+10 && dist>m_R ){
-        m_SelType=OUTLINE; 
+        m_SelType=OUTLINE;
         return true;
     }
 
     if( dist<m_R+5 ){
-        m_SelType=CENTER; 
+        m_SelType=CENTER;
         return true;
     }
 
@@ -650,9 +650,9 @@ void gliRotateTool::ComputAngles
 void gliRotateTool::ComputLocalAxis()
 {
     if( m_pSObj==NULL ) return;
-    
-    static Vector3d x(1,0,0); 
-    static Vector3d y(0,1,0); 
+
+    static Vector3d x(1,0,0);
+    static Vector3d y(0,1,0);
     static Vector3d z(0,0,1);
     const Quaternion& q=m_pSObj->q();
 
@@ -667,7 +667,7 @@ void gliRotateTool::ComputLocalAxis()
 void gliTransformTool::CheckSelectObject()
 {
     m_RT.setSObject(NULL);
-	
+
     //get selected objects
     const vector<gliObj>& sobjs=gliGetPickedSceneObjs();
     if( sobjs.empty() ) return;
@@ -700,16 +700,16 @@ bool gliTransformTool::MM( QMouseEvent * e )  //mouse motion
 bool gliTransformTool::KEY( QKeyEvent * e ) //Key
 {
     switch(e->key()){
-        case 'q': case 'Q': 
+        case 'q': case 'Q':
             if(m_pTool!=NULL) m_pTool->Disable();
             m_pTool=NULL;  return true;
-        case 'w': case 'W': 
+        case 'w': case 'W':
             if(m_pTool!=NULL) m_pTool->Disable();
             m_pTool=&m_MT; m_pTool->Enable(); return true;
-        case 'e': case 'E': 
+        case 'e': case 'E':
             if(m_pTool!=NULL) m_pTool->Disable();
             m_pTool=&m_RT; m_pTool->Enable(); return true;
-        case 'r': case 'R': 
+        case 'r': case 'R':
             if(m_pTool!=NULL) m_pTool->Disable();
             m_pTool=&m_ST; m_pTool->Enable(); return true;
         default: return false; //not handled

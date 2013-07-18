@@ -48,13 +48,13 @@ private slots:
 private:
 
     void resetPointer();
-   
+
     int m_dof;
     double * QcfgTmp, *Qcfg;
     QDoubleSpinBox *stx, *sty, *stz;
     vector<QDoubleSpinBox*> vSpin;
     vector<double> query_org;
     double * node_cfg;
-    string m_ObjName; 
+    string m_ObjName;
 
 };

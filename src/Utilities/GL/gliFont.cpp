@@ -5,11 +5,11 @@ GLvoid *font_style = GLUT_BITMAP_HELVETICA_12;
 /**
 * Draw a string on given (x,y)
 */
-void 
+void
 drawstr(GLfloat x, GLfloat y, GLfloat z, const char* str)
 {
     const char *s;
-    
+
     glRasterPos3f(x, y, z);
     for(s = str; *s; s++)
         glutBitmapCharacter(font_style, *s);
@@ -23,7 +23,7 @@ setfont(const char* name, int size)
 {
     font_style = GLUT_BITMAP_HELVETICA_10;
     if (strcmp(name, "helvetica") == 0) {
-        if (size == 12) 
+        if (size == 12)
             font_style = GLUT_BITMAP_HELVETICA_12;
         else if (size == 18)
             font_style = GLUT_BITMAP_HELVETICA_18;

@@ -40,8 +40,8 @@ public:
     void resetSelObj(){m_pSObj=NULL;}
 
     //need be updated when window size changed
-    void setWinSize(int W, int H) { 
-        m_W=W; m_H=H; 
+    void setWinSize(int W, int H) {
+        m_W=W; m_H=H;
         Project2Win();
     }
 
@@ -204,16 +204,16 @@ public:
     bool KEY( QKeyEvent * e ); //Key
     void CheckSelectObject();
     void CM(){ //camera move event
-        m_MT.Project2Win(); 
-	m_ST.Project2Win(); 
+        m_MT.Project2Win();
+	m_ST.Project2Win();
         if( &m_RT==m_pTool ) m_RT.ComputAngles(); //view angle changed...
-    } 
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Access
-    void setWinSize(int W, int H) { 
-		m_MT.setWinSize(W,H); 
-		m_ST.setWinSize(W,H); 
+    void setWinSize(int W, int H) {
+		m_MT.setWinSize(W,H);
+		m_ST.setWinSize(W,H);
 	}
 
     void resetObj() {m_pTool->resetSelObj();}

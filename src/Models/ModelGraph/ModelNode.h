@@ -15,7 +15,7 @@ class CParticle;
 namespace modelgraph
 {
 
-    class CModelNode  
+    class CModelNode
     {
     public:
         //////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ namespace modelgraph
             return NULL;
         }
 
-        void addEdge( CModelEdge * e){ 
+        void addEdge( CModelEdge * e){
             if(e==NULL) return;
             mylist * listnode=new mylist();
             if( listnode!=NULL ){

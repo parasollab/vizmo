@@ -7,7 +7,7 @@ vector<gliObj>& gliGetPickedSceneObjs()
     return g_PickedSceneObjs;
 }
 
-    
+
 void gliTransform::glTransform(){
     static double r2a=180/PI; //radian to angle
     glTranslated(m_Pos[0], m_Pos[1], m_Pos[2]);

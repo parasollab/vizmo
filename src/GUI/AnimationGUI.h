@@ -14,9 +14,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 // QT Headers
 #include <QLabel>
-#include <QToolBar>  
+#include <QToolBar>
 
-class QMainWindow; 
+class QMainWindow;
 class QTimer;
 class QSlider;
 class QAction;
@@ -30,16 +30,16 @@ class QWidget;
 using namespace std;
 
 class VizmoAnimationGUI : public QToolBar{
-    
+
   Q_OBJECT
-        
+
   public:
-    VizmoAnimationGUI(QString _title, QWidget* _parent = NULL, string _name = NULL); 
+    VizmoAnimationGUI(QString _title, QWidget* _parent = NULL, string _name = NULL);
     void reset(); //reset everything
-    
+
   signals:
     void callUpdate();
-    
+
   private slots:
     void animate2();
     void timeout();
@@ -55,15 +55,15 @@ class VizmoAnimationGUI : public QToolBar{
     void backAnimate();
     void nextFrame();
     void previousFrame();
-    
+
   private:
-    bool CreateActions(); //Play, pause, etc. 
+    bool CreateActions(); //Play, pause, etc.
     bool CreateGUI();
     void CreateSlider();
     void CreateFrameInput();
     void CreateStepInput();
     void UpdateCurValue(int value);
-    
+
     QAction* m_playPathAction;
     QAction* m_pausePathAction;
     QAction* m_firstFrame;
@@ -71,17 +71,17 @@ class VizmoAnimationGUI : public QToolBar{
     QAction* m_playBackAction;
     QAction* m_nextFrameAction;
     QAction* m_previousFrameAction;
-    
-    QSlider* m_slider; 
-    QLabel* m_stepLabel;
-    QLineEdit* m_stepField; 
-    QLabel* m_frameLabel; 
-    QLineEdit* m_frameField;
-    QLabel* m_slash; 
-    QLabel* m_totalSteps;
-    QLabel* m_framesLast; 
 
-    QTimer* m_timer; 
+    QSlider* m_slider;
+    QLabel* m_stepLabel;
+    QLineEdit* m_stepField;
+    QLabel* m_frameLabel;
+    QLineEdit* m_frameField;
+    QLabel* m_slash;
+    QLabel* m_totalSteps;
+    QLabel* m_framesLast;
+
+    QTimer* m_timer;
 
     int m_stepSize;
     int m_maxValue;

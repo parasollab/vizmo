@@ -42,7 +42,7 @@ class PolyhedronModel : public plum::GLModel {
     void Radius(const PtVector& _points);
 
   private:
-    void CopyRapidModel(const PolyhedronModel& _source); 
+    void CopyRapidModel(const PolyhedronModel& _source);
     GLuint m_solidID; //the compiled model id for solid model
     GLuint m_wiredID; //the compiled model id for wire frame
 

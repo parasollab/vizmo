@@ -14,8 +14,8 @@ class gliPickBox
 {
 public:
 
-    gliPickBox(){ 
-        m_LMB_DOWN=false; m_W=m_H=0; 
+    gliPickBox(){
+        m_LMB_DOWN=false; m_W=m_H=0;
     }
 
     ///////////////////////////////////////////////////////////////////////////

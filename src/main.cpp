@@ -24,7 +24,7 @@ main(int _argc, char** _argv) {
     cerr << "Error: vizmo++ could not intialize main window." << endl;
     return 1;
   }
-  
+
   //execute main window and application
   win.show();
   app.exec();

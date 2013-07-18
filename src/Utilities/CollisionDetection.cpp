@@ -27,16 +27,16 @@ CollisionDetection::~CollisionDetection(){
 
 }
 
-bool CollisionDetection::IsInCollision(EnvModel* _envModel,       
-      plum::MultiBodyModel* _robot, 
+bool CollisionDetection::IsInCollision(EnvModel* _envModel,
+      plum::MultiBodyModel* _robot,
       plum::MultiBodyModel* _obstacle){
 
    return true;
 }
 
 
-bool CollisionDetection::IsInCollision(int _numMB, 
-      EnvModel* _envModel, 
+bool CollisionDetection::IsInCollision(int _numMB,
+      EnvModel* _envModel,
       plum::MultiBodyModel* _robotModel,
       OBPRMView_Robot* _robotObj) {
 
@@ -54,7 +54,7 @@ bool CollisionDetection::IsInCollision(int _numMB,
    OBPRMView_Robot* robotCpy(_robotObj);
 
    list<GLModel*> robotList,modelList;
-   //obtain robot model	  
+   //obtain robot model
    robotCpy->GetChildren(modelList);
    MultiBodyModel * m_robotModel = (MultiBodyModel*)modelList.front();
 
@@ -75,13 +75,13 @@ bool CollisionDetection::IsInCollision(int _numMB,
    // look for index of robot
    ////////////////////////////////////////////////
 
-   //look for the robot 
-   for(int i = 0; i < _numMB; i++){ 
-      if(MBI[i].m_active){ 
+   //look for the robot
+   for(int i = 0; i < _numMB; i++){
+      if(MBI[i].m_active){
          //if this MBody is ROBOT
          robIndx = i;
          break;
-      } 
+      }
    }
 
    //rapid->DoF = envLoader->getDOF();
@@ -96,7 +96,7 @@ bool CollisionDetection::IsInCollision(int _numMB,
    }
 
    if(TestNode){
-      robotCpy->Restore(); 
+      robotCpy->Restore();
    }
 
 
@@ -144,8 +144,8 @@ void Rapid::RCopyNodeCfg(double * n_cfg, int dof){
    }
 }
 
-bool Rapid::IsInCollision(MultiBodyModel * robot, 
-      OBPRMView_Robot * robotObj, int dof, 
+bool Rapid::IsInCollision(MultiBodyModel * robot,
+      OBPRMView_Robot * robotObj, int dof,
       MultiBodyModel * obstacle){
 
    //bool is_collision = false;
@@ -168,7 +168,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
 
    /*****************************************************
-    **  For each robot's body, create its rapid model 
+    **  For each robot's body, create its rapid model
     **  generate those models just for free bodies
 
     **  Then test each robot's body for collision against
@@ -196,9 +196,9 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
          //get RAPID model for OBSTACLE
          RMobst = oPoly[j].GetRapidModel();
 
-         //Get Position and orientation Matrix for robot and obstacle   
-         //Get those values from Tranformation IF the robot was 
-         //moved with the animation tool   
+         //Get Position and orientation Matrix for robot and obstacle
+         //Get those values from Tranformation IF the robot was
+         //moved with the animation tool
          //use tx, ty, tz, rx, ry, rz variables otherwise
          if(!test_node){
             pRt[0] = rPoly[0].tx()+ robot->tx();
@@ -236,7 +236,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
                // compute new position and orientation of the object.
                // CALL: Robot->Configure()
                // to compute those new values
-               // NOTE:: UPDATE  
+               // NOTE:: UPDATE
                //             Position (pR[]) & Orientation(m) in this section
                ///////////////////////////////////////////////////////////////
                int last_dof;
@@ -247,9 +247,9 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
                if(last_dof != 0){
 
                   double *CurrCfg = new double[dof];
-                  CurrCfg[0] = pRt[0]; CurrCfg[1] = pRt[1];  CurrCfg[2] = pRt[2]; 
-                  CurrCfg[3] = etmp.alpha(); 
-                  CurrCfg[4] = etmp.beta(); 
+                  CurrCfg[0] = pRt[0]; CurrCfg[1] = pRt[1];  CurrCfg[2] = pRt[2];
+                  CurrCfg[3] = etmp.alpha();
+                  CurrCfg[4] = etmp.beta();
                   CurrCfg[5] = etmp.gamma();
 
                   vector<double> Cfg = robotObj->returnCurrCfg(dof);
@@ -265,7 +265,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
                   pR[2] = rPoly[i].tz();
 
                   Quaternion qtmp = rPoly[i].q();
-                  convertFromQuaternion(m, qtmp); 
+                  convertFromQuaternion(m, qtmp);
 
                   robotObj->Restore();
                }
@@ -289,7 +289,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
                Quaternion qtmp = rPoly[i].q();
                convertFromQuaternion(m, qtmp);
-            }     
+            }
          }// NODE
 
          //Copy Matrix to double[][]
@@ -314,12 +314,12 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
          for(int a =0; a<3; a++){
             for(int b=0; b<3; b++){
-               mO[a][b] = mObs[a][b];	
+               mO[a][b] = mObs[a][b];
             }
          }
 
 
-         if(RAPID_Collide(mR, pR, RMrobot, mO, pO, RMobst, 
+         if(RAPID_Collide(mR, pR, RMrobot, mO, pO, RMobst,
                   RAPID_FIRST_CONTACT)){
             cout<<"ERROR calling RAPID_Collide() method"<<endl;
             exit(1);
@@ -335,7 +335,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
                   robotObj->SetColor(1,.5,0, 1);
                   rPoly[c].SetColor(1,.5,0, 1);
                }
-            }	
+            }
             return true;
          }
       }//for j

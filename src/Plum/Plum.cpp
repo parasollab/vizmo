@@ -1,4 +1,4 @@
-#include <cstring> 
+#include <cstring>
 
 #include "Plum.h"
 #include <GL/glu.h>
@@ -9,40 +9,40 @@ namespace plum {
 
   void
   Plum::Clean() {
-    
+
     m_plumObjects.clear();
     m_selectedItems.clear();
   }
 
   bool
   Plum::ParseFile(){
-    
+
     typedef typename vector<PlumObject*>::iterator PIT;
     for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit){
       Loadable* loader = (*pit)->GetLoader();
       //When all loaders are gone, virtual function ParseFile will be called
-      //on all MODELS instead and this can be default rather than checked.       
+      //on all MODELS instead and this can be default rather than checked.
       //Or, ParseFile() can happen in model constructors if dependencies
-      //allow  
-      if(!loader){ 
-        //cout<<"No loader for " <<(*pit)->GetModel()->GetName()<<"; using model's ParseFile()"<<endl; 
-        ((*pit)->GetModel())->ParseFile(); 
+      //allow
+      if(!loader){
+        //cout<<"No loader for " <<(*pit)->GetModel()->GetName()<<"; using model's ParseFile()"<<endl;
+        ((*pit)->GetModel())->ParseFile();
         continue;
       }
-      
-      if(!loader->ParseFile()) //current default that will go away... 
-        return false;        
-    }   
+
+      if(!loader->ParseFile()) //current default that will go away...
+        return false;
+    }
     return true;
   }
 
   BuildState
   Plum::BuildModels(){
-  
+
     typedef typename vector<PlumObject*>::iterator PIT;
     for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit){
       GLModel* model = (*pit)->GetModel();
-      if(!model) 
+      if(!model)
         continue;
       if(!model->BuildModels()){
         cerr << "Couldn't build model: " << model->GetName()<< endl;
@@ -52,9 +52,9 @@ namespace plum {
     return MODEL_OK;
   }
 
-  void 
+  void
   Plum::Draw(){
-  
+
     typedef typename vector<PlumObject*>::iterator PIT;
     for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit){
       GLModel* model = (*pit)->GetModel();
@@ -75,7 +75,7 @@ namespace plum {
 #define BUFFER_SIZE 1024
 
   void
-    Plum::Select(const gliBox& box) { 
+    Plum::Select(const gliBox& box) {
       GLuint hitBuffer[BUFFER_SIZE];
       GLint viewport[4];
       GLuint hits;
@@ -160,10 +160,10 @@ namespace plum {
           }
         }
         else{ //select all
-          if(curName[0] > m_plumObjects.size()) 
+          if(curName[0] > m_plumObjects.size())
             return;
           GLModel* selectModel = m_plumObjects[curName[0]]->GetModel();
-          if(selectModel!=NULL) 
+          if(selectModel!=NULL)
             selectModel->Select(&curName[1], m_selectedItems);
         }
 
@@ -173,10 +173,10 @@ namespace plum {
       //only the closest
       if( !all ){ //
         // analyze selected item //not name which created in this lib
-        if(selName[0] > m_plumObjects.size()) 
+        if(selName[0] > m_plumObjects.size())
           return;
         GLModel* selectModel = m_plumObjects[selName[0]]->GetModel();
-        if(selectModel != NULL){ 
+        if(selectModel != NULL){
           selectModel->Select(&selName[1], m_selectedItems);
         }
       }

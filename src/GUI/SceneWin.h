@@ -2,7 +2,7 @@
 #define _SCENE_WIN_H_
 
 /**
- * This file defines class for scene window of vimzo2. 
+ * This file defines class for scene window of vimzo2.
  * The scene window uses opengl widget.
  */
 
@@ -11,7 +11,7 @@
 //Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <QGLWidget> 
+#include <QGLWidget>
 // BSS
 #include <Utilities/GL/gli.h>
 #include <list>
@@ -20,15 +20,15 @@
 
 using namespace std;
 
-class TextGUI; 
+class TextGUI;
 
 class VizGLWin : public QGLWidget {
   Q_OBJECT
 
   public:
-    VizGLWin(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0); 
+    VizGLWin(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
     void resetCamera();
-    VizmoMainWin* m_mainWin; 
+    VizmoMainWin* m_mainWin;
 
     // BSS
     vector<gliObj>* objs2;
@@ -73,10 +73,10 @@ class VizGLWin : public QGLWidget {
 
   private:
     void SetLight();
-    
-    void 
+
+    void
     SetLightPos(){ //set light position
-      
+
       static GLfloat light_position[] = { 250.0f, 250.0f, 250.0f, 1.0f };
       glLightfv(GL_LIGHT0, GL_POSITION, light_position);
       static GLfloat light_position2[] = { -250.0f, 250.0f, -250.0f, 1.0f };

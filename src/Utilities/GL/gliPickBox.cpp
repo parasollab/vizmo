@@ -10,8 +10,8 @@ void gliPickBox::Draw( void )
     if( !m_LMB_DOWN ) return;
 
     //change to Ortho view
-    glMatrixMode(GL_PROJECTION); 
-    glPushMatrix(); 
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
     glLoadIdentity();
     gluOrtho2D(0,m_W,0,m_H);
 
@@ -34,7 +34,7 @@ void gliPickBox::Draw( void )
     glPopMatrix();
 
     //change back to pers view
-    glMatrixMode(GL_PROJECTION); 
+    glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 }
@@ -43,7 +43,7 @@ void gliPickBox::MP( QMouseEvent * e ) //mouse button
 {
     if( e->button()!=Qt::LeftButton ) return;
     m_LMB_DOWN=true;
-    m_PickBox.r=m_PickBox.l=e->pos().x(); 
+    m_PickBox.r=m_PickBox.l=e->pos().x();
     m_PickBox.b=m_PickBox.t=m_H-e->pos().y();
 }
 
@@ -53,9 +53,9 @@ void gliPickBox::MR( QMouseEvent * e ) //mouse button
 }
 
 void gliPickBox::MM( QMouseEvent * e )  //mouse motion
-{   
+{
     if( !m_LMB_DOWN ) return;
-    m_PickBox.r=e->pos().x(); 
+    m_PickBox.r=e->pos().x();
     m_PickBox.t=m_H-e->pos().y();
 }
 

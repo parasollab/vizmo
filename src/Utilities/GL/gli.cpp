@@ -33,8 +33,8 @@ void gliDraw(int option){
 
 bool gliMP(QMouseEvent * e)
 {
-    if( gliGetCameraFactory().getCurrentCamera()->MP(e) ){ 
-       gliCM(); //camera moved 
+    if( gliGetCameraFactory().getCurrentCamera()->MP(e) ){
+       gliCM(); //camera moved
         return true;
     }
     if( gliGetTransformTool().MP(e) ) return true;
@@ -124,42 +124,42 @@ void gliSimMouseUp()
     gliPickBox& pick=gliGetPickBox();
     // Dummy
     QMouseEvent * e=NULL;
-    pick.MR(e); /* simulate pick mouse */  
+    pick.MR(e); /* simulate pick mouse */
 }
 
 bool gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h)
 {
     /*
     P4 --------------- P3
-    |                   | 
     |                   |
-    |                   | 
+    |                   |
+    |                   |
     |                   |
     |                   |
     |                   |
     P1 --------------- P2
-    */    
-    
+    */
+
     gliPickBox& pick=gliGetPickBox();
     const gliBox box=pick.getPickBox();
-    
+
     // handle all the ways the box can be drawn
     if(box.l<box.r)
         *xOffset=(int)box.l;
     else
         *xOffset=(int)box.r;
-    
+
     if(box.b<box.t)
         *yOffset=(int)box.t;
     else
         *yOffset=(int)box.b;
-    
+
     *w=(int)(box.r-box.l);
     *h=(int)(box.b-box.t);
-    
+
     if(*w<0)
         *w=-*w;
-    
+
     if(*h<0)
         *h=-*h;
     return true;

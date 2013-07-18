@@ -19,12 +19,12 @@ namespace plum{
   bool MultiBodyModel::BuildModels() {
     m_poly = vector<PolyhedronModel>(m_MBInfo.m_cNumberOfBody);
 
-    //build for each body and compute com     
+    //build for each body and compute com
     for(size_t i = 0; i< size_t(m_MBInfo.m_cNumberOfBody); i++){
       CBodyInfo& info = m_MBInfo.m_pBodyInfo[i];
       //only build fixed, free body will not be built (when m_bFixed is set)
       if(!info.m_bIsFixed && m_bFixed == true)
-        continue; 
+        continue;
       m_poly[i].SetBodyInfo(info);
 
       if(m_poly[i].BuildModels() == false){
@@ -37,11 +37,11 @@ namespace plum{
       m_COM[0]+=info.m_X;
       m_COM[1]+=info.m_Y;
       m_COM[2]+=info.m_Z;
-    }   
+    }
 
-    for(int i=0; i<3; i++) 
+    for(int i=0; i<3; i++)
       m_COM[i] /= (double)m_poly.size();
-    
+
     //set position of multi-body as com
     tx()=m_COM[0]; ty()=m_COM[1]; tz()=m_COM[2];
 
@@ -56,10 +56,10 @@ namespace plum{
         + m_poly[i].GetRadius();
 
       if(m_radius < dist) m_radius = dist;
-      
+
       //change to local coorindate of multibody
-      m_poly[i].tx()-=tx(); 
-      m_poly[i].ty()-=ty(); 
+      m_poly[i].tx()-=tx();
+      m_poly[i].ty()-=ty();
       m_poly[i].tz()-=tz();
     }
     return true;
@@ -73,7 +73,7 @@ namespace plum{
 
   //Draw
   void MultiBodyModel::Draw( GLenum mode ) {
-    
+
     float* arr_m_RGBA = &m_rGBA[0];
     glColor4fv(arr_m_RGBA);
     glPushMatrix();
@@ -102,7 +102,7 @@ namespace plum{
 
     for(size_t i=0; i<m_poly.size(); i++)
       m_poly[i].DrawSelect();
-    
+
     glPopMatrix();
   }
 
@@ -116,7 +116,7 @@ namespace plum{
 
   void MultiBodyModel::SetColor(float r, float g, float b, float a) {
     GLModel::SetColor(r,g,b,a);
-    
+
     for(size_t i=0; i<m_poly.size(); i++)
       m_poly[i].SetColor(r,g,b,a);
   }
@@ -130,18 +130,18 @@ namespace plum{
     GLModel::Scale(x,y,z);
   }
 
-  vector<string> 
-  MultiBodyModel::GetInfo() const {	
-    
-    vector<string> info; 
+  vector<string>
+  MultiBodyModel::GetInfo() const {
+
+    vector<string> info;
     ostringstream temp, os;
-    
+
     if(m_bFixed){
       info.push_back(string("Obstacle"));
       temp << "Position ( "<< tx()<<", "<<ty()<<", "<<tz()<<" )";
     }
-    
-    else {	
+
+    else {
       info.push_back(string("Robot"));
       temp << m_poly.size();
       temp << "Cfg ( ";

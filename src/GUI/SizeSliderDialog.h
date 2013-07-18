@@ -17,34 +17,34 @@
 
 #include "RoadmapOptions.h"
 
-using namespace std; 
+using namespace std;
 
-class RoadmapOptions; 
+class RoadmapOptions;
 
 class SizeSliderDialog : public QDialog{
 
   Q_OBJECT
 
-  string m_mode;           
+  string m_mode;
 
   public:
-    SizeSliderDialog(string _mode, QWidget* _parent = 0, RoadmapOptions* _accessParent = 0);  
+    SizeSliderDialog(string _mode, QWidget* _parent = 0, RoadmapOptions* _accessParent = 0);
 
     QDialogButtonBox* m_okayCancel;
     QSlider* m_slider;
     QLabel* m_instructions;
     QLabel* m_value;
-    RoadmapOptions* m_parent; 
+    RoadmapOptions* m_parent;
 
     void SetUpDialog(QDialog* _dialog);
-    void Reset(); //Restore default when new file is opened 
+    void Reset(); //Restore default when new file is opened
 
   public slots:
-    void ResizeNodes(); //If in node mode, scale the nodes live while dialog open 
-    void ChangeEdgeThickness(); //If in edge mode, scale the edges 
-}; 
+    void ResizeNodes(); //If in node mode, scale the nodes live while dialog open
+    void ChangeEdgeThickness(); //If in edge mode, scale the edges
+};
 
-#endif 
+#endif
 
 
 

@@ -2,25 +2,25 @@
 
 #include <limits>
 
-#include <QGridLayout> 
+#include <QGridLayout>
 #include <QLabel>
-#include <QLineEdit>   
-#include <QIntValidator> 
-#include <QPushButton> 
-#include <QFileDialog> 
+#include <QLineEdit>
+#include <QIntValidator>
+#include <QPushButton>
+#include <QFileDialog>
 
 #include "vizmo2.h"
 #include "Utilities/ImageFilters.h"
 
 MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
-  QDialog(_parent, _f), 
+  QDialog(_parent, _f),
   m_startFrame(0), m_endFrame(-1), m_stepSize(10),
   m_frameDigits(5), m_frameDigitStart(11),
   m_filename("vizmo_movie#####.jpg") {
 
     int maxint = std::numeric_limits<int>::max();
 
-    if(GetVizmo().GetPathSize() > 0){ 
+    if(GetVizmo().GetPathSize() > 0){
       m_endFrame = GetVizmo().GetPathSize()-1;
     }
     else if(GetVizmo().GetDebugSize() > 0){
@@ -33,14 +33,14 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
     m_startFrameLabel = new QLabel("Start Frame", this);
     tmp.setNum(m_startFrame);
     m_startFrameEdit = new QLineEdit(tmp, this);
-    m_startFrameEdit->setValidator(new QIntValidator(0, maxint, this));   
+    m_startFrameEdit->setValidator(new QIntValidator(0, maxint, this));
 
-    m_endFrameLabel = new QLabel("EndFrame", this); 
+    m_endFrameLabel = new QLabel("EndFrame", this);
     tmp.setNum(m_endFrame);
     m_endFrameEdit = new QLineEdit(tmp, this);
     m_endFrameEdit->setValidator(new QIntValidator(0, maxint, this));
 
-    m_stepSizeLabel = new QLabel("Step Size", this); 
+    m_stepSizeLabel = new QLabel("Step Size", this);
     tmp.setNum(m_stepSize);
     m_stepSizeEdit = new QLineEdit(tmp, this);
     m_stepSizeEdit->setValidator(new QIntValidator(0, maxint, this));
@@ -57,25 +57,25 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
     connect(m_go, SIGNAL(clicked()), this, SLOT(SaveImages()));
 
     //3. Set up layout
-    SetUpLayout(); 
+    SetUpLayout();
   }
 
-void 
+void
 MovieSaveDialog::SetUpLayout(){
   m_layout = new QGridLayout;
-  this->setLayout(m_layout); 
+  this->setLayout(m_layout);
 
-  m_layout->addWidget(m_startFrameLabel, 1, 1); 
-  m_layout->addWidget(m_startFrameEdit, 1, 2); 
-  m_layout->addWidget(m_endFrameLabel, 2, 1); 
-  m_layout->addWidget(m_endFrameEdit, 2, 2); 
-  m_layout->addWidget(m_stepSizeLabel, 3, 1); 
-  m_layout->addWidget(m_stepSizeEdit, 3, 2);  
- 
-  m_layout->addWidget(m_selectNameButton, 4, 1); 
-  m_layout->addWidget(m_fileNameLabel, 4, 2); 
-  
-  m_layout->addWidget(m_go, 5, 1); 
+  m_layout->addWidget(m_startFrameLabel, 1, 1);
+  m_layout->addWidget(m_startFrameEdit, 1, 2);
+  m_layout->addWidget(m_endFrameLabel, 2, 1);
+  m_layout->addWidget(m_endFrameEdit, 2, 2);
+  m_layout->addWidget(m_stepSizeLabel, 3, 1);
+  m_layout->addWidget(m_stepSizeEdit, 3, 2);
+
+  m_layout->addWidget(m_selectNameButton, 4, 1);
+  m_layout->addWidget(m_fileNameLabel, 4, 2);
+
+  m_layout->addWidget(m_go, 5, 1);
   m_layout->addWidget(m_cancel, 5, 2);
 }
 
@@ -84,24 +84,24 @@ MovieSaveDialog::SaveImages(){
   m_startFrame = m_startFrameEdit->text().toUInt();
   m_endFrame = m_endFrameEdit->text().toUInt();
   m_stepSize = m_stepSizeEdit->text().toUInt();
-  
-  QDialog::accept(); 
+
+  QDialog::accept();
 }
 
-void 
+void
 MovieSaveDialog::ShowFileDialog(){
   //set up the file dialog to select image filename
   QFileDialog fd(this, "Choose a name", ".", QString::null);
-  fd.setFileMode(QFileDialog::AnyFile); 
-  fd.setAcceptMode(QFileDialog::AcceptSave); 
+  fd.setFileMode(QFileDialog::AnyFile);
+  fd.setAcceptMode(QFileDialog::AcceptSave);
   fd.setFilters(imageFilters);
 
   //if filename exists save image
   if(fd.exec() == QDialog::Accepted){
-    QStringList files = fd.selectedFiles(); 
+    QStringList files = fd.selectedFiles();
     if(!files.isEmpty()) {
       m_filename = GrabFilename(files[0], fd.selectedFilter());
-      m_fileNameLabel->setText(m_filename); 
+      m_fileNameLabel->setText(m_filename);
 
       //find digit
       int f = m_filename.indexOf('#');

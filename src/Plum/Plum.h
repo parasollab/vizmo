@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace plum {
-  
+
   class PlumObject;
 
   class Plum {
@@ -20,7 +20,7 @@ namespace plum {
       void AddPlumObject(PlumObject* obj){if( obj!=NULL ) m_plumObjects.push_back(obj);}
       vector<PlumObject*>& GetPlumObjects() {return m_plumObjects;}
       void CleanPlumObjects() {m_plumObjects.clear();}
-      
+
       void AddSelectedItem(GLModel* l) {m_selectedItems.push_back(l);}
       vector<gliObj>& GetSelectedItems() {return m_selectedItems;}
       void CleanSelectedItems() {m_selectedItems.clear();}
@@ -30,10 +30,10 @@ namespace plum {
 
       //parse data for plum object
       bool ParseFile();
-      
+
       //build models to draw
       BuildState BuildModels();
-      
+
       //draw/redraw
       void Draw();
 
@@ -45,7 +45,7 @@ namespace plum {
       /**
        * Parse the Hit Buffer.
        * Store selected obj into m_selectedItems.
-       * 
+       *
        * hit is the number of hit by this selection
        * buffer is the hit buffer
        * if all, all obj select will be put into m_selectedItems,

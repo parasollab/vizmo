@@ -3,7 +3,7 @@
 
 
 OBPRMView_Robot::OBPRMView_Robot(EnvModel* _env){
-  
+
   m_envModel = _env;
   dof = 1000;
   m_RobotModel = NULL;
@@ -11,7 +11,7 @@ OBPRMView_Robot::OBPRMView_Robot(EnvModel* _env){
   delta = .1;
   phantomdelta = .1;
   tempCfg = new double[dof];
-  currentCfg = new double[dof]; 
+  currentCfg = new double[dof];
   rotation_axis = new double[3];
   mbRobotBackUp = NULL;
   RotFstBody = NULL;
@@ -21,7 +21,7 @@ OBPRMView_Robot::OBPRMView_Robot(EnvModel* _env){
 
 OBPRMView_Robot::OBPRMView_Robot(const OBPRMView_Robot& _otherRobot)
   :GLModel(_otherRobot){
-    
+
    m_envModel = _otherRobot.GetEnvModel();
    m_RobotModel = _otherRobot.getRobotModel();
 }
@@ -56,15 +56,15 @@ bool OBPRMView_Robot::BuildModels(){
          else
             m_RobotModel = new MultiBodyModel(pMInfo[i]);
 
-         SetColor(pMInfo[i].m_pBodyInfo[0].rgb[0], 
-               pMInfo[i].m_pBodyInfo[0].rgb[1], 
+         SetColor(pMInfo[i].m_pBodyInfo[0].rgb[0],
+               pMInfo[i].m_pBodyInfo[0].rgb[1],
                pMInfo[i].m_pBodyInfo[0].rgb[2], 1);
          originalR = pMInfo[i].m_pBodyInfo[0].rgb[0];
          originalG = pMInfo[i].m_pBodyInfo[0].rgb[1];
          originalB = pMInfo[i].m_pBodyInfo[0].rgb[2];
          m_rR = originalR;
-         m_rG = originalG; 
-         m_rB = originalB; 
+         m_rG = originalG;
+         m_rB = originalB;
       }
    }
 
@@ -74,7 +74,7 @@ bool OBPRMView_Robot::BuildModels(){
    return m_RobotModel->BuildModels();
 }
 
-void OBPRMView_Robot::Draw(GLenum _mode){  
+void OBPRMView_Robot::Draw(GLenum _mode){
    if( m_RobotModel==NULL){cout<<"m_RobotModel==NULL"<<endl; return;}
    glPushMatrix();
    glTransform();
@@ -84,7 +84,7 @@ void OBPRMView_Robot::Draw(GLenum _mode){
 }
 
 void OBPRMView_Robot::Select( unsigned int * index, vector<gliObj>& sel ){
-   //unselect old one       
+   //unselect old one
    if( index==NULL ) return;
    m_RobotModel->Select(index+1,sel);
    //getFinalCfg();
@@ -114,7 +114,7 @@ void OBPRMView_Robot::InitialCfg(vector<double>& cfg){
    originalR = poly.GetColor()[0];
    originalG = poly.GetColor()[1];
    originalB = poly.GetColor()[2];
-   originalSize[0]=sx(); 
+   originalSize[0]=sx();
    originalSize[1]=sy();
    originalSize[2]=sz();
 }
@@ -138,7 +138,7 @@ void OBPRMView_Robot::RestoreInitCfg(){
 
    //set robot to its current color and original size
    this->Scale(originalSize[0],originalSize[1],originalSize[2]);
-   //this->SetColor(originalR,originalG,originalB,this->GetColor()[3]);  
+   //this->SetColor(originalR,originalG,originalB,this->GetColor()[3]);
    PolyhedronModel& poly = m_RobotModel->GetPolyhedron()[0];
    this->SetColor(poly.GetColor()[0], poly.GetColor()[1],
        poly.GetColor()[2], poly.GetColor()[3]);
@@ -156,7 +156,7 @@ void OBPRMView_Robot::BackUp(){
    G=polys[0].GetColor()[1];
    B=polys[0].GetColor()[2];
 
-   o_s[0]=sx(); 
+   o_s[0]=sx();
    o_s[1]=sy();
    o_s[2]=sz();
 
@@ -177,7 +177,7 @@ void OBPRMView_Robot::BackUp(){
 void OBPRMView_Robot::Restore(){
    this->Scale(o_s[0],o_s[1],o_s[2]);
 
-   this->SetColor(R,G,B,this->GetColor()[3]);   
+   this->SetColor(R,G,B,this->GetColor()[3]);
 
    //restore multibody
 
@@ -203,7 +203,7 @@ void OBPRMView_Robot::keepColor(float r, float g, float b){
    m_RobotInfo[0].m_pBodyInfo[0].rgb[2] = b;
 }
 
-void OBPRMView_Robot::Configure( double * cfg) { 
+void OBPRMView_Robot::Configure( double * cfg) {
 
   pthread_mutex_lock(&mutex);
 
@@ -239,7 +239,7 @@ void OBPRMView_Robot::Configure( double * cfg) {
     MBInfo[robIndx].m_pBodyInfo[i].m_transformDone = false;
   }
 
-  int index=0; 
+  int index=0;
   typedef vector<Robot>::iterator RIT;
   for(RIT rit = robots.begin(); rit!=robots.end(); rit++){
     int posIndex=index;
@@ -268,20 +268,20 @@ void OBPRMView_Robot::Configure( double * cfg) {
 
     size_t baseIndex = rit->m_bodyIndex;
     //step from PMPL
-    pPoly[baseIndex].tx()=x; 
-    pPoly[baseIndex].ty()=y; 
+    pPoly[baseIndex].tx()=x;
+    pPoly[baseIndex].ty()=y;
     pPoly[baseIndex].tz()=z;
 
     pPoly[baseIndex].rx() = alpha;
     pPoly[baseIndex].ry() = beta;
     pPoly[baseIndex].rz() = gamma;
-    
-    MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform = 
+
+    MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform =
       Transformation(Vector3d(x, y, z), Orientation(EulerAngle(gamma, beta, alpha)));
 
     //compute rotation
     Quaternion q;
-    convertFromMatrix(q, 
+    convertFromMatrix(q,
         MBInfo[robIndx].m_pBodyInfo[baseIndex].m_currentTransform.rotation().matrix());
     pPoly[baseIndex].q(q.normalized()); //set new q
 
@@ -317,13 +317,13 @@ void OBPRMView_Robot::Configure( double * cfg) {
 
       if(!nextBody.m_transformDone){
 
-        Transformation t = currentBody.getTransform(); 
-        nextBody.setPrevTransform(t); 
+        Transformation t = currentBody.getTransform();
+        nextBody.setPrevTransform(t);
         nextBody.computeTransform(currentBody, nextBodyIdx);
 
-        pPoly[nextBodyIdx].tx()=nextBody.m_currentTransform.translation()[0]; 
-        pPoly[nextBodyIdx].ty()=nextBody.m_currentTransform.translation()[1]; 
-        pPoly[nextBodyIdx].tz()=nextBody.m_currentTransform.translation()[2];  
+        pPoly[nextBodyIdx].tx()=nextBody.m_currentTransform.translation()[0];
+        pPoly[nextBodyIdx].ty()=nextBody.m_currentTransform.translation()[1];
+        pPoly[nextBodyIdx].tz()=nextBody.m_currentTransform.translation()[2];
 
         //compute rotation
         Quaternion q;
@@ -332,8 +332,8 @@ void OBPRMView_Robot::Configure( double * cfg) {
         pPoly[nextBodyIdx].q(q.normalized()); //set new q
 
         nextBody.m_transformDone = true;
-      }    
-    }  
+      }
+    }
   }
 
   pthread_mutex_unlock(&mutex);
@@ -349,7 +349,7 @@ void OBPRMView_Robot::Configure(vector<double>& _cfg){
 }
 
 vector<double> OBPRMView_Robot::returnCurrCfg( int dof){
-   vector<double> currentCfg; 
+   vector<double> currentCfg;
    for(int i=0;i<dof;i++){
      currentCfg.push_back(RotFstBody[i]);
    }
@@ -417,7 +417,7 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
             //currCfg[5] = rl->rz();
          }
       }
-      else{ //user moved robot by hand 
+      else{ //user moved robot by hand
 
          Matrix3x3 m = m_RobotModel->getMatrix();
          Vector3d vRot;
@@ -487,7 +487,7 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 
       GLModel* rm = robotList.front();
 
-      //get new rotation from multiBody 
+      //get new rotation from multiBody
       Quaternion qrm;
       qrm = m_RobotModel->q();
 
@@ -509,7 +509,7 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 
       currCfg[3] =  m_RobotModel->rx()/PI;
       currCfg[4] =  m_RobotModel->ry()/PI;
-      currCfg[5] =  m_RobotModel->rz()/PI;	
+      currCfg[5] =  m_RobotModel->rz()/PI;
 
       vCfg.push_back(currCfg);
       this->storeCfg(vCfg, ch, dof);
@@ -577,7 +577,7 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
         currCfg[5] =  m_RobotModel->rz()/PI;
       }
     }
-    else{ //user moved robot by hand 
+    else{ //user moved robot by hand
       Matrix3x3 m = m_RobotModel->getMatrix();
       Vector3d vRot;
       vRot = m_RobotModel->MatrixToEuler(m);
@@ -649,7 +649,7 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 
     GLModel* rm = robotList.front();
 
-    //get new rotation from multiBody 
+    //get new rotation from multiBody
     Quaternion qrm;
     qrm = m_RobotModel->q();
 
@@ -670,7 +670,7 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 
     currCfg[3] =  m_RobotModel->rx()/PI;
     currCfg[4] =  m_RobotModel->ry()/PI;
-    currCfg[5] =  m_RobotModel->rz()/PI;	
+    currCfg[5] =  m_RobotModel->rz()/PI;
 
 
     m_RobotModel->SetCfg(currCfg);
@@ -683,7 +683,7 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 }
 
 
-int 
+int
 OBPRMView_Robot::getNumJoints(){
 
    m_RobotInfo = m_envModel->GetMultiBodyInfo();
@@ -703,7 +703,7 @@ bool OBPRMView_Robot::KP( QKeyEvent * e )
    hduVector3Dd protation;
    hduVector3Dd position;
    hduVector3Dd rotation;
-   Vector3d axis; 
+   Vector3d axis;
    Vector3d tmpaxis;
    double TwoPI = 2*3.14159;
    double angle;
@@ -799,25 +799,25 @@ bool OBPRMView_Robot::KP( QKeyEvent * e )
 
          angle = -100*(rotation[2] - protation[2]);
 
-         for(unsigned int i=0;i<dof;i++) 
-            tempCfg[i] = StCfg[i]; 
+         for(unsigned int i=0;i<dof;i++)
+            tempCfg[i] = StCfg[i];
 
          //Need to compute rotation from Quaternion
 
-         //get rotation quaternion 
+         //get rotation quaternion
          qt0 = Quaternion(cos(angle),sin(angle)*axis);
 
-         //get new rotation from multiBody 
+         //get new rotation from multiBody
          qrm = m_RobotModel->q();
 
          //multiply polyhedron0 and multiBody quaternions //to get new rotation
          finalQ = qrm * qt0;
 
          //set new rotation angles to multiBody rx(), ry(), and rz()
-         mFinal = finalQ.getMatrix(); 
+         mFinal = finalQ.getMatrix();
          vFinal = finalQ.MatrixToEuler(mFinal);
 
-         m_RobotModel->rx() = vFinal[0]; 
+         m_RobotModel->rx() = vFinal[0];
          m_RobotModel->ry() = vFinal[1];
          m_RobotModel->rz() = vFinal[2];
 
@@ -825,8 +825,8 @@ bool OBPRMView_Robot::KP( QKeyEvent * e )
          //set new angles for first polyhedron //NOTE:: This works for
          //**FREE** robots
 
-         tempCfg[3] =  vFinal[0]/TwoPI; 
-         tempCfg[4] =  vFinal[1]/TwoPI; 
+         tempCfg[3] =  vFinal[0]/TwoPI;
+         tempCfg[4] =  vFinal[1]/TwoPI;
          tempCfg[5] =  vFinal[2]/TwoPI;
 
 
@@ -855,7 +855,7 @@ bool OBPRMView_Robot::KP( QKeyEvent * e )
          //cout << "page down" << endl;
 
          for(unsigned int i=0;i<dof;i++){
-            tempCfg[i] = StCfg[i]; 
+            tempCfg[i] = StCfg[i];
             //cout << StCfg[i] << " ";
          }
          //cout << endl;
@@ -915,7 +915,7 @@ bool OBPRMView_Robot::KP( QKeyEvent * e )
          //        mode = 4;
          // 	  return true;
 #ifdef USE_PHANTOM
-      case Qt::Key_Insert : 
+      case Qt::Key_Insert :
          phantomdelta *= 1.1;
          //cout << phantomdelta << endl;
          return true;

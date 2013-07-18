@@ -14,8 +14,8 @@ using namespace mathtool;
 */
 class gliTransform {
 public:
-    
-    gliTransform(){ 
+
+    gliTransform(){
         m_Pos[0]=m_Pos[1]=m_Pos[2]=
         m_Rot[0]=m_Rot[1]=m_Rot[2]=0;
 	m_Scale[0]=m_Scale[1]=m_Scale[2]=1;
@@ -25,14 +25,14 @@ public:
 	m_RotPoly[0] = m_RotPoly[1] = m_RotPoly[2] = -1;
     }
     virtual ~gliTransform(){}
-    
+
     void glTransform();
     void Euiler2Quaternion();
     void glScale();
 
     //Access
 
-    double m_PosPoly[3]; 
+    double m_PosPoly[3];
     double m_RotPoly[3];
 
     string GetObjName();
@@ -74,11 +74,11 @@ public:
     const double& rx() const { return m_Rot[0]; }
     const double& ry() const { return m_Rot[1]; }
     const double& rz() const { return m_Rot[2]; }
-    
+
     //Get&Set Quaternion
     const Quaternion& q() const {return m_q;}
     void q(const Quaternion& q){ m_q=q; }
-    
+
 protected:
     double m_Pos[3];         //Position
     double m_Rot[3];         //Rotation

@@ -3,22 +3,22 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Qt Headers
-#include <QMainWindow>  
+#include <QMainWindow>
 #include <QToolBar>
 #include <QKeyEvent>
 
 class QAction;
 class QGridLayout;
-class QHBoxLayout; 
-class QVBoxLayout; 
+class QHBoxLayout;
+class QVBoxLayout;
 
 class VizmoAnimationGUI;
 class VizmoScreenShotGUI;
 class VizmoItemSelectionGUI;
 class VizmoAttributeSelectionGUI;
 class queryGUI;
-class TextGUI; 
-class MainMenu;  
+class TextGUI;
+class MainMenu;
 
 #include<stdio.h>
 #include <stdlib.h>
@@ -38,32 +38,32 @@ using namespace std;
 class VizGLWin;
 
 class VizmoMainWin : public QMainWindow {
-  
+
   Q_OBJECT
 
   public:
     VizmoMainWin(QWidget* _parent = 0);
-    virtual ~VizmoMainWin(); 
-    
+    virtual ~VizmoMainWin();
+
     bool Init();
     bool InitVizmo();
 
-    vector<string>& GetArgs() { return m_args; }  
-    void SetVizmoInit(bool _tf) { m_bVizmoInit = _tf; } 
+    vector<string>& GetArgs() { return m_args; }
+    void SetVizmoInit(bool _tf) { m_bVizmoInit = _tf; }
     bool GetVizmoInit() { return m_bVizmoInit; }
-    VizGLWin* GetGLScene() { return m_GL; } 
-    TextGUI* GetOutbox(){ return m_outbox; }  
+    VizGLWin* GetGLScene() { return m_GL; }
+    TextGUI* GetOutbox(){ return m_outbox; }
     VizmoAnimationGUI* GetAnimationGUI() { return m_animationGUI; }
-    VizmoAnimationGUI* GetAnimationDebugGUI() { return m_animationDebugGUI; }  
-    VizmoItemSelectionGUI* GetObjectSelection() { return m_objectSelection; }  
+    VizmoAnimationGUI* GetAnimationDebugGUI() { return m_animationDebugGUI; }
+    VizmoItemSelectionGUI* GetObjectSelection() { return m_objectSelection; }
 
     //command line to be executed to make a new roadmap
     string command;
     QStringList obprm_comm;
     bool m_setQS, m_setQG;  //used to know if values in window will need to be updated
     string m_firstQryFile;   //to hold name of first query file
-    MainMenu* m_mainMenu;   //top menubar...owns everything  
-    TextGUI* m_outbox;      //Q3TextView that displays node/edge(s) selection info, debug, etc.  
+    MainMenu* m_mainMenu;   //top menubar...owns everything
+    TextGUI* m_outbox;      //Q3TextView that displays node/edge(s) selection info, debug, etc.
 
   protected:
     bool CreateGUI();  //create toolbars
@@ -74,15 +74,15 @@ class VizmoMainWin : public QMainWindow {
 
   private:
     void SetUpLayout();     //Set a QGridLayout for invisible central widget
-    
+
     vector<string> m_args; //user input arguments.
     bool m_bVizmoInit;     //true if vizmo is init.
 
     QGridLayout* m_layout;
-    QToolBar* m_allTogether;       //all of the toolbars in one...keeps them together for window resize 
-    QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextGUI 
-    QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls 
-    QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget. 
+    QToolBar* m_allTogether;       //all of the toolbars in one...keeps them together for window resize
+    QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextGUI
+    QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
+    QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     VizGLWin* m_GL;           //the scene window which displays environment..
     VizmoAnimationGUI *m_animationGUI, *m_animationDebugGUI;
     VizmoItemSelectionGUI *m_objectSelection;

@@ -10,12 +10,12 @@ using namespace std;
 
 #include <qgl.h>
 
-/** 
+/**
  * Handle camera control
  */
 
 class gliCamera{
-   
+
   public:
 
     gliCamera(const string& name, const Point3d& pos, const Vector3d& up);
@@ -24,10 +24,10 @@ class gliCamera{
       /// Core
       void Transform(double &x,double &y,double &z);
       void ReverseTransform(double &x,double &y,double &z);
-      //allow user to explicitly specify camera position/orientation 
-      void SetByUser(double _x, double _y, double _z, double _azim, double _elev);  
+      //allow user to explicitly specify camera position/orientation
+      void SetByUser(double _x, double _y, double _z, double _azim, double _elev);
       void Draw( void );
-      bool MP( QMouseEvent * e ); /// mouse button press 
+      bool MP( QMouseEvent * e ); /// mouse button press
       bool MR( QMouseEvent * e ); /// mouse button release
       bool MM( QMouseEvent * e ); /// mouse motion
       bool KP( QKeyEvent * e );   /// keyboard press
@@ -42,11 +42,11 @@ class gliCamera{
       double getCameraAzim() const { return m_currentAzim+m_deltaAzim; }
       double getCameraElev() const { return m_currentElev+m_deltaElev; }
       double getCurrentElev() const {return m_currentElev;}
-      double getCurrentAzim() const {return m_currentAzim;} 
+      double getCurrentAzim() const {return m_currentAzim;}
       Point3d getCameraPos() const { return m_CameraPos+m_deltaDis; }
       void setCameraPos(const Point3d& pos) { m_CameraPos=pos; }
       void setAzim(double _azim) { m_currentAzim = _azim; }
-      void setElev(double _elev) { m_currentElev = _elev; } 
+      void setElev(double _elev) { m_currentElev = _elev; }
       const string& getCameraName() const { return m_CamName; }
       const Vector3d& getWindowX() const { return m_WindowX; }
       const Vector3d& getWindowY() const { return m_WindowY; }
@@ -79,7 +79,7 @@ class gliCamera{
 
 /////////////////////////////////////////////////////////////////////////////
 
-/** 
+/**
  * Camera Factory creates an instance of camera
  */
 

@@ -23,7 +23,7 @@ endif
 endif
 endif
 QT_INCL = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL
-QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL  
+QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL
 
 ################################################################################
 #Vizmo Utilities

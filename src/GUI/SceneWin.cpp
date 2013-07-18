@@ -8,19 +8,19 @@
 //Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <QGLWidget> 
+#include <QGLWidget>
 
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
 
-class VizmoMainWin; 
+class VizmoMainWin;
 
 VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
-  :QGLWidget(_parent)   
+  :QGLWidget(_parent)
 {
-  m_mainWin = _mainWin; 
-  setMinimumSize(400, 505); //original size: 400 x 600 
-  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding); 
+  m_mainWin = _mainWin;
+  setMinimumSize(400, 505); //original size: 400 x 600
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setFocusPolicy(Qt::StrongFocus);
 
   takingSnapShot=false;
@@ -28,31 +28,31 @@ VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
   m_bShowAxis=true;
 }
 
-void 
+void
 VizGLWin::toggleSelectionSlot(){
 
   takingSnapShot=!takingSnapShot;
 }
 
-void 
+void
 VizGLWin::resetCamera(){
 
   double R=GetVizmo().GetEnvRadius();
   gliGetCameraFactory().getCurrentCamera()->setCameraPos(Point3d(0,0,4*R));
-  gliGetCameraFactory().getCurrentCamera()->setAzim(0); 
-  gliGetCameraFactory().getCurrentCamera()->setElev(0); 
+  gliGetCameraFactory().getCurrentCamera()->setAzim(0);
+  gliGetCameraFactory().getCurrentCamera()->setElev(0);
 }
 
 //used as callback for gli
-inline vector<gliObj>& 
+inline vector<gliObj>&
 vizmoSelect(const gliBox& _box){
-  
+
   //calls CPlum::Select(const gliBox& box)
-  GetVizmo().Select(_box); 
+  GetVizmo().Select(_box);
   return GetVizmo().GetSelectedItem();
 }
 
-void 
+void
 VizGLWin::initializeGL(){
 
   /*Setup light and material properties*/
@@ -70,7 +70,7 @@ VizGLWin::initializeGL(){
   gliSetPickingFunction(vizmoSelect);
 }
 
-void 
+void
 VizGLWin::resizeGL(int w, int h){
 
   gliWS(w,h);
@@ -81,12 +81,12 @@ VizGLWin::resizeGL(int w, int h){
   gluPerspective(60, ((GLfloat)w)/((GLfloat)h), 1, 1500);
 }
 
-void 
+void
 VizGLWin::paintGL(){
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  m_mainWin->InitVizmo(); 
+  m_mainWin->InitVizmo();
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   int param=GLI_SHOW_PICKBOX|GLI_SHOW_TRANSFORMTOOL;
@@ -97,7 +97,7 @@ VizGLWin::paintGL(){
   GetVizmo().Display();
 }
 
-void 
+void
 VizGLWin::SetLight(){
 
   //glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
@@ -111,30 +111,30 @@ VizGLWin::SetLight(){
   glEnable(GL_LIGHT1);
 }
 
-void 
+void
 VizGLWin::mousePressEvent(QMouseEvent* e){
-  if( gliMP(e) ){ 
-    updateGL(); 
-    return; 
+  if( gliMP(e) ){
+    updateGL();
+    return;
   }//handled by gli
-  
+
   updateGL();
 }
 
-void 
+void
 VizGLWin::simulateMouseUpSlot(){
 
   gliSimMouseUp();
   updateGL();
 }
 
-void 
+void
 VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
 
   if(gliMR(_e, takingSnapShot)){ //handled by gli
-    updateGL(); 
+    updateGL();
     emit MRbyGLI();
-    return; 
+    return;
   }
 
   //updateGL();
@@ -146,12 +146,12 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
     else //empty
       emit clickByRMB();
   }//not RMB
-  else if(_e->button() == Qt::LeftButton){ 
-    if(!objs.empty()) 
+  else if(_e->button() == Qt::LeftButton){
+    if(!objs.empty())
       emit selectByLMB();
     else
       emit clickByLMB();
-  } 
+  }
 
   //Update rotation of object
   if(objs.size()!=0){
@@ -181,8 +181,8 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
             mbl->rx() = e.alpha();
             mbl->ry() = e.beta();
             mbl->rz() = e.gamma();
-          } 
-        }//end IF  ...actually, this appears to be end for -NJ 
+          }
+        }//end IF  ...actually, this appears to be end for -NJ
       }//end for
     }
   }
@@ -190,20 +190,20 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
   updateGL();
 }
 
-void 
+void
 VizGLWin::mouseMoveEvent(QMouseEvent* e){
 
-  if(gliMM(e)){  
-//    if(CDOn)                   TEMPORARY(?) DISABLE 
-//      GetVizmo().TurnOn_CD(); 
-    updateGL(); 
-    return; 
+  if(gliMM(e)){
+//    if(CDOn)                   TEMPORARY(?) DISABLE
+//      GetVizmo().TurnOn_CD();
+    updateGL();
+    return;
   }//handled by gli
 
   updateGL();
 }
 
-void 
+void
 VizGLWin::keyPressEvent (QKeyEvent* _e){
 
 #ifdef USE_PHANTOM
@@ -216,7 +216,7 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
     double x = rob -> gettx();
     double y = rob -> getty();
     double z = rob -> gettz();
-    //cout << x << " " << y << " " << z << endl; 
+    //cout << x << " " << y << " " << z << endl;
     GetPhantomManager().fpos.clear();
     GetPhantomManager().fpos.push_back(x);
     GetPhantomManager().fpos.push_back(y);
@@ -228,43 +228,43 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
 #endif
 
   updateGL();
-  if(gliCameraKEY(_e)){ 
+  if(gliCameraKEY(_e)){
     updateGL();
-    return; 
+    return;
   }
-  if(gliKEY(_e)){ 
-    updateGL(); 
-    return; 
+  if(gliKEY(_e)){
+    updateGL();
+    return;
   }//handled by gli
   //if((OBPRMView_Robot*)(GetVizmo().GetRobot()) == NULL){
-  if((GetVizmo().GetRobot()) == NULL){  //^casting presumably not necessary 
-    updateGL(); 
+  if((GetVizmo().GetRobot()) == NULL){  //^casting presumably not necessary
+    updateGL();
     return;
   }
   if((OBPRMView_Robot*)(GetVizmo().GetRobot()->GetModel())->KP(_e)){
-    updateGL(); 
+    updateGL();
     return;
   }
   _e->ignore(); //not handled
 }
 
-void 
+void
 VizGLWin::showGrid() {
 
-  m_bShowGrid=!m_bShowGrid; 
+  m_bShowGrid=!m_bShowGrid;
   updateGL();
 }
 
-void 
+void
 VizGLWin::showAxis() {
 
-  m_bShowAxis=!m_bShowAxis; 
+  m_bShowAxis=!m_bShowAxis;
   updateGL();
 }
 
-void 
+void
 VizGLWin::resetTransTool(){
-  
+
   gliReset();
 }
 
@@ -288,7 +288,7 @@ VizGLWin::GetImageRect(bool _crop){
     int xOff, yOff, w, h;
     gliPickBoxDim(&xOff, &yOff, &w, &h);
     return QRect(xOff+1, height()-yOff+1, w-2, h-2);
-  }   
+  }
   else
     return QRect(0, 0, width(), height());
 }

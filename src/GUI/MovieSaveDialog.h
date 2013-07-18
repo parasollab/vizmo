@@ -1,17 +1,17 @@
 /**************************************************************
- * Class moved from SnapshotGUI.h/cpp, where it was combined 
- * with class VizmoScreenshotGUI, to its own files here. 
+ * Class moved from SnapshotGUI.h/cpp, where it was combined
+ * with class VizmoScreenshotGUI, to its own files here.
  * Used in close conjunction with SnapshotGUI utilities...
  **************************************************************/
 
 #ifndef MOVIESAVEDIALOG_H
 #define MOVIESAVEDIALOG_H
 
-#include <QDialog> 
+#include <QDialog>
 
-class QGridLayout; 
+class QGridLayout;
 class QLineEdit;
-class QLabel;  
+class QLabel;
 
 class MovieSaveDialog : public QDialog {
 
@@ -25,23 +25,23 @@ class MovieSaveDialog : public QDialog {
     void ShowFileDialog();
 
   private:
-    void SetUpLayout(); 
+    void SetUpLayout();
 
     QLineEdit* m_startFrameEdit;
     QLineEdit* m_endFrameEdit;
     QLineEdit* m_stepSizeEdit;
 
     QLabel* m_startFrameLabel;
-    QLabel* m_endFrameLabel; 
-    QLabel* m_stepSizeLabel; 
+    QLabel* m_endFrameLabel;
+    QLabel* m_stepSizeLabel;
 
     QPushButton* m_selectNameButton;
     QLabel* m_fileNameLabel;
 
-    QPushButton* m_go;    
+    QPushButton* m_go;
     QPushButton* m_cancel;
 
-    QGridLayout* m_layout; 
+    QGridLayout* m_layout;
 
   public:
     size_t m_startFrame; //start frame of video
@@ -52,6 +52,6 @@ class MovieSaveDialog : public QDialog {
     QString m_filename; //base filename for movie
 };
 
-#endif 
+#endif
 
 

@@ -12,9 +12,9 @@ class IsConnectionGloballyFirst {
     }
 } connectionComparitor;
 
-Robot::Robot(Base _base, BaseMovement _baseMovement, 
-    JointMap _joints, int _bodyIndex) : 
-  m_base(_base), m_baseMovement(_baseMovement), 
+Robot::Robot(Base _base, BaseMovement _baseMovement,
+    JointMap _joints, int _bodyIndex) :
+  m_base(_base), m_baseMovement(_baseMovement),
   m_bodyIndex(_bodyIndex), m_joints(_joints) {
     sort(m_joints.begin(), m_joints.end(), connectionComparitor);
   }

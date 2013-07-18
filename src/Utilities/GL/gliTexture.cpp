@@ -4,7 +4,7 @@
 #include <iostream>
 
 unsigned int CreateTexture( const string& file )
-{	
+{
 	unsigned int tid=-1;
     QImage texture, buf;
 
@@ -16,7 +16,7 @@ unsigned int CreateTexture( const string& file )
 		buf = dummy;
     }
     texture = QGLWidget::convertToGLFormat( buf );  // flipped 32bit RGBA
-	
+
 	////
 	glGenTextures(1,&tid);
 	glBindTexture(GL_TEXTURE_2D,tid);

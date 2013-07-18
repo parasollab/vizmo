@@ -58,25 +58,25 @@ void gliCamera::ReverseTransform(double &x,double &y,double &z){
    z = dz*cos(angle) + dx*sin(angle);
 }
 
-void 
+void
 gliCamera::SetByUser(double _x, double _y, double _z, double _azim, double _elev){
-  
-  setCameraPos(Point3d(-1*(_x), -1*(_y), _z)); 
-  m_currentAzim = _azim; 
-  m_currentElev = _elev; 
+
+  setCameraPos(Point3d(-1*(_x), -1*(_y), _z));
+  m_currentAzim = _azim;
+  m_currentElev = _elev;
 }
 
 void gliCamera::Draw( void )
 {
    if(m_cartesian){//Cartesian motion
-      glRotated(m_currentElev+m_deltaElev,1.0,0.0,0.0);  
-      glRotated(m_currentAzim+m_deltaAzim,0.0,1.0,0.0);  
+      glRotated(m_currentElev+m_deltaElev,1.0,0.0,0.0);
+      glRotated(m_currentAzim+m_deltaAzim,0.0,1.0,0.0);
       glTranslatef(-m_CameraPos[0]-m_deltaDis[0],
             -m_CameraPos[1]-m_deltaDis[1],
-            -m_CameraPos[2]-m_deltaDis[2]); 
+            -m_CameraPos[2]-m_deltaDis[2]);
    }else{//Polar motion
       glTranslatef( (m_CameraPos[0]+m_deltaDis[0]),
-            (m_CameraPos[1]+m_deltaDis[1]), 
+            (m_CameraPos[1]+m_deltaDis[1]),
             -(m_CameraPos[2]+m_deltaDis[2]));
 
       glRotated(m_currentElev+m_deltaElev, 1.0, 0.0, 0.0);
@@ -98,17 +98,17 @@ void gliCamera::Draw( void )
 
 bool gliCamera::MP(QMouseEvent* e)
 {
-   if(e->buttons() && (e->modifiers() == Qt::ControlModifier)){  
+   if(e->buttons() && (e->modifiers() == Qt::ControlModifier)){
      m_MousePressed=true;
       m_PressedPt=e->pos();
       return true; //handled
-   }     
+   }
    return false;
 }
 
 bool gliCamera::MR(QMouseEvent* e)
 {
-   if(!m_MousePressed) 
+   if(!m_MousePressed)
       return false; /// mouse is not pressed
 
    m_MousePressed=false;
@@ -135,13 +135,13 @@ void RotateX(Vector3d& v, double degree);
 //** Mouse motion
 //////////////////////////////////////
 
-bool 
-gliCamera::MM(QMouseEvent* e){       
+bool
+gliCamera::MM(QMouseEvent* e){
 
-  if(!m_MousePressed)    
+  if(!m_MousePressed)
     return false; //mouse is not pressed
-  
-   //Qt::MouseButtons state=e->buttons();  
+
+   //Qt::MouseButtons state=e->buttons();
    QPoint drag=e->pos()-m_PressedPt;
 
    //displacement
@@ -178,7 +178,7 @@ gliCamera::MM(QMouseEvent* e){
       RotateY(m_WindowX, m_currentAzim+m_deltaAzim);
       m_WindowX[2]=-m_WindowX[2];
       RotateX(m_WindowY, m_currentElev+m_deltaElev);
-      RotateY(m_WindowY, m_currentAzim+m_deltaAzim);  
+      RotateY(m_WindowY, m_currentAzim+m_deltaAzim);
       m_WindowY[2]=-m_WindowY[2];
 
    }
@@ -194,8 +194,8 @@ gliCamera::MM(QMouseEvent* e){
 //** Keyboard motion
 //////////////////////////////////////
 
-bool gliCamera::KP( QKeyEvent * e )  
-{       
+bool gliCamera::KP( QKeyEvent * e )
+{
 
 
 
@@ -242,7 +242,7 @@ bool gliCamera::KP( QKeyEvent * e )
                 m_deltaDis[2]=0;
                 Move();
                 return true;
-      case '0': 
+      case '0':
                 if(m_cartesian){
                    m_cartesian=false;
                    //m_CameraPos[2]=pow(m_CameraPos[0]*m_CameraPos[0]+
@@ -289,7 +289,7 @@ bool gliCamera::KP( QKeyEvent * e )
 
 
 void gliCamera::PrintHelp( void ){
-   std::cout << 
+   std::cout <<
       "numpad\n" <<
       "0 = switch between Spherical and Cartesian coordinates \n" <<
       "8 = move forward\n"<<
@@ -347,7 +347,7 @@ void gliCamera::CartesianToSpherical( void ){
    m_CameraPos[0] = 0;
    m_CameraPos[1] = 0;
 
-   //m_CameraPos[2] = 
+   //m_CameraPos[2] =
 }
 
 void gliCamera::Move(void){
@@ -357,7 +357,7 @@ void gliCamera::Move(void){
    RotateY(m_WindowX, m_currentAzim);
    m_WindowX[2]=-m_WindowX[2];
    RotateX(m_WindowY, m_currentElev);
-   RotateY(m_WindowY, m_currentAzim);  
+   RotateY(m_WindowY, m_currentAzim);
    m_WindowY[2]=-m_WindowY[2];
    if(m_cartesian){
       RotateX(m_deltaDis, -m_currentElev-m_deltaElev);
@@ -408,7 +408,7 @@ gliCameraFactory::gliCameraFactory()
 }
 
 void gliCameraFactory::addCamera( const gliCamera& camera )
-{ 
+{
    gliCamera* cam=findCamera(camera.getCameraName());
    if(cam==NULL) m_Cameras.push_back(camera); //add if no old cam exit
 }
@@ -431,7 +431,7 @@ bool gliCameraFactory::setCurrentCamera(const string& name)
 
 void gliCameraFactory::createDefaultCameras()
 {
-   gliCamera pers("pers",Point3d(0,0,500),Vector3d(0,1,0));    
+   gliCamera pers("pers",Point3d(0,0,500),Vector3d(0,1,0));
    addCamera(pers);
    m_CurrentCam=&(m_Cameras.front());
 }
