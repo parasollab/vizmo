@@ -1,29 +1,29 @@
-/*TextGUI.cpp--implementation of text output for node cfgs, VDebug, etc.*/ 
+/*TextGUI.cpp--implementation of text output for node cfgs, VDebug, etc.*/
 
 #include "TextGUI.h"
 #include <vector>
 #include <string>
 #include <QString>
 #include "vizmo2.h"
-#include "EnvObj/DebugModel.h"
+#include "Models/DebugModel.h"
 
-using namespace std; 
+using namespace std;
 
 TextGUI::TextGUI(QWidget* _parent)
   :QTextEdit(_parent){
-    
+
   setFixedSize(205, 225);
-  setReadOnly(true); 
+  setReadOnly(true);
 }
 
-void 
+void
 TextGUI::SetText(){
   vector<gliObj>& sel=GetVizmo().GetSelectedItem();
 
   typedef vector<gliObj>::iterator SIT;
 
   //Holds whatever will go into the QTextEdit box: a selected node/group of
-  //nodes' configurations, VDebug comments, etc. 
+  //nodes' configurations, VDebug comments, etc.
   vector<string> infoVect;
 
   //If selecting one or more nodes, edges, etc., add their cfg(s) to the
@@ -40,7 +40,7 @@ TextGUI::SetText(){
   }
 
   //If we are trying to view VDebug comments, add those to the infoVect
-  if(GetVizmo().GetDebug()!=NULL){ 
+  if(GetVizmo().GetDebug()!=NULL){
     DebugModel* cdm = (DebugModel*)GetVizmo().GetDebug()->GetModel();
     if(cdm != NULL){
       vector<string> comments = cdm->GetComments();
@@ -49,14 +49,14 @@ TextGUI::SetText(){
     }
   }
 
-  clear(); 
+  clear();
 
-  string allInfo = ""; 
+  string allInfo = "";
   typedef vector<string>::iterator VSI;
   for(VSI i=infoVect.begin(); i!=infoVect.end(); i++)
-    allInfo += *i + "\n"; 
+    allInfo += *i + "\n";
 
-  QString qstr = QString::fromStdString(allInfo); 
-  setText(qstr); 
+  QString qstr = QString::fromStdString(allInfo);
+  setText(qstr);
 }
 

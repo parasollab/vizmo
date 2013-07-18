@@ -3,6 +3,7 @@ OBJECTS += \
 	   Models/BoundaryModel.o \
 	   Models/BoundingSphereModel.o \
 	   Models/CfgModel.o \
+	   Models/DebugModel.o \
 	   Models/EdgeModel.o \
 	   Models/EnvModel.o \
 	   Models/PathModel.o \
