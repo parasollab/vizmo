@@ -124,8 +124,6 @@ DebugModel::ParseFile() {
     }
   }
 
-  cout<<"Done loading debug file"<<endl;
-
   return true;
 }
 

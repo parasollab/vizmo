@@ -1,5 +1,5 @@
 #include "Robot.h"
-#include "vizmo2.h"
+#include "Models/Vizmo.h"
 
 
 OBPRMView_Robot::OBPRMView_Robot(EnvModel* _env){
@@ -15,7 +15,7 @@ OBPRMView_Robot::OBPRMView_Robot(EnvModel* _env){
   rotation_axis = new double[3];
   mbRobotBackUp = NULL;
   RotFstBody = NULL;
-
+  StCfg = NULL;
   pthread_mutex_init(&mutex, NULL);
 }
 
@@ -204,7 +204,6 @@ void OBPRMView_Robot::keepColor(float r, float g, float b){
 }
 
 void OBPRMView_Robot::Configure( double * cfg) {
-
   pthread_mutex_lock(&mutex);
 
   const CMultiBodyInfo* MBInfo = m_envModel->GetMultiBodyInfo();

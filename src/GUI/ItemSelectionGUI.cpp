@@ -1,7 +1,9 @@
 #include "ItemSelectionGUI.h"
-#include "Models/CCModel.h"
 
 #include <QString>
+
+#include "Models/Vizmo.h"
+#include "Models/CCModel.h"
 
 VizmoItemSelectionGUI::VizmoItemSelectionGUI(QWidget* _parent)
   :QTreeWidget(_parent) {

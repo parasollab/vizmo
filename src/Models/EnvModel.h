@@ -14,7 +14,7 @@
 class EnvModel : public plum::GLModel {
 
   public:
-    EnvModel();
+    EnvModel(const string& _filename);
     ~EnvModel();
 
     //Access functions

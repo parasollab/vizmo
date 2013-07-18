@@ -6,14 +6,12 @@
 #include "Models/BoundingSphereModel.h"
 #include "Utilities/IOUtils.h"
 
-EnvModel::EnvModel(){
-
-  m_radius = 0;
-  m_numMultiBodies = 0;
-  m_mBInfo = NULL;
-  m_containsSurfaces = false; //this trigger will cause objs to not be offset
-  m_boundary = NULL;
-}
+EnvModel::EnvModel(const string& _filename) :
+  m_numMultiBodies(0), m_mBInfo(NULL),
+  m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
+    SetFilename(_filename);
+    SetModelDataDir(_filename.substr(0, _filename.rfind('/')));
+  }
 
 EnvModel::~EnvModel(){
 

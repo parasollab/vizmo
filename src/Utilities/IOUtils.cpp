@@ -4,10 +4,10 @@
 
 //determine if a file exists or not
 bool
-FileExists(string _filename) {
+FileExists(string _filename, bool _err) {
   ifstream ifs(_filename.c_str());
   if(!ifs.good()) {
-    cerr << "File (" << _filename << ") not found";
+    if(_err) cerr << "File (" << _filename << ") not found";
     return false;
   }
   return true;

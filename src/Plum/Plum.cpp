@@ -9,36 +9,22 @@ namespace plum {
 
   void
   Plum::Clean() {
-
     m_plumObjects.clear();
     m_selectedItems.clear();
   }
 
   bool
   Plum::ParseFile(){
-
     typedef typename vector<PlumObject*>::iterator PIT;
-    for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit){
-      Loadable* loader = (*pit)->GetLoader();
-      //When all loaders are gone, virtual function ParseFile will be called
-      //on all MODELS instead and this can be default rather than checked.
-      //Or, ParseFile() can happen in model constructors if dependencies
-      //allow
-      if(!loader){
-        //cout<<"No loader for " <<(*pit)->GetModel()->GetName()<<"; using model's ParseFile()"<<endl;
-        ((*pit)->GetModel())->ParseFile();
-        continue;
-      }
-
-      if(!loader->ParseFile()) //current default that will go away...
-        return false;
-    }
+    for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit)
+      if((*pit)->GetModel())
+        if(!(*pit)->GetModel()->ParseFile())
+          return false;
     return true;
   }
 
   BuildState
   Plum::BuildModels(){
-
     typedef typename vector<PlumObject*>::iterator PIT;
     for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit){
       GLModel* model = (*pit)->GetModel();

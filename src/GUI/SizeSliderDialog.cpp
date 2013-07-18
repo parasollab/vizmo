@@ -1,10 +1,9 @@
 /* Implementation of node, edge, etc(?) scaling dialog with slider */
 
 #include "SizeSliderDialog.h"
-#include "vizmo2.h"
-#include "SceneWin.h"
 
-using namespace std;
+#include "SceneWin.h"
+#include "Models/Vizmo.h"
 
 SizeSliderDialog::SizeSliderDialog(string _mode, QWidget* _parent, RoadmapOptions* _accessParent)
   :QDialog(_parent){

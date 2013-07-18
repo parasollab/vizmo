@@ -5,11 +5,13 @@
 #ifndef ROADMAP_OPTIONS_H
 #define ROADMAP_OPTIONS_H
 
+#include <string>
+
+#include "QButtonGroup"
+
 #include "OptionsBase.h"
 #include "Models/MapModel.h"
-#include "vizmo2.h"
-#include <string>
-#include "QButtonGroup"
+#include "Models/Vizmo.h"
 
 class QPushButton;
 class SizeSliderDialog;
@@ -31,7 +33,7 @@ class RoadmapOptions : public OptionsBase{
       if(!GetVizmo().GetMap())
         return NULL;
       else
-        return (MM*)GetVizmo().GetMap()->GetModel();
+        return GetVizmo().GetMap();
     }
 //    void SetNodeSize(double _nodeSize) {m_nodeSize = _nodeSize;}
     string GetNodeShape() {return (string)(m_nodeView->checkedButton())->text().toAscii();}

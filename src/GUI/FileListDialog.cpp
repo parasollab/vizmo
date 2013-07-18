@@ -1,13 +1,15 @@
-#include "vizmo2.h"
 #include "FileListDialog.h"
-#include "Icons/Folder.xpm"
-#include "Icons/Eye.xpm"
 
 #include <QDialog>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QFileDialog>
+
+#include "Models/Vizmo.h"
+
+#include "Icons/Folder.xpm"
+#include "Icons/Eye.xpm"
 
 FileListDialog::FileListDialog(QWidget* _parent, Qt::WFlags _f)
   :QDialog(_parent, _f){

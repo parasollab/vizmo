@@ -1,11 +1,11 @@
 #include "CustomizePathDialog.h"
-#include "Models/PathModel.h"
-#include "vizmo2.h"
 
-#include <QPainter>
 #include <iostream>
 
-using namespace std;
+#include <QPainter>
+
+#include "Models/PathModel.h"
+#include "Models/Vizmo.h"
 
 CustomizePathDialog::CustomizePathDialog(QWidget* _parent)
   :QDialog(_parent){
@@ -63,7 +63,7 @@ CustomizePathDialog::AddColor(){
 void
 CustomizePathDialog::AcceptData(){
 
-  PathModel* path = (PathModel*)GetVizmo().GetPath()->GetModel();
+  PathModel* path = GetVizmo().GetPath();
 
   double width = (m_widthLineEdit->text()).toDouble();
   path->SetLineWidth(width);

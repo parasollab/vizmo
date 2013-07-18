@@ -31,7 +31,7 @@ class MapModel : public plum::GLModel{
     ColorMap m_colorMap;
     typedef typename Wg::vertex_iterator VI;
 
-    MapModel();
+    MapModel(const string& _filename = "");
     virtual ~MapModel();
 
     //Access functions
@@ -119,8 +119,8 @@ class MapModel : public plum::GLModel{
 };
 
 template <class CfgModel, class WEIGHT>
-MapModel<CfgModel, WEIGHT>::MapModel(){
-
+MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename){
+  SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
   m_robot = NULL;
   m_graph = NULL;

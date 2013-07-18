@@ -69,7 +69,7 @@ include $(VIZMO_DIR)/Models/Makefile.Objects
 include $(VIZMO_DIR)/Plum/Makefile.Objects
 include $(VIZMO_DIR)/EnvObj/Makefile.Objects
 include $(VIZMO_DIR)/GUI/Makefile.Objects
-VIZMO_OBJECTS = $(OBJECTS) vizmo2.o
+VIZMO_OBJECTS = $(OBJECTS)
 VIZMO_SRCMOC = $(SRCMOC)
 VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(UTILS_INCL)
 VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(UTILS_LIBS)

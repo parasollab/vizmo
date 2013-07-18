@@ -3,7 +3,7 @@
 #include <QMouseEvent>
 #include <iostream>
 #include <cmath>
-#include "vizmo2.h"
+#include "Models/Vizmo.h"
 
 /**
  *  Constructor

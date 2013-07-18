@@ -8,4 +8,5 @@ OBJECTS += \
 	   Models/EnvModel.o \
 	   Models/PathModel.o \
 	   Models/PolyhedronModel.o \
-	   Models/QueryModel.o
+	   Models/QueryModel.o \
+	   Models/Vizmo.o

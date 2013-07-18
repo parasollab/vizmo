@@ -1,5 +1,6 @@
-#include "vizmo2.h"
 #include "MainWin.h"
+
+#include "Models/Vizmo.h"
 #include "SceneWin.h"
 #include "AnimationGUI.h"
 #include "ItemSelectionGUI.h"
@@ -85,7 +86,7 @@ VizmoMainWin::InitVizmo(){
   if(flDialog->exec()!= QDialog::Accepted)
     return false;
 
-  if(GetVizmo().InitVizmoObject() == false)
+  if(GetVizmo().InitVizmoObj() == false)
     return false;
 
   resize(width(),height());

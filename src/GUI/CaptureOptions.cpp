@@ -7,12 +7,12 @@
 #include <QProgressDialog>
 #include <QApplication>
 
-#include "Utilities/ImageFilters.h"
-#include "vizmo2.h"
 #include "MainWin.h"
 #include "SceneWin.h"
 #include "MovieSaveDialog.h"
 #include "AnimationGUI.h"
+#include "Models/Vizmo.h"
+#include "Utilities/ImageFilters.h"
 
 #include "Icons/Crop.xpm"
 #include "Icons/Camera.xpm"

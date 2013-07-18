@@ -3,23 +3,20 @@
 // TO DO: Set up the slider values initially. When loaded, signal slider
 // and update slider values.
 
-#include "vizmo2.h"
 #include "MainWin.h"
 
-//This class deifines the animation GUI for vizmo2  ...what? -NJ
-
-#ifdef WIN32
-#pragma warning(disable : 4786)
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-// QT Headhers
-#include <QTreeWidget>
-#include <QTreeWidgetItem>
 #include <vector>
 #include <string>
-
 using namespace std;
+
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+
+namespace plum {
+  class GLModel;
+  class PlumObject;
+}
+using namespace plum;
 
 class VizmoListViewItem : public QTreeWidgetItem {
 

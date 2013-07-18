@@ -1,14 +1,16 @@
+#include "PathOptions.h"
+
 #include <QAction>
 #include <QToolBar>
 #include <QPixmap>
 #include <QTranslator>
 
-#include "PathOptions.h"
 #include "MainWin.h"
 #include "SceneWin.h"
 #include "CustomizePathDialog.h"
 #include "QueryGUI.h"
-#include "vizmo2.h"
+#include "Models/Vizmo.h"
+
 #include "Icons/Pen.xpm"
 #include "Icons/Flag.xpm"
 

@@ -6,7 +6,6 @@
 #define FILE_OPTIONS_H
 
 #include "OptionsBase.h"
-#include "vizmo2.h"
 
 class FileListDialog;
 

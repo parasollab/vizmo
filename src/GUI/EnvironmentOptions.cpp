@@ -1,13 +1,15 @@
+#include "EnvironmentOptions.h"
+
 #include <QAction>
 #include <QToolBar>
 #include <QPixmap>
 #include <QTranslator>
 
-#include "EnvironmentOptions.h"
 #include "MainWin.h"
 #include "SceneWin.h"
 #include "ItemSelectionGUI.h"
-#include "vizmo2.h"
+#include "Models/Vizmo.h"
+
 #include "Icons/RandEnv.xpm"
 
   EnvironmentOptions::EnvironmentOptions(QWidget* _parent, VizmoMainWin* _mainWin)

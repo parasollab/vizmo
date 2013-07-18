@@ -1,3 +1,5 @@
+#include "FileOptions.h"
+
 #include <QApplication>
 #include <QAction>
 #include <QToolBar>
@@ -7,7 +9,6 @@
 #include <QTranslator>
 #include <QStatusBar>
 
-#include "FileOptions.h"
 #include "MainMenu.h"
 #include "FileListDialog.h"
 #include "SceneWin.h"
@@ -15,7 +16,9 @@
 #include "ItemSelectionGUI.h"
 #include "OptionsBase.h"
 #include "MainWin.h"
-#include "vizmo2.h"
+#include "Models/Vizmo.h"
+#include "Models/MapModel.h"
+
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
 
@@ -119,7 +122,7 @@ FileOptions::UpdateFiles(){
   if(m_flDialog->exec() != QDialog::Accepted)
     return;
 
-  if(GetVizmo().InitVizmoObject() == false)
+  if(!GetVizmo().InitVizmoObj())
     return;
 
   //reset guis
@@ -195,24 +198,18 @@ FileOptions::SaveRoadmap(){
 
 void
 FileOptions::SaveNewRoadmap(const char* _filename){
-
-  PlumObject* map;
-  map = GetVizmo().GetMap();
-
-  //CMapHeaderLoader* maploader = (CMapHeaderLoader*)map->GetLoader();
-  //Probably not ideal, but accounts for loader class removal for now
-  MapModel<CfgModel, EdgeModel>* maploader = (MapModel<CfgModel, EdgeModel>*)map->GetModel();
+  MapModel<CfgModel, EdgeModel>* mapModel = GetVizmo().GetMap();
 
   ofstream outfile (_filename);
 
-  if(maploader->ParseHeader()!=false){ //return false;
-    const string version = maploader->GetVersionNumber();
-    const string preamble = maploader->GetPreamble();
-    const string envFile = maploader->GetEnvFileName();
-    const list<string> lps = maploader->GetLPs();
-    const list<string> cds = maploader->GetCDs();
-    const list<string> dms = maploader-> GetDMs();
-    const string seed = maploader-> GetSeed();
+  if(mapModel->ParseHeader()!=false){ //return false;
+    const string version = mapModel->GetVersionNumber();
+    const string preamble = mapModel->GetPreamble();
+    const string envFile = mapModel->GetEnvFileName();
+    const list<string> lps = mapModel->GetLPs();
+    const list<string> cds = mapModel->GetCDs();
+    const list<string> dms = mapModel-> GetDMs();
+    const string seed = mapModel-> GetSeed();
     outfile<< "Roadmap Version Number "<< version<<"\n";
     outfile<< "#####PREAMBLESTART##### \n";
     outfile<<preamble<<"\n";
@@ -249,14 +246,8 @@ FileOptions::SaveNewRoadmap(const char* _filename){
 
   //typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
   typedef MapModel<CfgModel,EdgeModel>::Wg WG;
-  WG* graph;
-  //CMapLoader<CfgModel,EdgeModel> *m_loader=(CMapLoader<CfgModel,EdgeModel>*)map->GetLoader();
-  MapModel<CfgModel, EdgeModel>* m_loader = (MapModel<CfgModel, EdgeModel>*)map->GetModel();
-  graph = m_loader->GetGraph();
-
+  WG* graph = mapModel->GetGraph();
   write_graph(*graph, outfile);
-  outfile.close();
-  //return true;
 }
 
 

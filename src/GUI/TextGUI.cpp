@@ -3,11 +3,11 @@
 #include "TextGUI.h"
 #include <vector>
 #include <string>
-#include <QString>
-#include "vizmo2.h"
-#include "Models/DebugModel.h"
 
-using namespace std;
+#include <QString>
+
+#include "Models/Vizmo.h"
+#include "Models/DebugModel.h"
 
 TextGUI::TextGUI(QWidget* _parent)
   :QTextEdit(_parent){
@@ -41,7 +41,7 @@ TextGUI::SetText(){
 
   //If we are trying to view VDebug comments, add those to the infoVect
   if(GetVizmo().GetDebug()!=NULL){
-    DebugModel* cdm = (DebugModel*)GetVizmo().GetDebug()->GetModel();
+    DebugModel* cdm = GetVizmo().GetDebug();
     if(cdm != NULL){
       vector<string> comments = cdm->GetComments();
       if(!comments.empty())

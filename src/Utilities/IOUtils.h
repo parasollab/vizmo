@@ -5,6 +5,6 @@
 using namespace std;
 
 //determine if a file exists or not
-bool FileExists(string _filename);
+bool FileExists(string _filename, bool _err = true);
 
 #endif

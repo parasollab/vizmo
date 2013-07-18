@@ -1,7 +1,5 @@
-#include "vizmo2.h"
 #include "AnimationGUI.h"
-#include "MainWin.h"
-//// Include Qt Headers
+
 #include <QToolBar>
 #include <QPixmap>
 #include <QAction>
@@ -11,7 +9,10 @@
 #include <QLabel>
 #include <QValidator>
 #include <QString>
-//// Icons
+
+#include "Models/Vizmo.h"
+#include "MainWin.h"
+
 #include "Icons/First.xpm"
 #include "Icons/Last.xpm"
 #include "Icons/Next.xpm"

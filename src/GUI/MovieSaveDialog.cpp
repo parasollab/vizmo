@@ -9,7 +9,7 @@
 #include <QPushButton>
 #include <QFileDialog>
 
-#include "vizmo2.h"
+#include "Models/Vizmo.h"
 #include "Utilities/ImageFilters.h"
 
 MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :

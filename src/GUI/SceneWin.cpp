@@ -1,5 +1,6 @@
-#include "vizmo2.h"
 #include "SceneWin.h"
+
+#include "Models/Vizmo.h"
 #include "MainWin.h"
 #include "Utilities/GL/gli.h"
 #include "Utilities/GL/gliCamera.h"
@@ -241,7 +242,7 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
     updateGL();
     return;
   }
-  if((OBPRMView_Robot*)(GetVizmo().GetRobot()->GetModel())->KP(_e)){
+  if(GetVizmo().GetRobot()->KP(_e)){
     updateGL();
     return;
   }

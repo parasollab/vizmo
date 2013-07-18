@@ -7,6 +7,8 @@
  * grouped together in the code.
  ***********************************************/
 
+#include "RoadmapOptions.h"
+
 #include <QAction>
 #include <QPushButton>
 #include <QButtonGroup>
@@ -19,12 +21,12 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-#include "RoadmapOptions.h"
 #include "SizeSliderDialog.h"
 #include "OptionsBase.h"
 #include "SceneWin.h"
 #include "MainWin.h"
-#include "vizmo2.h"
+#include "Models/Vizmo.h"
+
 #include "Icons/Pallet.xpm"
 #include "Icons/MakeSolid.xpm"
 #include "Icons/MakeWired.xpm"
@@ -257,12 +259,8 @@ void
 RoadmapOptions::Reset(){
 
   if(m_actions["showHideRoadmap"] != NULL){
-    if(!GetVizmo().IsRoadMapLoaded()){
-      m_actions["showHideRoadmap"]->setEnabled(false);
-    }
-    else{
-      m_actions["showHideRoadmap"]->setEnabled(true);
-    }
+    m_actions["showHideRoadmap"]->setEnabled(GetVizmo().IsRoadMapLoaded());
+    m_actions["showHideRoadmap"]->setChecked(false);
   }
 
   //Enable m_nodeShape AND its items
@@ -359,11 +357,8 @@ RoadmapOptions::SetHelpTips(){
 
 void
 RoadmapOptions::ShowRoadmap(){
-
-  static bool show=false;
-  show =!show;
-  GetVizmo().ShowRoadMap(show);
- // Reset();
+  GetVizmo().ShowRoadMap(m_actions["showHideRoadmap"]->isChecked());
+  //Reset();
   GetVizmo().UpdateSelection();
   GetMainWin()->GetGLScene()->updateGL();
 }

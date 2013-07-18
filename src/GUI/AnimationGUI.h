@@ -3,7 +3,7 @@
 // TO DO: Set up the slider values initially. When loaded, signal slider
 // and update slider values.
 
-#include "vizmo2.h"
+#include "Models/Vizmo.h"
 
 // This class deifines the animation GUI for vizmo2
 

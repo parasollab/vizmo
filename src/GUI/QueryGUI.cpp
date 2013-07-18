@@ -1,5 +1,6 @@
-#include "vizmo2.h"
 #include "QueryGUI.h"
+
+#include "Models/Vizmo.h"
 
 queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
 :QDialog(parent)
@@ -19,13 +20,11 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
   }
   m_ObjName = objname;
 
-    PlumObject * m_Rob, m_Env;
-    m_Rob = GetVizmo().GetRobot();
-    OBPRMView_Robot* r = (OBPRMView_Robot*)m_Rob->GetModel();
-    m_dof = (r->GetEnvModel())->GetDOF();
+    OBPRMView_Robot* robotModel = GetVizmo().GetRobot();
+    m_dof = robotModel->GetEnvModel()->GetDOF();
 
     //here I should put query values...
-    vector<double> Qcfg = r->getFinalCfg();
+    vector<double> Qcfg = robotModel->getFinalCfg();
 
     //will be used in newCfg funct.
     QcfgTmp = new double [m_dof];
@@ -160,16 +159,14 @@ void queryGUI::newCfg(const QString&){
 
       double *Qcfg2 = new double [m_dof];
 
-      PlumObject * m_Rob;
-      m_Rob = GetVizmo().GetRobot();
-      OBPRMView_Robot* r = (OBPRMView_Robot*)m_Rob->GetModel();
-      r->BackUp();
+      OBPRMView_Robot* robotModel = GetVizmo().GetRobot();
+      robotModel->BackUp();
       Quaternion qx(0,Vector3d(1,0,0));
       Quaternion qy(0,Vector3d(0,1,0));
       Quaternion qz(0,Vector3d(0,0,1));
       Quaternion nq=qz*qy*qx;
 
-      (r->getRobotModel())->q(nq);
+      robotModel->getRobotModel()->q(nq);
 
       Qcfg2[0] = (stx->value());
       Qcfg2[1] = (sty->value());
@@ -181,7 +178,7 @@ void queryGUI::newCfg(const QString&){
 	Qcfg2[i] = vSpin[j]->value();
 	j++;
       }
-      r->Configure(Qcfg2);
+      robotModel->Configure(Qcfg2);
       emit callUpdate();
     }
   }
@@ -211,10 +208,8 @@ void queryGUI::SaveSG(){
 
 void queryGUI::updateQryCfg(){
 
-  PlumObject * m_Rob;
-  m_Rob = GetVizmo().GetRobot();
-  OBPRMView_Robot* r = (OBPRMView_Robot*)m_Rob->GetModel();
-  vector<double> Qcfg3  = r->getFinalCfg();
+  OBPRMView_Robot* robotModel = GetVizmo().GetRobot();
+  vector<double> Qcfg3  = robotModel->getFinalCfg();
 
   stx->setValue(Qcfg3[0]);
   sty->setValue(Qcfg3[1]);

@@ -1,10 +1,11 @@
+#include "RobotOptions.h"
+
 #include <QAction>
 
-#include "RobotOptions.h"
 #include "MainWin.h"
-#include "vizmo2.h"
 #include "AnimationGUI.h"
 #include "SceneWin.h"
+#include "Models/Vizmo.h"
 
 RobotOptions::RobotOptions(QWidget* _parent, VizmoMainWin* _mainWin)
   :OptionsBase(_parent, _mainWin)
@@ -55,8 +56,6 @@ RobotOptions::SetHelpTips(){
 
 void
 RobotOptions::ResetRobotPosition(){
-
-  GetVizmo().ResetRobot();
   GetMainWin()->GetAnimationGUI()->reset();
   GetMainWin()->GetAnimationDebugGUI()->reset();
   GetMainWin()->GetGLScene()->updateGL();
