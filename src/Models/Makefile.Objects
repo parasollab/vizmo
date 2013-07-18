@@ -5,6 +5,5 @@ OBJECTS += \
 	   Models/CfgModel.o \
 	   Models/EdgeModel.o \
 	   Models/EnvModel.o \
-	   Models/MapModel.o \
 	   Models/PathModel.o \
 	   Models/PolyhedronModel.o
