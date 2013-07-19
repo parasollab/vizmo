@@ -35,9 +35,7 @@ class EnvModel : public plum::GLModel {
     virtual void SetModelDataDir(const string _modelDataDir);
     void DecreaseNumMB(){ m_numMultiBodies = m_numMultiBodies - 1; }
     void IncreaseNumMB(){ m_numMultiBodies = m_numMultiBodies + 1; }
-    string ReadFieldString(istream& _is, string _error, bool _toUpper = true);
-    void GetColor(istream& _in);
-    bool IsCommentLine(char _c);
+    void GetColor(istream& _is);
     void SetNewMultiBodyInfo(CMultiBodyInfo* _mbi);
     void NewModelDir();
     void FreeMemory();
@@ -81,37 +79,4 @@ class EnvModel : public plum::GLModel {
     BoundaryModel* m_boundary;
 };
 
-template <class T>
-T ReadField(istream& _is, string _error){
-
-  char c;
-  string line;
-  T element;
-
-  while(_is){
-
-    c = _is.peek();
-    if(c == '#')
-      getline(_is, line);
-
-    else if(isspace(c) == false){
-      if (!(_is >> element)){
-        cerr << "Error in Reading Field::" << _error << endl;
-        exit(1);
-      }
-      else
-        break;
-    }
-
-    else
-      _is.get(c);
-  }
-
-  if(_is.eof()){
-    cerr << "Error end of file reached in Reading Field::" << _error << endl;
-    exit(1);
-  }
-  return element;
-}
-
-#endif // !defined(_ENVMODEL_H_)
+#endif

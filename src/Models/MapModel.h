@@ -57,9 +57,6 @@ class MapModel : public plum::GLModel{
     //Moving generic load functions to virtual in GLModel.h
     void InitGraph(){ m_graph = new Wg(); }
     //void WriteMapFile(const char *filename);
-    void GoToNext(istream& _in);
-    bool IsCommentLine(char _c);
-    string GetPathName(const string& _filename);
     bool ParseHeader();
     bool ParseHeader(istream& _in);
     virtual bool ParseFile();
@@ -144,40 +141,6 @@ MapModel<CfgModel, WEIGHT>::~MapModel(){
 }
 
 ///////////Load functions//////////
-
-template <class CfgModel, class WEIGHT>
-void
-MapModel<CfgModel, WEIGHT>::GoToNext(istream& _in){
-
-  string line;
-  while(!_in.eof()){
-    char c;
-    while(isspace(_in.peek()))
-    _in.get(c);
-
-    c = _in.peek();
-    if(!IsCommentLine(c))
-      return;
-    else
-      getline(_in, line);
-  }
-}
-
-template <class CfgModel, class WEIGHT>
-bool
-MapModel<CfgModel, WEIGHT>::IsCommentLine(char _c){
-  return _c == '#';
-}
-
-template <class CfgModel, class WEIGHT>
-string
-MapModel<CfgModel, WEIGHT>::GetPathName(const string& _filename){
-
-  size_t pos = _filename.rfind('/');
-  if(pos == string::npos)
-    return "";
-  return _filename.substr(0, pos+1);
-}
 
 template <class CfgModel, class WEIGHT>
 bool

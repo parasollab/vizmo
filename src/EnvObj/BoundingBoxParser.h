@@ -2,21 +2,21 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_BOUNDINGBOXPARSER_H__FF5525B3_FF61_4863_BEF1_6B872B99E3E7__INCLUDED_)
-#define AFX_BOUNDINGBOXPARSER_H__FF5525B3_FF61_4863_BEF1_6B872B99E3E7__INCLUDED_
+#ifndef BOUNDINGBOXPARSER_H_
+#define BOUNDINGBOXPARSER_H_
 
-#include "Plum/Loadable.h"
 #include <vector>
-using namespace plum;
+#include <string>
+using namespace std;
 
-class CBoundingBoxParser : public Loadable
+class CBoundingBoxParser
 {
 public:
 
     //////////////////////////////////////////////////////////////////////
     // Constructor
     //////////////////////////////////////////////////////////////////////
-    CBoundingBoxParser();
+    CBoundingBoxParser(string _filename);
 
     //////////////////////////////////////////////////////////////////////
     // Core
@@ -31,6 +31,7 @@ public:
 // Private Stuff
 //////////////////////////////////////////////////////////////////////
 private:
+    string m_filename;
     vector<vector<double> > m_BBXValues;
     double m_Scale;
 };

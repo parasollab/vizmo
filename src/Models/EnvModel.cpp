@@ -19,30 +19,21 @@ EnvModel::~EnvModel(){
 }
 
 //////////Load Functions//////////
-string
-EnvModel::ReadFieldString(istream& _is, string _error, bool _toUpper){
-
-  string s = ReadField<string>(_is, _error);
-  if(_toUpper)
-    transform(s.begin(), s.end(), s.begin(), ::toupper);
-  return s;
-}
-
 void
-EnvModel::GetColor(istream& _in){
+EnvModel::GetColor(istream& _is){
 
   string line;
-  while(!_in.eof()){
+  while(!_is.eof()){
 
     char c;
-    while(isspace(_in.peek()))
-      _in.get(c);
+    while(isspace(_is.peek()))
+      _is.get(c);
 
-    c = _in.peek();
+    c = _is.peek();
     if(!IsCommentLine(c))
       return;
     else{
-      getline(_in, line);
+      getline(_is, line);
       //colors begin with VIZMO_COLOR
       if(line[7] == 'C'){
         size_t loc = line.find(" ");
@@ -53,12 +44,6 @@ EnvModel::GetColor(istream& _in){
       }
     }
   }
-}
-
-bool
-EnvModel::IsCommentLine(char _c){
-
-  return _c == '#';
 }
 
 bool

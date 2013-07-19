@@ -12,7 +12,7 @@ using namespace std;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CBoundingBoxParser::CBoundingBoxParser()
+CBoundingBoxParser::CBoundingBoxParser(string _filename)
 {
     m_Scale=1;
 }
