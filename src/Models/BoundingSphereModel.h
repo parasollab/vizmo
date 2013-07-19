@@ -7,7 +7,7 @@ class BoundingSphereModel : public BoundaryModel {
   public:
     BoundingSphereModel();
 
-    virtual bool BuildModels();
+    virtual void BuildModels();
 
     virtual const string GetName() const {return "Bounding Sphere";}
     virtual vector<string> GetInfo() const;

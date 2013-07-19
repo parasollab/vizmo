@@ -5,12 +5,16 @@
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
 #include "Utilities/IOUtils.h"
+#include "Utilities/Exceptions.h"
 
 EnvModel::EnvModel(const string& _filename) :
   m_numMultiBodies(0), m_mBInfo(NULL),
   m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
     SetFilename(_filename);
     SetModelDataDir(_filename.substr(0, _filename.rfind('/')));
+
+    ParseFile();
+    BuildModels();
   }
 
 EnvModel::~EnvModel(){
@@ -46,24 +50,20 @@ EnvModel::GetColor(istream& _is){
   }
 }
 
-bool
+void
 EnvModel::ParseFile(){
 
   if(!FileExists(GetFilename()))
-    return false;
+    throw ParseException("EnvModel", "'" + GetFilename() + "' does not exist");
 
-  //Open file for reading datat
+  //Open file for reading data
   ifstream ifs(GetFilename().c_str());
 
-  if(ParseFileHeader(ifs) == false)
-    return false;
+  if(!ParseFileHeader(ifs))
+    throw ParseException("EnvModel", "'" + GetFilename() + "' has incorrect header");
 
-  if(ParseFileBody(ifs) == false)
-    return false;
-
-  ifs.close();
-
-  return true;
+  if(!ParseFileBody(ifs))
+    throw ParseException("EnvModel", "'" + GetFilename() + "' has incorrect body");
 }
 
 void
@@ -551,15 +551,14 @@ EnvModel::BuildRobotStructure(){
 
 //////////Display functions//////////
 
-bool
+void
 EnvModel::BuildModels(){
 
   //Build boundary model
   m_boundary = GetBoundary();
-  if(m_boundary == NULL)
-    return false;
-  if(m_boundary->BuildModels() == false)
-    return false;
+  if(!m_boundary)
+    throw BuildException("EnvModel", "Boundary is NULL");
+  m_boundary->BuildModels();
 
   //Create MutileBody Model
   int numMBs = GetNumMultiBodies();
@@ -569,10 +568,11 @@ EnvModel::BuildModels(){
   Vector3d com;
   for(int i = 0; i < numMBs; i++){
     MultiBodyModel* m = new MultiBodyModel(GetMultiBodyInfo()[i]);
-    if(m == NULL)
-      return false;
-    if(m->BuildModels() == false)
-      return false;
+
+    if(!m)
+      throw BuildException("EnvModel", "MultiBody is NULL");
+    m->BuildModels();
+
     com = com + (m->GetCOM()-Point3d(0,0,0));
     m_mBModels.push_back(m);
   }
@@ -586,7 +586,6 @@ EnvModel::BuildModels(){
     if(m_radius < dist)
       m_radius = dist;
   }
-  return true;
 }
 
 void

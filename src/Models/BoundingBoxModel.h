@@ -7,7 +7,7 @@ class BoundingBoxModel : public BoundaryModel {
   public:
     BoundingBoxModel();
 
-    virtual bool BuildModels();
+    virtual void BuildModels();
 
     virtual const string GetName() const;
     virtual vector<string> GetInfo() const;

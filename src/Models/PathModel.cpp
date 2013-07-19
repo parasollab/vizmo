@@ -3,9 +3,10 @@
 #include "Models/CfgModel.h"
 #include "EnvObj/RobotModel.h"
 #include "Utilities/IOUtils.h"
+#include "Utilities/Exceptions.h"
 
-PathModel::PathModel(string _filename)
-  : m_glPathIndex(-1), m_robot(NULL),
+PathModel::PathModel(const string& _filename, RobotModel* _robotModel)
+  : m_glPathIndex(-1), m_robotModel(_robotModel),
   m_lineWidth(1), m_displayInterval(3) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
@@ -15,6 +16,9 @@ PathModel::PathModel(string _filename)
     m_stopColors.push_back(Color4(0, 1, 1, 1));
     m_stopColors.push_back(Color4(0, 1, 0, 1));
     m_stopColors.push_back(Color4(1, 1, 0, 1));
+
+    ParseFile();
+    BuildModels();
   }
 
 vector<string>
@@ -27,13 +31,13 @@ PathModel::GetInfo() const {
   return info;
 }
 
-bool
+void
 PathModel::ParseFile() {
   m_path.clear();
 
   //check input filename
   if(!FileExists(GetFilename()))
-    return false;
+    throw ParseException("EnvModel", "'" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
 
@@ -61,20 +65,18 @@ PathModel::ParseFile() {
 
     m_path.push_back(cfg);
   }
-
-  return true;
 }
 
-bool
+void
 PathModel::BuildModels(){
   //can't build model without robot model
-  if(m_robot==NULL)
-    return false;
+  if(!m_robotModel)
+    throw BuildException("PathModel", "RobotModel is null.");
 
   //Build Path Model
-  m_robot->SetRenderMode(WIRE_MODE);
+  m_robotModel->SetRenderMode(WIRE_MODE);
 
-  vector<float> col = m_robot->GetColor(); //old color
+  vector<float> col = m_robotModel->GetColor(); //old color
   vector<float> oldcol = col;
 
   glMatrixMode(GL_MODELVIEW);
@@ -106,9 +108,9 @@ PathModel::BuildModels(){
   for(CIT cit = allColors.begin(); cit!=allColors.end(); ++cit) {
     size_t i = cit-allColors.begin();
     if(i % m_displayInterval == 0){
-      m_robot->SetColor((*cit)[0], (*cit)[1], (*cit)[2], (*cit)[3]);
-      m_robot->Configure(m_path[i]);
-      m_robot->Draw(GL_RENDER);
+      m_robotModel->SetColor((*cit)[0], (*cit)[1], (*cit)[2], (*cit)[3]);
+      m_robotModel->Configure(m_path[i]);
+      m_robotModel->Draw(GL_RENDER);
     }
   }
 
@@ -118,19 +120,17 @@ PathModel::BuildModels(){
   size_t remainder = m_path.size() % allColors.size();
   for(size_t j = 0; j<remainder; ++j){
     if(j%m_displayInterval==0){
-      m_robot->SetColor(c[0], c[1], c[2], c[3]);
-      m_robot->Configure(m_path[allColors.size()+(j+1)]);
-      m_robot->Draw(GL_RENDER);
+      m_robotModel->SetColor(c[0], c[1], c[2], c[3]);
+      m_robotModel->Configure(m_path[allColors.size()+(j+1)]);
+      m_robotModel->Draw(GL_RENDER);
     }
   }
 
   glEndList();
 
   //set back
-  m_robot->SetRenderMode(SOLID_MODE);
-  m_robot->SetColor(oldcol[0], oldcol[1], oldcol[2], oldcol[3]);
-
-  return true;
+  m_robotModel->SetRenderMode(SOLID_MODE);
+  m_robotModel->SetColor(oldcol[0], oldcol[1], oldcol[2], oldcol[3]);
 }
 
 void PathModel::Draw(GLenum _mode){

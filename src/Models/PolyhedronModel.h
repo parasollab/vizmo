@@ -25,7 +25,7 @@ class PolyhedronModel : public plum::GLModel {
 
     void SetBodyInfo(const plum::CBodyInfo& _bodyInfo) {m_bodyInfo = _bodyInfo;}
 
-    bool BuildModels();
+    void BuildModels();
     void Draw(GLenum _mode);
     void DrawSelect();
 
@@ -34,7 +34,7 @@ class PolyhedronModel : public plum::GLModel {
     void ComputeNormals(const PtVector& _points, const TriVector& _tris, vector<Vector3d>& _norms);
     void BuildRapid(const PtVector& _points, const TriVector& _tris);
     void BuildSolid(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
-    bool BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
+    void BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
 
     //set m_com to center of mass of _points
     void COM(const PtVector& _points);

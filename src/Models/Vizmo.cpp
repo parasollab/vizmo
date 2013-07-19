@@ -6,13 +6,11 @@
 using namespace std;
 
 #include "Plum/GLModel.h"
-#include "Models/CfgModel.h"
-#include "Models/PathModel.h"
-#include "Models/QueryModel.h"
-#include "Models/DebugModel.h"
-#include "EnvObj/BoundingBoxesModel.h"
-#include "EnvObj/BoundingBoxParser.h"
 #include "EnvObj/RobotModel.h"
+#include "Models/CfgModel.h"
+#include "Models/QueryModel.h"
+#include "Models/PathModel.h"
+#include "Models/DebugModel.h"
 using namespace plum;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,8 +23,7 @@ Vizmo& GetVizmo(){return vizmo;}
 // VizmoObj
 ////////////////////////////////////////////////////////////////////////////////
 Vizmo::VizmoObj::VizmoObj() :
-  m_robotModel(NULL),
-  m_envModel(NULL),
+  m_envModel(NULL), m_robotModel(NULL),
   m_mapModel(NULL), m_showMap(false),
   m_queryModel(NULL), m_showQuery(false),
   m_pathModel(NULL), m_showPath(false),
@@ -39,14 +36,14 @@ Vizmo::VizmoObj::~VizmoObj() {
 
 void
 Vizmo::VizmoObj::Clean() {
-  delete m_robotModel;
   delete m_envModel;
+  delete m_robotModel;
   delete m_mapModel;
   delete m_queryModel;
   delete m_pathModel;
   delete m_debugModel;
-  m_robotModel = NULL;
   m_envModel = NULL;
+  m_robotModel = NULL;
   m_mapModel = NULL;
   m_queryModel = NULL;
   m_pathModel = NULL;
@@ -69,7 +66,6 @@ Vizmo::GetAccessFiles(const string& _filename) {
   if(FileExists(mapname, false)){
     m_obj.m_mapFilename = mapname;
     MapModel<CfgModel,EdgeModel> headerParser(mapname);
-    headerParser.ParseHeader();
     envname = headerParser.GetEnvFileName();
   }
   else
@@ -91,59 +87,52 @@ Vizmo::InitVizmoObj() {
   m_plum.Clean();
   m_obj.Clean();
 
-  //Create environment first
-  if(m_obj.m_envFilename.empty()) {
-    cerr << "Error::Vizmo must load an environment file. InitVizmoObj failed." << endl;
-    return false;
+  try {
+    //Create environment first
+    if(m_obj.m_envFilename.empty())
+      throw ParseException("Vizmo::InitVizmoObj", "Vizmo must load an environment file.");
+
+    m_obj.m_envModel = new EnvModel(m_obj.m_envFilename);
+    m_plum.AddGLModel(m_obj.m_envModel);
+
+    //create robot
+    m_obj.m_robotModel = new RobotModel(m_obj.m_envModel);
+    m_plum.AddGLModel(m_obj.m_robotModel);
+    cout << "Load Environment File : "<< m_obj.m_envFilename << endl;
+
+    //Create map
+    if(!m_obj.m_mapFilename.empty()) {
+      m_obj.m_mapModel = new MapModel<CfgModel, EdgeModel>(m_obj.m_mapFilename, m_obj.m_robotModel);
+      m_plum.AddGLModel(m_obj.m_mapModel);
+      cout << "Load Map File : " << m_obj.m_mapFilename << endl;
+    }
+
+    //Create qry
+    if(!m_obj.m_queryFilename.empty()) {
+      m_obj.m_queryModel = new QueryModel(m_obj.m_queryFilename, m_obj.m_robotModel);
+      m_plum.AddGLModel(m_obj.m_queryModel);
+      cout << "Load Query File : " << m_obj.m_queryFilename << endl;
+    }
+
+    //Create path
+    if(!m_obj.m_pathFilename.empty()) {
+      m_obj.m_pathModel = new PathModel(m_obj.m_pathFilename, m_obj.m_robotModel);
+      m_plum.AddGLModel(m_obj.m_pathModel);
+      cout << "Load Path File : " << m_obj.m_pathFilename << endl;
+    }
+
+    //Create debug
+    if(!m_obj.m_debugFilename.empty()){
+      m_obj.m_debugModel = new DebugModel(m_obj.m_debugFilename, m_obj.m_robotModel);
+      m_plum.AddGLModel(m_obj.m_debugModel);
+      cout << "Load Debug File : " << m_obj.m_debugFilename << endl;
+    }
   }
-
-  m_obj.m_envModel = new EnvModel(m_obj.m_envFilename);
-  m_plum.AddGLModel(m_obj.m_envModel);
-  m_obj.m_robotModel = new RobotModel(m_obj.m_envModel);
-  m_plum.AddGLModel(m_obj.m_robotModel);
-  cout << "Load Environment File : "<< m_obj.m_envFilename << endl;
-
-  //Create map
-  if(!m_obj.m_mapFilename.empty()) {
-    m_obj.m_mapModel = new MapModel<CfgModel, EdgeModel>(m_obj.m_mapFilename);
-    m_obj.m_mapModel->SetRobotModel(m_obj.m_robotModel);
-    m_plum.AddGLModel(m_obj.m_mapModel);
-    cout << "Load Map File : " << m_obj.m_mapFilename << endl;
-  }
-
-  //Create qry
-  if(!m_obj.m_queryFilename.empty()) {
-    m_obj.m_queryModel = new QueryModel(m_obj.m_queryFilename);
-    m_obj.m_queryModel->SetModel(m_obj.m_robotModel);
-    m_plum.AddGLModel(m_obj.m_queryModel);
-    cout << "Load Query File : " << m_obj.m_queryFilename << endl;
-  }
-
-  //Create path
-  if(!m_obj.m_pathFilename.empty()) {
-    m_obj.m_pathModel = new PathModel(m_obj.m_pathFilename);
-    m_obj.m_pathModel->SetModel(m_obj.m_robotModel);
-    m_plum.AddGLModel(m_obj.m_pathModel);
-    cout << "Load Path File : " << m_obj.m_pathFilename << endl;
-  }
-
-  //Create debug
-  if(!m_obj.m_debugFilename.empty()){
-    m_obj.m_debugModel = new DebugModel(m_obj.m_debugFilename);
-    m_obj.m_debugModel->SetModel(m_obj.m_robotModel);
-    m_plum.AddGLModel(m_obj.m_debugModel);
-    cout << "Load Debug File : " << m_obj.m_debugFilename << endl;
-  }
-
-  //let plum do what he needs to do
-  if(!m_plum.ParseFile()) {
-    cout << "Error reading some file." << endl;
-    return false;
-  }
-
-  if(m_plum.BuildModels() != MODEL_OK) {
-    cout << "Error building some model." << endl;
-    return false;
+  catch(exception& _e) {
+    cerr << _e.what() << endl;
+    cerr << "Cleaning vizmo objects." << endl;
+    m_plum.Clean();
+    m_obj.Clean();
   }
 
   //Put robot in start cfg, if availiable

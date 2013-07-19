@@ -10,8 +10,8 @@ using namespace std;
 #include <Utilities/CollisionDetection.h>
 using namespace plum;
 
-class RobotModel;
 class EnvModel;
+class RobotModel;
 class CfgModel;
 class EdgeModel;
 template<typename, typename>
@@ -44,11 +44,11 @@ class Vizmo {
 
       void Clean();
 
-      //robot
-      RobotModel* m_robotModel;
       //environment
       EnvModel* m_envModel;
       string m_envFilename;
+      //robot
+      RobotModel* m_robotModel;
       //map
       MapModel<CfgModel, EdgeModel>* m_mapModel;
       bool m_showMap;
@@ -86,16 +86,6 @@ class Vizmo {
     //Animate map creation
     void AnimateDebug(int frame);
 
-    // Robot Related Functions
-    // get the robot's cfg. to be drawn in the toolbar
-    //getRoboCfg() called from scene_win::mouseMoveEvent()
-    void getRoboCfg();
-    vector<string> info;
-    //getRobCfgText() called from roadmap::printRobCfg()
-    vector<string> getRobCfgText(){return info;}
-    int getNumJoints();
-    RobotModel* GetRobot() const {  return m_obj.m_robotModel; }
-
     // Environment Related Functions
     // Change the appearance of an object - Hidden/ Wire / Soid
     void ChangeAppearance(int );
@@ -113,6 +103,16 @@ class Vizmo {
     bool IsEnvChanged() { return m_envChanged; }
     double GetEnvRadius();
     EnvModel* GetEnv() const { return m_obj.m_envModel; }
+
+    // Robot Related Functions
+    // get the robot's cfg. to be drawn in the toolbar
+    //getRoboCfg() called from scene_win::mouseMoveEvent()
+    void getRoboCfg();
+    vector<string> info;
+    //getRobCfgText() called from roadmap::printRobCfg()
+    vector<string> getRobCfgText(){return info;}
+    int getNumJoints();
+    RobotModel* GetRobot() const {  return m_obj.m_robotModel; }
 
     // Roadmap Related Functions
     void ShowRoadMap(bool _show = true);
@@ -170,17 +170,17 @@ class Vizmo {
 
     /////////////////////////////////////////////////////////////////////
     // Filenames
-    const string& getMapFileName() const { return m_obj.m_mapFilename; }
     const string& getEnvFileName() const { return m_obj.m_envFilename; }
+    const string& getMapFileName() const { return m_obj.m_mapFilename; }
+    const string& getQryFileName() const { return m_obj.m_queryFilename; }
     const string& getPathFileName() const { return m_obj.m_pathFilename; }
     const string& getDebugFileName() const { return m_obj.m_debugFilename; }
-    const string& getQryFileName() const { return m_obj.m_queryFilename; }
 
-    void setMapFileName(const string& name){ m_obj.m_mapFilename=name; }
     void setEnvFileName(const string& name){ m_obj.m_envFilename=name; }
+    void setMapFileName(const string& name){ m_obj.m_mapFilename=name; }
+    void setQryFileName(const string& name){ m_obj.m_queryFilename=name; }
     void setPathFileName(const string& name) { m_obj.m_pathFilename=name; }
     void setDebugFileName(const string& name) { m_obj.m_debugFilename=name; }
-    void setQryFileName(const string& name){ m_obj.m_queryFilename=name; }
 
   protected:
     //Put robot in start configuration if possible

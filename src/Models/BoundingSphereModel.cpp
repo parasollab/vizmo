@@ -5,8 +5,7 @@
 BoundingSphereModel::BoundingSphereModel() : BoundaryModel(), m_center(0.0, 0.0, 0.0), m_radius(numeric_limits<double>::max()) {
 }
 
-bool BoundingSphereModel::BuildModels(){
-
+void BoundingSphereModel::BuildModels(){
   GLUquadricObj* quad =gluNewQuadric();
 
   m_displayID = glGenLists(1);
@@ -32,8 +31,6 @@ bool BoundingSphereModel::BuildModels(){
   glEndList();
 
   gluDeleteQuadric(quad);
-
-  return true;
 }
 
 vector<string>

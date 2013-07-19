@@ -110,7 +110,7 @@ class DebugModel : public GLModel {
   public:
     typedef MapModel<CfgModel, EdgeModel> MM;
 
-    DebugModel(string _filename);
+    DebugModel(const string& _filename, RobotModel* _robotModel);
     virtual ~DebugModel();
 
     virtual const string GetName() const { return "Debug"; }
@@ -119,10 +119,8 @@ class DebugModel : public GLModel {
     vector<string> GetComments();
     MM* GetMapModel() {return m_mapModel;}
 
-    void SetModel(RobotModel* _robotModel) {m_robotModel = _robotModel;}
-
-    virtual bool ParseFile();
-    virtual bool BuildModels();
+    virtual void ParseFile();
+    virtual void BuildModels();
     virtual void Draw(GLenum _mode);
 
     void ConfigureFrame(int _frame);

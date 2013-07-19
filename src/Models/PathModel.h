@@ -13,7 +13,7 @@ class PathModel : public GLModel {
   public:
     typedef Vector<float, 4> Color4;
 
-    PathModel(string _filename);
+    PathModel(const string& _filename, RobotModel* _robotModel);
 
     virtual const string GetName() const {return "Path";}
     virtual vector<string> GetInfo() const;
@@ -21,13 +21,11 @@ class PathModel : public GLModel {
     vector<Color4>& GetGradientVector() {return m_stopColors;}
     const vector<double>& GetConfiguration(size_t _i) const {return m_path[_i];}
 
-    void SetModel(RobotModel * _robot) {m_robot = _robot;}
     void SetLineWidth(float _width) {m_lineWidth = _width;}
     void SetDisplayInterval(int _disp) {m_displayInterval = _disp;}
 
-    virtual bool ParseFile();
-
-    virtual bool BuildModels();
+    virtual void ParseFile();
+    virtual void BuildModels();
     virtual void Draw(GLenum _mode);
 
   private:
@@ -35,7 +33,7 @@ class PathModel : public GLModel {
 
     vector<vector<double> > m_path; //path storage
     size_t m_glPathIndex; //Display list index
-    RobotModel * m_robot; //robot model
+    RobotModel * m_robotModel; //robot model
 
     //display options
     float m_lineWidth;
@@ -43,4 +41,4 @@ class PathModel : public GLModel {
     vector<Color4> m_stopColors; //gradient stops
 };
 
-#endif // !defined(_PATHMODEL_H_)
+#endif

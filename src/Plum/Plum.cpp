@@ -12,27 +12,6 @@ namespace plum {
       m_selectedItems.clear();
     }
 
-  bool
-    Plum::ParseFile() {
-      typedef vector<GLModel*>::iterator MIT;
-      for(MIT mit = m_glModels.begin(); mit != m_glModels.end(); ++mit)
-        if(!(*mit)->ParseFile())
-          return false;
-      return true;
-    }
-
-  BuildState
-    Plum::BuildModels() {
-      typedef vector<GLModel*>::iterator MIT;
-      for(MIT mit = m_glModels.begin(); mit != m_glModels.end(); ++mit) {
-        if(!(*mit)->BuildModels()) {
-          cerr << "Couldn't build model: " << (*mit)->GetName()<< endl;
-          return CLIENT_MODEL_ERROR;
-        }
-      }
-      return MODEL_OK;
-    }
-
   void
     Plum::Draw(){
 

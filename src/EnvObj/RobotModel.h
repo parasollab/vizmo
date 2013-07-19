@@ -37,7 +37,7 @@ class RobotModel : public GLModel{
 
     EnvModel* GetEnvModel()const { return m_envModel; }
 
-    virtual bool BuildModels();
+    virtual void BuildModels();
     virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
     virtual void Select( unsigned int * index, vector<GLModel*>& sel );

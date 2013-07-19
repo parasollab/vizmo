@@ -21,12 +21,6 @@ namespace plum {
       //clear both the gl models vector and selected items vector
       void Clean();
 
-      //parse data for gl models
-      bool ParseFile();
-
-      //build models to draw
-      BuildState BuildModels();
-
       //draw/redraw
       void Draw();
 

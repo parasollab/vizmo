@@ -17,7 +17,7 @@ namespace plum{
       //////////////////////////////////////////////////////////////////////
       // Core
       //////////////////////////////////////////////////////////////////////
-      virtual bool BuildModels();
+      virtual void BuildModels();
       virtual void Select(unsigned int * index, vector<GLModel*>& sel);
 
       //Draw

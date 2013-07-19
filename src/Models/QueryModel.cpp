@@ -3,12 +3,17 @@
 #include "CfgModel.h"
 #include "EnvObj/RobotModel.h"
 #include "Utilities/IOUtils.h"
+#include "Utilities/Exceptions.h"
 #include "Utilities/GL/gliFont.h"
 
-QueryModel::QueryModel(string _filename) : m_glQueryIndex(-1), m_robotModel(NULL) {
-  SetFilename(_filename);
-  m_renderMode = INVISIBLE_MODE;
-}
+QueryModel::QueryModel(const string& _filename, RobotModel* _robotModel) :
+  m_glQueryIndex(-1), m_robotModel(_robotModel) {
+    SetFilename(_filename);
+    m_renderMode = INVISIBLE_MODE;
+
+    ParseFile();
+    BuildModels();
+  }
 
 QueryModel::~QueryModel() {
   glDeleteLists(m_glQueryIndex, 1);
@@ -46,11 +51,11 @@ QueryModel::GetInfo() const {
   return info;
 }
 
-bool
+void
 QueryModel::ParseFile() {
   //check input
   if(!FileExists(GetFilename()))
-    return true;
+    throw ParseException("QueryModel", "'" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
 
@@ -76,16 +81,14 @@ QueryModel::ParseFile() {
 
     m_queries.push_back(cfg);
   }
-
-  return true;
 }
 
-bool
+void
 QueryModel::BuildModels(){
 
   //can't build model without robot
   if(!m_robotModel)
-    return false;
+    throw BuildException("QueryModel", "RobotModel is null.");
 
   glMatrixMode(GL_MODELVIEW);
 
@@ -121,8 +124,6 @@ QueryModel::BuildModels(){
   //set back
   m_robotModel->SetColor(oldcol[0], oldcol[1], oldcol[2], oldcol[3]);
   m_robotModel->SetRenderMode(SOLID_MODE);
-
-  return true;
 }
 
 void QueryModel::Draw(GLenum _mode) {

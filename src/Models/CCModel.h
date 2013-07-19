@@ -5,18 +5,18 @@
 #include <vector>
 #include <map>
 #include <string>
+using namespace std;
 
 #include <graph.h>
 #include <algorithms/connected_components.h>
+using namespace stapl;
 
 #include "Plum/GLModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h"
 #include "MapModel.h"
 #include "EnvObj/RobotModel.h"
-
-using namespace std;
-using namespace stapl;
+#include "Utilities/Exceptions.h"
 using namespace plum;
 
 template<typename, typename>
@@ -60,11 +60,11 @@ class CCModel : public plum::GLModel{
     void ScaleNode(float _scale, Shape _s);
     void ScaleEdges(size_t _scale);
     void ChangeShape(Shape _s);
-    bool BuildModels(); //not used, should not call this
+    void BuildModels(); //not used, should not call this
     void Draw(GLenum _mode);
     void DrawSelect();
     void Select(unsigned int* _index, vector<GLModel*>& _sel);
-    bool BuildModels(VID _id, WG* _g); //call this instead
+    void BuildModels(VID _id, WG* _g); //call this instead
     virtual vector<string> GetInfo() const;
 
     void BuildNodeModels(GLenum _mode);
@@ -187,23 +187,17 @@ CCModel<CfgModel, WEIGHT>::ChangeShape(Shape _s){
 }
 
 template <class CfgModel, class WEIGHT>
-bool
+void
 CCModel<CfgModel, WEIGHT>::BuildModels() {
-  //do not call this function
-  cerr  << "CCModel<CfgModel, WEIGHT>::BuildModels() : Do not call this function\n"
-        << "call CCModel<CfgModel, WEIGHT>::BuildModel(VID id,WG* g)"
-        << " instead" << endl;
-  return false;
+  throw BuildException("CCModel", "Calling wrong build models function.");
 }
 
 template <class CfgModel, class WEIGHT>
-bool
+void
 CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
 
-  if(_g == NULL){
-    cerr<<"Graph is null"<<endl;
-    return false;
-  }
+  if(!_g)
+    throw BuildException("CCModel", "Passed in null graph");
 
   m_graph = _g;
 
@@ -245,7 +239,6 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
     w.Set(edgeIdx++,cfg1,cfg2, m_robot);
     m_edges.push_back(w);
   }
-  return true;
 }
 
 template <class CfgModel, class WEIGHT>

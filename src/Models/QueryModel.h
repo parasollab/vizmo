@@ -8,7 +8,7 @@ class RobotModel;
 
 class QueryModel : public GLModel {
   public:
-    QueryModel(string _filename);
+    QueryModel(const string& _filename, RobotModel* _robotModel);
     virtual ~QueryModel();
 
     virtual const string GetName() const { return "Query"; }
@@ -16,10 +16,8 @@ class QueryModel : public GLModel {
     size_t GetQuerySize() const {return m_queries.size();}
     const vector<double>& GetStartGoal(size_t _i) {return m_queries[_i];}
 
-    void SetModel(RobotModel* _robotModel){m_robotModel = _robotModel;}
-
-    virtual bool ParseFile();
-    virtual bool BuildModels();
+    virtual void ParseFile();
+    virtual void BuildModels();
     virtual void Draw(GLenum _mode);
 
   private:

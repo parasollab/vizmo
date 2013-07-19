@@ -1,6 +1,7 @@
 #include "RobotModel.h"
-#include "Models/Vizmo.h"
 
+#include "Models/Vizmo.h"
+#include "Utilities/Exceptions.h"
 
 RobotModel::RobotModel(EnvModel* _env){
 
@@ -17,6 +18,7 @@ RobotModel::RobotModel(EnvModel* _env){
   RotFstBody = NULL;
   StCfg = NULL;
   pthread_mutex_init(&mutex, NULL);
+  BuildModels();
 }
 
 RobotModel::RobotModel(const RobotModel& _otherRobot)
@@ -35,43 +37,36 @@ RobotModel::~RobotModel()
    delete m_RobotModel;
 }
 
-bool RobotModel::BuildModels(){
+void
+RobotModel::BuildModels(){
 
    //find robot name
    const CMultiBodyInfo* pMInfo = m_envModel->GetMultiBodyInfo();
    int numMBody=m_envModel->GetNumMultiBodies();
    m_RobotInfo = m_envModel->GetMultiBodyInfo();
-   //     int iM=0;
-   //     for( ; iM<numMBody; iM++ ){
-   //       if( !pMInfo[iM].m_pBodyInfo[0].m_bIsFixed ){
-   // 	break;
-   //       }
-   //     }
 
    //create MB for robot.
    for(int i = 0; i<numMBody; i++ ){
-      if( pMInfo[i].m_active ){
-         if(pMInfo[i].m_pBodyInfo[0].m_bIsFixed)
-            m_RobotModel = new MultiBodyModel(pMInfo[i]);
-         else
-            m_RobotModel = new MultiBodyModel(pMInfo[i]);
+     if( pMInfo[i].m_active ){
+       m_RobotModel = new MultiBodyModel(pMInfo[i]);
 
-         SetColor(pMInfo[i].m_pBodyInfo[0].rgb[0],
-               pMInfo[i].m_pBodyInfo[0].rgb[1],
-               pMInfo[i].m_pBodyInfo[0].rgb[2], 1);
-         originalR = pMInfo[i].m_pBodyInfo[0].rgb[0];
-         originalG = pMInfo[i].m_pBodyInfo[0].rgb[1];
-         originalB = pMInfo[i].m_pBodyInfo[0].rgb[2];
-         m_rR = originalR;
-         m_rG = originalG;
-         m_rB = originalB;
-      }
+       SetColor(pMInfo[i].m_pBodyInfo[0].rgb[0],
+           pMInfo[i].m_pBodyInfo[0].rgb[1],
+           pMInfo[i].m_pBodyInfo[0].rgb[2], 1);
+       originalR = pMInfo[i].m_pBodyInfo[0].rgb[0];
+       originalG = pMInfo[i].m_pBodyInfo[0].rgb[1];
+       originalB = pMInfo[i].m_pBodyInfo[0].rgb[2];
+       m_rR = originalR;
+       m_rG = originalG;
+       m_rB = originalB;
+     }
    }
 
-   if( m_RobotModel==NULL ){return false;}
+   if(!m_RobotModel)
+     throw BuildException("RobotModel", "RobotModel is null, out of memory?");
+
    m_RobotModel->SetAsFree(); //set as free body
-   //SetColor(1,0,0,1);
-   return m_RobotModel->BuildModels();
+   m_RobotModel->BuildModels();
 }
 
 void RobotModel::Draw(GLenum _mode){

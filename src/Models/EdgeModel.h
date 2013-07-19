@@ -37,7 +37,6 @@ class EdgeModel : public plum::GLModel{
 
     bool operator==(const EdgeModel& _other);
     void Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot = NULL);
-    bool BuildModels(){ return true; }
     void Draw(GLenum _mode);
     void DrawSelect();
 

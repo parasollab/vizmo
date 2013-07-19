@@ -31,21 +31,21 @@ class EnvModel : public plum::GLModel {
 
 
     //Load functions
-    virtual bool ParseFile();
-    virtual void SetModelDataDir(const string _modelDataDir);
+    virtual void ParseFile();
+    void SetModelDataDir(const string _modelDataDir);
     void DecreaseNumMB(){ m_numMultiBodies = m_numMultiBodies - 1; }
     void IncreaseNumMB(){ m_numMultiBodies = m_numMultiBodies + 1; }
     void GetColor(istream& _is);
     void SetNewMultiBodyInfo(CMultiBodyInfo* _mbi);
     void NewModelDir();
     void FreeMemory();
-    virtual bool ParseFileHeader(ifstream& _ifs);
-    virtual bool ParseBoundary(ifstream& _ifs);
-    virtual bool ParseFileBody(ifstream& _ifs);
-    virtual bool ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
-    virtual bool ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
-    virtual bool ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
-    virtual bool ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
+    bool ParseFileHeader(ifstream& _ifs);
+    bool ParseBoundary(ifstream& _ifs);
+    bool ParseFileBody(ifstream& _ifs);
+    bool ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
+    bool ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
+    bool ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
+    bool ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
     void BuildRobotStructure();
 
     //Display functions
@@ -57,7 +57,7 @@ class EnvModel : public plum::GLModel {
     // TESTING to save Env. file
     bool SaveFile(const char* _filename);
 
-    virtual bool BuildModels();
+    virtual void BuildModels();
     virtual void Draw(GLenum _mode);
     virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
     virtual void GetChildren(list<GLModel*>& _models);

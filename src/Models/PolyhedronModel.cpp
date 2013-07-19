@@ -7,10 +7,11 @@
 #include <RAPID.H>
 #include <obb.H>
 
+#include "ModelFactory.h"
+
+#include "Utilities/Exceptions.h"
 #include "ModelGraph/ModelGraph.h"
 using namespace modelgraph;
-
-#include "ModelFactory.h"
 
 PolyhedronModel::PolyhedronModel() : m_solidID(-1), m_wiredID(-1), m_rapidModel(NULL) {
 }
@@ -35,7 +36,7 @@ PolyhedronModel::GetInfo() const {
   return info;
 }
 
-bool
+void
 PolyhedronModel::BuildModels() {
 
   string file = m_bodyInfo.m_strModelDataFileName;
@@ -49,9 +50,7 @@ PolyhedronModel::BuildModels() {
   Radius(points);
 
   //set point for opengl
-  GLdouble* vertice=new GLdouble[3*points.size()];
-  if(vertice==NULL)
-    return false;
+  GLdouble vertice[3*points.size()];
 
   typedef PtVector::const_iterator PIT;
   for(PIT pit = points.begin(); pit!=points.end(); ++pit)
@@ -66,14 +65,7 @@ PolyhedronModel::BuildModels() {
   glVertexPointer(3, GL_DOUBLE, 0, vertice);
 
   BuildSolid(points, tris, normals);
-
-  bool wiredSuccess = BuildWired(points, tris, normals);
-  delete [] vertice;
-
-  if(!wiredSuccess) {
-    cerr << "Build Model (" << m_bodyInfo.m_strModelDataFileName << ") Error" << endl;
-    return false;
-  }
+  BuildWired(points, tris, normals);
 
   //setup rotation and translation
   if(m_bodyInfo.m_bIsFixed) {
@@ -98,8 +90,6 @@ PolyhedronModel::BuildModels() {
     Quaternion nq = qz * qy * qx;
     q(nq.normalize());
   }
-
-  return true;
 }
 
 void PolyhedronModel::Draw(GLenum _mode) {
@@ -191,11 +181,11 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
 }
 
 //build wire frame
-bool
+void
 PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {
   CModelGraph mg;
   if(!mg.doInit(_points, _tris))
-    return false;
+    throw BuildException("PolyhedronModel::BuildWired", "Cannot initialize ModelGraph");
 
   //build model
   m_wiredID=glGenLists(1);
@@ -221,8 +211,6 @@ PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, con
 
   glPopMatrix();
   glEndList();
-
-  return true;
 }
 
 //set m_com to center of mass of _points

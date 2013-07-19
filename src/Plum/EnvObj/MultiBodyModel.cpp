@@ -16,21 +16,17 @@ namespace plum{
   //////////////////////////////////////////////////////////////////////
   // Core
   //////////////////////////////////////////////////////////////////////
-  bool MultiBodyModel::BuildModels() {
+  void MultiBodyModel::BuildModels() {
     m_poly = vector<PolyhedronModel>(m_MBInfo.m_cNumberOfBody);
 
     //build for each body and compute com
     for(size_t i = 0; i< size_t(m_MBInfo.m_cNumberOfBody); i++){
       CBodyInfo& info = m_MBInfo.m_pBodyInfo[i];
       //only build fixed, free body will not be built (when m_bFixed is set)
-      if(!info.m_bIsFixed && m_bFixed == true)
+      if(!info.m_bIsFixed && m_bFixed)
         continue;
       m_poly[i].SetBodyInfo(info);
-
-      if(m_poly[i].BuildModels() == false){
-        cout<<"Couldn't build models in Polyhedron class"<<endl;
-        return false;
-      }
+      m_poly[i].BuildModels();
 
       m_poly[i].SetColor(info.rgb[0],info.rgb[1],info.rgb[2],1);
 
@@ -49,7 +45,7 @@ namespace plum{
     for(size_t i=0; i<m_poly.size(); i++ ){
       CBodyInfo & info=m_MBInfo.m_pBodyInfo[i];
       //only build fixed, free body will not be build (when m_bFixed is set)
-      if( !info.m_bIsFixed && m_bFixed==true )
+      if( !info.m_bIsFixed && m_bFixed)
         continue;
 
       double dist = (Point3d(info.m_X,info.m_Y,info.m_Z)-m_COM).norm()
@@ -62,7 +58,6 @@ namespace plum{
       m_poly[i].ty()-=ty();
       m_poly[i].tz()-=tz();
     }
-    return true;
   }
 
   void MultiBodyModel::Select(unsigned int* index, vector<GLModel*>& sel){
@@ -131,32 +126,32 @@ namespace plum{
   }
 
   vector<string>
-  MultiBodyModel::GetInfo() const {
+    MultiBodyModel::GetInfo() const {
 
-    vector<string> info;
-    ostringstream temp, os;
+      vector<string> info;
+      ostringstream temp, os;
 
-    if(m_bFixed){
-      info.push_back(string("Obstacle"));
-      temp << "Position ( "<< tx()<<", "<<ty()<<", "<<tz()<<" )";
-    }
-
-    else {
-      info.push_back(string("Robot"));
-      temp << m_poly.size();
-      temp << "Cfg ( ";
-      info.push_back(string("Cfg ( "));
-      for(size_t i=0; i<m_cfg.size(); i++){
-        temp<<m_cfg[i];
-        if(i == m_cfg.size()-1)
-          temp << " )";
-        else
-          temp << ", ";
+      if(m_bFixed){
+        info.push_back(string("Obstacle"));
+        temp << "Position ( "<< tx()<<", "<<ty()<<", "<<tz()<<" )";
       }
+
+      else {
+        info.push_back(string("Robot"));
+        temp << m_poly.size();
+        temp << "Cfg ( ";
+        info.push_back(string("Cfg ( "));
+        for(size_t i=0; i<m_cfg.size(); i++){
+          temp<<m_cfg[i];
+          if(i == m_cfg.size()-1)
+            temp << " )";
+          else
+            temp << ", ";
+        }
+      }
+      info.push_back(temp.str());
+      return info;
     }
-    info.push_back(temp.str());
-    return info;
-  }
 
 
   //configuration of robot is got from RobotModel::getFinalCfg()

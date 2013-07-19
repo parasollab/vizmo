@@ -8,9 +8,11 @@ BoundingBoxModel::BoundingBoxModel() : BoundaryModel() {
   }
 }
 
-bool BoundingBoxModel::BuildModels(){
+void
+BoundingBoxModel::BuildModels(){
   double zmin = m_bbx[2].second == numeric_limits<double>::max() ? -1 : m_bbx[2].first;
   double zmax = m_bbx[2].second == numeric_limits<double>::max() ? 1 : m_bbx[2].second;
+
   GLdouble vertices[]=
   { m_bbx[0].first, m_bbx[1].first, zmin,
     m_bbx[0].second, m_bbx[1].first, zmin,
@@ -76,8 +78,6 @@ bool BoundingBoxModel::BuildModels(){
   glEndList();
 
   glDisableClientState(GL_VERTEX_ARRAY);
-
-  return true;
 }
 
 const string BoundingBoxModel::GetName() const{

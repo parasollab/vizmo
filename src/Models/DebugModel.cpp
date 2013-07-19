@@ -15,11 +15,15 @@ struct EdgeAccess{
   void put(Property p, value_type _v) {p.GetWeight()=_v;}
 };
 
-DebugModel::DebugModel(string _filename) : m_robotModel(NULL), m_index(-1),
-  m_mapModel(new MapModel<CfgModel, EdgeModel>()), m_edgeNum(-1) {
+DebugModel::DebugModel(const string& _filename, RobotModel* _robotModel) :
+  m_robotModel(_robotModel), m_index(-1),
+  m_mapModel(new MapModel<CfgModel, EdgeModel>(_robotModel)),
+  m_edgeNum(-1) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
     m_mapModel->InitGraph();
+    ParseFile();
+    BuildModels();
   }
 
 DebugModel::~DebugModel() {
@@ -44,11 +48,11 @@ DebugModel::GetComments(){
   return m_index == -1 ? vector<string>() : m_comments;
 }
 
-bool
+void
 DebugModel::ParseFile() {
   //check if file exists
   if(!FileExists(GetFilename()))
-    return true;
+    throw ParseException("DebugModel", "'" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
 
@@ -123,26 +127,21 @@ DebugModel::ParseFile() {
       m_instructions.push_back(new Query(s, t));
     }
   }
-
-  return true;
 }
 
-bool
+void
 DebugModel::BuildModels(){
   //can't build model without robot
-  if(m_robotModel == NULL)
-    return false;
+  if(!m_robotModel)
+    throw BuildException("DebugModel", "RobotModel is null.");
 
   m_prevIndex = 0;
   m_index = 0;
   m_edgeNum = 0;
   m_tempRay = NULL;
 
-  m_mapModel->SetRobotModel(m_robotModel);
   m_mapModel->BuildModels();
   m_mapModel->SetRenderMode(SOLID_MODE);
-
-  return true;
 }
 
 void

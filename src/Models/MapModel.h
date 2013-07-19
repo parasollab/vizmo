@@ -26,7 +26,10 @@ class MapModel : public plum::GLModel{
     ColorMap m_colorMap;
     typedef typename Wg::vertex_iterator VI;
 
-    MapModel(const string& _filename = "");
+    MapModel(RobotModel* _robotModel);
+    //constructor only to grab header environment name
+    MapModel(const string& _filename);
+    MapModel(const string& _filename, RobotModel* _robotModel);
     virtual ~MapModel();
 
     //Access functions
@@ -40,7 +43,6 @@ class MapModel : public plum::GLModel{
     const list<string>& GetDMs() const{ return m_dMs; }
     const string GetSeed() const {return m_seed; }
     Wg* GetGraph(){ return m_graph; }
-    void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
     vector<CCM*>& GetCCModels(){ return m_cCModels; }
     list<GLModel*>& GetNodeList(){ return m_nodes; }
     vector<GLModel*>& GetNodesToConnect(){ return m_nodesToConnect; }
@@ -59,14 +61,13 @@ class MapModel : public plum::GLModel{
     //void WriteMapFile(const char *filename);
     bool ParseHeader();
     bool ParseHeader(istream& _in);
-    virtual bool ParseFile();
-    virtual bool ParseFile(const string& _filename);
+    virtual void ParseFile();
     bool WriteMapFile();
     VID Cfg2VID(CfgModel _target);
     void GenGraph();
 
     //Display fuctions
-    virtual bool BuildModels();
+    virtual void BuildModels();
     virtual void Draw(GLenum _mode);
     void Select(unsigned int* _index, vector<GLModel*>& _sel);
     virtual void SetRenderMode(RenderMode _mode); //Wire, solid, or invisible
@@ -111,10 +112,32 @@ class MapModel : public plum::GLModel{
 };
 
 template <class CfgModel, class WEIGHT>
-MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename){
+MapModel<CfgModel, WEIGHT>::MapModel(RobotModel* _robotModel) {
+  m_renderMode = INVISIBLE_MODE;
+  m_robot = _robotModel;
+  m_graph = NULL;
+  m_enableSelection = true; //disable selection
+  m_editModel = false;
+  m_addNode = false;
+  m_addEdge = false;
+  m_robCfgOn = false;
+  m_robCfgString = "";
+  m_noMap = false;
+  //m_size = 0.5;
+}
+
+//constructor only to grab header environment name
+template <class CfgModel, class WEIGHT>
+MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename) {
+  SetFilename(_filename);
+  ParseHeader();
+}
+
+template <class CfgModel, class WEIGHT>
+MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename, RobotModel* _robotModel){
   SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
-  m_robot = NULL;
+  m_robot = _robotModel;
   m_graph = NULL;
   m_enableSelection = true; //disable selection
   m_editModel = false;
@@ -125,9 +148,8 @@ MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename){
   m_noMap = false;
   //m_size = 0.5;
 
-  //It may be preferable to do all model ParseFiles within constructors,
-  //but for now it seems there are some problematic dependencies
-  //ParseFile(_filename);
+  ParseFile();
+  BuildModels();
 }
 
 template <class CfgModel, class WEIGHT>
@@ -149,9 +171,9 @@ MapModel<CfgModel, WEIGHT>::ParseHeader(){
   if(!FileExists(GetFilename()))
     return false;
 
-  ifstream fin(GetFilename().c_str());
-  bool result = ParseHeader(fin);
-  fin.close();
+  ifstream ifs(GetFilename().c_str());
+  bool result = ParseHeader(ifs);
+  ifs.close();
   return result;
 }
 
@@ -229,32 +251,20 @@ MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
 }
 
 template<class CfgModel, class WEIGHT>
-bool
+void
 MapModel<CfgModel,WEIGHT>::ParseFile(){
-  return ParseFile(GetFilename());
-}
-
-template<class CfgModel, class WEIGHT>
-bool
-MapModel<CfgModel, WEIGHT>::ParseFile(const string& _filename){
-
   if(!FileExists(GetFilename()))
-    return false;
+    throw ParseException("MapModel", "'" + GetFilename() + "' does not exist");
 
-  ifstream fin(GetFilename().c_str());
-  if(ParseHeader(fin) == false)
-    return false;
+  ifstream ifs(GetFilename().c_str());
+  if(!ParseHeader(ifs))
+    throw ParseException("MapModel", "'" + GetFilename() + "' has incorrect header");
 
   //Get Graph Data
   string s;
-  getline(fin, s);
+  getline(ifs, s);
   m_graph  = new Wg();
-  if(m_graph == NULL)
-    return false;
-
-  read_graph(*m_graph, fin);
-  fin.close();
-  return true;
+  read_graph(*m_graph, ifs);
 }
 
 template <class CfgModel, class WEIGHT>
@@ -292,18 +302,13 @@ MapModel<CfgModel, WEIGHT>::GenGraph(){
 //////////Display functions//////////
 
 template <class CfgModel, class WEIGHT>
-bool
+void
 MapModel<CfgModel, WEIGHT>::BuildModels() {
-
   typedef typename vector<CCM*>::iterator CCIT;
-
-  if(m_graph == NULL)
-    return false;
-
   for(CCIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++)
     delete (*ic);
 
-  m_cCModels.clear(); //new line Jul-01-05
+  m_cCModels.clear();
 
   //Get CCs
   typedef typename vector< pair<size_t,VID> >::iterator CIT;
@@ -319,7 +324,6 @@ MapModel<CfgModel, WEIGHT>::BuildModels() {
     cc->BuildModels(ic->second, m_graph);
     m_cCModels.push_back(cc);
   }
-  return true;
 }
 
 template <class CfgModel, class WEIGHT>

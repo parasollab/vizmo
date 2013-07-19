@@ -51,7 +51,6 @@ class CfgModel : public plum::GLModel{
 
     bool operator==(const CfgModel& _other) const;
     void Set(int _index, RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc);
-    bool BuildModels(){ return true; }
     void Draw(GLenum _mode);
     void DrawRobot();
     void DrawBox();

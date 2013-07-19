@@ -18,7 +18,6 @@
 namespace plum{
 
   enum RenderMode {WIRE_MODE, SOLID_MODE, INVISIBLE_MODE};
-  enum BuildState {MODEL_OK, ENV_MODEL_ERROR, MAP_MODEL_ERROR, CLIENT_MODEL_ERROR};
 
   class GLModel : public gliTransform
   {
@@ -52,8 +51,8 @@ namespace plum{
       }
 
       virtual void Select( unsigned int * index, vector<GLModel*>& sel ){/*nothing*/}
-      virtual bool ParseFile(){ return true; }  //pure eventually
-      virtual bool BuildModels() =0;
+      virtual void ParseFile() {}
+      virtual void BuildModels() {};
       virtual void Draw( GLenum mode ) =0;
 
       //the scale may be difficult for some models....
