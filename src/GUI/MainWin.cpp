@@ -86,7 +86,7 @@ VizmoMainWin::InitVizmo(){
   if(flDialog->exec()!= QDialog::Accepted)
     return false;
 
-  if(GetVizmo().InitVizmoObj() == false)
+  if(!GetVizmo().InitModels())
     return false;
 
   resize(width(),height());

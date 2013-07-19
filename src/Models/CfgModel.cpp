@@ -2,7 +2,6 @@
 #include <limits.h>
 
 #include "CfgModel.h"
-#include "Plum/Plum.h"
 #include "Plum/EnvObj/RobotInfo.h"
 #include "CCModel.h"
 

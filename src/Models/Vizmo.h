@@ -5,7 +5,6 @@
 #include <string>
 using namespace std;
 
-#include <Plum/Plum.h>
 #include <Plum/EnvObj/MultiBodyModel.h>
 #include <Utilities/CollisionDetection.h>
 using namespace plum;
@@ -30,56 +29,24 @@ Vizmo& GetVizmo();
  * contains objects for data loaded in.
  */
 class Vizmo {
+
   public:
-    /* VizmoObj
-     *
-     * This class holds all Vizmo objects.
-     * When an item is NULL, it means this item is not availiable for
-     * current session.
-     * Only Vizmo can create this object.
-     */
-    struct VizmoObj {
-      VizmoObj();
-      ~VizmoObj();
-
-      void Clean();
-
-      //environment
-      EnvModel* m_envModel;
-      string m_envFilename;
-      //robot
-      RobotModel* m_robotModel;
-      //map
-      MapModel<CfgModel, EdgeModel>* m_mapModel;
-      bool m_showMap;
-      string m_mapFilename;
-      //query
-      QueryModel* m_queryModel;
-      bool m_showQuery;
-      string m_queryFilename;
-      //path
-      PathModel* m_pathModel;
-      bool m_showPath;
-      string m_pathFilename;
-      //debug
-      DebugModel* m_debugModel;
-      string m_debugFilename;
-    };
-
     Vizmo();
+    ~Vizmo();
 
     //This file locates all possible filename related to OBPRM.
     //For example, *.path, *.env, *.query...etc.
     void GetAccessFiles(const string& _filename);
 
     //Create VizmoObj.
-    bool InitVizmoObj();
+    bool InitModels();
+    void Clean();
 
     //Display OpenGL Scene
-    void Display(){ m_plum.Draw();}
+    void Display();
 
     //Select Objects in OpenGL Scene
-    void Select(const gliBox& _box){m_plum.Select(_box);}
+    void Select(const gliBox& _box);
 
     //Animate Robot motion
     void Animate(int frame);
@@ -102,47 +69,41 @@ class Vizmo {
     bool EnvChanged();
     bool IsEnvChanged() { return m_envChanged; }
     double GetEnvRadius();
-    EnvModel* GetEnv() const { return m_obj.m_envModel; }
+    EnvModel* GetEnv() const { return m_envModel; }
 
     // Robot Related Functions
-    // get the robot's cfg. to be drawn in the toolbar
-    //getRoboCfg() called from scene_win::mouseMoveEvent()
-    void getRoboCfg();
-    vector<string> info;
-    //getRobCfgText() called from roadmap::printRobCfg()
-    vector<string> getRobCfgText(){return info;}
     int getNumJoints();
-    RobotModel* GetRobot() const {  return m_obj.m_robotModel; }
+    RobotModel* GetRobot() const {  return m_robotModel; }
 
     // Roadmap Related Functions
     void ShowRoadMap(bool _show = true);
-    bool IsRoadMapShown() const { return m_obj.m_showMap; }
+    bool IsRoadMapShown() const { return m_showMap; }
     void ChangeNodesSize(float _s, string _str);
     void ChangeEdgeThickness(size_t _t);
     void ChangeNodesShape(string _s);
-    bool IsRoadMapLoaded(){return m_obj.m_mapModel;}
+    bool IsRoadMapLoaded(){return m_mapModel;}
     void ChangeCCColor(double _r, double _g, double _b, string _s);
     void ChangeNodeColor(double _r, double _g, double _b, string _s);
     void UpdateSelection();
     void ChangeNodesRandomColor();
-    MapModel<CfgModel, EdgeModel>* GetMap() const {return m_obj.m_mapModel;}
+    MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
     void SetMapObj(MapModel<CfgModel, EdgeModel>* _mm);
 
     // Query Related Functions
     void ShowQueryFrame( bool bshow = true );   // to know if the Query has to be showed
-    bool IsQueryLoaded(){ return m_obj.m_queryModel; }
-    QueryModel* GetQry() const { return m_obj.m_queryModel; }
+    bool IsQueryLoaded(){ return m_queryModel; }
+    QueryModel* GetQry() const { return m_queryModel; }
 
     // Path Related Functions
     void ShowPathFrame( bool bShow=true );
     int GetPathSize();
-    bool IsPathLoaded(){ return m_obj.m_pathModel; }
-    PathModel* GetPath() const { return m_obj.m_pathModel; }
+    bool IsPathLoaded(){ return m_pathModel; }
+    PathModel* GetPath() const { return m_pathModel; }
 
     // Debug Related Functions
     int GetDebugSize();
-    bool IsDebugLoaded(){return m_obj.m_debugModel != NULL;}
-    DebugModel* GetDebug() const {return m_obj.m_debugModel;}
+    bool IsDebugLoaded(){return m_debugModel != NULL;}
+    DebugModel* GetDebug() const {return m_debugModel;}
 
     // Collision Detection Related Functions
     CollisionDetection CD;
@@ -157,8 +118,8 @@ class Vizmo {
     bool m_IsNode;
 
     //plum
-    vector<GLModel*>& GetGLModels(){ return m_plum.GetGLModels(); }
-    vector<GLModel*>& GetSelectedItems() {return m_plum.GetSelectedItems();}
+    vector<GLModel*>& GetLoadedModels(){ return m_loadedModels; }
+    vector<GLModel*>& GetSelectedModels() {return m_selectedModels;}
 
     //Miscelaneous
     bool StringToInt(const string &s, int &i);
@@ -170,25 +131,53 @@ class Vizmo {
 
     /////////////////////////////////////////////////////////////////////
     // Filenames
-    const string& getEnvFileName() const { return m_obj.m_envFilename; }
-    const string& getMapFileName() const { return m_obj.m_mapFilename; }
-    const string& getQryFileName() const { return m_obj.m_queryFilename; }
-    const string& getPathFileName() const { return m_obj.m_pathFilename; }
-    const string& getDebugFileName() const { return m_obj.m_debugFilename; }
+    const string& getEnvFileName() const { return m_envFilename; }
+    const string& getMapFileName() const { return m_mapFilename; }
+    const string& getQryFileName() const { return m_queryFilename; }
+    const string& getPathFileName() const { return m_pathFilename; }
+    const string& getDebugFileName() const { return m_debugFilename; }
 
-    void setEnvFileName(const string& name){ m_obj.m_envFilename=name; }
-    void setMapFileName(const string& name){ m_obj.m_mapFilename=name; }
-    void setQryFileName(const string& name){ m_obj.m_queryFilename=name; }
-    void setPathFileName(const string& name) { m_obj.m_pathFilename=name; }
-    void setDebugFileName(const string& name) { m_obj.m_debugFilename=name; }
+    void setEnvFileName(const string& name){ m_envFilename=name; }
+    void setMapFileName(const string& name){ m_mapFilename=name; }
+    void setQryFileName(const string& name){ m_queryFilename=name; }
+    void setPathFileName(const string& name) { m_pathFilename=name; }
+    void setDebugFileName(const string& name) { m_debugFilename=name; }
 
   protected:
     //Put robot in start configuration if possible
     void PlaceRobot();
 
+    //Parse the Hit Buffer. Store selected obj into m_selectedModels.
+    //hit is the number of hit by this selection
+    //buffer is the hit buffer
+    //if all, all obj select will be put into m_selectedItems,
+    //otherwise only the closest will be selected.
+    void SearchSelectedItems(int _hit, void* _buffer, bool _all);
+
   private:
-    VizmoObj m_obj;
-    Plum m_plum;
+    //environment
+    EnvModel* m_envModel;
+    string m_envFilename;
+    //robot
+    RobotModel* m_robotModel;
+    //map
+    MapModel<CfgModel, EdgeModel>* m_mapModel;
+    bool m_showMap;
+    string m_mapFilename;
+    //query
+    QueryModel* m_queryModel;
+    bool m_showQuery;
+    string m_queryFilename;
+    //path
+    PathModel* m_pathModel;
+    bool m_showPath;
+    string m_pathFilename;
+    //debug
+    DebugModel* m_debugModel;
+    string m_debugFilename;
+
+    typedef vector<GLModel*>::iterator MIT;
+    vector<GLModel*> m_loadedModels, m_selectedModels;
 };
 
 #endif

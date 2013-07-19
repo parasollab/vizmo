@@ -18,7 +18,7 @@ TextGUI::TextGUI(QWidget* _parent)
 
 void
 TextGUI::SetText(){
-  vector<GLModel*>& sel=GetVizmo().GetSelectedItems();
+  vector<GLModel*>& sel=GetVizmo().GetSelectedModels();
 
   typedef vector<GLModel*>::iterator SIT;
 

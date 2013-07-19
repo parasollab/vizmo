@@ -122,7 +122,7 @@ FileOptions::UpdateFiles(){
   if(m_flDialog->exec() != QDialog::Accepted)
     return;
 
-  if(!GetVizmo().InitVizmoObj())
+  if(!GetVizmo().InitModels())
     return;
 
   //reset guis

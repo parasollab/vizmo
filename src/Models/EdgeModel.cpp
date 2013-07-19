@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "EdgeModel.h"
-#include "Plum/Plum.h"
 
 EdgeModel::EdgeModel() {
   m_lp = INT_MAX;

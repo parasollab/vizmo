@@ -19,7 +19,7 @@ VizmoItemSelectionGUI::VizmoItemSelectionGUI(QWidget* _parent)
 
 void
 VizmoItemSelectionGUI::ResetLists(){
-  vector<GLModel*>& objs=GetVizmo().GetGLModels();
+  vector<GLModel*>& objs=GetVizmo().GetLoadedModels();
   ClearLists();
   FillTree(objs);
 
@@ -65,12 +65,12 @@ VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model)
 void
 VizmoItemSelectionGUI::SelectionChanged(){
   //Selects in MAP whatever has been selected in the tree widget
-  vector<GLModel*>& sel=GetVizmo().GetSelectedItems();
+  vector<GLModel*>& sel=GetVizmo().GetSelectedModels();
   sel.clear();
   typedef vector<VizmoListViewItem*>::iterator IIT;
   for(IIT i = m_items.begin(); i != m_items.end(); i++){
     if(((*i)->isSelected()))
-      GetVizmo().GetSelectedItems().push_back((*i)->m_model);
+      GetVizmo().GetSelectedModels().push_back((*i)->m_model);
   }
   emit CallUpdate();
   emit UpdateTextGUI();
@@ -86,15 +86,14 @@ VizmoItemSelectionGUI::ClearLists(){
 void
 VizmoItemSelectionGUI::Select(){
   //Selects in the TREE WIDGET whatever has been selected in the map
-  vector<GLModel*> sel = GetVizmo().GetSelectedItems();
-  int size = sel.size();
+  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<VizmoListViewItem*>::iterator IIT;
   //unselect everything
   for(IIT i = m_items.begin(); i != m_items.end(); i++)
     (*i) -> setSelected(false);
   //find selected
   vector<VizmoListViewItem*> selected;
-  for(int s=0; s<size; s++){
+  for(int s=0; s<sel.size(); s++){
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
       if(sel[s] == (*i)->m_model){
         selected.push_back(*i);
@@ -104,7 +103,6 @@ VizmoItemSelectionGUI::Select(){
   //select
   for(IIT i=selected.begin(); i!=selected.end(); i++)
     (*i)->setSelected(true);
-  GetVizmo().GetSelectedItems() = sel;
 }
 
 

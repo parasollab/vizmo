@@ -401,7 +401,7 @@ RoadmapOptions::MakeSolid(){
 
   string s;
   int k = 0;
-  vector<GLModel*>& sel = GetVizmo().GetSelectedItems();
+  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<GLModel*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     GLModel* gl = (GLModel*)(*i);
@@ -418,7 +418,7 @@ void
 RoadmapOptions::MakeWired(){
 
   string s;
-  vector<GLModel*>& sel = GetVizmo().GetSelectedItems();
+  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<GLModel*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     GLModel *gl = (GLModel*)(*i);
@@ -432,7 +432,7 @@ void
 RoadmapOptions::MakeInvisible(){
 
   string s;
-  vector<GLModel*>& sel = GetVizmo().GetSelectedItems();
+  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<GLModel*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     GLModel* gl = (GLModel*)(*i);
@@ -466,7 +466,7 @@ RoadmapOptions::ColorSelectedCC(){
   R=G=B=1;
 
   //Check first if there is a CC selected
-  vector<GLModel*>& sel = GetVizmo().GetSelectedItems();
+  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<GLModel*>::iterator SI;
   string m_sO;
   for(SI i = sel.begin(); i!= sel.end(); i++){
@@ -535,8 +535,8 @@ RoadmapOptions::ShowObjectContextMenu(){
   string str;
   typedef vector<GLModel*>::iterator GIT;
 
-  for(GIT ig = GetVizmo().GetSelectedItems().begin();
-      ig!=GetVizmo().GetSelectedItems().end(); ig++){
+  for(GIT ig = GetVizmo().GetSelectedModels().begin();
+      ig!=GetVizmo().GetSelectedModels().end(); ig++){
     GLModel* gl=(GLModel*)(*ig);
     vector<string> info=gl->GetInfo();
     str = info.front();
