@@ -10,6 +10,10 @@ using namespace std;
 
 #include <qgl.h>
 
+class gliCamera;
+gliCamera* GetCamera();
+void SetCamera(gliCamera* _camera);
+
 /**
  * Handle camera control
  */

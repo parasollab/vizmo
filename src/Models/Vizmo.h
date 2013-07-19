@@ -21,10 +21,6 @@ class QueryModel;
 class PathModel;
 class DebugModel;
 
-class gliCamera;
-gliCamera* GetCamera();
-void SetCamera(gliCamera* _camera);
-
 //Define singleton
 class Vizmo;
 Vizmo& GetVizmo();
