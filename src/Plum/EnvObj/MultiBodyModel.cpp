@@ -159,7 +159,7 @@ namespace plum{
   }
 
 
-  //configuration of robot is got from OBPRMView_Robot::getFinalCfg()
+  //configuration of robot is got from RobotModel::getFinalCfg()
   //queryCfg[i] used to print the robot's cfg.
   void MultiBodyModel::SetCfg(vector<double>& _cfg){
     m_cfg = _cfg;

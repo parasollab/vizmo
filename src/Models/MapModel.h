@@ -7,7 +7,7 @@
 #include <algorithms/graph_algo_util.h>
 #include <algorithms/graph_input_output.h>
 
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 #include "Plum/PlumObject.h"
 #include "CCModel.h"
 #include "CfgModel.h"
@@ -45,7 +45,7 @@ class MapModel : public plum::GLModel{
     const list<string>& GetDMs() const{ return m_dMs; }
     const string GetSeed() const {return m_seed; }
     Wg* GetGraph(){ return m_graph; }
-    void SetRobotModel(OBPRMView_Robot* _robot){ m_robot = _robot; }
+    void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
     vector<CCM*>& GetCCModels(){ return m_cCModels; }
     list<GLModel*>& GetNodeList(){ return m_nodes; }
     vector<GLModel*>& GetNodesToConnect(){ return m_nodesToConnect; }
@@ -102,7 +102,7 @@ class MapModel : public plum::GLModel{
     bool m_addEdge;
     double* m_cfg;
     int m_dof;
-    OBPRMView_Robot* m_robot;
+    RobotModel* m_robot;
     vector<CCM*> m_cCModels;
     list<GLModel*> m_nodes; //moved from obsolete Roadmap.h!
     vector<GLModel*> m_nodesToConnect; //nodes to be connected
@@ -597,7 +597,7 @@ else{ //no node selected and assumes there is not roadmap....
 
     PlumObject* m_Rob;
     m_Rob = this->GetVizmo().GetRobot();
-    OBPRMView_Robot* r = (OBPRMView_Robot*)m_Rob->getModel();
+    RobotModel* r = (RobotModel*)m_Rob->getModel();
 
     if(r != NULL)
       mmodel->SetRobotModel(r);

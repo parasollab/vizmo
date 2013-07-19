@@ -1,7 +1,7 @@
 #include "PathModel.h"
 
 #include "Models/CfgModel.h"
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 #include "Utilities/IOUtils.h"
 
 PathModel::PathModel(string _filename)

@@ -531,7 +531,7 @@ RoadmapOptions::ShowObjectContextMenu(){
   cm.addAction(m_actions["makeWired"]);
 
   //Create submenu to set start and goal configs.
-  //create it just if Robot has been selected
+  //create it just if RobotModel.has been selected
   string str;
   typedef vector<gliObj>::iterator GIT;
 

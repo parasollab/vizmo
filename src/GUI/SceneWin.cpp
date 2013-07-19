@@ -210,7 +210,7 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
 #ifdef USE_PHANTOM
   //cout << "key" << endl;
   if(CDOn){
-    OBPRMView_Robot* rob = (OBPRMView_Robot*)(GetVizmo().GetRobot()->getModel());
+    RobotModel* rob = (RobotModel*)(GetVizmo().GetRobot()->getModel());
     //cout << "on " << endl;
     GetPhantomManager().CDOn = true;
     GetVizmo().TurnOn_CD();
@@ -237,7 +237,7 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
     updateGL();
     return;
   }//handled by gli
-  //if((OBPRMView_Robot*)(GetVizmo().GetRobot()) == NULL){
+  //if((RobotModel*)(GetVizmo().GetRobot()) == NULL){
   if((GetVizmo().GetRobot()) == NULL){  //^casting presumably not necessary
     updateGL();
     return;

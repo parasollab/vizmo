@@ -17,7 +17,7 @@ using namespace mathtool;
 
 using namespace plum;
 
-class OBPRMView_Robot : public GLModel{
+class RobotModel : public GLModel{
 
   public:
 
@@ -31,9 +31,9 @@ class OBPRMView_Robot : public GLModel{
     }
 
 
-    OBPRMView_Robot(EnvModel* _env);
-    OBPRMView_Robot(const OBPRMView_Robot& _otherRobot);
-    ~OBPRMView_Robot();
+    RobotModel(EnvModel* _env);
+    RobotModel(const RobotModel& _otherRobot);
+    ~RobotModel();
 
     EnvModel* GetEnvModel()const { return m_envModel; }
 

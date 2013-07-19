@@ -13,7 +13,7 @@
 #include "CfgModel.h"
 #include "EdgeModel.h"
 #include "MapModel.h"
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 
 using namespace std;
 using namespace stapl;
@@ -53,7 +53,7 @@ class CCModel : public plum::GLModel{
     map<VID, CfgModel>& GetNodesInfo() { return m_nodes; }
     vector<WEIGHT>& GetEdgesInfo() { return m_edges; }
     WG* GetGraph(){ return m_graph; }
-    void SetRobotModel(OBPRMView_Robot* _robot){ m_robot = _robot; }
+    void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
     void SetColorChanged(bool _isNew) { m_newColor = _isNew; }
 
     void RebuildAll();
@@ -96,7 +96,7 @@ class CCModel : public plum::GLModel{
     int m_pointID;
 
     bool m_newColor; //Have CC colors been changed?
-    OBPRMView_Robot* m_robot;
+    RobotModel* m_robot;
     WG* m_graph;
     ColorMap m_colorMap;
     map<VID, CfgModel> m_nodes;

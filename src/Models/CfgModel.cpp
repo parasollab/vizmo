@@ -149,7 +149,7 @@ CfgModel::operator==(const CfgModel& _other) const{
 }
 
 void
-CfgModel::Set(int _index , OBPRMView_Robot* _robot, CCModel<CfgModel, EdgeModel>* _cc){
+CfgModel::Set(int _index , RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc){
 
   m_index = _index;
   m_robot = _robot;

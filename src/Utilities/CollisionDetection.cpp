@@ -38,7 +38,7 @@ bool CollisionDetection::IsInCollision(EnvModel* _envModel,
 bool CollisionDetection::IsInCollision(int _numMB,
       EnvModel* _envModel,
       plum::MultiBodyModel* _robotModel,
-      OBPRMView_Robot* _robotObj) {
+      RobotModel* _robotObj) {
 
 
    vector<MultiBodyModel*> MBmodel = _envModel->GetMultiBodies();
@@ -51,7 +51,7 @@ bool CollisionDetection::IsInCollision(int _numMB,
    ////// Making a copy of the robot
    /// use this new robot to work...
 
-   OBPRMView_Robot* robotCpy(_robotObj);
+   RobotModel* robotCpy(_robotObj);
 
    list<GLModel*> robotList,modelList;
    //obtain robot model
@@ -145,7 +145,7 @@ void Rapid::RCopyNodeCfg(double * n_cfg, int dof){
 }
 
 bool Rapid::IsInCollision(MultiBodyModel * robot,
-      OBPRMView_Robot * robotObj, int dof,
+      RobotModel * robotObj, int dof,
       MultiBodyModel * obstacle){
 
    //bool is_collision = false;

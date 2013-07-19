@@ -73,7 +73,7 @@ EdgeModel::operator==(const EdgeModel& _other){
 }
 
 void
-EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2, OBPRMView_Robot* _robot){
+EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot){
 
   m_id = _id;
   m_startCfg = *_c1;

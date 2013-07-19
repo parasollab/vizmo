@@ -1,8 +1,8 @@
-#include "Robot.h"
+#include "RobotModel.h"
 #include "Models/Vizmo.h"
 
 
-OBPRMView_Robot::OBPRMView_Robot(EnvModel* _env){
+RobotModel::RobotModel(EnvModel* _env){
 
   m_envModel = _env;
   dof = 1000;
@@ -19,23 +19,23 @@ OBPRMView_Robot::OBPRMView_Robot(EnvModel* _env){
   pthread_mutex_init(&mutex, NULL);
 }
 
-OBPRMView_Robot::OBPRMView_Robot(const OBPRMView_Robot& _otherRobot)
+RobotModel::RobotModel(const RobotModel& _otherRobot)
   :GLModel(_otherRobot){
 
    m_envModel = _otherRobot.GetEnvModel();
    m_RobotModel = _otherRobot.getRobotModel();
 }
 
-MultiBodyModel* OBPRMView_Robot::getRobotModel() const {
+MultiBodyModel* RobotModel::getRobotModel() const {
    return m_RobotModel;
 }
 
-OBPRMView_Robot::~OBPRMView_Robot()
+RobotModel::~RobotModel()
 {
    delete m_RobotModel;
 }
 
-bool OBPRMView_Robot::BuildModels(){
+bool RobotModel::BuildModels(){
 
    //find robot name
    const CMultiBodyInfo* pMInfo = m_envModel->GetMultiBodyInfo();
@@ -74,7 +74,7 @@ bool OBPRMView_Robot::BuildModels(){
    return m_RobotModel->BuildModels();
 }
 
-void OBPRMView_Robot::Draw(GLenum _mode){
+void RobotModel::Draw(GLenum _mode){
    if( m_RobotModel==NULL){cout<<"m_RobotModel==NULL"<<endl; return;}
    glPushMatrix();
    glTransform();
@@ -83,7 +83,7 @@ void OBPRMView_Robot::Draw(GLenum _mode){
    //getFinalCfg();
 }
 
-void OBPRMView_Robot::Select( unsigned int * index, vector<gliObj>& sel ){
+void RobotModel::Select( unsigned int * index, vector<gliObj>& sel ){
    //unselect old one
    if( index==NULL ) return;
    m_RobotModel->Select(index+1,sel);
@@ -91,7 +91,7 @@ void OBPRMView_Robot::Select( unsigned int * index, vector<gliObj>& sel ){
 }
 
 
-void OBPRMView_Robot::DrawSelect()
+void RobotModel::DrawSelect()
 {
    if( m_RobotModel==NULL ) return;
    glPushMatrix();
@@ -101,7 +101,7 @@ void OBPRMView_Robot::DrawSelect()
    //getFinalCfg();
 }
 
-void OBPRMView_Robot::InitialCfg(vector<double>& cfg){
+void RobotModel::InitialCfg(vector<double>& cfg){
    //save initial Cfg.
    dof = m_envModel->GetDOF();
    StCfg = new double[dof];
@@ -119,7 +119,7 @@ void OBPRMView_Robot::InitialCfg(vector<double>& cfg){
    originalSize[2]=sz();
 }
 
-void OBPRMView_Robot::RestoreInitCfg(){
+void RobotModel::RestoreInitCfg(){
    //reset MultiBody values to 0's
    m_RobotModel->tx() = m_RobotModel->ty() = m_RobotModel->tz() = 0;
    double z = 0.0;
@@ -144,7 +144,7 @@ void OBPRMView_Robot::RestoreInitCfg(){
        poly.GetColor()[2], poly.GetColor()[3]);
 }
 
-void OBPRMView_Robot::BackUp(){
+void RobotModel::BackUp(){
   m_RenderModeBackUp = m_renderMode;
    vector<PolyhedronModel>& polys = m_RobotModel->GetPolyhedron();
 
@@ -174,7 +174,7 @@ void OBPRMView_Robot::BackUp(){
    MBq = m_RobotModel->q();
 }
 
-void OBPRMView_Robot::Restore(){
+void RobotModel::Restore(){
    this->Scale(o_s[0],o_s[1],o_s[2]);
 
    this->SetColor(R,G,B,this->GetColor()[3]);
@@ -196,14 +196,14 @@ void OBPRMView_Robot::Restore(){
   RestoreInitCfg();
 }
 
-void OBPRMView_Robot::keepColor(float r, float g, float b){
+void RobotModel::keepColor(float r, float g, float b){
    m_rR = r; m_rG = g; m_rB = b;
    m_RobotInfo[0].m_pBodyInfo[0].rgb[0] = r;
    m_RobotInfo[0].m_pBodyInfo[0].rgb[1] = g;
    m_RobotInfo[0].m_pBodyInfo[0].rgb[2] = b;
 }
 
-void OBPRMView_Robot::Configure( double * cfg) {
+void RobotModel::Configure( double * cfg) {
   pthread_mutex_lock(&mutex);
 
   const CMultiBodyInfo* MBInfo = m_envModel->GetMultiBodyInfo();
@@ -339,7 +339,7 @@ void OBPRMView_Robot::Configure( double * cfg) {
 
 }
 
-void OBPRMView_Robot::Configure(vector<double>& _cfg){
+void RobotModel::Configure(vector<double>& _cfg){
   double* cfg = new double[_cfg.size()];
   for(size_t i = 0; i<_cfg.size(); i++)
     cfg[i] = _cfg[i];
@@ -347,7 +347,7 @@ void OBPRMView_Robot::Configure(vector<double>& _cfg){
   delete [] cfg;
 }
 
-vector<double> OBPRMView_Robot::returnCurrCfg( int dof){
+vector<double> RobotModel::returnCurrCfg( int dof){
    vector<double> currentCfg;
    for(int i=0;i<dof;i++){
      currentCfg.push_back(RotFstBody[i]);
@@ -356,7 +356,7 @@ vector<double> OBPRMView_Robot::returnCurrCfg( int dof){
 }
 
 
-void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
+void RobotModel::SaveQry(vector<vector<double> >& cfg, char ch){
 
    int dof = m_envModel->GetDOF();
    //to store actual cfg
@@ -518,7 +518,7 @@ void OBPRMView_Robot::SaveQry(vector<vector<double> >& cfg, char ch){
 }
 
 
-vector<double> OBPRMView_Robot::getFinalCfg(){
+vector<double> RobotModel::getFinalCfg(){
 
   int dof = m_envModel->GetDOF();
   //to store actual cfg
@@ -683,7 +683,7 @@ vector<double> OBPRMView_Robot::getFinalCfg(){
 
 
 int
-OBPRMView_Robot::getNumJoints(){
+RobotModel::getNumJoints(){
 
    m_RobotInfo = m_envModel->GetMultiBodyInfo();
    return m_RobotInfo[0].m_NumberOfConnections;
@@ -692,7 +692,7 @@ OBPRMView_Robot::getNumJoints(){
 
 
 
-bool OBPRMView_Robot::KP( QKeyEvent * e )
+bool RobotModel::KP( QKeyEvent * e )
 {
 
 #ifdef USE_PHANTOM
@@ -955,7 +955,7 @@ bool OBPRMView_Robot::KP( QKeyEvent * e )
    return false;
 }
 
-void OBPRMView_Robot::Transform(int dir){
+void RobotModel::Transform(int dir){
    switch(mode){
       case 0:
          m_RobotModel->tx()+=dir*delta;

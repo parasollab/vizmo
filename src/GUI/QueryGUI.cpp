@@ -20,7 +20,7 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
   }
   m_ObjName = objname;
 
-    OBPRMView_Robot* robotModel = GetVizmo().GetRobot();
+    RobotModel* robotModel = GetVizmo().GetRobot();
     m_dof = robotModel->GetEnvModel()->GetDOF();
 
     //here I should put query values...
@@ -159,7 +159,7 @@ void queryGUI::newCfg(const QString&){
 
       double *Qcfg2 = new double [m_dof];
 
-      OBPRMView_Robot* robotModel = GetVizmo().GetRobot();
+      RobotModel* robotModel = GetVizmo().GetRobot();
       robotModel->BackUp();
       Quaternion qx(0,Vector3d(1,0,0));
       Quaternion qy(0,Vector3d(0,1,0));
@@ -208,7 +208,7 @@ void queryGUI::SaveSG(){
 
 void queryGUI::updateQryCfg(){
 
-  OBPRMView_Robot* robotModel = GetVizmo().GetRobot();
+  RobotModel* robotModel = GetVizmo().GetRobot();
   vector<double> Qcfg3  = robotModel->getFinalCfg();
 
   stx->setValue(Qcfg3[0]);

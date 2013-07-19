@@ -11,7 +11,7 @@
 using namespace std;
 using namespace plum;
 
-class OBPRMView_Robot;
+class RobotModel;
 class EnvModel;
 class CfgModel;
 class EdgeModel;
@@ -45,7 +45,7 @@ class Vizmo {
       void Clean();
 
       //robot
-      OBPRMView_Robot* m_robotModel;
+      RobotModel* m_robotModel;
       //environment
       EnvModel* m_envModel;
       string m_envFilename;
@@ -94,7 +94,7 @@ class Vizmo {
     //getRobCfgText() called from roadmap::printRobCfg()
     vector<string> getRobCfgText(){return info;}
     int getNumJoints();
-    OBPRMView_Robot* GetRobot() const {  return m_obj.m_robotModel; }
+    RobotModel* GetRobot() const {  return m_obj.m_robotModel; }
 
     // Environment Related Functions
     // Change the appearance of an object - Hidden/ Wire / Soid

@@ -6,7 +6,7 @@
 #include "Plum/GLModel.h"
 using namespace plum;
 
-class OBPRMView_Robot;
+class RobotModel;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Instruction classes for the Debug model
@@ -119,7 +119,7 @@ class DebugModel : public GLModel {
     vector<string> GetComments();
     MM* GetMapModel() {return m_mapModel;}
 
-    void SetModel(OBPRMView_Robot* _robotModel) {m_robotModel = _robotModel;}
+    void SetModel(RobotModel* _robotModel) {m_robotModel = _robotModel;}
 
     virtual bool ParseFile();
     virtual bool BuildModels();
@@ -130,7 +130,7 @@ class DebugModel : public GLModel {
     void BuildBackward();
 
   private:
-    OBPRMView_Robot* m_robotModel;
+    RobotModel* m_robotModel;
 
     //instructions
     vector<Instruction*> m_instructions;

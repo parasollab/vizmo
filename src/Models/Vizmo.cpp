@@ -13,7 +13,7 @@ using namespace std;
 #include "Models/DebugModel.h"
 #include "EnvObj/BoundingBoxesModel.h"
 #include "EnvObj/BoundingBoxParser.h"
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 using namespace plum;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ Vizmo::InitVizmoObj(){
 
   m_obj.m_envModel = new EnvModel(m_obj.m_envFilename);
   m_plum.AddPlumObject(new PlumObject(m_obj.m_envModel));
-  m_obj.m_robotModel = new OBPRMView_Robot(m_obj.m_envModel);
+  m_obj.m_robotModel = new RobotModel(m_obj.m_envModel);
   m_plum.AddPlumObject(new PlumObject(m_obj.m_robotModel));
   cout << "Load Environment File : "<< m_obj.m_envFilename << endl;
 
@@ -200,7 +200,7 @@ void Vizmo::TurnOn_CD(){
     //int MBnum = envLoader->GetNumberOfMultiBody();
     int MBnum = env->GetNumMultiBodies();
 
-    OBPRMView_Robot* robot = m_obj.m_robotModel;
+    RobotModel* robot = m_obj.m_robotModel;
 
     list<GLModel*> robotList,modelList;
     //obtain robot model
@@ -260,7 +260,7 @@ void Vizmo::SaveQryCfg(char ch){
   string name;
   GLModel * gl;
 
-  OBPRMView_Robot* robot = m_obj.m_robotModel;
+  RobotModel* robot = m_obj.m_robotModel;
 
   for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
   {
@@ -302,7 +302,7 @@ bool Vizmo::SaveQry(const char *filename){
   vector<double *> cfg;
   FILE *qryFile;
 
-  OBPRMView_Robot* robot = m_obj.m_robotModel;
+  RobotModel* robot = m_obj.m_robotModel;
   vector<vector<double> > vSG = robot->getNewStartAndGoal();
 
   if(!vSG.empty()){
@@ -359,7 +359,7 @@ void Vizmo::ChangeAppearance(int status)
 
   typedef vector<gliObj>::iterator GIT;
 
-  OBPRMView_Robot* robot = m_obj.m_robotModel;
+  RobotModel* robot = m_obj.m_robotModel;
   robot->BackUp();
 
   for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
@@ -441,7 +441,7 @@ void Vizmo::Animate(int frame){
     return;
 
   PathModel* pathModel = m_obj.m_pathModel;
-  OBPRMView_Robot* rmodel = m_obj.m_robotModel;
+  RobotModel* rmodel = m_obj.m_robotModel;
 
   //Get Cfg
   vector<double> dCfg = pathModel->GetConfiguration(frame);
@@ -829,7 +829,7 @@ double Vizmo::GetEnvRadius(){
 
 void
 Vizmo::PlaceRobot(){
-  OBPRMView_Robot* r = m_obj.m_robotModel;
+  RobotModel* r = m_obj.m_robotModel;
   if(r){
     vector<double> cfg;
     if(m_obj.m_queryModel)
@@ -843,7 +843,7 @@ Vizmo::PlaceRobot(){
       r->SetRenderMode(INVISIBLE_MODE);
 
     if(!cfg.empty()) {
-      //copy initial cfg. to OBPRMView_Robot
+      //copy initial cfg. to RobotModel
       r->Configure(cfg);
       r->InitialCfg(cfg);
     }

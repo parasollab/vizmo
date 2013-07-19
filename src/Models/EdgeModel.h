@@ -8,7 +8,7 @@
 #include <GL/glut.h>
 
 #include "CfgModel.h"
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 
 using namespace std;
 
@@ -36,7 +36,7 @@ class EdgeModel : public plum::GLModel{
     void SetCfgShape(CfgModel::Shape _s) { m_cfgShape = _s; }
 
     bool operator==(const EdgeModel& _other);
-    void Set(int _id, CfgModel* _c1, CfgModel* _c2, OBPRMView_Robot* _robot = NULL);
+    void Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot = NULL);
     bool BuildModels(){ return true; }
     void Draw(GLenum _mode);
     void DrawSelect();

@@ -7,7 +7,7 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 
 using namespace std;
 
@@ -38,7 +38,7 @@ class CfgModel : public plum::GLModel{
     vector<double> GetUnknowns();
     static int GetDOF() { return m_dof; }
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
-    OBPRMView_Robot* GetRobot() const { return m_robot; }
+    RobotModel* GetRobot() const { return m_robot; }
     virtual void SetColor(float _r, float _g, float _b, float _a);
     static void SetDOF(int _d) { m_dof = _d; }
     void SetInCollision(bool _isColl) { m_coll = _isColl; }
@@ -47,10 +47,10 @@ class CfgModel : public plum::GLModel{
     void SetCfg(vector<double> _newCfg);
     void SetIndex(int _i) { m_index = _i; }
     void SetCCModel(CCModel<CfgModel, EdgeModel>* _cc) { m_cc = _cc; }
-    void SetRobot(OBPRMView_Robot* _r) { m_robot = _r; }
+    void SetRobot(RobotModel* _r) { m_robot = _r; }
 
     bool operator==(const CfgModel& _other) const;
-    void Set(int _index, OBPRMView_Robot* _robot, CCModel<CfgModel, EdgeModel>* _cc);
+    void Set(int _index, RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc);
     bool BuildModels(){ return true; }
     void Draw(GLenum _mode);
     void DrawRobot();
@@ -78,7 +78,7 @@ class CfgModel : public plum::GLModel{
     static Shape m_shape;
 
     bool m_coll; //For collision detection
-    OBPRMView_Robot* m_robot; //Testing
+    RobotModel* m_robot; //Testing
     vector<double> m_dofs;
     int m_index;
     double m_unknown1, m_unknown2, m_unknown3;

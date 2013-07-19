@@ -1,7 +1,7 @@
 #include "QueryModel.h"
 
 #include "CfgModel.h"
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 #include "Utilities/IOUtils.h"
 #include "Utilities/GL/gliFont.h"
 

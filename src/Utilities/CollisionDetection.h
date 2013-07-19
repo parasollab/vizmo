@@ -24,7 +24,7 @@
 #include "Models/EnvModel.h"
 using namespace plum;
 
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 
 #include <RAPID.H>
 
@@ -51,7 +51,7 @@ class CollisionDetection{
   bool IsInCollision(int numMB, plum::CEnvModel* env,
 		     plum::CEnvLoader* envLoader,
 		     plum::MultiBodyModel * robotModel,
-		     OBPRMView_Robot * robotObj);*/
+		     RobotModel * robotObj);*/
 
   bool IsInCollision(EnvModel* _envModel,
   		     plum::MultiBodyModel* _robot,
@@ -59,7 +59,7 @@ class CollisionDetection{
 
   bool IsInCollision(int _numMB, EnvModel* _envModel,
 		     plum::MultiBodyModel* _robotModel,
-		     OBPRMView_Robot* _robotObj);
+		     RobotModel* _robotObj);
 
   void CopyNodeCfg(double* cfg, int dof);
   double* nodeCfg;
@@ -80,7 +80,7 @@ class CollisionDetectionMethod {
 
   virtual const char* GetName() const = 0;
   virtual bool IsInCollision(plum::MultiBodyModel* robot,
-			     OBPRMView_Robot * robotObj, int dof,
+			     RobotModel * robotObj, int dof,
 			     plum::MultiBodyModel* obstacle) = 0;
 };
 
@@ -106,7 +106,7 @@ class Rapid: public CollisionDetectionMethod {
   //			     plum::MultiBodyModel* obstacle);
 
   virtual bool IsInCollision(MultiBodyModel * robot,
-			     OBPRMView_Robot * robotObj, int dof,
+			     RobotModel * robotObj, int dof,
   			     MultiBodyModel * obstacle);
 
   void RCopyNodeCfg(double * n_cfg, int dof);

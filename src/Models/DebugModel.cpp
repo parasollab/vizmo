@@ -3,7 +3,7 @@
 #include <algorithms/dijkstra.h>
 using namespace stapl;
 
-#include "EnvObj/Robot.h"
+#include "EnvObj/RobotModel.h"
 #include "GUI/SceneWin.h" //to call new drawText
 
 struct EdgeAccess{

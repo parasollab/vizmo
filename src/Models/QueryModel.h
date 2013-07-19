@@ -4,7 +4,7 @@
 #include "Plum/GLModel.h"
 using namespace plum;
 
-class OBPRMView_Robot;
+class RobotModel;
 
 class QueryModel : public GLModel {
   public:
@@ -16,7 +16,7 @@ class QueryModel : public GLModel {
     size_t GetQuerySize() const {return m_queries.size();}
     const vector<double>& GetStartGoal(size_t _i) {return m_queries[_i];}
 
-    void SetModel(OBPRMView_Robot* _robotModel){m_robotModel = _robotModel;}
+    void SetModel(RobotModel* _robotModel){m_robotModel = _robotModel;}
 
     virtual bool ParseFile();
     virtual bool BuildModels();
@@ -25,7 +25,7 @@ class QueryModel : public GLModel {
   private:
     vector<vector<double> > m_queries; //vector of queries
     size_t m_glQueryIndex; //Display list index
-    OBPRMView_Robot * m_robotModel; //robot model
+    RobotModel * m_robotModel; //robot model
 };
 
 #endif

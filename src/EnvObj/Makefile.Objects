@@ -1,4 +1,4 @@
 OBJECTS += \
 	   EnvObj/BoundingBoxParser.o \
 	   EnvObj/BoundingBoxesModel.o \
-	   EnvObj/Robot.o
+	   EnvObj/RobotModel.o

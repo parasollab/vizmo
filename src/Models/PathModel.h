@@ -7,7 +7,7 @@ using namespace mathtool;
 #include "Plum/GLModel.h"
 using namespace plum;
 
-class OBPRMView_Robot;
+class RobotModel;
 
 class PathModel : public GLModel {
   public:
@@ -21,7 +21,7 @@ class PathModel : public GLModel {
     vector<Color4>& GetGradientVector() {return m_stopColors;}
     const vector<double>& GetConfiguration(size_t _i) const {return m_path[_i];}
 
-    void SetModel(OBPRMView_Robot * _robot) {m_robot = _robot;}
+    void SetModel(RobotModel * _robot) {m_robot = _robot;}
     void SetLineWidth(float _width) {m_lineWidth = _width;}
     void SetDisplayInterval(int _disp) {m_displayInterval = _disp;}
 
@@ -35,7 +35,7 @@ class PathModel : public GLModel {
 
     vector<vector<double> > m_path; //path storage
     size_t m_glPathIndex; //Display list index
-    OBPRMView_Robot * m_robot; //robot model
+    RobotModel * m_robot; //robot model
 
     //display options
     float m_lineWidth;
