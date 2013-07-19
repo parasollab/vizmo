@@ -144,7 +144,7 @@ PolyhedronModel::ComputeNormals(const PtVector& _points, const TriVector& _tris,
     const Tri& tri= *trit;
     Vector3d v1 = _points[tri[1]] - _points[tri[0]];
     Vector3d v2 = _points[tri[2]] - _points[tri[0]];
-    _norms.push_back((v1%v2).normalized());
+    _norms.push_back((v1%v2).normalize());
   }
 }
 
