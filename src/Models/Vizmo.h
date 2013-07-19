@@ -7,7 +7,6 @@ using namespace std;
 
 #include <Plum/EnvObj/MultiBodyModel.h>
 #include <Utilities/CollisionDetection.h>
-using namespace plum;
 
 class EnvModel;
 class RobotModel;
@@ -117,7 +116,6 @@ class Vizmo {
     double * m_nodeCfg;
     bool m_IsNode;
 
-    //plum
     vector<GLModel*>& GetLoadedModels(){ return m_loadedModels; }
     vector<GLModel*>& GetSelectedModels() {return m_selectedModels;}
 

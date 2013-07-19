@@ -10,157 +10,151 @@ using namespace mathtool;
 
 #include "RobotInfo.h"
 
-//class Transformation;
+class CBodyInfo;
+class CConnectionInfo;
 
-namespace plum{
+//////////////////////////////////////////////////////////////////////
+//
+// CMultiBodyInfo
+//
+//////////////////////////////////////////////////////////////////////
+class CMultiBodyInfo {
 
-  class CBodyInfo;
-  class CConnectionInfo;
+  public:
+    //////////////////////////////////////////////////////////////////////
+    // Constructor/Destructor
+    //////////////////////////////////////////////////////////////////////
+    CMultiBodyInfo();
+    CMultiBodyInfo( const CMultiBodyInfo & other );
+    ~CMultiBodyInfo();
+    void operator=( const CMultiBodyInfo & other );
+    friend ostream & operator<<( ostream & out, const CMultiBodyInfo & mbody );
 
-  //////////////////////////////////////////////////////////////////////
-  //
-  // CMultiBodyInfo
-  //
-  //////////////////////////////////////////////////////////////////////
-  class CMultiBodyInfo {
+    int m_cNumberOfBody; //Total number of bodies
+    int m_NumberOfConnections; //how many connections there are
+    bool m_active; //Active or passive?
+    bool m_surface;//is surface? default is false
 
-    public:
-      //////////////////////////////////////////////////////////////////////
-      // Constructor/Destructor
-      //////////////////////////////////////////////////////////////////////
-      CMultiBodyInfo();
-      CMultiBodyInfo( const CMultiBodyInfo & other );
-      ~CMultiBodyInfo();
-      void operator=( const CMultiBodyInfo & other );
-      friend ostream & operator<<( ostream & out, const CMultiBodyInfo & mbody );
+    CBodyInfo * m_pBodyInfo;
 
-      int m_cNumberOfBody; //Total number of bodies
-      int m_NumberOfConnections; //how many connections there are
-      bool m_active; //Active or passive?
-      bool m_surface;//is surface? default is false
+    const Robot::JointMap& GetJointMap() const {return jointMap;}
+    Robot::JointMap& GetJointMap() {return jointMap;}
+    Robot::JointMap jointMap;
+};
 
-      CBodyInfo * m_pBodyInfo;
+//////////////////////////////////////////////////////////////////////
+//
+// CBodyInfo
+//
+//////////////////////////////////////////////////////////////////////
+class CBodyInfo {
 
-      const Robot::JointMap& GetJointMap() const {return jointMap;}
-      Robot::JointMap& GetJointMap() {return jointMap;}
-      Robot::JointMap jointMap;
-  };
+  public:
+    //////////////////////////////////////////////////////////////////////
+    // Constructor/Destructor
+    //////////////////////////////////////////////////////////////////////
+    CBodyInfo();
+    CBodyInfo( const CBodyInfo & other );
+    ~CBodyInfo();
 
-  //////////////////////////////////////////////////////////////////////
-  //
-  // CBodyInfo
-  //
-  //////////////////////////////////////////////////////////////////////
-  class CBodyInfo {
+    /////////////////////////////////////////////////////////////////////
+    // Methods to perform transformations:current and previous are used
+    // to compute the transformation of THIS body
+    //////////////////////////////////////////////////////////////////////////
 
-    public:
-      //////////////////////////////////////////////////////////////////////
-      // Constructor/Destructor
-      //////////////////////////////////////////////////////////////////////
-      CBodyInfo();
-      CBodyInfo( const CBodyInfo & other );
-      ~CBodyInfo();
+    ///@If m_Index==0, then transform m_X, m_Y, m_Z,m_Alpha, m_Beta, m_Gamma
+    void doTransform();
+    ///@Copy t to m_prevTransform
+    void setPrevTransform(Transformation t);
+    ///@Return actual (previous*current) transformation
+    Transformation getTransform();
+    ///@Compute prevtranform * TDH * dh * TBody2
+    ///@receives the Body THIS body is connected to, the id of that connection and the new thetha
+    void computeTransform(CBodyInfo &BodyInfo, int nextBody);
 
-      /////////////////////////////////////////////////////////////////////
-      // Methods to perform transformations:current and previous are used
-      // to compute the transformation of THIS body
-      //////////////////////////////////////////////////////////////////////////
+    void operator=( const CBodyInfo & other );
+    friend ostream & operator<<( ostream & out, const CBodyInfo & body );
 
-      ///@If m_Index==0, then transform m_X, m_Y, m_Z,m_Alpha, m_Beta, m_Gamma
-      void doTransform();
-      ///@Copy t to m_prevTransform
-      void setPrevTransform(Transformation t);
-      ///@Return actual (previous*current) transformation
-      Transformation getTransform();
-      ///@Compute prevtranform * TDH * dh * TBody2
-      ///@receives the Body THIS body is connected to, the id of that connection and the new thetha
-      void computeTransform(CBodyInfo &BodyInfo, int nextBody);
+    bool m_bIsFixed;
+    bool m_IsBase;
+    bool m_transformDone;
+    int  m_Index;
+    string m_strModelDataFileName;
+    string m_strFileName;
+    string m_strDirectory;
+    bool m_isNew; // to detect whether this body has been added by the user
+    double m_X, m_Y, m_Z;
+    double m_Alpha, m_Beta, m_Gamma;
+    float rgb[3]; //store initial color (read from env. file)
+    bool m_IsSurface;
 
-      void operator=( const CBodyInfo & other );
-      friend ostream & operator<<( ostream & out, const CBodyInfo & body );
+    int m_cNumberOfConnection;
+    CConnectionInfo * m_pConnectionInfo;
+    Transformation m_currentTransform, m_prevTransform;
 
-      bool m_bIsFixed;
-      bool m_IsBase;
-      bool m_transformDone;
-      int  m_Index;
-      string m_strModelDataFileName;
-      string m_strFileName;
-      string m_strDirectory;
-      bool m_isNew; // to detect whether this body has been added by the user
-      double m_X, m_Y, m_Z;
-      double m_Alpha, m_Beta, m_Gamma;
-      float rgb[3]; //store initial color (read from env. file)
-      bool m_IsSurface;
+    bool IsBase() { return isBase; };
+    Robot::Base GetBase() { return baseType; };
+    Robot::BaseMovement GetBaseMovement() { return baseMovementType; };
+    void SetBase(Robot::Base _baseType) { baseType = _baseType; };
+    void SetBaseMovement(Robot::BaseMovement _baseMovementType) { baseMovementType = _baseMovementType; };
 
-      int m_cNumberOfConnection;
-      CConnectionInfo * m_pConnectionInfo;
-      Transformation m_currentTransform, m_prevTransform;
+    bool isBase;                           ///<Is this a base?
+  private:
+    Robot::Base baseType;                  ///<If its a base, this needs to be set later
+    Robot::BaseMovement baseMovementType;  ///<If its a base, this also needs to be set
+};
 
-      bool IsBase() { return isBase; };
-      Robot::Base GetBase() { return baseType; };
-      Robot::BaseMovement GetBaseMovement() { return baseMovementType; };
-      void SetBase(Robot::Base _baseType) { baseType = _baseType; };
-      void SetBaseMovement(Robot::BaseMovement _baseMovementType) { baseMovementType = _baseMovementType; };
+//////////////////////////////////////////////////////////////////////
+//
+// ConnectionInfo
+//
+//////////////////////////////////////////////////////////////////////
 
-      bool isBase;                           ///<Is this a base?
-    private:
-      Robot::Base baseType;                  ///<If its a base, this needs to be set later
-      Robot::BaseMovement baseMovementType;  ///<If its a base, this also needs to be set
-  };
+class CConnectionInfo {
 
-  //////////////////////////////////////////////////////////////////////
-  //
-  // ConnectionInfo
-  //
-  //////////////////////////////////////////////////////////////////////
+  public:
+    enum JointType {REVOLUTE, SPHERICAL}; //1dof vs 2dof rotational joints
 
-  class CConnectionInfo {
+    //////////////////////////////////////////////////////////////////////
+    // Constructor/Destructor
+    //////////////////////////////////////////////////////////////////////
+    CConnectionInfo();
+    CConnectionInfo( const CConnectionInfo & other );
+    ///@Return DH params. as a Vecto4d
+    Transformation DHTransform();
+    ///@Compute ad return the transformation from body1 to body2
+    Transformation  transformToBody2();
+    ///@Compute and return the transformation to DH frame
+    Transformation  transformToDHframe();
+    ///@Return id of the body THIS body is connected to
+    int GetNextBody(){return m_nextIndex;}
+    int GetPreviousBody(){return m_preIndex;}
+    JointType GetJointType(){return m_jointType;}
+    void operator=( const CConnectionInfo & other );
+    static JointType GetJointTypeFromTag(const string _tag);
+    friend ostream & operator<<( ostream & out, const CConnectionInfo & con );
 
-    public:
-      enum JointType {REVOLUTE, SPHERICAL}; //1dof vs 2dof rotational joints
+    int m_preIndex;
+    int m_nextIndex;
+    //translation and rotation to NextBody
+    double m_posX, m_posY, m_posZ;
+    double m_orientX, m_orientY, m_orientZ;
+    double alpha, theta, a, d;
+    // this will keep the original theta value read
+    //for Revolute joints, theta is variable
+    double m_theta;
+    bool m_actuated;
+    //translation and rotation to DHFrame
+    double m_pos2X, m_pos2Y, m_pos2Z;
+    double m_orient2X, m_orient2Y, m_orient2Z;
 
-      //////////////////////////////////////////////////////////////////////
-      // Constructor/Destructor
-      //////////////////////////////////////////////////////////////////////
-      CConnectionInfo();
-      CConnectionInfo( const CConnectionInfo & other );
-      ///@Return DH params. as a Vecto4d
-      Transformation DHTransform();
-      ///@Compute ad return the transformation from body1 to body2
-      Transformation  transformToBody2();
-      ///@Compute and return the transformation to DH frame
-      Transformation  transformToDHframe();
-      ///@Return id of the body THIS body is connected to
-      int GetNextBody(){return m_nextIndex;}
-      int GetPreviousBody(){return m_preIndex;}
-      JointType GetJointType(){return m_jointType;}
-      void operator=( const CConnectionInfo & other );
-      static JointType GetJointTypeFromTag(const string _tag);
-      friend ostream & operator<<( ostream & out, const CConnectionInfo & con );
+    JointType m_jointType;
 
-      int m_preIndex;
-      int m_nextIndex;
-      //translation and rotation to NextBody
-      double m_posX, m_posY, m_posZ;
-      double m_orientX, m_orientY, m_orientZ;
-      double alpha, theta, a, d;
-      // this will keep the original theta value read
-      //for Revolute joints, theta is variable
-      double m_theta;
-      bool m_actuated;
-      //translation and rotation to DHFrame
-      double m_pos2X, m_pos2Y, m_pos2Z;
-      double m_orient2X, m_orient2Y, m_orient2Z;
+    //ordering information
+    size_t m_globalIndex;
+    static size_t m_globalCounter;
 
-      JointType m_jointType;
+};
 
-      //ordering information
-      size_t m_globalIndex;
-      static size_t m_globalCounter;
-
-  };
-
-}//namespace plum
-
-#endif //_MultiBodyInfo_H_
+#endif
 

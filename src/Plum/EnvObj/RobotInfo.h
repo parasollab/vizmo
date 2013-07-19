@@ -6,14 +6,12 @@
 
 using namespace std;
 
-namespace plum {
-  class CConnectionInfo;
-}
+class CConnectionInfo;
 
 struct Robot{
   enum Base {PLANAR, VOLUMETRIC, FIXED, JOINT}; //2D plane vs 3D
   enum BaseMovement {ROTATIONAL, TRANSLATIONAL}; //rotation+translation, just translation, no movement
-  typedef plum::CConnectionInfo* Joint;
+  typedef CConnectionInfo* Joint;
   typedef vector<Joint> JointMap;
   //index of next body,
   //joint type

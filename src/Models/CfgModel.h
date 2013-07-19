@@ -16,7 +16,7 @@ class CCModel;
 
 class EdgeModel;
 
-class CfgModel : public plum::GLModel{
+class CfgModel : public GLModel{
 
   friend ostream& operator<<(ostream& _out, const CfgModel& _cfg);
   friend istream& operator>>(istream& _in, CfgModel& _cfg);

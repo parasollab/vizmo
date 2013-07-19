@@ -12,10 +12,7 @@ using namespace std;
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-namespace plum {
-  class GLModel;
-}
-using namespace plum;
+class GLModel;
 
 class VizmoListViewItem : public QTreeWidgetItem {
 

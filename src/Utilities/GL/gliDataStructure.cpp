@@ -1,8 +1,8 @@
 #include "gliDataStructure.h"
 #include <qgl.h>
 
-vector<plum::GLModel*>  g_PickedSceneObjs;
-vector<plum::GLModel*>& gliGetPickedSceneObjs()
+vector<GLModel*>  g_PickedSceneObjs;
+vector<GLModel*>& gliGetPickedSceneObjs()
 {
     return g_PickedSceneObjs;
 }

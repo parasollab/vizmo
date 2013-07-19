@@ -94,7 +94,7 @@ PolyhedronModel::BuildModels() {
 
 void PolyhedronModel::Draw(GLenum _mode) {
   if(m_solidID == size_t(-1)) return;
-  if(m_renderMode == plum::INVISIBLE_MODE) return;
+  if(m_renderMode == INVISIBLE_MODE) return;
 
   float* color = &m_rGBA[0];
   glColor4fv(color);
@@ -102,7 +102,7 @@ void PolyhedronModel::Draw(GLenum _mode) {
   glTransform();
   glScale();
 
-  if(m_renderMode == plum::SOLID_MODE){
+  if(m_renderMode == SOLID_MODE){
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(2.0, 2.0);
     glEnable(GL_NORMALIZE);

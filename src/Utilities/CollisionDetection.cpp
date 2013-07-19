@@ -28,8 +28,8 @@ CollisionDetection::~CollisionDetection(){
 }
 
 bool CollisionDetection::IsInCollision(EnvModel* _envModel,
-      plum::MultiBodyModel* _robot,
-      plum::MultiBodyModel* _obstacle){
+      MultiBodyModel* _robot,
+      MultiBodyModel* _obstacle){
 
    return true;
 }
@@ -37,7 +37,7 @@ bool CollisionDetection::IsInCollision(EnvModel* _envModel,
 
 bool CollisionDetection::IsInCollision(int _numMB,
       EnvModel* _envModel,
-      plum::MultiBodyModel* _robotModel,
+      MultiBodyModel* _robotModel,
       RobotModel* _robotObj) {
 
 

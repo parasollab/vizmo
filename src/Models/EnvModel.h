@@ -10,8 +10,7 @@
 #include <algorithms/graph_input_output.h>
 #include <algorithms/connected_components.h>
 
-
-class EnvModel : public plum::GLModel {
+class EnvModel : public GLModel {
 
   public:
     EnvModel(const string& _filename);

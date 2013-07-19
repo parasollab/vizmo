@@ -22,7 +22,6 @@
 
 //EnvModel.h includes MultiBodyModel.h
 #include "Models/EnvModel.h"
-using namespace plum;
 
 #include "EnvObj/RobotModel.h"
 
@@ -44,21 +43,21 @@ class CollisionDetection{
    *@return true if Robot collides with Obstacle(s).
    */
 
-  /*bool IsInCollision(plum::CEnvLoader* envLoader,
-  		     plum::MultiBodyModel* robot,
-		     plum::MultiBodyModel* obstacle);
+  /*bool IsInCollision(CEnvLoader* envLoader,
+  		     MultiBodyModel* robot,
+		     MultiBodyModel* obstacle);
 
-  bool IsInCollision(int numMB, plum::CEnvModel* env,
-		     plum::CEnvLoader* envLoader,
-		     plum::MultiBodyModel * robotModel,
+  bool IsInCollision(int numMB, CEnvModel* env,
+		     CEnvLoader* envLoader,
+		     MultiBodyModel * robotModel,
 		     RobotModel * robotObj);*/
 
   bool IsInCollision(EnvModel* _envModel,
-  		     plum::MultiBodyModel* _robot,
-		     plum::MultiBodyModel* _obstacle);
+  		     MultiBodyModel* _robot,
+		     MultiBodyModel* _obstacle);
 
   bool IsInCollision(int _numMB, EnvModel* _envModel,
-		     plum::MultiBodyModel* _robotModel,
+		     MultiBodyModel* _robotModel,
 		     RobotModel* _robotObj);
 
   void CopyNodeCfg(double* cfg, int dof);
@@ -79,9 +78,9 @@ class CollisionDetectionMethod {
   virtual  ~CollisionDetectionMethod(){}
 
   virtual const char* GetName() const = 0;
-  virtual bool IsInCollision(plum::MultiBodyModel* robot,
+  virtual bool IsInCollision(MultiBodyModel* robot,
 			     RobotModel * robotObj, int dof,
-			     plum::MultiBodyModel* obstacle) = 0;
+			     MultiBodyModel* obstacle) = 0;
 };
 
 class Rapid: public CollisionDetectionMethod {
@@ -102,8 +101,8 @@ class Rapid: public CollisionDetectionMethod {
    *@note collision between two ajacent links will be ignored.
    *@return true if Collision found, false otherwise.
    */
-  //  virtual bool IsInCollision(plum::MultiBodyModel* robot,
-  //			     plum::MultiBodyModel* obstacle);
+  //  virtual bool IsInCollision(MultiBodyModel* robot,
+  //			     MultiBodyModel* obstacle);
 
   virtual bool IsInCollision(MultiBodyModel * robot,
 			     RobotModel * robotObj, int dof,

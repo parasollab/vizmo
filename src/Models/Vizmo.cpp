@@ -11,7 +11,6 @@ using namespace std;
 #include "Models/QueryModel.h"
 #include "Models/PathModel.h"
 #include "Models/DebugModel.h"
-using namespace plum;
 
 ////////////////////////////////////////////////////////////////////////////////
 //Define Vizmo singleton

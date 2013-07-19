@@ -6,7 +6,7 @@
 
 class RAPID_model;
 
-class PolyhedronModel : public plum::GLModel {
+class PolyhedronModel : public GLModel {
   public:
     typedef Vector<int,  3> Tri;
     typedef vector<Point3d> PtVector;
@@ -23,7 +23,7 @@ class PolyhedronModel : public plum::GLModel {
 
     RAPID_model* GetRapidModel() {return m_rapidModel;}
 
-    void SetBodyInfo(const plum::CBodyInfo& _bodyInfo) {m_bodyInfo = _bodyInfo;}
+    void SetBodyInfo(const CBodyInfo& _bodyInfo) {m_bodyInfo = _bodyInfo;}
 
     void BuildModels();
     void Draw(GLenum _mode);
@@ -49,7 +49,7 @@ class PolyhedronModel : public plum::GLModel {
     double m_radius; //radius
     Point3d m_com; //Center of Mass
 
-    plum::CBodyInfo m_bodyInfo;
+    CBodyInfo m_bodyInfo;
     RAPID_model* m_rapidModel;
 };
 

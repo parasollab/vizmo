@@ -56,10 +56,10 @@ bool gliMR(QMouseEvent * e, bool drawonly)
 		if( pick.isPicking() ){
 			pick.MR(e);
 			if( g_pick!=NULL ){
-				vector<plum::GLModel*>& objs=gliGetPickedSceneObjs();
+				vector<GLModel*>& objs=gliGetPickedSceneObjs();
 //				if(!(e->state()&Qt::ShiftButton)) objs.clear(); //add
 				if(!(e->buttons()&Qt::ShiftModifier)) objs.clear(); //add
-				vector<plum::GLModel*>& newobjs=g_pick(pick.getPickBox());
+				vector<GLModel*>& newobjs=g_pick(pick.getPickBox());
 				objs.insert(objs.end(),newobjs.begin(),newobjs.end());
 //				if(e->state()&Qt::ShiftButton)  newobjs=objs; //add
 				if(e->buttons()&Qt::ShiftModifier)  newobjs=objs; //add

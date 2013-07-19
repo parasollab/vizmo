@@ -16,7 +16,7 @@ template<typename, typename>
 class CCModel;
 
 template <class CfgModel, class WEIGHT>
-class MapModel : public plum::GLModel{
+class MapModel : public GLModel{
 
   public:
     typedef CCModel<CfgModel, WEIGHT> CCM;
@@ -678,6 +678,5 @@ else{ //no node selected and assumes there is not roadmap....
 //  TestMapModel(){
 //    MapModel<CfgModel,EdgeModel> model;
 //  }
-//} //namespace plum
 
 #endif

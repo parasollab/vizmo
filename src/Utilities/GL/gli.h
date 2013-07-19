@@ -40,10 +40,8 @@ void gliCM();
 
 //set select method
 class gliBox;
-namespace plum {
-  class GLModel;
-}
-typedef vector<plum::GLModel*>& (*pick_func)(const gliBox&);
+class GLModel;
+typedef vector<GLModel*>& (*pick_func)(const gliBox&);
 void gliSetPickingFunction(pick_func func);
 
 /// simulate mouse up

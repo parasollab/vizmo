@@ -17,7 +17,6 @@ using namespace stapl;
 #include "MapModel.h"
 #include "EnvObj/RobotModel.h"
 #include "Utilities/Exceptions.h"
-using namespace plum;
 
 template<typename, typename>
 class MapModel;
@@ -25,7 +24,7 @@ class MapModel;
 class CfgModel;
 
 template <class CfgModel, class WEIGHT>
-class CCModel : public plum::GLModel{
+class CCModel : public GLModel{
 
   public:
     typedef typename CfgModel::Shape Shape;

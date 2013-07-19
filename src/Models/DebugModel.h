@@ -4,7 +4,6 @@
 #include "CfgModel.h"
 #include "MapModel.h"
 #include "Plum/GLModel.h"
-using namespace plum;
 
 class RobotModel;
 

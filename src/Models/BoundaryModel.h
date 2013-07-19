@@ -2,7 +2,6 @@
 #define BOUNDARYMODEL_H_
 
 #include "Plum/GLModel.h"
-using namespace plum;
 
 class BoundaryModel : public GLModel {
   public:

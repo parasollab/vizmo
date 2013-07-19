@@ -5,7 +5,6 @@
 using namespace mathtool;
 
 #include "Plum/GLModel.h"
-using namespace plum;
 
 class RobotModel;
 

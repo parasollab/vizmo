@@ -15,9 +15,7 @@ using namespace mathtool;
 #include <Plum/EnvObj/MultiBodyInfo.h>
 #include <Utilities/GL/gliCamera.h>
 
-using namespace plum;
-
-class RobotModel : public GLModel{
+class RobotModel : public GLModel {
 
   public:
 

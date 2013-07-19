@@ -95,10 +95,8 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace plum {
-  class GLModel;
-}
-vector<plum::GLModel*>& gliGetPickedSceneObjs();
+class GLModel;
+vector<GLModel*>& gliGetPickedSceneObjs();
 
 #endif //_GLI_DATASTRUCTURE_H_
 
