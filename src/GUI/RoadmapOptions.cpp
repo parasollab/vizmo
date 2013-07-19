@@ -401,8 +401,8 @@ RoadmapOptions::MakeSolid(){
 
   string s;
   int k = 0;
-  vector<gliObj>& sel = GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator SI;
+  vector<GLModel*>& sel = GetVizmo().GetSelectedItems();
+  typedef vector<GLModel*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     GLModel* gl = (GLModel*)(*i);
     gl->SetRenderMode(SOLID_MODE);
@@ -418,8 +418,8 @@ void
 RoadmapOptions::MakeWired(){
 
   string s;
-  vector<gliObj>& sel = GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator SI;
+  vector<GLModel*>& sel = GetVizmo().GetSelectedItems();
+  typedef vector<GLModel*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     GLModel *gl = (GLModel*)(*i);
     gl->SetRenderMode(WIRE_MODE);
@@ -432,8 +432,8 @@ void
 RoadmapOptions::MakeInvisible(){
 
   string s;
-  vector<gliObj>& sel = GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator SI;
+  vector<GLModel*>& sel = GetVizmo().GetSelectedItems();
+  typedef vector<GLModel*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     GLModel* gl = (GLModel*)(*i);
     gl->SetRenderMode(INVISIBLE_MODE);
@@ -466,8 +466,8 @@ RoadmapOptions::ColorSelectedCC(){
   R=G=B=1;
 
   //Check first if there is a CC selected
-  vector<gliObj>& sel = GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator SI;
+  vector<GLModel*>& sel = GetVizmo().GetSelectedItems();
+  typedef vector<GLModel*>::iterator SI;
   string m_sO;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     GLModel* gl = (GLModel*)(*i);
@@ -533,10 +533,10 @@ RoadmapOptions::ShowObjectContextMenu(){
   //Create submenu to set start and goal configs.
   //create it just if RobotModel.has been selected
   string str;
-  typedef vector<gliObj>::iterator GIT;
+  typedef vector<GLModel*>::iterator GIT;
 
-  for(GIT ig = GetVizmo().GetSelectedItem().begin();
-      ig!=GetVizmo().GetSelectedItem().end(); ig++){
+  for(GIT ig = GetVizmo().GetSelectedItems().begin();
+      ig!=GetVizmo().GetSelectedItems().end(); ig++){
     GLModel* gl=(GLModel*)(*ig);
     vector<string> info=gl->GetInfo();
     str = info.front();

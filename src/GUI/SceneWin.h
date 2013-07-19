@@ -30,9 +30,6 @@ class VizGLWin : public QGLWidget {
     void resetCamera();
     VizmoMainWin* m_mainWin;
 
-    // BSS
-    vector<gliObj>* objs2;
-
     void setClearColor(double r, double g, double b) const {
       glClearColor(r, g, b, 0);
     }

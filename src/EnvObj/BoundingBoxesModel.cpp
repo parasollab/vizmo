@@ -69,7 +69,7 @@ CBoundingBoxesModel::GetInfo() const {
   return info;
 }
 
-void CBoundingBoxesModel::Select( unsigned int * index, vector<gliObj>& sel )
+void CBoundingBoxesModel::Select( unsigned int * index, vector<GLModel*>& sel )
 {
    if( index==NULL ) return;
    if( *index>=m_BBXModels.size() ) //input error

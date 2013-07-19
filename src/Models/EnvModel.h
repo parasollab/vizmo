@@ -61,7 +61,7 @@ class EnvModel : public plum::GLModel {
 
     virtual bool BuildModels();
     virtual void Draw(GLenum _mode);
-    virtual void Select(unsigned int* _index, vector<gliObj>& _sel);
+    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
     virtual void GetChildren(list<GLModel*>& _models);
     virtual vector<string> GetInfo() const;
 

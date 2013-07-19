@@ -65,7 +65,7 @@ namespace plum{
     return true;
   }
 
-  void MultiBodyModel::Select(unsigned int* index, vector<gliObj>& sel){
+  void MultiBodyModel::Select(unsigned int* index, vector<GLModel*>& sel){
     if(index!=NULL)
       sel.push_back(this);
   }

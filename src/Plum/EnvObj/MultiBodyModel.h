@@ -18,7 +18,7 @@ namespace plum{
       // Core
       //////////////////////////////////////////////////////////////////////
       virtual bool BuildModels();
-      virtual void Select(unsigned int * index, vector<gliObj>& sel);
+      virtual void Select(unsigned int * index, vector<GLModel*>& sel);
 
       //Draw
       virtual void Draw( GLenum mode );

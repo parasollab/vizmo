@@ -3,12 +3,11 @@
 
 #include <vector>
 #include <string>
+using namespace std;
 
 #include <Plum/Plum.h>
 #include <Plum/EnvObj/MultiBodyModel.h>
 #include <Utilities/CollisionDetection.h>
-
-using namespace std;
 using namespace plum;
 
 class RobotModel;
@@ -25,9 +24,10 @@ class DebugModel;
 class Vizmo;
 Vizmo& GetVizmo();
 
-/**
- * Vizmo is the main class that handles event from gui and
- * contains objects (VizmoObj) for data loaded in.
+/* Vizmo
+ *
+ * Main class that handles event from gui and
+ * contains objects for data loaded in.
  */
 class Vizmo {
   public:
@@ -157,12 +157,8 @@ class Vizmo {
     bool m_IsNode;
 
     //plum
-    vector<PlumObject*>& GetPlumObjects(){ return m_plum.GetPlumObjects(); }
-
-    //selected
-    vector<gliObj>& GetSelectedItem() {return m_plum.GetSelectedItems();}
-    void cleanSelectedItem() {m_plum.CleanSelectedItems();}
-    void addSelectedItem(GLModel *ml) {m_plum.AddSelectedItem(ml);}
+    vector<GLModel*>& GetGLModels(){ return m_plum.GetGLModels(); }
+    vector<GLModel*>& GetSelectedItems() {return m_plum.GetSelectedItems();}
 
     //Miscelaneous
     bool StringToInt(const string &s, int &i);

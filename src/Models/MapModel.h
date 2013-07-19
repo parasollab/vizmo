@@ -1,21 +1,16 @@
 #ifndef MAPMODEL_H_
 #define MAPMODEL_H_
 
-#include <math.h>
-
 #include <graph.h>
 #include <algorithms/graph_algo_util.h>
 #include <algorithms/graph_input_output.h>
+using namespace stapl;
 
-#include "EnvObj/RobotModel.h"
-#include "Plum/PlumObject.h"
 #include "CCModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h"
+#include "EnvObj/RobotModel.h"
 #include "Utilities/IOUtils.h"
-
-using namespace stapl;
-using namespace std;
 
 template<typename, typename>
 class CCModel;
@@ -76,7 +71,7 @@ class MapModel : public plum::GLModel{
     //Display fuctions
     virtual bool BuildModels();
     virtual void Draw(GLenum _mode);
-    void Select(unsigned int* _index, vector<gliObj>& _sel);
+    void Select(unsigned int* _index, vector<GLModel*>& _sel);
     virtual void SetRenderMode(RenderMode _mode); //Wire, solid, or invisible
     bool AddCC(int _vid);
     virtual void GetChildren(list<GLModel*>& _models);
@@ -449,7 +444,6 @@ template <class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel, WEIGHT>::SetProperties(typename CCM::Shape _s, float _size,
               vector<float> _color, bool _isNew){
-
   typedef typename vector<CCM*>::iterator CIT;//CC iterator
   for(CIT ic = m_cCModels.begin(); ic!= m_cCModels.end(); ic++)
     (*ic)->change_properties(_s, _size, _color, _isNew);
@@ -457,8 +451,7 @@ MapModel<CfgModel, WEIGHT>::SetProperties(typename CCM::Shape _s, float _size,
 
 template <class CfgModel, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){
-
+MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel){
   if(_index == NULL)
     return;
   m_cCModels[_index[0]]->Select(&_index[1],_sel);
@@ -473,8 +466,8 @@ MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){
 
   //find nodes
   m_nodes.clear();
-  vector<gliObj>& sel = this->GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator OIT;
+  vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
+  typedef vector<GLModel*>::iterator OIT;
 
   for(OIT i=sel.begin(); i!=sel.end(); i++){  //GETS THE NODES FROM SELECTED ITEM AND PUTS THEM IN NODE VECTOR
   string myName = ((GLModel*)(*i))->GetName();
@@ -564,7 +557,7 @@ graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);
   template <class CfgModel, class WEIGHT>
   void MapModel<CfgModel, WEIGHT>::HandleAddNode(){
 
-  vector<gliObj>& sel = this->GetVizmo().GetSelectedItem();
+  vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
   if(sel.size() !=0){
   if(!m_nodes.empty()){
   GLModel* n = m_nodes.front();
@@ -687,12 +680,12 @@ else{ //no node selected and assumes there is not roadmap....
   fabs(m_oldR[2]-n->rz());
 
   if(diff > 1e-10){
-  vector<gliObj>& sel=GetVizmo().GetSelectedItem();
+  vector<GLModel*>& sel=GetVizmo().GetSelectedItem();
   if(sel.size() !=0){
   GetVizmo().Node_CD((CfgModel*)n);
   }
 
-  typedef vector<gliObj>::iterator OIT;
+  typedef vector<GLModel*>::iterator OIT;
   for(OIT i=sel.begin();i!=sel.end();i++){
   if(((GLModel*)(*i))->GetName()=="Node")
   printNodeCfg((CfgModel*)n);

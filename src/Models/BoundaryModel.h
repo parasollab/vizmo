@@ -9,7 +9,7 @@ class BoundaryModel : public GLModel {
     BoundaryModel();
     virtual ~BoundaryModel();
 
-    virtual void Select(unsigned int* _index, vector<gliObj>& _sel);
+    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
     virtual bool BuildModels() = 0;
     virtual void Draw(GLenum mode);
     virtual void DrawSelect();

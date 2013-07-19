@@ -2,12 +2,11 @@
 #define _GLI_DATASTRUCTURE_H_
 
 #include <vector>
+#include <string>
 using namespace std;
 
 #include <RotationConversions.h>
 using namespace mathtool;
-
-#include <string>
 
 /**
 * Defines function and data for tansfromation.
@@ -96,7 +95,10 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-vector<gliObj>& gliGetPickedSceneObjs();
+namespace plum {
+  class GLModel;
+}
+vector<plum::GLModel*>& gliGetPickedSceneObjs();
 
 #endif //_GLI_DATASTRUCTURE_H_
 

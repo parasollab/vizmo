@@ -645,7 +645,7 @@ EnvModel::ChangeColor(){
 }
 
 void
-EnvModel::Select(unsigned int* _index, vector<gliObj>& _sel){
+EnvModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
 
   //cout << "selecting env object" << endl;
   //unselect old one

@@ -669,9 +669,9 @@ void gliTransformTool::CheckSelectObject()
     m_RT.setSObject(NULL);
 
     //get selected objects
-    const vector<gliObj>& sobjs=gliGetPickedSceneObjs();
+    const vector<plum::GLModel*>& sobjs=gliGetPickedSceneObjs();
     if( sobjs.empty() ) return;
-    m_RT.setSObject(sobjs.front());
+    m_RT.setSObject((gliObj)sobjs.front());
 }
 
 void gliTransformTool::Draw(void)

@@ -5,7 +5,6 @@
 #include <fstream>
 using namespace std;
 
-#include "Plum/PlumObject.h"
 #include "Plum/GLModel.h"
 #include "Models/CfgModel.h"
 #include "Models/PathModel.h"
@@ -61,7 +60,7 @@ Vizmo::VizmoObj::Clean() {
 Vizmo::Vizmo() {}
 
 void
-Vizmo::GetAccessFiles(const string& _filename){
+Vizmo::GetAccessFiles(const string& _filename) {
   string name = _filename.substr(0, _filename.rfind('.'));
 
   //test if files exist
@@ -86,7 +85,7 @@ Vizmo::GetAccessFiles(const string& _filename){
 }
 
 bool
-Vizmo::InitVizmoObj(){
+Vizmo::InitVizmoObj() {
 
   //Delete old stuff
   m_plum.Clean();
@@ -99,16 +98,16 @@ Vizmo::InitVizmoObj(){
   }
 
   m_obj.m_envModel = new EnvModel(m_obj.m_envFilename);
-  m_plum.AddPlumObject(new PlumObject(m_obj.m_envModel));
+  m_plum.AddGLModel(m_obj.m_envModel);
   m_obj.m_robotModel = new RobotModel(m_obj.m_envModel);
-  m_plum.AddPlumObject(new PlumObject(m_obj.m_robotModel));
+  m_plum.AddGLModel(m_obj.m_robotModel);
   cout << "Load Environment File : "<< m_obj.m_envFilename << endl;
 
   //Create map
   if(!m_obj.m_mapFilename.empty()) {
     m_obj.m_mapModel = new MapModel<CfgModel, EdgeModel>(m_obj.m_mapFilename);
     m_obj.m_mapModel->SetRobotModel(m_obj.m_robotModel);
-    m_plum.AddPlumObject(new PlumObject(m_obj.m_mapModel));
+    m_plum.AddGLModel(m_obj.m_mapModel);
     cout << "Load Map File : " << m_obj.m_mapFilename << endl;
   }
 
@@ -116,7 +115,7 @@ Vizmo::InitVizmoObj(){
   if(!m_obj.m_queryFilename.empty()) {
     m_obj.m_queryModel = new QueryModel(m_obj.m_queryFilename);
     m_obj.m_queryModel->SetModel(m_obj.m_robotModel);
-    m_plum.AddPlumObject(new PlumObject(m_obj.m_queryModel));
+    m_plum.AddGLModel(m_obj.m_queryModel);
     cout << "Load Query File : " << m_obj.m_queryFilename << endl;
   }
 
@@ -124,7 +123,7 @@ Vizmo::InitVizmoObj(){
   if(!m_obj.m_pathFilename.empty()) {
     m_obj.m_pathModel = new PathModel(m_obj.m_pathFilename);
     m_obj.m_pathModel->SetModel(m_obj.m_robotModel);
-    m_plum.AddPlumObject(new PlumObject(m_obj.m_pathModel));
+    m_plum.AddGLModel(m_obj.m_pathModel);
     cout << "Load Path File : " << m_obj.m_pathFilename << endl;
   }
 
@@ -132,7 +131,7 @@ Vizmo::InitVizmoObj(){
   if(!m_obj.m_debugFilename.empty()){
     m_obj.m_debugModel = new DebugModel(m_obj.m_debugFilename);
     m_obj.m_debugModel->SetModel(m_obj.m_robotModel);
-    m_plum.AddPlumObject(new PlumObject(m_obj.m_debugModel));
+    m_plum.AddGLModel(m_obj.m_debugModel);
     cout << "Load Debug File : " << m_obj.m_debugFilename << endl;
   }
 
@@ -189,11 +188,10 @@ void Vizmo::TurnOn_CD(){
 
   string m_objName;
 
-  vector<gliObj>& sel=GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator OIT;
-  for(OIT i=sel.begin();i!=sel.end();i++){
-    m_objName = ((GLModel*)(*i))->GetName();
-  }
+  vector<GLModel*>& sel = GetSelectedItems();
+  typedef vector<GLModel*>::iterator OIT;
+  for(OIT oit = sel.begin(); oit != sel.end(); ++oit)
+    m_objName = (*oit)->GetName();
   EnvModel* env = m_obj.m_envModel;
   //CEnvLoader* envLoader=(CEnvLoader*)m_obj.m_envModel->GetLoader();
   if(env != NULL){ //previously checked if loader was null
@@ -256,16 +254,13 @@ Vizmo::SaveEnv(const char* _filename){
 
 void Vizmo::SaveQryCfg(char ch){
 
-  typedef vector<gliObj>::iterator GIT;
+  typedef vector<GLModel*>::iterator GIT;
   string name;
-  GLModel * gl;
 
   RobotModel* robot = m_obj.m_robotModel;
 
-  for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
-  {
-    gl=(GLModel *)(*ig);
-    vector<string> info=gl->GetInfo();
+  for(GIT ig= GetSelectedItems().begin();ig!=GetSelectedItems().end();ig++) {
+    vector<string> info = (*ig)->GetInfo();
     name = info.front();
   }
 
@@ -357,14 +352,13 @@ void Vizmo::ChangeAppearance(int status)
   // status 2 = delete
   // status 3 = change color
 
-  typedef vector<gliObj>::iterator GIT;
+  typedef vector<GLModel*>::iterator GIT;
 
   RobotModel* robot = m_obj.m_robotModel;
   robot->BackUp();
 
-  for(GIT ig= GetSelectedItem().begin();ig!=GetSelectedItem().end();ig++)
-  {
-    GLModel *model=(GLModel *)(*ig);
+  for(GIT ig= GetSelectedItems().begin();ig!=GetSelectedItems().end();ig++) {
+    GLModel* model = *ig;
     if(status==0)
       model->SetRenderMode(SOLID_MODE);
     else if(status==1)
@@ -595,14 +589,12 @@ void Vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
   typedef vector<CC*>::iterator CCIT;
 
   //change color of one CC at a time
-  vector<gliObj>& sel = GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator SI;
+  vector<GLModel*>& sel = GetSelectedItems();
+  typedef vector<GLModel*>::iterator SI;
   int m_i;
   string m_sO;
-  for(SI i = sel.begin(); i!= sel.end(); i++){
-    GLModel *gl = (GLModel*)(*i);
-    m_sO = gl->GetName();
-  }
+  for(SI i = sel.begin(); i!= sel.end(); i++)
+    m_sO = (*i)->GetName();
   string m_s="NULL";
   size_t position = m_sO.find("CC",0);
   if(position != string::npos){
@@ -693,13 +685,12 @@ void Vizmo::UpdateSelection(){
   typedef vector<CC*>::iterator CCIT;
 
   //change color of one CC at a time
-  vector<gliObj>& sel = GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator SI;
+  vector<GLModel*>& sel = GetSelectedItems();
+  typedef vector<GLModel*>::iterator SI;
   int m_i;
   string m_sO;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    GLModel *gl = (GLModel*)(*i);
-    m_sO = gl->GetName();
+    m_sO = (*i)->GetName();
 
     string m_s="NULL";
     size_t position = m_sO.find("Node",0);
@@ -761,8 +752,8 @@ void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
   typedef vector<CC*>::iterator CCIT;
 
   //change color of one CC at a time
-  vector<gliObj>& sel = GetVizmo().GetSelectedItem();
-  typedef vector<gliObj>::iterator SI;
+  vector<GLModel*>& sel = GetSelectedItems();
+  typedef vector<GLModel*>::iterator SI;
   int m_i;
   string m_sO;
   for(SI i = sel.begin(); i!= sel.end(); i++){
@@ -851,8 +842,8 @@ Vizmo::PlaceRobot(){
 }
 
 void Vizmo::getRoboCfg(){
-  vector<gliObj>& sel=GetSelectedItem();
-  typedef vector<gliObj>::iterator SIT;
+  vector<GLModel*>& sel = GetSelectedItems();
+  typedef vector<GLModel*>::iterator SIT;
   for(SIT i=sel.begin();i!=sel.end();i++){
     GLModel * gl=(GLModel *)(*i);
     info=gl->GetInfo();

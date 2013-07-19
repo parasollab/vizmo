@@ -83,7 +83,7 @@ void RobotModel::Draw(GLenum _mode){
    //getFinalCfg();
 }
 
-void RobotModel::Select( unsigned int * index, vector<gliObj>& sel ){
+void RobotModel::Select( unsigned int * index, vector<GLModel*>& sel ){
    //unselect old one
    if( index==NULL ) return;
    m_RobotModel->Select(index+1,sel);

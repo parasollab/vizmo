@@ -63,7 +63,7 @@ class CCModel : public plum::GLModel{
     bool BuildModels(); //not used, should not call this
     void Draw(GLenum _mode);
     void DrawSelect();
-    void Select(unsigned int* _index, vector<gliObj>& _sel);
+    void Select(unsigned int* _index, vector<GLModel*>& _sel);
     bool BuildModels(VID _id, WG* _g); //call this instead
     virtual vector<string> GetInfo() const;
 
@@ -514,7 +514,7 @@ CCModel<CfgModel, WEIGHT>::DrawSelect(){
 
 template <class CfgModel, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<gliObj>& _sel){
+CCModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel){
 
   typename WG::vertex_iterator cvi;
   if(_index == NULL || m_graph == NULL)

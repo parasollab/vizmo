@@ -51,7 +51,7 @@ namespace plum{
         m_enableSelection=enable;
       }
 
-      virtual void Select( unsigned int * index, vector<gliObj>& sel ){/*nothing*/}
+      virtual void Select( unsigned int * index, vector<GLModel*>& sel ){/*nothing*/}
       virtual bool ParseFile(){ return true; }  //pure eventually
       virtual bool BuildModels() =0;
       virtual void Draw( GLenum mode ) =0;

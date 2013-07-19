@@ -45,12 +45,10 @@ VizGLWin::resetCamera(){
 }
 
 //used as callback for gli
-inline vector<gliObj>&
+inline vector<GLModel*>&
 vizmoSelect(const gliBox& _box){
-
-  //calls CPlum::Select(const gliBox& box)
   GetVizmo().Select(_box);
-  return GetVizmo().GetSelectedItem();
+  return GetVizmo().GetSelectedItems();
 }
 
 void
@@ -140,7 +138,7 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
 
   //updateGL();
 
-  vector<gliObj>& objs=GetVizmo().GetSelectedItem();
+  vector<GLModel*>& objs=GetVizmo().GetSelectedItems();
   if(_e->button() == Qt::RightButton){
     if(!objs.empty())
       emit selectByRMB();
@@ -156,16 +154,16 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
 
   //Update rotation of object
   if(objs.size()!=0){
-    vector<gliObj>& sel=GetVizmo().GetSelectedItem();
-    typedef vector<gliObj>::iterator OIT;
+    vector<GLModel*>& sel=GetVizmo().GetSelectedItems();
+    typedef vector<GLModel*>::iterator OIT;
     for(OIT oit = sel.begin(); oit != sel.end(); oit++){
       if(((GLModel*)(*oit))->GetName() != "Node") {
-        typedef vector<gliObj>::iterator GIT;
+        typedef vector<GLModel*>::iterator GIT;
         MultiBodyModel* mbl;
         list<GLModel*> modelList;
         GLModel* gl;
         int i=0;
-        for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++){
+        for(GIT ig= GetVizmo().GetSelectedItems().begin();ig!=GetVizmo().GetSelectedItems().end();ig++){
           if(!modelList.empty()){
             i++;
             mbl=(MultiBodyModel*)(*ig);

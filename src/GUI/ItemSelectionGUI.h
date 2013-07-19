@@ -14,7 +14,6 @@ using namespace std;
 
 namespace plum {
   class GLModel;
-  class PlumObject;
 }
 using namespace plum;
 
@@ -33,7 +32,7 @@ class VizmoItemSelectionGUI : public QTreeWidget{
   public:
     VizmoItemSelectionGUI(QWidget* _parent = NULL);
     void ResetLists();
-    void FillTree(vector<PlumObject*>& _objs);
+    void FillTree(vector<GLModel*>& _objs);
     VizmoListViewItem* CreateItem(VizmoListViewItem* _p, GLModel* _model);
 
   public slots:

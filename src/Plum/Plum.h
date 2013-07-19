@@ -2,33 +2,26 @@
 #define PLUM_H_
 
 #include <vector>
-
-#include "GLModel.h"
-#include "Utilities/GL/gliDataStructure.h"
-
 using namespace std;
 
-namespace plum {
+#include "GLModel.h"
 
-  class PlumObject;
+namespace plum {
 
   class Plum {
     public:
 
       Plum() {}
 
-      void AddPlumObject(PlumObject* obj){if( obj!=NULL ) m_plumObjects.push_back(obj);}
-      vector<PlumObject*>& GetPlumObjects() {return m_plumObjects;}
-      void CleanPlumObjects() {m_plumObjects.clear();}
+      void AddGLModel(GLModel* _model){if(_model) m_glModels.push_back(_model);}
+      vector<GLModel*>& GetGLModels() {return m_glModels;}
 
-      void AddSelectedItem(GLModel* l) {m_selectedItems.push_back(l);}
-      vector<gliObj>& GetSelectedItems() {return m_selectedItems;}
-      void CleanSelectedItems() {m_selectedItems.clear();}
+      vector<GLModel*>& GetSelectedItems() {return m_selectedItems;}
 
-      //clear both the plum objects vector and selected items vector
+      //clear both the gl models vector and selected items vector
       void Clean();
 
-      //parse data for plum object
+      //parse data for gl models
       bool ParseFile();
 
       //build models to draw
@@ -41,7 +34,6 @@ namespace plum {
       void Select(const gliBox& box);
 
     protected:
-
       /**
        * Parse the Hit Buffer.
        * Store selected obj into m_selectedItems.
@@ -54,8 +46,8 @@ namespace plum {
       void SearchSelectedItems(int hit, void * buffer, bool all);
 
     private:
-      vector<PlumObject*> m_plumObjects;
-      vector<gliObj> m_selectedItems;
+      vector<GLModel*> m_glModels;
+      vector<GLModel*> m_selectedItems;
   };
 
 }

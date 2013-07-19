@@ -9,7 +9,7 @@ BoundaryModel::~BoundaryModel() {
 }
 
 void
-BoundaryModel::Select(unsigned int* _index, vector<gliObj>& _sel){
+BoundaryModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
   if(_index)
     _sel.push_back(this);
 }

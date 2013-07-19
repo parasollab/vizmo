@@ -7,13 +7,13 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
 {
 
   filledFirstTime = false;
-  typedef vector<gliObj>::iterator GIT;
+  typedef vector<GLModel*>::iterator GIT;
   vector< list<string> > info;
   string objname;
   //to store a cfg
   QString qs;
   //int I=0;
-  for(GIT ig= GetVizmo().GetSelectedItem().begin();ig!=GetVizmo().GetSelectedItem().end();ig++){
+  for(GIT ig= GetVizmo().GetSelectedItems().begin();ig!=GetVizmo().GetSelectedItems().end();ig++){
       GLModel * gl=(GLModel *)(*ig);
       //objname = gl->GetInfo();
       objname = gl->GetName();

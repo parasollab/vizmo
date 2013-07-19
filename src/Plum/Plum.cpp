@@ -1,62 +1,52 @@
+#include "Plum.h"
+
 #include <cstring>
 
-#include "Plum.h"
 #include <GL/glu.h>
-#include "Loadable.h"
-#include "PlumObject.h"
 
 namespace plum {
 
   void
-  Plum::Clean() {
-    m_plumObjects.clear();
-    m_selectedItems.clear();
-  }
+    Plum::Clean() {
+      m_glModels.clear();
+      m_selectedItems.clear();
+    }
 
   bool
-  Plum::ParseFile(){
-    typedef typename vector<PlumObject*>::iterator PIT;
-    for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit)
-      if((*pit)->GetModel())
-        if(!(*pit)->GetModel()->ParseFile())
+    Plum::ParseFile() {
+      typedef vector<GLModel*>::iterator MIT;
+      for(MIT mit = m_glModels.begin(); mit != m_glModels.end(); ++mit)
+        if(!(*mit)->ParseFile())
           return false;
-    return true;
-  }
+      return true;
+    }
 
   BuildState
-  Plum::BuildModels(){
-    typedef typename vector<PlumObject*>::iterator PIT;
-    for(PIT pit = m_plumObjects.begin(); pit != m_plumObjects.end(); ++pit){
-      GLModel* model = (*pit)->GetModel();
-      if(!model)
-        continue;
-      if(!model->BuildModels()){
-        cerr << "Couldn't build model: " << model->GetName()<< endl;
-        return CLIENT_MODEL_ERROR;
+    Plum::BuildModels() {
+      typedef vector<GLModel*>::iterator MIT;
+      for(MIT mit = m_glModels.begin(); mit != m_glModels.end(); ++mit) {
+        if(!(*mit)->BuildModels()) {
+          cerr << "Couldn't build model: " << (*mit)->GetName()<< endl;
+          return CLIENT_MODEL_ERROR;
+        }
       }
+      return MODEL_OK;
     }
-    return MODEL_OK;
-  }
 
   void
-  Plum::Draw(){
+    Plum::Draw(){
 
-    typedef typename vector<PlumObject*>::iterator PIT;
-    for(PIT pit = m_plumObjects.begin(); pit!=m_plumObjects.end(); ++pit){
-      GLModel* model = (*pit)->GetModel();
-      if(!model)
-        continue;
-      glEnable(GL_LIGHTING);
-      model->Draw(GL_RENDER);
-    }
+      typedef vector<GLModel*>::iterator MIT;
+      for(MIT mit = m_glModels.begin(); mit!=m_glModels.end(); ++mit){
+        if(!*mit)
+          continue;
+        glEnable(GL_LIGHTING);
+        (*mit)->Draw(GL_RENDER);
+      }
 
-    typedef vector<gliObj>::iterator GIT;
-    for(GIT ig = m_selectedItems.begin(); ig != m_selectedItems.end(); ig++){
-      GLModel* model = (GLModel*)(*ig);
-      if(model != NULL)
-        model->DrawSelect();
+      for(MIT mit = m_selectedItems.begin(); mit != m_selectedItems.end(); ++mit)
+        (*mit)->DrawSelect();
     }
-  }
 
 #define BUFFER_SIZE 1024
 
@@ -92,10 +82,10 @@ namespace plum {
 
       //draw
       glMatrixMode( GL_MODELVIEW );
-      int objSize=m_plumObjects.size();
+      int objSize=m_glModels.size();
       for( int iCM=0; iCM<objSize; iCM++ ){
         glPushName(iCM);
-        GLModel* model = m_plumObjects[iCM]->GetModel();
+        GLModel* model = m_glModels[iCM];
         if( model==NULL ) continue;
         model->Draw( GL_SELECT );
         glPopName();
@@ -146,9 +136,9 @@ namespace plum {
           }
         }
         else{ //select all
-          if(curName[0] > m_plumObjects.size())
+          if(curName[0] > m_glModels.size())
             return;
-          GLModel* selectModel = m_plumObjects[curName[0]]->GetModel();
+          GLModel* selectModel = m_glModels[curName[0]];
           if(selectModel!=NULL)
             selectModel->Select(&curName[1], m_selectedItems);
         }
@@ -159,9 +149,9 @@ namespace plum {
       //only the closest
       if( !all ){ //
         // analyze selected item //not name which created in this lib
-        if(selName[0] > m_plumObjects.size())
+        if(selName[0] > m_glModels.size())
           return;
-        GLModel* selectModel = m_plumObjects[selName[0]]->GetModel();
+        GLModel* selectModel = m_glModels[selName[0]];
         if(selectModel != NULL){
           selectModel->Select(&selName[1], m_selectedItems);
         }

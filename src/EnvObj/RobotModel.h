@@ -40,7 +40,7 @@ class RobotModel : public GLModel{
     virtual bool BuildModels();
     virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
-    virtual void Select( unsigned int * index, vector<gliObj>& sel );
+    virtual void Select( unsigned int * index, vector<GLModel*>& sel );
 
     //set wire/solid to all items
     virtual void SetRenderMode(RenderMode _mode){
