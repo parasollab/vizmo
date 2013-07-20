@@ -1,5 +1,7 @@
 #include "MultiBodyInfo.h"
 
+#include "Utilities/Exceptions.h"
+
 //////////////////////////////////////////////////////////////////////
 //
 // CMultiBodyInfo
@@ -253,11 +255,8 @@ CConnectionInfo::GetJointTypeFromTag(const string _tag){
     return CConnectionInfo::REVOLUTE;
   else if (_tag == "SPHERICAL")
     return CConnectionInfo::SPHERICAL;
-  else {
-    cerr << "Error::Incorrect Joint Type Specified::" << _tag << endl;
-    cerr << "Choices are:: Revolute or Spherical" << endl;
-    exit(1);
-  }
+  else
+    throw ParseException(WHERE, "Failed parsing joint type. Choices are Revolute or Spherical.");
 }
 
 ostream & operator<<( ostream & out, const CConnectionInfo & con ){

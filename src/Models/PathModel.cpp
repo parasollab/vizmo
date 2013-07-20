@@ -37,7 +37,7 @@ PathModel::ParseFile() {
 
   //check input filename
   if(!FileExists(GetFilename()))
-    throw ParseException("EnvModel", "'" + GetFilename() + "' does not exist");
+    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
 
@@ -71,7 +71,7 @@ void
 PathModel::BuildModels(){
   //can't build model without robot model
   if(!m_robotModel)
-    throw BuildException("PathModel", "RobotModel is null.");
+    throw BuildException(WHERE, "RobotModel is null.");
 
   //Build Path Model
   m_robotModel->SetRenderMode(WIRE_MODE);
@@ -121,7 +121,7 @@ PathModel::BuildModels(){
   for(size_t j = 0; j<remainder; ++j){
     if(j%m_displayInterval==0){
       m_robotModel->SetColor(c[0], c[1], c[2], c[3]);
-      m_robotModel->Configure(m_path[allColors.size()+(j+1)]);
+      m_robotModel->Configure(m_path[allColors.size()+j]);
       m_robotModel->Draw(GL_RENDER);
     }
   }

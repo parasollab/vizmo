@@ -52,7 +52,7 @@ void
 DebugModel::ParseFile() {
   //check if file exists
   if(!FileExists(GetFilename()))
-    throw ParseException("DebugModel", "'" + GetFilename() + "' does not exist");
+    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
 
@@ -133,7 +133,7 @@ void
 DebugModel::BuildModels(){
   //can't build model without robot
   if(!m_robotModel)
-    throw BuildException("DebugModel", "RobotModel is null.");
+    throw BuildException(WHERE, "RobotModel is null.");
 
   m_prevIndex = 0;
   m_index = 0;

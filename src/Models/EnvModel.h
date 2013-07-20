@@ -18,8 +18,8 @@ class EnvModel : public GLModel {
 
     //Access functions
     virtual const string GetName() const { return "Environment"; }
-    virtual int GetNumMultiBodies() const{ return m_numMultiBodies; }
-    virtual const CMultiBodyInfo* GetMultiBodyInfo() const { return m_mBInfo; }
+    int GetNumMultiBodies() const{ return m_numMultiBodies; }
+    const CMultiBodyInfo* GetMultiBodyInfo() const { return m_mBInfo; }
     string GetModelDataDir(){ return  m_modelDataDir; }
     int GetDOF(){ return m_dof; }
     vector<MultiBodyModel*> GetMultiBodies(){ return m_mBModels; }
@@ -27,7 +27,6 @@ class EnvModel : public GLModel {
     BoundaryModel* GetBoundary() {return m_boundary;}
     double GetRadius() const { return m_radius; }
     const Point3d& GetCOM() const { return m_centerOfMass; }
-
 
     //Load functions
     virtual void ParseFile();
@@ -38,13 +37,13 @@ class EnvModel : public GLModel {
     void SetNewMultiBodyInfo(CMultiBodyInfo* _mbi);
     void NewModelDir();
     void FreeMemory();
-    bool ParseFileHeader(ifstream& _ifs);
-    bool ParseBoundary(ifstream& _ifs);
-    bool ParseFileBody(ifstream& _ifs);
-    bool ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
-    bool ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
-    bool ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
-    bool ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
+    void ParseFileHeader(ifstream& _ifs);
+    void ParseBoundary(ifstream& _ifs);
+    void ParseFileBody(ifstream& _ifs);
+    void ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
+    void ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
+    void ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
+    void ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
     void BuildRobotStructure();
 
     //Display functions

@@ -54,135 +54,121 @@ void
 EnvModel::ParseFile(){
 
   if(!FileExists(GetFilename()))
-    throw ParseException("EnvModel", "'" + GetFilename() + "' does not exist");
+    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
 
   //Open file for reading data
   ifstream ifs(GetFilename().c_str());
 
-  if(!ParseFileHeader(ifs))
-    throw ParseException("EnvModel", "'" + GetFilename() + "' has incorrect header");
-
-  if(!ParseFileBody(ifs))
-    throw ParseException("EnvModel", "'" + GetFilename() + "' has incorrect body");
+  ParseFileHeader(ifs);
+  ParseFileBody(ifs);
 }
 
 void
 EnvModel::SetModelDataDir(const string _modelDataDir){
-
   m_modelDataDir = _modelDataDir;
   cout<<"- Geo Dir   : "<< m_modelDataDir << endl;
 }
 
 void
 EnvModel::SetNewMultiBodyInfo(CMultiBodyInfo* _mbi){
-
   for(int i = 0; i < m_numMultiBodies; i++)
     m_mBInfo[i] = _mbi[i];
 }
 
 void
 EnvModel::FreeMemory(){
-
   if(m_mBInfo != NULL)
     delete [] m_mBInfo;
   m_mBInfo = NULL;
 }
 
-bool
+void
 EnvModel::ParseFileHeader(ifstream& _ifs){
 
   //Read boundary
-  string b = ReadFieldString(_ifs, "Boundary Tag");
-  if(b != "BOUNDARY") {
-    cerr << "Error reading boundary tag." << endl;
-    return false;
-  }
+  string b = ReadFieldString(_ifs, WHERE,
+      "Failed reading boundary tag.");
 
-  if(!ParseBoundary(_ifs)){
-    cerr << "Error parsing boundary." << endl;
-    return false;
-  }
+  if(b != "BOUNDARY")
+    throw ParseException(WHERE,
+        "Failed reading boundary tag ' " + b + " '.");
+
+  ParseBoundary(_ifs);
 
   //Read number of multibodies
-  string mb = ReadFieldString(_ifs, "Number of Multibodies tag");
-  if(mb != "MULTIBODIES"){
-    cerr << "Error reading environment multibodies tag." << endl;
-    return false;
-  }
+  string mb = ReadFieldString(_ifs, WHERE,
+      "Failed reading Multibodies tag");
 
-  m_numMultiBodies = ReadField<int>(_ifs, "Number of Multibodies");
-  return true;
+  if(mb != "MULTIBODIES")
+    throw ParseException(WHERE,
+        "Failed reading multibodies tag. Read " + mb + ".");
+
+  m_numMultiBodies = ReadField<int>(_ifs, WHERE,
+      "Failed reading number of Multibodies.");
 }
 
-bool
-EnvModel::ParseBoundary(ifstream& _ifs){
+void
+EnvModel::ParseBoundary(ifstream& _ifs) {
 
-  string type = ReadFieldString(_ifs, "Boundary type");
+  string type = ReadFieldString(_ifs, WHERE, "Failed reading Boundary type.");
 
   if(type == "BOX")
     m_boundary = new BoundingBoxModel();
-
   else if(type == "SPHERE")
     m_boundary = new BoundingSphereModel();
+  else
+    throw ParseException(WHERE,
+        "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
 
-  else{
-    cerr << "Error reading boundary type " << type << ". Choices are BOX or SPHERE." << endl;
-    return false;
-  }
-  return m_boundary->Parse(_ifs);
+  m_boundary->Parse(_ifs);
 }
 
-bool
-EnvModel::ParseFileBody(ifstream& _ifs){
+void
+EnvModel::ParseFileBody(ifstream& _ifs) {
 
   m_mBInfo = new CMultiBodyInfo[m_numMultiBodies];
-  if(m_mBInfo == NULL)
-    return false;
+  if(!m_mBInfo)
+    throw ParseException(WHERE, "Failed requesting memory for MultiBodyInfo.");
 
-  for(int i = 0; i < m_numMultiBodies; i++){
-    if(ParseMultiBody(_ifs, m_mBInfo[i])== false)
-      return false;
-  }
+  for(int i = 0; i < m_numMultiBodies; i++)
+    ParseMultiBody(_ifs, m_mBInfo[i]);
 
   BuildRobotStructure();
-  //CfgModel::m_dof = m_dof;
   CfgModel::SetDOF(m_dof);
-  //cout<< "DOFs: "<< CfgModel::m_dof << endl << flush;
-
-  return true;
 }
 
-bool
+void
 EnvModel::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
 
-  string multibodyType = ReadFieldString(_ifs,
-    "Multibody Type (Active, Passive, Internal, Surface)");
+  string multibodyType = ReadFieldString(_ifs, WHERE,
+      "Failed reading Multibody type.");
 
   if(multibodyType == "ACTIVE")
     _mBInfo.m_active = true;
-
   else if(multibodyType == "SURFACE"){
     _mBInfo.m_surface = true;
     m_containsSurfaces = true;
   }
 
   if(multibodyType == "ACTIVE"){
-    _mBInfo.m_cNumberOfBody = ReadField<int>(_ifs, "Body Count");
-    _mBInfo.m_pBodyInfo = new CBodyInfo[_mBInfo.m_cNumberOfBody];
+    _mBInfo.m_cNumberOfBody = ReadField<int>(_ifs, WHERE,
+        "Failed reading body count");
 
-    if(_mBInfo.m_pBodyInfo == NULL)
-      return false;
+    _mBInfo.m_pBodyInfo = new CBodyInfo[_mBInfo.m_cNumberOfBody];
+    if(!_mBInfo.m_pBodyInfo)
+      throw ParseException(WHERE, "Failed requesting memory for BodyInfo.");
 
     GetColor(_ifs);
 
-    for(int i = 0; i < _mBInfo.m_cNumberOfBody; i++){
-      if(ParseActiveBody(_ifs, _mBInfo.m_pBodyInfo[i]) == false)
-        return false;
-    }
+    for(int i = 0; i < _mBInfo.m_cNumberOfBody; i++)
+      ParseActiveBody(_ifs, _mBInfo.m_pBodyInfo[i]);
 
     //Get connection info
-    string connectionTag = ReadFieldString(_ifs, "Connections tag");
-    int numberOfRobotConnections = ReadField<int>(_ifs, "Number of Connections");
+    string connectionTag = ReadFieldString(_ifs, WHERE,
+        "Failed reading connections tag.");
+    int numberOfRobotConnections = ReadField<int>(_ifs, WHERE,
+        "Failed reading number of connections");
+
     _mBInfo.m_NumberOfConnections = numberOfRobotConnections;
 
     int currentBody = 0; //index of current Body
@@ -196,67 +182,56 @@ EnvModel::ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
         _mBInfo.m_pBodyInfo[i].m_pConnectionInfo =
           new CConnectionInfo[numberOfRobotConnections];
 
-        if(_mBInfo.m_pBodyInfo[i].m_pConnectionInfo == NULL){
-          cout<<"COULDN'T CREATE CONNECTION INFO"<<endl;
-          return false;
-        }
+        if(!_mBInfo.m_pBodyInfo[i].m_pConnectionInfo)
+          throw ParseException(WHERE, "Failed requesting memory for ConnectionInfo.");
       }
-      for(int iB = 0; iB < numberOfRobotConnections; iB++){
-        if(ParseConnections(_ifs, _mBInfo) == false)
-          return false;
-      }
+      for(int iB = 0; iB < numberOfRobotConnections; iB++)
+        ParseConnections(_ifs, _mBInfo);
     }
   }
-
-  else if(multibodyType == "INTERNAL" || multibodyType == "SURFACE" ||
-          multibodyType == "PASSIVE"){
+  else if(multibodyType == "INTERNAL" ||
+      multibodyType == "SURFACE" ||
+      multibodyType == "PASSIVE") {
 
     _mBInfo.m_cNumberOfBody = 1;
     _mBInfo.m_pBodyInfo = new CBodyInfo[_mBInfo.m_cNumberOfBody];
 
-    if(_mBInfo.m_pBodyInfo == NULL)
-      return false;
+    if(!_mBInfo.m_pBodyInfo)
+      throw ParseException(WHERE, "Failed requesting memory for BodyInfo.");
 
     GetColor(_ifs);
 
-    if(ParseOtherBody(_ifs, _mBInfo.m_pBodyInfo[0]) == false)
-      return false;
-
-    return true;
+    ParseOtherBody(_ifs, _mBInfo.m_pBodyInfo[0]);
   }
-
-  else{
-    cerr << "Error:: Unsupported body type" << endl;
-    cerr << "Choices are Active, Passive, Internal, or Surface" << endl;
-    exit(1);
-  }
-  return true;
+  else
+    throw ParseException(WHERE,
+        "Unsupported body type '" + multibodyType +
+        "'. Choices are Active, Passive, Internal, or Surface.");
 }
 
-bool
-EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
+void
+EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo) {
 
   _bodyInfo.m_bIsFixed = false;
   bool isBase = false;
   Robot::Base baseType;
   Robot::BaseMovement baseMovementType;
 
-  _bodyInfo.m_strFileName = ReadFieldString(_ifs,
-    "Body Filename (geometry file)", false);
+  _bodyInfo.m_strFileName = ReadFieldString(_ifs, WHERE,
+      "Failed reading geometry filename.", false);
 
-  if(m_modelDataDir.empty() == false){
+  if(!m_modelDataDir.empty()) {
     //store just the path of the current directory
     _bodyInfo.m_strDirectory = m_modelDataDir;
-
-    _bodyInfo.m_strModelDataFileName += m_modelDataDir;
-    _bodyInfo.m_strModelDataFileName += "/";
+    _bodyInfo.m_strModelDataFileName += m_modelDataDir + "/";
   }
 
   _bodyInfo.m_strModelDataFileName += _bodyInfo.m_strFileName;
 
   //Read for Base Type. If Planar or Volumetric, read in two more strings
   //If Joint skip this stuff. If Fixed read in positions like an obstacle
-  string baseTag = ReadFieldString(_ifs, "Base Tag (Planar, Volumetric, Fixed, Joint");
+  string baseTag = ReadFieldString(_ifs, WHERE,
+      "Failed reading base tag.");
   baseType = Robot::GetBaseFromTag(baseTag);
 
   Vector3d bodyPosition;
@@ -265,13 +240,14 @@ EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
   if(baseType == Robot::VOLUMETRIC || baseType == Robot::PLANAR){
     isBase = true;
     _bodyInfo.m_IsBase = true;
-    string rotationalTag = ReadFieldString(_ifs, "Rotation Tag (Rotational, Translational");
+    string rotationalTag = ReadFieldString(_ifs, WHERE,
+        "Failed reading rotation tag.");
     baseMovementType = Robot::GetMovementFromTag(rotationalTag);
   }
   else if(baseType == Robot::FIXED){
     isBase = true;
-    bodyPosition = ReadField<Vector3d>(_ifs, "Body Position");
-    bodyRotation = ReadField<Vector3d>(_ifs, "Body Orientation");
+    bodyPosition = ReadField<Vector3d>(_ifs, WHERE, "Failed reading body position");
+    bodyRotation = ReadField<Vector3d>(_ifs, WHERE, "Failed reading body orientation");
   }
 
   //save this for when these classes utilize only transformations instead
@@ -308,28 +284,25 @@ EnvModel::ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
       _bodyInfo.rgb[2] = 0;
     }
   }
-  return true;
 }
 
-bool
-EnvModel::ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
+void
+EnvModel::ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo) {
 
   _bodyInfo.m_bIsFixed = true;
   _bodyInfo.m_IsBase = true;
-  _bodyInfo.m_strFileName = ReadFieldString(_ifs,
-    "Body Filename (geometry file)", false);
+  _bodyInfo.m_strFileName = ReadFieldString(_ifs, WHERE,
+    "Failed reading geometry filename.", false);
 
-  if(m_modelDataDir.empty() == false){
-
+  if(!m_modelDataDir.empty()) {
     //store just the path of the current directory
     _bodyInfo.m_strDirectory = m_modelDataDir;
-    _bodyInfo.m_strModelDataFileName += m_modelDataDir;
-    _bodyInfo.m_strModelDataFileName += "/";
+    _bodyInfo.m_strModelDataFileName += m_modelDataDir + "/";
   }
   _bodyInfo.m_strModelDataFileName += _bodyInfo.m_strFileName;
 
-  Vector3d bodyPosition = ReadField<Vector3d>(_ifs, "Body Position");
-  Vector3d bodyRotation = ReadField<Vector3d>(_ifs, "Body Orientation");
+  Vector3d bodyPosition = ReadField<Vector3d>(_ifs, WHERE, "Failed reading body position");
+  Vector3d bodyRotation = ReadField<Vector3d>(_ifs, WHERE, "Failed reading body orientation");
 
   //save this for when body utilizes only transformation not
   //x,y,z,alpha,beta,gama
@@ -360,15 +333,14 @@ EnvModel::ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo){
       _bodyInfo.rgb[2] = 0;
     }
   }
-  return true;
 }
 
-bool
+void
 EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
 
   //body indices
-  int previousBodyIndex = ReadField<int>(_ifs, "Previous Body Index");
-  int nextBodyIndex = ReadField<int>(_ifs, "Next Body Index");
+  int previousBodyIndex = ReadField<int>(_ifs, WHERE, "Failed reading previous body index");
+  int nextBodyIndex = ReadField<int>(_ifs, WHERE, "Failed reading next body index");
 
   //Increment m_cNumberOfConnection for each body
   CBodyInfo& previousBody = _mBInfo.m_pBodyInfo[previousBodyIndex];
@@ -390,7 +362,7 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   conn.m_actuated = true;
 
   //Grab the joint type
-  string connectionTypeTag = ReadFieldString(_ifs, "Connection Type");
+  string connectionTypeTag = ReadFieldString(_ifs, WHERE, "Failed reading connection type.");
   conn.m_jointType = CConnectionInfo::GetJointTypeFromTag(connectionTypeTag);
 
   //Grab the joint limits for revolute and spherical joints
@@ -399,30 +371,25 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
     jointLimits[0].first = jointLimits[1].first = -1;
     jointLimits[0].second = jointLimits[1].second = 1;
     size_t numRange = (conn.m_jointType == CConnectionInfo::REVOLUTE) ? 1 : 2;
-    for(size_t i = 0; i<numRange; i++){
+    for(size_t i = 0; i<numRange; i++) {
       string tok;
-      if(_ifs >> tok){
+      if(_ifs >> tok) {
         size_t del = tok.find(":");
-        if(del == string::npos){
-          cerr << "Error::Reading joint range " << i << ". Should be delimited by ':'." << endl;
-          exit(1);
-        }
+        if(del == string::npos)
+          throw ParseException(WHERE, "Failed reading joint range. Should be delimited by ':'.");
+
         istringstream minv(tok.substr(0,del)), maxv(tok.substr(del+1, tok.length()));
-        if(!(minv>>jointLimits[i].first && maxv>>jointLimits[i].second)){
-          cerr << "Error::Reading joint range " << i << "." << endl;
-          exit(1);
-        }
+        if(!(minv>>jointLimits[i].first && maxv>>jointLimits[i].second))
+          throw ParseException(WHERE, "Failed reading joint range.");
       }
-      else if(numRange == 2 && i==1) { //error. only 1 token provided.
-        cerr << "Error::Reading spherical joint ranges. Only one provided." << endl;
-        exit(1);
-      }
+      else if(numRange == 2 && i==1) //error. only 1 token provided.
+        throw ParseException(WHERE, "Failed reading joint ranges. Only one provided.");
     }
   }
 
   //Transformation to DHFrame
-  Vector3d positionToDHFrame = ReadField<Vector3d>(_ifs, "Translation to DHFrame");
-  Vector3d rotationToDHFrame = ReadField<Vector3d>(_ifs, "Rotation to DHFrame");
+  Vector3d positionToDHFrame = ReadField<Vector3d>(_ifs, WHERE, "Failed reading translation to DHFrame.");
+  Vector3d rotationToDHFrame = ReadField<Vector3d>(_ifs, WHERE, "Failed reading rotation to DHFrame.");
 
   conn.m_pos2X = positionToDHFrame[0];
   conn.m_pos2Y = positionToDHFrame[1];
@@ -433,7 +400,7 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   conn.m_orient2Z = degToRad(rotationToDHFrame[2]);
 
   //DH parameters
-  Vector4d dhparameters = ReadField<Vector4d>(_ifs, "DH Parameters");
+  Vector4d dhparameters = ReadField<Vector4d>(_ifs, WHERE, "Failed reading DH Parameters.");
 
   conn.alpha = dhparameters[0];
   conn.a = dhparameters[1];
@@ -444,8 +411,8 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   conn.m_theta = conn.theta;
 
   //Transformation to next body
-  Vector3d positionToNextBody = ReadField<Vector3d>(_ifs, "Translation to Next Body");
-  Vector3d rotationToNextBody = ReadField<Vector3d>(_ifs, "Rotation to Next Body");
+  Vector3d positionToNextBody = ReadField<Vector3d>(_ifs, WHERE, "Failed reading translation to next body.");
+  Vector3d rotationToNextBody = ReadField<Vector3d>(_ifs, WHERE, "Failed reading rotation to Next Body.");
 
   conn.m_posX = positionToNextBody[0];
   conn.m_posY = positionToNextBody[1];
@@ -454,8 +421,6 @@ EnvModel::ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo){
   conn.m_orientX = degToRad(rotationToNextBody[0]);
   conn.m_orientY = degToRad(rotationToNextBody[1]);
   conn.m_orientZ = degToRad(rotationToNextBody[2]);
-
-  return true;
 }
 
 void
@@ -508,10 +473,8 @@ EnvModel::BuildRobotStructure(){
       }
     }
 
-    if(baseIndx == size_t(-1)){
-      cerr << "Each robot must have at least one base. Please fix .env file." << endl;
-      exit(1);
-    }
+    if(baseIndx == size_t(-1))
+      throw ParseException(WHERE, "Robot does not have base.");
 
     Robot::Base bt = robot.m_pBodyInfo[baseIndx].GetBase();
     Robot::BaseMovement bm = robot.m_pBodyInfo[baseIndx].GetBaseMovement();
@@ -550,14 +513,13 @@ EnvModel::BuildRobotStructure(){
 }
 
 //////////Display functions//////////
-
 void
 EnvModel::BuildModels(){
 
   //Build boundary model
   m_boundary = GetBoundary();
   if(!m_boundary)
-    throw BuildException("EnvModel", "Boundary is NULL");
+    throw BuildException(WHERE, "Boundary is NULL");
   m_boundary->BuildModels();
 
   //Create MutileBody Model
@@ -570,7 +532,7 @@ EnvModel::BuildModels(){
     MultiBodyModel* m = new MultiBodyModel(GetMultiBodyInfo()[i]);
 
     if(!m)
-      throw BuildException("EnvModel", "MultiBody is NULL");
+      throw BuildException(WHERE, "MultiBody is NULL");
     m->BuildModels();
 
     com = com + (m->GetCOM()-Point3d(0,0,0));
@@ -589,9 +551,9 @@ EnvModel::BuildModels(){
 }
 
 void
-EnvModel::Draw(GLenum _mode){
+EnvModel::Draw(GLenum _mode) {
 
-  if(_mode == GL_SELECT && m_enableSelection == false)
+  if(_mode == GL_SELECT && !m_enableSelection)
     return;
 
   int numMBs = m_mBModels.size();
@@ -617,7 +579,6 @@ EnvModel::Draw(GLenum _mode){
 
 void
 EnvModel::ChangeColor(){
-
   int numMBs = m_mBModels.size();
   float r, g, b;
   for(int iP = 0; iP < numMBs; iP++){
@@ -630,8 +591,6 @@ EnvModel::ChangeColor(){
 
 void
 EnvModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
-
-  //cout << "selecting env object" << endl;
   //unselect old one
   if(!_index || *_index > m_mBModels.size()) //input error
     return;
@@ -643,7 +602,6 @@ EnvModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
 
 void
 EnvModel::GetChildren(list<GLModel*>& _models){
-
   typedef vector<MultiBodyModel *>::iterator MIT;
   for(MIT i = m_mBModels.begin(); i != m_mBModels.end(); i++){
     if((*i)->IsFixed())
@@ -654,7 +612,6 @@ EnvModel::GetChildren(list<GLModel*>& _models){
 
 vector<string>
 EnvModel::GetInfo() const{
-
   vector<string> info;
   info.push_back(GetFilename());
 

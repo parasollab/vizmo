@@ -63,7 +63,7 @@ RobotModel::BuildModels(){
    }
 
    if(!m_RobotModel)
-     throw BuildException("RobotModel", "RobotModel is null, out of memory?");
+     throw BuildException(WHERE, "RobotModel is null, out of memory?");
 
    m_RobotModel->SetAsFree(); //set as free body
    m_RobotModel->BuildModels();

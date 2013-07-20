@@ -64,7 +64,7 @@ Vizmo::InitModels() {
   try {
     //Create environment first
     if(m_envFilename.empty())
-      throw ParseException("VizmoObj::Init", "Vizmo must load an environment file.");
+      throw ParseException(WHERE, "Vizmo must load an environment file.");
 
     m_envModel = new EnvModel(m_envFilename);
     m_loadedModels.push_back(m_envModel);
@@ -102,11 +102,14 @@ Vizmo::InitModels() {
       cout << "Load Debug File : " << m_debugFilename << endl;
     }
   }
-  catch(exception& _e) {
+  catch(VizmoException& _e) {
     cerr << _e.what() << endl;
     cerr << "Cleaning vizmo objects." << endl;
     Clean();
     return false;
+  }
+  catch(exception& _e) {
+    throw _e;
   }
 
   //Put robot in start cfg, if availiable

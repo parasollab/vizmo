@@ -185,7 +185,7 @@ void
 PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {
   CModelGraph mg;
   if(!mg.doInit(_points, _tris))
-    throw BuildException("PolyhedronModel::BuildWired", "Cannot initialize ModelGraph");
+    throw BuildException(WHERE, "Cannot initialize ModelGraph");
 
   //build model
   m_wiredID=glGenLists(1);

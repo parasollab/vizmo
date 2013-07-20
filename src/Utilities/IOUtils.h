@@ -7,6 +7,8 @@
 #include <algorithm>
 using namespace std;
 
+#include "Exceptions.h"
+
 //determine if a file exists or not
 bool FileExists(string _filename, bool _err = true);
 
@@ -22,7 +24,7 @@ string GetPathName(const string& _filename);
 //read type by eating all white space. If type cannot be read report the error
 //provided
 template <class T>
-T ReadField(istream& _is, string _error) {
+T ReadField(istream& _is, const string& _where, const string& _error) {
   char c;
   string line;
   T element;
@@ -32,24 +34,21 @@ T ReadField(istream& _is, string _error) {
       getline(_is, line);
     }
     else if(!isspace(c)) {
-      if (!(_is >> element)) {
-        cerr << "Error in Reading Field::" << _error << endl;
-        exit(1);
-      }
+      if (!(_is >> element))
+        throw ParseException(_where, _error);
       else
         break;
     }
     else
       _is.get(c);
   }
-  if(_is.eof()){
-    cerr << "Error end of file reached in Reading Field::" << _error << endl;
-    exit(1);
-  }
+  if(_is.eof())
+    throw ParseException(_where, "End of file reached");
+
   return element;
 };
 
 //read the string using above ReadField and tranform it to upper case
-string ReadFieldString(istream& _is, string _error, bool _toUpper = true);
+string ReadFieldString(istream& _is, const string& _where, const string& _error, bool _toUpper = true);
 
 #endif

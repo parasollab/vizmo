@@ -55,7 +55,7 @@ void
 QueryModel::ParseFile() {
   //check input
   if(!FileExists(GetFilename()))
-    throw ParseException("QueryModel", "'" + GetFilename() + "' does not exist");
+    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
 
@@ -88,7 +88,7 @@ QueryModel::BuildModels(){
 
   //can't build model without robot
   if(!m_robotModel)
-    throw BuildException("QueryModel", "RobotModel is null.");
+    throw BuildException(WHERE, "RobotModel is null.");
 
   glMatrixMode(GL_MODELVIEW);
 

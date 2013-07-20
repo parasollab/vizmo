@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "MultiBodyInfo.h"
+#include "Utilities/Exceptions.h"
 
 class IsConnectionGloballyFirst {
   public:
@@ -28,11 +29,9 @@ Robot::Base Robot::GetBaseFromTag(const string _tag){
     return Robot::FIXED;
   else if(_tag == "JOINT")
     return Robot::JOINT;
-  else{
-    cerr << "Error::Incorrect Base Type Specified::" << _tag << endl;
-    cerr << "Choices are:: Planar, Volumetric, Fixed, or Joint" << endl;
-    exit(1);
-  }
+  else
+    throw ParseException(WHERE,
+        "Failed parsing robot base type. Choices are Planar, Volumetric, Fixed, or Joint.");
 }
 
 Robot::BaseMovement Robot::GetMovementFromTag(const string _tag){
@@ -40,10 +39,8 @@ Robot::BaseMovement Robot::GetMovementFromTag(const string _tag){
     return Robot::ROTATIONAL;
   else if (_tag == "TRANSLATIONAL")
     return Robot::TRANSLATIONAL;
-  else {
-    cerr << "Error::Incorrect Movement Type Specified::" << _tag << endl;
-    cerr << "Choices are:: Rotational or Translational" << endl;
-    exit(1);
-  }
+  else
+    throw ParseException(WHERE,
+        "Failed parsing robot movement type. Choices are Rotational or Translational.");
 }
 

@@ -202,62 +202,47 @@ FileOptions::SaveNewRoadmap(const char* _filename){
 
   ofstream outfile (_filename);
 
-  if(mapModel->ParseHeader()!=false){ //return false;
-    const string version = mapModel->GetVersionNumber();
-    const string preamble = mapModel->GetPreamble();
-    const string envFile = mapModel->GetEnvFileName();
-    const list<string> lps = mapModel->GetLPs();
-    const list<string> cds = mapModel->GetCDs();
-    const list<string> dms = mapModel-> GetDMs();
-    const string seed = mapModel-> GetSeed();
-    outfile<< "Roadmap Version Number "<< version<<"\n";
-    outfile<< "#####PREAMBLESTART##### \n";
-    outfile<<preamble<<"\n";
-    outfile<< "#####PREAMBLESTOP##### \n";
-    outfile<< "#####ENVFILESTART##### \n";
-    outfile<<envFile<<"\n";
-    outfile<< "#####ENVFILESTOP##### \n";
-    outfile<< "#####LPSTART##### \n";
-    outfile<<lps.size()<<endl;
-    list<string>::const_iterator it;
-    for(it=lps.begin(); it!=lps.end(); ++it){
-      outfile << *it << endl; // each element on a separate line
-    }
-    outfile<< "#####LPSTOP##### \n";
-    outfile<< "#####CDSTART##### \n";
-    outfile<<cds.size()<<endl;
-    for(it=cds.begin(); it!=cds.end(); ++it){
-      outfile << *it << endl; // each element on a separate line
-    }
-    outfile<< "#####CDSTOP##### \n";
-    outfile<< "#####DMSTART##### \n";
-    outfile<<dms.size()<<endl;
-    for(it=dms.begin(); it!=dms.end(); ++it){
-      outfile << *it << endl; // each element on a separate line
-    }
-    outfile<< "#####DMSTOP#####";
+  const string version = mapModel->GetVersionNumber();
+  const string preamble = mapModel->GetPreamble();
+  const string envFile = mapModel->GetEnvFileName();
+  const list<string> lps = mapModel->GetLPs();
+  const list<string> cds = mapModel->GetCDs();
+  const list<string> dms = mapModel-> GetDMs();
+  const string seed = mapModel-> GetSeed();
+  outfile<< "Roadmap Version Number "<< version<<"\n";
+  outfile<< "#####PREAMBLESTART##### \n";
+  outfile<<preamble<<"\n";
+  outfile<< "#####PREAMBLESTOP##### \n";
+  outfile<< "#####ENVFILESTART##### \n";
+  outfile<<envFile<<"\n";
+  outfile<< "#####ENVFILESTOP##### \n";
+  outfile<< "#####LPSTART##### \n";
+  outfile<<lps.size()<<endl;
+  list<string>::const_iterator it;
+  for(it=lps.begin(); it!=lps.end(); ++it){
+    outfile << *it << endl; // each element on a separate line
+  }
+  outfile<< "#####LPSTOP##### \n";
+  outfile<< "#####CDSTART##### \n";
+  outfile<<cds.size()<<endl;
+  for(it=cds.begin(); it!=cds.end(); ++it){
+    outfile << *it << endl; // each element on a separate line
+  }
+  outfile<< "#####CDSTOP##### \n";
+  outfile<< "#####DMSTART##### \n";
+  outfile<<dms.size()<<endl;
+  for(it=dms.begin(); it!=dms.end(); ++it){
+    outfile << *it << endl; // each element on a separate line
+  }
+  outfile<< "#####DMSTOP#####";
 
-    if(version == "041805"){
-      outfile<< "\n#####RNGSEEDSTART##### \n";
-      outfile<< seed <<"\n";
-      outfile<< "#####RNGSEEDSTOP##### \n";
-    }
+  if(version == "041805"){
+    outfile<< "\n#####RNGSEEDSTART##### \n";
+    outfile<< seed <<"\n";
+    outfile<< "#####RNGSEEDSTOP##### \n";
   }
 
-  //typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
   typedef MapModel<CfgModel,EdgeModel>::Wg WG;
   WG* graph = mapModel->GetGraph();
   write_graph(*graph, outfile);
 }
-
-
-
-
-
-
-
-
-
-
-
-

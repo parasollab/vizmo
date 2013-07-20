@@ -88,7 +88,7 @@ VizmoItemSelectionGUI::Select(){
     (*i)->setSelected(false);
   //find selected
   vector<VizmoListViewItem*> selected;
-  for(int s=0; s<sel.size(); s++){
+  for(size_t s = 0; s < sel.size(); ++s){
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
       if(sel[s] == (*i)->m_model){
         selected.push_back(*i);

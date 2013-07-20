@@ -59,8 +59,7 @@ class MapModel : public GLModel{
     //Moving generic load functions to virtual in GLModel.h
     void InitGraph(){ m_graph = new Wg(); }
     //void WriteMapFile(const char *filename);
-    bool ParseHeader();
-    bool ParseHeader(istream& _in);
+    void ParseHeader(istream& _in);
     virtual void ParseFile();
     bool WriteMapFile();
     VID Cfg2VID(CfgModel _target);
@@ -130,7 +129,11 @@ MapModel<CfgModel, WEIGHT>::MapModel(RobotModel* _robotModel) {
 template <class CfgModel, class WEIGHT>
 MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename) {
   SetFilename(_filename);
-  ParseHeader();
+  if(!FileExists(_filename))
+    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
+
+  ifstream ifs(_filename.c_str());
+  ParseHeader(ifs);
   m_graph = NULL;
 }
 
@@ -166,20 +169,7 @@ MapModel<CfgModel, WEIGHT>::~MapModel(){
 ///////////Load functions//////////
 
 template <class CfgModel, class WEIGHT>
-bool
-MapModel<CfgModel, WEIGHT>::ParseHeader(){
-
-  if(!FileExists(GetFilename()))
-    return false;
-
-  ifstream ifs(GetFilename().c_str());
-  bool result = ParseHeader(ifs);
-  ifs.close();
-  return result;
-}
-
-template <class CfgModel, class WEIGHT>
-bool
+void
 MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
 
   m_fileDir = GetPathName(GetFilename());
@@ -239,7 +229,6 @@ MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
       m_dMs.push_back(s);
   }
 
-  // June 17-05
   // Supports new version of map generation:
   // ask whether this has the RNGSEEDSTART tag:
   string s_ver = m_versionNumber;
@@ -248,18 +237,17 @@ MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
     getline(_in, s);
     m_seed = s;
   }
-  return true;
 }
 
 template<class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel,WEIGHT>::ParseFile(){
   if(!FileExists(GetFilename()))
-    throw ParseException("MapModel", "'" + GetFilename() + "' does not exist");
+    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
-  if(!ParseHeader(ifs))
-    throw ParseException("MapModel", "'" + GetFilename() + "' has incorrect header");
+
+  ParseHeader(ifs);
 
   //Get Graph Data
   string s;

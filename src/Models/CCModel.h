@@ -188,7 +188,7 @@ CCModel<CfgModel, WEIGHT>::ChangeShape(Shape _s){
 template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::BuildModels() {
-  throw BuildException("CCModel", "Calling wrong build models function.");
+  throw BuildException(WHERE, "Calling wrong build models function.");
 }
 
 template <class CfgModel, class WEIGHT>
@@ -196,7 +196,7 @@ void
 CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
 
   if(!_g)
-    throw BuildException("CCModel", "Passed in null graph");
+    throw BuildException(WHERE, "Passed in null graph");
 
   m_graph = _g;
 

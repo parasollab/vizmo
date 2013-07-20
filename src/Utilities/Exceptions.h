@@ -6,6 +6,15 @@
 #include <exception>
 using namespace std;
 
+template<typename X, typename Y, typename Z>
+string WhereAt(X x, Y y, Z z) {
+  ostringstream oss;
+  oss << "\n\tFile: " << x << "\n\tFunction: " << y << "\n\tLine: " << z;
+  return oss.str();
+};
+
+#define WHERE WhereAt(__FILE__, __PRETTY_FUNCTION__, __LINE__)
+
 class VizmoException : public exception {
   public:
     VizmoException(const string& _type, const string& _where, const string& _message) :
@@ -14,7 +23,12 @@ class VizmoException : public exception {
     virtual ~VizmoException() throw() {}
 
     virtual const char* what() const throw() {
-      return ("Error::" + m_type + "::" + m_where + "::" + m_message).c_str();
+      string w =
+        "\nError:\n\t" + m_type +
+        "\nWhere:" + m_where +
+        "\nWhy:\n\t" + m_message +
+        "\n";
+      return w.c_str();
     }
 
   private:
@@ -27,10 +41,22 @@ class ParseException : public VizmoException {
       VizmoException("ParseError", _where, _message) {}
 };
 
+class WriteException : public VizmoException {
+  public:
+    WriteException(const string& _where, const string& _message) :
+      VizmoException("WriteError", _where, _message) {}
+};
+
 class BuildException : public VizmoException {
   public:
     BuildException(const string& _where, const string& _message) :
       VizmoException("BuildError", _where, _message) {}
+};
+
+class DrawException : public VizmoException {
+  public:
+    DrawException(const string& _where, const string& _message) :
+      VizmoException("DrawError", _where, _message) {}
 };
 
 #endif
