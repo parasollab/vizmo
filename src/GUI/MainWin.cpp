@@ -92,13 +92,13 @@ VizmoMainWin::InitVizmo(){
   resize(width(),height());
   m_args.clear();
   m_GL->resetCamera();
-  m_GL->updateGL();
   //reset guis
   m_animationGUI->reset();
   m_animationDebugGUI->reset();
   m_objectSelection->ResetLists();
   m_mainMenu->CallReset();
   GetVizmo().ChangeNodesRandomColor(); //replacing the reset() call here previously
+  m_GL->updateGL();
 
   return true;
 }

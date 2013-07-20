@@ -131,6 +131,7 @@ template <class CfgModel, class WEIGHT>
 MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename) {
   SetFilename(_filename);
   ParseHeader();
+  m_graph = NULL;
 }
 
 template <class CfgModel, class WEIGHT>
