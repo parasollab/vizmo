@@ -124,6 +124,7 @@ VizmoMainWin::CreateGUI(){
   connect(m_animationDebugGUI,SIGNAL(callUpdate()), m_outbox, SLOT(SetText()));
   connect(m_objectSelection, SIGNAL(UpdateTextGUI()), m_outbox, SLOT(SetText()));
   connect(m_GL, SIGNAL(selectByLMB()), m_objectSelection, SLOT(Select()));
+  connect(m_GL, SIGNAL(clickByLMB()), m_objectSelection, SLOT(Select()));
   //HandleSelect now in Plum/MapObj/MapModel.cpp and temporarily disabled
   // connect(m_GL, SIGNAL(selectByLMB()), m_roadmapGUI, SLOT(handleSelect()));
   connect(m_GL, SIGNAL(clickByLMB()), m_outbox, SLOT(SetText()));
