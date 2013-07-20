@@ -1,15 +1,13 @@
 #include "SceneWin.h"
 
-#include "Models/Vizmo.h"
-#include "MainWin.h"
-#include "Utilities/GL/gli.h"
-#include "Utilities/GL/gliCamera.h"
-#include "Utilities/GL/gliFont.h"
-#include <glut.h>
-//Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QGLWidget>
+
+#include <glut.h>
+
+#include "Models/Vizmo.h"
+#include "MainWin.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
@@ -17,36 +15,32 @@
 class VizmoMainWin;
 
 VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
-  :QGLWidget(_parent)
-{
-  m_mainWin = _mainWin;
-  setMinimumSize(400, 505); //original size: 400 x 600
-  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-  setFocusPolicy(Qt::StrongFocus);
+  : QGLWidget(_parent) {
+    m_mainWin = _mainWin;
+    setMinimumSize(400, 505); //original size: 400 x 600
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    setFocusPolicy(Qt::StrongFocus);
 
-  takingSnapShot=false;
-  m_bShowGrid=false;
-  m_bShowAxis=true;
-}
+    takingSnapShot=false;
+    m_bShowGrid=false;
+    m_bShowAxis=true;
+  }
 
 void
 VizGLWin::toggleSelectionSlot(){
-
   takingSnapShot=!takingSnapShot;
 }
 
 void
 VizGLWin::resetCamera(){
-
-  double R=GetVizmo().GetEnvRadius();
-  gliGetCameraFactory().getCurrentCamera()->setCameraPos(Point3d(0,0,4*R));
+  gliGetCameraFactory().getCurrentCamera()->setCameraPos(Point3d(0, 0, 4*GetVizmo().GetEnvRadius()));
   gliGetCameraFactory().getCurrentCamera()->setAzim(0);
   gliGetCameraFactory().getCurrentCamera()->setElev(0);
 }
 
 //used as callback for gli
 inline vector<GLModel*>&
-vizmoSelect(const gliBox& _box){
+VizmoSelect(const gliBox& _box){
   GetVizmo().Select(_box);
   return GetVizmo().GetSelectedModels();
 }
@@ -58,20 +52,19 @@ VizGLWin::initializeGL(){
   SetLight();
 
   /*others*/
-  glEnable( GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
 
-  glClearColor( 1 , 1, 1, 0 );
+  glClearColor(1, 1, 1, 0);
   //glEnable(GL_CULL_FACE);
   //glCullFace(GL_BACK);
-  glLineStipple(2,0xAAAA);
+  glLineStipple(2, 0xAAAA);
 
   //create models
-  gliSetPickingFunction(vizmoSelect);
+  gliSetPickingFunction(VizmoSelect);
 }
 
 void
 VizGLWin::resizeGL(int w, int h){
-
   gliWS(w,h);
   glViewport(0, 0, w, h);
 
@@ -122,14 +115,12 @@ VizGLWin::mousePressEvent(QMouseEvent* e){
 
 void
 VizGLWin::simulateMouseUpSlot(){
-
   gliSimMouseUp();
   updateGL();
 }
 
 void
 VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
-
   if(gliMR(_e, takingSnapShot)){ //handled by gli
     updateGL();
     emit MRbyGLI();
@@ -191,10 +182,9 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
 
 void
 VizGLWin::mouseMoveEvent(QMouseEvent* e){
-
   if(gliMM(e)){
-//    if(CDOn)                   TEMPORARY(?) DISABLE
-//      GetVizmo().TurnOn_CD();
+    //    if(CDOn)                   TEMPORARY(?) DISABLE
+    //      GetVizmo().TurnOn_CD();
     updateGL();
     return;
   }//handled by gli
@@ -235,8 +225,7 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
     updateGL();
     return;
   }//handled by gli
-  //if((RobotModel*)(GetVizmo().GetRobot()) == NULL){
-  if((GetVizmo().GetRobot()) == NULL){  //^casting presumably not necessary
+  if(!GetVizmo().GetRobot()) {
     updateGL();
     return;
   }
@@ -249,21 +238,18 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
 
 void
 VizGLWin::showGrid() {
-
   m_bShowGrid=!m_bShowGrid;
   updateGL();
 }
 
 void
 VizGLWin::showAxis() {
-
   m_bShowAxis=!m_bShowAxis;
   updateGL();
 }
 
 void
 VizGLWin::resetTransTool(){
-
   gliReset();
 }
 
@@ -272,9 +258,9 @@ VizGLWin::resetTransTool(){
 //will be written
 void
 VizGLWin::SaveImage(QString _filename, bool _crop) {
-  QRect imageRect = GetImageRect(_crop);
   //grab the gl scene. Copy into new QImage with size of imageRect. This will
   //crop the image appropriately.
+  QRect imageRect = GetImageRect(_crop);
   QImage crop = grabFrameBuffer().copy(imageRect);
   crop.save(_filename);
 }

@@ -5,28 +5,23 @@
 #include "Models/Vizmo.h"
 #include "Models/CCModel.h"
 
-VizmoItemSelectionGUI::VizmoItemSelectionGUI(QWidget* _parent)
-  :QTreeWidget(_parent) {
-
-  setMinimumSize(205, 277);
-  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  m_maxNoModels = 0;
-  setHeaderLabel("Environment Objects");
-  setSelectionMode(QAbstractItemView::ExtendedSelection);
-  connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(SelectionChanged()));
-  setEnabled(false);
-}
+VizmoItemSelectionGUI::VizmoItemSelectionGUI(QWidget* _parent) :
+  QTreeWidget(_parent) {
+    setMinimumSize(205, 277);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    m_maxNoModels = 0;
+    setHeaderLabel("Environment Objects");
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
+    connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(SelectionChanged()));
+    setEnabled(false);
+  }
 
 void
 VizmoItemSelectionGUI::ResetLists(){
-  vector<GLModel*>& objs=GetVizmo().GetLoadedModels();
+  vector<GLModel*>& objs = GetVizmo().GetLoadedModels();
   ClearLists();
   FillTree(objs);
-
-  if(objs.empty())
-    setEnabled(false);
-  else
-    setEnabled(true);
+  setEnabled(!objs.empty());
 }
 
 void
@@ -37,14 +32,14 @@ VizmoItemSelectionGUI::FillTree(vector<GLModel*>& _obj) {
 }
 
 VizmoListViewItem*
-VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model)
-{
+VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model) {
   VizmoListViewItem* item = NULL;
-  if(_p == NULL){
+  if(!_p){
     item = new VizmoListViewItem(this);
     item->setExpanded(true);
   }
-  else item = new VizmoListViewItem(_p);
+  else
+    item = new VizmoListViewItem(_p);
 
   item->m_model = _model;
   QString qstr = QString::fromStdString(_model->GetName());
@@ -58,7 +53,7 @@ VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model)
 
   typedef list<GLModel*>::iterator OIT;
   for(OIT i = objlist.begin(); i != objlist.end(); i++)
-    CreateItem(item,*i);
+    CreateItem(item, *i);
   return item;
 }
 
@@ -68,7 +63,7 @@ VizmoItemSelectionGUI::SelectionChanged(){
   vector<GLModel*>& sel=GetVizmo().GetSelectedModels();
   sel.clear();
   typedef vector<VizmoListViewItem*>::iterator IIT;
-  for(IIT i = m_items.begin(); i != m_items.end(); i++){
+  for(IIT i = m_items.begin(); i != m_items.end(); i++) {
     if(((*i)->isSelected()))
       GetVizmo().GetSelectedModels().push_back((*i)->m_model);
   }
@@ -78,7 +73,6 @@ VizmoItemSelectionGUI::SelectionChanged(){
 
 void
 VizmoItemSelectionGUI::ClearLists(){
-
   clear();      //Qt call to clear the TreeWidget
   m_items.clear();
 }
@@ -89,8 +83,9 @@ VizmoItemSelectionGUI::Select(){
   vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<VizmoListViewItem*>::iterator IIT;
   //unselect everything
+  blockSignals(true);
   for(IIT i = m_items.begin(); i != m_items.end(); i++)
-    (*i) -> setSelected(false);
+    (*i)->setSelected(false);
   //find selected
   vector<VizmoListViewItem*> selected;
   for(int s=0; s<sel.size(); s++){
@@ -103,6 +98,8 @@ VizmoItemSelectionGUI::Select(){
   //select
   for(IIT i=selected.begin(); i!=selected.end(); i++)
     (*i)->setSelected(true);
+  blockSignals(false);
+  emit itemSelectionChanged();
 }
 
 

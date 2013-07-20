@@ -14,15 +14,13 @@ using namespace std;
 
 class GLModel;
 
-class VizmoListViewItem : public QTreeWidgetItem {
-
-  public:
-    VizmoListViewItem(QTreeWidget* _parent):QTreeWidgetItem(_parent){m_model=NULL;}
-    VizmoListViewItem(QTreeWidgetItem* _parent):QTreeWidgetItem(_parent){m_model=NULL;}
-    GLModel* m_model;
+struct VizmoListViewItem : public QTreeWidgetItem {
+  VizmoListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
+  VizmoListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
+  GLModel* m_model;
 };
 
-class VizmoItemSelectionGUI : public QTreeWidget{
+class VizmoItemSelectionGUI : public QTreeWidget {
 
   Q_OBJECT
 
@@ -36,7 +34,6 @@ class VizmoItemSelectionGUI : public QTreeWidget{
     void Select();
 
   signals:
-    void itemSelected();
     void CallUpdate();
     void UpdateTextGUI();
 
