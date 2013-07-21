@@ -1,52 +1,73 @@
-#ifndef FILE_LIST_DIALOG_H
-#define FILE_LIST_DIALOG_H
+#ifndef FILELISTDIALOG_H_
+#define FILELISTDIALOG_H_
+
+#include <string>
+using namespace std;
 
 #include <QDialog>
 
-class QLabel;
-class QDialog;
-class QPushButton;
 class QGridLayout;
+class QCheckBox;
+class QLabel;
+class QPushButton;
 
-class FileListDialog : public QDialog{
+class FileListDialog : public QDialog {
 
   Q_OBJECT
 
   public:
-    FileListDialog(QWidget* _parent, Qt::WFlags _f = 0);
+    FileListDialog(const string& _filename, QWidget* _parent, Qt::WFlags _f = 0);
 
   private slots:
-    void ChangeMap();
     void ChangeEnv();
+    void ChangeMap();
+    void ChangeQuery();
     void ChangePath();
     void ChangeDebug();
-    void ChangeQry();
+
+    void Accept();
+
+    void PathChecked();
+    void DebugChecked();
 
   private:
-    QGridLayout* m_layout;
+    //This file locates all possible filenames related to the input file.
+    //For example, *.path, *.env, *.query...etc.
+    void GetAssociatedFiles(const string& _filename);
     void SetUpLayout();
-    //The bold, unchanging labels on the left side of the window
-    QLabel* m_mapLabel;
+
+    QGridLayout* m_layout;
+
+    //accepting check boxes on left side of window
+    QCheckBox* m_envCheckBox;
+    QCheckBox* m_mapCheckBox;
+    QCheckBox* m_queryCheckBox;
+    QCheckBox* m_pathCheckBox;
+    QCheckBox* m_debugCheckBox;
+
+    //The bold, labels for each of the check boxes
     QLabel* m_envLabel;
+    QLabel* m_mapLabel;
+    QLabel* m_queryLabel;
     QLabel* m_pathLabel;
     QLabel* m_debugLabel;
-    QLabel* m_queryLabel;
 
     //The actual displayed file names/paths
-    QLabel* m_mapFilename;
     QLabel* m_envFilename;
+    QLabel* m_mapFilename;
+    QLabel* m_queryFilename;
     QLabel* m_pathFilename;
     QLabel* m_debugFilename;
-    QLabel* m_queryFilename;
 
-    QPushButton* m_mapButton;
     QPushButton* m_envButton;
+    QPushButton* m_mapButton;
+    QPushButton* m_queryButton;
     QPushButton* m_pathButton;
     QPushButton* m_debugButton;
-    QPushButton* m_queryButton;
 
-    QPushButton* m_doneButton;
+    QPushButton* m_loadButton;
+    QPushButton* m_cancelButton;
 };
 
-#endif//FILE_LIST_DIALOG_H
+#endif
 

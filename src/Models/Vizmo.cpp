@@ -33,30 +33,6 @@ Vizmo::~Vizmo() {
   Clean();
 }
 
-void
-Vizmo::GetAccessFiles(const string& _filename) {
-  string name = _filename.substr(0, _filename.rfind('.'));
-
-  //test if files exist
-  string mapname = name + ".map";
-  string envname = "";
-  if(FileExists(mapname, false)){
-    m_mapFilename = mapname;
-    MapModel<CfgModel,EdgeModel> headerParser(mapname);
-    envname = headerParser.GetEnvFileName();
-  }
-  else
-    m_mapFilename = "";
-
-  if(envname.empty())
-    envname = name + ".env";
-
-  m_envFilename = FileExists(envname, false) ? envname : "";
-  m_queryFilename = FileExists(name+".query", false) ? name+".query" : "";
-  m_pathFilename = FileExists(name+".path", false) ? name+".path" : "";
-  m_debugFilename = FileExists(name+".vd", false) ? name+".vd" : "";
-}
-
 bool
 Vizmo::InitModels() {
   Clean();

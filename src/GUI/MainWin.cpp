@@ -76,14 +76,12 @@ VizmoMainWin::InitVizmo(){
 
   if(m_args.empty())
     return true; //nothing to init...
-    /*
-    Here we use the first argument, but in the future
-    we should use all of them to load files.
-    */
-  GetVizmo().GetAccessFiles(m_args[0]);
-  FileListDialog* flDialog = new FileListDialog(this);
 
-  if(flDialog->exec()!= QDialog::Accepted)
+  //Here we use the first argument, but in the future
+  //we should use all of them to load files.
+  FileListDialog flDialog(m_args[0], this);
+
+  if(flDialog.exec() != QDialog::Accepted)
     return false;
 
   if(!GetVizmo().InitModels())

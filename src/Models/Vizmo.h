@@ -33,10 +33,6 @@ class Vizmo {
     Vizmo();
     ~Vizmo();
 
-    //This file locates all possible filename related to OBPRM.
-    //For example, *.path, *.env, *.query...etc.
-    void GetAccessFiles(const string& _filename);
-
     //Create VizmoObj.
     bool InitModels();
     void Clean();

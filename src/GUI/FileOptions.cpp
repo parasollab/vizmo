@@ -22,9 +22,7 @@
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
 
-FileOptions::FileOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  :OptionsBase(_parent, _mainWin)
-{
+FileOptions::FileOptions(QWidget* _parent, VizmoMainWin* _mainWin) : OptionsBase(_parent, _mainWin) {
   CreateActions();
   SetUpSubmenu("File");
   SetUpToolbar();
@@ -52,7 +50,7 @@ FileOptions::CreateActions(){
   m_actions["openFile"]->setShortcut(tr("CTRL+O")); //this one necessary?
   m_actions["openFile"]->setStatusTip(tr("Open a file"));
   m_actions["updateFile"]->setShortcut(tr("CTRL+R"));
-  m_actions["quit"]->setShortcut(tr("CTRL-Q"));
+  m_actions["quit"]->setShortcut(tr("CTRL+Q"));
   m_actions["updateFile"]->setEnabled(false);
   m_actions["saveFile"]->setEnabled(false);
   m_actions["saveQuery"]->setEnabled(false);
@@ -69,14 +67,12 @@ FileOptions::CreateActions(){
 
 void
 FileOptions::SetUpToolbar(){
-
   m_toolbar = new QToolBar(GetMainWin());
   m_toolbar->addAction(m_actions["openFile"]);
 }
 
 void
 FileOptions::Reset(){
-
   m_actions["updateFile"]->setEnabled(true);
   m_actions["saveFile"]->setEnabled(true);
   m_actions["saveQuery"]->setEnabled(true);
@@ -85,22 +81,21 @@ FileOptions::Reset(){
 
 void
 FileOptions::SetHelpTips(){
-
   m_actions["openFile"]->setWhatsThis("Click this button to open a <b>File</b>.<br>"
-    "You can separately specify the preferred Map, Environment, Path, Debug, and Query files.");
+      "You can separately specify the preferred Map, Environment, Path, Debug, and Query files.");
 }
 
 //Slots
 
 void
-FileOptions::LoadFile(){
-
+FileOptions::LoadFile() {
   QString fn = QFileDialog::getOpenFileName(this,  "Choose an environment to open",
-      QString::null,"Files (*.map *.env *.vd)");
+      QString::null, "Files (*.env *.map *.query *.path *.vd)");
 
   QFileInfo fi(fn);
 
   if (!fn.isEmpty()){
+    GetMainWin()->GetArgs().clear();
     GetMainWin()->GetArgs().push_back(QString(fn.toLatin1()).toStdString()); //access the actual main window
     GetMainWin()->SetVizmoInit(false);
     GetMainWin()->setWindowTitle("Vizmo++ - "+fi.baseName()+ " environment");
@@ -115,11 +110,9 @@ FileOptions::LoadFile(){
 
 void
 FileOptions::UpdateFiles(){
+  FileListDialog flDialog("", this);
 
-  GetMainWin()->SetVizmoInit(false);
-  m_flDialog = new FileListDialog(this);
-
-  if(m_flDialog->exec() != QDialog::Accepted)
+  if(flDialog.exec() != QDialog::Accepted)
     return;
 
   if(!GetVizmo().InitModels())
@@ -130,7 +123,6 @@ FileOptions::UpdateFiles(){
   GetMainWin()->GetAnimationDebugGUI()->reset();
   GetMainWin()->GetObjectSelection()->ResetLists();
   GetMainWin()->m_mainMenu->CallReset();
-
   GetMainWin()->GetGLScene()->resetTransTool();
 }
 
