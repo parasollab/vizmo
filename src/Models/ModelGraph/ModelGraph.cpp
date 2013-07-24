@@ -14,7 +14,7 @@ namespace modelgraph
     CModelGraph::CModelGraph()
     {
         m_pEdge=NULL;
-        m_EdgeSize=0;
+        m_edgeSize=0;
     }
 
     CModelGraph::~CModelGraph()

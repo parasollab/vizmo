@@ -94,7 +94,7 @@ EdgeModel::Draw(GLenum _mode) {
 
   if(m_renderMode == SOLID_MODE || m_renderMode == WIRE_MODE){
 
-    float* rGBA = &m_rGBA[0];
+    float* rGBA = &m_rgba[0];
     glColor4fv(rGBA);
     glLineWidth(m_edgeThickness);
 

@@ -457,13 +457,13 @@ MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel)
       void MapModel<CfgModel, WEIGHT>::HandleAddEdge(){
 
 //find two nodes...
-PlumObject* m_Map;
-m_Map = this->GetVizmo().GetMap();
+PlumObject* m_map;
+m_map = this->GetVizmo().GetMap();
 CfgModel *cfg1, *cfg2;
 
 typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
 WG* graph;
-CMapLoader<CfgModel,EdgeModel>* m_loader=(CMapLoader<CfgModel,EdgeModel>*)m_Map->getLoader();
+CMapLoader<CfgModel,EdgeModel>* m_loader=(CMapLoader<CfgModel,EdgeModel>*)m_map->getLoader();
 graph = m_loader->GetGraph();
 
 //get from m_nodes node1 and node2
@@ -483,23 +483,23 @@ graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);
   // get a CC id
   int CC_id = cfg1->GetCC_ID();
   //get mapModel
-  MapModel<CfgModel,EdgeModel>* mmodel =(MapModel<CfgModel,EdgeModel>*)m_Map->getModel();
+  MapModel<CfgModel,EdgeModel>* mmodel =(MapModel<CfgModel,EdgeModel>*)m_map->getModel();
   //get the CCModel of CfgModel
-  CCModel<CfgModel,EdgeModel>* m_CCModel = mmodel->GetCCModel(CC_id);
+  CCModel<CfgModel,EdgeModel>* m_cCModel = mmodel->GetCCModel(CC_id);
   //add edge to CC
-  //m_CCModel->addEdge(cfg1, cfg2); Jul 17-12
+  //m_cCModel->addEdge(cfg1, cfg2); Jul 17-12
 
   //backUp current prpoperties:
-  CCModel<CfgModel,EdgeModel>::Shape shape = m_CCModel->getShape();
+  CCModel<CfgModel,EdgeModel>::Shape shape = m_cCModel->getShape();
   float size;
   if(shape == 0)
-  size = m_CCModel->getRobotSize();
+  size = m_cCModel->getRobotSize();
   else if (shape == 1)
-  size = m_CCModel->getBoxSize();
+  size = m_cCModel->getBoxSize();
   else
   size = 0;
   vector<float> rgb;
-  rgb = m_CCModel->getColor();
+  rgb = m_cCModel->getColor();
 
   mmodel->BuildModels();
   mmodel->SetProperties(shape, size, rgb, false);
@@ -544,9 +544,9 @@ else{ //no node selected and assumes there is not roadmap....
 
     mmodel->SetMapLoader(mloader);
 
-    PlumObject* m_Rob;
-    m_Rob = this->GetVizmo().GetRobot();
-    RobotModel* r = (RobotModel*)m_Rob->getModel();
+    PlumObject* m_rob;
+    m_rob = this->GetVizmo().GetRobot();
+    RobotModel* r = (RobotModel*)m_rob->getModel();
 
     if(r != NULL)
       mmodel->SetRobotModel(r);
@@ -626,8 +626,8 @@ else{ //no node selected and assumes there is not roadmap....
 /*template <class CfgModel, class WEIGHT>
   void MapModel<CfgModel, WEIGHT>::MoveNode(){
 
-  if(m_Nodes.empty()) return;
-  GLModel * n=m_Nodes.front();
+  if(m_nodes.empty()) return;
+  GLModel * n=m_nodes.front();
   double diff = fabs(m_oldT[0]-n->tx())+
   fabs(m_oldT[1]-n->ty())+
   fabs(m_oldT[2]-n->tz())+
@@ -657,7 +657,7 @@ else{ //no node selected and assumes there is not roadmap....
   nodeGUI->filledFirstTime = false;
   }
   }
-  m_Map_Changed=true;
+  m_map_Changed=true;
 
 //  emit callUpdate(); ****CHECK THIS**********
 }

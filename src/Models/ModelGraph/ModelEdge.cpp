@@ -13,9 +13,9 @@ namespace modelgraph
 
     CModelEdge::CModelEdge(int start, int end)
     {
-        m_Key[0]=start;
-        m_Key[1]=end;
-        m_Tri[0]=m_Tri[1]=-1;
+        m_key[0]=start;
+        m_key[1]=end;
+        m_tri[0]=m_tri[1]=-1;
     }
 
 } //end of namespace modelgraph

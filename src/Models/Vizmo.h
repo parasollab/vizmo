@@ -110,7 +110,7 @@ class Vizmo {
     void Node_CD(double *cfg);
     void Node_CD(CfgModel * cfg);
     double * m_nodeCfg;
-    bool m_IsNode;
+    bool m_isNode;
 
     vector<GLModel*>& GetLoadedModels(){ return m_loadedModels; }
     vector<GLModel*>& GetSelectedModels() {return m_selectedModels;}

@@ -7,13 +7,13 @@
 
 void gliPickBox::Draw( void )
 {
-    if( !m_LMB_DOWN ) return;
+    if( !m_lMB_DOWN ) return;
 
     //change to Ortho view
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0,m_W,0,m_H);
+    gluOrtho2D(0,m_w,0,m_h);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -24,10 +24,10 @@ void gliPickBox::Draw( void )
 	glLineWidth(1);
     glBegin(GL_LINE_LOOP);
     glColor3f(0,0,0);
-    glVertex2f(m_PickBox.l,m_PickBox.b);
-    glVertex2f(m_PickBox.r,m_PickBox.b);
-    glVertex2f(m_PickBox.r,m_PickBox.t);
-    glVertex2f(m_PickBox.l,m_PickBox.t);
+    glVertex2f(m_pickBox.l,m_pickBox.b);
+    glVertex2f(m_pickBox.r,m_pickBox.b);
+    glVertex2f(m_pickBox.r,m_pickBox.t);
+    glVertex2f(m_pickBox.l,m_pickBox.t);
     glEnd();
     glDisable(GL_LINE_STIPPLE);
 
@@ -42,21 +42,21 @@ void gliPickBox::Draw( void )
 void gliPickBox::MP( QMouseEvent * e ) //mouse button
 {
     if( e->button()!=Qt::LeftButton ) return;
-    m_LMB_DOWN=true;
-    m_PickBox.r=m_PickBox.l=e->pos().x();
-    m_PickBox.b=m_PickBox.t=m_H-e->pos().y();
+    m_lMB_DOWN=true;
+    m_pickBox.r=m_pickBox.l=e->pos().x();
+    m_pickBox.b=m_pickBox.t=m_h-e->pos().y();
 }
 
 void gliPickBox::MR( QMouseEvent * e ) //mouse button
 {
-    m_LMB_DOWN=false;
+    m_lMB_DOWN=false;
 }
 
 void gliPickBox::MM( QMouseEvent * e )  //mouse motion
 {
-    if( !m_LMB_DOWN ) return;
-    m_PickBox.r=e->pos().x();
-    m_PickBox.t=m_H-e->pos().y();
+    if( !m_lMB_DOWN ) return;
+    m_pickBox.r=e->pos().x();
+    m_pickBox.t=m_h-e->pos().y();
 }
 
 ///////////////////////////////////////////////////////////////////////////

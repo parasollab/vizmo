@@ -5,67 +5,62 @@
 #include "Plum/GLModel.h"
 #include "Models/PolyhedronModel.h"
 
-class MultiBodyModel : public GLModel {
+class MultiBodyModel : public GLModel{
   public:
     //////////////////////////////////////////////////////////////////////
     // Cons/Des
-    MultiBodyModel(const CMultiBodyInfo & MBInfo);
-    virtual ~MultiBodyModel();
+    MultiBodyModel(const MultiBodyInfo& m_mbInfo);
 
     //////////////////////////////////////////////////////////////////////
     // Core
     //////////////////////////////////////////////////////////////////////
     virtual void BuildModels();
-    virtual void Select(unsigned int * index, vector<GLModel*>& sel);
-
+    virtual void Select(unsigned int* _index, vector<GLModel*>& sel);
+      
     //Draw
-    virtual void Draw( GLenum mode );
+    virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
-
+      
     //set wire/solid/hide
     virtual void SetRenderMode(RenderMode _mode);
     virtual void SetColor(float r, float g, float b, float a);
-    const float * GetColor() const;
+    const float* GetColor() const;
+      
+    virtual const string GetName() const{return "MultiBody";}
 
-    virtual const string GetName() const { return "MultiBody"; }
-
-    virtual void GetChildren(list<GLModel*>& models){
-      for(size_t i=0; i<m_poly.size(); i++ )
-        models.push_back(&m_poly[i]);
+    virtual void GetChildren(list<GLModel*>& _models){
+      for(size_t i=0; i<m_poly.size(); i++)
+        _models.push_back(&m_poly[i]);
     }
 
     virtual vector<string> GetInfo() const;
-
     //used to print the confg. of the MultiBody
     void SetCfg(vector<double>& _cfg);
     virtual void Scale(double x, double y, double z);
 
-
     //////////////////////////////////////////////////////////////////////
     // Access
     //////////////////////////////////////////////////////////////////////
-    void SetAsFree(bool free=true){m_bFixed = !free;}
+    void SetAsFree(bool free=true){m_fixed = !free;}
 
     double GetRadius() const{return m_radius;}
-    const Point3d& GetCOM() const{return m_COM;}
+    const Point3d& GetCOM() const{return m_com;}
     vector<PolyhedronModel>& GetPolyhedron(){return m_poly;}
-    const CMultiBodyInfo& GetMBinfo(){return m_MBInfo;}
-    bool IsFixed() const{return m_bFixed;}
-
+    const MultiBodyInfo& GetMBinfo(){return m_mbInfo;}
+    bool IsFixed() const{return m_fixed;}
+      
     //public variables
-    double posX, posY, posZ;
-    list<GLModel *> objlist; // to have access from glitransTool class
+    double m_posX, posY, posZ;
+    list<GLModel*> m_objlist; // to have access from glitransTool class
 
   private:
-    const CMultiBodyInfo & m_MBInfo; //a reference to the CMultiBodyInfo
+    const MultiBodyInfo& m_mbInfo; //a reference to the MultiBodyInfo
     vector<PolyhedronModel> m_poly;
 
-    bool m_bFixed; //is this multibody fixed. i.e obstacle
+    bool m_fixed; //is this multibody fixed. i.e obstacle
     double m_radius; //Radius
-    Point3d m_COM; // center of mass
-
+    Point3d m_com; // center of mass
     vector<double> m_cfg;
 };
 
 #endif
-

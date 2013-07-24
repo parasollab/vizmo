@@ -23,7 +23,7 @@ class PolyhedronModel : public GLModel {
 
     RAPID_model* GetRapidModel() {return m_rapidModel;}
 
-    void SetBodyInfo(const CBodyInfo& _bodyInfo) {m_bodyInfo = _bodyInfo;}
+    void SetBodyInfo(const BodyInfo& _bodyInfo) {m_bodyInfo = _bodyInfo;}
 
     void BuildModels();
     void Draw(GLenum _mode);
@@ -49,7 +49,7 @@ class PolyhedronModel : public GLModel {
     double m_radius; //radius
     Point3d m_com; //Center of Mass
 
-    CBodyInfo m_bodyInfo;
+    BodyInfo m_bodyInfo;
     RAPID_model* m_rapidModel;
 };
 

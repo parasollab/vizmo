@@ -26,9 +26,9 @@ namespace modelgraph
         // Access Function
         CModelEdge * getEdge(CModelNode * nb) const
         {
-            int Key=nb->m_Key;
+            int Key=nb->m_key;
             //linear search
-            mylist * e= m_Edges;
+            mylist * e= m_edges;
             while(e!=NULL){
                 if( e->pEdge->isEndPt(Key)==true ) return e->pEdge;
                 e=e->pNext;
@@ -41,12 +41,12 @@ namespace modelgraph
             mylist * listnode=new mylist();
             if( listnode!=NULL ){
                 listnode->pEdge=e;
-                listnode->pNext=m_Edges;
-                m_Edges=listnode;
+                listnode->pNext=m_edges;
+                m_edges=listnode;
             }
         }
 
-        int getKey() const { return m_Key; }
+        int getKey() const { return m_key; }
 
     //////////////////////////////////////////////////////////////////////
     // Private Stuff
@@ -58,8 +58,8 @@ namespace modelgraph
             mylist * pNext;
         };
 
-        int m_Key;
-        mylist * m_Edges;
+        int m_key;
+        mylist * m_edges;
     };
 
 }//end of namespace modelgraph

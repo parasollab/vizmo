@@ -47,22 +47,22 @@ class gliCamera{
       double getCameraElev() const { return m_currentElev+m_deltaElev; }
       double getCurrentElev() const {return m_currentElev;}
       double getCurrentAzim() const {return m_currentAzim;}
-      Point3d getCameraPos() const { return m_CameraPos+m_deltaDis; }
-      void setCameraPos(const Point3d& pos) { m_CameraPos=pos; }
+      Point3d getCameraPos() const { return m_cameraPos+m_deltaDis; }
+      void setCameraPos(const Point3d& pos) { m_cameraPos=pos; }
       void setAzim(double _azim) { m_currentAzim = _azim; }
       void setElev(double _elev) { m_currentElev = _elev; }
-      const string& getCameraName() const { return m_CamName; }
-      const Vector3d& getWindowX() const { return m_WindowX; }
-      const Vector3d& getWindowY() const { return m_WindowY; }
-      Vector3d getWindowZ() const { return m_WindowX%m_WindowY; }
+      const string& getCameraName() const { return m_camName; }
+      const Vector3d& getWindowX() const { return m_windowX; }
+      const Vector3d& getWindowY() const { return m_windowY; }
+      Vector3d getWindowZ() const { return m_windowX%m_windowY; }
 
 
 
    private:
 
-      Point3d m_CameraPos;
+      Point3d m_cameraPos;
       Vector3d m_deltaDis; /// displacement caused by user
-      Vector3d m_Up;
+      Vector3d m_up;
 
       double m_currentAzim, m_deltaAzim;
       double m_currentElev, m_deltaElev;
@@ -70,15 +70,15 @@ class gliCamera{
       double m_angle;
 
 
-      QPoint m_PressedPt;
-      bool m_MousePressed;
+      QPoint m_pressedPt;
+      bool m_mousePressed;
       bool m_cartesian;//if true then camera moves in cartesian coords,
       //if false then camera moves in spherical coords
 
-      Vector3d m_WindowX;
-      Vector3d m_WindowY;
+      Vector3d m_windowX;
+      Vector3d m_windowY;
 
-      string m_CamName; /// camera name
+      string m_camName; /// camera name
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -106,8 +106,8 @@ class gliCameraFactory
 
    private:
       /// default cameras
-      list<gliCamera> m_Cameras;
-      gliCamera * m_CurrentCam;
+      list<gliCamera> m_cameras;
+      gliCamera * m_currentCam;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

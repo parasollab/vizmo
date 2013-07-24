@@ -8,7 +8,7 @@
 
 class IsConnectionGloballyFirst {
   public:
-    bool operator()(const CConnectionInfo* _a, const CConnectionInfo* _b) const {
+    bool operator()(const ConnectionInfo* _a, const ConnectionInfo* _b) const {
       return _a->m_globalIndex < _b->m_globalIndex;
     }
 } connectionComparitor;

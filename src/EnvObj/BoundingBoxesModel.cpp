@@ -29,13 +29,13 @@ bool CBoundingBoxesModel::BuildModels(){
    for(int i = 0; i<m_pBBXParser->getNumBBXs(); i++){
       BoundingBoxModel* cbbm = new BoundingBoxModel();
       cbbm->BuildModels();
-      m_BBXModels.push_back(cbbm);
+      m_bbxModels.push_back(cbbm);
    }
 
-   for(unsigned int i = 0; i<m_BBXModels.size(); i++){
-      for(unsigned int j = i; j<m_BBXModels.size(); j++){
+   for(unsigned int i = 0; i<m_bbxModels.size(); i++){
+      for(unsigned int j = i; j<m_bbxModels.size(); j++){
          if(i!=j){
-            //BuildOverlapModel(m_BBXModels[i]->getBBX(), m_BBXModels[j]->getBBX());
+            //BuildOverlapModel(m_bbxModels[i]->getBBX(), m_bbxModels[j]->getBBX());
          }
       }
    }
@@ -47,11 +47,11 @@ void CBoundingBoxesModel::Draw( GLenum mode ){
    glEnable(GL_CULL_FACE);
    glCullFace(GL_BACK);
    typedef vector<BoundingBoxModel*>::iterator BIT;
-   for(BIT bit=m_BBXModels.begin(); bit!=m_BBXModels.end(); bit++){
+   for(BIT bit=m_bbxModels.begin(); bit!=m_bbxModels.end(); bit++){
       (*bit)->Draw(mode);
    }
    glDisable(GL_CULL_FACE);
-   /*for(BIT obit = m_BBXOverlaps.begin(); obit != m_BBXOverlaps.end(); obit++){
+   /*for(BIT obit = m_bbxOverlaps.begin(); obit != m_bbxOverlaps.end(); obit++){
       (*obit)->DrawLines(mode);
    }*/
 }
@@ -64,7 +64,7 @@ CBoundingBoxesModel::GetInfo() const {
   info.push_back("");
   string name = "Num Bounding Boxes=";
   ostringstream temp;
-  temp<<m_BBXModels.size();
+  temp<<m_bbxModels.size();
   info.push_back(name+temp.str());
   return info;
 }
@@ -72,9 +72,9 @@ CBoundingBoxesModel::GetInfo() const {
 void CBoundingBoxesModel::Select( unsigned int * index, vector<GLModel*>& sel )
 {
    if( index==NULL ) return;
-   if( *index>=m_BBXModels.size() ) //input error
+   if( *index>=m_bbxModels.size() ) //input error
       return;
-   m_BBXModels[index[0]]->Select(index+1,sel);
+   m_bbxModels[index[0]]->Select(index+1,sel);
 }
 
 /*
@@ -115,9 +115,9 @@ void CBoundingBoxesModel::BuildOverlapModel(vector<double>& a, vector<double>& b
 
    if(accept){
       vector<double> ov = overlap(a,b);
-      BoundingBoxModel* cbbm = new BoundingBoxModel(m_BBXModels.size() + 1 + m_BBXOverlaps.size(), ov);
+      BoundingBoxModel* cbbm = new BoundingBoxModel(m_bbxModels.size() + 1 + m_bbxOverlaps.size(), ov);
       cbbm->BuildModels();
-      m_BBXOverlaps.push_back(cbbm);
+      m_bbxOverlaps.push_back(cbbm);
    }
 }
 */

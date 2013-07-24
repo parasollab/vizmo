@@ -20,31 +20,31 @@ namespace modelgraph
         // Access Function
         bool isEndPt( int key ) const{
             for( int i=0;i<2;i++)
-                if( key==m_Key[i] ) return true;
+                if( key==m_key[i] ) return true;
             return false;
         }
-        int getStartPt()  const { return m_Key[0]; }
-        int getEndPt()    const { return m_Key[1]; }
-        int getLeftTri()  const { return m_Tri[0]; }
-        int getRightTri() const { return m_Tri[1]; }
+        int getStartPt()  const { return m_key[0]; }
+        int getEndPt()    const { return m_key[1]; }
+        int getLeftTri()  const { return m_tri[0]; }
+        int getRightTri() const { return m_tri[1]; }
 
         //List Access
-        CModelEdge * getNext() const { return m_Next; }
-        void setNext(CModelEdge * e) { m_Next=e; }
+        CModelEdge * getNext() const { return m_next; }
+        void setNext(CModelEdge * e) { m_next=e; }
 
         //set left and right id
-        void setLeftTri(int id)  { m_Tri[0]=id; }
-        void setRightTri(int id) { m_Tri[1]=id; }
+        void setLeftTri(int id)  { m_tri[0]=id; }
+        void setRightTri(int id) { m_tri[1]=id; }
 
     //////////////////////////////////////////////////////////////////////
     // Private Stuff
     private:
         //////////////////////////////////////////////////////////////////
-        int m_Key[2]; ///< 0->start, 1->end
-        int m_Tri[2]; ///< 0->left, 1->right
+        int m_key[2]; ///< 0->start, 1->end
+        int m_tri[2]; ///< 0->left, 1->right
 
         //list link
-        CModelEdge * m_Next;
+        CModelEdge * m_next;
     };
 
 }//end modelgraph

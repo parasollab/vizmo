@@ -13,8 +13,8 @@ namespace modelgraph
 
     CModelNode::CModelNode(int Key)
     {
-        m_Key=Key;
-        m_Edges=NULL;
+        m_key=Key;
+        m_edges=NULL;
     }
 
 }//namespace modelgraph

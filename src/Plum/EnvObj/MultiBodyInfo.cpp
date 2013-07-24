@@ -4,126 +4,122 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// CMultiBodyInfo
+// MultiBodyInfo
 //
 //////////////////////////////////////////////////////////////////////
 
-CMultiBodyInfo::CMultiBodyInfo() {
-  m_cNumberOfBody = 0;
-  m_pBodyInfo = NULL;
+MultiBodyInfo::MultiBodyInfo(){
+  m_numberOfBody = 0;
+  m_mBodyInfo = NULL;
   m_active = false;
   m_surface = false;
-  m_NumberOfConnections = 0;
+  m_numberOfConnections = 0;
 }
 
-CMultiBodyInfo::CMultiBodyInfo(const CMultiBodyInfo & other) {
-  *this = other;
+MultiBodyInfo::MultiBodyInfo(const MultiBodyInfo& m_other){
+  *this = m_other;
 }
 
-CMultiBodyInfo::~CMultiBodyInfo() {
-  m_cNumberOfBody = 0;
-  if(m_pBodyInfo != NULL)
-    delete [] m_pBodyInfo;
-  m_pBodyInfo = NULL;
+MultiBodyInfo::~MultiBodyInfo(){
+  m_numberOfBody = 0;
+  if(m_mBodyInfo != NULL)
+    delete [] m_mBodyInfo;
+  m_mBodyInfo = NULL;
 }
 
-void CMultiBodyInfo::operator=( const CMultiBodyInfo & other ) {
-  m_cNumberOfBody = other.m_cNumberOfBody;
-  m_NumberOfConnections = other.m_NumberOfConnections;
-  m_active = other.m_active;
-  m_surface = other.m_surface;
+void 
+MultiBodyInfo::operator=(const MultiBodyInfo& _other){
+  m_numberOfBody = _other.m_numberOfBody;
+  m_numberOfConnections = _other.m_numberOfConnections;
+  m_active = _other.m_active;
+  m_surface = _other.m_surface;
 
-  m_pBodyInfo = new  CBodyInfo[m_cNumberOfBody];
+  m_mBodyInfo = new  BodyInfo[m_numberOfBody];
 
-  for( int iM=0; iM<m_cNumberOfBody; iM++ )
-    m_pBodyInfo[iM] = other.m_pBodyInfo[iM];
+  for(int i = 0; i<m_numberOfBody; i++)
+    m_mBodyInfo[i] = _other.m_mBodyInfo[i];
 }
 
-ostream & operator<<( ostream & out, const CMultiBodyInfo & mbody ){
-  out<< "- Number of bodies = " <<mbody.m_cNumberOfBody << endl
-    << "- Number of connections = "<< mbody.m_NumberOfConnections <<endl
-    << "- Active/Passive = "<<mbody.m_active<<endl
-    << "- Surface = "<<mbody.m_surface<<endl;
+ostream& operator<<(ostream& _out, const MultiBodyInfo& _body){
+  _out<< "- Number of bodies = " <<_body.m_numberOfBody << endl
+    << "- Number of connections = "<<_body.m_numberOfConnections <<endl
+    << "- Active/Passive = "<<_body.m_active<<endl
+    << "- Surface = "<<_body.m_surface<<endl;
 
-  for( int iM=0; iM<mbody.m_cNumberOfBody; iM++ )
-    out << "- Body["<< iM <<"] "<< endl << mbody.m_pBodyInfo[iM];
-  return out;
+  for(int i = 0; i<_body.m_numberOfBody; i++)
+    _out << "- Body["<< i <<"] "<< endl << _body.m_mBodyInfo[i];
+  return _out;
 }
 
+BodyInfo::BodyInfo(){
+  m_isFixed = false;
+  m_isBase = false;
+  m_transformDone = false;
+  m_index    = -1;
+  m_x=0;     m_y=0;    m_z=0;
+  m_alpha=0; m_beta=0; m_gamma=0;
 
-//////////////////////////////////////////////////////////////////////
-//
-// CBodyInfo
-//
-//////////////////////////////////////////////////////////////////////
-
-CBodyInfo::CBodyInfo() {
-  m_bIsFixed = false;
-  m_IsBase = false;
-  m_transformDone= false;
-  m_Index    = -1;
-  m_X=0;     m_Y=0;    m_Z=0;
-  m_Alpha=0; m_Beta=0; m_Gamma=0;
-
-  m_cNumberOfConnection =0;
-  m_pConnectionInfo     =NULL;
-  m_strModelDataFileName[0]='\0';
+  m_numberOfConnection =0;
+  m_connectionInfo = NULL;
+  m_modelDataFileName[0]='\0';
   m_isNew = false;
-  m_IsSurface = false;
+  m_isSurface = false;
 }
 
-CBodyInfo::CBodyInfo( const CBodyInfo & other ) {
-  *this = other;
-  m_IsSurface = other.m_IsSurface;
+BodyInfo::BodyInfo(const BodyInfo& m_other){
+  *this = m_other;
+  m_isSurface = m_other.m_isSurface;
 }
 
-CBodyInfo::~CBodyInfo() {
-  m_bIsFixed = false;
-  m_IsBase = false;
-  m_Index    = -1;
-  m_X=0;     m_Y=0;    m_Z=0;
-  m_Alpha=0; m_Beta=0; m_Gamma=0;
-
-  m_cNumberOfConnection =0;
-  if(m_pConnectionInfo != NULL)
-    delete [] m_pConnectionInfo;
-  m_pConnectionInfo=NULL;
+BodyInfo::~BodyInfo(){
+  m_isFixed = false;
+  m_isBase = false;
+  m_index    = -1;
+  m_x=0;     m_y=0;    m_z=0;
+  m_alpha=0; m_beta=0; m_gamma=0;
+  
+  m_numberOfConnection =0;
+  if(m_connectionInfo != NULL)
+    delete [] m_connectionInfo;
+  m_connectionInfo=NULL;
 }
 
-void CBodyInfo::doTransform(){
-  if(m_IsBase){
-    Vector3d position(m_X, m_Y, m_Z);
-    Orientation orientation(EulerAngle(m_Gamma, m_Beta, m_Alpha));
+void 
+BodyInfo::doTransform(){
+  if(m_isBase){
+    Vector3d position(m_x, m_y, m_z);
+    Orientation orientation(EulerAngle(m_gamma, m_beta, m_alpha));
     m_currentTransform = Transformation(position, orientation);
   }
 }
 
-Transformation CBodyInfo::getTransform(){
+Transformation BodyInfo::getTransform(){
   return m_currentTransform;
 }
 
-void CBodyInfo::setPrevTransform(Transformation t){
-  m_prevTransform = t;
+void 
+BodyInfo::setPrevTransform(Transformation _t){
+  m_prevTransform = _t;
 }
 
+void 
+BodyInfo::computeTransform(BodyInfo&BodyInfo, int _nextBody){
 
-void CBodyInfo::computeTransform(CBodyInfo &BodyInfo, int nextBody){
-
-  int NumberOfconnections = BodyInfo.m_cNumberOfConnection;
+  int NumberOfconnections = BodyInfo.m_numberOfConnection;
   int connection=0;
 
-  for(int j=0; j<NumberOfconnections; j++){
-    if(BodyInfo.m_pConnectionInfo[j].m_nextIndex == nextBody){
+  for(int j = 0; j<NumberOfconnections; j++){
+    if(BodyInfo.m_connectionInfo[j].m_nextIndex == _nextBody){
       connection = j;
       break;
     }
   }
 
-  Transformation dh = BodyInfo.m_pConnectionInfo[connection].DHTransform();
+  Transformation dh = BodyInfo.m_connectionInfo[connection].DHTransform();
 
-  Transformation Tbody2 = BodyInfo.m_pConnectionInfo[connection].transformToBody2();
+  Transformation Tbody2 = BodyInfo.m_connectionInfo[connection].transformToBody2();
 
-  Transformation Tdh = BodyInfo.m_pConnectionInfo[connection].transformToDHframe();
+  Transformation Tdh = BodyInfo.m_connectionInfo[connection].transformToDHframe();
 
   m_currentTransform = m_prevTransform * Tdh;
 
@@ -133,54 +129,54 @@ void CBodyInfo::computeTransform(CBodyInfo &BodyInfo, int nextBody){
 
 }
 
-void CBodyInfo::operator=( const CBodyInfo & other ) {
-  m_bIsFixed = other.m_bIsFixed;
-  m_IsBase = other.m_IsBase;
-  m_Index = other.m_Index;
-  m_X=other.m_X;
-  m_Y=other.m_Y;
-  m_Z=other.m_Z;
-  m_Alpha=other.m_Alpha;
-  m_Beta=other.m_Beta;
-  m_Gamma=other.m_Gamma;
-  m_IsSurface=other.m_IsSurface;
+void 
+BodyInfo::operator=(const BodyInfo& _other){
+  m_isFixed = _other.m_isFixed;
+  m_isBase = _other.m_isBase;
+  m_index = _other.m_index;
+  m_x=_other.m_x;
+  m_y=_other.m_y;
+  m_z=_other.m_z;
+  m_alpha=_other.m_alpha;
+  m_beta=_other.m_beta;
+  m_gamma=_other.m_gamma;
+  m_isSurface=_other.m_isSurface;
 
-  m_strFileName = other.m_strFileName;
-  m_strDirectory = other.m_strDirectory;
-  m_isNew = other.m_isNew;
+  m_fileName = _other.m_fileName;
+  m_directory = _other.m_directory;
+  m_isNew = _other.m_isNew;
 
-  m_strModelDataFileName[0]='\0';
-  m_strModelDataFileName=other.m_strModelDataFileName;
-  rgb[0] = other.rgb[0];
-  rgb[1] = other.rgb[1];
-  rgb[2] = other.rgb[2];
+  m_modelDataFileName[0]='\0';
+  m_modelDataFileName=_other.m_modelDataFileName;
+  rgb[0] = _other.rgb[0];
+  rgb[1] = _other.rgb[1];
+  rgb[2] = _other.rgb[2];
 
-  m_cNumberOfConnection =other.m_cNumberOfConnection;
+  m_numberOfConnection =_other.m_numberOfConnection;
 
-  m_currentTransform = other.m_currentTransform;
-  m_prevTransform = other.m_prevTransform;
+  m_currentTransform = _other.m_currentTransform;
+  m_prevTransform = _other.m_prevTransform;
 
-  m_pConnectionInfo = new CConnectionInfo[m_cNumberOfConnection];
+  m_connectionInfo = new ConnectionInfo[m_numberOfConnection];
 
-  for( int iC=0; iC<m_cNumberOfConnection; iC++ ){
+  for(int i = 0; i<m_numberOfConnection; i++){
 
-    m_pConnectionInfo[iC] = other.m_pConnectionInfo[iC];
+    m_connectionInfo[i] = _other.m_connectionInfo[i];
 
   }
 }
 
-ostream & operator<<( ostream & out, const CBodyInfo & body ){
+ostream& operator<<(ostream& _out, const BodyInfo& _body){
+  _out<<"-\t File name (full pth) = "<<_body.m_modelDataFileName<<endl
+    <<"-\t File name (subDir and name) = "<<_body.m_fileName<<endl
+    <<"-\t Location = ("<<_body.m_x<<", "<<_body.m_y<<", "<<_body.m_z<<")"<<endl
+    <<"-\t Orientation = ("<<_body.m_alpha<<", "<<_body.m_beta<<", "<<_body.m_gamma<<")"<<endl
+    <<"-\t Number of Connection = "<<_body.m_numberOfConnection <<endl
+    <<"-\t Index = "<<_body.m_index<<endl;
+  for(int i=0; i<_body.m_numberOfConnection; i++)
+    _out << "-\t Connection["<< i <<"] "<< endl <<_body.m_connectionInfo[i];
 
-  out<<"-\t File name (full pth) = "<<body.m_strModelDataFileName<<endl
-    <<"-\t File name (subDir and name) = "<<body.m_strFileName<<endl
-    <<"-\t Location = ("<<body.m_X<<", "<<body.m_Y<<", "<<body.m_Z<<")"<<endl
-    <<"-\t Orientation = ("<<body.m_Alpha<<", "<<body.m_Beta<<", "<<body.m_Gamma<<")"<<endl
-    <<"-\t Number of Connection = "<< body.m_cNumberOfConnection <<endl
-    <<"-\t Index = "<< body.m_Index<<endl;
-  for( int iC=0; iC<body.m_cNumberOfConnection; iC++ )
-    out << "-\t Connection["<< iC <<"] "<< endl << body.m_pConnectionInfo[iC];
-
-  return out;
+  return _out;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -188,7 +184,7 @@ ostream & operator<<( ostream & out, const CBodyInfo & body ){
 // ConnectionInfo
 //
 //////////////////////////////////////////////////////////////////////
-CConnectionInfo::CConnectionInfo() {
+ConnectionInfo::ConnectionInfo(){
   m_preIndex = -1;
   m_nextIndex= -1;
   m_posX=m_posY=m_posZ=-1;
@@ -199,11 +195,11 @@ CConnectionInfo::CConnectionInfo() {
   m_actuated = true;
 }
 
-CConnectionInfo::CConnectionInfo( const CConnectionInfo & other ) {
-  *this = other;
+ConnectionInfo::ConnectionInfo(const ConnectionInfo& m_other){
+  *this = m_other;
 }
 
-Transformation CConnectionInfo::DHTransform() {
+Transformation ConnectionInfo::DHTransform(){
   Vector3d pos(a, -sin(alpha)* d, cos(alpha)* d);
   Matrix3x3 rot;
   getMatrix3x3(rot,
@@ -213,70 +209,70 @@ Transformation CConnectionInfo::DHTransform() {
   return Transformation(pos, Orientation(rot));
 }
 
-Transformation CConnectionInfo::transformToBody2() {
+Transformation ConnectionInfo::transformToBody2(){
   return Transformation(
       Vector3d(m_posX, m_posY, m_posZ),
       Orientation(EulerAngle(m_orientZ, m_orientY, m_orientX)));
 }
 
-Transformation  CConnectionInfo::transformToDHframe(){
+Transformation  ConnectionInfo::transformToDHframe(){
   return Transformation(
       Vector3d(m_pos2X, m_pos2Y, m_pos2Z),
       Orientation(EulerAngle(m_orient2Z, m_orient2Y, m_orient2X)));
 }
 
-
-void CConnectionInfo::operator=( const CConnectionInfo & other ) {
-  m_preIndex = other.m_preIndex;
-  m_nextIndex= other.m_nextIndex;
-  m_posX = other.m_posX;
-  m_posY = other.m_posY;
-  m_posZ = other.m_posZ;
-  m_orientX = other.m_orientX;
-  m_orientY = other.m_orientY;
-  m_orientZ = other.m_orientZ;
-  alpha = other.alpha;
-  theta = other.theta;
-  m_theta = other.m_theta;
-  d = other.d;
-  a = other.a;
-  m_actuated = other.m_actuated;
-  m_pos2X = other.m_pos2X;
-  m_pos2Y = other.m_pos2Y;
-  m_pos2Z = other.m_pos2Z;
-  m_orient2X = other.m_orient2X;
-  m_orient2Y = other.m_orient2Y;
-  m_orient2Z = other.m_orient2Z;
+void 
+ConnectionInfo::operator=(const ConnectionInfo& _other){
+  m_preIndex = _other.m_preIndex;
+  m_nextIndex= _other.m_nextIndex;
+  m_posX = _other.m_posX;
+  m_posY = _other.m_posY;
+  m_posZ = _other.m_posZ;
+  m_orientX = _other.m_orientX;
+  m_orientY = _other.m_orientY;
+  m_orientZ = _other.m_orientZ;
+  alpha = _other.alpha;
+  theta = _other.theta;
+  m_theta = _other.m_theta;
+  d = _other.d;
+  a = _other.a;
+  m_actuated = _other.m_actuated;
+  m_pos2X = _other.m_pos2X;
+  m_pos2Y = _other.m_pos2Y;
+  m_pos2Z = _other.m_pos2Z;
+  m_orient2X = _other.m_orient2X;
+  m_orient2Y = _other.m_orient2Y;
+  m_orient2Z = _other.m_orient2Z;
 }
 
-CConnectionInfo::JointType
-CConnectionInfo::GetJointTypeFromTag(const string _tag){
+ConnectionInfo::JointType
+ConnectionInfo::GetJointTypeFromTag(const string _tag){
   if(_tag == "REVOLUTE")
-    return CConnectionInfo::REVOLUTE;
+    return ConnectionInfo::REVOLUTE;
   else if (_tag == "SPHERICAL")
-    return CConnectionInfo::SPHERICAL;
+    return ConnectionInfo::SPHERICAL;
   else
     throw ParseException(WHERE, "Failed parsing joint type. Choices are Revolute or Spherical.");
 }
 
-ostream & operator<<( ostream & out, const CConnectionInfo & con ){
+ostream& operator<<(ostream& _out, const ConnectionInfo& m_con){
 
   const char* s;;
-  if(con.m_actuated)
+  if(m_con.m_actuated)
     s = "Actuated";
   else
     s = "NonActuated";
 
-  cout<<"-\t\t Pre Index = "<<con.m_preIndex<<endl
-    <<"-\t\t Next Index = "<<con.m_nextIndex<<endl
+  cout<<"-\t\t Pre Index = "<<m_con.m_preIndex<<endl
+    <<"-\t\t Next Index = "<<m_con.m_nextIndex<<endl
     <<"-\t\t "<<s<<endl
-    <<"-\t\t Position1 = "<<con.m_posX<<", "<<con.m_posY<<", "<< con.m_posZ<<endl
-    <<"-\t\t Orient1 = "<<con.m_orientX<<", "<<con.m_orientY<<", "<<con.m_orientZ<<endl
-    <<"-\t\t DH = "<<con.alpha<<", "<<con.a<<", "<<con.d<<", "<<con.theta<<endl
-    <<"-\t\t Position2= "<<con.m_pos2X<<", "<<con.m_pos2Y<<", "<<con.m_pos2Z<<endl
-    <<"-\t\t Orient2 = "<<con.m_orient2X<<", "<<con.m_orient2Y<<", "<<con.m_orient2Z<<endl;
-  return out;
+    <<"-\t\t Position1 = "<<m_con.m_posX<<", "<<m_con.m_posY<<", "<<m_con.m_posZ<<endl
+    <<"-\t\t Orient1 = "<<m_con.m_orientX<<", "<<m_con.m_orientY<<", "<<m_con.m_orientZ<<endl
+    <<"-\t\t DH = "<<m_con.alpha<<", "<<m_con.a<<", "<<m_con.d<<", "<<m_con.theta<<endl
+    <<"-\t\t Position2= "<<m_con.m_pos2X<<", "<<m_con.m_pos2Y<<", "<<m_con.m_pos2Z<<endl
+    <<"-\t\t Orient2 = "<<m_con.m_orient2X<<", "<<m_con.m_orient2Y<<", "<<m_con.m_orient2Z<<endl;
+  return _out;
 }
 
-size_t CConnectionInfo::m_globalCounter = 0;
+size_t ConnectionInfo::m_globalCounter = 0;
 

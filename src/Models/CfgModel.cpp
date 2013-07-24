@@ -196,11 +196,11 @@ CfgModel::DrawRobot(){
 
   m_robot->RestoreInitCfg();
   m_robot->BackUp();
-  float* rgbaArray = &m_rGBA[0];
+  float* rgbaArray = &m_rgba[0];
   glColor4fv(rgbaArray);
   m_robot->SetRenderMode(m_renderMode);
-  m_robot->SetColor(m_rGBA[0], m_rGBA[1], m_rGBA[2], 1);
-  m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
+  m_robot->SetColor(m_rgba[0], m_rgba[1], m_rgba[2], 1);
+  m_robot->Scale(m_scale[0], m_scale[1], m_scale[2]);
   m_robot->Configure(cfg);
   m_robot->Draw(GL_RENDER);
   m_robot->Restore();
@@ -212,9 +212,9 @@ CfgModel::DrawBox(){
 
   glEnable(GL_LIGHTING);
   glPushMatrix();
-  float* rgbaArray = &m_rGBA[0];
+  float* rgbaArray = &m_rgba[0];
   glColor4fv(rgbaArray);
-  glColor4f(m_rGBA[0],m_rGBA[1],m_rGBA[2],1);
+  glColor4f(m_rgba[0],m_rgba[1],m_rgba[2],1);
 
   //If base is not FIXED, perform translations
   //Additionally, perform rotations if base is also ROTATIONAL
@@ -239,9 +239,9 @@ CfgModel::DrawBox(){
   glTransform();
   glEnable(GL_NORMALIZE);
   if(m_renderMode == SOLID_MODE)
-    glutSolidCube(m_Scale[0]);
+    glutSolidCube(m_scale[0]);
   if(m_renderMode == WIRE_MODE)
-    glutWireCube(m_Scale[0]);
+    glutWireCube(m_scale[0]);
   glDisable(GL_NORMALIZE);
   glPopMatrix();
 }
@@ -250,9 +250,9 @@ void
 CfgModel::DrawPoint(){
 
   glDisable(GL_LIGHTING);
-  glPointSize(m_Scale[0]);
+  glPointSize(m_scale[0]);
   glBegin(GL_POINTS);
-  glColor4f(m_rGBA[0],m_rGBA[1],m_rGBA[2],1);
+  glColor4f(m_rgba[0],m_rgba[1],m_rgba[2],1);
   if(m_renderMode == SOLID_MODE ||
      m_renderMode == WIRE_MODE){
     if(m_isPlanarRobot)
@@ -277,8 +277,8 @@ CfgModel::DrawSelect(){
         vector<float> origColor = m_robot->GetColor();
         //change
         m_robot->SetColor(1,1,0,0);
-        m_robot->SetColor(m_rGBA[0], m_rGBA[1], m_rGBA[2], 1);
-        m_robot->Scale(m_Scale[0], m_Scale[1], m_Scale[2]);
+        m_robot->SetColor(m_rgba[0], m_rgba[1], m_rgba[2], 1);
+        m_robot->Scale(m_scale[0], m_scale[1], m_scale[2]);
         m_robot->Configure(cfg);
         //delete[] cfg;
         //draw
@@ -309,13 +309,13 @@ CfgModel::DrawSelect(){
 
       //TODO:Fix different paces of item and selection box
       //outline rescaling
-      glutWireCube(m_Scale[0]+0.1);
+      glutWireCube(m_scale[0]+0.1);
 
       glPopMatrix();
       break;
 
     case Point:
-      glPointSize(m_Scale[0] + 3);
+      glPointSize(m_scale[0] + 3);
       glDisable(GL_LIGHTING);
       glBegin(GL_POINTS);
       if(m_isPlanarRobot)

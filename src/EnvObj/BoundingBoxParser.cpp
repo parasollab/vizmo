@@ -14,7 +14,7 @@ using namespace std;
 
 CBoundingBoxParser::CBoundingBoxParser(string _filename)
 {
-    m_Scale=1;
+    m_scale=1;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -28,13 +28,13 @@ bool CBoundingBoxParser::ParseFile(){
    char * start=strstr(command, "-bbox_scale");
    if( start!=NULL ){
       start+=(strlen("-bbox_scale")+1);
-      m_Scale=atof(start);
+      m_scale=atof(start);
    }
 
    int numBBoxes = 0;
    while((command=strstr(command,"-bbox"))!=NULL){
       vector<double> empty(6);
-      m_BBXValues.push_back(empty);
+      m_bbxValues.push_back(empty);
       //find start and end of "possible" bbx in command
       start=strchr(command, '[');
       if( start==NULL ) return true; //not found
@@ -48,8 +48,8 @@ bool CBoundingBoxParser::ParseFile(){
       const char del[] = ", \t\n"; int count=0;
       char * token = strtok(tmp,del);
       while( token!=NULL ){
-         m_BBXValues[numBBoxes][count++]=atof(token)*m_Scale;
-         //m_BBXValue[count++]=atof(token)*m_Scale;
+         m_bbxValues[numBBoxes][count++]=atof(token)*m_scale;
+         //m_bbxValue[count++]=atof(token)*m_scale;
          token = strtok(NULL,del);
          if( count==6 ) break;
       }

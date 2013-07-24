@@ -42,7 +42,7 @@ bool CollisionDetection::IsInCollision(int _numMB,
 
 
    vector<MultiBodyModel*> MBmodel = _envModel->GetMultiBodies();
-   const CMultiBodyInfo* MBI = _envModel->GetMultiBodyInfo();
+   const MultiBodyInfo* MBI = _envModel->GetMultiBodyInfo();
    int dof = _envModel->GetDOF();
    int robIndx = 0;
    bool collision = false;
@@ -103,8 +103,8 @@ bool CollisionDetection::IsInCollision(int _numMB,
    //rapid->test_node = false;
 
    if(!value && !rapid->test_node){
-      const CMultiBodyInfo& rMBInfo = _robotModel->GetMBinfo();
-      int NumBodiesRob= rMBInfo.m_cNumberOfBody;
+      const MultiBodyInfo& rMBInfo = _robotModel->GetMBinfo();
+      int NumBodiesRob= rMBInfo.m_numberOfBody;
       vector<PolyhedronModel>& rPoly = _robotModel->GetPolyhedron();
       int c;
       for(c=0; c<NumBodiesRob; c++){
@@ -155,12 +155,12 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
    RAPID_model *RMobst, *RMrobot;
 
 
-   const CMultiBodyInfo rMBInfo = robot->GetMBinfo();
-   const CMultiBodyInfo oMBInfo = obstacle->GetMBinfo();
+   const MultiBodyInfo rMBInfo = robot->GetMBinfo();
+   const MultiBodyInfo oMBInfo = obstacle->GetMBinfo();
 
-   int NumBodiesRob= rMBInfo.m_cNumberOfBody;
+   int NumBodiesRob= rMBInfo.m_numberOfBody;
 
-   int NumBodiesObs= oMBInfo.m_cNumberOfBody;
+   int NumBodiesObs= oMBInfo.m_numberOfBody;
 
    //to store rotation matrix for moving objs.
    Matrix3x3 m;

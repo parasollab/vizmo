@@ -59,7 +59,7 @@ namespace modelgraph
                         //push new edge to end of list
                         if(m_pEdge==NULL) m_pEdge=e;
                         else tail->setNext(e);
-                        tail=e; m_EdgeSize++;
+                        tail=e; m_edgeSize++;
                     } //end of if
                 }//end of for(iE)
             }//end of for(iT)
@@ -70,13 +70,13 @@ namespace modelgraph
 
         //////////////////////////////////////////////////////////////////////
         // Access Function
-        int getEdgeSize() const { return m_EdgeSize; }
+        int getEdgeSize() const { return m_edgeSize; }
         CModelEdge * getEdges(){ return m_pEdge; }
 
     //////////////////////////////////////////////////////////////////////
     // Private stuff
     private:
-        int m_EdgeSize;
+        int m_edgeSize;
         CModelEdge * m_pEdge;        //a list of edges
         vector<CModelNode*> m_pNode; //an array of nodes
     };

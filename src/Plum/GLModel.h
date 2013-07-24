@@ -20,9 +20,9 @@ class GLModel : public gliTransform
     {
       m_enableSelection=true;
       m_renderMode = SOLID_MODE;
-      m_rGBA.clear();
+      m_rgba.clear();
       for(int i = 0; i < 4; i++) {
-        m_rGBA.push_back(0.0);
+        m_rgba.push_back(0.0);
       }
     }
 
@@ -30,7 +30,7 @@ class GLModel : public gliTransform
   {
     m_enableSelection=other.m_enableSelection;
     m_renderMode = other.m_renderMode;
-    m_rGBA = other.m_rGBA;
+    m_rgba = other.m_rgba;
   }
 
     virtual ~GLModel(){/*do nothing*/}
@@ -52,7 +52,7 @@ class GLModel : public gliTransform
     //the scale may be difficult for some models....
     virtual void Scale( double x, double y, double z )
     {
-      m_Scale[0]=x; m_Scale[1]=y; m_Scale[2]=z; };
+        m_scale[0]=x; m_scale[1]=y; m_scale[2]=z; };
 
     //this function is called when this obj is selected
     virtual void DrawSelect(){/*nothing*/}
@@ -62,11 +62,11 @@ class GLModel : public gliTransform
 
     //get/set color
     virtual void SetColor( float r, float g, float b, float a ){
-      m_rGBA.clear();
-      m_rGBA.push_back(r); m_rGBA.push_back(g); m_rGBA.push_back(b); m_rGBA.push_back(a);
+      m_rgba.clear();
+      m_rgba.push_back(r); m_rgba.push_back(g); m_rgba.push_back(b); m_rgba.push_back(a);
     }
 
-    vector<float> GetColor() const { return m_rGBA; }
+    vector<float> GetColor() const { return m_rgba; }
 
     //Get the name information
     virtual const string GetName() const =0;
@@ -83,7 +83,7 @@ class GLModel : public gliTransform
   public:
     bool  m_enableSelection;
     RenderMode   m_renderMode;     //wire or solid or hide
-    vector<float> m_rGBA;  //Color
+    vector<float> m_rgba;  //Color
 
   private:
     string m_filename;

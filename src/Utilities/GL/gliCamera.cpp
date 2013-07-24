@@ -18,14 +18,14 @@ void SetCamera(gliCamera* _camera){camera = _camera;}
    gliCamera::gliCamera
 ( const string& name, const Point3d& pos, const Vector3d& up )
 {
-   m_CamName=name;
-   m_CameraPos=pos;
-   m_Up=up;
+   m_camName=name;
+   m_cameraPos=pos;
+   m_up=up;
    m_currentAzim=m_deltaAzim=
       m_currentElev=m_deltaElev=0;
-   m_MousePressed=false;
-   m_WindowX(1, 0, 0);
-   m_WindowY(0, 1, 0);
+   m_mousePressed=false;
+   m_windowX(1, 0, 0);
+   m_windowY(0, 1, 0);
    m_speed=.5;
    m_angle=.5;
    m_cartesian=false;
@@ -78,23 +78,23 @@ void gliCamera::Draw( void )
    if(m_cartesian){//Cartesian motion
       glRotated(m_currentElev+m_deltaElev,1.0,0.0,0.0);
       glRotated(m_currentAzim+m_deltaAzim,0.0,1.0,0.0);
-      glTranslatef(-m_CameraPos[0]-m_deltaDis[0],
-            -m_CameraPos[1]-m_deltaDis[1],
-            -m_CameraPos[2]-m_deltaDis[2]);
+      glTranslatef(-m_cameraPos[0]-m_deltaDis[0],
+            -m_cameraPos[1]-m_deltaDis[1],
+            -m_cameraPos[2]-m_deltaDis[2]);
    }else{//Polar motion
-      glTranslatef( (m_CameraPos[0]+m_deltaDis[0]),
-            (m_CameraPos[1]+m_deltaDis[1]),
-            -(m_CameraPos[2]+m_deltaDis[2]));
+      glTranslatef( (m_cameraPos[0]+m_deltaDis[0]),
+            (m_cameraPos[1]+m_deltaDis[1]),
+            -(m_cameraPos[2]+m_deltaDis[2]));
 
       glRotated(m_currentElev+m_deltaElev, 1.0, 0.0, 0.0);
       glRotated(m_currentAzim+m_deltaAzim, 0.0, 1.0, 0.0);
    }
    /*
-      gluLookAt( (m_CameraPos[0]+m_deltaDis[0]), //eye pos
-      -(m_CameraPos[1]+m_deltaDis[1]),
-      -(m_CameraPos[2]+m_deltaDis[2]),
+      gluLookAt( (m_cameraPos[0]+m_deltaDis[0]), //eye pos
+      -(m_cameraPos[1]+m_deltaDis[1]),
+      -(m_cameraPos[2]+m_deltaDis[2]),
       0,0,0, //center
-      m_Up[0],m_Up[1],m_Up[2]);
+      m_up[0],m_up[1],m_up[2]);
     */
 }
 
@@ -106,8 +106,8 @@ void gliCamera::Draw( void )
 bool gliCamera::MP(QMouseEvent* e)
 {
    if(e->buttons() && (e->modifiers() == Qt::ControlModifier)){
-     m_MousePressed=true;
-      m_PressedPt=e->pos();
+     m_mousePressed=true;
+      m_pressedPt=e->pos();
       return true; //handled
    }
    return false;
@@ -115,12 +115,12 @@ bool gliCamera::MP(QMouseEvent* e)
 
 bool gliCamera::MR(QMouseEvent* e)
 {
-   if(!m_MousePressed)
+   if(!m_mousePressed)
       return false; /// mouse is not pressed
 
-   m_MousePressed=false;
+   m_mousePressed=false;
    for(int iD=0;iD<3;iD++){
-      m_CameraPos[iD]+=m_deltaDis[iD];
+      m_cameraPos[iD]+=m_deltaDis[iD];
       m_deltaDis[iD]=0;
    }
 
@@ -145,11 +145,11 @@ void RotateX(Vector3d& v, double degree);
 bool
 gliCamera::MM(QMouseEvent* e){
 
-  if(!m_MousePressed)
+  if(!m_mousePressed)
     return false; //mouse is not pressed
 
    //Qt::MouseButtons state=e->buttons();
-   QPoint drag=e->pos()-m_PressedPt;
+   QPoint drag=e->pos()-m_pressedPt;
 
    //displacement
    if(e->buttons() & Qt::MidButton){ //mid button only
@@ -160,8 +160,8 @@ gliCamera::MM(QMouseEvent* e){
          RotateX(m_deltaDis, -m_currentElev+m_deltaElev);
          RotateY(m_deltaDis, -m_currentAzim+m_deltaAzim);
       }else{
-         m_deltaDis[0] = ((m_CameraPos[0]>5)?m_CameraPos[0]:5)*drag.x()/10.0;
-        m_deltaDis[1] = -(((m_CameraPos[1]>5)?m_CameraPos[1]:5)*drag.y()/10.0);
+         m_deltaDis[0] = ((m_cameraPos[0]>5)?m_cameraPos[0]:5)*drag.x()/10.0;
+        m_deltaDis[1] = -(((m_cameraPos[1]>5)?m_cameraPos[1]:5)*drag.y()/10.0);
       }
    }
    else if(e->buttons() & Qt::RightButton){ //right button only
@@ -171,7 +171,7 @@ gliCamera::MM(QMouseEvent* e){
          RotateX(m_deltaDis, -m_currentElev+m_deltaElev);
          RotateY(m_deltaDis, -m_currentAzim+m_deltaAzim);
       }else{//Spherical movement
-         m_deltaDis[2] = (((m_CameraPos[2]>10)?m_CameraPos[2]:10)*drag.y()/100);
+         m_deltaDis[2] = (((m_cameraPos[2]>10)?m_cameraPos[2]:10)*drag.y()/100);
       }
    }
    else if((e->buttons() & Qt::LeftButton)){ //left button only
@@ -179,14 +179,14 @@ gliCamera::MM(QMouseEvent* e){
       m_deltaAzim = drag.x()/5.0;
       m_deltaElev = drag.y()/5.0;
       //compute window x, y dir
-      m_WindowX(1, 0, 0);
-      m_WindowY(0, 1, 0);
-      RotateX(m_WindowX, m_currentElev+m_deltaElev);
-      RotateY(m_WindowX, m_currentAzim+m_deltaAzim);
-      m_WindowX[2]=-m_WindowX[2];
-      RotateX(m_WindowY, m_currentElev+m_deltaElev);
-      RotateY(m_WindowY, m_currentAzim+m_deltaAzim);
-      m_WindowY[2]=-m_WindowY[2];
+      m_windowX(1, 0, 0);
+      m_windowY(0, 1, 0);
+      RotateX(m_windowX, m_currentElev+m_deltaElev);
+      RotateY(m_windowX, m_currentAzim+m_deltaAzim);
+      m_windowX[2]=-m_windowX[2];
+      RotateX(m_windowY, m_currentElev+m_deltaElev);
+      RotateY(m_windowY, m_currentAzim+m_deltaAzim);
+      m_windowY[2]=-m_windowY[2];
 
    }
    else return false; //not handled
@@ -252,11 +252,11 @@ bool gliCamera::KP( QKeyEvent * e )
       case '0':
                 if(m_cartesian){
                    m_cartesian=false;
-                   //m_CameraPos[2]=pow(m_CameraPos[0]*m_CameraPos[0]+
-                   //	      m_CameraPos[1]*m_CameraPos[1]+
-                   //	      m_CameraPos[2]*m_CameraPos[2],.5);
-                   //m_CameraPos[0]=0;
-                   //m_CameraPos[1]=0;
+                   //m_cameraPos[2]=pow(m_cameraPos[0]*m_cameraPos[0]+
+                   //	      m_cameraPos[1]*m_cameraPos[1]+
+                   //	      m_cameraPos[2]*m_cameraPos[2],.5);
+                   //m_cameraPos[0]=0;
+                   //m_cameraPos[1]=0;
                    CartesianToSpherical();
                 }else{
                    m_cartesian=true;
@@ -327,51 +327,51 @@ void gliCamera::PrintHelp( void ){
 
 void gliCamera::SphericalToCartesian( void ){
    double DegToRad = 0.017453278;
-   //m_CameraPos[0] *= -1;
-   //m_CameraPos[1] *= -1;
-   float R = m_CameraPos[2];
-   //float elev = m_CameraPos[]
-   m_CameraPos[1] = R * sin(m_currentElev*DegToRad);
-   m_CameraPos[0] = -R * sin(m_currentAzim*DegToRad) * cos(m_currentElev*DegToRad);
-   m_CameraPos[2] = R * cos(m_currentAzim*DegToRad) * cos(m_currentElev*DegToRad);
+   //m_cameraPos[0] *= -1;
+   //m_cameraPos[1] *= -1;
+   float R = m_cameraPos[2];
+   //float elev = m_cameraPos[]
+   m_cameraPos[1] = R * sin(m_currentElev*DegToRad);
+   m_cameraPos[0] = -R * sin(m_currentAzim*DegToRad) * cos(m_currentElev*DegToRad);
+   m_cameraPos[2] = R * cos(m_currentAzim*DegToRad) * cos(m_currentElev*DegToRad);
    //m_currentAzim = 0;
    //m_currentElev = 0;
 
-   //m_CameraPos[2] *= -1;
+   //m_cameraPos[2] *= -1;
 }
 
 void gliCamera::CartesianToSpherical( void ){
    double RadToDeg = 57.295827909;
-   double R=pow(m_CameraPos[0]*m_CameraPos[0]+
-         m_CameraPos[1]*m_CameraPos[1]+
-         m_CameraPos[2]*m_CameraPos[2],.5);
+   double R=pow(m_cameraPos[0]*m_cameraPos[0]+
+         m_cameraPos[1]*m_cameraPos[1]+
+         m_cameraPos[2]*m_cameraPos[2],.5);
 
    if(R > .0001)
-      m_currentElev = RadToDeg*asin(m_CameraPos[1]/R);
+      m_currentElev = RadToDeg*asin(m_cameraPos[1]/R);
    else m_currentElev = 0;
-   m_currentAzim = RadToDeg*atan2(-m_CameraPos[0],m_CameraPos[2]);
-   m_CameraPos[2]=R;
-   m_CameraPos[0] = 0;
-   m_CameraPos[1] = 0;
+   m_currentAzim = RadToDeg*atan2(-m_cameraPos[0],m_cameraPos[2]);
+   m_cameraPos[2]=R;
+   m_cameraPos[0] = 0;
+   m_cameraPos[1] = 0;
 
-   //m_CameraPos[2] =
+   //m_cameraPos[2] =
 }
 
 void gliCamera::Move(void){
-   m_WindowX(1, 0, 0);
-   m_WindowY(0, 1, 0);
-   RotateX(m_WindowX, m_currentElev);
-   RotateY(m_WindowX, m_currentAzim);
-   m_WindowX[2]=-m_WindowX[2];
-   RotateX(m_WindowY, m_currentElev);
-   RotateY(m_WindowY, m_currentAzim);
-   m_WindowY[2]=-m_WindowY[2];
+   m_windowX(1, 0, 0);
+   m_windowY(0, 1, 0);
+   RotateX(m_windowX, m_currentElev);
+   RotateY(m_windowX, m_currentAzim);
+   m_windowX[2]=-m_windowX[2];
+   RotateX(m_windowY, m_currentElev);
+   RotateY(m_windowY, m_currentAzim);
+   m_windowY[2]=-m_windowY[2];
    if(m_cartesian){
       RotateX(m_deltaDis, -m_currentElev-m_deltaElev);
       RotateY(m_deltaDis, -m_currentAzim-m_deltaAzim);
    }
    for( int iD=0;iD<3;iD++ ){
-      m_CameraPos[iD]+=m_deltaDis[iD];
+      m_cameraPos[iD]+=m_deltaDis[iD];
       m_deltaDis[iD]=0;
    }
 
@@ -417,19 +417,19 @@ gliCameraFactory::gliCameraFactory()
 void gliCameraFactory::addCamera( const gliCamera& camera )
 {
    gliCamera* cam=findCamera(camera.getCameraName());
-   if(cam==NULL) m_Cameras.push_back(camera); //add if no old cam exit
+   if(cam==NULL) m_cameras.push_back(camera); //add if no old cam exit
 }
 
 gliCamera* gliCameraFactory::getCurrentCamera()
 {
-   return m_CurrentCam;
+   return m_currentCam;
 }
 
 bool gliCameraFactory::setCurrentCamera(const string& name)
 {
    gliCamera* cam=findCamera(name);
    if(cam==NULL) return false;
-   m_CurrentCam=cam;
+   m_currentCam=cam;
    return true;
 }
 
@@ -440,13 +440,13 @@ void gliCameraFactory::createDefaultCameras()
 {
    gliCamera pers("pers",Point3d(0,0,500),Vector3d(0,1,0));
    addCamera(pers);
-   m_CurrentCam=&(m_Cameras.front());
+   m_currentCam=&(m_cameras.front());
 }
 
 gliCamera* gliCameraFactory::findCamera(const string& name)
 {
    typedef list<gliCamera>::iterator CIT;
-   for( CIT ic=m_Cameras.begin();ic!=m_Cameras.end();ic++ )
+   for( CIT ic=m_cameras.begin();ic!=m_cameras.end();ic++ )
       if( ic->getCameraName()==name ) return &(*ic);
 
    return NULL;

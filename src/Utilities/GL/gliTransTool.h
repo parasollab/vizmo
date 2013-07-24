@@ -41,7 +41,7 @@ public:
 
     //need be updated when window size changed
     void setWinSize(int W, int H) {
-        m_W=W; m_H=H;
+        m_w=W; m_h=H;
         Project2Win();
     }
 
@@ -51,10 +51,10 @@ protected:
     virtual void Draw(bool bSel)=0;
 
     static gliObj  m_pSObj;    //selected Objects
-    static Point3d m_SObjPrj; //project(m_pSObj.pos and 3 axis), (win coord)
-    static Point3d m_XPrj, m_YPrj, m_ZPrj;
-    static int m_W, m_H;          //window size
-    static int m_HitX, m_HitY;    //mouse hit on m_HitX, m_HitY (win coord)
+    static Point3d m_sObjPrj; //project(m_pSObj.pos and 3 axis), (win coord)
+    static Point3d m_xPrj, m_yPrj, m_zPrj;
+    static int m_w, m_h;          //window size
+    static int m_hitX, m_hitY;    //mouse hit on m_hitX, m_hitY (win coord)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ class gliMoveTool : public gliTToolBase
     enum SelType{ NON, X_AXIS, Y_AXIS, Z_AXIS, VIEW_PLANE }; //move along
 public:
 
-    gliMoveTool():gliTToolBase(){ m_SelType=NON; }
+    gliMoveTool():gliTToolBase(){ m_selType=NON; }
     virtual ~gliMoveTool() { /*do nothing*/ }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -85,10 +85,10 @@ protected:
 
 private:
     Vector3d m_deltaDis;       //displacement caused by user
-    SelType  m_SelType;        //which axis is selected
-    Point3d  m_HitUnPrj;       //unproject(m_W, m_H)
-    Point3d  m_SObjPosC;       //catch for m_pSObj->pos
-    Point3d  m_SObjPrjC;       //catch for m_SObjPrj
+    SelType  m_selType;        //which axis is selected
+    Point3d  m_hitUnPrj;       //unproject(m_w, m_h)
+    Point3d  m_sObjPosC;       //catch for m_pSObj->pos
+    Point3d  m_sObjPrjC;       //catch for m_sObjPrj
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ class gliScaleTool : public gliTToolBase
     enum SelType{ NON, X_AXIS, Y_AXIS, Z_AXIS, VIEW_PLANE }; //move along
 public:
 
-    gliScaleTool():gliTToolBase(){ m_SelType=NON; }
+    gliScaleTool():gliTToolBase(){ m_selType=NON; }
     virtual ~gliScaleTool() { /*do nothing*/ }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -119,10 +119,10 @@ protected:
 
 private:
     Vector3d m_deltaDis;       //displacement caused by user
-    SelType  m_SelType;        //which axis is selected
-    Point3d  m_HitUnPrj;       //unproject(m_W, m_H)
-    Point3d  m_SObjPosC;       //catch for m_pSObj->pos
-    Point3d  m_SObjPrjC;       //catch for m_SObjPrj
+    SelType  m_selType;        //which axis is selected
+    Point3d  m_hitUnPrj;       //unproject(m_w, m_h)
+    Point3d  m_sObjPosC;       //catch for m_pSObj->pos
+    Point3d  m_sObjPrjC;       //catch for m_sObjPrj
 	double   m_osX,m_osY,m_osZ; //old scale
 };
 
@@ -137,7 +137,7 @@ class gliRotateTool : public gliTToolBase
     enum SelType{ NON, X_AXIS, Y_AXIS, Z_AXIS, OUTLINE ,CENTER }; //rotate around
 public:
 
-    gliRotateTool():gliTToolBase(),m_R(50){ m_SelType=NON; }
+    gliRotateTool():gliTToolBase(),m_r(50){ m_selType=NON; }
     virtual ~gliRotateTool(){ /*do nothing*/ }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ public:
         ComputAngles();
     }
     virtual void Disable(){}  //called when this tool is unactivated
-    void ComputAngles();      //compute values for m_Arc, called when view changed
+    void ComputAngles();      //compute values for m_arc, called when view changed
 
 protected:
 
@@ -172,15 +172,15 @@ protected:
     Point3d UnProj2World(const Point3d& ref,const Vector3d& n,int x, int y);
 
 private:
-    Vector3d m_LA[3];          //axis of sel object
-    Vector3d m_LAC[3];         //catch for m_LA[3]
-    double m_Arc[3][2];        //start/end of each arc
-    SelType  m_SelType;        //which axis is selected
-    double m_HitAngle;         //the angle when mouse clikced.
-    double m_CurAngle;         //current angle of mouse point
-    double m_R;                //Radius of tool
-    Point3d  m_SObjPosC;       //catch for m_pSObj->pos
-    Quaternion m_SObjQC;       //catch for m_pSObj->q
+    Vector3d m_lA[3];          //axis of sel object
+    Vector3d m_lAC[3];         //catch for m_lA[3]
+    double m_arc[3][2];        //start/end of each arc
+    SelType  m_selType;        //which axis is selected
+    double m_hitAngle;         //the angle when mouse clikced.
+    double m_curAngle;         //current angle of mouse point
+    double m_r;                //Radius of tool
+    Point3d  m_sObjPosC;       //catch for m_pSObj->pos
+    Quaternion m_sObjQC;       //catch for m_pSObj->q
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -204,25 +204,25 @@ public:
     bool KEY( QKeyEvent * e ); //Key
     void CheckSelectObject();
     void CM(){ //camera move event
-        m_MT.Project2Win();
-	m_ST.Project2Win();
-        if( &m_RT==m_pTool ) m_RT.ComputAngles(); //view angle changed...
+        m_mT.Project2Win();
+	m_sT.Project2Win();
+        if( &m_rT==m_pTool ) m_rT.ComputAngles(); //view angle changed...
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Access
     void setWinSize(int W, int H) {
-		m_MT.setWinSize(W,H);
-		m_ST.setWinSize(W,H);
+		m_mT.setWinSize(W,H);
+		m_sT.setWinSize(W,H);
 	}
 
     void resetObj() {m_pTool->resetSelObj();}
 private:
-    //current tool, m_MT or m_RT or NULL
+    //current tool, m_mT or m_rT or NULL
     gliTToolBase * m_pTool;
-    gliMoveTool    m_MT;
-    gliRotateTool  m_RT;
-	gliScaleTool   m_ST;
+    gliMoveTool    m_mT;
+    gliRotateTool  m_rT;
+	gliScaleTool   m_sT;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

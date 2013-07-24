@@ -24,7 +24,7 @@ PolyhedronModel::~PolyhedronModel(){
 
 const string
 PolyhedronModel::GetName() const {
-  string filename = m_bodyInfo.m_strModelDataFileName;
+  string filename = m_bodyInfo.m_modelDataFileName;
   size_t pos = filename.find('/');
   return pos == string::npos ? filename : filename.substr(pos+1);
 }
@@ -32,14 +32,14 @@ PolyhedronModel::GetName() const {
 vector<string>
 PolyhedronModel::GetInfo() const {
   vector<string> info;
-  info.push_back(m_bodyInfo.m_strModelDataFileName);
+  info.push_back(m_bodyInfo.m_modelDataFileName);
   return info;
 }
 
 void
 PolyhedronModel::BuildModels() {
 
-  string file = m_bodyInfo.m_strModelDataFileName;
+  string file = m_bodyInfo.m_modelDataFileName;
   IModel* imodel = CreateModelLoader(file, false);
 
   const PtVector& points=imodel->GetVertices();
@@ -68,21 +68,21 @@ PolyhedronModel::BuildModels() {
   BuildWired(points, tris, normals);
 
   //setup rotation and translation
-  if(m_bodyInfo.m_bIsFixed) {
-    tx()=m_bodyInfo.m_X;
-    ty()=m_bodyInfo.m_Y;
-    tz()=m_bodyInfo.m_Z;
+  if(m_bodyInfo.m_isFixed) {
+    tx()=m_bodyInfo.m_x;
+    ty()=m_bodyInfo.m_y;
+    tz()=m_bodyInfo.m_z;
 
-    rx() = m_bodyInfo.m_Alpha;
-    ry() = m_bodyInfo.m_Beta;
-    rz() = m_bodyInfo.m_Gamma;
+    rx() = m_bodyInfo.m_alpha;
+    ry() = m_bodyInfo.m_beta;
+    rz() = m_bodyInfo.m_gamma;
 
-    double cx2 = cos(m_bodyInfo.m_Alpha/2);
-    double sx2 = sin(m_bodyInfo.m_Alpha/2);
-    double cy2 = cos(m_bodyInfo.m_Beta/2);
-    double sy2 = sin(m_bodyInfo.m_Beta/2);
-    double cz2 = cos(m_bodyInfo.m_Gamma/2);
-    double sz2 = sin(m_bodyInfo.m_Gamma/2);
+    double cx2 = cos(m_bodyInfo.m_alpha/2);
+    double sx2 = sin(m_bodyInfo.m_alpha/2);
+    double cy2 = cos(m_bodyInfo.m_beta/2);
+    double sy2 = sin(m_bodyInfo.m_beta/2);
+    double cz2 = cos(m_bodyInfo.m_gamma/2);
+    double sz2 = sin(m_bodyInfo.m_gamma/2);
 
     Quaternion qx(cx2, Vector3d(sx2, 0, 0));
     Quaternion qy(cy2, Vector3d(0, sy2, 0));
@@ -96,7 +96,7 @@ void PolyhedronModel::Draw(GLenum _mode) {
   if(m_solidID == size_t(-1)) return;
   if(m_renderMode == INVISIBLE_MODE) return;
 
-  float* color = &m_rGBA[0];
+  float* color = &m_rgba[0];
   glColor4fv(color);
   glPushMatrix();
   glTransform();
@@ -218,7 +218,7 @@ void
 PolyhedronModel::COM(const PtVector& _points) {
   m_com = accumulate(_points.begin(), _points.end(), Point3d(0, 0, 0));
   m_com /= _points.size();
-  if(m_bodyInfo.m_IsSurface)
+  if(m_bodyInfo.m_isSurface)
     m_com[1] = 0;
 }
 

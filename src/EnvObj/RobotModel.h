@@ -20,12 +20,12 @@ class RobotModel : public GLModel {
   public:
 
     void Print(){
-      std::cout << m_RobotModel->tx() << " "
-        << m_RobotModel->ty() << " "
-        << m_RobotModel->tz() << " "
-        << m_RobotModel->rx() << " "
-        << m_RobotModel->ry() << " "
-        << m_RobotModel->rz() << endl;
+      std::cout << m_robotModel->tx() << " "
+        << m_robotModel->ty() << " "
+        << m_robotModel->tz() << " "
+        << m_robotModel->rx() << " "
+        << m_robotModel->ry() << " "
+        << m_robotModel->rz() << endl;
     }
 
 
@@ -43,28 +43,28 @@ class RobotModel : public GLModel {
     //set wire/solid to all items
     virtual void SetRenderMode(RenderMode _mode){
       GLModel::SetRenderMode(_mode);
-      if(m_RobotModel!=NULL) m_RobotModel->SetRenderMode(_mode);
+      if(m_robotModel!=NULL) m_robotModel->SetRenderMode(_mode);
     }
 
     virtual void SetColor( float r, float g, float b, float a ){
       GLModel::SetColor(r,g,b,a);
-      if(m_RobotModel!=NULL)
-        m_RobotModel->SetColor(r,g,b,a);
+      if(m_robotModel!=NULL)
+        m_robotModel->SetColor(r,g,b,a);
     }
     void keepColor(float r, float g, float b);
 
-    float Get_R() {return m_rR;}//return originalR;
-    float Get_G() {return m_rG;}//return originalG;
-    float Get_B() {return m_rB;}//return originalB;
+    float Get_R() {return m_rr;}//return originalR;
+    float Get_G() {return m_rg;}//return originalG;
+    float Get_B() {return m_rb;}//return originalB;
 
     virtual const string GetName() const {
-      if( m_RobotModel!=NULL ) return "Robot";
+      if( m_robotModel!=NULL ) return "Robot";
       return "No Robot";
     }
 
     virtual void GetChildren( list<GLModel*>& models ){
-      if( m_RobotModel!=NULL )
-        models.push_back(m_RobotModel);
+      if( m_robotModel!=NULL )
+        models.push_back(m_robotModel);
     }
 
     void SaveQry(vector<vector<double> >& cfg, char ch);
@@ -98,8 +98,8 @@ class RobotModel : public GLModel {
 
     void Scale(double x, double y, double z)
     {
-      if(m_RobotModel!=NULL)
-        m_RobotModel->Scale(x,y,z);
+      if(m_robotModel!=NULL)
+        m_robotModel->Scale(x,y,z);
     }
 
     //////////////////////////////////////////////////////
@@ -129,22 +129,22 @@ class RobotModel : public GLModel {
     }
 
     double gettx(){
-      if(m_RobotModel!=NULL)
-        return m_RobotModel->tx();
+      if(m_robotModel!=NULL)
+        return m_robotModel->tx();
       else
         return 0;
     }
 
     double getty(){
-      if(m_RobotModel!=NULL)
-        return m_RobotModel->ty();
+      if(m_robotModel!=NULL)
+        return m_robotModel->ty();
       else
         return 0;
     }
 
     double gettz(){
-      if(m_RobotModel!=NULL)
-        return m_RobotModel->tz();
+      if(m_robotModel!=NULL)
+        return m_robotModel->tz();
       else
         return 0;
     }
@@ -179,8 +179,8 @@ class RobotModel : public GLModel {
     double phantomdelta;
 
     EnvModel* m_envModel;
-    const CMultiBodyInfo * m_RobotInfo;
-    MultiBodyModel * m_RobotModel;
+    const MultiBodyInfo * m_robotInfo;
+    MultiBodyModel * m_robotModel;
 
     double m_polyXBack, m_polyYBack, m_polyZBack;
     vector<PolyhedronModel> m_poly;
@@ -199,8 +199,8 @@ class RobotModel : public GLModel {
     double * StCfg;
     //store ORIGINAL size and color
     double originalR, originalG, originalB, originalSize[3];
-    float m_rR, m_rG, m_rB;
-    RenderMode m_RenderModeBackUp;
+    float m_rr, m_rg, m_rb;
+    RenderMode m_renderModeBackUp;
 };
 
 #endif

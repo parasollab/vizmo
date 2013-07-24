@@ -27,7 +27,7 @@ class queryGUI: public QDialog
  public:
 
   queryGUI(QWidget *parent, Qt::WFlags f=0);
-  char m_SorG;
+  char m_sorG;
 
   void setQuery(vector<double>& q);
   void setNodeVal(int dof, double *cfg);
@@ -55,6 +55,6 @@ private:
     vector<QDoubleSpinBox*> vSpin;
     vector<double> query_org;
     double * node_cfg;
-    string m_ObjName;
+    string m_objName;
 
 };

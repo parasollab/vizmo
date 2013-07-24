@@ -196,7 +196,7 @@ void Vizmo::Node_CD(CfgModel *cfg){
   m_cfg = cfg;
 
   int dof = CfgModel::GetDOF();
-  m_IsNode = true;
+  m_isNode = true;
   vector<double> dataCfg;
   dataCfg = cfg->GetDataCfg();
   m_nodeCfg = new double[dof];
@@ -226,13 +226,13 @@ void Vizmo::TurnOn_CD(){
     MultiBodyModel* robotModel = (MultiBodyModel*)modelList.front();
 
     //If we'll test a node, copy CfgModel to CD class
-    if(m_IsNode){
+    if(m_isNode){
       int dof = CfgModel::GetDOF();
       CD.CopyNodeCfg(m_nodeCfg, dof);
     }
 
     if(m_objName != "Node"){
-      m_IsNode = false;
+      m_isNode = false;
     }
 
     bool b = false;
@@ -391,9 +391,9 @@ void Vizmo::ChangeAppearance(int status)
       }
 
       else if((model->GetInfo()).front() == "Node" || (model->GetInfo()).front() == "Edge"){
-        model->m_rGBA[0]=mR;
-        model->m_rGBA[1]=mG;
-        model->m_rGBA[2]=mB;
+        model->m_rgba[0]=mR;
+        model->m_rgba[1]=mG;
+        model->m_rgba[2]=mB;
 
       }
 
@@ -416,18 +416,18 @@ void Vizmo::DeleteObject(MultiBodyModel *mbl){
   EnvModel* envModel = m_envModel;
   int MBnum = envModel->GetNumMultiBodies();
 
-  const CMultiBodyInfo * mbi;
-  CMultiBodyInfo *mbiTmp;
-  mbiTmp = new CMultiBodyInfo [MBnum];
+  const MultiBodyInfo * mbi;
+  MultiBodyInfo *mbiTmp;
+  mbiTmp = new MultiBodyInfo [MBnum];
   mbi = envModel->GetMultiBodyInfo();
 
   int j=0;
   for(int i=0; i<MBnum; i++){
-    if( (mbi[i].m_pBodyInfo[0].m_strModelDataFileName !=
-          mbl->GetMBinfo().m_pBodyInfo[0].m_strModelDataFileName) ||
-        (mbi[i].m_pBodyInfo[0].m_X != mbl->GetMBinfo().m_pBodyInfo[0].m_X )||
-        (mbi[i].m_pBodyInfo[0].m_Y != mbl->GetMBinfo().m_pBodyInfo[0].m_Y)||
-        (mbi[i].m_pBodyInfo[0].m_Z != mbl->GetMBinfo().m_pBodyInfo[0].m_Z) ){
+    if( (mbi[i].m_mBodyInfo[0].m_modelDataFileName !=
+          mbl->GetMBinfo().m_mBodyInfo[0].m_modelDataFileName) ||
+        (mbi[i].m_mBodyInfo[0].m_x != mbl->GetMBinfo().m_mBodyInfo[0].m_x )||
+        (mbi[i].m_mBodyInfo[0].m_y != mbl->GetMBinfo().m_mBodyInfo[0].m_y)||
+        (mbi[i].m_mBodyInfo[0].m_z != mbl->GetMBinfo().m_mBodyInfo[0].m_z) ){
 
       mbiTmp[j] = mbi[i];
       j++;
@@ -786,9 +786,9 @@ void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
           if(StringToInt(m_s, m_i)){
             if(m_i == i->second.GetIndex()){
               (*ic)->RebuildAll();
-              i->second.m_rGBA[0] = _r;
-              i->second.m_rGBA[1] = _g;
-              i->second.m_rGBA[2] = _b;
+              i->second.m_rgba[0] = _r;
+              i->second.m_rgba[1] = _g;
+              i->second.m_rgba[2] = _b;
               (*ic)->DrawRobotNodes((*ic)->m_renderMode);
               (*ic)->DrawSelect();
             }
@@ -863,7 +863,7 @@ Vizmo::EnvChanged(){
 
   EnvModel* envModel = m_envModel;
   int numBod = envModel->GetNumMultiBodies();
-  const CMultiBodyInfo* mbi = envModel->GetMultiBodyInfo();
+  const MultiBodyInfo* mbi = envModel->GetMultiBodyInfo();
   vector<MultiBodyModel *> mbm = envModel->GetMultiBodies();
 
   for(int i = 0; i < numBod; i++){
@@ -871,12 +871,12 @@ Vizmo::EnvChanged(){
     EulerAngle e;
     convertFromQuaternion(e, qtmp2);
 
-    if( ( (mbi[i].m_pBodyInfo[0].m_X != mbm[i]->tx())||
-          (mbi[i].m_pBodyInfo[0].m_Y != mbm[i]->ty())||
-          (mbi[i].m_pBodyInfo[0].m_Z != mbm[i]->tz()) ) ||
-        ( (mbi[i].m_pBodyInfo[0].m_Alpha!= e.alpha()) ||
-          (mbi[i].m_pBodyInfo[0].m_Beta != e.beta()) ||
-          (mbi[i].m_pBodyInfo[0].m_Beta != e.gamma()) ) ){
+    if( ( (mbi[i].m_mBodyInfo[0].m_x != mbm[i]->tx())||
+          (mbi[i].m_mBodyInfo[0].m_y != mbm[i]->ty())||
+          (mbi[i].m_mBodyInfo[0].m_z != mbm[i]->tz()) ) ||
+        ( (mbi[i].m_mBodyInfo[0].m_alpha!= e.alpha()) ||
+          (mbi[i].m_mBodyInfo[0].m_beta != e.beta()) ||
+          (mbi[i].m_mBodyInfo[0].m_beta != e.gamma()) ) ){
 
       m_envChanged = true;
       break;

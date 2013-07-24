@@ -15,7 +15,7 @@ class gliPickBox
 public:
 
     gliPickBox(){
-        m_LMB_DOWN=false; m_W=m_H=0;
+        m_lMB_DOWN=false; m_w=m_h=0;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -27,16 +27,16 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Access
-    const gliBox& getPickBox() const { return m_PickBox; }
-    bool isPicking() const { return m_LMB_DOWN; }
+    const gliBox& getPickBox() const { return m_pickBox; }
+    bool isPicking() const { return m_lMB_DOWN; }
     //need be updated when window size changed
-    void setWinSize(int W, int H) { m_W=W; m_H=H; }
+    void setWinSize(int W, int H) { m_w=W; m_h=H; }
 
 private:
 
-    gliBox m_PickBox;
-    bool m_LMB_DOWN;
-    int m_W, m_H; //width and height of window
+    gliBox m_pickBox;
+    bool m_lMB_DOWN;
+    int m_w, m_h; //width and height of window
 };
 
 ///////////////////////////////////////////////////////////////////////////

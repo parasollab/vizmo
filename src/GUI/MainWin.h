@@ -51,7 +51,7 @@ class VizmoMainWin : public QMainWindow {
     vector<string>& GetArgs() { return m_args; }
     void SetVizmoInit(bool _tf) { m_bVizmoInit = _tf; }
     bool GetVizmoInit() { return m_bVizmoInit; }
-    VizGLWin* GetGLScene() { return m_GL; }
+    VizGLWin* GetGLScene() { return m_gl; }
     TextGUI* GetOutbox(){ return m_outbox; }
     VizmoAnimationGUI* GetAnimationGUI() { return m_animationGUI; }
     VizmoAnimationGUI* GetAnimationDebugGUI() { return m_animationDebugGUI; }
@@ -83,7 +83,7 @@ class VizmoMainWin : public QMainWindow {
     QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextGUI
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
-    VizGLWin* m_GL;           //the scene window which displays environment..
+    VizGLWin* m_gl;           //the scene window which displays environment..
     VizmoAnimationGUI *m_animationGUI, *m_animationDebugGUI;
     VizmoItemSelectionGUI *m_objectSelection;
 };

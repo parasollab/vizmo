@@ -19,7 +19,7 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
 
   setMinimumSize(960, 700);
   setWindowTitle("Vizmo++");
-  m_GL = NULL;
+  m_gl = NULL;
   m_animationGUI = m_animationDebugGUI = NULL;
   move(0,0);
   m_setQS = false;
@@ -30,7 +30,7 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
 VizmoMainWin::~VizmoMainWin(){
 
   //delete GL scene
-  delete m_GL;
+  delete m_gl;
   //delete the animation bars
   delete m_animationGUI;
   delete m_animationDebugGUI;
@@ -54,7 +54,7 @@ VizmoMainWin::Init(){
   m_layoutWidget = new QWidget();
 
   //Create GLModel
-  if((m_GL = new VizGLWin(this, this)) == NULL)
+  if((m_gl = new VizGLWin(this, this)) == NULL)
     return false;
 
   // Create Other GUI
@@ -89,14 +89,14 @@ VizmoMainWin::InitVizmo(){
 
   resize(width(),height());
   m_args.clear();
-  m_GL->resetCamera();
+  m_gl->resetCamera();
   //reset guis
   m_animationGUI->reset();
   m_animationDebugGUI->reset();
   m_objectSelection->ResetLists();
   m_mainMenu->CallReset();
   GetVizmo().ChangeNodesRandomColor(); //replacing the reset() call here previously
-  m_GL->updateGL();
+  m_gl->updateGL();
 
   return true;
 }
@@ -121,13 +121,13 @@ VizmoMainWin::CreateGUI(){
 
   connect(m_animationDebugGUI,SIGNAL(callUpdate()), m_outbox, SLOT(SetText()));
   connect(m_objectSelection, SIGNAL(UpdateTextGUI()), m_outbox, SLOT(SetText()));
-  connect(m_GL, SIGNAL(selectByLMB()), m_objectSelection, SLOT(Select()));
-  connect(m_GL, SIGNAL(clickByLMB()), m_objectSelection, SLOT(Select()));
+  connect(m_gl, SIGNAL(selectByLMB()), m_objectSelection, SLOT(Select()));
+  connect(m_gl, SIGNAL(clickByLMB()), m_objectSelection, SLOT(Select()));
   //HandleSelect now in Plum/MapObj/MapModel.cpp and temporarily disabled
-  // connect(m_GL, SIGNAL(selectByLMB()), m_roadmapGUI, SLOT(handleSelect()));
-  connect(m_GL, SIGNAL(clickByLMB()), m_outbox, SLOT(SetText()));
-  connect(m_GL, SIGNAL(selectByLMB()), m_outbox, SLOT(SetText()));
-  // connect(m_GL, SIGNAL(MRbyGLI()), m_roadmapGUI, SLOT(printRobCfg()));
+  // connect(m_gl, SIGNAL(selectByLMB()), m_roadmapGUI, SLOT(handleSelect()));
+  connect(m_gl, SIGNAL(clickByLMB()), m_outbox, SLOT(SetText()));
+  connect(m_gl, SIGNAL(selectByLMB()), m_outbox, SLOT(SetText()));
+  // connect(m_gl, SIGNAL(MRbyGLI()), m_roadmapGUI, SLOT(printRobCfg()));
 
   return true;
 }
@@ -166,7 +166,7 @@ VizmoMainWin::SetUpLayout(){
   m_layout->addLayout(m_animationBarLayout, 8, 1, 9, 25);
 
   //The GL Scene
-  m_layout->addWidget(m_GL, 2, 6, 4, 25);
+  m_layout->addWidget(m_gl, 2, 6, 4, 25);
   m_layout->setRowStretch(1, 3);
   m_layout->setRowStretch(2, 3);  //help the GL scene expand better
   m_layout->setRowStretch(3, 3);
@@ -192,6 +192,6 @@ VizmoMainWin::keyPressEvent (QKeyEvent* _e){
 void
 VizmoMainWin::updateScreen(){
 
-    m_GL->updateGL();
+    m_gl->updateGL();
 }
 

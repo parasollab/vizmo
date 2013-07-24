@@ -42,7 +42,7 @@ class CCModel : public GLModel{
     float GetRobotSize() {return  m_robotScale;}
     float GetBoxSize() {return m_boxScale;}
     float GetPointSize() {return m_pointScale;}
-    vector<float> GetColor() {return m_rGBA;}
+    vector<float> GetColor() {return m_rgba;}
     int GetNumNodes(){ return m_nodes.size(); }
     int GetNumEdges(){ return m_edges.size(); }
     double GetNodeData() { return m_nodes[0]->tx(); }
@@ -109,10 +109,10 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
       m_enableSelection = true;
       m_renderMode = INVISIBLE_MODE;
       //Set random Color
-      m_rGBA.clear();
-      m_rGBA.push_back(((float)rand())/RAND_MAX);
-      m_rGBA.push_back(((float)rand())/RAND_MAX);
-      m_rGBA.push_back(((float)rand())/RAND_MAX);
+      m_rgba.clear();
+      m_rgba.push_back(((float)rand())/RAND_MAX);
+      m_rgba.push_back(((float)rand())/RAND_MAX);
+      m_rgba.push_back(((float)rand())/RAND_MAX);
       //size
       m_robotScale = 1;
       m_boxScale = 1;
@@ -279,25 +279,25 @@ CCModel<CfgModel, WEIGHT>::SetColor(float _r, float _g, float _b, float _a){
 
   RebuildAll();
 
-  m_rGBA.clear();
-  m_rGBA.push_back(_r);
-  m_rGBA.push_back(_g);
-  m_rGBA.push_back(_b);
+  m_rgba.clear();
+  m_rgba.push_back(_r);
+  m_rgba.push_back(_g);
+  m_rgba.push_back(_b);
 
   typedef typename map<VID, CfgModel>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
-    cit->second.m_rGBA.clear();
-    cit->second.m_rGBA.push_back(_r);
-    cit->second.m_rGBA.push_back(_g);
-    cit->second.m_rGBA.push_back(_b);
+    cit->second.m_rgba.clear();
+    cit->second.m_rgba.push_back(_r);
+    cit->second.m_rgba.push_back(_g);
+    cit->second.m_rgba.push_back(_b);
   }
 
   typedef typename vector<WEIGHT>::iterator EIT;
   for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++){
-    eit->m_rGBA.clear();
-    eit->m_rGBA.push_back(_r);
-    eit->m_rGBA.push_back(_g);
-    eit->m_rGBA.push_back(_b);
+    eit->m_rgba.clear();
+    eit->m_rgba.push_back(_r);
+    eit->m_rgba.push_back(_g);
+    eit->m_rgba.push_back(_b);
   }
 }
 
@@ -319,7 +319,7 @@ CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
     glPushName(cit->first);
     cit->second.Scale(m_robotScale, m_robotScale, m_robotScale);
     cit->second.SetShape(CfgModel::Robot);
-    m_robot->SetColor(m_rGBA[0], m_rGBA[1], m_rGBA[2], 1);
+    m_robot->SetColor(m_rgba[0], m_rgba[1], m_rgba[2], 1);
     cit->second.Draw(_mode);//draw robot;
     glPopName();
   }

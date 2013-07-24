@@ -19,10 +19,10 @@ class EnvModel : public GLModel {
     //Access functions
     virtual const string GetName() const { return "Environment"; }
     int GetNumMultiBodies() const{ return m_numMultiBodies; }
-    const CMultiBodyInfo* GetMultiBodyInfo() const { return m_mBInfo; }
+    const MultiBodyInfo* GetMultiBodyInfo() const { return m_mbInfo; }
     string GetModelDataDir(){ return  m_modelDataDir; }
     int GetDOF(){ return m_dof; }
-    vector<MultiBodyModel*> GetMultiBodies(){ return m_mBModels; }
+    vector<MultiBodyModel*> GetMultiBodies(){ return m_mbModels; }
     vector<Robot>& GetRobots(){ return m_robots; }
     BoundaryModel* GetBoundary() {return m_boundary;}
     double GetRadius() const { return m_radius; }
@@ -34,23 +34,23 @@ class EnvModel : public GLModel {
     void DecreaseNumMB(){ m_numMultiBodies = m_numMultiBodies - 1; }
     void IncreaseNumMB(){ m_numMultiBodies = m_numMultiBodies + 1; }
     void GetColor(istream& _is);
-    void SetNewMultiBodyInfo(CMultiBodyInfo* _mbi);
+    void SetNewMultiBodyInfo(MultiBodyInfo* _mbi);
     void NewModelDir();
     void FreeMemory();
     void ParseFileHeader(ifstream& _ifs);
     void ParseBoundary(ifstream& _ifs);
     void ParseFileBody(ifstream& _ifs);
-    void ParseMultiBody(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
-    void ParseActiveBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
-    void ParseOtherBody(ifstream& _ifs, CBodyInfo& _bodyInfo);
-    void ParseConnections(ifstream& _ifs, CMultiBodyInfo& _mBInfo);
+    void ParseMultiBody(ifstream& _ifs, MultiBodyInfo& _mbInfo);
+    void ParseActiveBody(ifstream& _ifs, BodyInfo& _bodyInfo);
+    void ParseOtherBody(ifstream& _ifs, BodyInfo& _bodyInfo);
+    void ParseConnections(ifstream& _ifs, MultiBodyInfo& _mbInfo);
     void BuildRobotStructure();
 
     //Display functions
     void ChangeColor(); //changes object's color randomly
     vector<vector<PolyhedronModel> > GetMBPolyLists();
     void DeleteMBModel(MultiBodyModel* _mbl);
-    void AddMBModel(CMultiBodyInfo _newMBI);
+    void AddMBModel(MultiBodyInfo _newMBI);
 
     // TESTING to save Env. file
     bool SaveFile(const char* _filename);
@@ -65,13 +65,13 @@ class EnvModel : public GLModel {
     string m_modelDataDir;
     float m_color[3];
     int m_numMultiBodies;
-    CMultiBodyInfo* m_mBInfo;
+    MultiBodyInfo* m_mbInfo;
     bool m_containsSurfaces;
     typedef stapl::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
     RobotGraph m_robotGraph;
     vector<Robot> m_robots;
     int m_dof;
-    vector<MultiBodyModel *> m_mBModels;
+    vector<MultiBodyModel *> m_mbModels;
     double m_radius;
     Point3d m_centerOfMass;
     BoundaryModel* m_boundary;

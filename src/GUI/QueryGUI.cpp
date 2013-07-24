@@ -18,7 +18,7 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f)
       //objname = gl->GetInfo();
       objname = gl->GetName();
   }
-  m_ObjName = objname;
+  m_objName = objname;
 
     RobotModel* robotModel = GetVizmo().GetRobot();
     m_dof = robotModel->GetEnvModel()->GetDOF();
@@ -154,7 +154,7 @@ void queryGUI::setNodeVal(int dof, double *cfg){
 
 void queryGUI::newCfg(const QString&){
 
-  if(m_ObjName == "MultiBody") {
+  if(m_objName == "MultiBody") {
     if (isActiveWindow () ){
 
       double *Qcfg2 = new double [m_dof];
@@ -202,7 +202,7 @@ void queryGUI::newCfg(const QString&){
 
 void queryGUI::SaveSG(){
 
-  GetVizmo().SaveQryCfg(m_SorG);
+  GetVizmo().SaveQryCfg(m_sorG);
 
 }
 
