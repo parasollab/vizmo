@@ -16,16 +16,19 @@ class MultiBodyModel : public GLModel{
     //////////////////////////////////////////////////////////////////////
     virtual void BuildModels();
     virtual void Select(unsigned int* _index, vector<GLModel*>& sel);
-      
+
     //Draw
     virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
-      
+
     //set wire/solid/hide
     virtual void SetRenderMode(RenderMode _mode);
-    virtual void SetColor(float r, float g, float b, float a);
-    const float* GetColor() const;
-      
+    virtual void SetColor(const Color4& _c) {
+      GLModel::SetColor(_c);
+      for(size_t i=0; i<m_poly.size(); i++)
+        m_poly[i].SetColor(_c);
+    }
+
     virtual const string GetName() const{return "MultiBody";}
 
     virtual void GetChildren(list<GLModel*>& _models){
@@ -48,7 +51,7 @@ class MultiBodyModel : public GLModel{
     vector<PolyhedronModel>& GetPolyhedron(){return m_poly;}
     const MultiBodyInfo& GetMBinfo(){return m_mbInfo;}
     bool IsFixed() const{return m_fixed;}
-      
+
     //public variables
     double m_posX, posY, posZ;
     list<GLModel*> m_objlist; // to have access from glitransTool class

@@ -9,11 +9,12 @@
 
 using namespace mathtool;
 
-#include <Plum/EnvObj/MultiBodyModel.h>
-#include <Models/EnvModel.h>
-#include <Plum/GLModel.h>
-#include <Plum/EnvObj/MultiBodyInfo.h>
-#include <Utilities/GL/gliCamera.h>
+#include "Plum/EnvObj/MultiBodyModel.h"
+#include "Models/EnvModel.h"
+#include "Plum/GLModel.h"
+#include "Plum/EnvObj/MultiBodyInfo.h"
+#include "Utilities/GL/gliCamera.h"
+#include "Utilities/Color.h"
 
 class RobotModel : public GLModel {
 
@@ -45,17 +46,12 @@ class RobotModel : public GLModel {
       GLModel::SetRenderMode(_mode);
       if(m_robotModel!=NULL) m_robotModel->SetRenderMode(_mode);
     }
-
-    virtual void SetColor( float r, float g, float b, float a ){
-      GLModel::SetColor(r,g,b,a);
+    virtual void SetColor(const Color4& _c){
+      GLModel::SetColor(_c);
       if(m_robotModel!=NULL)
-        m_robotModel->SetColor(r,g,b,a);
+        m_robotModel->SetColor(_c);
     }
-    void keepColor(float r, float g, float b);
-
-    float Get_R() {return m_rr;}//return originalR;
-    float Get_G() {return m_rg;}//return originalG;
-    float Get_B() {return m_rb;}//return originalB;
+    const Color4& GetOriginalColor() const {return m_originalColor;}
 
     virtual const string GetName() const {
       if( m_robotModel!=NULL ) return "Robot";
@@ -198,8 +194,8 @@ class RobotModel : public GLModel {
     //to store the START cfg. It comes from Query or Path files
     double * StCfg;
     //store ORIGINAL size and color
-    double originalR, originalG, originalB, originalSize[3];
-    float m_rr, m_rg, m_rb;
+    Color4 m_originalColor;
+    double originalSize[3];
     RenderMode m_renderModeBackUp;
 };
 

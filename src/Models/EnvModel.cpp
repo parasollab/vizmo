@@ -1,6 +1,8 @@
 #include "EnvModel.h"
 
 #include "Plum/EnvObj/MultiBodyInfo.h"
+#include "Plum/EnvObj/ConnectionModel.h"
+#include "Plum/EnvObj/BodyModel.h"
 #include "CfgModel.h"
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
@@ -154,38 +156,23 @@ EnvModel::ParseMultiBody(ifstream& _ifs, MultiBodyInfo& _mBInfo){
     _mBInfo.m_numberOfBody = ReadField<int>(_ifs, WHERE,
         "Failed reading body count");
 
-    _mBInfo.m_mBodyInfo = new BodyInfo[_mBInfo.m_numberOfBody];
+    _mBInfo.m_mBodyInfo = new BodyModel[_mBInfo.m_numberOfBody];
     if(!_mBInfo.m_mBodyInfo)
-      throw ParseException(WHERE, "Failed requesting memory for BodyInfo.");
+      throw ParseException(WHERE, "Failed requesting memory for BodyModel.");
 
     GetColor(_ifs);
 
     for(int i = 0; i < _mBInfo.m_numberOfBody; i++)
-      ParseActiveBody(_ifs, _mBInfo.m_mBodyInfo[i]);
+      _mBInfo.m_mBodyInfo[i].ParseActiveBody(_ifs, m_modelDataDir, m_color);
 
     //Get connection info
     string connectionTag = ReadFieldString(_ifs, WHERE,
         "Failed reading connections tag.");
-    int numberOfRobotConnections = ReadField<int>(_ifs, WHERE,
+    size_t numberOfConnections = ReadField<size_t>(_ifs, WHERE,
         "Failed reading number of connections");
 
-    _mBInfo.m_numberOfConnections = numberOfRobotConnections;
-
-    int currentBody = 0; //index of current Body
-
-    //Do transformation for body0, the base. This is always needed.
-    _mBInfo.m_mBodyInfo[currentBody].doTransform();
-
-    if(numberOfRobotConnections != 0){
-      //initialize the MBInfo.m_mBodyInfo[i].m_connectionInfo for each body
-      for(int i = 0; i < _mBInfo.m_numberOfBody; i++){
-        _mBInfo.m_mBodyInfo[i].m_connectionInfo =
-          new ConnectionInfo[numberOfRobotConnections];
-
-        if(!_mBInfo.m_mBodyInfo[i].m_connectionInfo)
-          throw ParseException(WHERE, "Failed requesting memory for ConnectionInfo.");
-      }
-      for(int iB = 0; iB < numberOfRobotConnections; iB++)
+    if(numberOfConnections != 0){
+      for(size_t i = 0; i < numberOfConnections; ++i)
         ParseConnections(_ifs, _mBInfo);
     }
   }
@@ -194,14 +181,14 @@ EnvModel::ParseMultiBody(ifstream& _ifs, MultiBodyInfo& _mBInfo){
       multibodyType == "PASSIVE") {
 
     _mBInfo.m_numberOfBody = 1;
-    _mBInfo.m_mBodyInfo = new BodyInfo[_mBInfo.m_numberOfBody];
+    _mBInfo.m_mBodyInfo = new BodyModel[_mBInfo.m_numberOfBody];
 
     if(!_mBInfo.m_mBodyInfo)
-      throw ParseException(WHERE, "Failed requesting memory for BodyInfo.");
+      throw ParseException(WHERE, "Failed requesting memory for BodyModel.");
 
     GetColor(_ifs);
 
-    ParseOtherBody(_ifs, _mBInfo.m_mBodyInfo[0]);
+    _mBInfo.m_mBodyInfo[0].ParseOtherBody(_ifs, m_modelDataDir, m_color);
   }
   else
     throw ParseException(WHERE,
@@ -210,217 +197,13 @@ EnvModel::ParseMultiBody(ifstream& _ifs, MultiBodyInfo& _mBInfo){
 }
 
 void
-EnvModel::ParseActiveBody(ifstream& _ifs, BodyInfo& _bodyInfo) {
-
-  _bodyInfo.m_isFixed = false;
-  bool isBase = false;
-  Robot::Base baseType;
-  Robot::BaseMovement baseMovementType;
-
-  _bodyInfo.m_fileName = ReadFieldString(_ifs, WHERE,
-      "Failed reading geometry filename.", false);
-
-  if(!m_modelDataDir.empty()) {
-    //store just the path of the current directory
-    _bodyInfo.m_directory = m_modelDataDir;
-    _bodyInfo.m_modelDataFileName += m_modelDataDir + "/";
-  }
-
-  _bodyInfo.m_modelDataFileName += _bodyInfo.m_fileName;
-
-  //Read for Base Type. If Planar or Volumetric, read in two more strings
-  //If Joint skip this stuff. If Fixed read in positions like an obstacle
-  string baseTag = ReadFieldString(_ifs, WHERE,
-      "Failed reading base tag.");
-  baseType = Robot::GetBaseFromTag(baseTag);
-
-  Vector3d bodyPosition;
-  Vector3d bodyRotation;
-
-  if(baseType == Robot::VOLUMETRIC || baseType == Robot::PLANAR){
-    isBase = true;
-    _bodyInfo.m_isBase = true;
-    string rotationalTag = ReadFieldString(_ifs, WHERE,
-        "Failed reading rotation tag.");
-    baseMovementType = Robot::GetMovementFromTag(rotationalTag);
-  }
-  else if(baseType == Robot::FIXED){
-    isBase = true;
-    bodyPosition = ReadField<Vector3d>(_ifs, WHERE, "Failed reading body position");
-    bodyRotation = ReadField<Vector3d>(_ifs, WHERE, "Failed reading body orientation");
-  }
-
-  //save this for when these classes utilize only transformations instead
-  //of x, y, z, alpha, beta, gamma, separately.
-  _bodyInfo.m_isBase = isBase;
-  _bodyInfo.isBase = isBase;
-  _bodyInfo.SetBase(baseType);
-  if(isBase)
-    _bodyInfo.SetBaseMovement(baseMovementType);
-
-  _bodyInfo.m_x = bodyPosition[0];
-  _bodyInfo.m_y = bodyPosition[1];
-  _bodyInfo.m_z = bodyPosition[2];
-  _bodyInfo.m_alpha = degToRad(bodyRotation[0]);
-  _bodyInfo.m_beta = degToRad(bodyRotation[1]);
-  _bodyInfo.m_gamma = degToRad(bodyRotation[2]);
-  _bodyInfo.doTransform();
-
-  //Set color information
-  if(m_color[0] != -1){
-    _bodyInfo.rgb[0] = m_color[0];
-    _bodyInfo.rgb[1] = m_color[1];
-    _bodyInfo.rgb[2] = m_color[2];
-  }
-  else{
-    if(_bodyInfo.m_isFixed){
-      _bodyInfo.rgb[0] = 0.5;
-      _bodyInfo.rgb[1] = 0.5;
-      _bodyInfo.rgb[2] = 0.5;
-    }
-    else{
-      _bodyInfo.rgb[0] = 1;
-      _bodyInfo.rgb[1] = 0;
-      _bodyInfo.rgb[2] = 0;
-    }
-  }
-}
-
-void
-EnvModel::ParseOtherBody(ifstream& _ifs, BodyInfo& _bodyInfo) {
-
-  _bodyInfo.m_isFixed = true;
-  _bodyInfo.m_isBase = true;
-  _bodyInfo.m_fileName = ReadFieldString(_ifs, WHERE,
-    "Failed reading geometry filename.", false);
-
-  if(!m_modelDataDir.empty()) {
-    //store just the path of the current directory
-    _bodyInfo.m_directory = m_modelDataDir;
-    _bodyInfo.m_modelDataFileName += m_modelDataDir + "/";
-  }
-  _bodyInfo.m_modelDataFileName += _bodyInfo.m_fileName;
-
-  Vector3d bodyPosition = ReadField<Vector3d>(_ifs, WHERE, "Failed reading body position");
-  Vector3d bodyRotation = ReadField<Vector3d>(_ifs, WHERE, "Failed reading body orientation");
-
-  //save this for when body utilizes only transformation not
-  //x,y,z,alpha,beta,gama
-
-  _bodyInfo.m_x = bodyPosition[0];
-  _bodyInfo.m_y = bodyPosition[1];
-  _bodyInfo.m_z = bodyPosition[2];
-  _bodyInfo.m_alpha = degToRad(bodyRotation[0]);
-  _bodyInfo.m_beta = degToRad(bodyRotation[1]);
-  _bodyInfo.m_gamma = degToRad(bodyRotation[2]);
-  _bodyInfo.doTransform();
-
-  //Set color information
-  if(m_color[0] != -1){
-    _bodyInfo.rgb[0] = m_color[0];
-    _bodyInfo.rgb[1] = m_color[1];
-    _bodyInfo.rgb[2] = m_color[2];
-  }
-  else{
-    if(_bodyInfo.m_isFixed){
-      _bodyInfo.rgb[0] = 0.5;
-      _bodyInfo.rgb[1] = 0.5;
-      _bodyInfo.rgb[2] = 0.5;
-    }
-    else{
-      _bodyInfo.rgb[0] = 1;
-      _bodyInfo.rgb[1] = 0;
-      _bodyInfo.rgb[2] = 0;
-    }
-  }
-}
-
-void
 EnvModel::ParseConnections(ifstream& _ifs, MultiBodyInfo& _mBInfo){
-
-  //body indices
-  int previousBodyIndex = ReadField<int>(_ifs, WHERE, "Failed reading previous body index");
-  int nextBodyIndex = ReadField<int>(_ifs, WHERE, "Failed reading next body index");
-
+  ConnectionModel* c = new ConnectionModel();
+  _ifs >> *c;
   //Increment m_numberOfConnection for each body
-  BodyInfo& previousBody = _mBInfo.m_mBodyInfo[previousBodyIndex];
-  previousBody.m_numberOfConnection++;
-
-  //Get connection index for this body
-  ConnectionInfo& conn = previousBody.m_connectionInfo[previousBody.m_numberOfConnection - 1];
-  Robot::Joint connPtr(&conn);
-  _mBInfo.jointMap.push_back(connPtr);
-
-  //Set global index
-  conn.m_globalIndex = ConnectionInfo::m_globalCounter++;
-
-  //Set next and pre index
-  conn.m_preIndex = previousBodyIndex;
-  conn.m_nextIndex = nextBodyIndex;
-
-  //Set Actuated/NonActuated
-  conn.m_actuated = true;
-
-  //Grab the joint type
-  string connectionTypeTag = ReadFieldString(_ifs, WHERE, "Failed reading connection type.");
-  conn.m_jointType = ConnectionInfo::GetJointTypeFromTag(connectionTypeTag);
-
-  //Grab the joint limits for revolute and spherical joints
-  pair<double, double> jointLimits[2];
-  if(conn.m_jointType == ConnectionInfo::REVOLUTE || conn.m_jointType == ConnectionInfo::SPHERICAL){
-    jointLimits[0].first = jointLimits[1].first = -1;
-    jointLimits[0].second = jointLimits[1].second = 1;
-    size_t numRange = (conn.m_jointType == ConnectionInfo::REVOLUTE) ? 1 : 2;
-    for(size_t i = 0; i<numRange; i++) {
-      string tok;
-      if(_ifs >> tok) {
-        size_t del = tok.find(":");
-        if(del == string::npos)
-          throw ParseException(WHERE, "Failed reading joint range. Should be delimited by ':'.");
-
-        istringstream minv(tok.substr(0,del)), maxv(tok.substr(del+1, tok.length()));
-        if(!(minv>>jointLimits[i].first && maxv>>jointLimits[i].second))
-          throw ParseException(WHERE, "Failed reading joint range.");
-      }
-      else if(numRange == 2 && i==1) //error. only 1 token provided.
-        throw ParseException(WHERE, "Failed reading joint ranges. Only one provided.");
-    }
-  }
-
-  //Transformation to DHFrame
-  Vector3d positionToDHFrame = ReadField<Vector3d>(_ifs, WHERE, "Failed reading translation to DHFrame.");
-  Vector3d rotationToDHFrame = ReadField<Vector3d>(_ifs, WHERE, "Failed reading rotation to DHFrame.");
-
-  conn.m_pos2X = positionToDHFrame[0];
-  conn.m_pos2Y = positionToDHFrame[1];
-  conn.m_pos2Z = positionToDHFrame[2];
-
-  conn.m_orient2X = degToRad(rotationToDHFrame[0]);
-  conn.m_orient2Y = degToRad(rotationToDHFrame[1]);
-  conn.m_orient2Z = degToRad(rotationToDHFrame[2]);
-
-  //DH parameters
-  Vector4d dhparameters = ReadField<Vector4d>(_ifs, WHERE, "Failed reading DH Parameters.");
-
-  conn.alpha = dhparameters[0];
-  conn.a = dhparameters[1];
-  conn.d = dhparameters[2];
-  conn.theta = dhparameters[3];
-
-  //Save original theta
-  conn.m_theta = conn.theta;
-
-  //Transformation to next body
-  Vector3d positionToNextBody = ReadField<Vector3d>(_ifs, WHERE, "Failed reading translation to next body.");
-  Vector3d rotationToNextBody = ReadField<Vector3d>(_ifs, WHERE, "Failed reading rotation to Next Body.");
-
-  conn.m_posX = positionToNextBody[0];
-  conn.m_posY = positionToNextBody[1];
-  conn.m_posZ = positionToNextBody[2];
-
-  conn.m_orientX = degToRad(rotationToNextBody[0]);
-  conn.m_orientY = degToRad(rotationToNextBody[1]);
-  conn.m_orientZ = degToRad(rotationToNextBody[2]);
+  BodyModel& previousBody = _mBInfo.m_mBodyInfo[c->GetPreviousIndex()];
+  previousBody.GetConnections().push_back(c);
+  _mBInfo.jointMap.push_back(c);
 }
 
 void
@@ -443,12 +226,11 @@ EnvModel::BuildRobotStructure(){
 
   //Total amount of bodies in environment: free + fixed
   for (int i = 0; i < robot.m_numberOfBody; i++){
-    BodyInfo& body = robot.m_mBodyInfo[i];
     //For each body, find forward connections and connect them
-    for (int j = 0; j < body.m_numberOfConnection; j++){
-      int nextIndex = body.m_connectionInfo[j].m_nextIndex;
-      m_robotGraph.add_edge(i, nextIndex);
-    }
+    vector<ConnectionModel*>& connections = robot.m_mBodyInfo[i].GetConnections();
+    typedef vector<ConnectionModel*>::iterator CIT;
+    for(CIT cit = connections.begin(); cit!=connections.end(); ++cit)
+      m_robotGraph.add_edge(i, (*cit)->GetNextIndex());
   }
 
   //Robot ID typedef
@@ -496,12 +278,12 @@ EnvModel::BuildRobotStructure(){
       int index = m_robotGraph.find_vertex(cc[j])->property();
       typedef Robot::JointMap::iterator MIT;
       for(MIT mit = robot.GetJointMap().begin(); mit!=robot.GetJointMap().end(); mit++){
-        if((*mit)->m_preIndex == index){
+        if((*mit)->GetPreviousIndex() == index){
           jm.push_back(*mit);
-          if((*mit)->m_jointType == ConnectionInfo::REVOLUTE){
+          if((*mit)->GetJointType() == ConnectionModel::REVOLUTE){
             m_dof += 1;
           }
-          else if((*mit)->m_jointType == ConnectionInfo::SPHERICAL){
+          else if((*mit)->GetJointType() == ConnectionModel::SPHERICAL){
             m_dof += 2;
           }
         }
@@ -566,11 +348,11 @@ EnvModel::Draw(GLenum _mode) {
     glPopName();
 
   glLineWidth(1);
-  for(int iP = 0; iP < numMBs; iP++){
-    if(m_mbModels[iP]->IsFixed()){
+  for(int i = 0; i < numMBs; i++){
+    if(m_mbModels[i]->IsFixed()){
       if(_mode == GL_SELECT)
-        glPushName(iP);
-      m_mbModels[iP]->Draw(_mode);
+        glPushName(i);
+      m_mbModels[i]->Draw(_mode);
       if(_mode == GL_SELECT)
         glPopName();
     }
@@ -580,13 +362,8 @@ EnvModel::Draw(GLenum _mode) {
 void
 EnvModel::ChangeColor(){
   int numMBs = m_mbModels.size();
-  float r, g, b;
-  for(int iP = 0; iP < numMBs; iP++){
-    r  = ((float)rand())/RAND_MAX;
-    g = ((float)rand())/RAND_MAX;
-    b = ((float)rand())/RAND_MAX;
-    m_mbModels[iP]->SetColor(r, g, b, 1);
-  }
+  for(int i = 0; i < numMBs; i++)
+    m_mbModels[i]->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }
 
 void
@@ -661,7 +438,7 @@ EnvModel::AddMBModel(MultiBodyInfo _newMBI){
 
 bool
 EnvModel::SaveFile(const char* _filename){
-
+/*
   const MultiBodyInfo* mBI = GetMultiBodyInfo();
 
   FILE* envFile;
@@ -834,6 +611,7 @@ EnvModel::SaveFile(const char* _filename){
   }
 
   fclose(envFile);
+  */
   return 1;
 }
 

@@ -36,7 +36,7 @@ struct AddNode : public Instruction {
 
 struct AddEdge : public Instruction {
   AddEdge(CfgModel _s, CfgModel _t) : Instruction("AddEdge"), m_source(_s), m_target(_t) {}
-  float m_targetColor[3], m_sourceColor[3];
+  Color4 m_targetColor, m_sourceColor;
   CfgModel m_source, m_target;
 };
 

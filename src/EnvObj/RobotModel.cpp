@@ -1,6 +1,8 @@
 #include "RobotModel.h"
 
 #include "Models/Vizmo.h"
+#include "Plum/EnvObj/ConnectionModel.h"
+#include "Plum/EnvObj/BodyModel.h"
 #include "Utilities/Exceptions.h"
 
 RobotModel::RobotModel(EnvModel* _env){
@@ -50,15 +52,8 @@ RobotModel::BuildModels(){
      if( pMInfo[i].m_active ){
        m_robotModel = new MultiBodyModel(pMInfo[i]);
 
-       SetColor(pMInfo[i].m_mBodyInfo[0].rgb[0],
-           pMInfo[i].m_mBodyInfo[0].rgb[1],
-           pMInfo[i].m_mBodyInfo[0].rgb[2], 1);
-       originalR = pMInfo[i].m_mBodyInfo[0].rgb[0];
-       originalG = pMInfo[i].m_mBodyInfo[0].rgb[1];
-       originalB = pMInfo[i].m_mBodyInfo[0].rgb[2];
-       m_rr = originalR;
-       m_rg = originalG;
-       m_rb = originalB;
+       m_originalColor = pMInfo[i].m_mBodyInfo[0].GetColor();
+       SetColor(m_originalColor);
      }
    }
 
@@ -106,9 +101,7 @@ void RobotModel::InitialCfg(vector<double>& cfg){
 
    //save original size and color
    PolyhedronModel& poly = m_robotModel->GetPolyhedron()[0];
-   originalR = poly.GetColor()[0];
-   originalG = poly.GetColor()[1];
-   originalB = poly.GetColor()[2];
+   m_originalColor = poly.GetColor();
    originalSize[0]=sx();
    originalSize[1]=sy();
    originalSize[2]=sz();
@@ -135,8 +128,7 @@ void RobotModel::RestoreInitCfg(){
    this->Scale(originalSize[0],originalSize[1],originalSize[2]);
    //this->SetColor(originalR,originalG,originalB,this->GetColor()[3]);
    PolyhedronModel& poly = m_robotModel->GetPolyhedron()[0];
-   this->SetColor(poly.GetColor()[0], poly.GetColor()[1],
-       poly.GetColor()[2], poly.GetColor()[3]);
+   this->SetColor(poly.GetColor());
 }
 
 void RobotModel::BackUp(){
@@ -172,7 +164,7 @@ void RobotModel::BackUp(){
 void RobotModel::Restore(){
    this->Scale(o_s[0],o_s[1],o_s[2]);
 
-   this->SetColor(R,G,B,this->GetColor()[3]);
+   this->SetColor(Color4(R, G, B, 1.0));
 
    //restore multibody
 
@@ -191,14 +183,7 @@ void RobotModel::Restore(){
   RestoreInitCfg();
 }
 
-void RobotModel::keepColor(float r, float g, float b){
-   m_rr = r; m_rg = g; m_rb = b;
-   m_robotInfo[0].m_mBodyInfo[0].rgb[0] = r;
-   m_robotInfo[0].m_mBodyInfo[0].rgb[1] = g;
-   m_robotInfo[0].m_mBodyInfo[0].rgb[2] = b;
-}
-
-void RobotModel::Configure( double * cfg) {
+void RobotModel::Configure(double* cfg) {
   pthread_mutex_lock(&mutex);
 
   const MultiBodyInfo* MBInfo = m_envModel->GetMultiBodyInfo();
@@ -227,11 +212,8 @@ void RobotModel::Configure( double * cfg) {
     RotFstBody[i] = cfg[i];
   }
 
-  for( int i=0; i<numBody; i++ ){
-    MBInfo[robIndx].m_mBodyInfo[i].m_currentTransform = Transformation();
-    MBInfo[robIndx].m_mBodyInfo[i].m_prevTransform = Transformation();
-    MBInfo[robIndx].m_mBodyInfo[i].m_transformDone = false;
-  }
+  for( int i=0; i<numBody; i++ )
+    MBInfo[robIndx].m_mBodyInfo[i].ResetTransform();
 
   int index=0;
   typedef vector<Robot>::iterator RIT;
@@ -270,16 +252,16 @@ void RobotModel::Configure( double * cfg) {
     pPoly[baseIndex].ry() = beta;
     pPoly[baseIndex].rz() = gamma;
 
-    MBInfo[robIndx].m_mBodyInfo[baseIndex].m_currentTransform =
-      Transformation(Vector3d(x, y, z), Orientation(EulerAngle(gamma, beta, alpha)));
+    Transformation t(Vector3d(x, y, z),
+        Orientation(EulerAngle(gamma, beta, alpha)));
+    MBInfo[robIndx].m_mBodyInfo[baseIndex].SetTransform(t);
 
     //compute rotation
     Quaternion q;
-    convertFromMatrix(q,
-        MBInfo[robIndx].m_mBodyInfo[baseIndex].m_currentTransform.rotation().matrix());
+    convertFromMatrix(q, t.rotation().matrix());
     pPoly[baseIndex].q(q.normalized()); //set new q
 
-    MBInfo[robIndx].m_mBodyInfo[baseIndex].m_transformDone = true;
+    MBInfo[robIndx].m_mBodyInfo[baseIndex].SetTransformDone(true);
 
     //now for the joints of the robot
     //this code from PMPL
@@ -290,42 +272,41 @@ void RobotModel::Configure( double * cfg) {
       double theta = cfg[index] * PI;
       index++;
       double alpha = 0;
-      if((*mit)->GetJointType() == ConnectionInfo::SPHERICAL){
+      if((*mit)->GetJointType() == ConnectionModel::SPHERICAL){
         alpha = cfg[index] * PI;
         index++;
       }
 
-      int currentBodyIdx = (*mit)->GetPreviousBody(); //index of current Body
-      BodyInfo& currentBody = MBInfo[robIndx].m_mBodyInfo[currentBodyIdx];
-      int nextBodyIdx = (*mit)->GetNextBody(); //index of next Body
-      BodyInfo& nextBody = MBInfo[robIndx].m_mBodyInfo[nextBodyIdx];
+      int currentBodyIdx = (*mit)->GetPreviousIndex(); //index of current Body
+      BodyModel& currentBody = MBInfo[robIndx].m_mBodyInfo[currentBodyIdx];
+      int nextBodyIdx = (*mit)->GetNextIndex(); //index of next Body
+      BodyModel& nextBody = MBInfo[robIndx].m_mBodyInfo[nextBodyIdx];
 
-      for( int i=0; i<currentBody.m_numberOfConnection; i++ ){
-        ConnectionInfo& c = currentBody.m_connectionInfo[i];
-        if(c.m_preIndex == currentBodyIdx && c.m_nextIndex == nextBodyIdx){
-          c.alpha = alpha;
-          c.theta = theta;
+      typedef vector<ConnectionModel*>::iterator CIT;
+      for(CIT cit = currentBody.GetConnections().begin(); cit!=currentBody.GetConnections().end(); ++cit){
+        if((*cit)->GetPreviousIndex() == currentBodyIdx && (*cit)->GetNextIndex() == nextBodyIdx){
+          (*cit)->SetAlpha(alpha);
+          (*cit)->SetTheta(theta);
           break;
         }
       }
 
-      if(!nextBody.m_transformDone){
+      if(!nextBody.IsTransformDone()) {
 
-        Transformation t = currentBody.getTransform();
-        nextBody.setPrevTransform(t);
-        nextBody.computeTransform(currentBody, nextBodyIdx);
+        nextBody.SetPrevTransform(currentBody.GetTransform());
+        nextBody.ComputeTransform(currentBody, nextBodyIdx);
 
-        pPoly[nextBodyIdx].tx()=nextBody.m_currentTransform.translation()[0];
-        pPoly[nextBodyIdx].ty()=nextBody.m_currentTransform.translation()[1];
-        pPoly[nextBodyIdx].tz()=nextBody.m_currentTransform.translation()[2];
+        pPoly[nextBodyIdx].tx()=nextBody.GetTransform().translation()[0];
+        pPoly[nextBodyIdx].ty()=nextBody.GetTransform().translation()[1];
+        pPoly[nextBodyIdx].tz()=nextBody.GetTransform().translation()[2];
 
         //compute rotation
         Quaternion q;
         convertFromMatrix(q,
-            nextBody.m_currentTransform.rotation().matrix());
+            nextBody.GetTransform().rotation().matrix());
         pPoly[nextBodyIdx].q(q.normalized()); //set new q
 
-        nextBody.m_transformDone = true;
+        nextBody.SetTransformDone(true);
       }
     }
   }

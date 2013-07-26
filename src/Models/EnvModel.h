@@ -41,8 +41,8 @@ class EnvModel : public GLModel {
     void ParseBoundary(ifstream& _ifs);
     void ParseFileBody(ifstream& _ifs);
     void ParseMultiBody(ifstream& _ifs, MultiBodyInfo& _mbInfo);
-    void ParseActiveBody(ifstream& _ifs, BodyInfo& _bodyInfo);
-    void ParseOtherBody(ifstream& _ifs, BodyInfo& _bodyInfo);
+    void ParseActiveBody(ifstream& _ifs, BodyModel& _bodyInfo);
+    void ParseOtherBody(ifstream& _ifs, BodyModel& _bodyInfo);
     void ParseConnections(ifstream& _ifs, MultiBodyInfo& _mbInfo);
     void BuildRobotStructure();
 

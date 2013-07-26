@@ -10,28 +10,23 @@
 
 #include <gl.h>
 #include "Utilities/GL/gliDataStructure.h"
+#include "Utilities/Color.h"
 
 enum RenderMode {WIRE_MODE, SOLID_MODE, INVISIBLE_MODE};
 
 class GLModel : public gliTransform
 {
   public:
-    GLModel()
-    {
+    GLModel() : m_color() {
       m_enableSelection=true;
       m_renderMode = SOLID_MODE;
-      m_rgba.clear();
-      for(int i = 0; i < 4; i++) {
-        m_rgba.push_back(0.0);
-      }
     }
 
-    GLModel(const GLModel& other) : gliTransform(other)
-  {
-    m_enableSelection=other.m_enableSelection;
-    m_renderMode = other.m_renderMode;
-    m_rgba = other.m_rgba;
-  }
+    GLModel(const GLModel& _other) : gliTransform(_other) {
+      m_enableSelection = _other.m_enableSelection;
+      m_renderMode = _other.m_renderMode;
+      m_color = _other.m_color;
+    }
 
     virtual ~GLModel(){/*do nothing*/}
     const string GetFilename() const { return m_filename; }
@@ -61,12 +56,8 @@ class GLModel : public gliTransform
     virtual void SetRenderMode(RenderMode mode){m_renderMode = mode;}
 
     //get/set color
-    virtual void SetColor( float r, float g, float b, float a ){
-      m_rgba.clear();
-      m_rgba.push_back(r); m_rgba.push_back(g); m_rgba.push_back(b); m_rgba.push_back(a);
-    }
-
-    vector<float> GetColor() const { return m_rgba; }
+    virtual void SetColor(const Color4& _c) {m_color = _c;}
+    const Color4& GetColor() const {return m_color;}
 
     //Get the name information
     virtual const string GetName() const =0;
@@ -83,10 +74,10 @@ class GLModel : public gliTransform
   public:
     bool  m_enableSelection;
     RenderMode   m_renderMode;     //wire or solid or hide
-    vector<float> m_rgba;  //Color
 
   private:
     string m_filename;
+    Color4 m_color;  //Color
 };
 
 #endif

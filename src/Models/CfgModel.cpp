@@ -124,12 +124,6 @@ CfgModel::GetUnknowns(){
 }
 
 void
-CfgModel::SetColor(float _r, float _g, float _b, float _a){
-
-  GLModel::SetColor(_r,_g,_b,_a);
-}
-
-void
 CfgModel::SetCfg(vector<double> _newCfg){
 
   m_dofs.assign(_newCfg.begin(), _newCfg.end());
@@ -192,19 +186,18 @@ CfgModel::DrawRobot(){
     return;
 
   vector<double> cfg = m_dofs;
-  vector<float> origColor = m_robot->GetColor();
+  Color4 origColor = m_robot->GetColor();
 
   m_robot->RestoreInitCfg();
   m_robot->BackUp();
-  float* rgbaArray = &m_rgba[0];
-  glColor4fv(rgbaArray);
+  glColor4fv(GetColor());
   m_robot->SetRenderMode(m_renderMode);
-  m_robot->SetColor(m_rgba[0], m_rgba[1], m_rgba[2], 1);
+  m_robot->SetColor(GetColor());
   m_robot->Scale(m_scale[0], m_scale[1], m_scale[2]);
   m_robot->Configure(cfg);
   m_robot->Draw(GL_RENDER);
   m_robot->Restore();
-  m_robot->SetColor(origColor[0],origColor[1],origColor[2],origColor[3]);
+  m_robot->SetColor(origColor);
 }
 
 void
@@ -212,9 +205,7 @@ CfgModel::DrawBox(){
 
   glEnable(GL_LIGHTING);
   glPushMatrix();
-  float* rgbaArray = &m_rgba[0];
-  glColor4fv(rgbaArray);
-  glColor4f(m_rgba[0],m_rgba[1],m_rgba[2],1);
+  glColor4fv(GetColor());
 
   //If base is not FIXED, perform translations
   //Additionally, perform rotations if base is also ROTATIONAL
@@ -252,7 +243,7 @@ CfgModel::DrawPoint(){
   glDisable(GL_LIGHTING);
   glPointSize(m_scale[0]);
   glBegin(GL_POINTS);
-  glColor4f(m_rgba[0],m_rgba[1],m_rgba[2],1);
+  glColor4fv(GetColor());
   if(m_renderMode == SOLID_MODE ||
      m_renderMode == WIRE_MODE){
     if(m_isPlanarRobot)
@@ -274,17 +265,16 @@ CfgModel::DrawSelect(){
       if(m_robot!=NULL){
         vector<double> cfg = m_dofs;
         m_robot->BackUp();
-        vector<float> origColor = m_robot->GetColor();
+        Color4 origColor = m_robot->GetColor();
         //change
-        m_robot->SetColor(1,1,0,0);
-        m_robot->SetColor(m_rgba[0], m_rgba[1], m_rgba[2], 1);
+        m_robot->SetColor(GetColor());
         m_robot->Scale(m_scale[0], m_scale[1], m_scale[2]);
         m_robot->Configure(cfg);
         //delete[] cfg;
         //draw
         m_robot->DrawSelect();
         m_robot->Restore();
-        m_robot->SetColor(origColor[0],origColor[1],origColor[2],origColor[3]);
+        m_robot->SetColor(origColor);
       };
       break;
 

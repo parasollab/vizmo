@@ -6,12 +6,12 @@
 
 using namespace std;
 
-class ConnectionInfo;
+class ConnectionModel;
 
 struct Robot{
   enum Base {PLANAR, VOLUMETRIC, FIXED, JOINT}; //2D plane vs 3D
   enum BaseMovement {ROTATIONAL, TRANSLATIONAL}; //rotation+translation, just translation, no movement
-  typedef ConnectionInfo* Joint;
+  typedef ConnectionModel* Joint;
   typedef vector<Joint> JointMap;
   //index of next body,
   //joint type

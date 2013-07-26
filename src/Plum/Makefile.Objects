@@ -1,4 +1,6 @@
 OBJECTS += \
 	   Plum/EnvObj/MultiBodyInfo.o \
+	   Plum/EnvObj/ConnectionModel.o \
+	   Plum/EnvObj/BodyModel.o \
 	   Plum/EnvObj/MultiBodyModel.o \
 	   Plum/EnvObj/RobotInfo.o

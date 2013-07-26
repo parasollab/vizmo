@@ -42,7 +42,6 @@ class CCModel : public GLModel{
     float GetRobotSize() {return  m_robotScale;}
     float GetBoxSize() {return m_boxScale;}
     float GetPointSize() {return m_pointScale;}
-    vector<float> GetColor() {return m_rgba;}
     int GetNumNodes(){ return m_nodes.size(); }
     int GetNumEdges(){ return m_edges.size(); }
     double GetNodeData() { return m_nodes[0]->tx(); }
@@ -71,7 +70,7 @@ class CCModel : public GLModel{
     void BuildBoxNodes(GLenum _mode);
     void BuildPointNodes(GLenum _mode);
     void BuildEdges();
-    void SetColor(float _r, float _g, float _b, float _a);
+    void SetColor(const Color4& _c);
     void DrawRobotNodes(GLenum _mode);
     void DrawBoxNodes(GLenum _mode);
     void DrawPointNodes(GLenum _mode);
@@ -109,10 +108,7 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
       m_enableSelection = true;
       m_renderMode = INVISIBLE_MODE;
       //Set random Color
-      m_rgba.clear();
-      m_rgba.push_back(((float)rand())/RAND_MAX);
-      m_rgba.push_back(((float)rand())/RAND_MAX);
-      m_rgba.push_back(((float)rand())/RAND_MAX);
+      SetColor(Color4(drand48(), drand48(), drand48(), 1));
       //size
       m_robotScale = 1;
       m_boxScale = 1;
@@ -275,30 +271,18 @@ CCModel<CfgModel, WEIGHT>::BuildPointNodes(GLenum _mode){
 
 template <class CfgModel, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::SetColor(float _r, float _g, float _b, float _a){
-
+CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
   RebuildAll();
 
-  m_rgba.clear();
-  m_rgba.push_back(_r);
-  m_rgba.push_back(_g);
-  m_rgba.push_back(_b);
+  GLModel::SetColor(_c);
 
   typedef typename map<VID, CfgModel>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
-    cit->second.m_rgba.clear();
-    cit->second.m_rgba.push_back(_r);
-    cit->second.m_rgba.push_back(_g);
-    cit->second.m_rgba.push_back(_b);
-  }
+  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
+    cit->second.SetColor(_c);
 
   typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++){
-    eit->m_rgba.clear();
-    eit->m_rgba.push_back(_r);
-    eit->m_rgba.push_back(_g);
-    eit->m_rgba.push_back(_b);
-  }
+  for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++)
+    eit->SetColor(_c);
 }
 
 template <class CfgModel, class WEIGHT>
@@ -308,7 +292,7 @@ CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
   if(m_robot == NULL)
     return;
 
-  vector<float> origColor = m_robot->GetColor();
+  Color4 origColor = m_robot->GetColor();
   m_robot->BackUp();
 
   if(_mode == GL_RENDER)
@@ -319,13 +303,13 @@ CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
     glPushName(cit->first);
     cit->second.Scale(m_robotScale, m_robotScale, m_robotScale);
     cit->second.SetShape(CfgModel::Robot);
-    m_robot->SetColor(m_rgba[0], m_rgba[1], m_rgba[2], 1);
+    m_robot->SetColor(GetColor());
     cit->second.Draw(_mode);//draw robot;
     glPopName();
   }
 
   m_robot->Restore();
-  m_robot->SetColor(origColor[0], origColor[1], origColor[2], origColor[3]);
+  m_robot->SetColor(origColor);
 }
 
 template <class CfgModel, class WEIGHT>

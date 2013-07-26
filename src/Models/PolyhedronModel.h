@@ -2,8 +2,8 @@
 #define POLYHEDRONMODEL_H_
 
 #include "Plum/GLModel.h"
-#include "Plum/EnvObj/MultiBodyInfo.h"
 
+class BodyModel;
 class RAPID_model;
 
 class PolyhedronModel : public GLModel {
@@ -23,7 +23,7 @@ class PolyhedronModel : public GLModel {
 
     RAPID_model* GetRapidModel() {return m_rapidModel;}
 
-    void SetBodyInfo(const BodyInfo& _bodyInfo) {m_bodyInfo = _bodyInfo;}
+    void SetBodyModel(BodyModel* _bodyModel) {m_bodyModel = _bodyModel;}
 
     void BuildModels();
     void Draw(GLenum _mode);
@@ -49,7 +49,7 @@ class PolyhedronModel : public GLModel {
     double m_radius; //radius
     Point3d m_com; //Center of Mass
 
-    BodyInfo m_bodyInfo;
+    BodyModel* m_bodyModel;
     RAPID_model* m_rapidModel;
 };
 

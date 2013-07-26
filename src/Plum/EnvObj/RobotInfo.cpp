@@ -1,15 +1,17 @@
 #include "RobotInfo.h"
+
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
 
 #include "MultiBodyInfo.h"
+#include "ConnectionModel.h"
 #include "Utilities/Exceptions.h"
 
 class IsConnectionGloballyFirst {
   public:
-    bool operator()(const ConnectionInfo* _a, const ConnectionInfo* _b) const {
-      return _a->m_globalIndex < _b->m_globalIndex;
+    bool operator()(const ConnectionModel* _a, const ConnectionModel* _b) const {
+      return _a->GetGlobalIndex() < _b->GetGlobalIndex();
     }
 } connectionComparitor;
 

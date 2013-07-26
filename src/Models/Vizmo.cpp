@@ -385,21 +385,11 @@ void Vizmo::ChangeAppearance(int status)
     }
     else if(status == 3){
       if((model->GetInfo()).front() == "Robot"){
-        robot->SetColor(mR, mG, mB, 1.0);
-        robot->keepColor(mR, mG, mB);
+        robot->SetColor(Color4(mR, mG, mB, 1.0));
         robot->BackUp();
       }
-
-      else if((model->GetInfo()).front() == "Node" || (model->GetInfo()).front() == "Edge"){
-        model->m_rgba[0]=mR;
-        model->m_rgba[1]=mG;
-        model->m_rgba[2]=mB;
-
-      }
-
-      else {
-        model->SetColor(mR,mG,mB,1);
-      }
+      else
+        model->SetColor(Color4(mR, mG, mB, 1));
     }
   }
 
@@ -412,7 +402,7 @@ void Vizmo::ChangeAppearance(int status)
 }
 
 void Vizmo::DeleteObject(MultiBodyModel *mbl){
-
+  /*
   EnvModel* envModel = m_envModel;
   int MBnum = envModel->GetNumMultiBodies();
 
@@ -443,6 +433,7 @@ void Vizmo::DeleteObject(MultiBodyModel *mbl){
   //  Recreate MBModel: some elements could've been deleted
   //////////////////////////////////////////////////////////
   envModel->DeleteMBModel(mbl);
+  */
 }
 
 void Vizmo::Animate(int frame){
@@ -623,7 +614,7 @@ void Vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
             if(m_i == (*ic)->GetID()){
               (*ic)->DrawSelect();
               (*ic)->SetColorChanged(true);
-              (*ic)->SetColor(_r, _g, _b, 1);
+              (*ic)->SetColor(Color4(_r, _g, _b, 1));
               (*ic)->DrawRobotNodes((*ic)->m_renderMode);
             }
           }
@@ -632,7 +623,7 @@ void Vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
       else if(m_s == "NULL" && oneColor){
         for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
           (*ic)->SetColorChanged(true);
-          (*ic)->SetColor(_r, _g, _b, 1);
+          (*ic)->SetColor(Color4(_r, _g, _b, 1));
           (*ic)->DrawRobotNodes((*ic)->m_renderMode);
         }
         oneColor = false;
@@ -640,44 +631,7 @@ void Vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
       else{
         for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
           (*ic)->SetColorChanged(true);
-          _r = ((float)rand())/RAND_MAX;
-          _g = ((float)rand())/RAND_MAX;
-          _b = ((float)rand())/RAND_MAX;
-          (*ic)->SetColor(_r, _g, _b, 1);
-          (*ic)->DrawRobotNodes((*ic)->m_renderMode);
-        }
-      }
-    }
-    if(m_debugModel!=NULL){
-      DebugModel* debugModel = m_debugModel;
-      vector<CC*>& cc=debugModel->GetMapModel()->GetCCModels();
-      if(m_s != "NULL"){
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          if(StringToInt(m_s, m_i)){
-            if(m_i == (*ic)->GetID()){
-              (*ic)->DrawSelect();
-              (*ic)->SetColorChanged(true);
-              (*ic)->SetColor(_r, _g, _b, 1);
-              (*ic)->DrawRobotNodes((*ic)->m_renderMode);
-            }
-          }
-        }
-      }
-      else if(m_s == "NULL" && oneColor){
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          (*ic)->SetColorChanged(true);
-          (*ic)->SetColor(_r, _g, _b, 1);
-          (*ic)->DrawRobotNodes((*ic)->m_renderMode);
-        }
-        oneColor = false;
-      }
-      else{
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          (*ic)->SetColorChanged(true);
-          _r = ((float)rand())/RAND_MAX;
-          _g = ((float)rand())/RAND_MAX;
-          _b = ((float)rand())/RAND_MAX;
-          (*ic)->SetColor(_r, _g, _b, 1);
+          (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
           (*ic)->DrawRobotNodes((*ic)->m_renderMode);
         }
       }
@@ -786,9 +740,7 @@ void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
           if(StringToInt(m_s, m_i)){
             if(m_i == i->second.GetIndex()){
               (*ic)->RebuildAll();
-              i->second.m_rgba[0] = _r;
-              i->second.m_rgba[1] = _g;
-              i->second.m_rgba[2] = _b;
+              i->second.SetColor(Color4(_r, _g, _b, 1));
               (*ic)->DrawRobotNodes((*ic)->m_renderMode);
               (*ic)->DrawSelect();
             }
@@ -810,8 +762,7 @@ void Vizmo::ChangeNodesRandomColor(){
   MapModel<CfgModel,EdgeModel>* mmodel = m_mapModel;
   vector<CC*>& cc  =mmodel->GetCCModels();
   for(CCIT ic = cc.begin(); ic != cc.end(); ++ic){
-    float r = drand48(), g = drand48(), b = drand48();
-    (*ic)->SetColor(r, g, b, 1);
+    (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
     (*ic)->DrawRobotNodes((*ic)->m_renderMode);
   }
 }
@@ -858,7 +809,7 @@ int Vizmo::getNumJoints(){
 
 bool
 Vizmo::EnvChanged(){
-
+/*
   m_envChanged = false;
 
   EnvModel* envModel = m_envModel;
@@ -884,6 +835,8 @@ Vizmo::EnvChanged(){
   }
 
   return m_envChanged;
+  */
+  return false;
 }
 
 void

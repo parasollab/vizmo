@@ -109,7 +109,7 @@ bool CollisionDetection::IsInCollision(int _numMB,
       int c;
       for(c=0; c<NumBodiesRob; c++){
          //rPoly[c].SetColor(1, 0, 0, 1);
-         rPoly[c].SetColor(robotCpy->Get_R(),robotCpy->Get_G(),robotCpy->Get_B(), 1);
+         rPoly[c].SetColor(robotCpy->GetColor());
       }
    }
 
@@ -332,8 +332,8 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
             if(test_node == false){
                for(int c=0; c<NumBodiesRob; c++){
-                  robotObj->SetColor(1,.5,0, 1);
-                  rPoly[c].SetColor(1,.5,0, 1);
+                  robotObj->SetColor(Color4(1, 0.5, 0, 1));
+                  rPoly[c].SetColor(Color4(1, 0.5, 0, 1));
                }
             }
             return true;

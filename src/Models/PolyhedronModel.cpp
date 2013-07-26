@@ -10,6 +10,7 @@
 #include "ModelFactory.h"
 
 #include "Utilities/Exceptions.h"
+#include "Plum/EnvObj/BodyModel.h"
 #include "ModelGraph/ModelGraph.h"
 using namespace modelgraph;
 
@@ -24,22 +25,20 @@ PolyhedronModel::~PolyhedronModel(){
 
 const string
 PolyhedronModel::GetName() const {
-  string filename = m_bodyInfo.m_modelDataFileName;
-  size_t pos = filename.find('/');
-  return pos == string::npos ? filename : filename.substr(pos+1);
+  return m_bodyModel->GetFilename();
 }
 
 vector<string>
 PolyhedronModel::GetInfo() const {
   vector<string> info;
-  info.push_back(m_bodyInfo.m_modelDataFileName);
+  info.push_back(m_bodyModel->GetModelFilename());
   return info;
 }
 
 void
 PolyhedronModel::BuildModels() {
 
-  string file = m_bodyInfo.m_modelDataFileName;
+  string file = m_bodyModel->GetModelFilename();
   IModel* imodel = CreateModelLoader(file, false);
 
   const PtVector& points=imodel->GetVertices();
@@ -68,27 +67,24 @@ PolyhedronModel::BuildModels() {
   BuildWired(points, tris, normals);
 
   //setup rotation and translation
-  if(m_bodyInfo.m_isFixed) {
-    tx()=m_bodyInfo.m_x;
-    ty()=m_bodyInfo.m_y;
-    tz()=m_bodyInfo.m_z;
+  if(m_bodyModel->IsFixed()) {
+    const Transformation& t = m_bodyModel->GetTransform();
+    const Vector3d& p = t.translation();
+    const Orientation& o = t.rotation();
+    EulerAngle e;
+    convertFromMatrix(e, o.matrix());
+    Quaternion qua;
+    convertFromMatrix(qua, o.matrix());
 
-    rx() = m_bodyInfo.m_alpha;
-    ry() = m_bodyInfo.m_beta;
-    rz() = m_bodyInfo.m_gamma;
+    tx() = p[0];
+    ty() = p[1];
+    tz() = p[2];
 
-    double cx2 = cos(m_bodyInfo.m_alpha/2);
-    double sx2 = sin(m_bodyInfo.m_alpha/2);
-    double cy2 = cos(m_bodyInfo.m_beta/2);
-    double sy2 = sin(m_bodyInfo.m_beta/2);
-    double cz2 = cos(m_bodyInfo.m_gamma/2);
-    double sz2 = sin(m_bodyInfo.m_gamma/2);
+    rx() = e.alpha();
+    ry() = e.beta();
+    rz() = e.gamma();
 
-    Quaternion qx(cx2, Vector3d(sx2, 0, 0));
-    Quaternion qy(cy2, Vector3d(0, sy2, 0));
-    Quaternion qz(cz2, Vector3d(0, 0, sz2));
-    Quaternion nq = qz * qy * qx;
-    q(nq.normalize());
+    q(qua);
   }
 }
 
@@ -96,8 +92,7 @@ void PolyhedronModel::Draw(GLenum _mode) {
   if(m_solidID == size_t(-1)) return;
   if(m_renderMode == INVISIBLE_MODE) return;
 
-  float* color = &m_rgba[0];
-  glColor4fv(color);
+  glColor4fv(GetColor());
   glPushMatrix();
   glTransform();
   glScale();
@@ -218,7 +213,7 @@ void
 PolyhedronModel::COM(const PtVector& _points) {
   m_com = accumulate(_points.begin(), _points.end(), Point3d(0, 0, 0));
   m_com /= _points.size();
-  if(m_bodyInfo.m_isSurface)
+  if(m_bodyModel->IsSurface())
     m_com[1] = 0;
 }
 

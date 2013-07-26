@@ -39,7 +39,6 @@ class CfgModel : public GLModel{
     static int GetDOF() { return m_dof; }
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
     RobotModel* GetRobot() const { return m_robot; }
-    virtual void SetColor(float _r, float _g, float _b, float _a);
     static void SetDOF(int _d) { m_dof = _d; }
     void SetInCollision(bool _isColl) { m_coll = _isColl; }
     static void SetShape(Shape _shape){ m_shape =_shape; }

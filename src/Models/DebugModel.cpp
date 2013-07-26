@@ -73,7 +73,7 @@ DebugModel::ParseFile() {
     if(name=="AddNode"){
       CfgModel c;
       iss >> c;
-      c.SetColor(drand48(), drand48(), drand48(), 1);
+      c.SetColor(Color4(drand48(), drand48(), drand48(), 1));
       m_instructions.push_back(new AddNode(c));
     }
     else if(name=="AddEdge"){
@@ -85,8 +85,8 @@ DebugModel::ParseFile() {
       CfgModel c;
       bool valid;
       iss >> c >> valid;
-      if(valid) c.SetColor(0, 0, 0, 0.25);
-      else c.SetColor(1, 0, 0, 0.25);
+      if(valid) c.SetColor(Color4(0, 0, 0, 0.25));
+      else c.SetColor(Color4(1, 0, 0, 0.25));
       m_instructions.push_back(new AddTempCfg(c, valid));
     }
     else if(name=="AddTempRay"){
@@ -166,7 +166,7 @@ DebugModel::BuildForward() {
       AddEdge* ae = static_cast<AddEdge*>(ins);
       //add edge to the graph
 
-      float color[3] = {0,0,0};
+      Color4 color;
       vector<VID> ccnid1; //node id in this cc
       vector<VID> ccnid2; //node id in this cc
       vector<VID>* smallerCC;
@@ -188,41 +188,32 @@ DebugModel::BuildForward() {
 
       //store color of larger CC; will later color the smaller CC with this
       if(ccnid1.size() > ccnid2.size()){
-        color[0] = target.GetColor()[0];
-        color[1] = target.GetColor()[1];
-        color[2] = target.GetColor()[2];
+        color = target.GetColor();
         smallerCC = &ccnid2;
       }
       else{
-        color[0] = source.GetColor()[0];
-        color[1] = source.GetColor()[1];
-        color[2] = source.GetColor()[2];
+        color = source.GetColor();
         smallerCC = &ccnid1;
       }
 
       //store source and target colors in instruction;
       //will be restored when AddEdge is reversed in BuildBackward
-      ae->m_targetColor[0] = target.GetColor()[0];
-      ae->m_targetColor[1] = target.GetColor()[1];
-      ae->m_targetColor[2] = target.GetColor()[2];
-
-      ae->m_sourceColor[0] = source.GetColor()[0];
-      ae->m_sourceColor[1] = source.GetColor()[1];
-      ae->m_sourceColor[2] = source.GetColor()[2];
+      ae->m_targetColor = target.GetColor();
+      ae->m_sourceColor = source.GetColor();
 
       //change color of smaller CC to that of larger CC
       for(ITVID it = smallerCC->begin(); it != smallerCC->end(); ++it) {
         VI vi = m_mapModel->GetGraph()->find_vertex(*it);
         CfgModel* cfgcc = &(vi->property());
-        cfgcc->SetColor(color[0], color[1], color[2], 1);
+        cfgcc->SetColor(color);
 
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
-          (*ei).property().SetColor(color[0], color[1], color[2], 1) ;
+          (*ei).property().SetColor(color) ;
         }
       }
 
       //set color of new edge to that of larger cc
-      edge.SetColor(color[0], color[1], color[2], 1);
+      edge.SetColor(color);
 
       //add edge
       m_mapModel->GetGraph()->add_edge(svid, tvid, edge);
@@ -235,7 +226,7 @@ DebugModel::BuildForward() {
       m_tempCfgs.back().Set(0, m_robotModel, NULL);
       m_tempCfgs.back().SetShape(CfgModel::Robot);
       if(!atc->m_valid)
-        m_tempCfgs.back().SetColor(1, 0, 0, 1);
+        m_tempCfgs.back().SetColor(Color4(1, 0, 0, 1));
     }
     else if(ins->m_name == "AddTempRay"){
       //add temporary ray
@@ -381,7 +372,7 @@ DebugModel::BuildBackward(){
       AddEdge* ae = static_cast<AddEdge*>(ins);
       VID svid = m_mapModel->Cfg2VID(ae->m_source);
       VID tvid = m_mapModel->Cfg2VID(ae->m_target);
-      float color[3] = {0,0,0};
+      Color4 color;
 
       //remove both the forward and reverse edge
       m_mapModel->GetGraph()->delete_edge(svid, tvid);
@@ -397,35 +388,31 @@ DebugModel::BuildBackward(){
 
       //get color of the target cfg's CC
       //which was stored in the instruction
-      color[0] = ae->m_targetColor[0];
-      color[1] = ae->m_targetColor[1];
-      color[2] = ae->m_targetColor[2];
+      color = ae->m_targetColor;
 
       //restore color of target's CC
       for(ITVID it = ccnid1.begin(); it != ccnid1.end(); ++it){
         VI vi = m_mapModel->GetGraph()->find_vertex(*it);
         CfgModel* cfgcc = &(vi->property());
-        cfgcc->SetColor(color[0], color[1], color[2], 1);
+        cfgcc->SetColor(color);
 
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
-          (*ei).property().SetColor(color[0], color[1], color[2], 1) ;
+          (*ei).property().SetColor(color) ;
         }
       }
 
       //get color of source cfg's CC
       //which was stored in the instruction
-      color[0] = ae->m_sourceColor[0];
-      color[1] = ae->m_sourceColor[1];
-      color[2] = ae->m_sourceColor[2];
+      color = ae->m_sourceColor;
 
       //restore color of source's CC
       for(ITVID it = ccnid2.begin(); it != ccnid2.end(); ++it){
         VI vi = m_mapModel->GetGraph()->find_vertex(*it);
         CfgModel* cfgcc = &(vi->property());
-        cfgcc->SetColor(color[0], color[1], color[2], 1);
+        cfgcc->SetColor(color);
 
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
-          (*ei).property().SetColor(color[0], color[1], color[2], 1) ;
+          (*ei).property().SetColor(color) ;
         }
       }
 
@@ -545,7 +532,7 @@ DebugModel::Draw(GLenum _mode){
       eit->Draw(_mode);
     for(EIT eit = m_query.begin(); eit!=m_query.end(); eit++) {
       glLineWidth(32);
-      eit->SetColor(1,1,0,1);
+      eit->SetColor(Color4(1, 1, 0, 1));
       eit->Draw(_mode);
     }
     if(m_tempRay != NULL && m_tempCfgs.size() > 0) {
@@ -558,7 +545,7 @@ DebugModel::Draw(GLenum _mode){
       cfg[2]+=tmp->tz();
       ray.SetCfg(cfg);
       edge.Set(0, tmp, &ray);
-      edge.SetColor(1, 1, 0, 1);
+      edge.SetColor(Color4(1, 1, 0, 1));
       glLineWidth(8);
       edge.Draw(_mode);
     }

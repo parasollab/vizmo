@@ -94,10 +94,9 @@ QueryModel::BuildModels(){
 
   m_robotModel->SetRenderMode(WIRE_MODE);
 
-  vector<float> col = m_robotModel->GetColor(); //remember old color
-  vector<float> oldcol = col;
+  Color4 oldcol = m_robotModel->GetColor(); //remember old color
 
-  m_robotModel->SetColor(0, 1, 0, 0);
+  m_robotModel->SetColor(Color4(0, 1, 0, 0));
   //create list
   m_glQueryIndex = glGenLists(1);
   glNewList(m_glQueryIndex, GL_COMPILE);
@@ -107,7 +106,7 @@ QueryModel::BuildModels(){
     m_robotModel->Configure(cfg);
 
     if(i==1)
-      m_robotModel->SetColor(1, 0.6, 0, 0);
+      m_robotModel->SetColor(Color4(1, 0.6, 0, 0));
 
     m_robotModel->Draw(GL_RENDER);
 
@@ -122,7 +121,7 @@ QueryModel::BuildModels(){
   glEndList();
 
   //set back
-  m_robotModel->SetColor(oldcol[0], oldcol[1], oldcol[2], oldcol[3]);
+  m_robotModel->SetColor(oldcol);
   m_robotModel->SetRenderMode(SOLID_MODE);
 }
 

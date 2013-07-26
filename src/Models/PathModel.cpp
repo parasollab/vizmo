@@ -76,8 +76,7 @@ PathModel::BuildModels(){
   //Build Path Model
   m_robotModel->SetRenderMode(WIRE_MODE);
 
-  vector<float> col = m_robotModel->GetColor(); //old color
-  vector<float> oldcol = col;
+  Color4 oldcol = m_robotModel->GetColor(); //old color
 
   glMatrixMode(GL_MODELVIEW);
 
@@ -108,7 +107,7 @@ PathModel::BuildModels(){
   for(CIT cit = allColors.begin(); cit!=allColors.end(); ++cit) {
     size_t i = cit-allColors.begin();
     if(i % m_displayInterval == 0){
-      m_robotModel->SetColor((*cit)[0], (*cit)[1], (*cit)[2], (*cit)[3]);
+      m_robotModel->SetColor(*cit);
       m_robotModel->Configure(m_path[i]);
       m_robotModel->Draw(GL_RENDER);
     }
@@ -116,11 +115,10 @@ PathModel::BuildModels(){
 
   //gradient may not divide perfectly evenly, so remaining path components are
   //given the last color
-  Color4 c = allColors.back();
   size_t remainder = m_path.size() % allColors.size();
   for(size_t j = 0; j<remainder; ++j){
     if(j%m_displayInterval==0){
-      m_robotModel->SetColor(c[0], c[1], c[2], c[3]);
+      m_robotModel->SetColor(allColors.back());
       m_robotModel->Configure(m_path[allColors.size()+j]);
       m_robotModel->Draw(GL_RENDER);
     }
@@ -130,7 +128,7 @@ PathModel::BuildModels(){
 
   //set back
   m_robotModel->SetRenderMode(SOLID_MODE);
-  m_robotModel->SetColor(oldcol[0], oldcol[1], oldcol[2], oldcol[3]);
+  m_robotModel->SetColor(oldcol);
 }
 
 void PathModel::Draw(GLenum _mode){
