@@ -3,7 +3,7 @@
 #include "ConnectionModel.h"
 #include "Utilities/IOUtils.h"
 
-BodyModel::BodyModel() : m_currentTransform() {
+BodyModel::BodyModel() : m_isSurface(false), m_currentTransform() {
 }
 
 BodyModel::~BodyModel(){
