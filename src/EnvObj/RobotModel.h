@@ -12,7 +12,6 @@ using namespace mathtool;
 #include "Plum/EnvObj/MultiBodyModel.h"
 #include "Models/EnvModel.h"
 #include "Plum/GLModel.h"
-#include "Plum/EnvObj/MultiBodyInfo.h"
 #include "Utilities/GL/gliCamera.h"
 #include "Utilities/Color.h"
 
@@ -81,7 +80,6 @@ class RobotModel : public GLModel {
     vector<double> getFinalCfg();
 
     MultiBodyModel* getRobotModel() const;
-    int getNumJoints();
     void BackUp();
     void Restore();
     //Keep initial Cfg.
@@ -175,8 +173,7 @@ class RobotModel : public GLModel {
     double phantomdelta;
 
     EnvModel* m_envModel;
-    const MultiBodyInfo * m_robotInfo;
-    MultiBodyModel * m_robotModel;
+    MultiBodyModel* m_robotModel;
 
     double m_polyXBack, m_polyYBack, m_polyZBack;
     vector<PolyhedronModel> m_poly;

@@ -23,8 +23,8 @@ class BodyModel {
     bool IsFixed() const {return m_isFixed;}
     bool IsSurface() const {return m_isSurface;}
     bool IsBase() {return m_isBase;};
-    Robot::Base GetBase() {return m_baseType;};
-    Robot::BaseMovement GetBaseMovement() {return m_baseMovementType;};
+    Robot::Base GetBase() const {return m_baseType;};
+    Robot::BaseMovement GetBaseMovement() const {return m_baseMovementType;};
 
     //access to connections
     typedef vector<ConnectionModel*>::const_iterator ConnectionIter;

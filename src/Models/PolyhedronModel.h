@@ -21,7 +21,7 @@ class PolyhedronModel : public GLModel {
     double GetRadius() const {return m_radius;}
     const Point3d& GetCOM() const {return m_com;}
 
-    RAPID_model* GetRapidModel() {return m_rapidModel;}
+    RAPID_model* GetRapidModel() const {return m_rapidModel;}
 
     void SetBodyModel(BodyModel* _bodyModel) {m_bodyModel = _bodyModel;}
 

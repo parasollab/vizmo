@@ -67,7 +67,6 @@ class Vizmo {
     EnvModel* GetEnv() const { return m_envModel; }
 
     // Robot Related Functions
-    int getNumJoints();
     RobotModel* GetRobot() const {  return m_robotModel; }
 
     // Roadmap Related Functions

@@ -8,6 +8,7 @@
 using namespace std;
 
 #include "Exceptions.h"
+#include "Color.h"
 
 //determine if a file exists or not
 bool FileExists(string _filename, bool _err = true);
@@ -24,7 +25,8 @@ string GetPathName(const string& _filename);
 //read type by eating all white space. If type cannot be read report the error
 //provided
 template <class T>
-T ReadField(istream& _is, const string& _where, const string& _error) {
+T
+ReadField(istream& _is, const string& _where, const string& _error) {
   char c;
   string line;
   T element;
@@ -50,5 +52,8 @@ T ReadField(istream& _is, const string& _where, const string& _error) {
 
 //read the string using above ReadField and tranform it to upper case
 string ReadFieldString(istream& _is, const string& _where, const string& _error, bool _toUpper = true);
+
+//optionally read a color from a comment line
+Color4 GetColorFromComment(istream& _is);
 
 #endif

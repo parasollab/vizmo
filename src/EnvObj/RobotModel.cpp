@@ -3,10 +3,10 @@
 #include "Models/Vizmo.h"
 #include "Plum/EnvObj/ConnectionModel.h"
 #include "Plum/EnvObj/BodyModel.h"
+#include "Models/PolyhedronModel.h"
 #include "Utilities/Exceptions.h"
 
 RobotModel::RobotModel(EnvModel* _env){
-
   m_envModel = _env;
   dof = 1000;
   m_robotModel = NULL;
@@ -34,34 +34,25 @@ MultiBodyModel* RobotModel::getRobotModel() const {
    return m_robotModel;
 }
 
-RobotModel::~RobotModel()
-{
-   delete m_robotModel;
+RobotModel::~RobotModel() {
 }
 
 void
-RobotModel::BuildModels(){
-
-   //find robot name
-   const MultiBodyInfo* pMInfo = m_envModel->GetMultiBodyInfo();
-   int numMBody=m_envModel->GetNumMultiBodies();
-   m_robotInfo = m_envModel->GetMultiBodyInfo();
-
-   //create MB for robot.
-   for(int i = 0; i<numMBody; i++ ){
-     if( pMInfo[i].m_active ){
-       m_robotModel = new MultiBodyModel(pMInfo[i]);
-
-       m_originalColor = pMInfo[i].m_mBodyInfo[0].GetColor();
+RobotModel::BuildModels() {
+   //find robot
+   const vector<MultiBodyModel*>& multibodies = m_envModel->GetMultiBodies();
+   typedef vector<MultiBodyModel*>::const_iterator MIT;
+   for(MIT mit = multibodies.begin(); mit!=multibodies.end(); ++mit) {
+     if((*mit)->IsActive()){
+       m_robotModel = *mit;
+       m_originalColor = (*mit)->GetColor();
        SetColor(m_originalColor);
+       break;
      }
    }
 
    if(!m_robotModel)
-     throw BuildException(WHERE, "RobotModel is null, out of memory?");
-
-   m_robotModel->SetAsFree(); //set as free body
-   m_robotModel->BuildModels();
+     throw BuildException(WHERE, "RobotModel is null, no active body loaded.");
 }
 
 void RobotModel::Draw(GLenum _mode){
@@ -100,8 +91,8 @@ void RobotModel::InitialCfg(vector<double>& cfg){
    }
 
    //save original size and color
-   PolyhedronModel& poly = m_robotModel->GetPolyhedron()[0];
-   m_originalColor = poly.GetColor();
+   PolyhedronModel* poly = *m_robotModel->PolyhedronsBegin();
+   m_originalColor = poly->GetColor();
    originalSize[0]=sx();
    originalSize[1]=sy();
    originalSize[2]=sz();
@@ -127,38 +118,39 @@ void RobotModel::RestoreInitCfg(){
    //set robot to its current color and original size
    this->Scale(originalSize[0],originalSize[1],originalSize[2]);
    //this->SetColor(originalR,originalG,originalB,this->GetColor()[3]);
-   PolyhedronModel& poly = m_robotModel->GetPolyhedron()[0];
-   this->SetColor(poly.GetColor());
+   PolyhedronModel* poly = *m_robotModel->PolyhedronsBegin();
+   this->SetColor(poly->GetColor());
 }
 
-void RobotModel::BackUp(){
+void RobotModel::BackUp() {
   m_renderModeBackUp = m_renderMode;
-   vector<PolyhedronModel>& polys = m_robotModel->GetPolyhedron();
 
-   m_polyXBack = polys[0].tx();
-   m_polyYBack = polys[0].ty();
-   m_polyZBack = polys[0].tz();
+  PolyhedronModel* poly = *m_robotModel->PolyhedronsBegin();
 
-   R=polys[0].GetColor()[0];
-   G=polys[0].GetColor()[1];
-   B=polys[0].GetColor()[2];
+  m_polyXBack = poly->tx();
+  m_polyYBack = poly->ty();
+  m_polyZBack = poly->tz();
 
-   o_s[0]=sx();
-   o_s[1]=sy();
-   o_s[2]=sz();
+  R = poly->GetColor()[0];
+  G = poly->GetColor()[1];
+  B = poly->GetColor()[2];
 
-   //save current cfg. of robot
-   //and set m_robotModel to zero
+  o_s[0]=sx();
+  o_s[1]=sy();
+  o_s[2]=sz();
 
-   if(mbRobotBackUp == NULL)
-      mbRobotBackUp = new double[6];
-   mbRobotBackUp[0]= m_robotModel->tx();
-   mbRobotBackUp[1]= m_robotModel->ty();
-   mbRobotBackUp[2]= m_robotModel->tz();
+  //save current cfg. of robot
+  //and set m_robotModel to zero
 
-   m_robotModel->tx() =  m_robotModel->ty() =  m_robotModel->tz() = 0;
+  if(mbRobotBackUp == NULL)
+    mbRobotBackUp = new double[6];
+  mbRobotBackUp[0]= m_robotModel->tx();
+  mbRobotBackUp[1]= m_robotModel->ty();
+  mbRobotBackUp[2]= m_robotModel->tz();
 
-   MBq = m_robotModel->q();
+  m_robotModel->tx() =  m_robotModel->ty() =  m_robotModel->tz() = 0;
+
+  MBq = m_robotModel->q();
 }
 
 void RobotModel::Restore(){
@@ -186,24 +178,12 @@ void RobotModel::Restore(){
 void RobotModel::Configure(double* cfg) {
   pthread_mutex_lock(&mutex);
 
-  const MultiBodyInfo* MBInfo = m_envModel->GetMultiBodyInfo();
-  int numMBody = m_envModel->GetNumMultiBodies();
-  int robIndx = 0;
   vector<Robot>& robots = m_envModel->GetRobots();
-
-  vector<PolyhedronModel>& pPoly = m_robotModel->GetPolyhedron();
 
   Vector3d position;
   Orientation orientation;
 
-  /////////////////////////////////////////////////////////////////////////////
-  for( int iM=0; iM<numMBody; iM++ ){
-    if( MBInfo[iM].m_active )
-      robIndx = iM;
-  }
   int myDOF = m_envModel->GetDOF();
-
-  int numBody=MBInfo[robIndx].m_numberOfBody;
 
   //to keep Cfgs. for bodies other than FirstLink
   if(RotFstBody == NULL)
@@ -212,8 +192,9 @@ void RobotModel::Configure(double* cfg) {
     RotFstBody[i] = cfg[i];
   }
 
-  for( int i=0; i<numBody; i++ )
-    MBInfo[robIndx].m_mBodyInfo[i].ResetTransform();
+  for(MultiBodyModel::BodyIter bit = m_robotModel->BodiesBegin();
+      bit != m_robotModel->BodiesEnd(); ++bit)
+    (*bit)->ResetTransform();
 
   int index=0;
   typedef vector<Robot>::iterator RIT;
@@ -242,26 +223,26 @@ void RobotModel::Configure(double* cfg) {
       }
     }
 
-    size_t baseIndex = rit->m_bodyIndex;
+    PolyhedronModel* poly = *(m_robotModel->PolyhedronsBegin() + rit->m_bodyIndex);
+    BodyModel* base = *(m_robotModel->BodiesBegin() + rit->m_bodyIndex);
     //step from PMPL
-    pPoly[baseIndex].tx()=x;
-    pPoly[baseIndex].ty()=y;
-    pPoly[baseIndex].tz()=z;
+    poly->tx()=x;
+    poly->ty()=y;
+    poly->tz()=z;
 
-    pPoly[baseIndex].rx() = alpha;
-    pPoly[baseIndex].ry() = beta;
-    pPoly[baseIndex].rz() = gamma;
+    poly->rx() = alpha;
+    poly->ry() = beta;
+    poly->rz() = gamma;
 
     Transformation t(Vector3d(x, y, z),
         Orientation(EulerAngle(gamma, beta, alpha)));
-    MBInfo[robIndx].m_mBodyInfo[baseIndex].SetTransform(t);
+    base->SetTransform(t);
+    base->SetTransformDone(true);
 
     //compute rotation
     Quaternion q;
     convertFromMatrix(q, t.rotation().matrix());
-    pPoly[baseIndex].q(q.normalized()); //set new q
-
-    MBInfo[robIndx].m_mBodyInfo[baseIndex].SetTransformDone(true);
+    poly->q(q.normalized()); //set new q
 
     //now for the joints of the robot
     //this code from PMPL
@@ -278,11 +259,11 @@ void RobotModel::Configure(double* cfg) {
       }
 
       int currentBodyIdx = (*mit)->GetPreviousIndex(); //index of current Body
-      BodyModel& currentBody = MBInfo[robIndx].m_mBodyInfo[currentBodyIdx];
+      BodyModel* currentBody = *(m_robotModel->BodiesBegin() + currentBodyIdx);
       int nextBodyIdx = (*mit)->GetNextIndex(); //index of next Body
-      BodyModel& nextBody = MBInfo[robIndx].m_mBodyInfo[nextBodyIdx];
+      BodyModel* nextBody = *(m_robotModel->BodiesBegin() + nextBodyIdx);
 
-      for(BodyModel::ConnectionIter cit = currentBody.Begin(); cit!=currentBody.End(); ++cit){
+      for(BodyModel::ConnectionIter cit = currentBody->Begin(); cit!=currentBody->End(); ++cit){
         if((*cit)->GetPreviousIndex() == currentBodyIdx && (*cit)->GetNextIndex() == nextBodyIdx){
           (*cit)->SetAlpha(alpha);
           (*cit)->SetTheta(theta);
@@ -290,28 +271,28 @@ void RobotModel::Configure(double* cfg) {
         }
       }
 
-      if(!nextBody.IsTransformDone()) {
+      if(!nextBody->IsTransformDone()) {
 
-        nextBody.SetPrevTransform(currentBody.GetTransform());
-        nextBody.ComputeTransform(currentBody, nextBodyIdx);
+        nextBody->SetPrevTransform(currentBody->GetTransform());
+        nextBody->ComputeTransform(*currentBody, nextBodyIdx);
+        nextBody->SetTransformDone(true);
 
-        pPoly[nextBodyIdx].tx()=nextBody.GetTransform().translation()[0];
-        pPoly[nextBodyIdx].ty()=nextBody.GetTransform().translation()[1];
-        pPoly[nextBodyIdx].tz()=nextBody.GetTransform().translation()[2];
+        PolyhedronModel* poly = *(m_robotModel->PolyhedronsBegin() + nextBodyIdx);
+
+        poly->tx() = nextBody->GetTransform().translation()[0];
+        poly->ty() = nextBody->GetTransform().translation()[1];
+        poly->tz() = nextBody->GetTransform().translation()[2];
 
         //compute rotation
         Quaternion q;
         convertFromMatrix(q,
-            nextBody.GetTransform().rotation().matrix());
-        pPoly[nextBodyIdx].q(q.normalized()); //set new q
-
-        nextBody.SetTransformDone(true);
+            nextBody->GetTransform().rotation().matrix());
+        poly->q(q.normalized()); //set new q
       }
     }
   }
 
   pthread_mutex_unlock(&mutex);
-
 }
 
 void RobotModel::Configure(vector<double>& _cfg){
@@ -604,12 +585,8 @@ vector<double> RobotModel::getFinalCfg(){
 
     }
 
-    m_robotModel->SetCfg(currCfg);
-
     return currCfg;
-
   }
-
   else{//articulated
 
     currCfg = this->returnCurrCfg(dof);
@@ -646,26 +623,9 @@ vector<double> RobotModel::getFinalCfg(){
     currCfg[4] =  m_robotModel->ry()/PI;
     currCfg[5] =  m_robotModel->rz()/PI;
 
-
-    m_robotModel->SetCfg(currCfg);
-
     return currCfg;
-
-
   }//else articulated
-
 }
-
-
-int
-RobotModel::getNumJoints(){
-
-   m_robotInfo = m_envModel->GetMultiBodyInfo();
-   return m_robotInfo[0].m_numberOfConnections;
-}
-
-
-
 
 bool RobotModel::KP( QKeyEvent * e )
 {

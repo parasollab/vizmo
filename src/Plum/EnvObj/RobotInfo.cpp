@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include "MultiBodyInfo.h"
 #include "ConnectionModel.h"
 #include "Utilities/Exceptions.h"
 

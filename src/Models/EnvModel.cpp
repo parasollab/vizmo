@@ -1,6 +1,5 @@
 #include "EnvModel.h"
 
-#include "Plum/EnvObj/MultiBodyInfo.h"
 #include "Plum/EnvObj/ConnectionModel.h"
 #include "Plum/EnvObj/BodyModel.h"
 #include "CfgModel.h"
@@ -10,7 +9,6 @@
 #include "Utilities/Exceptions.h"
 
 EnvModel::EnvModel(const string& _filename) :
-  m_numMultiBodies(0), m_mbInfo(NULL),
   m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
     SetFilename(_filename);
     SetModelDataDir(_filename.substr(0, _filename.rfind('/')));
@@ -19,39 +17,13 @@ EnvModel::EnvModel(const string& _filename) :
     BuildModels();
   }
 
-EnvModel::~EnvModel(){
-
-  FreeMemory();
+EnvModel::~EnvModel() {
+  typedef vector<MultiBodyModel*>::const_iterator MIT;
+  for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
+    delete *mit;
 }
 
 //////////Load Functions//////////
-void
-EnvModel::GetColor(istream& _is){
-
-  string line;
-  while(!_is.eof()){
-
-    char c;
-    while(isspace(_is.peek()))
-      _is.get(c);
-
-    c = _is.peek();
-    if(!IsCommentLine(c))
-      return;
-    else{
-      getline(_is, line);
-      //colors begin with VIZMO_COLOR
-      if(line[7] == 'C'){
-        size_t loc = line.find(" ");
-        string sub = line.substr(loc+1);
-        istringstream iss(sub);
-        if(!(iss >> m_color[0] >> m_color[1] >>  m_color[2]))
-          cerr << "Warning: Error loading vizmo color." << endl;
-      }
-    }
-  }
-}
-
 void
 EnvModel::ParseFile(){
 
@@ -61,52 +33,41 @@ EnvModel::ParseFile(){
   //Open file for reading data
   ifstream ifs(GetFilename().c_str());
 
-  ParseFileHeader(ifs);
-  ParseFileBody(ifs);
-}
-
-void
-EnvModel::SetModelDataDir(const string _modelDataDir){
-  m_modelDataDir = _modelDataDir;
-  cout<<"- Geo Dir   : "<< m_modelDataDir << endl;
-}
-
-void
-EnvModel::SetNewMultiBodyInfo(MultiBodyInfo* _mbi){
-  for(int i = 0; i < m_numMultiBodies; i++)
-    m_mbInfo[i] = _mbi[i];
-}
-
-void
-EnvModel::FreeMemory(){
-  if(m_mbInfo != NULL)
-    delete [] m_mbInfo;
-  m_mbInfo = NULL;
-}
-
-void
-EnvModel::ParseFileHeader(ifstream& _ifs){
-
   //Read boundary
-  string b = ReadFieldString(_ifs, WHERE,
+  string b = ReadFieldString(ifs, WHERE,
       "Failed reading boundary tag.");
 
   if(b != "BOUNDARY")
     throw ParseException(WHERE,
         "Failed reading boundary tag ' " + b + " '.");
 
-  ParseBoundary(_ifs);
+  ParseBoundary(ifs);
 
   //Read number of multibodies
-  string mb = ReadFieldString(_ifs, WHERE,
+  string mb = ReadFieldString(ifs, WHERE,
       "Failed reading Multibodies tag");
 
   if(mb != "MULTIBODIES")
     throw ParseException(WHERE,
         "Failed reading multibodies tag. Read " + mb + ".");
 
-  m_numMultiBodies = ReadField<int>(_ifs, WHERE,
+  size_t numMultiBodies = ReadField<size_t>(ifs, WHERE,
       "Failed reading number of Multibodies.");
+
+  for(size_t i = 0; i < numMultiBodies; i++) {
+    MultiBodyModel* m = new MultiBodyModel();
+    m->ParseMultiBody(ifs, m_modelDataDir);
+    m_multibodies.push_back(m);
+  }
+
+  BuildRobotStructure();
+  CfgModel::SetDOF(m_dof);
+}
+
+void
+EnvModel::SetModelDataDir(const string _modelDataDir){
+  m_modelDataDir = _modelDataDir;
+  cout<<"- Geo Dir   : "<< m_modelDataDir << endl;
 }
 
 void
@@ -126,111 +87,28 @@ EnvModel::ParseBoundary(ifstream& _ifs) {
 }
 
 void
-EnvModel::ParseFileBody(ifstream& _ifs) {
-
-  m_mbInfo = new MultiBodyInfo[m_numMultiBodies];
-  if(!m_mbInfo)
-    throw ParseException(WHERE, "Failed requesting memory for MultiBodyInfo.");
-
-  for(int i = 0; i < m_numMultiBodies; i++)
-    ParseMultiBody(_ifs, m_mbInfo[i]);
-
-  BuildRobotStructure();
-  CfgModel::SetDOF(m_dof);
-}
-
-void
-EnvModel::ParseMultiBody(ifstream& _ifs, MultiBodyInfo& _mBInfo){
-
-  string multibodyType = ReadFieldString(_ifs, WHERE,
-      "Failed reading Multibody type.");
-
-  if(multibodyType == "ACTIVE")
-    _mBInfo.m_active = true;
-  else if(multibodyType == "SURFACE"){
-    _mBInfo.m_surface = true;
-    m_containsSurfaces = true;
-  }
-
-  if(multibodyType == "ACTIVE"){
-    _mBInfo.m_numberOfBody = ReadField<int>(_ifs, WHERE,
-        "Failed reading body count");
-
-    _mBInfo.m_mBodyInfo = new BodyModel[_mBInfo.m_numberOfBody];
-    if(!_mBInfo.m_mBodyInfo)
-      throw ParseException(WHERE, "Failed requesting memory for BodyModel.");
-
-    GetColor(_ifs);
-
-    for(int i = 0; i < _mBInfo.m_numberOfBody; i++)
-      _mBInfo.m_mBodyInfo[i].ParseActiveBody(_ifs, m_modelDataDir, m_color);
-
-    //Get connection info
-    string connectionTag = ReadFieldString(_ifs, WHERE,
-        "Failed reading connections tag.");
-    size_t numberOfConnections = ReadField<size_t>(_ifs, WHERE,
-        "Failed reading number of connections");
-
-    if(numberOfConnections != 0){
-      for(size_t i = 0; i < numberOfConnections; ++i)
-        ParseConnections(_ifs, _mBInfo);
-    }
-  }
-  else if(multibodyType == "INTERNAL" ||
-      multibodyType == "SURFACE" ||
-      multibodyType == "PASSIVE") {
-
-    _mBInfo.m_numberOfBody = 1;
-    _mBInfo.m_mBodyInfo = new BodyModel[_mBInfo.m_numberOfBody];
-
-    if(!_mBInfo.m_mBodyInfo)
-      throw ParseException(WHERE, "Failed requesting memory for BodyModel.");
-
-    GetColor(_ifs);
-
-    _mBInfo.m_mBodyInfo[0].ParseOtherBody(_ifs, m_modelDataDir, m_color);
-  }
-  else
-    throw ParseException(WHERE,
-        "Unsupported body type '" + multibodyType +
-        "'. Choices are Active, Passive, Internal, or Surface.");
-}
-
-void
-EnvModel::ParseConnections(ifstream& _ifs, MultiBodyInfo& _mBInfo){
-  ConnectionModel* c = new ConnectionModel();
-  _ifs >> *c;
-  //Increment m_numberOfConnection for each body
-  BodyModel& previousBody = _mBInfo.m_mBodyInfo[c->GetPreviousIndex()];
-  previousBody.AddConnection(c);
-  _mBInfo.jointMap.push_back(c);
-}
-
-void
 EnvModel::BuildRobotStructure(){
 
   m_dof = 0;
   int robotIndex = 0;
-  for(int i = 0; i < m_numMultiBodies; i++){
-    if(m_mbInfo[i].m_active){
+  for(int i = 0; i < m_multibodies.size(); i++){
+    if(m_multibodies[i]->IsActive()){
       robotIndex = i;
       break;
     }
   }
-  MultiBodyInfo& robot = m_mbInfo[robotIndex];
+  MultiBodyModel* robot = m_multibodies[robotIndex];
     //int fixedBodyCount = robot -> GetFixedBodyCount();
     //int freeBodyCount = robot->GetFreeBodyCount();
     //int numOfBodies = robot.m_numberOfBody;
-  for(int i = 0; i < robot.m_numberOfBody; i++)
+  for(int i = 0; i < distance(robot->BodiesBegin(), robot->BodiesEnd()); i++)
     m_robotGraph.add_vertex(i);
 
   //Total amount of bodies in environment: free + fixed
-  for (int i = 0; i < robot.m_numberOfBody; i++){
+  for (MultiBodyModel::BodyIter bit = robot->BodiesBegin(); bit!=robot->BodiesEnd(); ++bit)
     //For each body, find forward connections and connect them
-    for(BodyModel::ConnectionIter cit = robot.m_mBodyInfo[i].Begin();
-        cit!=robot.m_mBodyInfo[i].End(); ++cit)
-      m_robotGraph.add_edge(i, (*cit)->GetNextIndex());
-  }
+    for(BodyModel::ConnectionIter cit = (*bit)->Begin(); cit!=(*bit)->End(); ++cit)
+      m_robotGraph.add_edge(bit-robot->BodiesBegin(), (*cit)->GetNextIndex());
 
   //Robot ID typedef
   typedef RobotGraph::vertex_descriptor RID;
@@ -248,7 +126,7 @@ EnvModel::BuildRobotStructure(){
 
     for(size_t j = 0; j < cc.size(); j++){
       size_t index = m_robotGraph.find_vertex(cc[j])->property();
-      if(robot.m_mBodyInfo[index].IsBase()){
+      if((*(robot->BodiesBegin()+index))->IsBase()){
         baseIndx = index;
         break;
       }
@@ -257,8 +135,9 @@ EnvModel::BuildRobotStructure(){
     if(baseIndx == size_t(-1))
       throw ParseException(WHERE, "Robot does not have base.");
 
-    Robot::Base bt = robot.m_mBodyInfo[baseIndx].GetBase();
-    Robot::BaseMovement bm = robot.m_mBodyInfo[baseIndx].GetBaseMovement();
+    const BodyModel* base = *(robot->BodiesBegin() + baseIndx);
+    Robot::Base bt = base->GetBase();
+    Robot::BaseMovement bm = base->GetBaseMovement();
     if(bt == Robot::PLANAR){
       m_dof += 2;
       if(bm == Robot::ROTATIONAL){
@@ -275,8 +154,8 @@ EnvModel::BuildRobotStructure(){
     Robot::JointMap jm;
     for(size_t j = 0; j<cc.size(); j++){
       int index = m_robotGraph.find_vertex(cc[j])->property();
-      typedef Robot::JointMap::iterator MIT;
-      for(MIT mit = robot.GetJointMap().begin(); mit!=robot.GetJointMap().end(); mit++){
+      typedef Robot::JointMap::const_iterator MIT;
+      for(MIT mit = robot->GetJointMap().begin(); mit!=robot->GetJointMap().end(); mit++){
         if((*mit)->GetPreviousIndex() == index){
           jm.push_back(*mit);
           if((*mit)->GetJointType() == ConnectionModel::REVOLUTE){
@@ -303,29 +182,18 @@ EnvModel::BuildModels(){
     throw BuildException(WHERE, "Boundary is NULL");
   m_boundary->BuildModels();
 
-  //Create MutileBody Model
-  int numMBs = GetNumMultiBodies();
-  m_mbModels.reserve(numMBs);
-
   //Build each
-  Vector3d com;
-  for(int i = 0; i < numMBs; i++){
-    MultiBodyModel* m = new MultiBodyModel(GetMultiBodyInfo()[i]);
-
-    if(!m)
-      throw BuildException(WHERE, "MultiBody is NULL");
-    m->BuildModels();
-
-    com = com + (m->GetCOM()-Point3d(0,0,0));
-    m_mbModels.push_back(m);
+  typedef vector<MultiBodyModel*>::const_iterator MIT;
+  for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit) {
+    (*mit)->BuildModels();
+    m_centerOfMass += (*mit)->GetCOM();
   }
-  for(int i = 0; i < 3; i++)
-    m_centerOfMass[i] = com[i]/numMBs;
+
+  m_centerOfMass /= m_multibodies.size();
 
   //Compute radius
-  for(int i = 0; i < numMBs; i++){
-    double dist = (m_mbModels[i]->GetCOM() - m_centerOfMass).norm()
-    + m_mbModels[i]->GetRadius();
+  for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit) {
+    double dist = ((*mit)->GetCOM() - m_centerOfMass).norm() + (*mit)->GetRadius();
     if(m_radius < dist)
       m_radius = dist;
   }
@@ -337,7 +205,7 @@ EnvModel::Draw(GLenum _mode) {
   if(_mode == GL_SELECT && !m_enableSelection)
     return;
 
-  int numMBs = m_mbModels.size();
+  int numMBs = m_multibodies.size();
   if(_mode == GL_SELECT)
     glPushName(numMBs);
 
@@ -348,10 +216,10 @@ EnvModel::Draw(GLenum _mode) {
 
   glLineWidth(1);
   for(int i = 0; i < numMBs; i++){
-    if(m_mbModels[i]->IsFixed()){
+    if(!m_multibodies[i]->IsActive()){
       if(_mode == GL_SELECT)
         glPushName(i);
-      m_mbModels[i]->Draw(_mode);
+      m_multibodies[i]->Draw(_mode);
       if(_mode == GL_SELECT)
         glPopName();
     }
@@ -360,27 +228,27 @@ EnvModel::Draw(GLenum _mode) {
 
 void
 EnvModel::ChangeColor(){
-  int numMBs = m_mbModels.size();
+  int numMBs = m_multibodies.size();
   for(int i = 0; i < numMBs; i++)
-    m_mbModels[i]->SetColor(Color4(drand48(), drand48(), drand48(), 1));
+    m_multibodies[i]->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }
 
 void
 EnvModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
   //unselect old one
-  if(!_index || *_index > m_mbModels.size()) //input error
+  if(!_index || *_index > m_multibodies.size()) //input error
     return;
-  else if(*_index == m_mbModels.size())
+  else if(*_index == m_multibodies.size())
     m_boundary->Select(_index+1, _sel);
   else
-    m_mbModels[_index[0]]->Select(_index+1, _sel);
+    m_multibodies[_index[0]]->Select(_index+1, _sel);
 }
 
 void
 EnvModel::GetChildren(list<GLModel*>& _models){
   typedef vector<MultiBodyModel *>::iterator MIT;
-  for(MIT i = m_mbModels.begin(); i != m_mbModels.end(); i++){
-    if((*i)->IsFixed())
+  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); i++){
+    if(!(*i)->IsActive())
       _models.push_back(*i);
   }
   _models.push_back(m_boundary);
@@ -392,47 +260,28 @@ EnvModel::GetInfo() const{
   info.push_back(GetFilename());
 
   ostringstream temp;
-  temp << "There are " << m_mbModels.size() << " multibodies";
+  temp << "There are " << m_multibodies.size() << " multibodies";
   info.push_back(temp.str());
 
   return info;
-}
-
-vector<vector<PolyhedronModel> >
-EnvModel::GetMBPolyLists(){
-
-  int numMBs = m_mbModels.size();
-  vector<vector<PolyhedronModel> > pPoly;
-
-  for(int i = 0; i < numMBs; i++)
-    pPoly.push_back(m_mbModels[i]->GetPolyhedron());
-
-  return pPoly;
 }
 
 void
 EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
 
   vector<MultiBodyModel*>::iterator mbit;
-  for(mbit = m_mbModels.begin(); mbit != m_mbModels.end(); mbit++){
+  for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){
     if((*mbit) == _mbl){
-      m_mbModels.erase(mbit);
+      m_multibodies.erase(mbit);
       break;
     }
   }
 }
 
 void
-EnvModel::AddMBModel(MultiBodyInfo _newMBI){
-
-  int numMBs = GetNumMultiBodies();
-  int i = numMBs - 1;
-
-  MultiBodyModel* m = new MultiBodyModel(GetMultiBodyInfo()[i]);
-  m->BuildModels();
-  Vector3d com;
-  com = com+(m->GetCOM()-Point3d(0,0,0));
-  m_mbModels.push_back(m);
+EnvModel::AddMBModel(MultiBodyModel* _m){
+  _m->BuildModels();
+  m_multibodies.push_back(_m);
 }
 
 bool

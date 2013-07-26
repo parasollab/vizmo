@@ -213,10 +213,7 @@ void Vizmo::TurnOn_CD(){
   for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit)
     m_objName = (*mit)->GetName();
   EnvModel* env = m_envModel;
-  //CEnvLoader* envLoader=(CEnvLoader*)m_envModel->GetLoader();
   if(env != NULL){ //previously checked if loader was null
-    //int MBnum = envLoader->GetNumberOfMultiBody();
-    int MBnum = env->GetNumMultiBodies();
 
     RobotModel* robot = m_robotModel;
 
@@ -236,7 +233,7 @@ void Vizmo::TurnOn_CD(){
     }
 
     bool b = false;
-    b = CD.IsInCollision(MBnum, env, robotModel, robot);
+    b = CD.IsInCollision(0, env, robotModel, robot);
     is_collison = b;
 
     if (b){
@@ -801,10 +798,6 @@ Vizmo::PlaceRobot(){
       r->InitialCfg(cfg);
     }
   }
-}
-
-int Vizmo::getNumJoints(){
-  return m_robotModel ? m_robotModel->getNumJoints() : -1;
 }
 
 bool

@@ -1,69 +1,62 @@
 #ifndef MULTIBODYMODEL_H_
 #define MULTIBODYMODEL_H_
 
-#include "MultiBodyInfo.h"
 #include "Plum/GLModel.h"
-#include "Models/PolyhedronModel.h"
+#include "RobotInfo.h"
+
+class PolyhedronModel;
+class BodyModel;
 
 class MultiBodyModel : public GLModel{
   public:
-    //////////////////////////////////////////////////////////////////////
-    // Cons/Des
-    MultiBodyModel(const MultiBodyInfo& m_mbInfo);
+    MultiBodyModel();
+    ~MultiBodyModel();
 
-    //////////////////////////////////////////////////////////////////////
-    // Core
-    //////////////////////////////////////////////////////////////////////
+    //access properties
+    virtual const string GetName() const{return "MultiBody";}
+    virtual vector<string> GetInfo() const;
+    virtual void GetChildren(list<GLModel*>& _models);
+    bool IsActive() const{return m_active;}
+    const Point3d& GetCOM() const {return m_com;}
+    double GetRadius() const {return m_radius;}
+    virtual void SetRenderMode(RenderMode _mode);
+    virtual void SetColor(const Color4& _c);
+
+    //access polyhedron
+    typedef vector<PolyhedronModel*>::const_iterator PolyhedronIter;
+    PolyhedronIter PolyhedronsBegin() const {return m_polyhedrons.begin();}
+    PolyhedronIter PolyhedronsEnd() const {return m_polyhedrons.end();}
+
+    //access bodies
+    typedef vector<BodyModel*>::const_iterator BodyIter;
+    BodyIter BodiesBegin() const {return m_bodies.begin();}
+    BodyIter BodiesEnd() const {return m_bodies.end();}
+
+    //access joints
+    const Robot::JointMap& GetJointMap() const {return m_jointMap;}
+
+    //drawing
     virtual void BuildModels();
-    virtual void Select(unsigned int* _index, vector<GLModel*>& sel);
-
-    //Draw
     virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
+    virtual void Select(unsigned int* _index, vector<GLModel*>& sel);
 
-    //set wire/solid/hide
-    virtual void SetRenderMode(RenderMode _mode);
-    virtual void SetColor(const Color4& _c) {
-      GLModel::SetColor(_c);
-      for(size_t i=0; i<m_poly.size(); i++)
-        m_poly[i].SetColor(_c);
-    }
-
-    virtual const string GetName() const{return "MultiBody";}
-
-    virtual void GetChildren(list<GLModel*>& _models){
-      for(size_t i=0; i<m_poly.size(); i++)
-        _models.push_back(&m_poly[i]);
-    }
-
-    virtual vector<string> GetInfo() const;
-    //used to print the confg. of the MultiBody
-    void SetCfg(vector<double>& _cfg);
-    virtual void Scale(double x, double y, double z);
-
-    //////////////////////////////////////////////////////////////////////
-    // Access
-    //////////////////////////////////////////////////////////////////////
-    void SetAsFree(bool free=true){m_fixed = !free;}
-
-    double GetRadius() const{return m_radius;}
-    const Point3d& GetCOM() const{return m_com;}
-    vector<PolyhedronModel>& GetPolyhedron(){return m_poly;}
-    const MultiBodyInfo& GetMBinfo(){return m_mbInfo;}
-    bool IsFixed() const{return m_fixed;}
+    //IO
+    void ParseMultiBody(istream& _is, const string& _modelDir);
 
     //public variables
-    double m_posX, posY, posZ;
-    list<GLModel*> m_objlist; // to have access from glitransTool class
+    //double m_posX, posY, posZ;
+    //list<GLModel*> m_objlist; // to have access from glitransTool class
 
   private:
-    const MultiBodyInfo& m_mbInfo; //a reference to the MultiBodyInfo
-    vector<PolyhedronModel> m_poly;
-
-    bool m_fixed; //is this multibody fixed. i.e obstacle
-    double m_radius; //Radius
+    bool m_active; //Active or passive?
+    bool m_surface;//is surface? default is false
     Point3d m_com; // center of mass
-    vector<double> m_cfg;
+    double m_radius; //Radius
+
+    vector<PolyhedronModel*> m_polyhedrons;
+    vector<BodyModel*> m_bodies;
+    Robot::JointMap m_jointMap;
 };
 
 #endif
