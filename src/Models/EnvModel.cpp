@@ -202,7 +202,7 @@ EnvModel::ParseConnections(ifstream& _ifs, MultiBodyInfo& _mBInfo){
   _ifs >> *c;
   //Increment m_numberOfConnection for each body
   BodyModel& previousBody = _mBInfo.m_mBodyInfo[c->GetPreviousIndex()];
-  previousBody.GetConnections().push_back(c);
+  previousBody.AddConnection(c);
   _mBInfo.jointMap.push_back(c);
 }
 
@@ -227,9 +227,8 @@ EnvModel::BuildRobotStructure(){
   //Total amount of bodies in environment: free + fixed
   for (int i = 0; i < robot.m_numberOfBody; i++){
     //For each body, find forward connections and connect them
-    vector<ConnectionModel*>& connections = robot.m_mBodyInfo[i].GetConnections();
-    typedef vector<ConnectionModel*>::iterator CIT;
-    for(CIT cit = connections.begin(); cit!=connections.end(); ++cit)
+    for(BodyModel::ConnectionIter cit = robot.m_mBodyInfo[i].Begin();
+        cit!=robot.m_mBodyInfo[i].End(); ++cit)
       m_robotGraph.add_edge(i, (*cit)->GetNextIndex());
   }
 

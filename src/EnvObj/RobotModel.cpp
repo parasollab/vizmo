@@ -282,8 +282,7 @@ void RobotModel::Configure(double* cfg) {
       int nextBodyIdx = (*mit)->GetNextIndex(); //index of next Body
       BodyModel& nextBody = MBInfo[robIndx].m_mBodyInfo[nextBodyIdx];
 
-      typedef vector<ConnectionModel*>::iterator CIT;
-      for(CIT cit = currentBody.GetConnections().begin(); cit!=currentBody.GetConnections().end(); ++cit){
+      for(BodyModel::ConnectionIter cit = currentBody.Begin(); cit!=currentBody.End(); ++cit){
         if((*cit)->GetPreviousIndex() == currentBodyIdx && (*cit)->GetNextIndex() == nextBodyIdx){
           (*cit)->SetAlpha(alpha);
           (*cit)->SetTheta(theta);
