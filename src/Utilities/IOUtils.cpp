@@ -72,5 +72,6 @@ GetColorFromComment(istream& _is) {
       }
     }
   }
+  return Color4();
 }
 
