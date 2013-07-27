@@ -8,7 +8,7 @@
 
 #include "CollisionDetection.h"
 
-#include "Models/PolyhedronModel.h"
+#include "Plum/EnvObj/BodyModel.h"
 
 //////////////////////////////
 // Constructor / Destructor
@@ -169,24 +169,24 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
     fv[0] = nodeCfg[3]; fv[1] = nodeCfg[4]; fv[2] = nodeCfg[5];
   }
 
-  for(MultiBodyModel::PolyhedronIter rpit = robot->PolyhedronsBegin();
-      rpit!=robot->PolyhedronsEnd(); ++rpit) {
+  for(MultiBodyModel::BodyIter rbit = robot->Begin();
+      rbit!=robot->End(); ++rbit) {
     //get RAPID model for ROBOT
-    RMrobot = (*rpit)->GetRapidModel();
+    RMrobot = (*rbit)->GetRapidModel();
 
-    for(MultiBodyModel::PolyhedronIter opit = obstacle->PolyhedronsBegin();
-        opit!=obstacle->PolyhedronsEnd(); ++opit) {
+    for(MultiBodyModel::BodyIter obit = obstacle->Begin();
+        obit!=obstacle->End(); ++obit) {
       //get RAPID model for OBSTACLE
-      RMobst = (*opit)->GetRapidModel();
+      RMobst = (*obit)->GetRapidModel();
 
       //Get Position and orientation Matrix for robot and obstacle
       //Get those values from Tranformation IF the robot was
       //moved with the animation tool
       //use tx, ty, tz, rx, ry, rz variables otherwise
       if(!test_node){
-        pRt[0] = (*rpit)->tx()+ robot->tx();
-        pRt[1] = (*rpit)->ty()+ robot->ty();
-        pRt[2] = (*rpit)->tz()+ robot->tz();
+        pRt[0] = (*rbit)->tx()+ robot->tx();
+        pRt[1] = (*rbit)->ty()+ robot->ty();
+        pRt[2] = (*rbit)->tz()+ robot->tz();
         //rotation link0
         //Need to compute rotation from Quaternion
 
@@ -209,7 +209,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
         EulerAngle etmp;
         convertFromQuaternion(etmp, finalQ);
 
-        if(rpit == robot->PolyhedronsBegin()){
+        if(rbit == robot->Begin()){
           pR[0] = pRt[0]; pR[1] = pRt[1]; pR[2] = pRt[2];
           convertFromEuler(m, etmp);
         }
@@ -243,11 +243,11 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
             robotObj->BackUp();
             robotObj->Configure(CurrCfg);
 
-            pR[0] = (*rpit)->tx();
-            pR[1] = (*rpit)->ty();
-            pR[2] = (*rpit)->tz();
+            pR[0] = (*rbit)->tx();
+            pR[1] = (*rbit)->ty();
+            pR[2] = (*rbit)->tz();
 
-            Quaternion qtmp = (*rpit)->q();
+            Quaternion qtmp = (*rbit)->q();
             convertFromQuaternion(m, qtmp);
 
             robotObj->Restore();
@@ -259,18 +259,18 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
         pRt[0] = nodeCfg[0]; pRt[1] = nodeCfg[1]; pRt[2] =  nodeCfg[2];
 
         //IF IS ARTICULATED
-        if(rpit == robot->PolyhedronsBegin()){
+        if(rbit == robot->Begin()){
 
           pR[0] = pRt[0]; pR[1] = pRt[1]; pR[2] = pRt[2];
 
           convertFromEuler(m, EulerAngle(fv[2], fv[1], fv[0]));
         }
         else{
-          pR[0] = (*rpit)->tx();
-          pR[1] = (*rpit)->ty();
-          pR[2] = (*rpit)->tz();
+          pR[0] = (*rbit)->tx();
+          pR[1] = (*rbit)->ty();
+          pR[2] = (*rbit)->tz();
 
-          Quaternion qtmp = (*rpit)->q();
+          Quaternion qtmp = (*rbit)->q();
           convertFromQuaternion(m, qtmp);
         }
       }// NODE

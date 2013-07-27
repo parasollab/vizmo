@@ -6,18 +6,27 @@ using namespace mathtool;
 
 #include "Utilities/Color.h"
 #include "RobotInfo.h"
+#include "Models/PolyhedronModel.h"
 
 class ConnectionModel;
 
-class BodyModel {
+class BodyModel : public GLModel {
   public:
-    BodyModel();
+    BodyModel(bool _isSurface = false);
     ~BodyModel();
 
-    //geometry filename and color
+    //properties
+    virtual const string GetName() const{return "Body";}
+    virtual vector<string> GetInfo() const;
+    virtual void GetChildren(list<GLModel*>& _models);
     const string& GetFilename() const {return m_filename;}
     const string& GetModelFilename() const {return m_modelFilename;}
-    const Color4& GetColor() const {return m_color;}
+    const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
+    double GetRadius() const {return m_polyhedronModel->GetRadius();}
+    //PolyhedronModel* GetPolyhedronModel() const {return m_polyhedronModel;}
+    RAPID_model* GetRapidModel() const {return m_polyhedronModel->GetRapidModel();}
+    virtual void SetRenderMode(RenderMode _mode);
+    virtual void SetColor(const Color4& _c);
 
     //base properties
     bool IsFixed() const {return m_isFixed;}
@@ -43,7 +52,12 @@ class BodyModel {
     //Return actual (previous*current) transformation
     //Compute prevtranform * TDH * dh * TBody2
     //receives the Body THIS body is connected to, the id of that connection
-    void ComputeTransform(const BodyModel& _body, int _nextBody);
+    void ComputeTransform(const BodyModel* _body, size_t _nextBody);
+
+    void BuildModels() {}
+    void Draw(GLenum _mode);
+    void DrawSelect();
+    void Select(unsigned int* _index, vector<GLModel*>& sel) {m_polyhedronModel->Select(_index, sel);}
 
     //file IO
     void ParseActiveBody(istream& _is, const string& _modelDataDir, const Color4 _color);
@@ -52,7 +66,7 @@ class BodyModel {
 
   private:
     string m_directory, m_filename, m_modelFilename; //dir, file, dir+'/'+file
-    Color4 m_color; //store initial color (read from env. file)
+    PolyhedronModel* m_polyhedronModel;
 
     bool m_isFixed, m_isSurface, m_isBase;
     Robot::Base m_baseType;

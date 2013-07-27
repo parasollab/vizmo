@@ -91,7 +91,7 @@ EnvModel::BuildRobotStructure(){
 
   m_dof = 0;
   int robotIndex = 0;
-  for(int i = 0; i < m_multibodies.size(); i++){
+  for(size_t i = 0; i < m_multibodies.size(); i++){
     if(m_multibodies[i]->IsActive()){
       robotIndex = i;
       break;
@@ -101,14 +101,14 @@ EnvModel::BuildRobotStructure(){
     //int fixedBodyCount = robot -> GetFixedBodyCount();
     //int freeBodyCount = robot->GetFreeBodyCount();
     //int numOfBodies = robot.m_numberOfBody;
-  for(int i = 0; i < distance(robot->BodiesBegin(), robot->BodiesEnd()); i++)
+  for(int i = 0; i < distance(robot->Begin(), robot->End()); i++)
     m_robotGraph.add_vertex(i);
 
   //Total amount of bodies in environment: free + fixed
-  for (MultiBodyModel::BodyIter bit = robot->BodiesBegin(); bit!=robot->BodiesEnd(); ++bit)
+  for (MultiBodyModel::BodyIter bit = robot->Begin(); bit!=robot->End(); ++bit)
     //For each body, find forward connections and connect them
     for(BodyModel::ConnectionIter cit = (*bit)->Begin(); cit!=(*bit)->End(); ++cit)
-      m_robotGraph.add_edge(bit-robot->BodiesBegin(), (*cit)->GetNextIndex());
+      m_robotGraph.add_edge(bit-robot->Begin(), (*cit)->GetNextIndex());
 
   //Robot ID typedef
   typedef RobotGraph::vertex_descriptor RID;
@@ -126,7 +126,7 @@ EnvModel::BuildRobotStructure(){
 
     for(size_t j = 0; j < cc.size(); j++){
       size_t index = m_robotGraph.find_vertex(cc[j])->property();
-      if((*(robot->BodiesBegin()+index))->IsBase()){
+      if((*(robot->Begin()+index))->IsBase()){
         baseIndx = index;
         break;
       }
@@ -135,7 +135,7 @@ EnvModel::BuildRobotStructure(){
     if(baseIndx == size_t(-1))
       throw ParseException(WHERE, "Robot does not have base.");
 
-    const BodyModel* base = *(robot->BodiesBegin() + baseIndx);
+    const BodyModel* base = *(robot->Begin() + baseIndx);
     Robot::Base bt = base->GetBase();
     Robot::BaseMovement bm = base->GetBaseMovement();
     if(bt == Robot::PLANAR){
@@ -153,7 +153,7 @@ EnvModel::BuildRobotStructure(){
 
     Robot::JointMap jm;
     for(size_t j = 0; j<cc.size(); j++){
-      int index = m_robotGraph.find_vertex(cc[j])->property();
+      size_t index = m_robotGraph.find_vertex(cc[j])->property();
       typedef Robot::JointMap::const_iterator MIT;
       for(MIT mit = robot->GetJointMap().begin(); mit!=robot->GetJointMap().end(); mit++){
         if((*mit)->GetPreviousIndex() == index){

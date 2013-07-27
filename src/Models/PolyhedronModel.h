@@ -12,7 +12,7 @@ class PolyhedronModel : public GLModel {
     typedef vector<Point3d> PtVector;
     typedef vector<Tri> TriVector;
 
-    PolyhedronModel();
+    PolyhedronModel(BodyModel* _bodyModel);
     ~PolyhedronModel();
 
     const string GetName() const;
@@ -22,8 +22,6 @@ class PolyhedronModel : public GLModel {
     const Point3d& GetCOM() const {return m_com;}
 
     RAPID_model* GetRapidModel() const {return m_rapidModel;}
-
-    void SetBodyModel(BodyModel* _bodyModel) {m_bodyModel = _bodyModel;}
 
     void BuildModels();
     void Draw(GLenum _mode);

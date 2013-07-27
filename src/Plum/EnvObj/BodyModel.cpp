@@ -1,19 +1,43 @@
 #include "BodyModel.h"
 
 #include "ConnectionModel.h"
+#include "Models/PolyhedronModel.h"
 #include "Utilities/IOUtils.h"
 
-BodyModel::BodyModel() : m_isSurface(false), m_currentTransform() {
+BodyModel::BodyModel(bool _isSurface) : m_isSurface(_isSurface), m_currentTransform() {
 }
 
-BodyModel::~BodyModel(){
+BodyModel::~BodyModel() {
+  delete m_polyhedronModel;
   for(ConnectionIter cit = Begin(); cit!=End(); ++cit)
     delete *cit;
 }
 
+vector<string>
+BodyModel::GetInfo() const {
+  return m_polyhedronModel->GetInfo();
+}
+
 void
-BodyModel::ComputeTransform(const BodyModel& _body, int _nextBody){
-  for(ConnectionIter cit = _body.Begin(); cit!=_body.End(); ++cit) {
+BodyModel::GetChildren(list<GLModel*>& _models) {
+  _models.push_back(m_polyhedronModel);
+}
+
+void
+BodyModel::SetRenderMode(RenderMode _mode) {
+  GLModel::SetRenderMode(_mode);
+  m_polyhedronModel->SetRenderMode(_mode);
+}
+
+void
+BodyModel::SetColor(const Color4& _c) {
+  GLModel::SetColor(_c);
+  m_polyhedronModel->SetColor(_c);
+}
+
+void
+BodyModel::ComputeTransform(const BodyModel* _body, size_t _nextBody){
+  for(ConnectionIter cit = _body->Begin(); cit!=_body->End(); ++cit) {
     if((*cit)->GetNextIndex() == _nextBody) {
       Transformation dh = (*cit)->DHTransform();
       const Transformation& tdh = (*cit)->TransformToDHFrame();
@@ -23,6 +47,26 @@ BodyModel::ComputeTransform(const BodyModel& _body, int _nextBody){
     }
   }
   cerr << "Compute transform error. Connection not found." << endl;
+}
+
+void
+BodyModel::Draw(GLenum _mode) {
+  glColor4fv(GetColor());
+  glPushMatrix();
+  glTransform();
+  glScale();
+  m_polyhedronModel->Draw(_mode);
+  glPopMatrix();
+}
+
+void
+BodyModel::DrawSelect() {
+  glLineWidth(2);
+  glPushMatrix();
+  glTransform();
+  glColor3d(1,1,0);
+  m_polyhedronModel->DrawSelect();
+  glPopMatrix();
 }
 
 void
@@ -57,8 +101,10 @@ BodyModel::ParseActiveBody(istream& _is, const string& _modelDataDir, const Colo
     m_currentTransform = ReadField<Transformation>(_is, WHERE, "Failed reading body transformation");
   }
 
+  m_polyhedronModel = new PolyhedronModel(this);
+
   //Set color information
-  m_color = _color;
+  SetColor(_color);
 }
 
 void
@@ -79,11 +125,14 @@ BodyModel::ParseOtherBody(istream& _is, const string& _modelDataDir, const Color
   //read transformation
   m_currentTransform = ReadField<Transformation>(_is, WHERE, "Failed reading body transformation");
 
+  m_polyhedronModel = new PolyhedronModel(this);
+
   //Set color information
-  m_color = _color;
+  SetColor(_color);
 }
 
 ostream&
 operator<<(ostream& _os, const BodyModel& _b) {
+  return _os;
 }
 

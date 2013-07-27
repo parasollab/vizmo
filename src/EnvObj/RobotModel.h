@@ -176,7 +176,6 @@ class RobotModel : public GLModel {
     MultiBodyModel* m_robotModel;
 
     double m_polyXBack, m_polyYBack, m_polyZBack;
-    vector<PolyhedronModel> m_poly;
     //MultiBodyModel * mbRobotBackUp;
     double * mbRobotBackUp;
     double * tempCfg;

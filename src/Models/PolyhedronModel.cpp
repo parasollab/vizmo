@@ -14,8 +14,11 @@
 #include "ModelGraph/ModelGraph.h"
 using namespace modelgraph;
 
-PolyhedronModel::PolyhedronModel() : m_solidID(-1), m_wiredID(-1), m_rapidModel(NULL) {
-}
+PolyhedronModel::PolyhedronModel(BodyModel* _bodyModel)
+  : m_solidID(-1), m_wiredID(-1), m_bodyModel(_bodyModel), m_rapidModel(NULL) {
+    BuildModels();
+    SetColor(m_bodyModel->GetColor());
+  }
 
 PolyhedronModel::~PolyhedronModel(){
   delete m_rapidModel;
@@ -92,11 +95,6 @@ void PolyhedronModel::Draw(GLenum _mode) {
   if(m_solidID == size_t(-1)) return;
   if(m_renderMode == INVISIBLE_MODE) return;
 
-  glColor4fv(GetColor());
-  glPushMatrix();
-  glTransform();
-  glScale();
-
   if(m_renderMode == SOLID_MODE){
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(2.0, 2.0);
@@ -107,17 +105,10 @@ void PolyhedronModel::Draw(GLenum _mode) {
   }
   else
     glCallList(m_wiredID);
-
-  glPopMatrix();
 }
 
 void PolyhedronModel::DrawSelect() {
-  glLineWidth(2);
-  glPushMatrix();
-  glTransform();
-  glColor3d(1,1,0);
   glCallList(m_wiredID);
-  glPopMatrix();
 }
 
 //build models, given points and triangles

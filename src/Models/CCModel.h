@@ -108,7 +108,7 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
       m_enableSelection = true;
       m_renderMode = INVISIBLE_MODE;
       //Set random Color
-      SetColor(Color4(drand48(), drand48(), drand48(), 1));
+      GLModel::SetColor(Color4(drand48(), drand48(), drand48(), 1));
       //size
       m_robotScale = 1;
       m_boxScale = 1;

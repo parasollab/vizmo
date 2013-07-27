@@ -91,8 +91,8 @@ void RobotModel::InitialCfg(vector<double>& cfg){
    }
 
    //save original size and color
-   PolyhedronModel* poly = *m_robotModel->PolyhedronsBegin();
-   m_originalColor = poly->GetColor();
+   BodyModel* body = *m_robotModel->Begin();
+   m_originalColor = body->GetColor();
    originalSize[0]=sx();
    originalSize[1]=sy();
    originalSize[2]=sz();
@@ -118,22 +118,22 @@ void RobotModel::RestoreInitCfg(){
    //set robot to its current color and original size
    this->Scale(originalSize[0],originalSize[1],originalSize[2]);
    //this->SetColor(originalR,originalG,originalB,this->GetColor()[3]);
-   PolyhedronModel* poly = *m_robotModel->PolyhedronsBegin();
-   this->SetColor(poly->GetColor());
+   BodyModel* body = *m_robotModel->Begin();
+   this->SetColor(body->GetColor());
 }
 
 void RobotModel::BackUp() {
   m_renderModeBackUp = m_renderMode;
 
-  PolyhedronModel* poly = *m_robotModel->PolyhedronsBegin();
+  BodyModel* body = *m_robotModel->Begin();
 
-  m_polyXBack = poly->tx();
-  m_polyYBack = poly->ty();
-  m_polyZBack = poly->tz();
+  m_polyXBack = body->tx();
+  m_polyYBack = body->ty();
+  m_polyZBack = body->tz();
 
-  R = poly->GetColor()[0];
-  G = poly->GetColor()[1];
-  B = poly->GetColor()[2];
+  R = body->GetColor()[0];
+  G = body->GetColor()[1];
+  B = body->GetColor()[2];
 
   o_s[0]=sx();
   o_s[1]=sy();
@@ -192,8 +192,8 @@ void RobotModel::Configure(double* cfg) {
     RotFstBody[i] = cfg[i];
   }
 
-  for(MultiBodyModel::BodyIter bit = m_robotModel->BodiesBegin();
-      bit != m_robotModel->BodiesEnd(); ++bit)
+  for(MultiBodyModel::BodyIter bit = m_robotModel->Begin();
+      bit != m_robotModel->End(); ++bit)
     (*bit)->ResetTransform();
 
   int index=0;
@@ -223,26 +223,25 @@ void RobotModel::Configure(double* cfg) {
       }
     }
 
-    PolyhedronModel* poly = *(m_robotModel->PolyhedronsBegin() + rit->m_bodyIndex);
-    BodyModel* base = *(m_robotModel->BodiesBegin() + rit->m_bodyIndex);
+    BodyModel* body = *(m_robotModel->Begin() + rit->m_bodyIndex);
     //step from PMPL
-    poly->tx()=x;
-    poly->ty()=y;
-    poly->tz()=z;
+    body->tx()=x;
+    body->ty()=y;
+    body->tz()=z;
 
-    poly->rx() = alpha;
-    poly->ry() = beta;
-    poly->rz() = gamma;
+    body->rx() = alpha;
+    body->ry() = beta;
+    body->rz() = gamma;
 
     Transformation t(Vector3d(x, y, z),
         Orientation(EulerAngle(gamma, beta, alpha)));
-    base->SetTransform(t);
-    base->SetTransformDone(true);
+    body->SetTransform(t);
+    body->SetTransformDone(true);
 
     //compute rotation
     Quaternion q;
     convertFromMatrix(q, t.rotation().matrix());
-    poly->q(q.normalized()); //set new q
+    body->q(q.normalized()); //set new q
 
     //now for the joints of the robot
     //this code from PMPL
@@ -258,10 +257,10 @@ void RobotModel::Configure(double* cfg) {
         index++;
       }
 
-      int currentBodyIdx = (*mit)->GetPreviousIndex(); //index of current Body
-      BodyModel* currentBody = *(m_robotModel->BodiesBegin() + currentBodyIdx);
-      int nextBodyIdx = (*mit)->GetNextIndex(); //index of next Body
-      BodyModel* nextBody = *(m_robotModel->BodiesBegin() + nextBodyIdx);
+      size_t currentBodyIdx = (*mit)->GetPreviousIndex(); //index of current Body
+      BodyModel* currentBody = *(m_robotModel->Begin() + currentBodyIdx);
+      size_t nextBodyIdx = (*mit)->GetNextIndex(); //index of next Body
+      BodyModel* nextBody = *(m_robotModel->Begin() + nextBodyIdx);
 
       for(BodyModel::ConnectionIter cit = currentBody->Begin(); cit!=currentBody->End(); ++cit){
         if((*cit)->GetPreviousIndex() == currentBodyIdx && (*cit)->GetNextIndex() == nextBodyIdx){
@@ -274,20 +273,18 @@ void RobotModel::Configure(double* cfg) {
       if(!nextBody->IsTransformDone()) {
 
         nextBody->SetPrevTransform(currentBody->GetTransform());
-        nextBody->ComputeTransform(*currentBody, nextBodyIdx);
+        nextBody->ComputeTransform(currentBody, nextBodyIdx);
         nextBody->SetTransformDone(true);
 
-        PolyhedronModel* poly = *(m_robotModel->PolyhedronsBegin() + nextBodyIdx);
-
-        poly->tx() = nextBody->GetTransform().translation()[0];
-        poly->ty() = nextBody->GetTransform().translation()[1];
-        poly->tz() = nextBody->GetTransform().translation()[2];
+        nextBody->tx() = nextBody->GetTransform().translation()[0];
+        nextBody->ty() = nextBody->GetTransform().translation()[1];
+        nextBody->tz() = nextBody->GetTransform().translation()[2];
 
         //compute rotation
         Quaternion q;
         convertFromMatrix(q,
             nextBody->GetTransform().rotation().matrix());
-        poly->q(q.normalized()); //set new q
+        nextBody->q(q.normalized()); //set new q
       }
     }
   }
