@@ -393,9 +393,6 @@ void Vizmo::ChangeAppearance(int status)
   if(robot != NULL){
     robot->Restore();
   }
-
-  UpdateSelection();
-
 }
 
 void Vizmo::DeleteObject(MultiBodyModel *mbl){
@@ -635,73 +632,6 @@ void Vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
     }
   }
 }
-
-void Vizmo::UpdateSelection(){
-
-
-  if( m_robotModel==NULL )
-    return;
-
-  if( m_mapModel==NULL && m_debugModel==NULL)
-    return;
-
-  typedef MapModel<CfgModel,EdgeModel> MM;
-  typedef CCModel<CfgModel,EdgeModel> CC;
-  typedef vector<CC*>::iterator CCIT;
-
-  //change color of one CC at a time
-  int m_i;
-
-  string m_sO;
-  for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit){
-    m_sO = (*mit)->GetName();
-
-    string m_s="NULL";
-    size_t position = m_sO.find("Node",0);
-    if(position != string::npos){
-      m_s = m_sO.substr(position+4, m_sO.length());
-    }
-
-    if(m_mapModel!=NULL){
-      MapModel<CfgModel,EdgeModel>* mmodel = m_mapModel;
-      vector<CC*>& cc = mmodel->GetCCModels();
-      if(m_s != "NULL"){
-        for(CCIT ic=cc.begin();ic!=cc.end();ic++){
-          typedef map<CC::VID, CfgModel>::iterator NIT;
-          for(NIT i = (*ic)->GetNodesInfo().begin(); i!=(*ic)->GetNodesInfo().end(); i++)
-            if(StringToInt(m_s, m_i)){
-              if(m_i == i->second.GetIndex()){
-                (*ic)->DrawSelect();
-                (*ic)->SetColorChanged(true);
-                (*ic)->RebuildAll();
-              }
-            }
-        }
-      }
-    }
-
-    if(m_debugModel!=NULL){
-      DebugModel* debugModel = m_debugModel;
-      vector<CC*>& cc = debugModel->GetMapModel()->GetCCModels();
-      if(m_s != "NULL"){
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          typedef map<CC::VID, CfgModel>::iterator NIT;
-          for(NIT i = (*ic)->GetNodesInfo().begin(); i != (*ic)->GetNodesInfo().end(); i++)
-            if(StringToInt(m_s, m_i)){
-              if(m_i == i->second.GetIndex()){
-                (*ic)->DrawSelect();
-                (*ic)->SetColorChanged(true);
-                (*ic)->RebuildAll();
-                (*ic)->DrawRobotNodes(GL_RENDER);
-                (*ic)->DrawSelect();
-              }
-            }
-        }
-      }
-    }
-  }
-}
-
 
 void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
 

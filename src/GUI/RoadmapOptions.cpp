@@ -357,9 +357,8 @@ RoadmapOptions::SetHelpTips(){
 
 void
 RoadmapOptions::ShowRoadmap(){
+
   GetVizmo().ShowRoadMap(m_actions["showHideRoadmap"]->isChecked());
-  //Reset();
-  GetVizmo().UpdateSelection();
   GetMainWin()->GetGLScene()->updateGL();
 }
 
@@ -409,8 +408,6 @@ RoadmapOptions::MakeSolid(){
     s = gl->GetName();
     k++;
   }
-
-  GetVizmo().UpdateSelection();
   GetMainWin()->GetGLScene()->updateGL();
 }
 
@@ -424,7 +421,6 @@ RoadmapOptions::MakeWired(){
     GLModel *gl = (GLModel*)(*i);
     gl->SetRenderMode(WIRE_MODE);
   }
-  GetVizmo().UpdateSelection();
   GetMainWin()->GetGLScene()->updateGL();
 }
 
@@ -438,7 +434,6 @@ RoadmapOptions::MakeInvisible(){
     GLModel* gl = (GLModel*)(*i);
     gl->SetRenderMode(INVISIBLE_MODE);
   }
-  GetVizmo().UpdateSelection();
   GetMainWin()->GetGLScene()->updateGL();
 }
 
