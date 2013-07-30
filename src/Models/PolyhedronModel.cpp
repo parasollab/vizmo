@@ -79,15 +79,15 @@ PolyhedronModel::BuildModels() {
     Quaternion qua;
     convertFromMatrix(qua, o.matrix());
 
-    tx() = p[0];
-    ty() = p[1];
-    tz() = p[2];
+    m_bodyModel->tx() = p[0];
+    m_bodyModel->ty() = p[1];
+    m_bodyModel->tz() = p[2];
 
-    rx() = e.alpha();
-    ry() = e.beta();
-    rz() = e.gamma();
+    m_bodyModel->rx() = e.alpha();
+    m_bodyModel->ry() = e.beta();
+    m_bodyModel->rz() = e.gamma();
 
-    q(qua);
+    m_bodyModel->q(qua);
   }
 }
 
@@ -239,7 +239,4 @@ PolyhedronModel::CopyRapidModel(const PolyhedronModel& _source){
   tri* triEndPtr = &((_source.m_rapidModel)->tris)[m_rapidModel->num_tris_alloced];
   copy(triBeginPtr, triEndPtr, &(m_rapidModel->tris)[0]);
 }
-
-
-
 

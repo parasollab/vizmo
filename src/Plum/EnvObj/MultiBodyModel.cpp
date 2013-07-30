@@ -47,7 +47,6 @@ void
 MultiBodyModel::Draw(GLenum _mode){
   glColor4fv(GetColor());
   glPushMatrix();
-  glTransform();
 
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->Draw(_mode);
@@ -58,7 +57,6 @@ MultiBodyModel::Draw(GLenum _mode){
 void
 MultiBodyModel::DrawSelect(){
   glPushMatrix();
-  glTransform();
 
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->DrawSelect();
