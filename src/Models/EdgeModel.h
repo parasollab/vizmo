@@ -32,20 +32,24 @@ class EdgeModel : public GLModel {
     double& Weight(){ return m_weight; }
     int GetID() { return m_id; }
     const CfgModel& GetStartCfg() { return m_startCfg; }
-    void SetThickness(size_t _thickness);
     void SetCfgShape(CfgModel::Shape _s) { m_cfgShape = _s; }
+    //Want m_edgeThickness to be private, but cannot figure out how to compile
+    //with this declaration
+    //template<class CfgModel, class EdgeModel> friend void MapModel<CfgModel, EdgeModel>::SetEdgeThickness(double _thickness);
 
     bool operator==(const EdgeModel& _other);
     void Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot = NULL);
     void Draw(GLenum _mode);
     void DrawSelect();
 
+    static double m_edgeThickness;
+
   private:
     CfgModel m_startCfg, m_endCfg;
     int m_lp;
     double m_weight;
+    //static double m_edgeThickness;
     int m_id;
-    size_t m_edgeThickness;
     CfgModel::Shape m_cfgShape;
     vector <CfgModel> m_intermediateCfgs;
 

@@ -47,10 +47,10 @@ class MapModel : public GLModel{
     list<GLModel*>& GetNodeList(){ return m_nodes; }
     vector<GLModel*>& GetNodesToConnect(){ return m_nodesToConnect; }
     void SetMBEditModel(bool _setting){ m_editModel = _setting; }
-    //void SetSize(double _size){ m_size = _size; }
     CCM* GetCCModel(int _id){ return m_cCModels[_id]; }
     int NumberOfCC(){ return m_cCModels.size(); }
     bool RobCfgOn() { return m_robCfgOn; }
+    void SetEdgeThickness(double _thickness);
     void SetAddNode(bool _setting) { m_addNode = _setting; }
     void SetAddEdge(bool _setting) { m_addEdge = _setting; }
 
@@ -99,7 +99,6 @@ class MapModel : public GLModel{
     list<GLModel*> m_nodes; //moved from obsolete Roadmap.h!
     vector<GLModel*> m_nodesToConnect; //nodes to be connected
     double m_oldT[3], m_oldR[3];  //old_T
-    //double m_size;                //check purpose of this variable
     string m_cfgString, m_robCfgString; //s_cfg, s_robCfg
     bool m_editModel;
     bool m_noMap;
@@ -122,7 +121,6 @@ MapModel<CfgModel, WEIGHT>::MapModel(RobotModel* _robotModel) {
   m_robCfgOn = false;
   m_robCfgString = "";
   m_noMap = false;
-  //m_size = 0.5;
 }
 
 //constructor only to grab header environment name
@@ -150,7 +148,6 @@ MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename, RobotModel* _robot
   m_robCfgOn = false;
   m_robCfgString = "";
   m_noMap = false;
-  //m_size = 0.5;
 
   ParseFile();
   BuildModels();
@@ -164,6 +161,13 @@ MapModel<CfgModel, WEIGHT>::~MapModel(){
     delete *ic;
   delete m_graph;
   m_graph = NULL;
+}
+
+template <class CfgModel, class WEIGHT>
+void
+MapModel<CfgModel, WEIGHT>::SetEdgeThickness(double _thickness){
+
+  EdgeModel::m_edgeThickness = _thickness;
 }
 
 ///////////Load functions//////////
@@ -323,8 +327,8 @@ MapModel<CfgModel, WEIGHT>::Draw(GLenum _mode){
       return;
     if(_mode==GL_SELECT && !m_enableSelection)
       return;
+
     //Draw each CC
-    int size = 0;
     typedef typename vector<CCM*>::iterator CIT;//CC iterator
     for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++){
       if(_mode == GL_SELECT)
@@ -332,7 +336,6 @@ MapModel<CfgModel, WEIGHT>::Draw(GLenum _mode){
       (*ic)->Draw(_mode);
       if(_mode == GL_SELECT)
         glPopName();
-      size++;
     }
 }
 

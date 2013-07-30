@@ -1,5 +1,8 @@
 /* Implementation of node, edge, etc(?) scaling dialog with slider */
 
+//TODO: Possibly just make SizeSlider a base class due to the repeated code, or
+//take constructor arguments to customize range, etc. for node or edge.
+
 #include "SizeSliderDialog.h"
 
 #include "SceneWin.h"
@@ -33,8 +36,16 @@ SizeSliderDialog::SetUpDialog(QDialog* _dialog){
   m_slider->setGeometry(QRect(19, 60, 441, 20));
   m_slider->setOrientation(Qt::Horizontal);
   //QSlider only works on ints, so value will be divided to map for actual scaling
-  m_slider->setRange(0, 2500);
-  m_slider->setSliderPosition(1000);
+  //Large range ensures smooth mouse movement
+  if(m_mode == "node")
+    m_slider->setRange(0, 2500);
+  if(m_mode == "edge")
+    m_slider->setRange(100, 1000);
+
+  if(m_mode == "node")
+    m_slider->setValue(1000);
+  if(m_mode == "edge")
+    m_slider->setValue(1);
 
   if(m_mode == "node")
     connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(ResizeNodes()));
@@ -83,7 +94,7 @@ SizeSliderDialog::ResizeNodes(){
 void
 SizeSliderDialog::ChangeEdgeThickness(){
 
-    double resize = ((double)m_slider->value()) / (double)1000;
+    double resize = ((double)m_slider->value()) / (double)100;
     ostringstream oss;
     oss << (resize*100) << "%";
     QString qs((oss.str()).c_str());
@@ -96,7 +107,10 @@ SizeSliderDialog::ChangeEdgeThickness(){
 void
 SizeSliderDialog::Reset(){
 
-  m_slider->setSliderPosition(1000);
+  if(m_mode == "node")
+    m_slider->setSliderPosition(1000);
+  if(m_mode == "edge")
+    m_slider->setSliderPosition(0);
 }
 
 

@@ -56,7 +56,6 @@ class CCModel : public GLModel{
 
     void RebuildAll();
     void ScaleNode(float _scale, Shape _s);
-    void ScaleEdges(size_t _scale);
     void ChangeShape(Shape _s);
     void BuildModels(); //not used, should not call this
     void Draw(GLenum _mode);
@@ -84,7 +83,6 @@ class CCModel : public GLModel{
     float m_robotScale;
     float m_boxScale;
     float m_pointScale;
-    size_t m_edgeThickness;
     Shape m_cfgShape;
 
     //display ids
@@ -118,7 +116,6 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
       m_edgeID = m_robotID = m_boxID = m_pointID = -1;
 
       m_newColor = false;
-      m_edgeThickness = 1;
 
       m_graph = NULL;
 }
@@ -163,15 +160,6 @@ CCModel<CfgModel, WEIGHT>::ScaleNode(float _scale, Shape _s){
     glDeleteLists(m_boxID, 1);
     m_boxID = -1;
   }
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::ScaleEdges(size_t _scale){
-
-  m_edgeThickness = _scale;
-  glDeleteLists(m_edgeID, 1);
-  m_edgeID = -1;
 }
 
 template <class CfgModel, class WEIGHT>
@@ -243,6 +231,7 @@ CCModel<CfgModel, WEIGHT>::BuildRobotNodes(GLenum _mode){
   glDeleteLists(m_robotID, 1);
   m_robotID = glGenLists(1);
   glNewList(m_robotID, GL_COMPILE);
+  glLineWidth(1);
   DrawRobotNodes(_mode);
   glEndList();
 }
@@ -254,6 +243,7 @@ CCModel<CfgModel, WEIGHT>::BuildBoxNodes(GLenum _mode){
   glDeleteLists(m_boxID, 1);
   m_boxID = glGenLists(1);
   glNewList(m_boxID, GL_COMPILE);
+  glLineWidth(1);
   DrawBoxNodes(_mode);
   glEndList();
 }
@@ -400,9 +390,6 @@ CCModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
     _models.push_back(&*eit);
 }
 
-//Changing edge thickness: step 4
-//This function sets the thickness member of the edge itself
-//and then calls Edge's Draw
 template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::BuildEdges(){
@@ -410,12 +397,15 @@ CCModel<CfgModel, WEIGHT>::BuildEdges(){
   m_edgeID = glGenLists(1);
   glNewList(m_edgeID, GL_COMPILE);
   glDisable(GL_LIGHTING);
-    typedef typename vector<WEIGHT>::iterator EIT;
-    for(EIT eit = m_edges.begin(); eit!=m_edges.end(); eit++){
-      eit->SetThickness(m_edgeThickness);
-      eit->SetCfgShape(m_cfgShape);
-      eit->Draw(m_renderMode);
-    }
+  //Worth performance cost to antialias and prevent automatic
+  //conversion to integer?
+  glLineWidth(EdgeModel::m_edgeThickness);
+
+  typedef typename vector<WEIGHT>::iterator EIT;
+  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); eit++){
+    eit->SetCfgShape(m_cfgShape);
+    eit->Draw(m_renderMode);
+  }
   glEndList();
 }
 
@@ -466,8 +456,6 @@ void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
   if(m_edgeID == -1)
     BuildEdges();
 
-  glLineWidth(1);
-
   if(_mode == GL_SELECT)
     glPushName(2); //2 means edge
   glCallList(m_edgeID);
@@ -482,7 +470,7 @@ CCModel<CfgModel, WEIGHT>::DrawSelect(){
   if(m_edgeID == -1)
     BuildEdges();
 
-  glColor3f(1,1,0);
+  //glColor3f(1,1,0); Now done in Vizmo class instead
   glLineWidth(3);
   glCallList(m_edgeID);
   glLineWidth(1);

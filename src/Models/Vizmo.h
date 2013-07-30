@@ -73,7 +73,7 @@ class Vizmo {
     void ShowRoadMap(bool _show = true);
     bool IsRoadMapShown() const { return m_showMap; }
     void ChangeNodesSize(float _s, string _str);
-    void ChangeEdgeThickness(size_t _t);
+    void ChangeEdgeThickness(double _t);
     void ChangeNodesShape(string _s);
     bool IsRoadMapLoaded(){return m_mapModel;}
     void ChangeCCColor(double _r, double _g, double _b, string _s);

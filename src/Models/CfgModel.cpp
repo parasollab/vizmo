@@ -226,7 +226,7 @@ CfgModel::DrawBox(){
     }
   }
 
-  //glScale(); What does this call do?
+  glScale(); //What does this call do?
   glTransform();
   glEnable(GL_NORMALIZE);
   if(m_renderMode == SOLID_MODE)

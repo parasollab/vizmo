@@ -123,6 +123,7 @@ Vizmo::Display() {
   for(MIT mit = m_loadedModels.begin(); mit!=m_loadedModels.end(); ++mit)
     (*mit)->Draw(GL_RENDER);
 
+  glColor3f(1,1,0); //Selections are yellow, so set the color once now
   for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit)
     (*mit)->DrawSelect();
 }
@@ -503,33 +504,18 @@ Vizmo::ChangeNodesSize(float _s, string _str){
   }
 }
 
-//Changing edge thickness: step 2
-//This function calls ScaleEdges in CCModel.h
 void
-Vizmo::ChangeEdgeThickness(size_t _t){
+Vizmo::ChangeEdgeThickness(double _t){
 
   if(m_robotModel == NULL)
     return;
   if(m_mapModel == NULL && m_debugModel == NULL)
     return;
 
-  typedef MapModel<CfgModel, EdgeModel> MM;
-  typedef CCModel<CfgModel, EdgeModel> CC;
-  typedef vector<CC*>::iterator CCIT;
-
-  if(m_mapModel != NULL){
-    MM* mmodel = m_mapModel;
-    vector<CC*> cc = mmodel->GetCCModels();
-    for(CCIT ic=cc.begin(); ic!=cc.end(); ic++)
-      (*ic)->ScaleEdges(_t);
-  }
-
-  if(m_debugModel != NULL){
-    DebugModel* debugModel = m_debugModel;
-    vector<CC*>& cc = debugModel->GetMapModel()->GetCCModels();
-    for(CCIT ic=cc.begin(); ic!=cc.end(); ic++)
-      (*ic)->ScaleEdges(_t);
-  }
+  if(m_mapModel != NULL)
+    m_mapModel->SetEdgeThickness(_t);
+  if(m_debugModel != NULL)
+    m_debugModel->GetMapModel()->SetEdgeThickness(_t);
 }
 
 void Vizmo::ChangeNodesShape(string _s){

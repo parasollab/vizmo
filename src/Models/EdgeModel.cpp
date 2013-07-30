@@ -3,18 +3,18 @@
 
 #include "EdgeModel.h"
 
+double EdgeModel::m_edgeThickness = 1;
+
 EdgeModel::EdgeModel() {
   m_lp = INT_MAX;
   m_weight = LONG_MAX;
   m_id = -1;
-  m_edgeThickness = 1;
 }
 
 EdgeModel::EdgeModel(double _weight) {
   m_lp = INT_MAX;
   m_weight = _weight;
   m_id = -1;
-  m_edgeThickness = 1;
 }
 
 EdgeModel::~EdgeModel() {
@@ -57,12 +57,6 @@ EdgeModel::GetEdgeNodes(){
   return v;
 }
 
-//Changing edge thickness: step 5
-void
-EdgeModel::SetThickness(size_t _thickness){
-  m_edgeThickness = _thickness;
-}
-
 bool
 EdgeModel::operator==(const EdgeModel& _other){
 
@@ -85,7 +79,6 @@ EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot){
   }
 }
 
-//Changing edge thickness: final step. GL lines drawn with set width.
 void
 EdgeModel::Draw(GLenum _mode) {
 
@@ -95,8 +88,6 @@ EdgeModel::Draw(GLenum _mode) {
   if(m_renderMode == SOLID_MODE || m_renderMode == WIRE_MODE){
 
     glColor4fv(GetColor());
-    glLineWidth(m_edgeThickness);
-
     glBegin(GL_LINES);
     glVertex3d(m_startCfg.tx(), m_startCfg.ty(), m_startCfg.tz());
 
@@ -126,8 +117,8 @@ void
 EdgeModel::DrawSelect(){
 
   typedef vector<CfgModel>::iterator CFGIT;
-  glColor3d(1,1,0);
-  glLineWidth(m_edgeThickness + 4); //Ensure visibility around edge itself
+  //glColor3d(1,1,0); Called in Vizmo instead
+  glLineWidth(m_edgeThickness + 4);
 
   glBegin(GL_LINES);
   glVertex3d(m_startCfg.tx(), m_startCfg.ty(), m_startCfg.tz());

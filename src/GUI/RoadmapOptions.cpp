@@ -47,9 +47,6 @@ RoadmapOptions::RoadmapOptions(QWidget* _parent, VizmoMainWin* _mainWin)
   SetHelpTips();
 
   m_robotButton->click();
-  m_edgeThickness = 1;
-  m_nodeSize = 1;
-
 }
 
 void RoadmapOptions::CreateActions(){
