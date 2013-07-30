@@ -763,13 +763,13 @@ bool RobotModel::KP( QKeyEvent * e )
 
          m_robotModel->setCurrCfg(tempCfg, dof);
 
-         m_robotModel->Euiler2Quaternion();
+         m_robotModel->Euler2Quaternion();
          GetVizmo().TurnOn_CD();
          if(GetPhantomManager().Collision > .5 && !GetPhantomManager().UseFeedback){
             m_robotModel->setCurrCfg(currentCfg, dof);
             return true;
          }
-         m_robotModel->Euiler2Quaternion();
+         m_robotModel->Euler2Quaternion();
          for(int i=0; i<dof; i++){
             StCfg[i] = tempCfg[i];
             //cout << StCfg[i] << " ";
@@ -908,7 +908,7 @@ void RobotModel::Transform(int dir){
          m_robotModel->rz()+=dir*delta;
          break;
    }
-   m_robotModel->Euiler2Quaternion();
+   m_robotModel->Euler2Quaternion();
    m_robotModel->glTransform();
 }
 

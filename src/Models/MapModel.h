@@ -92,7 +92,7 @@ class MapModel : public GLModel{
     bool m_robCfgOn;
     bool m_addNode;
     bool m_addEdge;
-    double* m_cfg;
+    //double* m_cfg; (Originally used in Roadmap.h/Roadmap.cpp)
     int m_dof;
     RobotModel* m_robot;
     vector<CCM*> m_cCModels;

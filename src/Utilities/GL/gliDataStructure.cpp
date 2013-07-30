@@ -19,7 +19,7 @@ void gliTransform::glTransform(){
     glScaled(m_scale[0], m_scale[1], m_scale[2]);
 }
 
-void gliTransform::Euiler2Quaternion()
+void gliTransform::Euler2Quaternion()
 {
 	double cx_2=cos(rx()/2); double sx_2=sin(rx()/2);
 	double cy_2=cos(ry()/2); double sy_2=sin(ry()/2);

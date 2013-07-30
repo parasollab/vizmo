@@ -26,7 +26,7 @@ public:
     virtual ~gliTransform(){}
 
     void glTransform();
-    void Euiler2Quaternion();
+    void Euler2Quaternion();
     void glScale();
 
     //Access

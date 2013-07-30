@@ -64,10 +64,7 @@ CfgModel::GetInfo() const {
   temp << " Cfg ( ";
 
   for(int i=0; i<dof;i++){
-    if(i < 3)
-      temp << m_dofs[i];
-    else
-      temp << m_dofs[i];
+    temp << m_dofs[i];
     if(i == dof-1)
       temp << " )";
     else
