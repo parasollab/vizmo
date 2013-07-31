@@ -76,8 +76,8 @@ class Vizmo {
     void ChangeEdgeThickness(double _t);
     void ChangeNodesShape(string _s);
     bool IsRoadMapLoaded(){return m_mapModel;}
-    void ChangeCCColor(double _r, double _g, double _b, string _s);
-    void ChangeNodeColor(double _r, double _g, double _b, string _s);
+    //void ChangeNodeColor(double _r, double _g, double _b, string _s); //May be
+    //used later?
     void ChangeNodesRandomColor();
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
     void SetMapObj(MapModel<CfgModel, EdgeModel>* _mm);
@@ -115,7 +115,6 @@ class Vizmo {
 
     //Miscelaneous
     bool StringToInt(const string &s, int &i);
-    bool oneColor;
 
     ////////////////////////////////////////////////////////////////
     // Variables used to change color of objects in the environment.

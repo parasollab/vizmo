@@ -474,16 +474,12 @@ RoadmapOptions::ColorSelectedCC(){
   if(position != string::npos){ //Label "CC" has been found
     QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
     if (color.isValid()){
-      R = (double)(color.red()) / 255.0;
-      G = (double)(color.green()) / 255.0;
-      B = (double)(color.blue()) / 255.0;
+      GetVizmo().mR = (double)(color.red()) / 255.0;
+      GetVizmo().mG = (double)(color.green()) / 255.0;
+      GetVizmo().mB = (double)(color.blue()) / 255.0;
     }
-
-  string s;
-  if(m_nodeView->checkedButton() != 0)
-    s = (string)(m_nodeView->checkedButton())->text().toAscii();
-  GetVizmo().ChangeCCColor(R, G, B, s);
-  GetMainWin()->GetGLScene()->updateGL();
+    GetVizmo().ChangeAppearance(3);
+    GetMainWin()->GetGLScene()->updateGL();
   }
   else
     QMessageBox::about(this, "", "Please select a connected component from the <b>Environment Objects</b> menu.");
@@ -499,20 +495,14 @@ RoadmapOptions::RandomizeCCColors(){
 void
 RoadmapOptions::MakeCCsOneColor(){
 
-  double R, G, B;
-  R = G = B = 1;
-  string s = "all";
-  GetVizmo().oneColor = true;
   QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
-
-  if(color.isValid()){
-    R = (double)(color.red()) / 255.0;
-    G = (double)(color.green()) / 255.0;
-    B = (double)(color.blue()) / 255.0;
+  if (color.isValid()){
+    float r = (double)(color.red()) / 255.0;
+    float g = (double)(color.green()) / 255.0;
+    float b = (double)(color.blue()) / 255.0;
+    for(int i = 0; i < (GetVizmo().GetMap())->NumberOfCC(); i++)
+      ((GetVizmo().GetMap())->GetCCModel(i))->SetColor(Color4(r,g,b,1));
   }
-  //also need to check that an action is indeed selected?
-  string shape = (string)(m_nodeView->checkedButton())->text().toAscii();
-  GetVizmo().ChangeCCColor(R, G, B, shape);
 }
 
 void

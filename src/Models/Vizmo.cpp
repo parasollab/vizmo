@@ -561,64 +561,7 @@ void Vizmo::ChangeNodesShape(string _s){
     }
   }
 }
-
-void Vizmo::ChangeCCColor(double _r, double _g, double _b, string _s){
-
-  if(m_robotModel == NULL)
-    return;
-
-  if(m_mapModel == NULL && m_debugModel == NULL)
-    return;
-
-  typedef MapModel<CfgModel,EdgeModel> MM;
-  typedef CCModel<CfgModel,EdgeModel> CC;
-  typedef vector<CC*>::iterator CCIT;
-
-  //change color of one CC at a time
-  int m_i;
-  string m_sO;
-  for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit) {
-    m_sO = (*mit)->GetName();
-    string m_s="NULL";
-    size_t position = m_sO.find("CC",0);
-    if(position != string::npos){
-      m_s = m_sO.substr(position+2, m_sO.length());
-    }
-
-    if(m_mapModel!=NULL){
-      MapModel<CfgModel,EdgeModel>* mmodel = m_mapModel;
-      vector<CC*>& cc=mmodel->GetCCModels();
-      if(m_s != "NULL"){
-        for(CCIT ic = cc.begin(); ic!= cc.end(); ic++){
-          if(StringToInt(m_s, m_i)){
-            if(m_i == (*ic)->GetID()){
-              (*ic)->DrawSelect();
-              (*ic)->SetColorChanged(true);
-              (*ic)->SetColor(Color4(_r, _g, _b, 1));
-              (*ic)->DrawRobotNodes((*ic)->m_renderMode);
-            }
-          }
-        }
-      }
-      else if(m_s == "NULL" && oneColor){
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          (*ic)->SetColorChanged(true);
-          (*ic)->SetColor(Color4(_r, _g, _b, 1));
-          (*ic)->DrawRobotNodes((*ic)->m_renderMode);
-        }
-        oneColor = false;
-      }
-      else{
-        for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-          (*ic)->SetColorChanged(true);
-          (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
-          (*ic)->DrawRobotNodes((*ic)->m_renderMode);
-        }
-      }
-    }
-  }
-}
-
+/*
 void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
 
   if(m_robotModel == NULL)
@@ -662,9 +605,9 @@ void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
     }
   }
 }
-
-
+*/
 void Vizmo::ChangeNodesRandomColor(){
+
   if(!m_robotModel || !m_mapModel)
     return;
 
@@ -686,6 +629,7 @@ bool Vizmo::StringToInt(const string &s, int &i){
 }
 
 void Vizmo::envObjsRandomColor(){
+
   m_envModel->ChangeColor();
 }
 
