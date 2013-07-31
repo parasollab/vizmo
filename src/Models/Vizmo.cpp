@@ -628,7 +628,7 @@ bool Vizmo::StringToInt(const string &s, int &i){
   return myStream >> i;
 }
 
-void Vizmo::envObjsRandomColor(){
+void Vizmo::RandomizeEnvColors(){
 
   m_envModel->ChangeColor();
 }

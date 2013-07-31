@@ -75,7 +75,7 @@ EnvironmentOptions::RefreshEnv(){
 
 void
 EnvironmentOptions::RandomizeEnvColors(){
-  GetVizmo().envObjsRandomColor();
+  GetVizmo().RandomizeEnvColors();
   GetMainWin()->GetGLScene()->updateGL();
 }
 

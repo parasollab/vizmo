@@ -52,7 +52,7 @@ class Vizmo {
     // Change the appearance of an object - Hidden/ Wire / Soid
     void ChangeAppearance(int );
     void RefreshEnv();
-    void envObjsRandomColor();
+    void RandomizeEnvColors();
     bool SaveEnv(const char *filename); //save env. file
     bool SaveQry(const char *filename); //save query file
     void SaveQryStart(); //save start cfg
