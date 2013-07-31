@@ -14,6 +14,7 @@ SizeSliderDialog::SizeSliderDialog(string _mode, QWidget* _parent, RoadmapOption
   m_parent = _accessParent;
   m_mode = _mode;
   SetUpDialog(this);
+  m_oldValue = m_slider->value();
 }
 
 void
@@ -71,6 +72,13 @@ SizeSliderDialog::SetUpDialog(QDialog* _dialog){
 }
 
 void
+SizeSliderDialog::show(){
+
+  m_oldValue = m_slider->value();
+  QDialog::show();
+}
+
+void
 SizeSliderDialog::ResizeNodes(){
 
     double resize = ((double)m_slider->value()) / (double)1000;
@@ -102,6 +110,13 @@ SizeSliderDialog::ChangeEdgeThickness(){
 
     GetVizmo().ChangeEdgeThickness(resize);
     m_parent->GetMainWin()->GetGLScene()->updateGL();
+}
+
+void
+SizeSliderDialog::reject(){
+
+  m_slider->setSliderPosition(m_oldValue);
+  QDialog::reject();
 }
 
 void

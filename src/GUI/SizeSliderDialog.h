@@ -26,6 +26,7 @@ class SizeSliderDialog : public QDialog{
   Q_OBJECT
 
   string m_mode;
+  int m_oldValue;
 
   public:
     SizeSliderDialog(string _mode, QWidget* _parent = 0, RoadmapOptions* _accessParent = 0);
@@ -40,8 +41,10 @@ class SizeSliderDialog : public QDialog{
     void Reset(); //Restore default when new file is opened
 
   public slots:
-    void ResizeNodes(); //If in node mode, scale the nodes live while dialog open
-    void ChangeEdgeThickness(); //If in edge mode, scale the edges
+    virtual void show();        //Overriden to save initial value
+    void ResizeNodes();         //If node mode, scale the nodes live while dialog open
+    void ChangeEdgeThickness(); //If edge mode, scale the edges
+    virtual void reject();      //Overriden to restore previous size upon pressing cancel
 };
 
 #endif
