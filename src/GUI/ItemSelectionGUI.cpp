@@ -64,8 +64,11 @@ VizmoItemSelectionGUI::SelectionChanged(){
   sel.clear();
   typedef vector<VizmoListViewItem*>::iterator IIT;
   for(IIT i = m_items.begin(); i != m_items.end(); i++) {
-    if(((*i)->isSelected()))
+    if(((*i)->isSelected())){
       GetVizmo().GetSelectedModels().push_back((*i)->m_model);
+      for(int j = 0; j < (*i)->childCount(); j++)
+        GetVizmo().GetSelectedModels().push_back(((VizmoListViewItem*)((*i)->child(j)))->m_model);
+    }
   }
   emit CallUpdate();
   emit UpdateTextGUI();

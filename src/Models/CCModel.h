@@ -467,12 +467,13 @@ template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::DrawSelect(){
 
-  if(m_edgeID == -1)
-    BuildEdges();
+  /*Disabled for now; later modifications likely*/ 
+  //if(m_edgeID == -1)
+  //  BuildEdges();
 
-  glLineWidth(3);
-  glCallList(m_edgeID);
-  glLineWidth(1);
+  //glLineWidth(3);
+  //glCallList(m_edgeID);
+  //glLineWidth(1);
 }
 
 template <class CfgModel, class WEIGHT>
