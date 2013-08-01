@@ -470,7 +470,6 @@ CCModel<CfgModel, WEIGHT>::DrawSelect(){
   if(m_edgeID == -1)
     BuildEdges();
 
-  //glColor3f(1,1,0); Now done in Vizmo class instead
   glLineWidth(3);
   glCallList(m_edgeID);
   glLineWidth(1);

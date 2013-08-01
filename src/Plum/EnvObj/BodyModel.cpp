@@ -64,7 +64,6 @@ BodyModel::DrawSelect() {
   glLineWidth(2);
   glPushMatrix();
   glTransform();
-  glColor3d(1,1,0);
   m_polyhedronModel->DrawSelect();
   glPopMatrix();
 }

@@ -254,7 +254,6 @@ CfgModel::DrawPoint(){
 void
 CfgModel::DrawSelect(){
 
-  glColor3d(1,1,0);
   glDisable(GL_LIGHTING);
   Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->GetShape());
   switch(shape){

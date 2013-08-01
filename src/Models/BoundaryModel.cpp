@@ -26,7 +26,6 @@ void
 BoundaryModel::DrawSelect(){
   glDisable(GL_LIGHTING);
   glLineWidth(2);
-  glColor3d(1, 1, 0);
   glCallList(m_linesID);
   glEnable(GL_LIGHTING);
 }

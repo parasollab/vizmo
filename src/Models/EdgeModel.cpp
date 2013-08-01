@@ -117,7 +117,6 @@ void
 EdgeModel::DrawSelect(){
 
   typedef vector<CfgModel>::iterator CFGIT;
-  //glColor3d(1,1,0); Called in Vizmo instead
   glLineWidth(m_edgeThickness + 4);
 
   glBegin(GL_LINES);
