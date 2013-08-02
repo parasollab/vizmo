@@ -223,8 +223,6 @@ CfgModel::DrawBox(){
     }
   }
 
-  glScale(); //What does this call do?
-  glTransform();
   glEnable(GL_NORMALIZE);
   if(m_renderMode == SOLID_MODE)
     glutSolidCube(m_scale[0]);
@@ -293,8 +291,6 @@ CfgModel::DrawSelect(){
         }
       }
 
-      //TODO:Fix different paces of item and selection box
-      //outline rescaling
       glutWireCube(m_scale[0]+0.1);
 
       glPopMatrix();
