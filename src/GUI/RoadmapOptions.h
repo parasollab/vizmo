@@ -14,7 +14,7 @@
 #include "Models/Vizmo.h"
 
 class QPushButton;
-class SizeSliderDialog;
+class SliderDialog;
 
 class RoadmapOptions : public OptionsBase{
 
@@ -47,7 +47,9 @@ class RoadmapOptions : public OptionsBase{
     void MakeSolid();
     void MakeWired();
     void MakeInvisible();
+    void ShowNodeSizeDialog();
     void ScaleNodes();
+    void ShowEdgeThicknessDialog();
     void ChangeEdgeThickness();
     void ColorSelectedCC();
     void RandomizeCCColors();
@@ -66,8 +68,8 @@ class RoadmapOptions : public OptionsBase{
     QMenu* m_modifySelected;
     QMenu* m_modifyCCs;
 
-    SizeSliderDialog* m_nodeSizeDialog; //Provides slider to scale nodes
-    SizeSliderDialog* m_edgeThicknessDialog; //Slider to scale the edges
+    SliderDialog* m_nodeSizeDialog; //Provides slider to scale nodes
+    SliderDialog* m_edgeThicknessDialog; //Slider to scale the edges
 
     //  queryGUI* m_nodeGUI;  ***TEMPORARY DISABLE
     //  void UpdateNodeCfg();

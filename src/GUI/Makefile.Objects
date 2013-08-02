@@ -21,7 +21,7 @@ OBJECTS += \
 	   GUI/CaptureOptions.o \
 	   GUI/HelpOptions.o \
 	   GUI/MovieSaveDialog.o \
-	   GUI/SizeSliderDialog.o
+	   GUI/SliderDialog.o
 
 ####### MOC
 .SECONDARY: $(SRCMOC)

@@ -21,7 +21,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-#include "SizeSliderDialog.h"
+#include "SliderDialog.h"
 #include "OptionsBase.h"
 #include "SceneWin.h"
 #include "MainWin.h"
@@ -98,17 +98,11 @@ void RoadmapOptions::CreateActions(){
 
   QAction* scaleNodes = new QAction(QPixmap(nodeSizeIcon), tr("Scale Nodes"), this);
   m_actions["scaleNodes"] = scaleNodes;
-  //SizeSliderDialog needs a plain QWidget as a parent, but to actually access
-  //this parent as RoadmapOptions within the dialog class, a RoadmapOptions
-  //pointer is stored there (hence, we have SizeSliderDialog(QWidget* _parent,
-  //RoadmapOptions* _accessParent) in the constructor). Alternatively, the
-  //constructor can just take the first argument, and the parent can be casted
-  //when needed in the dialog class.
-  m_nodeSizeDialog = new SizeSliderDialog("node", this, this); //String argument is the dialog mode
+  m_nodeSizeDialog = new SliderDialog(this);
 
   QAction* edgeThickness = new QAction(QPixmap(edgeThicknessIcon), tr("Change Edge Thickness"), this);
   m_actions["edgeThickness"] = edgeThickness;
-  m_edgeThicknessDialog = new SizeSliderDialog("edge", this, this);
+  m_edgeThicknessDialog = new SliderDialog(this);
 
   QAction* colorSelected = new QAction(QPixmap(ccColor), tr("Change Color of Selected"), this);
   m_actions["colorSelected"] = colorSelected;
@@ -151,10 +145,14 @@ void RoadmapOptions::CreateActions(){
   m_actions["changeNodeColor"]->setEnabled(false);
   m_actions["changeNodeColor"]->setStatusTip(tr("Change node color"));
 
+  m_nodeSizeDialog->SetSpecifications("Node Scaling", "Drag the slider to scale the nodes", 
+    0, 2500, 1000);
   m_actions["scaleNodes"]->setShortcut(tr("CTRL+S"));
   m_actions["scaleNodes"]->setEnabled(false);
   m_actions["scaleNodes"]->setStatusTip(tr("Resize the nodes"));
 
+  m_edgeThicknessDialog->SetSpecifications("Edge Thickness", "Drag the slider to change the edge thickness",
+    100, 1000, 100);
   m_actions["edgeThickness"]->setEnabled(false);
   m_actions["edgeThickness"]->setStatusTip(tr("Change edge thickness"));
 
@@ -180,9 +178,11 @@ void RoadmapOptions::CreateActions(){
   connect(m_actions["makeInvisible"], SIGNAL(activated()), this, SLOT(MakeInvisible()));
   connect(m_actions["changeNodeColor"], SIGNAL(activated()), this, SLOT(ChangeObjectColor()));
 
-  connect(m_actions["scaleNodes"], SIGNAL(activated()), this, SLOT(ScaleNodes()));
+  connect(m_actions["scaleNodes"], SIGNAL(activated()), this, SLOT(ShowNodeSizeDialog()));
+  connect(m_nodeSizeDialog->GetSlider(), SIGNAL(valueChanged(int)), this, SLOT(ScaleNodes()));
 
-  connect(m_actions["edgeThickness"], SIGNAL(activated()), this, SLOT(ChangeEdgeThickness()));
+  connect(m_actions["edgeThickness"], SIGNAL(activated()), this, SLOT(ShowEdgeThicknessDialog()));
+  connect(m_edgeThicknessDialog->GetSlider(), SIGNAL(valueChanged(int)), this, SLOT(ChangeEdgeThickness()));
 
   connect(m_actions["colorSelected"], SIGNAL(activated()), this, SLOT(ColorSelectedCC()));
   connect(m_actions["randomizeColors"], SIGNAL(activated()), this, SLOT(RandomizeCCColors()));
@@ -434,7 +434,8 @@ RoadmapOptions::MakeInvisible(){
   GetMainWin()->GetGLScene()->updateGL();
 }
 
-void RoadmapOptions::ScaleNodes(){
+void
+RoadmapOptions::ShowNodeSizeDialog(){
 
  //For now, resizing only enabled for point and box abstractions. For robot,
  //would require extensive local coordinate system aspects
@@ -446,9 +447,34 @@ void RoadmapOptions::ScaleNodes(){
 }
 
 void
-RoadmapOptions::ChangeEdgeThickness(){
+RoadmapOptions::ScaleNodes(){
+
+  double resize = m_nodeSizeDialog->GetSliderValue() / (double)1000;
+  //Resize the other mode as well to prevent abrupt size change when switching
+  //back and using the slider again
+  if(GetNodeShape() == "Point"){
+    GetVizmo().ChangeNodesSize(resize, "Box");
+    GetVizmo().ChangeNodesSize(resize, "Point");
+  }
+  else if(GetNodeShape() == "Box"){
+    GetVizmo().ChangeNodesSize(resize, "Point");
+    GetVizmo().ChangeNodesSize(resize, "Box");
+  }
+  GetMainWin()->GetGLScene()->updateGL();
+}
+
+void
+RoadmapOptions::ShowEdgeThicknessDialog(){
 
   m_edgeThicknessDialog->show();
+}
+
+void
+RoadmapOptions::ChangeEdgeThickness(){
+
+  double resize = m_edgeThicknessDialog->GetSliderValue() / (double)100;
+  GetVizmo().ChangeEdgeThickness(resize);
+  GetMainWin()->GetGLScene()->updateGL();
 }
 
 void
