@@ -60,14 +60,14 @@ VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model) {
 void
 VizmoItemSelectionGUI::SelectionChanged(){
   //Selects in MAP whatever has been selected in the tree widget
-  vector<GLModel*>& sel=GetVizmo().GetSelectedModels();
+  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   sel.clear();
   typedef vector<VizmoListViewItem*>::iterator IIT;
-  for(IIT i = m_items.begin(); i != m_items.end(); i++) {
-    if(((*i)->isSelected())){
-      GetVizmo().GetSelectedModels().push_back((*i)->m_model);
+  for(IIT i = m_items.begin(); i != m_items.end(); i++){
+    if((*i)->isSelected()){
+      sel.push_back((*i)->m_model);
       for(int j = 0; j < (*i)->childCount(); j++)
-        GetVizmo().GetSelectedModels().push_back(((VizmoListViewItem*)((*i)->child(j)))->m_model);
+        sel.push_back(((VizmoListViewItem*)(*i)->child(j))->m_model);
     }
   }
   emit CallUpdate();
