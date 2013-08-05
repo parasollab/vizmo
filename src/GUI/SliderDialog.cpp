@@ -66,8 +66,3 @@ SliderDialog::Reset(){
 
   m_slider->setSliderPosition(m_startValue);
 }
-
-
-
-
-
