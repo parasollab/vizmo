@@ -102,7 +102,6 @@ MapModel<CfgModel, WEIGHT>::MapModel(RobotModel* _robotModel) {
   m_renderMode = INVISIBLE_MODE;
   m_robot = _robotModel;
   m_graph = NULL;
-  m_enableSelection = true; //disable selection
   m_editModel = false;
   m_addNode = false;
   m_addEdge = false;
@@ -129,7 +128,6 @@ MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename, RobotModel* _robot
   m_renderMode = INVISIBLE_MODE;
   m_robot = _robotModel;
   m_graph = NULL;
-  m_enableSelection = true; //disable selection
   m_editModel = false;
   m_addNode = false;
   m_addEdge = false;
@@ -281,21 +279,18 @@ MapModel<CfgModel, WEIGHT>::BuildModels() {
 template <class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel, WEIGHT>::Draw(GLenum _mode){
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
 
-    if(m_renderMode == INVISIBLE_MODE)
-      return;
-    if(_mode==GL_SELECT && !m_enableSelection)
-      return;
-
-    //Draw each CC
-    typedef typename vector<CCM*>::iterator CIT;//CC iterator
-    for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++){
-      if(_mode == GL_SELECT)
-        glPushName((*ic)->GetID());
-      (*ic)->Draw(_mode);
-      if(_mode == GL_SELECT)
-        glPopName();
-    }
+  //Draw each CC
+  typedef typename vector<CCM*>::iterator CIT;//CC iterator
+  for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++){
+    if(_mode == GL_SELECT)
+      glPushName((*ic)->GetID());
+    (*ic)->Draw(_mode);
+    if(_mode == GL_SELECT)
+      glPopName();
+  }
 }
 
 template <class CfgModel, class WEIGHT>
@@ -331,7 +326,7 @@ MapModel<CfgModel, WEIGHT>::AddCC(int _vid){
 
   color =  m_cCModels[m_cCModels.size()-1]->getColor();
   cc->change_properties(m_cCModels[m_cCModels.size()-1]->getShape(),size,
-    color, true);
+      color, true);
 
   m_cCModels.push_back(cc);
   return true;
@@ -340,7 +335,6 @@ MapModel<CfgModel, WEIGHT>::AddCC(int _vid){
 template <class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
-
   typedef typename vector<CCM*>::iterator CIT;
   for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++)
     _models.push_back(*ic);
@@ -349,7 +343,6 @@ MapModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
 template <class CfgModel, class WEIGHT>
 vector<string>
 MapModel<CfgModel, WEIGHT>::GetInfo() const{
-
   vector<string> info;
   info.push_back(GetFilename());
   ostringstream temp;
@@ -361,7 +354,7 @@ MapModel<CfgModel, WEIGHT>::GetInfo() const{
 template <class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel, WEIGHT>::SetProperties(typename CCM::Shape _s, float _size,
-              vector<float> _color, bool _isNew){
+    vector<float> _color, bool _isNew){
   typedef typename vector<CCM*>::iterator CIT;//CC iterator
   for(CIT ic = m_cCModels.begin(); ic!= m_cCModels.end(); ic++)
     (*ic)->change_properties(_s, _size, _color, _isNew);
@@ -375,48 +368,48 @@ MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel)
   m_cCModels[_index[0]]->Select(&_index[1],_sel);
 }
 
-  //Commented out functions below are from Roadmap.h/.cpp and did not work there
-  //(or need other attn.)
-  //They should probably be here when fixed.
+//Commented out functions below are from Roadmap.h/.cpp and did not work there
+//(or need other attn.)
+//They should probably be here when fixed.
 
-  /* template <class CfgModel, class WEIGHT>
-     void MapModel<CfgModel, WEIGHT>::HandleSelect(){
+/* template <class CfgModel, class WEIGHT>
+   void MapModel<CfgModel, WEIGHT>::HandleSelect(){
 
-  //find nodes
-  m_nodes.clear();
-  vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
-  typedef vector<GLModel*>::iterator OIT;
+//find nodes
+m_nodes.clear();
+vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
+typedef vector<GLModel*>::iterator OIT;
 
-  for(OIT i=sel.begin(); i!=sel.end(); i++){  //GETS THE NODES FROM SELECTED ITEM AND PUTS THEM IN NODE VECTOR
-  string myName = ((GLModel*)(*i))->GetName();
-  if(((GLModel*)(*i)) != NULL)
-  if(myName.find("Node")!=string::npos){
-  m_nodes.push_back((GLModel*)(*i));
-  }//end if
+for(OIT i=sel.begin(); i!=sel.end(); i++){  //GETS THE NODES FROM SELECTED ITEM AND PUTS THEM IN NODE VECTOR
+string myName = ((GLModel*)(*i))->GetName();
+if(((GLModel*)(*i)) != NULL)
+if(myName.find("Node")!=string::npos){
+m_nodes.push_back((GLModel*)(*i));
+}//end if
 
-  if(m_robCfgOn){
-  this->GetVizmo().getRoboCfg();
-  //  printRobCfg(); MAY NEED TO RESTORE THIS
-  }
-  }//end for
+if(m_robCfgOn){
+this->GetVizmo().getRoboCfg();
+//  printRobCfg(); MAY NEED TO RESTORE THIS
+}
+}//end for
 
-  if(!m_editModel){return;}
+if(!m_editModel){return;}
 
-  if(m_nodes.size() > 0){
-  GLModel* n = m_nodes.front();
-  //   printNodeCfg((CfgModel*)n); MAY NEED TO RESTORE THIS
-  }
+if(m_nodes.size() > 0){
+GLModel* n = m_nodes.front();
+//   printNodeCfg((CfgModel*)n); MAY NEED TO RESTORE THIS
+}
 
-  if(m_addEdge)
-  this->HandleAddEdge();
-  else if(m_addNode)
-  this->HandleAddNode();
-  // else
-  //   handleEditMap();
-  }*/
+if(m_addEdge)
+this->HandleAddEdge();
+else if(m_addNode)
+this->HandleAddNode();
+// else
+//   handleEditMap();
+}*/
 
-  /*  template <class CfgModel, class WEIGHT>
-      void MapModel<CfgModel, WEIGHT>::HandleAddEdge(){
+/*  template <class CfgModel, class WEIGHT>
+    void MapModel<CfgModel, WEIGHT>::HandleAddEdge(){
 
 //find two nodes...
 PlumObject* m_map;
@@ -440,53 +433,53 @@ if(m_nodesToConnect.size() == 2){
 cfg1 = (CfgModel*)m_nodesToConnect[0];
 cfg2 = (CfgModel*)m_nodesToConnect[1];
 graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);
-  //////////  Jun 16-05 ///////////////
-  // Add edge to CCModel:
-  // get a CC id
-  int CC_id = cfg1->GetCC_ID();
-  //get mapModel
-  MapModel<CfgModel,EdgeModel>* mmodel =(MapModel<CfgModel,EdgeModel>*)m_map->getModel();
-  //get the CCModel of CfgModel
-  CCModel<CfgModel,EdgeModel>* m_cCModel = mmodel->GetCCModel(CC_id);
-  //add edge to CC
-  //m_cCModel->addEdge(cfg1, cfg2); Jul 17-12
+//////////  Jun 16-05 ///////////////
+// Add edge to CCModel:
+// get a CC id
+int CC_id = cfg1->GetCC_ID();
+//get mapModel
+MapModel<CfgModel,EdgeModel>* mmodel =(MapModel<CfgModel,EdgeModel>*)m_map->getModel();
+//get the CCModel of CfgModel
+CCModel<CfgModel,EdgeModel>* m_cCModel = mmodel->GetCCModel(CC_id);
+//add edge to CC
+//m_cCModel->addEdge(cfg1, cfg2); Jul 17-12
 
-  //backUp current prpoperties:
-  CCModel<CfgModel,EdgeModel>::Shape shape = m_cCModel->getShape();
-  float size;
-  if(shape == 0)
-  size = m_cCModel->getRobotSize();
-  else if (shape == 1)
-  size = m_cCModel->getBoxSize();
-  else
-  size = 0;
-  vector<float> rgb;
-  rgb = m_cCModel->getColor();
+//backUp current prpoperties:
+CCModel<CfgModel,EdgeModel>::Shape shape = m_cCModel->getShape();
+float size;
+if(shape == 0)
+size = m_cCModel->getRobotSize();
+else if (shape == 1)
+size = m_cCModel->getBoxSize();
+else
+size = 0;
+vector<float> rgb;
+rgb = m_cCModel->getColor();
 
-  mmodel->BuildModels();
-  mmodel->SetProperties(shape, size, rgb, false);
-  //emit callUpdate();
-  //  'UpdateNodeCfg();' //FIX THIS!!!
+mmodel->BuildModels();
+mmodel->SetProperties(shape, size, rgb, false);
+//emit callUpdate();
+//  'UpdateNodeCfg();' //FIX THIS!!!
 
-  m_nodesToConnect.clear();
-  }
-  }
+m_nodesToConnect.clear();
+}
+}
 
-  template <class CfgModel, class WEIGHT>
-  void MapModel<CfgModel, WEIGHT>::HandleAddNode(){
+template <class CfgModel, class WEIGHT>
+void MapModel<CfgModel, WEIGHT>::HandleAddNode(){
 
-  vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
-  if(sel.size() !=0){
-  if(!m_nodes.empty()){
-  GLModel* n = m_nodes.front();
-  CfgModel* cfg = (CfgModel*)n;
-  //get current node's cfg
-  vector<double> c = cfg->GetDataCfg();
-  m_cfg = new double [c.size()];
-  m_dof = c.size();
+vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
+if(sel.size() !=0){
+if(!m_nodes.empty()){
+GLModel* n = m_nodes.front();
+CfgModel* cfg = (CfgModel*)n;
+//get current node's cfg
+vector<double> c = cfg->GetDataCfg();
+m_cfg = new double [c.size()];
+m_dof = c.size();
 
-  for(unsigned int i=0; i<c.size(); i++){
-  m_cfg[i] = c[i];
+for(unsigned int i=0; i<c.size(); i++){
+m_cfg[i] = c[i];
 }
 //create a window to let user change Cfg:
 //  createWindow();

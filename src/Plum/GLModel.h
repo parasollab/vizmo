@@ -14,70 +14,46 @@
 
 enum RenderMode {WIRE_MODE, SOLID_MODE, INVISIBLE_MODE};
 
-class GLModel : public gliTransform
-{
+class GLModel : public gliTransform {
   public:
-    GLModel() : m_color() {
-      m_enableSelection=true;
-      m_renderMode = SOLID_MODE;
-    }
+    GLModel() : m_renderMode(SOLID_MODE), m_color() {}
+    GLModel(const GLModel& _other) :
+      gliTransform(_other),
+      m_renderMode(_other.m_renderMode),
+      m_color(_other.m_color) {}
+    virtual ~GLModel() {}
 
-    GLModel(const GLModel& _other) : gliTransform(_other) {
-      m_enableSelection = _other.m_enableSelection;
-      m_renderMode = _other.m_renderMode;
-      m_color = _other.m_color;
-    }
+    virtual void GetChildren(list<GLModel*>& _models) {}
 
-    virtual ~GLModel(){/*do nothing*/}
-    const string GetFilename() const { return m_filename; }
-    void SetFilename(string _filename){ m_filename = _filename; }
-
-    //////////////////////////////////////////////////////////////////////
-    // Action functions
-    //////////////////////////////////////////////////////////////////////
-    virtual void EnableSelection( bool enable=true ){
-      m_enableSelection=enable;
-    }
-
-    virtual void Select( unsigned int * index, vector<GLModel*>& sel ){/*nothing*/}
-    virtual void ParseFile() {}
-    virtual void BuildModels() {};
-    virtual void Draw( GLenum mode ) =0;
-
-    //the scale may be difficult for some models....
-    virtual void Scale( double x, double y, double z )
-    {
-        m_scale[0]=x; m_scale[1]=y; m_scale[2]=z; };
-
-    //this function is called when this obj is selected
-    virtual void DrawSelect(){/*nothing*/}
-
-    //set wire/solid/hide
-    virtual void SetRenderMode(RenderMode mode){m_renderMode = mode;}
-
-    //get/set color
-    virtual void SetColor(const Color4& _c) {m_color = _c;}
-    const Color4& GetColor() const {return m_color;}
-
-    //Get the name information
-    virtual const string GetName() const =0;
-
-    //get the contained children if any
-    virtual void GetChildren( list<GLModel*>& models )
-    { /*do nothing as default*/ }
-
-    //Get more detailde information
+    virtual const string GetName() const = 0;
     virtual vector<string> GetInfo() const {return vector<string>();}
 
-    virtual bool KP( QKeyEvent * e ) {return true;}
+    RenderMode GetRenderMode() const {return m_renderMode;}
+    virtual void SetRenderMode(RenderMode _mode) {m_renderMode = _mode;}
 
-  public:
-    bool  m_enableSelection;
-    RenderMode   m_renderMode;     //wire or solid or hide
+    const Color4& GetColor() const {return m_color;}
+    virtual void SetColor(const Color4& _c) {m_color = _c;}
 
-  private:
+    const string& GetFilename() const {return m_filename;}
+    void SetFilename(const string& _filename) {m_filename = _filename;}
+
+    //determing if _index is this GL model
+    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel) {}
+
+    //initialization of data from file
+    virtual void ParseFile() {}
+    //initialization of gl models
+    virtual void BuildModels() {};
+
+    //draw is called for the scene.
+    virtual void Draw(GLenum _mode) = 0;
+    //DrawSelect is only called if item is selected
+    virtual void DrawSelect(){}
+
+  protected:
+    RenderMode m_renderMode;     //wire or solid or hide
+    Color4 m_color;
     string m_filename;
-    Color4 m_color;  //Color
 };
 
 #endif

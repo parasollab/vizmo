@@ -619,7 +619,7 @@ void Vizmo::ChangeNodesRandomColor(){
   vector<CC*>& cc  =mmodel->GetCCModels();
   for(CCIT ic = cc.begin(); ic != cc.end(); ++ic){
     (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
-    (*ic)->DrawRobotNodes((*ic)->m_renderMode);
+    (*ic)->DrawRobotNodes((*ic)->GetRenderMode());
   }
 }
 

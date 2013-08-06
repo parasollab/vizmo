@@ -187,10 +187,9 @@ CfgModel::DrawRobot(){
 
   m_robot->RestoreInitCfg();
   m_robot->BackUp();
-  glColor4fv(GetColor());
+  glColor4fv(m_color);
   m_robot->SetRenderMode(m_renderMode);
-  m_robot->SetColor(GetColor());
-  m_robot->Scale(m_scale[0], m_scale[1], m_scale[2]);
+  m_robot->SetColor(m_color);
   m_robot->Configure(cfg);
   m_robot->Draw(GL_RENDER);
   m_robot->Restore();
@@ -202,7 +201,7 @@ CfgModel::DrawBox(){
 
   glEnable(GL_LIGHTING);
   glPushMatrix();
-  glColor4fv(GetColor());
+  glColor4fv(m_color);
 
   //If base is not FIXED, perform translations
   //Additionally, perform rotations if base is also ROTATIONAL
@@ -262,9 +261,7 @@ CfgModel::DrawSelect(){
         Color4 origColor = m_robot->GetColor();
         //change
         m_robot->SetColor(GetColor());
-        m_robot->Scale(m_scale[0], m_scale[1], m_scale[2]);
         m_robot->Configure(cfg);
-        //delete[] cfg;
         //draw
         m_robot->DrawSelect();
         m_robot->Restore();

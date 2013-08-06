@@ -39,7 +39,6 @@ class CCModel : public GLModel{
     const string GetName() const;
     int GetID() const {return m_id;}
     Shape GetShape(){return m_cfgShape;}
-    float GetRobotSize() {return  m_robotScale;}
     float GetBoxSize() {return m_boxScale;}
     float GetPointSize() {return m_pointScale;}
     int GetNumNodes(){ return m_nodes.size(); }
@@ -80,7 +79,6 @@ class CCModel : public GLModel{
   private:
     int m_id; //CC ID
 
-    float m_robotScale;
     float m_boxScale;
     float m_pointScale;
     Shape m_cfgShape;
@@ -103,12 +101,10 @@ template <class CfgModel, class WEIGHT>
 CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
 
       m_id = _id;
-      m_enableSelection = true;
       m_renderMode = INVISIBLE_MODE;
       //Set random Color
       GLModel::SetColor(Color4(drand48(), drand48(), drand48(), 1));
       //size
-      m_robotScale = 1;
       m_boxScale = 1;
       m_pointScale = 5;
       m_cfgShape = CfgModel::Point;
@@ -291,7 +287,6 @@ CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
   typedef typename map<VID, CfgModel>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
     glPushName(cit->first);
-    cit->second.Scale(m_robotScale, m_robotScale, m_robotScale);
     cit->second.SetShape(CfgModel::Robot);
     m_robot->SetColor(GetColor());
     cit->second.Draw(_mode);//draw robot;
@@ -414,8 +409,6 @@ void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
 
   if(m_renderMode == INVISIBLE_MODE)
     return;
-  if(_mode == GL_SELECT && !m_enableSelection)
-    return;
 
   int list = -1;
 
@@ -467,7 +460,7 @@ template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::DrawSelect(){
 
-  /*Disabled for now; later modifications likely*/ 
+  /*Disabled for now; later modifications likely*/
   //if(m_edgeID == -1)
   //  BuildEdges();
 

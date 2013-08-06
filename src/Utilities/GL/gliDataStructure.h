@@ -59,6 +59,10 @@ public:
     const double& tz() const { return m_pos[2]; }
 
     ///Scale
+    //the scale may be difficult for some models....
+    virtual void Scale(double x, double y, double z) {
+      m_scale[0]=x; m_scale[1]=y; m_scale[2]=z; };
+
     virtual double& sx(){ return m_scale[0]; }
     virtual double& sy(){ return m_scale[1]; }
     virtual double& sz(){ return m_scale[2]; }

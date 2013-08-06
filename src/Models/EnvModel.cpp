@@ -201,10 +201,6 @@ EnvModel::BuildModels(){
 
 void
 EnvModel::Draw(GLenum _mode) {
-
-  if(_mode == GL_SELECT && !m_enableSelection)
-    return;
-
   int numMBs = m_multibodies.size();
   if(_mode == GL_SELECT)
     glPushName(numMBs);
