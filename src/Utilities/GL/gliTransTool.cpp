@@ -43,26 +43,7 @@ void gliTToolBase::Project2Win(){
     if( m_pSObj==NULL ) return;
 
     double x, y, z;
-    if(m_pSObj->GetObjName() == "Node"){
-
-      vector<double> cfg = m_pSObj->GetCfg();
-         x=cfg[0];
-         y=cfg[1];
-         z=cfg[2];
-
-    }
-
-    else if( m_pSObj->m_posPoly[0] != -1){
-
-      x=m_pSObj->tx() + m_pSObj->m_posPoly[0];
-      y=m_pSObj->ty() + m_pSObj->m_posPoly[1];
-      z=m_pSObj->tz() + m_pSObj->m_posPoly[2];
-    }
-
-    else{
-
-      x=m_pSObj->tx(); y=m_pSObj->ty(); z=m_pSObj->tz();
-    }
+    x=m_pSObj->tx(); y=m_pSObj->ty(); z=m_pSObj->tz();
 
     Point3d pts[4]={Point3d(x,y,z),Point3d(x+0.1,y,z),
                     Point3d(x,y+0.1,z),Point3d(x,y,z+0.1)};
@@ -566,9 +547,9 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
     v = m_pSObj->MatrixToEuler(m);
 
     //values in radians
-    m_pSObj->m_rotPoly[0] = v[0];
-    m_pSObj->m_rotPoly[1] = v[1];
-    m_pSObj->m_rotPoly[2] = v[2];
+    //m_pSObj->m_rotPoly[0] = v[0];
+    //m_pSObj->m_rotPoly[1] = v[1];
+    //m_pSObj->m_rotPoly[2] = v[2];
 
     ComputLocalAxis();
     ComputAngles();

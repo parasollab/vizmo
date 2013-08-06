@@ -133,37 +133,7 @@ EdgeModel::DrawSelect(){
 }
 
 ostream&
-operator<<(ostream& _out, const CfgModel& _cfg){
-
-  for(unsigned int i = 0; i < (_cfg.m_dofs).size(); i++)
-    _out << (_cfg.m_dofs)[i] << " ";
-
-  _out << " ";
-  return _out;
-}
-
-istream&
-operator>>(istream& _in, CfgModel& _cfg){
-
-  (_cfg.m_dofs).clear();
-  int dof = CfgModel::m_dof;
-
-  //For now, read in and discard robot index;
-  int robotIndex;
-  _in >> robotIndex;
-
-  for(int i = 0; i < dof; i++){
-    double value;
-    _in >> value;
-    (_cfg.m_dofs).push_back(value);
-  }
-
-  return _in;
-}
-
-ostream&
 operator<<(ostream& _out, const EdgeModel& _edge){
-
   _out << _edge.m_lp << " " << _edge.m_weight << " ";
   return _out;
 }

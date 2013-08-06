@@ -21,7 +21,6 @@ class GLModel : public gliTransform {
       gliTransform(_other),
       m_renderMode(_other.m_renderMode),
       m_color(_other.m_color) {}
-    virtual ~GLModel() {}
 
     virtual void GetChildren(list<GLModel*>& _models) {}
 

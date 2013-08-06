@@ -62,6 +62,9 @@ EnvModel::ParseFile(){
 
   BuildRobotStructure();
   CfgModel::SetDOF(m_dof);
+  CfgModel::SetIsPlanarRobot(m_robots[0].m_base == Robot::PLANAR ? true : false);
+  CfgModel::SetIsVolumetricRobot(m_robots[0].m_base == Robot::VOLUMETRIC ? true : false);
+  CfgModel::SetIsRotationalRobot(m_robots[0].m_baseMovement == Robot::ROTATIONAL ? true : false);
 }
 
 void
