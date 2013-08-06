@@ -24,9 +24,6 @@ class FileOptions : public OptionsBase{
     void SaveEnv();
     void SaveQryFile();
     void SaveRoadmap();
-
-  private:
-    void SaveNewRoadmap(const char* _filename);
 };
 
 #endif

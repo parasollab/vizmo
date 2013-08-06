@@ -34,14 +34,8 @@ class MapModel : public GLModel{
 
     //Access functions
     virtual const string GetName() const {return "Map";}
-    const string  GetVersionNumber() const{ return m_versionNumber; }
-    const string  GetPreamble() const{ return m_preamble; }
     const string  GetEnvFileName() const{ return m_envFileName; }
     const string  GetFileDir() const{ return m_fileDir; }
-    const list<string>& GetLPs() const{ return m_lPs; }
-    const list<string>& GetCDs() const{ return m_cDs; }
-    const list<string>& GetDMs() const{ return m_dMs; }
-    const string GetSeed() const {return m_seed; }
     Wg* GetGraph(){ return m_graph; }
     vector<CCM*>& GetCCModels(){ return m_cCModels; }
     list<GLModel*>& GetNodeList(){ return m_nodes; }
@@ -81,14 +75,8 @@ class MapModel : public GLModel{
     //  void MoveNode();
 
   private:
-    string  m_versionNumber;
-    string  m_preamble;
     string  m_envFileName;
     string  m_fileDir;
-    list<string> m_lPs;
-    list<string> m_cDs;
-    list<string> m_dMs;
-    string m_seed;
     bool m_robCfgOn;
     bool m_addNode;
     bool m_addEdge;
@@ -181,15 +169,13 @@ MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
   //Open file for reading data
   string s;
 
-  //Get version comment
+  //TEMPORARY: Read and ignore version comment
   GoToNext(_in);
-  _in >> s >> s >> s >> s; //Roadmap Version Number 061300
-  m_versionNumber = s;
+  _in >> s >> s >> s >> s;
 
-  //Get preamble info
+  //TEMPORARY: Read and ignore preamble
   GoToNext(_in);
   getline(_in, s);
-  m_preamble = s;
 
   //Get env file name info
   GoToNext(_in);
@@ -201,46 +187,19 @@ MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
   else
     m_envFileName = s;
 
-  unsigned int number = 0;
-  //get lp info
+  //TEMPORARY: Read and ignore LP, CD, and DM info
   GoToNext(_in);
-  _in >> number; //# of lps
-
-  for(unsigned int iLP = 0; iLP < number; iLP++){
-    GoToNext(_in);
-    getline(_in, s);
-    if(m_lPs.size() != number)
-      m_lPs.push_back(s);
-  }
-
-  //get cd info
+  unsigned int tempIgnore = 0;
+  _in >> tempIgnore;
   GoToNext(_in);
-  _in >> number; //# of lps
-  for(unsigned int iCD = 0; iCD < number; iCD++){
-    GoToNext(_in);
-    getline(_in, s);
-    if(m_cDs.size() != number)
-      m_cDs.push_back(s);
-  }
-
-  //get dm info
+  _in >> tempIgnore;
   GoToNext(_in);
-  _in >> number;
-  for(unsigned int iDM = 0; iDM < number; iDM++){
-    GoToNext(_in);
-    getline(_in, s);
-    if(m_dMs.size() != number)
-      m_dMs.push_back(s);
-  }
+  _in >> tempIgnore;
+  GoToNext(_in);
 
-  // Supports new version of map generation:
-  // ask whether this has the RNGSEEDSTART tag:
-  string s_ver = m_versionNumber;
-  if(s_ver == "041805"){
-    GoToNext(_in);
-    getline(_in, s);
-    m_seed = s;
-  }
+  //TEMPORARY: Read and ignore RNGSEED string
+  //(Assumes new version of map)
+  getline(_in, s);
 }
 
 template<class CfgModel, class WEIGHT>

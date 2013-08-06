@@ -170,71 +170,7 @@ FileOptions::SaveQryFile(){
 void
 FileOptions::SaveRoadmap(){
 
-  QString fn = QFileDialog::getSaveFileName(this, "Choose a file name for the roadmap",
-      QString::null, "Files (*.map)");
-
-  QFileInfo fi(fn);
-  if (!fn.isEmpty()){
-    string filename = fn.toStdString() ;
-    const char* f;
-    f = filename.c_str();
-    //GetVizmo().SaveMap(f);
-    SaveNewRoadmap(f); //moved from above. Should combine this..?
-  }
-
-  else{
-    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
-  }
-  GetMainWin()->GetGLScene()->updateGL();
+  cout << "***\n\nFeature temporarily disabled as new map file format is implemented!"<< endl;
+  cout << "Should be revised as callback to MapModel function!!!\n\n***"<<endl;
 }
 
-void
-FileOptions::SaveNewRoadmap(const char* _filename){
-  MapModel<CfgModel, EdgeModel>* mapModel = GetVizmo().GetMap();
-
-  ofstream outfile (_filename);
-
-  const string version = mapModel->GetVersionNumber();
-  const string preamble = mapModel->GetPreamble();
-  const string envFile = mapModel->GetEnvFileName();
-  const list<string> lps = mapModel->GetLPs();
-  const list<string> cds = mapModel->GetCDs();
-  const list<string> dms = mapModel-> GetDMs();
-  const string seed = mapModel-> GetSeed();
-  outfile<< "Roadmap Version Number "<< version<<"\n";
-  outfile<< "#####PREAMBLESTART##### \n";
-  outfile<<preamble<<"\n";
-  outfile<< "#####PREAMBLESTOP##### \n";
-  outfile<< "#####ENVFILESTART##### \n";
-  outfile<<envFile<<"\n";
-  outfile<< "#####ENVFILESTOP##### \n";
-  outfile<< "#####LPSTART##### \n";
-  outfile<<lps.size()<<endl;
-  list<string>::const_iterator it;
-  for(it=lps.begin(); it!=lps.end(); ++it){
-    outfile << *it << endl; // each element on a separate line
-  }
-  outfile<< "#####LPSTOP##### \n";
-  outfile<< "#####CDSTART##### \n";
-  outfile<<cds.size()<<endl;
-  for(it=cds.begin(); it!=cds.end(); ++it){
-    outfile << *it << endl; // each element on a separate line
-  }
-  outfile<< "#####CDSTOP##### \n";
-  outfile<< "#####DMSTART##### \n";
-  outfile<<dms.size()<<endl;
-  for(it=dms.begin(); it!=dms.end(); ++it){
-    outfile << *it << endl; // each element on a separate line
-  }
-  outfile<< "#####DMSTOP#####";
-
-  if(version == "041805"){
-    outfile<< "\n#####RNGSEEDSTART##### \n";
-    outfile<< seed <<"\n";
-    outfile<< "#####RNGSEEDSTOP##### \n";
-  }
-
-  typedef MapModel<CfgModel,EdgeModel>::Wg WG;
-  WG* graph = mapModel->GetGraph();
-  write_graph(*graph, outfile);
-}
