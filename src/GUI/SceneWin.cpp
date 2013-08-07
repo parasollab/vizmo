@@ -114,6 +114,13 @@ VizGLWin::mousePressEvent(QMouseEvent* e){
 }
 
 void
+VizGLWin::mouseDoubleClickEvent(QMouseEvent* _e){
+
+  GetVizmo().SetDoubleClickStatus(true);
+  updateGL();
+}
+
+void
 VizGLWin::simulateMouseUpSlot(){
   gliSimMouseUp();
   updateGL();

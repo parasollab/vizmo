@@ -56,6 +56,7 @@ class VizGLWin : public QGLWidget {
     void resizeGL(int, int);
     void paintGL();
     void mousePressEvent(QMouseEvent*);
+    void mouseDoubleClickEvent(QMouseEvent*);
     void mouseReleaseEvent(QMouseEvent*);
     void mouseMoveEvent(QMouseEvent*);
     void keyPressEvent(QKeyEvent* _e);

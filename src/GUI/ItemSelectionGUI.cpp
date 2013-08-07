@@ -1,7 +1,6 @@
-#include "ItemSelectionGUI.h"
-
 #include <QString>
 
+#include "ItemSelectionGUI.h"
 #include "Models/Vizmo.h"
 #include "Models/CCModel.h"
 
@@ -66,8 +65,10 @@ VizmoItemSelectionGUI::SelectionChanged(){
   for(IIT i = m_items.begin(); i != m_items.end(); i++){
     if((*i)->isSelected()){
       sel.push_back((*i)->m_model);
-      for(int j = 0; j < (*i)->childCount(); j++)
-        sel.push_back(((VizmoListViewItem*)(*i)->child(j))->m_model);
+      for(int j = 0; j < (*i)->childCount(); j++){ //Select all subcomponents as well
+        VizmoListViewItem* child = (VizmoListViewItem*)(*i)->child(j);
+          sel.push_back(child->m_model);
+      }
     }
   }
   emit CallUpdate();
@@ -76,7 +77,8 @@ VizmoItemSelectionGUI::SelectionChanged(){
 
 void
 VizmoItemSelectionGUI::ClearLists(){
-  clear();      //Qt call to clear the TreeWidget
+
+  clear();  //Qt call to clear the TreeWidget
   m_items.clear();
 }
 
@@ -85,24 +87,26 @@ VizmoItemSelectionGUI::Select(){
   //Selects in the TREE WIDGET whatever has been selected in the map
   vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<VizmoListViewItem*>::iterator IIT;
-  //unselect everything
+
+  //Unselect everything
   blockSignals(true);
   for(IIT i = m_items.begin(); i != m_items.end(); i++)
     (*i)->setSelected(false);
-  //find selected
+
+  //Find selected
   vector<VizmoListViewItem*> selected;
   for(size_t s = 0; s < sel.size(); ++s){
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
       if(sel[s] == (*i)->m_model){
-        selected.push_back(*i);
+        (*i)->setSelected(true);
+        if(GetVizmo().GetDoubleClickStatus() == true){
+          (*i)->parent()->setSelected(true);
+          (*i)->setSelected(false);
+          GetVizmo().SetDoubleClickStatus(false);
+        }
       }
     }
   }
-  //select
-  for(IIT i=selected.begin(); i!=selected.end(); i++)
-    (*i)->setSelected(true);
   blockSignals(false);
   emit itemSelectionChanged();
 }
-
-

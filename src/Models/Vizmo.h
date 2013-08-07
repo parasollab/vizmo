@@ -113,8 +113,10 @@ class Vizmo {
     vector<GLModel*>& GetLoadedModels(){ return m_loadedModels; }
     vector<GLModel*>& GetSelectedModels() {return m_selectedModels;}
 
-    //Miscelaneous
+    //Miscellaneous
     bool StringToInt(const string &s, int &i);
+    void SetDoubleClickStatus(bool _setting) { m_doubleClick = _setting; }
+    bool GetDoubleClickStatus() { return m_doubleClick; }
 
     ////////////////////////////////////////////////////////////////
     // Variables used to change color of objects in the environment.
@@ -169,6 +171,7 @@ class Vizmo {
 
     typedef vector<GLModel*>::iterator MIT;
     vector<GLModel*> m_loadedModels, m_selectedModels;
+    bool m_doubleClick;
 };
 
 #endif
