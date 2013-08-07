@@ -39,9 +39,9 @@ EnvironmentOptions::CreateActions(){
   m_actions["addObstacle"]->setEnabled(false);
 
   //3. Make connections
-  connect(m_actions["refreshEnv"], SIGNAL(activated()), this, SLOT(RefreshEnv()));
-  connect(m_actions["randEnvColors"], SIGNAL(activated()), this, SLOT(RandomizeEnvColors()));
-  connect(m_actions["addObstacle"], SIGNAL(activated()), this, SLOT(AddObstacle()));
+  connect(m_actions["refreshEnv"], SIGNAL(triggered()), this, SLOT(RefreshEnv()));
+  connect(m_actions["randEnvColors"], SIGNAL(triggered()), this, SLOT(RandomizeEnvColors()));
+  connect(m_actions["addObstacle"], SIGNAL(triggered()), this, SLOT(AddObstacle()));
 }
 
 void

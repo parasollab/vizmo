@@ -52,11 +52,11 @@ SceneOptions::CreateActions(){
   m_actions["changeBGColor"]->setStatusTip(tr("Change the color of the background"));
 
   //3. Make connections
-  connect(m_actions["showGrid"], SIGNAL(activated()), this, SLOT(ShowGrid()));
-  connect(m_actions["showAxis"], SIGNAL(activated()), this, SLOT(ShowAxis()));
-  connect(m_actions["resetCamera"], SIGNAL(activated()), this, SLOT(ResetCamera()));
-  connect(m_actions["setCameraPosition"], SIGNAL(activated()), this, SLOT(SetCameraPosition()));
-  connect(m_actions["changeBGColor"], SIGNAL(activated()), this, SLOT(ChangeBGColor()));
+  connect(m_actions["showGrid"], SIGNAL(triggered()), this, SLOT(ShowGrid()));
+  connect(m_actions["showAxis"], SIGNAL(triggered()), this, SLOT(ShowAxis()));
+  connect(m_actions["resetCamera"], SIGNAL(triggered()), this, SLOT(ResetCamera()));
+  connect(m_actions["setCameraPosition"], SIGNAL(triggered()), this, SLOT(SetCameraPosition()));
+  connect(m_actions["changeBGColor"], SIGNAL(triggered()), this, SLOT(ChangeBGColor()));
   connect(GetMainWin()->GetGLScene(), SIGNAL(clickByRMB()), this, SLOT(ShowGeneralContextMenu()));
 }
 

@@ -113,25 +113,25 @@ VizmoAnimationGUI::CreateStepInput(){
 bool VizmoAnimationGUI::CreateActions(){
 
   m_playPathAction=new QAction(QIcon(QPixmap(play)), tr("Play"), this);
-  connect(m_playPathAction,SIGNAL(activated()),SLOT(animate2()));
+  connect(m_playPathAction,SIGNAL(triggered()),SLOT(animate2()));
 
   m_playBackAction = new QAction(QPixmap(playback),"BackPlay",this);
-  connect(m_playBackAction,SIGNAL(activated()),SLOT(backAnimate()));
+  connect(m_playBackAction,SIGNAL(triggered()),SLOT(backAnimate()));
 
   m_pausePathAction=new QAction(QIcon(QPixmap(pauseIcon)),tr("Pause"),this);
-  connect(m_pausePathAction,SIGNAL(activated()),SLOT(pauseAnimate()));
+  connect(m_pausePathAction,SIGNAL(triggered()),SLOT(pauseAnimate()));
 
   m_nextFrameAction=new QAction(QIcon(QPixmap(next)),tr("NextFrame"),this);
-  connect(m_nextFrameAction,SIGNAL(activated()),SLOT(nextFrame()));
+  connect(m_nextFrameAction,SIGNAL(triggered()),SLOT(nextFrame()));
 
   m_previousFrameAction=new QAction(QIcon(QPixmap(previous)),tr("PreviousFrame"),this);
-  connect(m_previousFrameAction,SIGNAL(activated()),SLOT(previousFrame()));
+  connect(m_previousFrameAction,SIGNAL(triggered()),SLOT(previousFrame()));
 
   m_firstFrame=new QAction(QIcon(QPixmap(first)),tr("first"),this);
-  connect(m_firstFrame,SIGNAL(activated()),SLOT(gotoFirst()));
+  connect(m_firstFrame,SIGNAL(triggered()),SLOT(gotoFirst()));
 
   m_lastFrame=new QAction(QIcon(QPixmap(last)),tr("last"),this);
-  connect(m_lastFrame,SIGNAL(activated()),SLOT(gotoLast()));
+  connect(m_lastFrame,SIGNAL(triggered()),SLOT(gotoLast()));
 
   this->addAction(m_playPathAction);
   this->addAction(m_playBackAction);

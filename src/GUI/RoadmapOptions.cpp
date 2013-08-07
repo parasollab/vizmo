@@ -166,30 +166,30 @@ void RoadmapOptions::CreateActions(){
   m_actions["ccsOneColor"]->setStatusTip(tr("Make all CCs one color"));
 
   //3. Make connections
-  connect(m_actions["showHideRoadmap"], SIGNAL(activated()), this, SLOT(ShowRoadmap()));
+  connect(m_actions["showHideRoadmap"], SIGNAL(triggered()), this, SLOT(ShowRoadmap()));
 
   connect(m_nodeView, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(ChangeNodeShape()));
-  connect(m_actions["robotView"], SIGNAL(activated()), this, SLOT(ClickRobot())); //would be better as single function
-  connect(m_actions["boxView"], SIGNAL(activated()), this, SLOT(ClickBox()));
-  connect(m_actions["pointView"], SIGNAL(activated()), this, SLOT(ClickPoint()));
+  connect(m_actions["robotView"], SIGNAL(triggered()), this, SLOT(ClickRobot())); //would be better as single function
+  connect(m_actions["boxView"], SIGNAL(triggered()), this, SLOT(ClickBox()));
+  connect(m_actions["pointView"], SIGNAL(triggered()), this, SLOT(ClickPoint()));
 
-  connect(m_actions["makeSolid"], SIGNAL(activated()), this, SLOT(MakeSolid()));
-  connect(m_actions["makeWired"], SIGNAL(activated()), this, SLOT(MakeWired()));
-  connect(m_actions["makeInvisible"], SIGNAL(activated()), this, SLOT(MakeInvisible()));
-  connect(m_actions["changeNodeColor"], SIGNAL(activated()), this, SLOT(ChangeObjectColor()));
+  connect(m_actions["makeSolid"], SIGNAL(triggered()), this, SLOT(MakeSolid()));
+  connect(m_actions["makeWired"], SIGNAL(triggered()), this, SLOT(MakeWired()));
+  connect(m_actions["makeInvisible"], SIGNAL(triggered()), this, SLOT(MakeInvisible()));
+  connect(m_actions["changeNodeColor"], SIGNAL(triggered()), this, SLOT(ChangeObjectColor()));
 
-  connect(m_actions["scaleNodes"], SIGNAL(activated()), this, SLOT(ShowNodeSizeDialog()));
+  connect(m_actions["scaleNodes"], SIGNAL(triggered()), this, SLOT(ShowNodeSizeDialog()));
   connect(m_nodeSizeDialog->GetSlider(), SIGNAL(valueChanged(int)), this, SLOT(ScaleNodes()));
 
-  connect(m_actions["edgeThickness"], SIGNAL(activated()), this, SLOT(ShowEdgeThicknessDialog()));
+  connect(m_actions["edgeThickness"], SIGNAL(triggered()), this, SLOT(ShowEdgeThicknessDialog()));
   connect(m_edgeThicknessDialog->GetSlider(), SIGNAL(valueChanged(int)), this, SLOT(ChangeEdgeThickness()));
 
-  connect(m_actions["colorSelected"], SIGNAL(activated()), this, SLOT(ColorSelectedCC()));
-  connect(m_actions["randomizeColors"], SIGNAL(activated()), this, SLOT(RandomizeCCColors()));
-  connect(m_actions["ccsOneColor"], SIGNAL(activated()), this, SLOT(MakeCCsOneColor()));
-  connect(m_actions["saveStart"], SIGNAL(activated()), this, SLOT(SaveQueryStart()));
-  connect(m_actions["saveGoal"], SIGNAL(activated()), this, SLOT(SaveQueryGoal()));
-  connect(m_actions["changeObjectColor"], SIGNAL(activated()), this, SLOT(ChangeObjectColor()));
+  connect(m_actions["colorSelected"], SIGNAL(triggered()), this, SLOT(ColorSelectedCC()));
+  connect(m_actions["randomizeColors"], SIGNAL(triggered()), this, SLOT(RandomizeCCColors()));
+  connect(m_actions["ccsOneColor"], SIGNAL(triggered()), this, SLOT(MakeCCsOneColor()));
+  connect(m_actions["saveStart"], SIGNAL(triggered()), this, SLOT(SaveQueryStart()));
+  connect(m_actions["saveGoal"], SIGNAL(triggered()), this, SLOT(SaveQueryGoal()));
+  connect(m_actions["changeObjectColor"], SIGNAL(triggered()), this, SLOT(ChangeObjectColor()));
   connect(GetMainWin()->GetGLScene(), SIGNAL(selectByRMB()), this, SLOT(ShowObjectContextMenu()));
 
 }

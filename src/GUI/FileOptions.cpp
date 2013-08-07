@@ -57,12 +57,12 @@ FileOptions::CreateActions(){
   m_actions["saveRoadmap"]->setEnabled(false);
 
   //3. Make connections
-  connect(m_actions["openFile"], SIGNAL(activated()), this, SLOT(LoadFile()));
-  connect(m_actions["updateFile"], SIGNAL(activated()), this, SLOT(UpdateFiles()));
-  connect(m_actions["saveFile"], SIGNAL(activated()), this, SLOT(SaveEnv()));
-  connect(m_actions["saveQuery"], SIGNAL(activated()), this, SLOT(SaveQryFile()));
-  connect(m_actions["saveRoadmap"], SIGNAL(activated()), this, SLOT(SaveRoadmap()));
-  connect(m_actions["quit"], SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
+  connect(m_actions["openFile"], SIGNAL(triggered()), this, SLOT(LoadFile()));
+  connect(m_actions["updateFile"], SIGNAL(triggered()), this, SLOT(UpdateFiles()));
+  connect(m_actions["saveFile"], SIGNAL(triggered()), this, SLOT(SaveEnv()));
+  connect(m_actions["saveQuery"], SIGNAL(triggered()), this, SLOT(SaveQryFile()));
+  connect(m_actions["saveRoadmap"], SIGNAL(triggered()), this, SLOT(SaveRoadmap()));
+  connect(m_actions["quit"], SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 }
 
 void

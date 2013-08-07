@@ -42,9 +42,9 @@ PathOptions::CreateActions() {
   m_actions["pathOptions"]->setEnabled(false);
 
   //3. Make connections
-  connect(m_actions["showHidePath"], SIGNAL(activated()), this, SLOT(ShowHidePath()));
-  connect(m_actions["showHideSG"], SIGNAL(activated()), this, SLOT(ShowHideStartGoal()));
-  connect(m_actions["pathOptions"], SIGNAL(activated()), this, SLOT(PathDisplayOptions()));
+  connect(m_actions["showHidePath"], SIGNAL(triggered()), this, SLOT(ShowHidePath()));
+  connect(m_actions["showHideSG"], SIGNAL(triggered()), this, SLOT(ShowHideStartGoal()));
+  connect(m_actions["pathOptions"], SIGNAL(triggered()), this, SLOT(PathDisplayOptions()));
 }
 
 void

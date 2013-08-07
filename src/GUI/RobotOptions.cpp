@@ -32,8 +32,8 @@ RobotOptions::CreateActions(){
   m_actions["showRobotCfg"]->setChecked(false); //may not need...
 
   //3. Make connections
-  connect(m_actions["resetRobotPos"], SIGNAL(activated()), this, SLOT(ResetRobotPosition()));
-  // connect(m_actions["showRobotCfg"], SIGNAL(activated()), this, SLOT(ShowRobotCfg()));
+  connect(m_actions["resetRobotPos"], SIGNAL(triggered()), this, SLOT(ResetRobotPosition()));
+  // connect(m_actions["showRobotCfg"], SIGNAL(triggered()), this, SLOT(ShowRobotCfg()));
 }
 
 void

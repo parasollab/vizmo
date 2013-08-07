@@ -26,7 +26,7 @@ HelpOptions::CreateActions(){
   //...nothing to do in this case
 
   //3. Make connections
-  connect(m_actions["about"], SIGNAL(activated()), this, SLOT(ShowAboutBox()));
+  connect(m_actions["about"], SIGNAL(triggered()), this, SLOT(ShowAboutBox()));
 }
 
 void
