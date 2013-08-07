@@ -47,11 +47,12 @@ CaptureOptions::CreateActions(){
   m_actions["movie"]->setStatusTip(tr("Save movie"));
 
   //3. Make connections
-  connect(m_actions["crop"], SIGNAL(activated()), this, SLOT(CropRegion()));
-  connect(m_actions["picture"], SIGNAL(activated()), this, SLOT(CapturePicture()));
-  connect(m_actions["movie"], SIGNAL(activated()), this, SLOT(CaptureMovie()));
+  connect(m_actions["crop"], SIGNAL(triggered()), this, SLOT(CropRegion()));
+  connect(m_actions["picture"], SIGNAL(triggered()), this, SLOT(CapturePicture()));
+  connect(m_actions["movie"], SIGNAL(triggered()), this, SLOT(CaptureMovie()));
 
-  connect(this, SIGNAL(ToggleSelectionSignal()), GetMainWin()->GetGLScene(), SLOT(toggleSelectionSlot()));
+  connect(this, SIGNAL(ToggleSelectionSignal()), GetMainWin()->GetGLScene(), SLOT(ToggleSelectionSlot()));
+  connect(this, SIGNAL(SimulateMouseUp()), GetMainWin()->GetGLScene(), SLOT(SimulateMouseUpSlot()));
   connect(this, SIGNAL(CallUpdate()), GetMainWin(), SLOT(updateScreen()));
   connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationGUI(), SLOT(goToFrame(int)));
   connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationDebugGUI(), SLOT(goToFrame(int)));
@@ -87,6 +88,7 @@ CaptureOptions::Reset(){
 //Slots
 void
 CaptureOptions::CropRegion() {
+
   m_cropBox =! m_cropBox;
 
   if(!m_cropBox)
@@ -98,13 +100,13 @@ CaptureOptions::CropRegion() {
 
 void
 CaptureOptions::CapturePicture(){
-  //set up the file dialog to select image filename
+  //Set up the file dialog to select image filename
   QFileDialog fd(this, "Choose a name", ".", QString::null);
   fd.setFileMode(QFileDialog::AnyFile);
   fd.setFilters(imageFilters);
   fd.setAcceptMode(QFileDialog::AcceptSave);
 
-  //if filename exists save image
+  //If filename exists save image
   if(fd.exec() == QDialog::Accepted){
     QStringList files = fd.selectedFiles();
     if(!files.empty()) {

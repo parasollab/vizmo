@@ -66,8 +66,8 @@ class VizGLWin : public QGLWidget {
     void showAxis();
 
   private slots:
-    void toggleSelectionSlot();
-    void simulateMouseUpSlot();
+    void ToggleSelectionSlot();
+    void SimulateMouseUpSlot();
 
   private:
     void SetLight();
@@ -85,7 +85,7 @@ class VizGLWin : public QGLWidget {
     //size the image down.
     QRect GetImageRect(bool _crop);
 
-    bool takingSnapShot;
+    bool m_takingSnapShot;
     bool m_bShowGrid, m_bShowAxis;
 
 };

@@ -21,14 +21,15 @@ VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setFocusPolicy(Qt::StrongFocus);
 
-    takingSnapShot=false;
+    m_takingSnapShot=false;
     m_bShowGrid=false;
     m_bShowAxis=true;
   }
 
 void
-VizGLWin::toggleSelectionSlot(){
-  takingSnapShot=!takingSnapShot;
+VizGLWin::ToggleSelectionSlot(){
+
+  m_takingSnapShot =! m_takingSnapShot;
 }
 
 void
@@ -121,14 +122,15 @@ VizGLWin::mouseDoubleClickEvent(QMouseEvent* _e){
 }
 
 void
-VizGLWin::simulateMouseUpSlot(){
+VizGLWin::SimulateMouseUpSlot(){
+
   gliSimMouseUp();
   updateGL();
 }
 
 void
 VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
-  if(gliMR(_e, takingSnapShot)){ //handled by gli
+  if(gliMR(_e, m_takingSnapShot)){ //handled by gli
     updateGL();
     emit MRbyGLI();
     return;
