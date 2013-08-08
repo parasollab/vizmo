@@ -31,7 +31,6 @@
 #include "Icons/MakeSolid.xpm"
 #include "Icons/MakeWired.xpm"
 #include "Icons/MakeInvisible.xpm"
-#include "Icons/CCColor.xpm"
 #include "Icons/RColor.xpm"
 #include "Icons/CCsOneColor.xpm"
 #include "Icons/NodeSize.xpm"
@@ -104,8 +103,6 @@ void RoadmapOptions::CreateActions(){
   m_actions["edgeThickness"] = edgeThickness;
   m_edgeThicknessDialog = new SliderDialog(this);
 
-  QAction* colorSelected = new QAction(QPixmap(ccColor), tr("Change Color of Selected"), this);
-  m_actions["colorSelected"] = colorSelected;
   QAction* randomizeColors = new QAction(QPixmap(rcolor), tr("Randomize Colors"), this);
   m_actions["randomizeColors"] = randomizeColors;
   QAction* ccsOneColor = new QAction(QPixmap(ccsOneColorIcon), tr("Make All One Color"), this);
@@ -156,9 +153,6 @@ void RoadmapOptions::CreateActions(){
   m_actions["edgeThickness"]->setEnabled(false);
   m_actions["edgeThickness"]->setStatusTip(tr("Change edge thickness"));
 
-  m_actions["colorSelected"]->setShortcut(tr("CTRL+C"));
-  m_actions["colorSelected"]->setEnabled(false);
-  m_actions["colorSelected"]->setStatusTip(tr("Change color of selected CC"));
   m_actions["randomizeColors"]->setShortcut(tr("CTRL+R"));
   m_actions["randomizeColors"]->setEnabled(false);
   m_actions["randomizeColors"]->setStatusTip(tr("Randomize CC colors"));
@@ -184,7 +178,6 @@ void RoadmapOptions::CreateActions(){
   connect(m_actions["edgeThickness"], SIGNAL(triggered()), this, SLOT(ShowEdgeThicknessDialog()));
   connect(m_edgeThicknessDialog->GetSlider(), SIGNAL(valueChanged(int)), this, SLOT(ChangeEdgeThickness()));
 
-  connect(m_actions["colorSelected"], SIGNAL(triggered()), this, SLOT(ColorSelectedCC()));
   connect(m_actions["randomizeColors"], SIGNAL(triggered()), this, SLOT(RandomizeCCColors()));
   connect(m_actions["ccsOneColor"], SIGNAL(triggered()), this, SLOT(MakeCCsOneColor()));
   connect(m_actions["saveStart"], SIGNAL(triggered()), this, SLOT(SaveQueryStart()));
@@ -219,7 +212,6 @@ RoadmapOptions::SetUpCustomSubmenu(){
   m_submenu->addAction(m_actions["edgeThickness"]);
 
   m_modifyCCs = new QMenu("Modify CCs", this);
-  m_modifyCCs->addAction(m_actions["colorSelected"]);
   m_modifyCCs->addAction(m_actions["randomizeColors"]);
   m_modifyCCs->addAction(m_actions["ccsOneColor"]);
   m_submenu->addMenu(m_modifyCCs);
@@ -247,7 +239,6 @@ RoadmapOptions::SetUpToolbar(){
   m_toolbar->addAction(m_actions["changeNodeColor"]);
   m_toolbar->addAction(m_actions["scaleNodes"]);
   m_toolbar->addAction(m_actions["edgeThickness"]);
-  m_toolbar->addAction(m_actions["colorSelected"]);
   m_toolbar->addAction(m_actions["randomizeColors"]);
   m_toolbar->addAction(m_actions["ccsOneColor"]);
 }
@@ -285,7 +276,6 @@ RoadmapOptions::Reset(){
   m_actions["edgeThickness"]->setEnabled(true);
 
   m_modifyCCs->setEnabled(true);
-  m_actions["colorSelected"]->setEnabled(true);
   m_actions["randomizeColors"]->setEnabled(true);
   m_actions["ccsOneColor"]->setEnabled(true);
 
@@ -341,9 +331,6 @@ RoadmapOptions::SetHelpTips(){
    " roadmap nodes by a specified factor."));
   m_actions["edgeThickness"]->setWhatsThis(tr("Click this button to scale the"
    " thickness of the edges."));
-  m_actions["colorSelected"]->setWhatsThis(tr("Click this button to change the"
-    " color of an entire connected component. Be sure to first select a CC from the"
-    " <b>Environment Objects</b> list."));
   m_actions["randomizeColors"]->setWhatsThis(tr("Click this button to randomize"
    " the colors of the connected components."));
   m_actions["ccsOneColor"]->setWhatsThis(tr("Click this button to set all of the"
@@ -475,40 +462,6 @@ RoadmapOptions::ChangeEdgeThickness(){
   double resize = m_edgeThicknessDialog->GetSliderValue() / (double)100;
   GetVizmo().ChangeEdgeThickness(resize);
   GetMainWin()->GetGLScene()->updateGL();
-}
-
-void
-RoadmapOptions::ColorSelectedCC(){
-
-  double R, G, B;
-  R=G=B=1;
-
-  //Check first if there is a CC selected
-  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<GLModel*>::iterator SI;
-  string m_sO;
-  for(SI i = sel.begin(); i!= sel.end(); i++){
-    GLModel* gl = (GLModel*)(*i);
-    m_sO = gl->GetName();
-  }
-
-  string m_s = "NULL";
-  size_t position = 0;
-
-  position = m_sO.find("CC",0);
-
-  if(position != string::npos){ //Label "CC" has been found
-    QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
-    if (color.isValid()){
-      GetVizmo().mR = (double)(color.red()) / 255.0;
-      GetVizmo().mG = (double)(color.green()) / 255.0;
-      GetVizmo().mB = (double)(color.blue()) / 255.0;
-    }
-    GetVizmo().ChangeAppearance(3);
-    GetMainWin()->GetGLScene()->updateGL();
-  }
-  else
-    QMessageBox::about(this, "", "Please select a connected component from the <b>Environment Objects</b> menu.");
 }
 
 void

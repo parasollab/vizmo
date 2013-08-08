@@ -51,7 +51,6 @@ class RoadmapOptions : public OptionsBase{
     void ScaleNodes();
     void ShowEdgeThicknessDialog();
     void ChangeEdgeThickness();
-    void ColorSelectedCC();
     void RandomizeCCColors();
     void MakeCCsOneColor();
     void ShowObjectContextMenu();
