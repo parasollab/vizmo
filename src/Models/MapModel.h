@@ -52,10 +52,9 @@ class MapModel : public GLModel{
     //Load functions
     //Moving generic load functions to virtual in GLModel.h
     void InitGraph(){ m_graph = new Wg(); }
-    //void WriteMapFile(const char *filename);
+    void WriteMapFile(const string& _filename);
     void ParseHeader(istream& _in);
     virtual void ParseFile();
-    bool WriteMapFile();
     VID Cfg2VID(CfgModel _target);
     void GenGraph();
 
@@ -167,14 +166,6 @@ MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
   //Open file for reading data
   string s;
 
-  //TEMPORARY: Read and ignore version comment
-  GoToNext(_in);
-  _in >> s >> s >> s >> s;
-
-  //TEMPORARY: Read and ignore preamble
-  GoToNext(_in);
-  getline(_in, s);
-
   //Get env file name info
   GoToNext(_in);
   getline(_in, s);
@@ -184,20 +175,6 @@ MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
     m_envFileName = m_fileDir + s;
   else
     m_envFileName = s;
-
-  //TEMPORARY: Read and ignore LP, CD, and DM info
-  GoToNext(_in);
-  unsigned int tempIgnore = 0;
-  _in >> tempIgnore;
-  GoToNext(_in);
-  _in >> tempIgnore;
-  GoToNext(_in);
-  _in >> tempIgnore;
-  GoToNext(_in);
-
-  //TEMPORARY: Read and ignore RNGSEED string
-  //(Assumes new version of map)
-  getline(_in, s);
 }
 
 template<class CfgModel, class WEIGHT>
@@ -218,11 +195,16 @@ MapModel<CfgModel,WEIGHT>::ParseFile(){
 }
 
 template <class CfgModel, class WEIGHT>
-bool
-MapModel<CfgModel, WEIGHT>::WriteMapFile(){
+void
+MapModel<CfgModel, WEIGHT>::WriteMapFile(const string& _filename){
 
-  //m_graph->WriteGraph(filename);
-  return true;
+  ofstream outfile(_filename.c_str());
+
+  outfile << "#####ENVFILESTART##### \n";
+  outfile << m_envFileName << "\n";
+  outfile << "#####ENVFILESTOP##### \n";
+
+  write_graph(*m_graph, outfile);
 }
 
 template <class CfgModel, class WEIGHT>
@@ -247,7 +229,6 @@ void
 MapModel<CfgModel, WEIGHT>::GenGraph(){
   m_graph  = new Wg();
 }
-
 
 //////////Display functions//////////
 

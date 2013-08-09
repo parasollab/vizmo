@@ -170,7 +170,18 @@ FileOptions::SaveQryFile(){
 void
 FileOptions::SaveRoadmap(){
 
-  cout << "***\n\nFeature temporarily disabled as new map file format is implemented!"<< endl;
-  cout << "Should be revised as callback to MapModel function!!!\n\n***"<<endl;
-}
+  QString fn = QFileDialog::getSaveFileName(this, "Choose a file name for the roadmap",
+    QString::null, "Files (*.map)");
 
+  QFileInfo fi(fn);
+  if (!fn.isEmpty()){
+    string filename = fn.toStdString();
+    const char* f;
+    f = filename.c_str();
+    GetVizmo().GetMap()->WriteMapFile(f);
+  }
+  else
+    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
+
+  GetMainWin()->GetGLScene()->updateGL();
+}
