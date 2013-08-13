@@ -467,7 +467,7 @@ RoadmapOptions::ChangeEdgeThickness(){
 void
 RoadmapOptions::RandomizeCCColors(){
 
-  GetVizmo().ChangeNodesRandomColor();
+  GetVizmo().RandomizeCCColors();
   GetMainWin()->GetGLScene()->updateGL();
 }
 

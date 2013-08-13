@@ -78,7 +78,7 @@ class Vizmo {
     bool IsRoadMapLoaded(){return m_mapModel;}
     //void ChangeNodeColor(double _r, double _g, double _b, string _s); //May be
     //used later?
-    void ChangeNodesRandomColor();
+    void RandomizeCCColors();
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
     void SetMapObj(MapModel<CfgModel, EdgeModel>* _mm);
 

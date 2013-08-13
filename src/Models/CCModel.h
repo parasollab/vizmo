@@ -53,7 +53,6 @@ class CCModel : public GLModel{
     void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
     void SetColorChanged(bool _isNew) { m_newColor = _isNew; }
 
-    void RebuildAll();
     void ScaleNode(float _scale, Shape _s);
     void ChangeShape(Shape _s);
     void BuildModels(); //not used, should not call this
@@ -64,14 +63,11 @@ class CCModel : public GLModel{
     virtual vector<string> GetInfo() const;
 
     void BuildNodeModels(GLenum _mode);
-    void BuildRobotNodes(GLenum _mode);
-    void BuildBoxNodes(GLenum _mode);
-    void BuildPointNodes(GLenum _mode);
-    void BuildEdges();
-    void SetColor(const Color4& _c);
     void DrawRobotNodes(GLenum _mode);
     void DrawBoxNodes(GLenum _mode);
     void DrawPointNodes(GLenum _mode);
+    void DrawEdges();
+    void SetColor(const Color4& _c);
     void AddEdge(CfgModel* _c1, CfgModel* _c2);
     void ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew);
     virtual void GetChildren(list<GLModel*>& _models);
@@ -82,12 +78,6 @@ class CCModel : public GLModel{
     float m_boxScale;
     float m_pointScale;
     Shape m_cfgShape;
-
-    //display ids
-    int m_edgeID;
-    int m_robotID;
-    int m_boxID;
-    int m_pointID;
 
     bool m_newColor; //Have CC colors been changed?
     RobotModel* m_robot;
@@ -104,40 +94,15 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
       m_renderMode = INVISIBLE_MODE;
       //Set random Color
       GLModel::SetColor(Color4(drand48(), drand48(), drand48(), 1));
-      //size
       m_boxScale = 1;
       m_pointScale = 5;
       m_cfgShape = CfgModel::Point;
-      //display id
-      m_edgeID = m_robotID = m_boxID = m_pointID = -1;
-
       m_newColor = false;
-
       m_graph = NULL;
 }
 
 template <class CfgModel, class WEIGHT>
-CCModel<CfgModel, WEIGHT>::~CCModel(){
-
-  glDeleteLists(m_edgeID, 1);
-  glDeleteLists(m_robotID, 1);
-  glDeleteLists(m_boxID, 1);
-  glDeleteLists(m_pointID, 1);
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::RebuildAll(){
-
-  glDeleteLists(m_edgeID, 1);
-  glDeleteLists(m_robotID, 1);
-  glDeleteLists(m_boxID, 1);
-  glDeleteLists(m_pointID, 1);
-  m_edgeID = -1;
-  m_robotID = -1;
-  m_boxID = -1;
-  m_pointID = -1;
-}
+CCModel<CfgModel, WEIGHT>::~CCModel(){}
 
 template <class CfgModel, class WEIGHT>
 void
@@ -145,17 +110,11 @@ CCModel<CfgModel, WEIGHT>::ScaleNode(float _scale, Shape _s){
 
   m_cfgShape = _s;
 
-  if(m_cfgShape == CfgModel::Point && m_pointScale != _scale){
+  if(m_cfgShape == CfgModel::Point && m_pointScale != _scale)
     m_pointScale = _scale*10;
-    glDeleteLists(m_pointID, 1);
-    m_pointID = -1;
-  }
 
-  else if(m_cfgShape == CfgModel::Box && m_boxScale != _scale){
+  else if(m_cfgShape == CfgModel::Box && m_boxScale != _scale)
     m_boxScale = _scale;
-    glDeleteLists(m_boxID, 1);
-    m_boxID = -1;
-  }
 }
 
 template <class CfgModel, class WEIGHT>
@@ -180,7 +139,7 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
 
   m_graph = _g;
 
-  //Setup cc nodes
+  //Set up CC nodes
   vector<VID> cc;
   m_colorMap.reset();
   get_cc(*_g, m_colorMap, _id, cc);
@@ -196,7 +155,7 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
     m_nodes[nid] = cfg;
   }
 
-  //Setup edges
+  //Set up edges
   vector< pair<VID,VID> > ccedges;
 
   m_colorMap.reset();
@@ -222,61 +181,11 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
 
 template <class CfgModel, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::BuildRobotNodes(GLenum _mode){
-
-  glDeleteLists(m_robotID, 1);
-  m_robotID = glGenLists(1);
-  glNewList(m_robotID, GL_COMPILE);
-  glLineWidth(1);
-  DrawRobotNodes(_mode);
-  glEndList();
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::BuildBoxNodes(GLenum _mode){
-
-  glDeleteLists(m_boxID, 1);
-  m_boxID = glGenLists(1);
-  glNewList(m_boxID, GL_COMPILE);
-  glLineWidth(1);
-  DrawBoxNodes(_mode);
-  glEndList();
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::BuildPointNodes(GLenum _mode){
-
-  glDeleteLists(m_pointID, 1);
-  m_pointID = glGenLists(1);
-  glNewList(m_pointID, GL_COMPILE);
-  DrawPointNodes(_mode);
-  glEndList();
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
-  RebuildAll();
-
-  GLModel::SetColor(_c);
-
-  typedef typename map<VID, CfgModel>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
-    cit->second.SetColor(_c);
-
-  typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++)
-    eit->SetColor(_c);
-}
-
-template <class CfgModel, class WEIGHT>
-void
 CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
-
   if(m_robot == NULL)
     return;
+
+  glLineWidth(1);
 
   Color4 origColor = m_robot->GetColor();
   m_robot->BackUp();
@@ -289,7 +198,7 @@ CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
     glPushName(cit->first);
     cit->second.SetShape(CfgModel::Robot);
     m_robot->SetColor(GetColor());
-    cit->second.Draw(_mode);//draw robot;
+    cit->second.Draw(_mode);
     glPopName();
   }
 
@@ -302,6 +211,7 @@ void
 CCModel<CfgModel, WEIGHT>::DrawBoxNodes(GLenum _mode){
 
   glEnable(GL_LIGHTING);
+  glLineWidth(1);
   typedef typename map<VID, CfgModel>::iterator CIT;
 
   for(CIT cit = m_nodes.begin(); cit!=m_nodes.end(); cit++){
@@ -327,7 +237,21 @@ CCModel<CfgModel, WEIGHT>::DrawPointNodes(GLenum _mode){
     cit->second.Draw(_mode);
     glPopName();
   }
-  glEndList();
+}
+
+template <class CfgModel, class WEIGHT>
+void
+CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
+
+  GLModel::SetColor(_c);
+
+  typedef typename map<VID, CfgModel>::iterator CIT;
+  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
+    cit->second.SetColor(_c);
+
+  typedef typename vector<WEIGHT>::iterator EIT;
+  for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++)
+    eit->SetColor(_c);
 }
 
 //add a new Edge (from the 'add edge' option)
@@ -352,21 +276,11 @@ CCModel<CfgModel, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float>
 
   m_renderMode = SOLID_MODE;
   m_cfgShape = _s;
-  if(_s == CfgModel::Point){
-    m_pointScale = _size;
-    glDeleteLists(m_pointID, 1);
-    m_pointID = -1;
-  }
-  else{
-    m_boxScale = _size;
-    glDeleteLists(m_boxID, 1);
-    m_boxID = -1; //need new id
-  }
 
-  glDeleteLists(m_edgeID, 1);
-  m_edgeID = -1;
-  glDeleteLists(m_pointID, 1);
-  m_pointID = -1;
+  if(_s == CfgModel::Point)
+    m_pointScale = _size;
+  else
+    m_boxScale = _size;
 
   if(_isNew)
     SetColor(_color[0], _color[1], _color[2], 1);
@@ -387,10 +301,8 @@ CCModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
 
 template <class CfgModel, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::BuildEdges(){
-  //build edges
-  m_edgeID = glGenLists(1);
-  glNewList(m_edgeID, GL_COMPILE);
+CCModel<CfgModel, WEIGHT>::DrawEdges(){
+
   glDisable(GL_LIGHTING);
   //Worth performance cost to antialias and prevent automatic
   //conversion to integer?
@@ -401,7 +313,6 @@ CCModel<CfgModel, WEIGHT>::BuildEdges(){
     eit->SetCfgShape(m_cfgShape);
     eit->Draw(m_renderMode);
   }
-  glEndList();
 }
 
 template <class CfgModel, class WEIGHT>
@@ -410,48 +321,31 @@ void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
-  int list = -1;
-
-  switch(m_cfgShape){
-    case CfgModel::Robot:
-      glDeleteLists(m_robotID, 1);
-      m_robotID = -1;
-      BuildRobotNodes(_mode);
-      list = m_robotID;
-    break;
-
-    case CfgModel::Box:
-      glDeleteLists(m_boxID, 1);
-      m_boxID = -1;
-      BuildBoxNodes(_mode);
-      list = m_boxID;
-    break;
-
-    case CfgModel::Point:
-      glDeleteLists(m_pointID, 1);
-      m_pointID = -1;
-      BuildPointNodes(_mode);
-      list = m_pointID;
-    break;
-  }
-  glDeleteLists(m_edgeID, 1);
-  m_edgeID = -1;
-
   if(_mode == GL_SELECT)
     glPushName(1); //1 means nodes
 
-  glCallList(list);
+  switch(m_cfgShape){
+    case CfgModel::Robot:
+      DrawRobotNodes(_mode);
+    break;
+
+    case CfgModel::Box:
+      DrawBoxNodes(_mode);
+    break;
+
+    case CfgModel::Point:
+      DrawPointNodes(_mode);
+    break;
+  }
 
   if(_mode == GL_SELECT)
     glPopName();
 
-  // Draw edge
-  if(m_edgeID == -1)
-    BuildEdges();
-
   if(_mode == GL_SELECT)
     glPushName(2); //2 means edge
-  glCallList(m_edgeID);
+
+  DrawEdges();
+
   if(_mode == GL_SELECT)
     glPopName();
 }
@@ -462,7 +356,7 @@ CCModel<CfgModel, WEIGHT>::DrawSelect(){
 
   /*Disabled for now; later modifications likely*/
   //if(m_edgeID == -1)
-  //  BuildEdges();
+  //  DrawEdges();
 
   //glLineWidth(3);
   //glCallList(m_edgeID);

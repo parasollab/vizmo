@@ -95,7 +95,7 @@ VizmoMainWin::InitVizmo(){
   m_animationDebugGUI->reset();
   m_objectSelection->ResetLists();
   m_mainMenu->CallReset();
-  GetVizmo().ChangeNodesRandomColor(); //replacing the reset() call here previously
+  GetVizmo().RandomizeCCColors();
   m_gl->updateGL();
 
   return true;

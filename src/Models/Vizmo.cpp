@@ -606,7 +606,8 @@ void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
   }
 }
 */
-void Vizmo::ChangeNodesRandomColor(){
+void
+Vizmo::RandomizeCCColors(){
 
   if(!m_robotModel || !m_mapModel)
     return;
