@@ -468,40 +468,18 @@ int Vizmo::GetDebugSize(){
 }
 
 void
-Vizmo::ChangeNodesSize(float _s, string _str){
+Vizmo::ChangeNodeSize(float _s/*, string _str*/){
 
-  if(m_robotModel==NULL)
+  if(m_robotModel == NULL)
     return;
 
-  if(m_mapModel==NULL && m_debugModel==NULL)
+  if(m_mapModel == NULL && m_debugModel == NULL)
     return;
 
-  typedef MapModel<CfgModel,EdgeModel> MM;
-  typedef CCModel<CfgModel,EdgeModel> CC;
-  typedef vector<CC*>::iterator CCIT;
-
-  if(m_mapModel!=NULL){
-    MM* mmodel = m_mapModel;
-    vector<CC*>& cc=mmodel->GetCCModels();
-    for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){
-      CfgModel::Shape shape=CfgModel::Point;
-      if(_str=="Robot")
-        shape=CfgModel::Robot;
-      else if(_str=="Box")
-        shape=CfgModel::Box;
-      (*ic)->ScaleNode(_s, shape);
-    }
-  }
-  if(m_debugModel!=NULL){
-    DebugModel* debugModel = m_debugModel;
-    vector<CC*>& cc=debugModel->GetMapModel()->GetCCModels();
-    for( CCIT ic=cc.begin();ic!=cc.end();ic++ ){
-      CfgModel::Shape shape = CfgModel::Point;
-      if(_str == "Box")
-        shape = CfgModel::Box;
-      (*ic)->ScaleNode(_s, shape);
-    }
-  }
+  if(m_mapModel != NULL)
+    m_mapModel->ScaleNodes(_s);
+  if(m_debugModel != NULL)
+    m_debugModel->GetMapModel()->ScaleNodes(_s);
 }
 
 void
@@ -518,8 +496,10 @@ Vizmo::ChangeEdgeThickness(double _t){
     m_debugModel->GetMapModel()->SetEdgeThickness(_t);
 }
 
-void Vizmo::ChangeNodesShape(string _s){
-  if(m_robotModel==NULL)
+void
+Vizmo::ChangeNodeShape(string _s){
+
+  if(m_robotModel == NULL)
     return;
 
   if(m_mapModel==NULL && m_debugModel==NULL)
@@ -527,40 +507,12 @@ void Vizmo::ChangeNodesShape(string _s){
 
   if(_s == "Robot")
     CfgModel::SetShape(CfgModel::Robot);
-  if(_s == "Box")
+  else if(_s == "Box")
     CfgModel::SetShape(CfgModel::Box);
   else
     CfgModel::SetShape(CfgModel::Point);
-
-  typedef MapModel<CfgModel,EdgeModel> MM;
-  typedef CCModel<CfgModel,EdgeModel> CC;
-  typedef vector<CC*>::iterator CCIT;
-
-  if(m_mapModel!=NULL){
-    MapModel<CfgModel,EdgeModel>* mmodel = m_mapModel;
-    vector<CC*>& cc=mmodel->GetCCModels();
-    for(CCIT ic=cc.begin(); ic!=cc.end(); ic++){
-      CfgModel::Shape shape=CfgModel::Point;
-      if(_s=="Robot")
-        shape=CfgModel::Robot;
-      else if(_s=="Box")
-        shape=CfgModel::Box;
-      (*ic)->ChangeShape(shape);
-    }
-  }
-  if(m_debugModel!=NULL){
-    DebugModel* debugModel = m_debugModel;
-    vector<CC*>& cc=debugModel->GetMapModel()->GetCCModels();
-    for(CCIT ic=cc.begin();ic!=cc.end();ic++){
-      CfgModel::Shape shape = CfgModel::Point;
-      if(_s=="Robot")
-        shape=CfgModel::Robot;
-      else if(_s=="Box")
-        shape=CfgModel::Box;
-      (*ic)->ChangeShape(shape);
-    }
-  }
 }
+
 /*
 void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
 

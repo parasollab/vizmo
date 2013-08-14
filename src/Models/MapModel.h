@@ -25,6 +25,7 @@ class MapModel : public GLModel{
     typedef vector_property_map<Wg, size_t> ColorMap;
     ColorMap m_colorMap;
     typedef typename Wg::vertex_iterator VI;
+    typedef typename CfgModel::Shape Shape;
 
     MapModel(RobotModel* _robotModel);
     //constructor only to grab header environment name
@@ -33,7 +34,7 @@ class MapModel : public GLModel{
     virtual ~MapModel();
 
     //Access functions
-    virtual const string GetName() const {return "Map";}
+    virtual const string GetName() const{ return "Map"; }
     const string  GetEnvFileName() const{ return m_envFileName; }
     const string  GetFileDir() const{ return m_fileDir; }
     Wg* GetGraph(){ return m_graph; }
@@ -44,9 +45,10 @@ class MapModel : public GLModel{
     CCM* GetCCModel(int _id){ return m_cCModels[_id]; }
     int NumberOfCC(){ return m_cCModels.size(); }
     bool RobCfgOn() { return m_robCfgOn; }
-    void SetEdgeThickness(double _thickness);
-    void SetAddNode(bool _setting) { m_addNode = _setting; }
-    void SetAddEdge(bool _setting) { m_addEdge = _setting; }
+    void SetEdgeThickness(double _thickness){ EdgeModel::m_edgeThickness = _thickness; }
+    void SetNodeShape(Shape _s) { CfgModel::m_shape = _s; }
+    void SetAddNode(bool _setting){ m_addNode = _setting; }
+    void SetAddEdge(bool _setting){ m_addEdge = _setting; }
 
 
     //Load functions
@@ -66,7 +68,8 @@ class MapModel : public GLModel{
     bool AddCC(int _vid);
     virtual void GetChildren(list<GLModel*>& _models);
     virtual vector<string> GetInfo() const;
-    void SetProperties(typename CCM::Shape _s, float _size, vector<float> _color, bool _isNew);
+    //void SetProperties(typename CCM::Shape _s, float _size, vector<float> _color, bool _isNew);
+    void ScaleNodes(float _scale);
     //  void HandleSelect(); ORIGINALLY IN ROADMAP.H/.CPP
     //  void HandleAddEdge();
     //  void HandleAddNode();
@@ -83,7 +86,7 @@ class MapModel : public GLModel{
     int m_dof;
     RobotModel* m_robot;
     vector<CCM*> m_cCModels;
-    list<GLModel*> m_nodes; //moved from obsolete Roadmap.h!
+    list<GLModel*> m_nodes;
     vector<GLModel*> m_nodesToConnect; //nodes to be connected
     double m_oldT[3], m_oldR[3];  //old_T
     string m_cfgString, m_robCfgString; //s_cfg, s_robCfg
@@ -98,6 +101,7 @@ class MapModel : public GLModel{
 
 template <class CfgModel, class WEIGHT>
 MapModel<CfgModel, WEIGHT>::MapModel(RobotModel* _robotModel) {
+
   m_renderMode = INVISIBLE_MODE;
   m_robot = _robotModel;
   m_graph = NULL;
@@ -146,13 +150,6 @@ MapModel<CfgModel, WEIGHT>::~MapModel(){
     delete *ic;
   delete m_graph;
   m_graph = NULL;
-}
-
-template <class CfgModel, class WEIGHT>
-void
-MapModel<CfgModel, WEIGHT>::SetEdgeThickness(double _thickness){
-
-  EdgeModel::m_edgeThickness = _thickness;
 }
 
 ///////////Load functions//////////
@@ -332,13 +329,20 @@ MapModel<CfgModel, WEIGHT>::GetInfo() const{
   return info;
 }
 
-template <class CfgModel, class WEIGHT>
+/*template <class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel, WEIGHT>::SetProperties(typename CCM::Shape _s, float _size,
     vector<float> _color, bool _isNew){
   typedef typename vector<CCM*>::iterator CIT;//CC iterator
   for(CIT ic = m_cCModels.begin(); ic!= m_cCModels.end(); ic++)
     (*ic)->change_properties(_s, _size, _color, _isNew);
+}
+*/
+template <class CfgModel, class WEIGHT>
+void
+MapModel<CfgModel, WEIGHT>::ScaleNodes(float _scale){
+
+  CfgModel::Scale(_scale);
 }
 
 template <class CfgModel, class WEIGHT>

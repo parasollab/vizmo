@@ -35,7 +35,6 @@ class RoadmapOptions : public OptionsBase{
       else
         return GetVizmo().GetMap();
     }
-//    void SetNodeSize(double _nodeSize) {m_nodeSize = _nodeSize;}
     string GetNodeShape() {return (string)(m_nodeView->checkedButton())->text().toAscii();}
 
   private slots:

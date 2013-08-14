@@ -119,13 +119,10 @@ void RoadmapOptions::CreateActions(){
   m_actions["showHideRoadmap"]->setEnabled(false);
   m_actions["showHideRoadmap"]->setStatusTip("Display or hide the roadmap");
   m_actions["showHideRoadmap"]->setToolTip("Show/Hide Roadmap");
-  //m_actions["robotView"]->setCheckable(true);
   m_actions["robotView"]->setEnabled(false);
   m_actions["robotView"]->setStatusTip(tr("Display nodes in robot mode"));
-  //m_actions["boxView"]->setCheckable(true);
   m_actions["boxView"]->setEnabled(false);
   m_actions["boxView"]->setStatusTip(tr("Display nodes in box mode"));
-  //m_actions["pointView"]->setCheckable(true);
   m_actions["pointView"]->setEnabled(false);
   m_actions["pointView"]->setStatusTip(tr("Display nodes in point mode"));
 
@@ -284,7 +281,6 @@ RoadmapOptions::Reset(){
 
   if(GetMapModel() != NULL){
     GetMapModel()->GetNodeList().clear();
-    //GetMapModel()->SetSize(0.5);
     GetMapModel()->GetNodesToConnect().clear();
     // GetMapModel()->GetCfgLabel()->clear(); temporarily removed/what is it for?
     //GetMap()->l_cfg->clear();
@@ -352,7 +348,7 @@ RoadmapOptions::ChangeNodeShape(){
   if(GetVizmo().GetMap() != NULL || GetVizmo().GetDebug() != NULL){
     if(m_nodeView->checkedButton() != 0){
       string s = (string)(m_nodeView->checkedButton())->text().toAscii();  //prev checked action
-      GetVizmo().ChangeNodesShape(s);
+      GetVizmo().ChangeNodeShape(s);
       GetMainWin()->GetGLScene()->updateGL();
     }
   }
@@ -437,16 +433,7 @@ void
 RoadmapOptions::ScaleNodes(){
 
   double resize = m_nodeSizeDialog->GetSliderValue() / (double)1000;
-  //Resize the other mode as well to prevent abrupt size change when switching
-  //back and using the slider again
-  if(GetNodeShape() == "Point"){
-    GetVizmo().ChangeNodesSize(resize, "Box");
-    GetVizmo().ChangeNodesSize(resize, "Point");
-  }
-  else if(GetNodeShape() == "Box"){
-    GetVizmo().ChangeNodesSize(resize, "Point");
-    GetVizmo().ChangeNodesSize(resize, "Box");
-  }
+  GetVizmo().ChangeNodeSize(resize);
   GetMainWin()->GetGLScene()->updateGL();
 }
 

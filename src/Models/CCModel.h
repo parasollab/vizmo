@@ -27,7 +27,6 @@ template <class CfgModel, class WEIGHT>
 class CCModel : public GLModel{
 
   public:
-    typedef typename CfgModel::Shape Shape;
     typedef typename MapModel<CfgModel, WEIGHT>::Wg WG;
     typedef typename WG::vertex_descriptor VID;
     typedef typename WG::edge_descriptor EID;
@@ -38,9 +37,6 @@ class CCModel : public GLModel{
 
     const string GetName() const;
     int GetID() const {return m_id;}
-    Shape GetShape(){return m_cfgShape;}
-    float GetBoxSize() {return m_boxScale;}
-    float GetPointSize() {return m_pointScale;}
     int GetNumNodes(){ return m_nodes.size(); }
     int GetNumEdges(){ return m_edges.size(); }
     double GetNodeData() { return m_nodes[0]->tx(); }
@@ -53,8 +49,6 @@ class CCModel : public GLModel{
     void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
     void SetColorChanged(bool _isNew) { m_newColor = _isNew; }
 
-    void ScaleNode(float _scale, Shape _s);
-    void ChangeShape(Shape _s);
     void BuildModels(); //not used, should not call this
     void Draw(GLenum _mode);
     void DrawSelect();
@@ -69,16 +63,11 @@ class CCModel : public GLModel{
     void DrawEdges();
     void SetColor(const Color4& _c);
     void AddEdge(CfgModel* _c1, CfgModel* _c2);
-    void ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew);
+    //void ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew);
     virtual void GetChildren(list<GLModel*>& _models);
 
   private:
     int m_id; //CC ID
-
-    float m_boxScale;
-    float m_pointScale;
-    Shape m_cfgShape;
-
     bool m_newColor; //Have CC colors been changed?
     RobotModel* m_robot;
     WG* m_graph;
@@ -90,39 +79,16 @@ class CCModel : public GLModel{
 template <class CfgModel, class WEIGHT>
 CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
 
-      m_id = _id;
-      m_renderMode = INVISIBLE_MODE;
-      //Set random Color
-      GLModel::SetColor(Color4(drand48(), drand48(), drand48(), 1));
-      m_boxScale = 1;
-      m_pointScale = 5;
-      m_cfgShape = CfgModel::Point;
-      m_newColor = false;
-      m_graph = NULL;
+  m_id = _id;
+  m_renderMode = INVISIBLE_MODE;
+  //Set random Color
+  GLModel::SetColor(Color4(drand48(), drand48(), drand48(), 1));
+  m_newColor = false;
+  m_graph = NULL;
 }
 
 template <class CfgModel, class WEIGHT>
 CCModel<CfgModel, WEIGHT>::~CCModel(){}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::ScaleNode(float _scale, Shape _s){
-
-  m_cfgShape = _s;
-
-  if(m_cfgShape == CfgModel::Point && m_pointScale != _scale)
-    m_pointScale = _scale*10;
-
-  else if(m_cfgShape == CfgModel::Box && m_boxScale != _scale)
-    m_boxScale = _scale;
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::ChangeShape(Shape _s){
-
-  m_cfgShape= _s;
-}
 
 template <class CfgModel, class WEIGHT>
 void
@@ -196,7 +162,6 @@ CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
   typedef typename map<VID, CfgModel>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
     glPushName(cit->first);
-    cit->second.SetShape(CfgModel::Robot);
     m_robot->SetColor(GetColor());
     cit->second.Draw(_mode);
     glPopName();
@@ -216,8 +181,6 @@ CCModel<CfgModel, WEIGHT>::DrawBoxNodes(GLenum _mode){
 
   for(CIT cit = m_nodes.begin(); cit!=m_nodes.end(); cit++){
     glPushName(cit->first);
-    cit->second.Scale(m_boxScale, m_boxScale, m_boxScale);
-    cit->second.SetShape(CfgModel::Box);
     cit->second.Draw(_mode);
     glPopName();
   }
@@ -228,12 +191,9 @@ void
 CCModel<CfgModel, WEIGHT>::DrawPointNodes(GLenum _mode){
 
   glDisable(GL_LIGHTING);
-  glPointSize(m_pointScale);
   typedef typename map<VID, CfgModel>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
     glPushName(cit->first);
-    cit->second.Scale(m_pointScale, m_pointScale, m_pointScale);
-    cit->second.SetShape(CfgModel::Point);
     cit->second.Draw(_mode);
     glPopName();
   }
@@ -270,7 +230,8 @@ CCModel<CfgModel, WEIGHT>::AddEdge(CfgModel* _c1, CfgModel* _c2){
   m_edges.push_back(w);
 }
 
-template <class CfgModel, class WEIGHT>
+//Doesn't seem to be used anywhere...
+/*template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew){
 
@@ -285,6 +246,7 @@ CCModel<CfgModel, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float>
   if(_isNew)
     SetColor(_color[0], _color[1], _color[2], 1);
 }
+*/
 
 template <class CfgModel, class WEIGHT>
 void
@@ -310,7 +272,7 @@ CCModel<CfgModel, WEIGHT>::DrawEdges(){
 
   typedef typename vector<WEIGHT>::iterator EIT;
   for(EIT eit = m_edges.begin(); eit!=m_edges.end(); eit++){
-    eit->SetCfgShape(m_cfgShape);
+    eit->SetCfgShape(CfgModel::GetShape());
     eit->Draw(m_renderMode);
   }
 }
@@ -324,7 +286,7 @@ void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
   if(_mode == GL_SELECT)
     glPushName(1); //1 means nodes
 
-  switch(m_cfgShape){
+  switch(CfgModel::GetShape()){
     case CfgModel::Robot:
       DrawRobotNodes(_mode);
     break;

@@ -36,6 +36,7 @@ class CfgModel : public GLModel{
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
     RobotModel* GetRobot() const { return m_robot; }
     static int GetDOF() { return m_dof; }
+    static Shape GetShape() { return m_shape; }
     static void SetDOF(int _d) { m_dof = _d; }
     static void SetIsPlanarRobot(bool _b) { m_isPlanarRobot = _b; }
     static void SetIsVolumetricRobot(bool _b) { m_isVolumetricRobot = _b; }
@@ -50,6 +51,7 @@ class CfgModel : public GLModel{
 
     bool operator==(const CfgModel& _other) const;
     void Set(int _index, RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc);
+    static void Scale(float _scale);
     void Draw(GLenum _mode);
     void DrawRobot();
     void DrawBox();
@@ -64,6 +66,8 @@ class CfgModel : public GLModel{
     static bool m_isVolumetricRobot;
     static bool m_isRotationalRobot;
     static Shape m_shape;
+    static float m_boxScale;
+    static float m_pointScale;
 
     bool m_coll; //For collision detection
     RobotModel* m_robot; //Testing

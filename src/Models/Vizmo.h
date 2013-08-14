@@ -72,9 +72,9 @@ class Vizmo {
     // Roadmap Related Functions
     void ShowRoadMap(bool _show = true);
     bool IsRoadMapShown() const { return m_showMap; }
-    void ChangeNodesSize(float _s, string _str);
+    void ChangeNodeSize(float _s);
     void ChangeEdgeThickness(double _t);
-    void ChangeNodesShape(string _s);
+    void ChangeNodeShape(string _s);
     bool IsRoadMapLoaded(){return m_mapModel;}
     //void ChangeNodeColor(double _r, double _g, double _b, string _s); //May be
     //used later?

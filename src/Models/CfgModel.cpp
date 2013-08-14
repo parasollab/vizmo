@@ -10,6 +10,8 @@ CfgModel CfgModel::m_invalidCfg;
 int CfgModel::m_dof = 0;
 double CfgModel::m_defaultDOF = 0;
 CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
+float CfgModel::m_pointScale = 10;
+float CfgModel::m_boxScale = 1;
 bool CfgModel::m_isPlanarRobot = false;
 bool CfgModel::m_isVolumetricRobot = false;
 bool CfgModel::m_isRotationalRobot = false;
@@ -124,10 +126,17 @@ CfgModel::Set(int _index , RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc
 }
 
 void
+CfgModel::Scale(float _scale){
+
+  m_pointScale = _scale*10;
+  m_boxScale = _scale;
+}
+
+void
 CfgModel::Draw(GLenum _mode){
+
   glPushName(m_index);
-  Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->GetShape());
-  switch(shape){
+  switch(m_shape){
     case Robot:
       DrawRobot();
       break;
@@ -145,6 +154,7 @@ CfgModel::Draw(GLenum _mode){
 
 void
 CfgModel::DrawRobot(){
+
   if(m_robot == NULL)
     return;
 
@@ -164,6 +174,7 @@ CfgModel::DrawRobot(){
 
 void
 CfgModel::DrawBox(){
+
   glEnable(GL_LIGHTING);
   glPushMatrix();
   glColor4fv(m_color);
@@ -189,9 +200,9 @@ CfgModel::DrawBox(){
 
   glEnable(GL_NORMALIZE);
   if(m_renderMode == SOLID_MODE)
-    glutSolidCube(m_scale[0]);
+    glutSolidCube(m_boxScale);
   if(m_renderMode == WIRE_MODE)
-    glutWireCube(m_scale[0]);
+    glutWireCube(m_boxScale);
   glDisable(GL_NORMALIZE);
   glPopMatrix();
 }
@@ -199,7 +210,7 @@ CfgModel::DrawBox(){
 void
 CfgModel::DrawPoint(){
   glDisable(GL_LIGHTING);
-  glPointSize(m_scale[0]);
+  glPointSize(m_pointScale);
   glBegin(GL_POINTS);
   glColor4fv(GetColor());
   if(m_renderMode == SOLID_MODE ||
@@ -216,10 +227,9 @@ void
 CfgModel::DrawSelect(){
 
   glDisable(GL_LIGHTING);
-  Shape shape = (m_cc == NULL ? m_shape : (Shape)m_cc->GetShape());
-  switch(shape){
+  switch(m_shape){
     case Robot:
-      if(m_robot!=NULL){
+      if(m_robot != NULL){
         vector<double> cfg = m_dofs;
         m_robot->BackUp();
         Color4 origColor = m_robot->GetColor();
@@ -252,13 +262,13 @@ CfgModel::DrawSelect(){
         }
       }
 
-      glutWireCube(m_scale[0]+0.1);
+      glutWireCube(m_boxScale+0.1); //may need adjustment
 
       glPopMatrix();
       break;
 
     case Point:
-      glPointSize(m_scale[0] + 3);
+      glPointSize(m_pointScale + 3);
       glDisable(GL_LIGHTING);
       glBegin(GL_POINTS);
       if(m_isPlanarRobot)
