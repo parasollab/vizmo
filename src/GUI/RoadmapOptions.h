@@ -11,6 +11,7 @@
 
 #include "OptionsBase.h"
 #include "Models/MapModel.h"
+#include "Models/DebugModel.h"
 #include "Models/Vizmo.h"
 
 class QPushButton;

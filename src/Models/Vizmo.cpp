@@ -468,35 +468,6 @@ int Vizmo::GetDebugSize(){
 }
 
 void
-Vizmo::ChangeNodeSize(float _s/*, string _str*/){
-
-  if(m_robotModel == NULL)
-    return;
-
-  if(m_mapModel == NULL && m_debugModel == NULL)
-    return;
-
-  if(m_mapModel != NULL)
-    m_mapModel->ScaleNodes(_s);
-  if(m_debugModel != NULL)
-    m_debugModel->GetMapModel()->ScaleNodes(_s);
-}
-
-void
-Vizmo::ChangeEdgeThickness(double _t){
-
-  if(m_robotModel == NULL)
-    return;
-  if(m_mapModel == NULL && m_debugModel == NULL)
-    return;
-
-  if(m_mapModel != NULL)
-    m_mapModel->SetEdgeThickness(_t);
-  if(m_debugModel != NULL)
-    m_debugModel->GetMapModel()->SetEdgeThickness(_t);
-}
-
-void
 Vizmo::ChangeNodeShape(string _s){
 
   if(m_robotModel == NULL)

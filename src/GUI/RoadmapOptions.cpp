@@ -433,7 +433,21 @@ void
 RoadmapOptions::ScaleNodes(){
 
   double resize = m_nodeSizeDialog->GetSliderValue() / (double)1000;
-  GetVizmo().ChangeNodeSize(resize);
+
+  if(GetVizmo().GetRobot() == NULL)
+    return;
+
+  MapModel<CfgModel, EdgeModel>* map = GetVizmo().GetMap();
+  DebugModel* debug = GetVizmo().GetDebug();
+
+  if(map == NULL && debug == NULL)
+    return;
+
+  if(map != NULL)
+    map->ScaleNodes(resize);
+  if(debug != NULL)
+    debug->GetMapModel()->ScaleNodes(resize);
+
   GetMainWin()->GetGLScene()->updateGL();
 }
 
@@ -447,7 +461,21 @@ void
 RoadmapOptions::ChangeEdgeThickness(){
 
   double resize = m_edgeThicknessDialog->GetSliderValue() / (double)100;
-  GetVizmo().ChangeEdgeThickness(resize);
+
+  if(GetVizmo().GetRobot() == NULL)
+    return;
+
+  MapModel<CfgModel, EdgeModel>* map = GetVizmo().GetMap();
+  DebugModel* debug = GetVizmo().GetDebug();
+
+  if(map == NULL && debug == NULL)
+    return;
+
+  if(map != NULL)
+    map->SetEdgeThickness(resize);
+  if(debug != NULL)
+    debug->GetMapModel()->SetEdgeThickness(resize);
+
   GetMainWin()->GetGLScene()->updateGL();
 }
 
