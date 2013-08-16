@@ -467,23 +467,6 @@ int Vizmo::GetDebugSize(){
   return debugModel->GetDebugSize();
 }
 
-void
-Vizmo::ChangeNodeShape(string _s){
-
-  if(m_robotModel == NULL)
-    return;
-
-  if(m_mapModel==NULL && m_debugModel==NULL)
-    return;
-
-  if(_s == "Robot")
-    CfgModel::SetShape(CfgModel::Robot);
-  else if(_s == "Box")
-    CfgModel::SetShape(CfgModel::Box);
-  else
-    CfgModel::SetShape(CfgModel::Point);
-}
-
 /*
 void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
 
@@ -614,11 +597,6 @@ Vizmo::EnvChanged(){
   return m_envChanged;
   */
   return false;
-}
-
-void
-Vizmo::SetMapObj(MapModel<CfgModel,EdgeModel>* _mm){
-  m_mapModel = _mm;
 }
 
 //Parse the Hit Buffer. Store selected obj into m_selectedModels.

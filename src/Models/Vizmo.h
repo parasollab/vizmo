@@ -72,13 +72,12 @@ class Vizmo {
     // Roadmap Related Functions
     void ShowRoadMap(bool _show = true);
     bool IsRoadMapShown() const { return m_showMap; }
-    void ChangeNodeShape(string _s);
     bool IsRoadMapLoaded(){return m_mapModel;}
     //void ChangeNodeColor(double _r, double _g, double _b, string _s); //May be
     //used later?
     void RandomizeCCColors();
-    MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
-    void SetMapObj(MapModel<CfgModel, EdgeModel>* _mm);
+    MapModel<CfgModel, EdgeModel>* GetMap() const { return m_mapModel; }
+    void SetMapObj(MapModel<CfgModel, EdgeModel>* _mm) { m_mapModel = _mm; }
 
     // Query Related Functions
     void ShowQueryFrame( bool bshow = true );   // to know if the Query has to be showed

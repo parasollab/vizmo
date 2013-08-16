@@ -345,10 +345,21 @@ RoadmapOptions::ShowRoadmap(){
 void
 RoadmapOptions::ChangeNodeShape(){
 
+  if(GetVizmo().GetRobot() == NULL)
+    return;
+
   if(GetVizmo().GetMap() != NULL || GetVizmo().GetDebug() != NULL){
     if(m_nodeView->checkedButton() != 0){
+
       string s = (string)(m_nodeView->checkedButton())->text().toAscii();  //prev checked action
-      GetVizmo().ChangeNodeShape(s);
+
+      if(s == "Robot")
+        CfgModel::SetShape(CfgModel::Robot);
+      else if(s == "Box")
+        CfgModel::SetShape(CfgModel::Box);
+      else
+        CfgModel::SetShape(CfgModel::Point);
+
       GetMainWin()->GetGLScene()->updateGL();
     }
   }
