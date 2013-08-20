@@ -3,7 +3,7 @@
 
 #include <string>
 #include <sstream>
-#include <exception>
+#include <stdexcept>
 using namespace std;
 
 template<typename X, typename Y, typename Z>
@@ -15,23 +15,14 @@ string WhereAt(X x, Y y, Z z) {
 
 #define WHERE WhereAt(__FILE__, __PRETTY_FUNCTION__, __LINE__)
 
-class VizmoException : public exception {
+class VizmoException : public runtime_error {
   public:
     VizmoException(const string& _type, const string& _where, const string& _message) :
-      m_type(_type), m_where(_where), m_message(_message) {
+      runtime_error("\nError:\n\t" + _type +
+          "\nWhere:" + _where +
+          "\nWhy:\n\t" + _message +
+          "\n") {
       }
-    virtual ~VizmoException() throw() {}
-
-    virtual const char* what() const throw() {
-      return
-        ("\nError:\n\t" + m_type +
-        "\nWhere:" + m_where +
-        "\nWhy:\n\t" + m_message +
-        "\n").c_str();
-    }
-
-  private:
-    string m_type, m_where, m_message;
 };
 
 class ParseException : public VizmoException {
