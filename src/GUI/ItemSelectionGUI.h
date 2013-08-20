@@ -16,7 +16,7 @@ class GLModel;
 
 struct VizmoListViewItem : public QTreeWidgetItem {
   VizmoListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
-  VizmoListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
+  VizmoListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem((QTreeWidget*)NULL, _parent), m_model(NULL) {}
   GLModel* m_model;
 };
 

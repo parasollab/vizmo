@@ -57,14 +57,14 @@ struct AddTempEdge : public Instruction {
 };
 
 struct ClearLastTemp : public Instruction {
-  ClearLastTemp() : Instruction("ClearLastTemp") {}
+  ClearLastTemp() : Instruction("ClearLastTemp"), m_tempRay(NULL) {}
   CfgModel* m_tempRay;
   vector<CfgModel> m_lastTempCfgs;
   vector<EdgeModel> m_lastTempEdges;
 };
 
 struct ClearAll : public Instruction {
-  ClearAll() : Instruction("ClearAll") {}
+  ClearAll() : Instruction("ClearAll"), m_tempRay(NULL) {}
   CfgModel* m_tempRay;
   vector<CfgModel> m_tempCfgs;
   vector<EdgeModel> m_tempEdges;
@@ -83,7 +83,7 @@ struct RemoveNode : public Instruction {
 };
 
 struct RemoveEdge : public Instruction {
-  RemoveEdge(CfgModel _s, CfgModel _t) : Instruction("RemoveEdge"), m_source(_s), m_target(_t) {}
+  RemoveEdge(CfgModel _s, CfgModel _t) : Instruction("RemoveEdge"), m_edgeNum(-1), m_source(_s), m_target(_t) {}
   int m_edgeNum;
   CfgModel m_source, m_target;
 };

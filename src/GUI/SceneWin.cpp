@@ -24,6 +24,7 @@ VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
     m_takingSnapShot=false;
     m_bShowGrid=false;
     m_bShowAxis=true;
+    CDOn = false;
   }
 
 void

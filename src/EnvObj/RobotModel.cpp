@@ -18,17 +18,19 @@ RobotModel::RobotModel(EnvModel* _env){
   rotation_axis = new double[3];
   mbRobotBackUp = NULL;
   RotFstBody = NULL;
+  queryCfg = NULL;
   StCfg = NULL;
+  m_renderModeBackUp = INVISIBLE_MODE;
   pthread_mutex_init(&mutex, NULL);
   BuildModels();
 }
 
-RobotModel::RobotModel(const RobotModel& _otherRobot)
-  :GLModel(_otherRobot){
-
+/*RobotModel::RobotModel(const RobotModel& _otherRobot)
+  : GLModel(_otherRobot) {
     m_envModel = _otherRobot.GetEnvModel();
     m_robotModel = _otherRobot.getRobotModel();
   }
+*/
 
 MultiBodyModel* RobotModel::getRobotModel() const {
   return m_robotModel;
@@ -127,13 +129,11 @@ void RobotModel::BackUp() {
 
   BodyModel* body = *m_robotModel->Begin();
 
-  m_polyXBack = body->tx();
-  m_polyYBack = body->ty();
-  m_polyZBack = body->tz();
+  m_polyBack[0] = body->tx();
+  m_polyBack[1] = body->ty();
+  m_polyBack[2] = body->tz();
 
-  R = body->GetColor()[0];
-  G = body->GetColor()[1];
-  B = body->GetColor()[2];
+  color = body->GetColor();
 
   o_s[0]=sx();
   o_s[1]=sy();
@@ -156,7 +156,7 @@ void RobotModel::BackUp() {
 void RobotModel::Restore(){
   this->Scale(o_s[0],o_s[1],o_s[2]);
 
-  this->SetColor(Color4(R, G, B, 1.0));
+  this->SetColor(color);
 
   //restore multibody
 

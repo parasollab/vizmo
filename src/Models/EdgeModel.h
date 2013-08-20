@@ -22,7 +22,6 @@ class EdgeModel : public GLModel {
   public:
     EdgeModel();
     EdgeModel(double _weight);
-    ~EdgeModel();
 
     const string GetName() const;
     vector<string> GetInfo() const;

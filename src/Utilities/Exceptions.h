@@ -23,12 +23,11 @@ class VizmoException : public exception {
     virtual ~VizmoException() throw() {}
 
     virtual const char* what() const throw() {
-      string w =
-        "\nError:\n\t" + m_type +
+      return
+        ("\nError:\n\t" + m_type +
         "\nWhere:" + m_where +
         "\nWhy:\n\t" + m_message +
-        "\n";
-      return w.c_str();
+        "\n").c_str();
     }
 
   private:

@@ -78,13 +78,13 @@ class CCModel : public GLModel{
 
 template <class CfgModel, class WEIGHT>
 CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
-
   m_id = _id;
   m_renderMode = INVISIBLE_MODE;
   //Set random Color
   GLModel::SetColor(Color4(drand48(), drand48(), drand48(), 1));
   m_newColor = false;
   m_graph = NULL;
+  m_robot = NULL;
 }
 
 template <class CfgModel, class WEIGHT>

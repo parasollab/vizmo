@@ -27,6 +27,13 @@ Vizmo::Vizmo() :
   m_queryModel(NULL), m_showQuery(false),
   m_pathModel(NULL), m_showPath(false),
   m_debugModel(NULL) {
+    //temporary initialization of "unused" objects
+    m_cfg = NULL;
+    is_collison = false;
+    m_nodeCfg = NULL;
+    m_isNode = false;
+    mR = mG = mB = 0.0;
+    m_doubleClick = false;
   }
 
 Vizmo::~Vizmo() {
@@ -567,38 +574,6 @@ Vizmo::PlaceRobot(){
   }
 }
 
-bool
-Vizmo::EnvChanged(){
-/*
-  m_envChanged = false;
-
-  EnvModel* envModel = m_envModel;
-  int numBod = envModel->GetNumMultiBodies();
-  const MultiBodyInfo* mbi = envModel->GetMultiBodyInfo();
-  vector<MultiBodyModel *> mbm = envModel->GetMultiBodies();
-
-  for(int i = 0; i < numBod; i++){
-    Quaternion qtmp2 = mbm[i]->q();
-    EulerAngle e;
-    convertFromQuaternion(e, qtmp2);
-
-    if( ( (mbi[i].m_mBodyInfo[0].m_x != mbm[i]->tx())||
-          (mbi[i].m_mBodyInfo[0].m_y != mbm[i]->ty())||
-          (mbi[i].m_mBodyInfo[0].m_z != mbm[i]->tz()) ) ||
-        ( (mbi[i].m_mBodyInfo[0].m_alpha!= e.alpha()) ||
-          (mbi[i].m_mBodyInfo[0].m_beta != e.beta()) ||
-          (mbi[i].m_mBodyInfo[0].m_beta != e.gamma()) ) ){
-
-      m_envChanged = true;
-      break;
-    }
-  }
-
-  return m_envChanged;
-  */
-  return false;
-}
-
 //Parse the Hit Buffer. Store selected obj into m_selectedModels.
 //hit is the number of hit by this selection
 //buffer is the hit buffer
@@ -626,12 +601,15 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
     z1 = ((double)*ptr)/0x7fffffff; ptr++; //near z
     ptr++; //far z, we don't use this info
 
-    if(!(curName = new unsigned int[nameSize]))
+    curName = new unsigned int[nameSize];
+    if(!curName)
       return;
+
     for( unsigned int iN=0; iN<nameSize; iN++ ){
       curName[iN] = (int)(*ptr);
       ptr++;
     }
+
     if(!_all) {//not all
       if( z1<closeDistance ) {
         closeDistance = z1;     // set current nearset to z1

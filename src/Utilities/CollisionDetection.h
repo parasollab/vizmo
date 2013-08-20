@@ -77,7 +77,7 @@ class CollisionDetectionMethod {
   CollisionDetectionMethod(){}
   virtual  ~CollisionDetectionMethod(){}
 
-  virtual const char* GetName() const = 0;
+  virtual const string& GetName() const = 0;
   virtual bool IsInCollision(MultiBodyModel* robot,
 			     RobotModel * robotObj, int dof,
 			     MultiBodyModel* obstacle) = 0;
@@ -86,10 +86,10 @@ class CollisionDetectionMethod {
 class Rapid: public CollisionDetectionMethod {
  public:
 
-  Rapid(){test_node = false;}
+  Rapid() : nodeCfg(NULL), DoF(0) {test_node = false;}
   virtual ~Rapid(){}
 
-  virtual const char* GetName() const { string s = "RAPID"; return s.c_str();}
+  virtual const string& GetName() const {return "RAPID";}
 
   /**RAPID to check collision between two MultiBody.
    *Collision is checked at body level between two MultiBody objects,

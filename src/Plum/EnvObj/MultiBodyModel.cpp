@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////
 // Cons/Des
-MultiBodyModel::MultiBodyModel() : m_active(false), m_surface(false) {}
+MultiBodyModel::MultiBodyModel() : m_active(false), m_surface(false), m_radius(false) {}
 
 MultiBodyModel::~MultiBodyModel() {
   for(BodyIter bit = Begin(); bit!=End(); ++bit)

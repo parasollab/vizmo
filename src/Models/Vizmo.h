@@ -60,9 +60,6 @@ class Vizmo {
     void SaveQryCfg(char ch); //save start or goal cfg.
     void DeleteObject(MultiBodyModel * mbl);
     //called form main_win::autoMkmp()
-    bool m_envChanged;
-    bool EnvChanged();
-    bool IsEnvChanged() { return m_envChanged; }
     double GetEnvRadius();
     EnvModel* GetEnv() const { return m_envModel; }
 

@@ -15,25 +15,21 @@
 //////////////////////////////
 
 CollisionDetection::CollisionDetection(){
-
   m_rapid = new RAPID_model();
+  rapid = new Rapid();
   TestNode = false;
-
 }
 
 CollisionDetection::~CollisionDetection(){
-
   delete m_rapid;
-
+  delete rapid;
 }
 
 bool CollisionDetection::IsInCollision(EnvModel* _envModel,
     MultiBodyModel* _robot,
     MultiBodyModel* _obstacle){
-
   return true;
 }
-
 
 bool CollisionDetection::IsInCollision(int _numMB,
     EnvModel* _envModel,
@@ -62,7 +58,6 @@ bool CollisionDetection::IsInCollision(int _numMB,
   //  GLModel* m_gl = modelList.front();
   //const float * curr_color = m_gl->GetColor();
 
-  rapid = new Rapid();
   if(TestNode){
     rapid->test_node = true;
     rapid->RCopyNodeCfg(nodeCfg, dof);

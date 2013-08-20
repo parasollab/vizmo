@@ -83,12 +83,12 @@ class MapModel : public GLModel{
     bool m_addNode;
     bool m_addEdge;
     //double* m_cfg; (Originally used in Roadmap.h/Roadmap.cpp)
-    int m_dof;
+    //int m_dof;
     RobotModel* m_robot;
     vector<CCM*> m_cCModels;
     list<GLModel*> m_nodes;
     vector<GLModel*> m_nodesToConnect; //nodes to be connected
-    double m_oldT[3], m_oldR[3];  //old_T
+    //double m_oldT[3], m_oldR[3];  //old_T
     string m_cfgString, m_robCfgString; //s_cfg, s_robCfg
     bool m_editModel;
     bool m_noMap;
@@ -101,7 +101,6 @@ class MapModel : public GLModel{
 
 template <class CfgModel, class WEIGHT>
 MapModel<CfgModel, WEIGHT>::MapModel(RobotModel* _robotModel) {
-
   m_renderMode = INVISIBLE_MODE;
   m_robot = _robotModel;
   m_graph = NULL;
@@ -123,6 +122,12 @@ MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename) {
   ifstream ifs(_filename.c_str());
   ParseHeader(ifs);
   m_graph = NULL;
+  m_editModel = false;
+  m_addNode = false;
+  m_addEdge = false;
+  m_robCfgOn = false;
+  m_robCfgString = "";
+  m_noMap = false;
 }
 
 template <class CfgModel, class WEIGHT>

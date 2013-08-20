@@ -31,7 +31,9 @@ class OptionsBase : public QWidget{
   Q_OBJECT
 
   public:
-    OptionsBase(QWidget* _parent, VizmoMainWin* _mainWin) : QWidget(_parent), m_mainWin(_mainWin){}
+    OptionsBase(QWidget* _parent, VizmoMainWin* _mainWin) :
+      QWidget(_parent), m_mainWin(_mainWin),
+      m_submenu(NULL), m_toolbar(NULL) {}
 
     QToolBar* GetToolbar(){return m_toolbar;}
 

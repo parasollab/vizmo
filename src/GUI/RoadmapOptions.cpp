@@ -97,11 +97,13 @@ void RoadmapOptions::CreateActions(){
 
   QAction* scaleNodes = new QAction(QPixmap(nodeSizeIcon), tr("Scale Nodes"), this);
   m_actions["scaleNodes"] = scaleNodes;
-  m_nodeSizeDialog = new SliderDialog(this);
+  m_nodeSizeDialog = new SliderDialog("Node Scaling",
+      "Drag the slider to scale the nodes", 0, 2500, 1000, this);
 
   QAction* edgeThickness = new QAction(QPixmap(edgeThicknessIcon), tr("Change Edge Thickness"), this);
   m_actions["edgeThickness"] = edgeThickness;
-  m_edgeThicknessDialog = new SliderDialog(this);
+  m_edgeThicknessDialog = new SliderDialog("Edge Thickness",
+      "Drag the slider to change the edge thickness", 100, 1000, 100, this);
 
   QAction* randomizeColors = new QAction(QPixmap(rcolor), tr("Randomize Colors"), this);
   m_actions["randomizeColors"] = randomizeColors;
@@ -139,14 +141,10 @@ void RoadmapOptions::CreateActions(){
   m_actions["changeNodeColor"]->setEnabled(false);
   m_actions["changeNodeColor"]->setStatusTip(tr("Change node color"));
 
-  m_nodeSizeDialog->SetSpecifications("Node Scaling", "Drag the slider to scale the nodes", 
-    0, 2500, 1000);
   m_actions["scaleNodes"]->setShortcut(tr("CTRL+S"));
   m_actions["scaleNodes"]->setEnabled(false);
   m_actions["scaleNodes"]->setStatusTip(tr("Resize the nodes"));
 
-  m_edgeThicknessDialog->SetSpecifications("Edge Thickness", "Drag the slider to change the edge thickness",
-    100, 1000, 100);
   m_actions["edgeThickness"]->setEnabled(false);
   m_actions["edgeThickness"]->setStatusTip(tr("Change edge thickness"));
 

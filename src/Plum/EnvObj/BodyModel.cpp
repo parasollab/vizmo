@@ -4,8 +4,12 @@
 #include "Models/PolyhedronModel.h"
 #include "Utilities/IOUtils.h"
 
-BodyModel::BodyModel(bool _isSurface) : m_isSurface(_isSurface), m_currentTransform() {
-}
+BodyModel::BodyModel(bool _isSurface) :
+  m_polyhedronModel(NULL),
+  m_isFixed(true), m_isSurface(_isSurface), m_isBase(true),
+  m_baseType(Robot::PLANAR), m_baseMovementType(Robot::TRANSLATIONAL),
+  m_currentTransform(), m_transformDone(false) {
+  }
 
 BodyModel::~BodyModel() {
   delete m_polyhedronModel;

@@ -11,7 +11,8 @@ class ConnectionModel {
   public:
     enum JointType {NONACTUATED, REVOLUTE, SPHERICAL}; //0dof, 1dof, or 2dof rotational joints
 
-    ConnectionModel() : m_globalIndex(m_globalCounter++) {}
+    ConnectionModel() : m_globalIndex(m_globalCounter++), m_previousIndex(-1),
+    m_nextIndex(-1), m_jointType(NONACTUATED), m_alpha(0), m_theta(0), m_a(0), m_d(0) {}
 
     size_t GetGlobalIndex() const {return m_globalIndex;}
     size_t GetPreviousIndex() const {return m_previousIndex;}

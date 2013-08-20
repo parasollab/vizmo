@@ -30,7 +30,7 @@ class RobotModel : public GLModel {
 
 
     RobotModel(EnvModel* _env);
-    RobotModel(const RobotModel& _otherRobot);
+    //RobotModel(const RobotModel& _otherRobot);
     ~RobotModel();
 
     EnvModel* GetEnvModel()const { return m_envModel; }
@@ -86,7 +86,8 @@ class RobotModel : public GLModel {
     void InitialCfg(vector<double>& cfg);
     void RestoreInitCfg();
 
-    double R, G, B, o_s[3], x, y, z, x1, y1, z1;
+    Color4 color;
+    Vector3d o_s;
 
     Quaternion quat, q1, q2;
 
@@ -175,7 +176,7 @@ class RobotModel : public GLModel {
     EnvModel* m_envModel;
     MultiBodyModel* m_robotModel;
 
-    double m_polyXBack, m_polyYBack, m_polyZBack;
+    Vector3d m_polyBack;
     //MultiBodyModel * mbRobotBackUp;
     double * mbRobotBackUp;
     double * tempCfg;
@@ -191,7 +192,7 @@ class RobotModel : public GLModel {
     double * StCfg;
     //store ORIGINAL size and color
     Color4 m_originalColor;
-    double originalSize[3];
+    Vector3d originalSize;
     RenderMode m_renderModeBackUp;
 };
 

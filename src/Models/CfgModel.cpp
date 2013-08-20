@@ -20,6 +20,8 @@ CfgModel::CfgModel(){
   m_index = -1;
   m_coll = false;
   m_dofs.clear();
+  m_robot = NULL;
+  m_cc = NULL;
 }
 
 CfgModel::CfgModel(const CfgModel& _cfg) : GLModel(_cfg) {

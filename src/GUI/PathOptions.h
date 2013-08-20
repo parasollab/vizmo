@@ -30,7 +30,6 @@ class PathOptions : public OptionsBase{
     //void SetQueryGoal();
 
   private:
-    QMenu* m_setQuery;     //submenu within the submenu
     CustomizePathDialog* m_pathOptionsInput; //pop-up dialog for gradient input, etc.
 
     //queryGUI* m_qrySGUI; //these need some help

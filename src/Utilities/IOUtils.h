@@ -29,7 +29,7 @@ T
 ReadField(istream& _is, const string& _where, const string& _error) {
   char c;
   string line;
-  T element;
+  T element = T();
   while(_is) {
     c = _is.peek();
     if(c == '#') {

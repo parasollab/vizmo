@@ -9,17 +9,14 @@ EdgeModel::EdgeModel() {
   m_lp = INT_MAX;
   m_weight = LONG_MAX;
   m_id = -1;
+  m_cfgShape = CfgModel::Point;
 }
 
 EdgeModel::EdgeModel(double _weight) {
   m_lp = INT_MAX;
   m_weight = _weight;
   m_id = -1;
-}
-
-EdgeModel::~EdgeModel() {
-  m_lp = INT_MAX;
-  m_weight = LONG_MAX;
+  m_cfgShape = CfgModel::Point;
 }
 
 const string
