@@ -6,13 +6,13 @@ using namespace stapl;
 #include "EnvObj/RobotModel.h"
 #include "GUI/SceneWin.h" //to call new drawText
 
-struct EdgeAccess{
+struct EdgeAccess {
   typedef double value_type;
   template<typename Property>
-  value_type get(Property p) {return p.GetWeight();}
+    value_type get(Property& p) {return p.GetWeight();}
 
   template<typename Property>
-  void put(Property p, value_type _v) {p.GetWeight()=_v;}
+    void put(Property& p, value_type _v) {p.GetWeight()=_v;}
 };
 
 DebugModel::DebugModel(const string& _filename, RobotModel* _robotModel) :

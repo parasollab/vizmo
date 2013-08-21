@@ -136,8 +136,8 @@ FileListDialog::GetAssociatedFiles(const string& _filename) {
 void
 FileListDialog::SetUpLayout(){
 
-  m_layout = new QGridLayout;
-  this->setLayout(m_layout);
+  m_layout = new QGridLayout(this);
+  setLayout(m_layout);
 
   m_layout->addWidget(m_envCheckBox, 0, 0);
   m_layout->addWidget(m_envLabel, 0, 1);
@@ -236,6 +236,7 @@ FileListDialog::Accept() {
     if(m_debugCheckBox->isChecked())
       GetVizmo().setDebugFileName(m_debugFilename->text().toStdString());
 
+    accept();
   }
   else {
     QMessageBox msgBox(this);
@@ -243,10 +244,7 @@ FileListDialog::Accept() {
     msgBox.setText("No Environment File Loaded.");
     msgBox.setStandardButtons(QMessageBox::Close);
     msgBox.exec();
-    return;
   }
-
-  accept();
 }
 
 void

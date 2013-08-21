@@ -57,7 +57,7 @@ class MapModel : public GLModel{
     void WriteMapFile(const string& _filename);
     void ParseHeader(istream& _in);
     virtual void ParseFile();
-    VID Cfg2VID(CfgModel _target);
+    VID Cfg2VID(const CfgModel& _target);
     void GenGraph();
 
     //Display fuctions
@@ -110,17 +110,18 @@ MapModel<CfgModel, WEIGHT>::MapModel(RobotModel* _robotModel) {
   m_robCfgOn = false;
   m_robCfgString = "";
   m_noMap = false;
+  m_robot = NULL;
 }
 
 //constructor only to grab header environment name
 template <class CfgModel, class WEIGHT>
 MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename) {
   SetFilename(_filename);
-  if(!FileExists(_filename))
-    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
+  if(FileExists(_filename)) {
+    ifstream ifs(_filename.c_str());
+    ParseHeader(ifs);
+  }
 
-  ifstream ifs(_filename.c_str());
-  ParseHeader(ifs);
   m_graph = NULL;
   m_editModel = false;
   m_addNode = false;
@@ -128,6 +129,7 @@ MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename) {
   m_robCfgOn = false;
   m_robCfgString = "";
   m_noMap = false;
+  m_robot = NULL;
 }
 
 template <class CfgModel, class WEIGHT>
@@ -213,7 +215,7 @@ MapModel<CfgModel, WEIGHT>::WriteMapFile(const string& _filename){
 template <class CfgModel, class WEIGHT>
 //VID
 typename graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT>::vertex_descriptor
-MapModel<CfgModel, WEIGHT>::Cfg2VID(CfgModel _target){
+MapModel<CfgModel, WEIGHT>::Cfg2VID(const CfgModel& _target){
 
   VI vi;
   //typename VID tvid = -1;

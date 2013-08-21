@@ -18,6 +18,7 @@ EnvModel::EnvModel(const string& _filename) :
   }
 
 EnvModel::~EnvModel() {
+  delete m_boundary;
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
     delete *mit;

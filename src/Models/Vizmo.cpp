@@ -183,7 +183,12 @@ Vizmo::Select(const gliBox& _box) {
   glPopMatrix();
 
   hits = glRenderMode(GL_RENDER);
-  SearchSelectedItems(hits, hitBuffer, (w*h) > 100);
+
+  // unselect everything first
+  m_selectedModels.clear();
+
+  if(hits > 0)
+    SearchSelectedItems(hits, hitBuffer, (w*h) > 100);
 }
 
 void
@@ -580,15 +585,12 @@ Vizmo::PlaceRobot(){
 //otherwise only the closest will be selected.
 void
 Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
-  // unselect everything first
-  m_selectedModels.clear();
-
   //init local data
   GLuint* ptr = (GLuint*)_buffer;
   unsigned int* selName = NULL;
 
   //input error
-  if(!ptr || _hit==0 )
+  if(!ptr)
     return;
 
   double z1; //near z for hit object
@@ -604,8 +606,8 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
     if(!curName)
       return;
 
-    for( unsigned int iN=0; iN<nameSize; iN++ ){
-      curName[iN] = (int)(*ptr);
+    for(unsigned int iN=0; iN<nameSize; ++iN){
+      curName[iN] = *ptr;
       ptr++;
     }
 
@@ -630,7 +632,7 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
   //only the closest
   if(!_all) {
     // analyze selected item
-    if(selName[0] <= m_loadedModels.size()) {
+    if(selName && selName[0] <= m_loadedModels.size()) {
       GLModel* selectModel = m_loadedModels[selName[0]];
       selectModel->Select(&selName[1], m_selectedModels);
     }

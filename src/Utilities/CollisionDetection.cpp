@@ -247,7 +247,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
             convertFromQuaternion(m, qtmp);
 
             robotObj->Restore();
-            delete CurrCfg;
+            delete [] CurrCfg;
           }
         }
       }// ROBOT

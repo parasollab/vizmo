@@ -176,7 +176,7 @@ void queryGUI::newCfg(const QString&){
         j++;
       }
       robotModel->Configure(Qcfg2);
-      delete Qcfg2;
+      delete [] Qcfg2;
 
       emit callUpdate();
     }

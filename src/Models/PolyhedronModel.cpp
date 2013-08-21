@@ -44,6 +44,9 @@ PolyhedronModel::BuildModels() {
   string file = m_bodyModel->GetModelFilename();
   IModel* imodel = CreateModelLoader(file, false);
 
+  if(!imodel)
+    throw BuildException(WHERE, "File '" + file + "' does not exist.");
+
   const PtVector& points=imodel->GetVertices();
   const TriVector& tris=imodel->GetTriP(); //GetTriangles();
 
@@ -93,7 +96,7 @@ PolyhedronModel::BuildModels() {
 }
 
 void PolyhedronModel::Draw(GLenum _mode) {
-  if(m_solidID == size_t(-1)) return;
+  if(m_solidID == GLuint(-1)) return;
   if(m_renderMode == INVISIBLE_MODE) return;
 
   if(m_renderMode == SOLID_MODE){

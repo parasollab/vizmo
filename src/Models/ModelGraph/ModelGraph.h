@@ -63,7 +63,8 @@ namespace modelgraph
                     } //end of if
                 }//end of for(iE)
             }//end of for(iT)
-            tail->setNext(NULL);
+
+            if(tail) tail->setNext(NULL);
 
             return true;
         }

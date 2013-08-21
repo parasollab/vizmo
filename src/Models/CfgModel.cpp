@@ -30,9 +30,6 @@ CfgModel::CfgModel(const CfgModel& _cfg) : GLModel(_cfg) {
   m_cc = _cfg.m_cc;
   m_coll = _cfg.m_coll;
   m_dofs = _cfg.m_dofs;
-  m_isPlanarRobot = _cfg.m_isPlanarRobot;
-  m_isVolumetricRobot = _cfg.m_isVolumetricRobot;
-  m_isRotationalRobot = _cfg.m_isRotationalRobot;
 }
 
 const string

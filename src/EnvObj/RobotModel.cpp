@@ -37,6 +37,9 @@ MultiBodyModel* RobotModel::getRobotModel() const {
 }
 
 RobotModel::~RobotModel() {
+  delete [] tempCfg;
+  delete [] currentCfg;
+  delete [] rotation_axis;
 }
 
 void

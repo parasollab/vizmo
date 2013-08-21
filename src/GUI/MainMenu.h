@@ -14,12 +14,12 @@ class OptionsBase;
 
 using namespace std;
 
-class MainMenu : public QWidget{
+class MainMenu : public QWidget {
 
   Q_OBJECT
 
   public:
-    MainMenu(VizmoMainWin* _parent = 0);
+    MainMenu(VizmoMainWin* _parent);
 
     OptionsBase* m_fileOptions;         //File tool button and submenu
     OptionsBase* m_sceneOptions;        //2 scene buttons and submenu

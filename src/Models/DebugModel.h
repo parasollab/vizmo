@@ -25,34 +25,34 @@ class RobotModel;
 // Query - If a path can be found, it highlights a path in the scene
 ////////////////////////////////////////////////////////////////////////////////
 struct Instruction{
-  Instruction(string _name = "default") : m_name(_name) {}
+  Instruction(const string& _name = "default") : m_name(_name) {}
   string m_name;
 };
 
 struct AddNode : public Instruction {
-  AddNode(CfgModel _c) : Instruction("AddNode"), m_cfg(_c) {}
+  AddNode(const CfgModel& _c) : Instruction("AddNode"), m_cfg(_c) {}
   CfgModel m_cfg;
 };
 
 struct AddEdge : public Instruction {
-  AddEdge(CfgModel _s, CfgModel _t) : Instruction("AddEdge"), m_source(_s), m_target(_t) {}
+  AddEdge(const CfgModel& _s, const CfgModel& _t) : Instruction("AddEdge"), m_source(_s), m_target(_t) {}
   Color4 m_targetColor, m_sourceColor;
   CfgModel m_source, m_target;
 };
 
 struct AddTempCfg : public Instruction {
-  AddTempCfg(CfgModel _c, bool _v) : Instruction("AddTempCfg"), m_cfg(_c), m_valid(_v) {}
+  AddTempCfg(const CfgModel& _c, bool _v) : Instruction("AddTempCfg"), m_cfg(_c), m_valid(_v) {}
   CfgModel m_cfg;
   bool m_valid;
 };
 
 struct AddTempRay : public Instruction {
-  AddTempRay(CfgModel _c) : Instruction("AddTempRay"), m_cfg(_c) {}
+  AddTempRay(const CfgModel& _c) : Instruction("AddTempRay"), m_cfg(_c) {}
   CfgModel m_cfg;
 };
 
 struct AddTempEdge : public Instruction {
-  AddTempEdge(CfgModel _s, CfgModel _t) : Instruction("AddTempEdge"), m_source(_s), m_target(_t) {}
+  AddTempEdge(const CfgModel& _s, const CfgModel& _t) : Instruction("AddTempEdge"), m_source(_s), m_target(_t) {}
   CfgModel m_source, m_target;
 };
 
@@ -78,23 +78,23 @@ struct ClearComments : public Instruction {
 };
 
 struct RemoveNode : public Instruction {
-  RemoveNode(CfgModel _c) : Instruction("RemoveNode"), m_cfg(_c) {}
+  RemoveNode(const CfgModel& _c) : Instruction("RemoveNode"), m_cfg(_c) {}
   CfgModel m_cfg;
 };
 
 struct RemoveEdge : public Instruction {
-  RemoveEdge(CfgModel _s, CfgModel _t) : Instruction("RemoveEdge"), m_edgeNum(-1), m_source(_s), m_target(_t) {}
+  RemoveEdge(const CfgModel& _s, const CfgModel& _t) : Instruction("RemoveEdge"), m_edgeNum(-1), m_source(_s), m_target(_t) {}
   int m_edgeNum;
   CfgModel m_source, m_target;
 };
 
 struct Comment : public Instruction {
-  Comment(string _s) : Instruction("Comment"), m_comment(_s) {}
+  Comment(const string& _s) : Instruction("Comment"), m_comment(_s) {}
   string m_comment;
 };
 
 struct Query : public Instruction {
-  Query(CfgModel _s, CfgModel _t) : Instruction("Query"), m_source(_s), m_target(_t) {}
+  Query(const CfgModel& _s, const CfgModel& _t) : Instruction("Query"), m_source(_s), m_target(_t) {}
   CfgModel m_source, m_target;
   vector<EdgeModel> m_query;
 };

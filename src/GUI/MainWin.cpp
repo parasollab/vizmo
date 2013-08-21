@@ -32,6 +32,7 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
   m_objTextLayout = NULL;
   m_layoutWidget = NULL;
   m_objectSelection = NULL;
+  m_animationBarLayout = NULL;
 }
 
 VizmoMainWin::~VizmoMainWin(){

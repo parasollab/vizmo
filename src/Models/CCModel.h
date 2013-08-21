@@ -93,7 +93,8 @@ CCModel<CfgModel, WEIGHT>::~CCModel(){}
 template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::BuildModels() {
-  throw BuildException(WHERE, "Calling wrong build models function.");
+  cerr << "Error::CCModel.h::Calling wrong build models function." << endl;
+  exit(1);
 }
 
 template <class CfgModel, class WEIGHT>

@@ -283,7 +283,7 @@ RoadmapOptions::Reset(){
     // GetMapModel()->GetCfgLabel()->clear(); temporarily removed/what is it for?
     //GetMap()->l_cfg->clear();
 
-    if(GetMapModel()->RobCfgOn() == false)
+    if(GetMapModel()->RobCfgOn() == false) {
       //**MORE TEMPORARY(?) REMOVALS
       //  GetMapModel()->GetRobCfgLabel()->clear;
       //GetMap()->l_robCfg->clear();
@@ -298,6 +298,7 @@ RoadmapOptions::Reset(){
       GetMapModel()->SetMBEditModel(false);
       GetMapModel()->SetAddNode(false);
       GetMapModel()->SetAddEdge(false);
+    }
   }
 }
 
@@ -534,11 +535,12 @@ RoadmapOptions::ShowObjectContextMenu(){
     cfgs->addAction(m_actions["saveGoal"]);
     cm.addMenu(cfgs);
   }
-  else
+  else {
     cm.addAction(m_actions["makeInvisible"]);
     cm.addAction(m_actions["changeObjectColor"]);
     cm.addSeparator();
     /*LEAVE HERE*/  //cm.insertItem("Edit...", this,SLOT(objectEdit()));
+  }
 
   if(cm.exec(QCursor::pos())!= 0) //was -1 for q3 version (index based)
     GetMainWin()->GetGLScene()->updateGL();

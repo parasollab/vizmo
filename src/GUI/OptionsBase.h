@@ -26,7 +26,7 @@ class MainMenu;
 
 using namespace std;
 
-class OptionsBase : public QWidget{
+class OptionsBase : public QWidget {
 
   Q_OBJECT
 
