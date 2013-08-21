@@ -30,16 +30,14 @@ class QWidget;
 using namespace std;
 
 class VizmoAnimationGUI : public QToolBar{
-
   Q_OBJECT
 
   public:
-    VizmoAnimationGUI(QString _title, QWidget* _parent = NULL, string _name = NULL);
+    VizmoAnimationGUI(QString _title, QWidget* _parent = NULL);
     void reset(); //reset everything
 
   signals:
     void callUpdate();
-
   private slots:
     void animate2();
     void timeout();
@@ -89,9 +87,4 @@ class VizmoAnimationGUI : public QToolBar{
     bool m_forwardDirection;
     string m_name;
 };
-
-
-
-
-
 

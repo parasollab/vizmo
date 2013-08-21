@@ -55,7 +55,6 @@ CaptureOptions::CreateActions(){
   connect(this, SIGNAL(SimulateMouseUp()), GetMainWin()->GetGLScene(), SLOT(SimulateMouseUpSlot()));
   connect(this, SIGNAL(CallUpdate()), GetMainWin(), SLOT(updateScreen()));
   connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationGUI(), SLOT(goToFrame(int)));
-  connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationDebugGUI(), SLOT(goToFrame(int)));
 }
 
 void

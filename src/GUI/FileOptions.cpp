@@ -120,7 +120,6 @@ FileOptions::UpdateFiles(){
 
   //reset guis
   GetMainWin()->GetAnimationGUI()->reset();
-  GetMainWin()->GetAnimationDebugGUI()->reset();
   GetMainWin()->GetObjectSelection()->ResetLists();
   GetMainWin()->m_mainMenu->CallReset();
   GetMainWin()->GetGLScene()->resetTransTool();

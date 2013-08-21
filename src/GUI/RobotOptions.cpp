@@ -57,7 +57,6 @@ RobotOptions::SetHelpTips(){
 void
 RobotOptions::ResetRobotPosition(){
   GetMainWin()->GetAnimationGUI()->reset();
-  GetMainWin()->GetAnimationDebugGUI()->reset();
   GetMainWin()->GetGLScene()->updateGL();
 }
 

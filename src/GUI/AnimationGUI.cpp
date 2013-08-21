@@ -23,8 +23,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-VizmoAnimationGUI::VizmoAnimationGUI(QString _title, QWidget* _parent, string _name)
-  : QToolBar(_title, _parent), m_name(_name) {
+VizmoAnimationGUI::VizmoAnimationGUI(QString _title, QWidget* _parent)
+  : QToolBar(_title, _parent), m_name("") {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     CreateGUI();
     setEnabled(false);
@@ -40,12 +40,21 @@ VizmoAnimationGUI::VizmoAnimationGUI(QString _title, QWidget* _parent, string _n
 
 void
 VizmoAnimationGUI::reset(){
-
   pauseAnimate();
-  if(m_name == "Path")
-    m_maxValue=GetVizmo().GetPathSize();
-  else if(m_name == "Debug")
-    m_maxValue=GetVizmo().GetDebugSize();
+  
+  if(GetVizmo().getPathFileName()!="") {
+    m_name = "Path";
+    m_maxValue = GetVizmo().GetPathSize();
+  }
+  else if(GetVizmo().getDebugFileName()!="") {
+    m_name = "Debug";
+    m_maxValue = GetVizmo().GetDebugSize();
+  }
+  else {
+    m_name = "";
+    m_maxValue = 0;
+  }
+
   m_curValue=0;
   m_slider->setRange(0, m_maxValue-1);
   m_slider->setValue(0);
@@ -273,9 +282,9 @@ void
 VizmoAnimationGUI::sliderMoved(int newValue){
 
   UpdateCurValue(newValue);
-  if(m_name == "Path")
+  if (m_name == "Path")
     GetVizmo().Animate(m_curValue);
-  else if(m_name == "Debug")
+  else if (m_name == "Debug")
     GetVizmo().AnimateDebug(m_curValue);
   emit callUpdate();
 }
@@ -290,5 +299,4 @@ VizmoAnimationGUI::timeout(){
   UpdateCurValue(m_curValue);
   m_slider->setValue(m_curValue);
 }
-
 

@@ -38,7 +38,6 @@ using namespace std;
 class VizGLWin;
 
 class VizmoMainWin : public QMainWindow {
-
   Q_OBJECT
 
   public:
@@ -47,14 +46,12 @@ class VizmoMainWin : public QMainWindow {
 
     bool Init();
     bool InitVizmo();
-
     vector<string>& GetArgs() { return m_args; }
     void SetVizmoInit(bool _tf) { m_bVizmoInit = _tf; }
     bool GetVizmoInit() { return m_bVizmoInit; }
     VizGLWin* GetGLScene() { return m_gl; }
     TextGUI* GetOutbox(){ return m_outbox; }
     VizmoAnimationGUI* GetAnimationGUI() { return m_animationGUI; }
-    VizmoAnimationGUI* GetAnimationDebugGUI() { return m_animationDebugGUI; }
     VizmoItemSelectionGUI* GetObjectSelection() { return m_objectSelection; }
 
     //command line to be executed to make a new roadmap
@@ -66,8 +63,8 @@ class VizmoMainWin : public QMainWindow {
     TextGUI* m_outbox;      //Q3TextView that displays node/edge(s) selection info, debug, etc.
 
   protected:
-    bool CreateGUI();  //create toolbars
     void keyPressEvent(QKeyEvent* _e);
+    bool CreateGUI();
 
   private slots:
     void updateScreen();  // redraw GL scene
@@ -84,11 +81,9 @@ class VizmoMainWin : public QMainWindow {
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     VizGLWin* m_gl;           //the scene window which displays environment..
-    VizmoAnimationGUI *m_animationGUI, *m_animationDebugGUI;
+    VizmoAnimationGUI *m_animationGUI; 
     VizmoItemSelectionGUI *m_objectSelection;
 };
 
 #endif /*_MAIN_WIN_H_*/
-
-
 

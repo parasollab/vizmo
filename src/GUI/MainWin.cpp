@@ -20,7 +20,7 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
   setMinimumSize(960, 700);
   setWindowTitle("Vizmo++");
   m_gl = NULL;
-  m_animationGUI = m_animationDebugGUI = NULL;
+  m_animationGUI = NULL; 
   move(0,0);
   m_setQS = false;
   m_setQG = false;
@@ -41,7 +41,6 @@ VizmoMainWin::~VizmoMainWin(){
   delete m_gl;
   //delete the animation bars
   delete m_animationGUI;
-  delete m_animationDebugGUI;
   delete m_animationBarLayout;
   //delete item selection
   delete m_objectSelection;
@@ -100,7 +99,6 @@ VizmoMainWin::InitVizmo(){
   m_gl->resetCamera();
   //reset guis
   m_animationGUI->reset();
-  m_animationDebugGUI->reset();
   m_objectSelection->ResetLists();
   m_mainMenu->CallReset();
   GetVizmo().RandomizeCCColors();
@@ -109,17 +107,11 @@ VizmoMainWin::InitVizmo(){
   return true;
 }
 
-//Protected//////////////////////////////////////////////////////////////////
-
 bool
-VizmoMainWin::CreateGUI(){
-
-  m_animationGUI = new VizmoAnimationGUI("Path", this, "Path");
-  connect(m_animationGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
-
-  m_animationDebugGUI=new VizmoAnimationGUI("Debug", this, "Debug");
-  connect(m_animationDebugGUI,SIGNAL(callUpdate()),this,SLOT(updateScreen()));
-
+VizmoMainWin::CreateGUI() {
+  m_animationGUI = new VizmoAnimationGUI("Animation", this);
+  connect(m_animationGUI, SIGNAL(callUpdate()), this, SLOT(updateScreen()));
+  
   m_objectSelection = new VizmoItemSelectionGUI(this);
   connect(m_objectSelection, SIGNAL(CallUpdate()),this,SLOT(updateScreen()));
 
@@ -127,7 +119,6 @@ VizmoMainWin::CreateGUI(){
 
   m_outbox = new TextGUI(this);
 
-  connect(m_animationDebugGUI,SIGNAL(callUpdate()), m_outbox, SLOT(SetText()));
   connect(m_objectSelection, SIGNAL(UpdateTextGUI()), m_outbox, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_objectSelection, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_objectSelection, SLOT(Select()));
@@ -169,7 +160,6 @@ VizmoMainWin::SetUpLayout(){
 
   m_animationBarLayout = new QVBoxLayout;
   m_animationBarLayout->addWidget(m_animationGUI);
-  m_animationBarLayout->addWidget(m_animationDebugGUI);
 
   m_layout->addLayout(m_animationBarLayout, 8, 1, 9, 25);
 
