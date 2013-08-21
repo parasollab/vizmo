@@ -42,7 +42,6 @@ class VizmoMainWin : public QMainWindow {
 
   public:
     VizmoMainWin(QWidget* _parent = 0);
-    virtual ~VizmoMainWin();
 
     bool Init();
     bool InitVizmo();
@@ -81,7 +80,7 @@ class VizmoMainWin : public QMainWindow {
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     VizGLWin* m_gl;           //the scene window which displays environment..
-    VizmoAnimationGUI *m_animationGUI; 
+    VizmoAnimationGUI *m_animationGUI;
     VizmoItemSelectionGUI *m_objectSelection;
 };
 

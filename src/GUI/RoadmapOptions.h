@@ -17,12 +17,12 @@
 class QPushButton;
 class SliderDialog;
 
-class RoadmapOptions : public OptionsBase{
+class RoadmapOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    RoadmapOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
+    RoadmapOptions(QWidget* _parent, VizmoMainWin* _mainWin);
     void CreateActions();
     void SetUpCustomSubmenu(); //submenu has its own submenus and cannot be set up with simple loop through m_actions
     void SetUpToolbar();       //a lot of toolbar functionalities for this class

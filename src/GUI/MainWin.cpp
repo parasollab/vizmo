@@ -15,12 +15,12 @@
 #include "Icons/Eye.xpm"
 
 VizmoMainWin::VizmoMainWin(QWidget* _parent)
-  :QMainWindow(_parent), m_bVizmoInit(false){
+  : QMainWindow(_parent), m_bVizmoInit(false){
 
   setMinimumSize(960, 700);
   setWindowTitle("Vizmo++");
   m_gl = NULL;
-  m_animationGUI = NULL; 
+  m_animationGUI = NULL;
   move(0,0);
   m_setQS = false;
   m_setQG = false;
@@ -35,30 +35,11 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
   m_animationBarLayout = NULL;
 }
 
-VizmoMainWin::~VizmoMainWin(){
-
-  //delete GL scene
-  delete m_gl;
-  //delete the animation bars
-  delete m_animationGUI;
-  delete m_animationBarLayout;
-  //delete item selection
-  delete m_objectSelection;
-  delete m_outbox;
-  delete m_objTextLayout;
-  //delete the menus
-  delete m_mainMenu;
-  delete m_allTogether;
-  //delete the layouts last
-  delete m_layout;
-  delete m_layoutWidget;
-}
-
 bool
 VizmoMainWin::Init(){
 
   this->setWindowIcon(QPixmap(eye));
-  m_layoutWidget = new QWidget();
+  m_layoutWidget = new QWidget(this);
 
   //Create GLModel
   if((m_gl = new VizGLWin(this, this)) == NULL)
@@ -111,7 +92,7 @@ bool
 VizmoMainWin::CreateGUI() {
   m_animationGUI = new VizmoAnimationGUI("Animation", this);
   connect(m_animationGUI, SIGNAL(callUpdate()), this, SLOT(updateScreen()));
-  
+
   m_objectSelection = new VizmoItemSelectionGUI(this);
   connect(m_objectSelection, SIGNAL(CallUpdate()),this,SLOT(updateScreen()));
 
@@ -134,7 +115,7 @@ VizmoMainWin::CreateGUI() {
 void
 VizmoMainWin::SetUpLayout(){
 
-  m_layout = new QGridLayout;
+  m_layout = new QGridLayout();
   m_layoutWidget->setLayout(m_layout); //Set this before actual layout specifications
   m_layout->setHorizontalSpacing(3);
 
@@ -151,14 +132,14 @@ VizmoMainWin::SetUpLayout(){
 
   m_layout->addWidget(m_allTogether, 1, 1, 1, 25);
 
-  m_objTextLayout = new QVBoxLayout;
+  m_objTextLayout = new QVBoxLayout();
   m_objTextLayout->addWidget(m_objectSelection); //The Environment Objects list
   m_objTextLayout->addWidget(m_outbox);          //The TextGUI
   m_objTextLayout->setStretchFactor(m_objectSelection, 1);
 
   m_layout->addLayout(m_objTextLayout, 2, 1, 4, 5);
 
-  m_animationBarLayout = new QVBoxLayout;
+  m_animationBarLayout = new QVBoxLayout();
   m_animationBarLayout->addWidget(m_animationGUI);
 
   m_layout->addLayout(m_animationBarLayout, 8, 1, 9, 25);
@@ -181,7 +162,6 @@ VizmoMainWin::SetUpLayout(){
 
 void
 VizmoMainWin::keyPressEvent (QKeyEvent* _e){
-
   switch(_e->key()){
     case Qt::Key_Escape: qApp->quit();
   }
@@ -189,7 +169,6 @@ VizmoMainWin::keyPressEvent (QKeyEvent* _e){
 
 void
 VizmoMainWin::updateScreen(){
-
     m_gl->updateGL();
 }
 

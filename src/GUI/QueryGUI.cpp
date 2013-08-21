@@ -29,21 +29,21 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f) : QDialog(parent) {
   //will be used in newCfg funct.
   QcfgTmp = new double [m_dof];
 
-  QGridLayout* controls = new QGridLayout(this);
-  controls->addWidget(new QLabel("Configuration "),
+  QGridLayout* controls = new QGridLayout();
+  controls->addWidget(new QLabel("Configuration ", this),
       0,0, Qt::AlignHCenter);
-  controls->addWidget(new QLabel("to be added"),
+  controls->addWidget(new QLabel("to be added", this),
       0,1, Qt::AlignHCenter);
 
 
-  controls->addWidget(new QLabel("<b>X</b>:     "),
+  controls->addWidget(new QLabel("<b>X</b>:     ", this),
       1,0 , Qt::AlignRight);
-  stx = new QDoubleSpinBox();
-  stx->setDecimals ( DECIMALS );
+  stx = new QDoubleSpinBox(this);
+  stx->setDecimals(DECIMALS);
   stx->setRange(M_MIN, M_MAX);
   stx->setSingleStep (STEP);
   stx->setSpecialValueText(qs.setNum(Qcfg[0]));
-  stx->setValue (Qcfg[0]);
+  stx->setValue(Qcfg[0]);
   stx->setButtonSymbols(QAbstractSpinBox::PlusMinus);
   connect(stx, SIGNAL(valueChanged (const QString&)),this,
       SLOT(newCfg(const QString&)) );
@@ -51,12 +51,12 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f) : QDialog(parent) {
   controls->addWidget(stx, 1,1, Qt::AlignRight);
 
 
-  controls->addWidget(new QLabel("<b>Y</b>:     "),
+  controls->addWidget(new QLabel("<b>Y</b>:     ", this),
       2,0 , Qt::AlignRight);
 
 
-  sty = new QDoubleSpinBox();
-  sty->setDecimals ( DECIMALS );
+  sty = new QDoubleSpinBox(this);
+  sty->setDecimals (DECIMALS);
   sty->setRange(M_MIN, M_MAX);
   sty->setSingleStep (STEP);
   sty->setSpecialValueText(qs.setNum(Qcfg[1]));
@@ -68,10 +68,10 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f) : QDialog(parent) {
 
   controls->addWidget(sty,2,1 , Qt::AlignRight);
 
-  controls->addWidget(new QLabel("<b>Z</b>:     "),
+  controls->addWidget(new QLabel("<b>Z</b>:     ", this),
       3,0 , Qt::AlignRight);
 
-  stz = new QDoubleSpinBox();
+  stz = new QDoubleSpinBox(this);
   stz->setRange(M_MIN, M_MAX);
   stz->setDecimals ( DECIMALS );
   stz->setSingleStep (STEP);
@@ -88,11 +88,11 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f) : QDialog(parent) {
   int i, j=0;
   vSpin.clear();
   for(i=3; i<m_dof; i++){
-    controls->addWidget(new QLabel("<b>Dof " +qst.setNum(i)+"</b>:"),
+    controls->addWidget(new QLabel("<b>Dof " +qst.setNum(i)+"</b>:", this),
         i+1, 0, Qt::AlignRight);
-    vSpin.push_back(new QDoubleSpinBox());
-    controls->addWidget(vSpin[j], i+1, 1,Qt::AlignRight );
-    vSpin[j]->setDecimals ( DECIMALS );
+    vSpin.push_back(new QDoubleSpinBox(this));
+    controls->addWidget(vSpin[j], i+1, 1, Qt::AlignRight);
+    vSpin[j]->setDecimals(DECIMALS);
     vSpin[j]->setRange(D_MIN, D_MAX);
     vSpin[j]->setSingleStep (STEP_ANGLE);
     vSpin[j]->setSpecialValueText(qs.setNum(Qcfg[i]));
@@ -103,16 +103,15 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f) : QDialog(parent) {
     j++;
   }
 
-  QPushButton *go = new QPushButton("Set");
-  connect(go,SIGNAL(clicked()),this,SLOT(SaveSG()));
+  QPushButton* go = new QPushButton("Set", this);
+  connect(go, SIGNAL(clicked()), this, SLOT(SaveSG()));
   controls->addWidget(go, i+1, 0, Qt::AlignHCenter);
-  QPushButton *reset = new QPushButton("Reset");
-  connect(reset,SIGNAL(clicked()),this,SLOT(resetCfg()));
+  QPushButton* reset = new QPushButton("Reset", this);
+  connect(reset, SIGNAL(clicked()), this, SLOT(resetCfg()));
   controls->addWidget(reset, i+1, 1, Qt::AlignHCenter);
-  QPushButton *close = new QPushButton("Close");
-  connect(close,SIGNAL(clicked()),this,SLOT(accept()));
+  QPushButton* close = new QPushButton("Close", this);
+  connect(close, SIGNAL(clicked()), this, SLOT(accept()));
   controls->addWidget(close, i+1, 2, Qt::AlignHCenter);
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -58,7 +58,9 @@ namespace modelgraph
                         m_pNode[a]->addEdge(e); m_pNode[b]->addEdge(e);
                         //push new edge to end of list
                         if(m_pEdge==NULL) m_pEdge=e;
-                        else tail->setNext(e);
+                        else {
+                          if(tail) tail->setNext(e);
+                        }
                         tail=e; m_edgeSize++;
                     } //end of if
                 }//end of for(iE)

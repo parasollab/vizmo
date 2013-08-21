@@ -24,6 +24,7 @@
 class VizmoMainWin;
 class MainMenu;
 
+#include <iostream>
 using namespace std;
 
 class OptionsBase : public QWidget {
@@ -34,6 +35,7 @@ class OptionsBase : public QWidget {
     OptionsBase(QWidget* _parent, VizmoMainWin* _mainWin) :
       QWidget(_parent), m_mainWin(_mainWin),
       m_submenu(NULL), m_toolbar(NULL) {}
+    ~OptionsBase() {cout << "~OptionsBase::" << m_submenu->title().toStdString() << endl;}
 
     QToolBar* GetToolbar(){return m_toolbar;}
 

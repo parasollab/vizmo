@@ -136,7 +136,7 @@ FileListDialog::GetAssociatedFiles(const string& _filename) {
 void
 FileListDialog::SetUpLayout(){
 
-  m_layout = new QGridLayout(this);
+  m_layout = new QGridLayout;
   setLayout(m_layout);
 
   m_layout->addWidget(m_envCheckBox, 0, 0);

@@ -38,15 +38,14 @@
 #include "Icons/Navigate.xpm"
 
 RoadmapOptions::RoadmapOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  :OptionsBase(_parent, _mainWin)
-{
-  CreateActions();
-  SetUpCustomSubmenu();
-  SetUpToolbar();
-  SetHelpTips();
+  : OptionsBase(_parent, _mainWin) {
+    CreateActions();
+    SetUpCustomSubmenu();
+    SetUpToolbar();
+    SetHelpTips();
 
-  m_robotButton->click();
-}
+    m_robotButton->click();
+  }
 
 void RoadmapOptions::CreateActions(){
 
@@ -306,30 +305,30 @@ void
 RoadmapOptions::SetHelpTips(){
 
   m_actions["showHideRoadmap"]->setWhatsThis(tr("Click this button"
-    " to visualize the <b>Roadmap</b>. You can also select the"
-    " <b>Show/Hide Roadmap</b> option from the <b>Roadmap</b> menu."));
+        " to visualize the <b>Roadmap</b>. You can also select the"
+        " <b>Show/Hide Roadmap</b> option from the <b>Roadmap</b> menu."));
   m_robotButton->setWhatsThis(tr("Click this button to visualize"
-    " the nodes in <b>Robot</b> mode."));
+        " the nodes in <b>Robot</b> mode."));
   m_boxButton->setWhatsThis(tr("Click this button to visualize"
-    " the nodes in <b>Box</b> mode."));
+        " the nodes in <b>Box</b> mode."));
   m_pointButton->setWhatsThis(tr("Click this button to visualize"
-    " the nodes in <b>Point</b> mode."));
+        " the nodes in <b>Point</b> mode."));
   m_actions["makeSolid"]->setWhatsThis(tr("Click this button to display a"
-    " selected item in <b>Solid</b> mode."));
+        " selected item in <b>Solid</b> mode."));
   m_actions["makeWired"]->setWhatsThis(tr("Click this button to display a"
-    " selected item in <b>Wire</b> mode."));
+        " selected item in <b>Wire</b> mode."));
   m_actions["makeInvisible"]->setWhatsThis(tr("Click this button to make a"
-    " selected item invisible."));
+        " selected item invisible."));
   m_actions["changeNodeColor"]->setWhatsThis(tr("Click this button to change"
-    " the color of a selected item."));
+        " the color of a selected item."));
   m_actions["scaleNodes"]->setWhatsThis(tr("Click this button to resize the"
-   " roadmap nodes by a specified factor."));
+        " roadmap nodes by a specified factor."));
   m_actions["edgeThickness"]->setWhatsThis(tr("Click this button to scale the"
-   " thickness of the edges."));
+        " thickness of the edges."));
   m_actions["randomizeColors"]->setWhatsThis(tr("Click this button to randomize"
-   " the colors of the connected components."));
+        " the colors of the connected components."));
   m_actions["ccsOneColor"]->setWhatsThis(tr("Click this button to set all of the"
-   " connected components to a single color. "));
+        " connected components to a single color. "));
 }
 
 //Slots
@@ -430,13 +429,13 @@ RoadmapOptions::MakeInvisible(){
 void
 RoadmapOptions::ShowNodeSizeDialog(){
 
- //For now, resizing only enabled for point and box abstractions. For robot,
- //would require extensive local coordinate system aspects
- if(GetNodeShape() != "Robot")
-  m_nodeSizeDialog->show();
- else
-  //Not a true "about" box, but does exactly what is needed.
-  QMessageBox::about(this, "Sorry!", "You can only resize the nodes in <b>Point</b> or <b>Box</b> mode.");
+  //For now, resizing only enabled for point and box abstractions. For robot,
+  //would require extensive local coordinate system aspects
+  if(GetNodeShape() != "Robot")
+    m_nodeSizeDialog->show();
+  else
+    //Not a true "about" box, but does exactly what is needed.
+    QMessageBox::about(this, "Sorry!", "You can only resize the nodes in <b>Point</b> or <b>Box</b> mode.");
 }
 
 void
