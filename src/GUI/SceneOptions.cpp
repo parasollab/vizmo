@@ -121,24 +121,7 @@ SceneOptions::SetCameraPosition(){
   double azim = gliGetCameraFactory().getCurrentCamera()->getCurrentAzim();
   double elev = gliGetCameraFactory().getCurrentCamera()->getCurrentElev();
 
-  ostringstream ossX, ossY, ossZ, ossAzim, ossElev;
-  ossX << p[0];
-  ossY << p[1];
-  ossZ << p[2];
-  ossAzim << azim;
-  ossElev << elev;
-
-  QString QsX((ossX.str()).c_str());
-  QString QsY((ossY.str()).c_str());
-  QString QsZ((ossZ.str()).c_str());
-  QString QsAzim((ossAzim.str()).c_str());
-  QString QsElev((ossElev.str()).c_str());
-
-  (m_cameraPosInput->m_xLineEdit)->setText(QsX);
-  (m_cameraPosInput->m_yLineEdit)->setText(QsY);
-  (m_cameraPosInput->m_zLineEdit)->setText(QsZ);
-  (m_cameraPosInput->m_azimLineEdit)->setText(QsAzim);
-  (m_cameraPosInput->m_elevLineEdit)->setText(QsElev);
+  m_cameraPosInput->SetCameraPos(p[0], p[1], p[2], azim, elev);
 
   m_cameraPosInput->show();
 }

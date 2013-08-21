@@ -25,6 +25,13 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
   m_setQS = false;
   m_setQG = false;
   command = "";
+  m_mainMenu = NULL;
+  m_outbox = NULL;
+  m_layout = NULL;
+  m_allTogether = NULL;
+  m_objTextLayout = NULL;
+  m_layoutWidget = NULL;
+  m_objectSelection = NULL;
 }
 
 VizmoMainWin::~VizmoMainWin(){

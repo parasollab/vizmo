@@ -92,7 +92,8 @@ Vizmo::InitModels() {
     return false;
   }
   catch(exception& _e) {
-    throw _e;
+    cerr << "Error::" << _e.what() << "\nExiting." << endl;
+    exit(1);
   }
 
   //Put robot in start cfg, if availiable
@@ -398,9 +399,7 @@ void Vizmo::ChangeAppearance(int status)
     }
   }
 
-  if(robot != NULL){
-    robot->Restore();
-  }
+  robot->Restore();
 }
 
 void Vizmo::DeleteObject(MultiBodyModel *mbl){
@@ -619,10 +618,10 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
       }
     }
     else{ //select all
-      if(curName[0] > m_loadedModels.size())
-        return;
-      GLModel* selectModel = m_loadedModels[curName[0]];
-      selectModel->Select(&curName[1], m_selectedModels);
+      if(curName[0] <= m_loadedModels.size()) {
+        GLModel* selectModel = m_loadedModels[curName[0]];
+        selectModel->Select(&curName[1], m_selectedModels);
+      }
     }
 
     delete [] curName;  //free preallocated mem
@@ -631,10 +630,10 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
   //only the closest
   if(!_all) {
     // analyze selected item
-    if(selName[0] > m_loadedModels.size())
-      return;
-    GLModel* selectModel = m_loadedModels[selName[0]];
-    selectModel->Select(&selName[1], m_selectedModels);
+    if(selName[0] <= m_loadedModels.size()) {
+      GLModel* selectModel = m_loadedModels[selName[0]];
+      selectModel->Select(&selName[1], m_selectedModels);
+    }
   }
   delete [] selName;
 }

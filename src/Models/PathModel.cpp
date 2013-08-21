@@ -52,7 +52,7 @@ PathModel::ParseFile() {
 
   int dof = CfgModel::GetDOF();
 
-  for(size_t i = 0; i < pathSize; ++i) {
+  for(size_t i = 0; i < pathSize && ifs; ++i) {
     vector<double> cfg(dof);
 
     //need to track robot index

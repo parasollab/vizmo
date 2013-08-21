@@ -21,7 +21,6 @@ EdgeModel::EdgeModel(double _weight) {
 
 const string
 EdgeModel::GetName() const {
-
   ostringstream temp;
   temp << "Edge" << m_id;
   return temp.str();
@@ -136,20 +135,20 @@ operator<<(ostream& _out, const EdgeModel& _edge){
 }
 
 istream&
-operator>>(istream&  _in, EdgeModel& _edge){
+operator>>(istream&  _is, EdgeModel& _edge){
 
   _edge.m_intermediateCfgs.clear();
   int numIntermediates = 0;
   CfgModel cfgtmp;
 
-  _in >> numIntermediates;
-  for(int i = 0; i < numIntermediates; i++){
-    _in >> cfgtmp;
+  _is >> numIntermediates;
+  for(int i = 0; i < numIntermediates && _is; i++){
+    _is >> cfgtmp;
     _edge.m_intermediateCfgs.push_back(cfgtmp);
   }
 
-  _in >> _edge.m_weight;
-  return _in;
+  _is >> _edge.m_weight;
+  return _is;
 }
 
 

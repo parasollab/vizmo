@@ -142,6 +142,7 @@ MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename, RobotModel* _robot
   m_robCfgOn = false;
   m_robCfgString = "";
   m_noMap = false;
+  m_robot = NULL;
 
   ParseFile();
   BuildModels();

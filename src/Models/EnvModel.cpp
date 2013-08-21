@@ -54,7 +54,7 @@ EnvModel::ParseFile(){
   size_t numMultiBodies = ReadField<size_t>(ifs, WHERE,
       "Failed reading number of Multibodies.");
 
-  for(size_t i = 0; i < numMultiBodies; i++) {
+  for(size_t i = 0; i < numMultiBodies && ifs; i++) {
     MultiBodyModel* m = new MultiBodyModel();
     m->ParseMultiBody(ifs, m_modelDataDir);
     m_multibodies.push_back(m);
@@ -180,7 +180,6 @@ void
 EnvModel::BuildModels(){
 
   //Build boundary model
-  m_boundary = GetBoundary();
   if(!m_boundary)
     throw BuildException(WHERE, "Boundary is NULL");
   m_boundary->BuildModels();

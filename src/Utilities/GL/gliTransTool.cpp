@@ -170,15 +170,15 @@ bool gliMoveTool::Select(int x, int y)
     }
 
     //do selection buffer
-    GLuint hitBuffer[1000000];
+    GLuint hitBuffer[1000];
     GLint viewport[4];
 
     // prepare for selection mode
-    glSelectBuffer( 1000000, hitBuffer);
-    glRenderMode( GL_SELECT );
+    glSelectBuffer(1000, hitBuffer);
+    glRenderMode(GL_SELECT);
 
     // get view port
-    glGetIntegerv( GL_VIEWPORT, viewport);
+    glGetIntegerv(GL_VIEWPORT, viewport);
 
     // number stact
     glInitNames();
@@ -337,15 +337,15 @@ bool gliScaleTool::Select(int x, int y)
     }
 
     //do selection buffer
-    GLuint hitBuffer[1000000];
+    GLuint hitBuffer[1000];
     GLint viewport[4];
 
     // prepare for selection mode
-    glSelectBuffer( 1000000, hitBuffer);
-    glRenderMode( GL_SELECT );
+    glSelectBuffer(1000, hitBuffer);
+    glRenderMode(GL_SELECT);
 
     // get view port
-    glGetIntegerv( GL_VIEWPORT, viewport);
+    glGetIntegerv(GL_VIEWPORT, viewport);
 
     // number stact
     glInitNames();
@@ -561,12 +561,12 @@ bool gliRotateTool::Select(int x, int y)
     y=m_h-y;
 
     //do selection buffer
-    GLuint hitBuffer[1000000];
+    GLuint hitBuffer[1000];
     GLint viewport[4];
 
     // prepare for selection mode
-    glSelectBuffer( 1000000, hitBuffer);
-    glRenderMode( GL_SELECT );
+    glSelectBuffer(1000, hitBuffer);
+    glRenderMode(GL_SELECT);
 
     // get view port
     glGetIntegerv( GL_VIEWPORT, viewport);

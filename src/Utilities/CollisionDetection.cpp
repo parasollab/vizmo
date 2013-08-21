@@ -15,6 +15,7 @@
 //////////////////////////////
 
 CollisionDetection::CollisionDetection(){
+  nodeCfg = NULL;
   m_rapid = new RAPID_model();
   rapid = new Rapid();
   TestNode = false;
@@ -224,7 +225,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
           if(last_dof != 0){
 
-            double *CurrCfg = new double[dof];
+            double* CurrCfg = new double[dof];
             CurrCfg[0] = pRt[0]; CurrCfg[1] = pRt[1];  CurrCfg[2] = pRt[2];
             CurrCfg[3] = etmp.alpha();
             CurrCfg[4] = etmp.beta();
@@ -246,6 +247,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
             convertFromQuaternion(m, qtmp);
 
             robotObj->Restore();
+            delete CurrCfg;
           }
         }
       }// ROBOT

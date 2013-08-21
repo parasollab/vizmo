@@ -118,7 +118,7 @@ MultiBodyModel::ParseMultiBody(istream& _is, const string& _modelDir) {
 
     Color4 color = GetColorFromComment(_is);
 
-    for(size_t i = 0; i < numberOfBody; i++) {
+    for(size_t i = 0; i < numberOfBody && _is; i++) {
       BodyModel* b = new BodyModel();
       b->ParseActiveBody(_is, _modelDir, color);
       m_bodies.push_back(b);

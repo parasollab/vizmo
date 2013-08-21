@@ -24,20 +24,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 VizmoAnimationGUI::VizmoAnimationGUI(QString _title, QWidget* _parent, string _name)
-  :QToolBar(_title, _parent), m_name(_name)
-{
-  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-  CreateGUI();
-  setEnabled(false);
+  : QToolBar(_title, _parent), m_name(_name) {
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    CreateGUI();
+    setEnabled(false);
 
-  // Initialize the timer
-  m_timer = new QTimer(this);
-  connect(m_timer, SIGNAL(timeout()), this, SLOT(timeout()));
-  m_stepSize = 1;
-  m_forwardDirection = true;
-  m_maxValue = 0;
-  m_curValue = 0;
-}
+    // Initialize the timer
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(timeout()));
+    m_stepSize = 1;
+    m_forwardDirection = true;
+    m_maxValue = 0;
+    m_curValue = 0;
+  }
 
 void
 VizmoAnimationGUI::reset(){

@@ -89,6 +89,7 @@ PolyhedronModel::BuildModels() {
 
     m_bodyModel->q(qua);
   }
+  delete imodel;
 }
 
 void PolyhedronModel::Draw(GLenum _mode) {

@@ -154,7 +154,7 @@ void queryGUI::newCfg(const QString&){
   if(m_objName == "MultiBody") {
     if (isActiveWindow () ){
 
-      double *Qcfg2 = new double [m_dof];
+      double* Qcfg2 = new double[m_dof];
 
       RobotModel* robotModel = GetVizmo().GetRobot();
       robotModel->BackUp();
@@ -176,6 +176,8 @@ void queryGUI::newCfg(const QString&){
         j++;
       }
       robotModel->Configure(Qcfg2);
+      delete Qcfg2;
+
       emit callUpdate();
     }
   }
