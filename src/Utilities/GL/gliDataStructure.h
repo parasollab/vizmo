@@ -19,6 +19,7 @@ class gliTransform {
         m_rot[0]=m_rot[1]=m_rot[2]=0;
       m_scale[0]=m_scale[1]=m_scale[2]=1;
     }
+    virtual ~gliTransform() {}
 
     void glTransform();
     void Euler2Quaternion();

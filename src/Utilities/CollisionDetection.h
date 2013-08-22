@@ -86,7 +86,7 @@ class CollisionDetectionMethod {
 class Rapid: public CollisionDetectionMethod {
  public:
 
-  Rapid() : nodeCfg(NULL), DoF(0) {test_node = false;}
+  Rapid() : DoF(0), nodeCfg(NULL) {test_node = false;}
   virtual ~Rapid(){}
 
   virtual string GetName() const {return "RAPID";}

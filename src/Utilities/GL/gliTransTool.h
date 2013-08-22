@@ -137,7 +137,7 @@ class gliRotateTool : public gliTToolBase
     enum SelType{ NON, X_AXIS, Y_AXIS, Z_AXIS, OUTLINE ,CENTER }; //rotate around
 public:
 
-    gliRotateTool() : gliTToolBase(), m_r(50), m_hitAngle(0), m_curAngle(0) {m_selType=NON;}
+    gliRotateTool() : gliTToolBase(), m_hitAngle(0), m_curAngle(0), m_r(50) {m_selType=NON;}
     virtual ~gliRotateTool(){ /*do nothing*/ }
 
     ///////////////////////////////////////////////////////////////////////////
