@@ -4,4 +4,5 @@ OBJECTS += \
 	   Utilities/GL/gliDataStructure.o \
 	   Utilities/GL/gliPickBox.o \
 	   Utilities/GL/gliTransTool.o \
+	   Utilities/GL/Texture.o \
 	   Utilities/GL/gliFont.o
