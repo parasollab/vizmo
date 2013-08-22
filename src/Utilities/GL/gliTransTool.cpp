@@ -537,14 +537,15 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
 
     //compute new q
     Quaternion q(cos(da/2), sin(da/2) * axis);
-    m_pSObj->q((q*m_sObjQC).normalized());
+    m_pSObj->q() = (q*m_sObjQC).normalized();
 
     //update rotation variables for this body
     //m_pSObj->Quaternion2Euler();
-    Matrix3x3 m;
+    /*Matrix3x3 m;
     m = m_pSObj->getMatrix();
     Vector3d v;
     v = m_pSObj->MatrixToEuler(m);
+    */
 
     //values in radians
     //m_pSObj->m_rotPoly[0] = v[0];
@@ -643,9 +644,9 @@ void gliRotateTool::ComputLocalAxis()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// class gliTransformTool
+// class GLTransformTool
 
-void gliTransformTool::CheckSelectObject()
+void GLTransformTool::CheckSelectObject()
 {
     m_rT.setSObject(NULL);
 
@@ -655,30 +656,30 @@ void gliTransformTool::CheckSelectObject()
     m_rT.setSObject((gliObj)sobjs.front());
 }
 
-void gliTransformTool::Draw(void)
+void GLTransformTool::Draw(void)
 {
     if( m_pTool!=NULL ) m_pTool->Draw();
 }
 
-bool gliTransformTool::MP( QMouseEvent * e ) //mouse button pressed
+bool GLTransformTool::MP( QMouseEvent * e ) //mouse button pressed
 {
     if( m_pTool!=NULL ) return m_pTool->MP(e);
     return false;
 }
 
-bool gliTransformTool::MR( QMouseEvent * e ) //mouse button released
+bool GLTransformTool::MR( QMouseEvent * e ) //mouse button released
 {
     if( m_pTool!=NULL ) return m_pTool->MR(e);
     return false;
 }
 
-bool gliTransformTool::MM( QMouseEvent * e )  //mouse motion
+bool GLTransformTool::MM( QMouseEvent * e )  //mouse motion
 {
   if( m_pTool!=NULL ) return m_pTool->MM(e);
     return false;
 }
 
-bool gliTransformTool::KEY( QKeyEvent * e ) //Key
+bool GLTransformTool::KEY( QKeyEvent * e ) //Key
 {
     switch(e->key()){
         case 'q': case 'Q':
@@ -700,9 +701,9 @@ bool gliTransformTool::KEY( QKeyEvent * e ) //Key
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//Singleton for gliTransformTool
-gliTransformTool g_TransformTool;
-gliTransformTool& gliGetTransformTool()
+//Singleton for GLTransformTool
+GLTransformTool g_TransformTool;
+GLTransformTool& gliGetTransformTool()
 {
     return g_TransformTool;
 }

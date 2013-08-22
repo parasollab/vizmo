@@ -90,7 +90,7 @@ PolyhedronModel::BuildModels() {
     m_bodyModel->ry() = e.beta();
     m_bodyModel->rz() = e.gamma();
 
-    m_bodyModel->q(qua);
+    m_bodyModel->q() = qua;
   }
   delete imodel;
 }

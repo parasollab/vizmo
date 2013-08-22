@@ -25,13 +25,6 @@ RobotModel::RobotModel(EnvModel* _env){
   BuildModels();
 }
 
-/*RobotModel::RobotModel(const RobotModel& _otherRobot)
-  : GLModel(_otherRobot) {
-    m_envModel = _otherRobot.GetEnvModel();
-    m_robotModel = _otherRobot.getRobotModel();
-  }
-*/
-
 MultiBodyModel* RobotModel::getRobotModel() const {
   return m_robotModel;
 }
@@ -116,12 +109,12 @@ void RobotModel::RestoreInitCfg(){
   Quaternion qz(cz_2,sz_2*Vector3d(0,0,1));
   Quaternion nq=qz*qy*qx; //new q
 
-  m_robotModel->q(nq.normalize());
+  m_robotModel->q() = nq.normalized();
 
   Configure(StCfg);
 
   //set robot to its current color and original size
-  this->Scale(originalSize[0],originalSize[1],originalSize[2]);
+  //this->Scale(originalSize[0],originalSize[1],originalSize[2]);
   //this->SetColor(originalR,originalG,originalB,this->GetColor()[3]);
   BodyModel* body = *m_robotModel->Begin();
   this->SetColor(body->GetColor());
@@ -157,7 +150,7 @@ void RobotModel::BackUp() {
 }
 
 void RobotModel::Restore(){
-  this->Scale(o_s[0],o_s[1],o_s[2]);
+  //this->Scale(o_s[0],o_s[1],o_s[2]);
 
   this->SetColor(color);
 
@@ -167,7 +160,7 @@ void RobotModel::Restore(){
   m_robotModel->ty() = mbRobotBackUp[1];
   m_robotModel->tz() = mbRobotBackUp[2];
 
-  m_robotModel->q(MBq);
+  m_robotModel->q() = MBq;
 
   SetRenderMode(m_renderModeBackUp);
   RestoreInitCfg();
@@ -239,7 +232,7 @@ void RobotModel::Configure(double* cfg) {
     //compute rotation
     Quaternion q;
     convertFromMatrix(q, t.rotation().matrix());
-    body->q(q.normalized()); //set new q
+    body->q() = q.normalized(); //set new q
 
     //now for the joints of the robot
     //this code from PMPL
@@ -282,7 +275,7 @@ void RobotModel::Configure(double* cfg) {
         Quaternion q;
         convertFromMatrix(q,
             nextBody->GetTransform().rotation().matrix());
-        nextBody->q(q.normalized()); //set new q
+        nextBody->q() = q.normalized(); //set new q
       }
     }
   }
@@ -368,18 +361,17 @@ void RobotModel::SaveQry(vector<vector<double> >& cfg, char ch){
       }
     }
     else{ //user moved robot by hand
+      EulerAngle e;
+      convertFromQuaternion(e, m_robotModel->q());
 
-      Matrix3x3 m = m_robotModel->getMatrix();
-      Vector3d vRot;
-      vRot = m_robotModel->MatrixToEuler(m);
       //robot has not been moved before
       currCfg[0] = m_robotModel->tx() + cfg[0][0];
       currCfg[1] = m_robotModel->ty() + cfg[0][1];
       currCfg[2] = m_robotModel->tz() + cfg[0][2];
-      currCfg[3] = vRot[0]/PI;
-      currCfg[4] = vRot[1]/PI;
-      currCfg[5] = vRot[2]/PI;
 
+      currCfg[3] = e.alpha()/PI;
+      currCfg[4] = e.beta()/PI;
+      currCfg[5] = e.gamma()/PI;
     }
 
     vCfg.push_back(currCfg);
@@ -490,17 +482,16 @@ vector<double> RobotModel::getFinalCfg(){
       }
     }
     else{ //user moved robot by hand
-      Matrix3x3 m = m_robotModel->getMatrix();
-      Vector3d vRot;
-      vRot = m_robotModel->MatrixToEuler(m);
+      EulerAngle e;
+      convertFromQuaternion(e, m_robotModel->q());
 
       currCfg[0] = m_robotModel->tx();
       currCfg[1] = m_robotModel->ty();
       currCfg[2] = m_robotModel->tz();
 
-      currCfg[3] = vRot[0]/PI;
-      currCfg[4] = vRot[1]/PI;
-      currCfg[5] = vRot[2]/PI;
+      currCfg[3] = e.alpha()/PI;
+      currCfg[4] = e.beta()/PI;
+      currCfg[5] = e.gamma()/PI;
     }
 
     return currCfg;
@@ -829,13 +820,8 @@ void RobotModel::Transform(int dir){
       m_robotModel->rz()+=dir*delta;
       break;
   }
-  m_robotModel->Euler2Quaternion();
+  EulerAngle e(rx(), ry(), rz());
+  convertFromEuler(q(), e);
   m_robotModel->glTransform();
 }
-
-
-
-
-
-
 

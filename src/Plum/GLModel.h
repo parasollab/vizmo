@@ -14,11 +14,11 @@
 
 enum RenderMode {WIRE_MODE, SOLID_MODE, INVISIBLE_MODE};
 
-class GLModel : public gliTransform {
+class GLModel : public GLTransform {
   public:
     GLModel() : m_renderMode(SOLID_MODE), m_color() {}
     GLModel(const GLModel& _other) :
-      gliTransform(_other),
+      GLTransform(_other),
       m_renderMode(_other.m_renderMode),
       m_color(_other.m_color) {}
 

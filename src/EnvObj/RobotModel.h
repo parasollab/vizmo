@@ -30,7 +30,6 @@ class RobotModel : public GLModel {
 
 
     RobotModel(EnvModel* _env);
-    //RobotModel(const RobotModel& _otherRobot);
     ~RobotModel();
 
     EnvModel* GetEnvModel()const { return m_envModel; }
@@ -91,11 +90,11 @@ class RobotModel : public GLModel {
 
     Quaternion quat, q1, q2;
 
-    void Scale(double x, double y, double z)
+    /*void Scale(double x, double y, double z)
     {
       if(m_robotModel!=NULL)
         m_robotModel->Scale(x,y,z);
-    }
+    }*/
 
     //////////////////////////////////////////////////////
     //To store start/goal cfgs for NEW Query
