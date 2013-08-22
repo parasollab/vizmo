@@ -4,7 +4,7 @@
 #include "EnvObj/RobotModel.h"
 #include "Utilities/IOUtils.h"
 #include "Utilities/Exceptions.h"
-#include "Utilities/GL/gliFont.h"
+#include "Utilities/GL/Font.h"
 
 QueryModel::QueryModel(const string& _filename, RobotModel* _robotModel) :
   m_glQueryIndex(-1), m_robotModel(_robotModel) {
@@ -114,9 +114,9 @@ QueryModel::BuildModels(){
     //TODO: Move to using Qt functions for drawing text to scene
     glColor3d(0.1, 0.1, 0.1);
     if(i==0)
-      drawstr(cfg[0]-0.5, cfg[1]-0.5, cfg[2],"S");
+      DrawStr(cfg[0]-0.5, cfg[1]-0.5, cfg[2],"S");
     else
-      drawstr(cfg[0]-0.2, cfg[1]-0.2, cfg[2],"G");
+      DrawStr(cfg[0]-0.2, cfg[1]-0.2, cfg[2],"G");
   }
   glEndList();
 

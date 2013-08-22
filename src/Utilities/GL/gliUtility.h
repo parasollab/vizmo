@@ -1,8 +1,10 @@
 #ifndef _GLI_TOOL_H_
 #define _GLI_TOOL_H_
 
+#include "glut.h"
+
 #include "gliCamera.h"
-#include "gliFont.h"
+#include "Font.h"
 
 //draw axis rotated accroding to camera's rotation
 inline void gliDrawRotateAxis( const gliCamera& camera )
@@ -29,11 +31,11 @@ inline void gliDrawRotateAxis( const gliCamera& camera )
 
         //create letters
         glColor3f(1,0,0);
-        drawstr(1.2f,0,0,"x");
+        DrawStr(1.2f,0,0,"x");
         glColor3f(0,1,0);
-        drawstr(0,1.2f,0,"y");
+        DrawStr(0,1.2f,0,"y");
         glColor3f(0,0,1);
-        drawstr(0,0,1.4f,"z");
+        DrawStr(0,0,1.4f,"z");
 
         glEndList();
     }
