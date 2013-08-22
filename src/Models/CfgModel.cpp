@@ -174,7 +174,6 @@ CfgModel::DrawRobot(){
 void
 CfgModel::DrawBox(){
 
-  glEnable(GL_LIGHTING);
   glPushMatrix();
   glColor4fv(m_color);
 
@@ -208,8 +207,7 @@ CfgModel::DrawBox(){
 
 void
 CfgModel::DrawPoint(){
-  glDisable(GL_LIGHTING);
-  glPointSize(m_pointScale);
+
   glBegin(GL_POINTS);
   glColor4fv(GetColor());
   if(m_renderMode == SOLID_MODE ||

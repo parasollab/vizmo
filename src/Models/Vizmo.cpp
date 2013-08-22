@@ -534,10 +534,9 @@ Vizmo::RandomizeCCColors(){
 
   //change color
   MapModel<CfgModel,EdgeModel>* mmodel = m_mapModel;
-  vector<CC*>& cc  =mmodel->GetCCModels();
+  vector<CC*>& cc = mmodel->GetCCModels();
   for(CCIT ic = cc.begin(); ic != cc.end(); ++ic){
     (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
-    (*ic)->DrawRobotNodes((*ic)->GetRenderMode());
   }
 }
 

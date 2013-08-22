@@ -37,6 +37,7 @@ class CfgModel : public GLModel{
     RobotModel* GetRobot() const { return m_robot; }
     static int GetDOF() { return m_dof; }
     static Shape GetShape() { return m_shape; }
+    static float GetPointSize() { return m_pointScale; }
     static void SetDOF(int _d) { m_dof = _d; }
     static void SetIsPlanarRobot(bool _b) { m_isPlanarRobot = _b; }
     static void SetIsVolumetricRobot(bool _b) { m_isVolumetricRobot = _b; }

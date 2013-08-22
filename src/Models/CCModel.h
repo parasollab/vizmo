@@ -57,9 +57,7 @@ class CCModel : public GLModel{
     virtual vector<string> GetInfo() const;
 
     void BuildNodeModels(GLenum _mode);
-    void DrawRobotNodes(GLenum _mode);
-    void DrawBoxNodes(GLenum _mode);
-    void DrawPointNodes(GLenum _mode);
+    void DrawNodes(GLenum _mode);
     void DrawEdges();
     void SetColor(const Color4& _c);
     void AddEdge(CfgModel* _c1, CfgModel* _c2);
@@ -148,50 +146,29 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
 
 template <class CfgModel, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
-  if(m_robot == NULL)
-    return;
+CCModel<CfgModel, WEIGHT>::DrawNodes(GLenum _mode){
 
-  glLineWidth(1);
+  switch(CfgModel::GetShape()){
 
-  Color4 origColor = m_robot->GetColor();
-  m_robot->BackUp();
+    case CfgModel::Robot:
+      if(m_robot == NULL)
+        return;
+      if(_mode == GL_RENDER)
+        glEnable(GL_LIGHTING);
+      glLineWidth(1);
+    break;
 
-  if(_mode == GL_RENDER)
-    glEnable(GL_LIGHTING);
+    case CfgModel::Box:
+      glEnable(GL_LIGHTING);
+      glLineWidth(1);
+    break;
 
-  typedef typename map<VID, CfgModel>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
-    glPushName(cit->first);
-    m_robot->SetColor(GetColor());
-    cit->second.Draw(_mode);
-    glPopName();
+    case CfgModel::Point:
+      glDisable(GL_LIGHTING);
+      glPointSize(CfgModel::GetPointSize());
+    break;
   }
 
-  m_robot->Restore();
-  m_robot->SetColor(origColor);
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::DrawBoxNodes(GLenum _mode){
-
-  glEnable(GL_LIGHTING);
-  glLineWidth(1);
-  typedef typename map<VID, CfgModel>::iterator CIT;
-
-  for(CIT cit = m_nodes.begin(); cit!=m_nodes.end(); cit++){
-    glPushName(cit->first);
-    cit->second.Draw(_mode);
-    glPopName();
-  }
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::DrawPointNodes(GLenum _mode){
-
-  glDisable(GL_LIGHTING);
   typedef typename map<VID, CfgModel>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
     glPushName(cit->first);
@@ -287,19 +264,7 @@ void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
   if(_mode == GL_SELECT)
     glPushName(1); //1 means nodes
 
-  switch(CfgModel::GetShape()){
-    case CfgModel::Robot:
-      DrawRobotNodes(_mode);
-    break;
-
-    case CfgModel::Box:
-      DrawBoxNodes(_mode);
-    break;
-
-    case CfgModel::Point:
-      DrawPointNodes(_mode);
-    break;
-  }
+  DrawNodes(_mode);
 
   if(_mode == GL_SELECT)
     glPopName();
