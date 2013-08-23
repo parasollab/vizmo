@@ -86,9 +86,8 @@ class VizGLWin : public QGLWidget {
     QRect GetImageRect(bool _crop);
 
     bool m_takingSnapShot;
-    bool m_bShowGrid, m_bShowAxis;
+    bool m_showGrid, m_showAxis;
 
 };
-
 
 #endif /*_SCENE_WIN_H_ */

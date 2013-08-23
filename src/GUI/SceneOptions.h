@@ -30,6 +30,3 @@ class SceneOptions : public OptionsBase{
 };
 
 #endif
-
-
-

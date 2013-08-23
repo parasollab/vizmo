@@ -15,7 +15,7 @@
 #include "Icons/Eye.xpm"
 
 VizmoMainWin::VizmoMainWin(QWidget* _parent)
-  : QMainWindow(_parent), m_bVizmoInit(false){
+  : QMainWindow(_parent), m_vizmoInit(false){
 
   setMinimumSize(960, 700);
   setWindowTitle("Vizmo++");
@@ -57,10 +57,10 @@ VizmoMainWin::Init(){
 bool
 VizmoMainWin::InitVizmo(){
 
-  if(m_bVizmoInit)
+  if(m_vizmoInit)
     return true;
 
-  m_bVizmoInit=true;
+  m_vizmoInit=true;
 
   if(m_args.empty())
     return true; //nothing to init...
@@ -94,7 +94,7 @@ VizmoMainWin::CreateGUI() {
   connect(m_animationGUI, SIGNAL(callUpdate()), this, SLOT(updateScreen()));
 
   m_objectSelection = new VizmoItemSelectionGUI(this);
-  connect(m_objectSelection, SIGNAL(CallUpdate()),this,SLOT(updateScreen()));
+  connect(m_objectSelection, SIGNAL(CallUpdate()), this, SLOT(updateScreen()));
 
   m_mainMenu = new MainMenu(this);  //also creates the toolbars
 

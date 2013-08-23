@@ -63,7 +63,6 @@ EnvironmentOptions::SetHelpTips(){
     " randomize the colors of the environment objects."));
 }
 
-
 //Slots
 
 void

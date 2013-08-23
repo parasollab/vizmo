@@ -38,7 +38,7 @@
 #include "Icons/Navigate.xpm"
 
 RoadmapOptions::RoadmapOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  : OptionsBase(_parent, _mainWin) {
+  : OptionsBase(_parent, _mainWin){
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
@@ -375,7 +375,6 @@ void
 RoadmapOptions::ClickBox(){
 
   m_boxButton->click();
-
 }
 
 void
@@ -540,7 +539,6 @@ RoadmapOptions::ShowObjectContextMenu(){
     cm.addSeparator();
     /*LEAVE HERE*/  //cm.insertItem("Edit...", this,SLOT(objectEdit()));
   }
-
   if(cm.exec(QCursor::pos())!= 0) //was -1 for q3 version (index based)
     GetMainWin()->GetGLScene()->updateGL();
 }

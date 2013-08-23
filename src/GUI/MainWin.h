@@ -46,8 +46,8 @@ class VizmoMainWin : public QMainWindow {
     bool Init();
     bool InitVizmo();
     vector<string>& GetArgs() { return m_args; }
-    void SetVizmoInit(bool _tf) { m_bVizmoInit = _tf; }
-    bool GetVizmoInit() { return m_bVizmoInit; }
+    void SetVizmoInit(bool _tf) { m_vizmoInit = _tf; }
+    bool GetVizmoInit() { return m_vizmoInit; }
     VizGLWin* GetGLScene() { return m_gl; }
     TextGUI* GetOutbox(){ return m_outbox; }
     VizmoAnimationGUI* GetAnimationGUI() { return m_animationGUI; }
@@ -72,7 +72,7 @@ class VizmoMainWin : public QMainWindow {
     void SetUpLayout();     //Set a QGridLayout for invisible central widget
 
     vector<string> m_args; //user input arguments.
-    bool m_bVizmoInit;     //true if vizmo is init.
+    bool m_vizmoInit;     //true if vizmo is init.
 
     QGridLayout* m_layout;
     QToolBar* m_allTogether;       //all of the toolbars in one...keeps them together for window resize

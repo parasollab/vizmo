@@ -35,9 +35,3 @@ class CaptureOptions : public OptionsBase{
 };
 
 #endif
-
-
-
-
-
-

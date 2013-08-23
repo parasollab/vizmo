@@ -15,7 +15,7 @@
 
 using namespace std;
 
-MainMenu::MainMenu(VizmoMainWin* _parent) : QWidget(_parent) {
+MainMenu::MainMenu(VizmoMainWin* _parent) : QWidget(_parent){
   m_fileOptions = new FileOptions(this, _parent);
   m_sceneOptions = new SceneOptions(this, _parent);
   m_robotOptions = new RobotOptions(this, _parent);
@@ -55,5 +55,3 @@ MainMenu::Reset(){
   m_captureOptions->Reset();
   m_help->Reset();
 }
-
-

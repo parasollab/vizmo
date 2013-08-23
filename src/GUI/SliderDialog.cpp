@@ -4,7 +4,7 @@
 
 SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
   int _rangeStart, int _rangeEnd, int _startValue,
-  QWidget* _parent) : QDialog(_parent) {
+  QWidget* _parent) : QDialog(_parent){
 
   resize(477, 139);
   setWindowTitle(_windowTitle);

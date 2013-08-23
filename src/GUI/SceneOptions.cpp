@@ -152,18 +152,3 @@ SceneOptions::ShowGeneralContextMenu(){
   if(cm.exec(QCursor::pos()) != 0)
     GetMainWin()->GetGLScene()->updateGL();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

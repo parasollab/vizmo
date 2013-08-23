@@ -2,7 +2,7 @@
 
 #include "Models/Vizmo.h"
 
-queryGUI::queryGUI(QWidget *parent, Qt::WFlags f) : QDialog(parent) {
+queryGUI::queryGUI(QWidget* _parent, Qt::WFlags f) : QDialog(_parent){
 
   node_cfg = NULL;
 
@@ -14,7 +14,7 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f) : QDialog(parent) {
   QString qs;
   //int I=0;
   for(GIT ig= GetVizmo().GetSelectedModels().begin();ig!=GetVizmo().GetSelectedModels().end();ig++){
-    GLModel * gl=(GLModel *)(*ig);
+    GLModel* gl=(GLModel *)(*ig);
     //objname = gl->GetInfo();
     objname = gl->GetName();
   }
@@ -86,19 +86,19 @@ queryGUI::queryGUI(QWidget *parent, Qt::WFlags f) : QDialog(parent) {
 
   QString qst;
   int i, j=0;
-  vSpin.clear();
+  m_spin.clear();
   for(i=3; i<m_dof; i++){
     controls->addWidget(new QLabel("<b>Dof " +qst.setNum(i)+"</b>:", this),
         i+1, 0, Qt::AlignRight);
-    vSpin.push_back(new QDoubleSpinBox(this));
-    controls->addWidget(vSpin[j], i+1, 1, Qt::AlignRight);
-    vSpin[j]->setDecimals(DECIMALS);
-    vSpin[j]->setRange(D_MIN, D_MAX);
-    vSpin[j]->setSingleStep (STEP_ANGLE);
-    vSpin[j]->setSpecialValueText(qs.setNum(Qcfg[i]));
-    vSpin[j]->setButtonSymbols(QAbstractSpinBox::PlusMinus);
-    vSpin[j]->setValue(Qcfg[i]);
-    connect(vSpin[j], SIGNAL(valueChanged(const QString&)),this,
+    m_spin.push_back(new QDoubleSpinBox(this));
+    controls->addWidget(m_spin[j], i+1, 1, Qt::AlignRight);
+    m_spin[j]->setDecimals(DECIMALS);
+    m_spin[j]->setRange(D_MIN, D_MAX);
+    m_spin[j]->setSingleStep (STEP_ANGLE);
+    m_spin[j]->setSpecialValueText(qs.setNum(Qcfg[i]));
+    m_spin[j]->setButtonSymbols(QAbstractSpinBox::PlusMinus);
+    m_spin[j]->setValue(Qcfg[i]);
+    connect(m_spin[j], SIGNAL(valueChanged(const QString&)),this,
         SLOT(newCfg(const QString&)) );
     j++;
   }
@@ -139,7 +139,7 @@ void queryGUI::setNodeVal(int dof, double *cfg){
 
   int j=0;
   for(int i=3; i<m_dof; i++){
-    vSpin[j]->setValue(node_cfg[i]);
+    m_spin[j]->setValue(node_cfg[i]);
     j++;
   }
 }
@@ -168,10 +168,9 @@ void queryGUI::newCfg(const QString&){
       Qcfg2[1] = (sty->value());
       Qcfg2[2] = (stz->value());
 
-
       int j=0;
       for(int i=3; i<m_dof; i++){
-        Qcfg2[i] = vSpin[j]->value();
+        Qcfg2[i] = m_spin[j]->value();
         j++;
       }
       robotModel->Configure(Qcfg2);
@@ -180,7 +179,6 @@ void queryGUI::newCfg(const QString&){
       emit callUpdate();
     }
   }
-
   else { //node
     if(isVisible() && !filledFirstTime){
       vector<double> Vcfg;
@@ -190,7 +188,7 @@ void queryGUI::newCfg(const QString&){
       Vcfg.push_back(stz->value());
       int j=0;
       for(int i=3; i<m_dof; i++){
-        Vcfg.push_back(vSpin[j]->value());
+        Vcfg.push_back(m_spin[j]->value());
         j++;
       }
       emit callUpdate();
@@ -209,7 +207,7 @@ void queryGUI::updateQryCfg(){
 
   int j=0;
   for(int i=3; i<m_dof; i++){
-    vSpin[j]->setValue(Qcfg3[i]);
+    m_spin[j]->setValue(Qcfg3[i]);
     j++;
   }
 
@@ -224,7 +222,7 @@ void queryGUI::resetCfg(){
 
   int j=0;
   for(int i=3; i<m_dof; i++){
-    vSpin[j]->setValue(query_org[i]);
+    m_spin[j]->setValue(query_org[i]);
     j++;
   }
 
@@ -239,12 +237,10 @@ vector<double> queryGUI::getNodeCfg(){
   Vcfg.push_back(stz->value());
   int j=0;
   for(int i=3; i<m_dof; i++){
-    Vcfg.push_back(vSpin[j]->value());
+    Vcfg.push_back(m_spin[j]->value());
     j++;
   }
 
   return Vcfg;
 
 }
-
-

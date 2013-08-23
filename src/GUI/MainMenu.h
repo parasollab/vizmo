@@ -43,5 +43,3 @@ class MainMenu : public QWidget {
 };
 
 #endif //MAIN_MENU_H
-
-

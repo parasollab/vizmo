@@ -50,8 +50,3 @@ class CameraPosDialog : public QDialog {
 };
 
 #endif // CAMERA_POS_DIALOG_H
-
-
-
-
-

@@ -6,8 +6,6 @@
 #include <string>
 using namespace std;
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 #define M_MAX 999.99
 #define M_MIN -999.99
@@ -18,7 +16,6 @@ using namespace std;
 #define DECIMALS 6
 ///////////////////////////////////////////////////////////////////////////////
 
-
 class queryGUI: public QDialog
 {
 
@@ -26,7 +23,7 @@ class queryGUI: public QDialog
 
  public:
 
-  queryGUI(QWidget *parent, Qt::WFlags f=0);
+  queryGUI(QWidget* _parent, Qt::WFlags f=0);
 
   void setQuery(vector<double>& q);
   void setNodeVal(int dof, double *cfg);
@@ -48,11 +45,11 @@ private:
     void resetPointer();
 
     int m_dof;
-    double * QcfgTmp;
+    double* QcfgTmp;
     QDoubleSpinBox *stx, *sty, *stz;
-    vector<QDoubleSpinBox*> vSpin;
+    vector<QDoubleSpinBox*> m_spin;
     vector<double> query_org;
-    double * node_cfg;
+    double* node_cfg;
     string m_objName;
 
 };

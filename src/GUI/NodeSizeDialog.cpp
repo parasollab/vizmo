@@ -73,8 +73,3 @@ NodeSizeDialog::Reset(){
 
   m_slider->setSliderPosition(1000);
 }
-
-
-
-
-

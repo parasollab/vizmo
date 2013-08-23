@@ -24,14 +24,14 @@ VizmoItemSelectionGUI::ResetLists(){
 }
 
 void
-VizmoItemSelectionGUI::FillTree(vector<GLModel*>& _obj) {
+VizmoItemSelectionGUI::FillTree(vector<GLModel*>& _obj){
   typedef vector<GLModel*>::iterator MIT;
   for(MIT mit = _obj.begin(); mit != _obj.end(); ++mit)
     CreateItem(NULL, *mit);
 }
 
 VizmoListViewItem*
-VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model) {
+VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model){
   VizmoListViewItem* item = NULL;
   if(!_p){
     item = new VizmoListViewItem(this);

@@ -111,12 +111,12 @@ FileListDialog::GetAssociatedFiles(const string& _filename) {
       MapModel<CfgModel,EdgeModel> headerParser(mapname);
       envname = headerParser.GetEnvFileName();
     }
-
+    
     if(FileExists(envname, false)){
       m_envFilename->setText(envname.c_str());
       m_envCheckBox->setChecked(true);
     }
-
+    
     if(FileExists(queryname, false)){
       m_queryFilename->setText(queryname.c_str());
       m_queryCheckBox->setChecked(true);
@@ -170,7 +170,7 @@ FileListDialog::SetUpLayout(){
 }
 
 void
-FileListDialog::ChangeEnv(){
+FileListDialog::ChangeEnv() {
   QString fn = QFileDialog::getOpenFileName(this, "Choose an environment file", QString::null,"Env File (*.env)");
   if(!fn.isEmpty()) {
     m_envFilename->setText(fn);

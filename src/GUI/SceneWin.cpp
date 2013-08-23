@@ -15,15 +15,15 @@
 class VizmoMainWin;
 
 VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
-  : QGLWidget(_parent) {
+  : QGLWidget(_parent){
     m_mainWin = _mainWin;
     setMinimumSize(400, 505); //original size: 400 x 600
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setFocusPolicy(Qt::StrongFocus);
 
     m_takingSnapShot=false;
-    m_bShowGrid=false;
-    m_bShowAxis=true;
+    m_showGrid=false;
+    m_showAxis=true;
     CDOn = false;
   }
 
@@ -84,8 +84,8 @@ VizGLWin::paintGL(){
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   int param=GLI_SHOW_PICKBOX|GLI_SHOW_TRANSFORMTOOL;
-  if(m_bShowGrid) param=param|GLI_SHOW_GRID;
-  if(m_bShowAxis) param=param|GLI_SHOW_AXIS;
+  if(m_showGrid) param=param|GLI_SHOW_GRID;
+  if(m_showAxis) param=param|GLI_SHOW_AXIS;
   gliDraw(param);
   SetLightPos();
   GetVizmo().Display();
@@ -248,13 +248,13 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
 
 void
 VizGLWin::showGrid() {
-  m_bShowGrid=!m_bShowGrid;
+  m_showGrid = !m_showGrid;
   updateGL();
 }
 
 void
 VizGLWin::showAxis() {
-  m_bShowAxis=!m_bShowAxis;
+  m_showAxis = !m_showAxis;
   updateGL();
 }
 

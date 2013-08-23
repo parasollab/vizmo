@@ -22,7 +22,7 @@
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
 
-FileOptions::FileOptions(QWidget* _parent, VizmoMainWin* _mainWin) : OptionsBase(_parent, _mainWin) {
+FileOptions::FileOptions(QWidget* _parent, VizmoMainWin* _mainWin) : OptionsBase(_parent, _mainWin){
   CreateActions();
   SetUpSubmenu("File");
   SetUpToolbar();
@@ -88,13 +88,13 @@ FileOptions::SetHelpTips(){
 //Slots
 
 void
-FileOptions::LoadFile() {
+FileOptions::LoadFile(){
   QString fn = QFileDialog::getOpenFileName(this,  "Choose an environment to open",
       QString::null, "Files (*.env *.map *.query *.path *.vd)");
 
   QFileInfo fi(fn);
 
-  if (!fn.isEmpty()){
+  if(!fn.isEmpty()){
     GetMainWin()->GetArgs().clear();
     GetMainWin()->GetArgs().push_back(QString(fn.toLatin1()).toStdString()); //access the actual main window
     GetMainWin()->SetVizmoInit(false);
@@ -132,13 +132,12 @@ FileOptions::SaveEnv(){
       QString::null, "Files(*.env)");
 
   QFileInfo fi(fn);
-  if (!fn.isEmpty()){
+  if(!fn.isEmpty()){
     string filename = fn.toStdString();
     const char* f;
     f = filename.c_str();
     GetVizmo().SaveEnv(f);
   }
-
   else{
     GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
   }
@@ -152,17 +151,15 @@ FileOptions::SaveQryFile(){
       QString::null, "Files (*.query)");
 
   QFileInfo fi(fn);
-  if (!fn.isEmpty()) {
+  if(!fn.isEmpty()){
     string filename = fn.toStdString();
     const char* f;
     f = filename.c_str();
     GetVizmo().SaveQry(f);
   }
-
-  else {
+  else{
     GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
   }
-
   GetMainWin()->GetGLScene()->updateGL();
 }
 
@@ -173,7 +170,7 @@ FileOptions::SaveRoadmap(){
     QString::null, "Files (*.map)");
 
   QFileInfo fi(fn);
-  if (!fn.isEmpty()){
+  if(!fn.isEmpty()){
     string filename = fn.toStdString();
     const char* f;
     f = filename.c_str();

@@ -15,7 +15,7 @@
 #include "Icons/Flag.xpm"
 
 PathOptions::PathOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  : OptionsBase(_parent, _mainWin) {
+  : OptionsBase(_parent, _mainWin){
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
@@ -23,7 +23,7 @@ PathOptions::PathOptions(QWidget* _parent, VizmoMainWin* _mainWin)
   }
 
 void
-PathOptions::CreateActions() {
+PathOptions::CreateActions(){
 
   //1. Create actions and add them to map
   QAction* showHidePath = new QAction(QPixmap(pen), tr("Show/Hide Path"), this);
@@ -77,7 +77,6 @@ PathOptions::Reset(){
       m_actions["pathOptions"]->setEnabled(true);
     }
   }
-
   if(m_actions["showHideSG"] != NULL){
     if(GetVizmo().IsQueryLoaded())
       m_actions["showHideSG"]->setEnabled(true);

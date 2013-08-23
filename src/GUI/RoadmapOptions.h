@@ -17,7 +17,7 @@
 class QPushButton;
 class SliderDialog;
 
-class RoadmapOptions : public OptionsBase {
+class RoadmapOptions : public OptionsBase{
 
   Q_OBJECT
 
@@ -30,13 +30,13 @@ class RoadmapOptions : public OptionsBase {
     void SetHelpTips();
 
     typedef MapModel<CfgModel, EdgeModel> MM;
-    MM* GetMapModel() {
+    MM* GetMapModel(){
       if(!GetVizmo().GetMap())
         return NULL;
       else
         return GetVizmo().GetMap();
     }
-    string GetNodeShape() {return (string)(m_nodeView->checkedButton())->text().toAscii();}
+    string GetNodeShape(){return (string)(m_nodeView->checkedButton())->text().toAscii();}
 
   private slots:
     void ShowRoadmap();

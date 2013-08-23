@@ -37,7 +37,3 @@ class PathOptions : public OptionsBase{
 };
 
 #endif
-
-
-
-

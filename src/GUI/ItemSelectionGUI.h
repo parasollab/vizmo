@@ -45,7 +45,3 @@ class VizmoItemSelectionGUI : public QTreeWidget {
     int m_maxNoModels;
     vector<VizmoListViewItem*> m_items;
 };
-
-
-
-
