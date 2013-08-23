@@ -42,7 +42,7 @@ VizGLWin::resetCamera(){
 
 //used as callback for gli
 inline vector<GLModel*>&
-VizmoSelect(const gliBox& _box){
+VizmoSelect(const Box& _box){
   GetVizmo().Select(_box);
   return GetVizmo().GetSelectedModels();
 }

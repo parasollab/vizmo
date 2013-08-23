@@ -1,7 +1,7 @@
 #include "gli.h"
 #include "gliCamera.h"
 #include "gliUtility.h"
-#include "gliPickBox.h"
+#include "PickBox.h"
 #include "gliTransTool.h"
 #include "Models/Vizmo.h"
 //Added by qt3to4:
@@ -16,29 +16,29 @@ int GLI_SHOW_GRID=1<<3;
 
 //set picking function
 pick_func g_pick=NULL;
-void gliSetPickingFunction(pick_func func)
-{
+void gliSetPickingFunction(pick_func func) {
   g_pick=func;
 }
 
 //draw
-void gliDraw(int option){
+void gliDraw(int option) {
   gliCamera * pcam=gliGetCameraFactory().getCurrentCamera();
   pcam->Draw();
-  if( option & GLI_SHOW_GRID ) gliDrawGrid();
-  if( option & GLI_SHOW_PICKBOX ) gliGetPickBox().Draw();
-  if( option & GLI_SHOW_TRANSFORMTOOL ) gliGetTransformTool().Draw();
-  if( option & GLI_SHOW_AXIS ) gliDrawRotateAxis(*pcam);
+  if(option & GLI_SHOW_GRID) gliDrawGrid();
+  if(option & GLI_SHOW_PICKBOX) GetPickBox().Draw();
+  if(option & GLI_SHOW_TRANSFORMTOOL) gliGetTransformTool().Draw();
+  if(option & GLI_SHOW_AXIS) gliDrawRotateAxis(*pcam);
 }
 
-bool gliMP(QMouseEvent * e)
-{
+bool gliMP(QMouseEvent * e) {
   if( gliGetCameraFactory().getCurrentCamera()->MP(e) ){
     gliCM(); //camera moved
     return true;
   }
   if( gliGetTransformTool().MP(e) ) return true;
-  gliGetPickBox().MP(e);
+
+  GetPickBox().MousePressed(e);
+
   return false; //need further process
 }
 
@@ -51,18 +51,18 @@ bool gliMR(QMouseEvent * e, bool drawonly)
   if( gliGetTransformTool().MR(e) ) return true;
 
   //select
-  gliPickBox& pick=gliGetPickBox();
-  if( !drawonly ){
-    if( pick.isPicking() ){
-      pick.MR(e);
-      if( g_pick!=NULL ){
-        vector<GLModel*>& objs=gliGetPickedSceneObjs();
-        //				if(!(e->state()&Qt::ShiftButton)) objs.clear(); //add
-        if(!(e->buttons()&Qt::ShiftModifier)) objs.clear(); //add
-        vector<GLModel*>& newobjs=g_pick(pick.getPickBox());
-        objs.insert(objs.end(),newobjs.begin(),newobjs.end());
-        //				if(e->state()&Qt::ShiftButton)  newobjs=objs; //add
-        if(e->buttons()&Qt::ShiftModifier)  newobjs=objs; //add
+  PickBox& pick = GetPickBox();
+  if(!drawonly) {
+    if(pick.IsPicking()){
+      pick.MouseReleased(e);
+      if(g_pick != NULL){
+        vector<GLModel*>& objs = GetPickedSceneObjs();
+        //if(!(e->state() & Qt::ShiftButton)) objs.clear(); //add
+        if(!(e->buttons() & Qt::ShiftModifier)) objs.clear(); //add
+        vector<GLModel*>& newobjs = g_pick(pick.GetBox());
+        objs.insert(objs.end(), newobjs.begin(), newobjs.end());
+        //if(e->state()&Qt::ShiftButton)  newobjs=objs; //add
+        if(e->buttons() & Qt::ShiftModifier) newobjs = objs; //add
         gliGetTransformTool().CheckSelectObject();
       }
     }
@@ -72,28 +72,26 @@ bool gliMR(QMouseEvent * e, bool drawonly)
 }
 
 /// mouse movement event, return true if handled
-bool gliMM( QMouseEvent * e )
-{
+bool gliMM( QMouseEvent * e ) {
   if( gliGetCameraFactory().getCurrentCamera()->MM(e) ){
     gliCM(); //camera moved
     return true;
   }
   if( gliGetTransformTool().MM(e) ) return true;
-  gliGetPickBox().MM(e);
+
+  GetPickBox().MouseMotion(e);
 
   return false; //need further process
 }
 
 /// key event, return true if handled
-bool gliKEY( QKeyEvent * e )
-{
+bool gliKEY( QKeyEvent * e ) {
   if( gliGetTransformTool().KEY(e) ) return true;
   return false;
 }
 
 
-bool gliCameraKEY( QKeyEvent * e )
-{
+bool gliCameraKEY( QKeyEvent * e ) {
   if( gliGetCameraFactory().getCurrentCamera()->KP(e) )return true;
   return false;
 }
@@ -104,29 +102,26 @@ bool gliRobotKEY(QKeyEvent* _e) {
 
 
 /// window resize event
-void gliWS( int w, int h )
-{
+void gliWS( int w, int h ) {
   gliGetTransformTool().setWinSize(w,h);
-  gliGetPickBox().setWinSize(w,h);
+  GetPickBox().SetWinSize(w,h);
 }
 
 /// camera move event
-void gliCM()
-{
+void gliCM() {
   gliGetTransformTool().CM();
 }
 
 //simulate mouse up
-void gliSimMouseUp()
-{
-  gliPickBox& pick=gliGetPickBox();
+void gliSimMouseUp() {
+  PickBox& pick = GetPickBox();
   // Dummy
   QMouseEvent * e=NULL;
-  pick.MR(e); /* simulate pick mouse */
+  pick.MouseReleased(e); /* simulate pick mouse */
 }
 
-bool gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h)
-{
+void
+gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h) {
   /*
      P4 --------------- P3
      |                   |
@@ -138,29 +133,13 @@ bool gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h)
      P1 --------------- P2
      */
 
-  gliPickBox& pick=gliGetPickBox();
-  const gliBox box=pick.getPickBox();
+  const Box& box = GetPickBox().GetBox();
 
   // handle all the ways the box can be drawn
-  if(box.l<box.r)
-    *xOffset=(int)box.l;
-  else
-    *xOffset=(int)box.r;
-
-  if(box.b<box.t)
-    *yOffset=(int)box.t;
-  else
-    *yOffset=(int)box.b;
-
-  *w=(int)(box.r-box.l);
-  *h=(int)(box.b-box.t);
-
-  if(*w<0)
-    *w=-*w;
-
-  if(*h<0)
-    *h=-*h;
-  return true;
+  *xOffset = min(box.m_left, box.m_right);
+  *yOffset = max(box.m_bottom, box.m_top);
+  *w = abs(box.m_right - box.m_left);
+  *h = abs(box.m_bottom - box.m_top);
 }
 
 void gliReset(){

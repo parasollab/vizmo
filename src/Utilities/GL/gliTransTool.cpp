@@ -1,4 +1,5 @@
 #include "gliTransTool.h"
+#include "PickBox.h"
 #include "gliDataStructure.h"
 #include "gliCamera.h"
 #include "gliUtility.h"
@@ -651,7 +652,7 @@ void GLTransformTool::CheckSelectObject()
     m_rT.setSObject(NULL);
 
     //get selected objects
-    const vector<GLModel*>& sobjs=gliGetPickedSceneObjs();
+    const vector<GLModel*>& sobjs = GetPickedSceneObjs();
     if( sobjs.empty() ) return;
     m_rT.setSObject((gliObj)sobjs.front());
 }

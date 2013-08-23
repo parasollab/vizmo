@@ -5,6 +5,7 @@
 #include <fstream>
 using namespace std;
 
+#include "Utilities/GL/PickBox.h"
 #include "Plum/GLModel.h"
 #include "EnvObj/RobotModel.h"
 #include "Models/CfgModel.h"
@@ -138,7 +139,7 @@ Vizmo::Display() {
 
 //Select Objects in OpenGL Scene
 void
-Vizmo::Select(const gliBox& _box) {
+Vizmo::Select(const Box& _box) {
   GLuint hitBuffer[1024];
   GLint viewport[4];
   GLuint hits;
@@ -162,10 +163,10 @@ Vizmo::Select(const gliBox& _box) {
   glPushMatrix();
   glLoadIdentity();
 
-  double x = (_box.l+_box.r)/2;
-  double y = (_box.t+_box.b)/2;
-  double w = fabs(_box.r-_box.l); if(w<5) w=5;
-  double h = fabs(_box.t-_box.b); if(h<5) h=5;
+  double x = (_box.m_left + _box.m_right)/2;
+  double y = (_box.m_top + _box.m_bottom)/2;
+  double w = fabs(_box.m_right - _box.m_left); if(w<5) w=5;
+  double h = fabs(_box.m_top - _box.m_bottom); if(h<5) h=5;
 
   gluPickMatrix(x, y, w, h, viewport);
   glMultMatrixd(pm); //apply current proj matrix

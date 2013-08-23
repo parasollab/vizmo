@@ -8,6 +8,7 @@ using namespace std;
 #include <Plum/EnvObj/MultiBodyModel.h>
 #include <Utilities/CollisionDetection.h>
 
+class Box;
 class EnvModel;
 class RobotModel;
 class CfgModel;
@@ -41,7 +42,7 @@ class Vizmo {
     void Display();
 
     //Select Objects in OpenGL Scene
-    void Select(const gliBox& _box);
+    void Select(const Box& _box);
 
     //Animate Robot motion
     void Animate(int frame);

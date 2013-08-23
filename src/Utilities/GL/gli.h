@@ -39,16 +39,16 @@ void gliWS( int w, int h );
 void gliCM();
 
 //set select method
-class gliBox;
+class Box;
 class GLModel;
-typedef vector<GLModel*>& (*pick_func)(const gliBox&);
+typedef vector<GLModel*>& (*pick_func)(const Box&);
 void gliSetPickingFunction(pick_func func);
 
 /// simulate mouse up
 void gliSimMouseUp();
 
 // Get the picking box dimensions
-bool gliPickBoxDim(int *xOffset,int *yOffset,int *w,int *h);
+void gliPickBoxDim(int *xOffset,int *yOffset,int *w,int *h);
 
 //Reset gliObj
 void gliReset();

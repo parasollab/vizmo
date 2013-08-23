@@ -8,9 +8,7 @@ using namespace std;
 #include <RotationConversions.h>
 using namespace mathtool;
 
-/**
- * Defines function and data for tansfromation.
- */
+//Defines function and data for tansfromation.
 class GLTransform {
   public:
 
@@ -54,17 +52,6 @@ class GLTransform {
 };
 
 typedef GLTransform* gliObj;
-
-//definition for a 2D box
-class gliBox{
-  public:
-    gliBox(){ l=r=t=b=0; }
-    double l,r,t,b; //left, right,top,bottom
-};
-
-///////////////////////////////////////////////////////////////////////////////
-class GLModel;
-vector<GLModel*>& gliGetPickedSceneObjs();
 
 #endif //_GLI_DATASTRUCTURE_H_
 

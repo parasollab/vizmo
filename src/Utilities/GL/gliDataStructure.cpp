@@ -1,11 +1,6 @@
 #include "gliDataStructure.h"
+
 #include <qgl.h>
-
-vector<GLModel*>  g_PickedSceneObjs;
-vector<GLModel*>& gliGetPickedSceneObjs() {
-  return g_PickedSceneObjs;
-}
-
 
 void GLTransform::glTransform() {
   //translation applied last
