@@ -75,11 +75,11 @@ Camera::MouseMotion(QMouseEvent* _e){
 
     //displacement
     if(_e->buttons() & Qt::MidButton) {
-      m_deltaDis[0] = m_cameraPos[0] * drag.x()/10.0;
-      m_deltaDis[1] = -m_cameraPos[1] * drag.y()/10.0;
+      m_deltaDis[0] = drag.x()/10.0;
+      m_deltaDis[1] = -drag.y()/10.0;
     }
     else if(_e->buttons() & Qt::RightButton) {
-      m_deltaDis[2] = m_cameraPos[2] * drag.y()/100.0;
+      m_deltaDis[2] = drag.y()/10.0;
     }
     else if(_e->buttons() & Qt::LeftButton) {
       m_deltaAzim = drag.x()/5.0;
