@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <sstream>
-#include "Utilities/GL/gliCamera.h"
+#include "Utilities/GL/Camera.h"
 #include "SceneOptions.h"
 #include "MainWin.h"
 #include "SceneWin.h"
@@ -110,16 +110,16 @@ SceneOptions::ResetCamera(){
 void
 SceneOptions::SetCameraPosition(){
 
-  Point3d p = gliGetCameraFactory().getCurrentCamera()->getCameraPos();
+  Point3d p = GetCameraFactory().GetCurrentCamera()->GetCameraPos();
   //Unfortunately, points are defined backwards for x and y
   //We want "X=3" to mean that VIEWER has moved to X=3
   if(p[0] != 0) //otherwise displays '-0' !
-    p[0] = -1*p[0];
+    p[0] = -p[0];
   if(p[1] != 0)
-    p[1] = -1*p[1];
+    p[1] = -p[1];
 
-  double azim = gliGetCameraFactory().getCurrentCamera()->getCurrentAzim();
-  double elev = gliGetCameraFactory().getCurrentCamera()->getCurrentElev();
+  double azim = GetCameraFactory().GetCurrentCamera()->GetCameraAzim();
+  double elev = GetCameraFactory().GetCurrentCamera()->GetCameraElev();
 
   m_cameraPosInput->SetCameraPos(p[0], p[1], p[2], azim, elev);
 

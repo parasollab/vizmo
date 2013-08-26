@@ -1,12 +1,13 @@
 #include "gli.h"
-#include "gliCamera.h"
+
+#include <QMouseEvent>
+#include <QKeyEvent>
+
+#include "Camera.h"
 #include "gliUtility.h"
 #include "PickBox.h"
 #include "gliTransTool.h"
 #include "Models/Vizmo.h"
-//Added by qt3to4:
-#include <QMouseEvent>
-#include <QKeyEvent>
 
 int GLI_SHOW_AXIS=1<<0;
 int GLI_SHOW_PICKBOX=1<<1;
@@ -22,16 +23,16 @@ void gliSetPickingFunction(pick_func func) {
 
 //draw
 void gliDraw(int option) {
-  gliCamera * pcam=gliGetCameraFactory().getCurrentCamera();
-  pcam->Draw();
+  Camera* cam = GetCameraFactory().GetCurrentCamera();
+  cam->Draw();
   if(option & GLI_SHOW_GRID) gliDrawGrid();
   if(option & GLI_SHOW_PICKBOX) GetPickBox().Draw();
   if(option & GLI_SHOW_TRANSFORMTOOL) gliGetTransformTool().Draw();
-  if(option & GLI_SHOW_AXIS) gliDrawRotateAxis(*pcam);
+  if(option & GLI_SHOW_AXIS) gliDrawRotateAxis(cam);
 }
 
 bool gliMP(QMouseEvent * e) {
-  if( gliGetCameraFactory().getCurrentCamera()->MP(e) ){
+  if(GetCameraFactory().GetCurrentCamera()->MousePressed(e)) {
     gliCM(); //camera moved
     return true;
   }
@@ -42,9 +43,8 @@ bool gliMP(QMouseEvent * e) {
   return false; //need further process
 }
 
-bool gliMR(QMouseEvent * e, bool drawonly)
-{
-  if( gliGetCameraFactory().getCurrentCamera()->MR(e) ){
+bool gliMR(QMouseEvent * e, bool drawonly) {
+  if(GetCameraFactory().GetCurrentCamera()->MouseReleased(e)) {
     gliCM(); //camera moved
     return true;
   }
@@ -72,12 +72,13 @@ bool gliMR(QMouseEvent * e, bool drawonly)
 }
 
 /// mouse movement event, return true if handled
-bool gliMM( QMouseEvent * e ) {
-  if( gliGetCameraFactory().getCurrentCamera()->MM(e) ){
+bool gliMM(QMouseEvent* e) {
+  if(GetCameraFactory().GetCurrentCamera()->MouseMotion(e)) {
     gliCM(); //camera moved
     return true;
   }
-  if( gliGetTransformTool().MM(e) ) return true;
+  if(gliGetTransformTool().MM(e))
+    return true;
 
   GetPickBox().MouseMotion(e);
 
@@ -85,15 +86,15 @@ bool gliMM( QMouseEvent * e ) {
 }
 
 /// key event, return true if handled
-bool gliKEY( QKeyEvent * e ) {
-  if( gliGetTransformTool().KEY(e) ) return true;
-  return false;
+bool
+gliKEY(QKeyEvent* e) {
+  return gliGetTransformTool().KEY(e);
 }
 
 
-bool gliCameraKEY( QKeyEvent * e ) {
-  if( gliGetCameraFactory().getCurrentCamera()->KP(e) )return true;
-  return false;
+bool
+gliCameraKEY(QKeyEvent* e) {
+  return GetCameraFactory().GetCurrentCamera()->KeyPressed(e);
 }
 
 bool gliRobotKEY(QKeyEvent* _e) {

@@ -1,14 +1,15 @@
 #include "gliTransTool.h"
-#include "PickBox.h"
-#include "gliDataStructure.h"
-#include "gliCamera.h"
-#include "gliUtility.h"
-//#include <GL/glut.h>
+
 #include <Quaternion.h>
-//Added by qt3to4:
+using namespace mathtool;
+
 #include <QMouseEvent>
 #include <QKeyEvent>
-using namespace mathtool;
+
+#include "Camera.h"
+#include "PickBox.h"
+#include "gliDataStructure.h"
+#include "gliUtility.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // gliTToolBase
@@ -379,7 +380,7 @@ void gliRotateTool::Draw(bool bSelect)
 {
     glDisable(GL_LIGHTING);
     //draw reference axis
-    gliCamera* pcam=gliGetCameraFactory().getCurrentCamera();
+    Camera* cam = GetCameraFactory().GetCurrentCamera();
     double ox=m_sObjPrj[0]; double oy=m_sObjPrj[1];
 
     glMatrixMode(GL_MODELVIEW);
@@ -389,8 +390,8 @@ void gliRotateTool::Draw(bool bSelect)
     glTranslatef(ox,oy,0);
 
     glPushMatrix();
-    glRotated(pcam->getCameraElev(), 1.0, 0.0, 0.0);
-    glRotated(pcam->getCameraAzim(), 0.0, 1.0, 0.0);
+    glRotated(cam->GetCameraElev(), 1.0, 0.0, 0.0);
+    glRotated(cam->GetCameraAzim(), 0.0, 1.0, 0.0);
 
     if( m_selType!=NON ){
         Vector3d v1,v2;
@@ -398,7 +399,7 @@ void gliRotateTool::Draw(bool bSelect)
         else if( m_selType==Y_AXIS ){v1=m_lAC[2]; v2=m_lAC[0]; }
         else if( m_selType==Z_AXIS ){v1=m_lAC[0]; v2=m_lAC[1]; }
         else if( m_selType==OUTLINE ){
-            v1=pcam->getWindowX(); v2=pcam->getWindowY();
+            v1 = cam->GetWindowX(); v2 = cam->GetWindowY();
         }
         Vector3d s=cos(m_hitAngle)*v1*m_r+sin(m_hitAngle)*v2*m_r;
         Vector3d e=cos(m_curAngle)*v1*m_r+sin(m_curAngle)*v2*m_r;
@@ -481,10 +482,10 @@ bool gliRotateTool::MP( QMouseEvent * e ) //mouse button pressed
             axis=m_lAC[2]; v1=m_lAC[0]; v2=m_lAC[1];
         }
         else if( m_selType==OUTLINE ){
-            gliCamera* pcam=gliGetCameraFactory().getCurrentCamera();
-            axis=pcam->getWindowZ();
-            v1=pcam->getWindowX();
-            v2=pcam->getWindowY();
+            Camera* cam = GetCameraFactory().GetCurrentCamera();
+            axis = cam->GetWindowZ();
+            v1 = cam->GetWindowX();
+            v2 = cam->GetWindowY();
         }
 
         Point3d prj=gliUnProj2World(m_sObjPosC,axis,x,y);
@@ -521,10 +522,10 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
         axis=m_lAC[2]; v1=m_lAC[0]; v2=m_lAC[1];
     }
     else if( m_selType==OUTLINE ){
-        gliCamera* pcam=gliGetCameraFactory().getCurrentCamera();
-        axis=pcam->getWindowZ();
-        v1=pcam->getWindowX();
-        v2=pcam->getWindowY();
+        Camera* cam = GetCameraFactory().GetCurrentCamera();
+        axis = cam->GetWindowZ();
+        v1 = cam->GetWindowX();
+        v2 = cam->GetWindowY();
     }
 
     Point3d prj=gliUnProj2World(m_sObjPosC,axis,x,y);
@@ -613,11 +614,11 @@ bool gliRotateTool::Select(int x, int y)
 
 void gliRotateTool::ComputAngles()
 {
-    gliCamera* pcam=gliGetCameraFactory().getCurrentCamera();
-    Vector3d v=pcam->getWindowZ();
-    ComputAngles(m_arc[0],m_lA[0],m_lA[1],m_lA[2],v);
-    ComputAngles(m_arc[1],m_lA[1],m_lA[2],m_lA[0],v);
-    ComputAngles(m_arc[2],m_lA[2],m_lA[0],m_lA[1],v);
+    Camera* cam = GetCameraFactory().GetCurrentCamera();
+    Vector3d v = cam->GetWindowZ();
+    ComputAngles(m_arc[0], m_lA[0], m_lA[1], m_lA[2], v);
+    ComputAngles(m_arc[1], m_lA[1], m_lA[2], m_lA[0], v);
+    ComputAngles(m_arc[2], m_lA[2], m_lA[0], m_lA[1], v);
 }
 
 void gliRotateTool::ComputAngles

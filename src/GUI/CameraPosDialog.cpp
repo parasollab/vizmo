@@ -3,7 +3,7 @@
 #include <sstream>
 using namespace std;
 
-#include "Utilities/GL/gliCamera.h"
+#include "Utilities/GL/Camera.h"
 
 CameraPosDialog::CameraPosDialog(QWidget* _parent) :QDialog(_parent) {
   resize(450, 245);
@@ -101,7 +101,7 @@ CameraPosDialog::AcceptData(){
   double azim = (m_azimLineEdit->text()).toDouble();
   double elev = (m_elevLineEdit->text()).toDouble();
 
-  gliGetCameraFactory().getCurrentCamera()->SetByUser(x, y, z, azim, elev);
+  GetCameraFactory().GetCurrentCamera()->Set(Point3d(x, y, z), azim, elev);
 
   accept();
 }

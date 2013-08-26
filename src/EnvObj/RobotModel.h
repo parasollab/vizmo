@@ -12,7 +12,6 @@ using namespace mathtool;
 #include "Plum/EnvObj/MultiBodyModel.h"
 #include "Models/EnvModel.h"
 #include "Plum/GLModel.h"
-#include "Utilities/GL/gliCamera.h"
 #include "Utilities/Color.h"
 
 class RobotModel : public GLModel {
