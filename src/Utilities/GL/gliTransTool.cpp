@@ -9,7 +9,7 @@ using namespace mathtool;
 #include "Camera.h"
 #include "PickBox.h"
 #include "gliDataStructure.h"
-#include "gliUtility.h"
+#include "GLUtilities.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // gliTToolBase
@@ -41,16 +41,15 @@ void gliTToolBase::Draw(void)
 }
 
 void gliTToolBase::Project2Win(){
-
-    if( m_pSObj==NULL ) return;
-
+  if(m_pSObj) {
     double x, y, z;
     x=m_pSObj->tx(); y=m_pSObj->ty(); z=m_pSObj->tz();
 
     Point3d pts[4]={Point3d(x,y,z),Point3d(x+0.1,y,z),
-                    Point3d(x,y+0.1,z),Point3d(x,y,z+0.1)};
-    gliProject2Window(pts,4);
+      Point3d(x,y+0.1,z),Point3d(x,y,z+0.1)};
+    ProjectToWindow(pts, 4);
     m_sObjPrj=pts[0]; m_xPrj=pts[1]; m_yPrj=pts[2]; m_zPrj=pts[3];
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,7 +130,7 @@ bool gliMoveTool::MP( QMouseEvent * e ) //mouse button pressed
         m_sObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz()); //store old pos
         m_sObjPrjC=m_sObjPrj;
         m_hitX=e->pos().x(); m_hitY=m_h-e->pos().y();
-        m_hitUnPrj=gliUnProj2World(m_sObjPosC,m_hitX,m_hitY);
+        m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_sObjPosC);
         return true;
     }
     return false;
@@ -149,7 +148,7 @@ bool gliMoveTool::MM( QMouseEvent * e )  //mouse motion
     int x=e->pos().x();
     int y=m_h-e->pos().y();
 
-    Point3d cur_pos=gliUnProj2World(m_sObjPosC,x,y);
+    Point3d cur_pos = ProjectToWorld(x, y, m_sObjPosC);
     Vector3d v=cur_pos-m_hitUnPrj;
 
     if( m_selType==X_AXIS ){ v(v[0], 0, 0); m_pSObj->tx()=m_sObjPosC[0]+v[0]; }
@@ -292,7 +291,7 @@ bool gliScaleTool::MP( QMouseEvent * e ) //mouse button pressed
         m_sObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz()); //store old pos
         m_sObjPrjC=m_sObjPrj;
         m_hitX=e->pos().x(); m_hitY=m_h-e->pos().y();
-        m_hitUnPrj=gliUnProj2World(m_sObjPosC,m_hitX,m_hitY);
+        m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_sObjPosC);
 		m_osX=m_pSObj->sx();
 		m_osY=m_pSObj->sy();
 		m_osZ=m_pSObj->sz();
@@ -313,7 +312,7 @@ bool gliScaleTool::MM( QMouseEvent * e )  //mouse motion
     int x=e->pos().x();
     int y=m_h-e->pos().y();
 
-    Point3d cur_pos=gliUnProj2World(m_sObjPosC,x,y);
+    Point3d cur_pos = ProjectToWorld(x, y, m_sObjPosC);
     Vector3d v=(cur_pos-m_hitUnPrj)/10;
 
     if( m_selType==X_AXIS ){ if(m_osX+v[0]>0) m_pSObj->sx()=m_osX+v[0]; }
@@ -415,26 +414,26 @@ void gliRotateTool::Draw(bool bSelect)
     //draw circle around x axis
     if( bSelect ) glLoadName(X_AXIS);
     if( !bSelect ) glColor3f(1,0,0);
-    gliDrawArc(m_r,m_arc[0][0],m_arc[0][1],m_lA[1],m_lA[2]);
+    DrawArc(m_r, m_arc[0][0], m_arc[0][1], m_lA[1], m_lA[2]);
 
     //draw y axis
     if( bSelect ) glLoadName(Y_AXIS);
     if( !bSelect ) glColor3f(0,1,0);
-    gliDrawArc(m_r,m_arc[1][0],m_arc[1][1],m_lA[2],m_lA[0]);
+    DrawArc(m_r,m_arc[1][0],m_arc[1][1],m_lA[2],m_lA[0]);
 
     //draw z axis
     if( bSelect ) glLoadName(Z_AXIS);
     if( !bSelect ) glColor3f(0,0,1);
-    gliDrawArc(m_r,m_arc[2][0],m_arc[2][1],m_lA[0],m_lA[1]);
+    DrawArc(m_r,m_arc[2][0],m_arc[2][1],m_lA[0],m_lA[1]);
 
     glPopMatrix(); //pop camera rotation
 
     //draw center
     if( !bSelect ){
         glColor3f(0.9f,0.9f,0);
-        gliDrawCircle2D(m_r+5);
+        DrawCircle(m_r+5);
         glColor3f(0.6f,0.6f,0.6f);
-        gliDrawCircle2D(m_r);
+        DrawCircle(m_r);
     }
 
     glPopMatrix();
@@ -451,10 +450,10 @@ Point3d gliRotateTool::UnProj2World
     glPushMatrix();
     glLoadIdentity();
     glOrtho(0,m_w,0,m_h,-100,100);
-    Point3d p=gliUnProj2World(ref,n,x,y);
-    glMatrixMode( GL_PROJECTION );
+    Point3d p = ProjectToWorld(x, y, ref, n);
+    glMatrixMode(GL_PROJECTION);
     glPopMatrix();
-    glMatrixMode( GL_MODELVIEW );
+    glMatrixMode(GL_MODELVIEW);
     return p;
 }
 
@@ -488,7 +487,7 @@ bool gliRotateTool::MP( QMouseEvent * e ) //mouse button pressed
             v2 = cam->GetWindowY();
         }
 
-        Point3d prj=gliUnProj2World(m_sObjPosC,axis,x,y);
+        Point3d prj = ProjectToWorld(x, y, m_sObjPosC, axis);
         Vector3d tmp=prj-m_sObjPosC;
         m_curAngle=m_hitAngle=ComputAngle(tmp,v1,v2);
         return true;
@@ -528,7 +527,7 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
         v2 = cam->GetWindowY();
     }
 
-    Point3d prj=gliUnProj2World(m_sObjPosC,axis,x,y);
+    Point3d prj = ProjectToWorld(x, y, m_sObjPosC, axis);
     Vector3d tmp=prj-m_sObjPosC;
     m_curAngle=ComputAngle(tmp,v1,v2);
 

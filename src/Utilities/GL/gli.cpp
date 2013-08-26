@@ -4,7 +4,7 @@
 #include <QKeyEvent>
 
 #include "Camera.h"
-#include "gliUtility.h"
+#include "GLUtilities.h"
 #include "PickBox.h"
 #include "gliTransTool.h"
 #include "Models/Vizmo.h"
@@ -25,10 +25,10 @@ void gliSetPickingFunction(pick_func func) {
 void gliDraw(int option) {
   Camera* cam = GetCameraFactory().GetCurrentCamera();
   cam->Draw();
-  if(option & GLI_SHOW_GRID) gliDrawGrid();
+  if(option & GLI_SHOW_GRID) DrawGrid();
   if(option & GLI_SHOW_PICKBOX) GetPickBox().Draw();
   if(option & GLI_SHOW_TRANSFORMTOOL) gliGetTransformTool().Draw();
-  if(option & GLI_SHOW_AXIS) gliDrawRotateAxis(cam);
+  if(option & GLI_SHOW_AXIS) DrawRotateAxis(cam);
 }
 
 bool gliMP(QMouseEvent * e) {
