@@ -3,7 +3,7 @@
 #include "Models/Vizmo.h"
 #include "GLWidget.h"
 #include "AnimationWidget.h"
-#include "ItemSelectionGUI.h"
+#include "ModelSelectionWidget.h"
 #include "TextGUI.h"
 #include "FileListDialog.h"
 #include "QueryGUI.h"
@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* _parent)
   m_allTogether = NULL;
   m_objTextLayout = NULL;
   m_layoutWidget = NULL;
-  m_objectSelection = NULL;
+  m_modelSelectionWidget = NULL;
   m_animationBarLayout = NULL;
 }
 
@@ -80,7 +80,7 @@ MainWindow::InitVizmo(){
   m_gl->resetCamera();
   //reset guis
   m_animationWidget->reset();
-  m_objectSelection->ResetLists();
+  m_modelSelectionWidget->ResetLists();
   m_mainMenu->CallReset();
   GetVizmo().RandomizeCCColors();
   m_gl->updateGL();
@@ -93,16 +93,16 @@ MainWindow::CreateGUI() {
   m_animationWidget = new AnimationWidget("Animation", this);
   connect(m_animationWidget, SIGNAL(callUpdate()), this, SLOT(updateScreen()));
 
-  m_objectSelection = new VizmoItemSelectionGUI(this);
-  connect(m_objectSelection, SIGNAL(CallUpdate()), this, SLOT(updateScreen()));
+  m_modelSelectionWidget = new ModelSelectionWidget(this);
+  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(updateScreen()));
 
   m_mainMenu = new MainMenu(this);  //also creates the toolbars
 
   m_outbox = new TextGUI(this);
 
-  connect(m_objectSelection, SIGNAL(UpdateTextGUI()), m_outbox, SLOT(SetText()));
-  connect(m_gl, SIGNAL(selectByLMB()), m_objectSelection, SLOT(Select()));
-  connect(m_gl, SIGNAL(clickByLMB()), m_objectSelection, SLOT(Select()));
+  connect(m_modelSelectionWidget, SIGNAL(UpdateTextGUI()), m_outbox, SLOT(SetText()));
+  connect(m_gl, SIGNAL(selectByLMB()), m_modelSelectionWidget, SLOT(Select()));
+  connect(m_gl, SIGNAL(clickByLMB()), m_modelSelectionWidget, SLOT(Select()));
   //HandleSelect now in Plum/MapObj/MapModel.cpp and temporarily disabled
   // connect(m_gl, SIGNAL(selectByLMB()), m_roadmapGUI, SLOT(handleSelect()));
   connect(m_gl, SIGNAL(clickByLMB()), m_outbox, SLOT(SetText()));
@@ -133,9 +133,9 @@ MainWindow::SetUpLayout(){
   m_layout->addWidget(m_allTogether, 1, 1, 1, 25);
 
   m_objTextLayout = new QVBoxLayout();
-  m_objTextLayout->addWidget(m_objectSelection); //The Environment Objects list
+  m_objTextLayout->addWidget(m_modelSelectionWidget); //The Environment Objects list
   m_objTextLayout->addWidget(m_outbox);          //The TextGUI
-  m_objTextLayout->setStretchFactor(m_objectSelection, 1);
+  m_objTextLayout->setStretchFactor(m_modelSelectionWidget, 1);
 
   m_layout->addLayout(m_objTextLayout, 2, 1, 4, 5);
 

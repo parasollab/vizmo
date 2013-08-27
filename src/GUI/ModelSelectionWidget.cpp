@@ -1,10 +1,11 @@
+#include "ModelSelectionWidget.h"
+
 #include <QString>
 
-#include "ItemSelectionGUI.h"
-#include "Models/Vizmo.h"
 #include "Models/CCModel.h"
+#include "Models/Vizmo.h"
 
-VizmoItemSelectionGUI::VizmoItemSelectionGUI(QWidget* _parent) :
+ModelSelectionWidget::ModelSelectionWidget(QWidget* _parent) :
   QTreeWidget(_parent) {
     setMinimumSize(205, 277);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -16,7 +17,7 @@ VizmoItemSelectionGUI::VizmoItemSelectionGUI(QWidget* _parent) :
   }
 
 void
-VizmoItemSelectionGUI::ResetLists(){
+ModelSelectionWidget::ResetLists(){
   vector<GLModel*>& objs = GetVizmo().GetLoadedModels();
   ClearLists();
   FillTree(objs);
@@ -24,21 +25,21 @@ VizmoItemSelectionGUI::ResetLists(){
 }
 
 void
-VizmoItemSelectionGUI::FillTree(vector<GLModel*>& _obj){
+ModelSelectionWidget::FillTree(vector<GLModel*>& _obj){
   typedef vector<GLModel*>::iterator MIT;
   for(MIT mit = _obj.begin(); mit != _obj.end(); ++mit)
     CreateItem(NULL, *mit);
 }
 
-VizmoListViewItem*
-VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model){
-  VizmoListViewItem* item = NULL;
+ModelSelectionWidget::ListViewItem*
+ModelSelectionWidget::CreateItem(ListViewItem* _p, GLModel* _model){
+  ListViewItem* item = NULL;
   if(!_p){
-    item = new VizmoListViewItem(this);
+    item = new ListViewItem(this);
     item->setExpanded(true);
   }
   else
-    item = new VizmoListViewItem(_p);
+    item = new ListViewItem(_p);
 
   item->m_model = _model;
   QString qstr = QString::fromStdString(_model->GetName());
@@ -57,16 +58,16 @@ VizmoItemSelectionGUI::CreateItem(VizmoListViewItem* _p, GLModel* _model){
 }
 
 void
-VizmoItemSelectionGUI::SelectionChanged(){
+ModelSelectionWidget::SelectionChanged(){
   //Selects in MAP whatever has been selected in the tree widget
   vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
   sel.clear();
-  typedef vector<VizmoListViewItem*>::iterator IIT;
+  typedef vector<ListViewItem*>::iterator IIT;
   for(IIT i = m_items.begin(); i != m_items.end(); i++){
     if((*i)->isSelected()){
       sel.push_back((*i)->m_model);
       for(int j = 0; j < (*i)->childCount(); j++){ //Select all subcomponents as well
-        VizmoListViewItem* child = (VizmoListViewItem*)(*i)->child(j);
+        ListViewItem* child = (ListViewItem*)(*i)->child(j);
           sel.push_back(child->m_model);
       }
     }
@@ -76,17 +77,17 @@ VizmoItemSelectionGUI::SelectionChanged(){
 }
 
 void
-VizmoItemSelectionGUI::ClearLists(){
+ModelSelectionWidget::ClearLists(){
 
   clear();  //Qt call to clear the TreeWidget
   m_items.clear();
 }
 
 void
-VizmoItemSelectionGUI::Select(){
+ModelSelectionWidget::Select(){
   //Selects in the TREE WIDGET whatever has been selected in the map
   vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<VizmoListViewItem*>::iterator IIT;
+  typedef vector<ListViewItem*>::iterator IIT;
 
   //Unselect everything
   blockSignals(true);
@@ -94,7 +95,7 @@ VizmoItemSelectionGUI::Select(){
     (*i)->setSelected(false);
 
   //Find selected
-  vector<VizmoListViewItem*> selected;
+  vector<ListViewItem*> selected;
   for(size_t s = 0; s < sel.size(); ++s){
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
       if(sel[s] == (*i)->m_model){

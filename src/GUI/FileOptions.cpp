@@ -13,7 +13,7 @@
 #include "FileListDialog.h"
 #include "GLWidget.h"
 #include "AnimationWidget.h"
-#include "ItemSelectionGUI.h"
+#include "ModelSelectionWidget.h"
 #include "OptionsBase.h"
 #include "MainWindow.h"
 #include "Models/Vizmo.h"
@@ -120,7 +120,7 @@ FileOptions::UpdateFiles(){
 
   //reset guis
   m_mainWindow->GetAnimationWidget()->reset();
-  m_mainWindow->GetObjectSelection()->ResetLists();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->m_mainMenu->CallReset();
   m_mainWindow->GetGLScene()->resetTransTool();
 }

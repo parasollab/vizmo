@@ -12,9 +12,9 @@ OBJECTS += \
 	   GUI/GLWidget.o \
 	   GUI/GLWidgetOptions.o \
 	   GUI/HelpOptions.o \
-	   GUI/ItemSelectionGUI.o \
 	   GUI/MainMenu.o \
 	   GUI/MainWindow.o \
+	   GUI/ModelSelectionWidget.o \
 	   GUI/MovieSaveDialog.o \
 	   GUI/PathOptions.o \
 	   GUI/QueryGUI.o \

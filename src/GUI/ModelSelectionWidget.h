@@ -12,21 +12,21 @@ using namespace std;
 
 class GLModel;
 
-struct VizmoListViewItem : public QTreeWidgetItem {
-  VizmoListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
-  VizmoListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
-  GLModel* m_model;
-};
-
-class VizmoItemSelectionGUI : public QTreeWidget {
+class ModelSelectionWidget : public QTreeWidget {
 
   Q_OBJECT
 
   public:
-    VizmoItemSelectionGUI(QWidget* _parent = NULL);
+    struct ListViewItem : public QTreeWidgetItem {
+      ListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
+      ListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
+      GLModel* m_model;
+    };
+
+    ModelSelectionWidget(QWidget* _parent = NULL);
     void ResetLists();
     void FillTree(vector<GLModel*>& _objs);
-    VizmoListViewItem* CreateItem(VizmoListViewItem* _p, GLModel* _model);
+    ListViewItem* CreateItem(ListViewItem* _p, GLModel* _model);
 
   public slots:
     void Select();
@@ -41,5 +41,5 @@ class VizmoItemSelectionGUI : public QTreeWidget {
   private:
     void ClearLists();
     int m_maxNoModels;
-    vector<VizmoListViewItem*> m_items;
+    vector<ListViewItem*> m_items;
 };

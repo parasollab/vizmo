@@ -5,9 +5,9 @@
 #include <QPixmap>
 #include <QTranslator>
 
-#include "MainWindow.h"
 #include "GLWidget.h"
-#include "ItemSelectionGUI.h"
+#include "ModelSelectionWidget.h"
+#include "MainWindow.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/RandEnv.xpm"
@@ -67,7 +67,7 @@ EnvironmentOptions::SetHelpTips(){
 void
 EnvironmentOptions::RefreshEnv(){
   GetVizmo().RefreshEnv();
-  m_mainWindow->GetObjectSelection()->reset();
+  m_mainWindow->GetModelSelectionWidget()->reset();
   m_mainWindow->GetGLScene()->updateGL();
 }
 

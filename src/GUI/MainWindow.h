@@ -18,7 +18,7 @@ class QVBoxLayout;
 
 class AnimationWidget;
 class VizmoScreenShotGUI;
-class VizmoItemSelectionGUI;
+class ModelSelectionWidget;
 class VizmoAttributeSelectionGUI;
 class queryGUI;
 class TextGUI;
@@ -45,7 +45,7 @@ class MainWindow : public QMainWindow {
     GLWidget* GetGLScene() { return m_gl; }
     TextGUI* GetOutbox(){ return m_outbox; }
     AnimationWidget* GetAnimationWidget() { return m_animationWidget; }
-    VizmoItemSelectionGUI* GetObjectSelection() { return m_objectSelection; }
+    ModelSelectionWidget* GetModelSelectionWidget() { return m_modelSelectionWidget; }
 
     //command line to be executed to make a new roadmap
     string command;
@@ -75,7 +75,7 @@ class MainWindow : public QMainWindow {
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     GLWidget* m_gl;           //the scene window which displays environment..
     AnimationWidget *m_animationWidget;
-    VizmoItemSelectionGUI *m_objectSelection;
+    ModelSelectionWidget *m_modelSelectionWidget;
 };
 
 #endif /*_MAIN_WIN_H_*/
