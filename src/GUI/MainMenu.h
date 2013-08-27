@@ -22,7 +22,7 @@ class MainMenu : public QWidget {
     MainMenu(MainWindow* _parent);
 
     OptionsBase* m_fileOptions;         //File tool button and submenu
-    OptionsBase* m_sceneOptions;        //2 scene buttons and submenu
+    OptionsBase* m_glWidgetOptions;        //2 scene buttons and submenu
     OptionsBase* m_robotOptions;        //just a submenu
     OptionsBase* m_environmentOptions;  //randomize colors button and submenu
     OptionsBase* m_roadmapOptions;      //large toolbar and submenu
@@ -42,4 +42,4 @@ class MainMenu : public QWidget {
 
 };
 
-#endif //MAIN_MENU_H
+#endif

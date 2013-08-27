@@ -6,7 +6,7 @@
 #include <QTranslator>
 
 #include "MainWindow.h"
-#include "SceneWin.h"
+#include "GLWidget.h"
 #include "ItemSelectionGUI.h"
 #include "Models/Vizmo.h"
 

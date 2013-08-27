@@ -23,7 +23,7 @@
 
 #include "SliderDialog.h"
 #include "OptionsBase.h"
-#include "SceneWin.h"
+#include "GLWidget.h"
 #include "MainWindow.h"
 #include "Models/Vizmo.h"
 

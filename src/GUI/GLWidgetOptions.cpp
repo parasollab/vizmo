@@ -1,3 +1,8 @@
+#include "GLWidgetOptions.h"
+
+#include <iostream>
+#include <sstream>
+
 #include <QAction>
 #include <QToolButton>
 #include <QPixmap>
@@ -6,17 +11,15 @@
 #include <QColorDialog>
 #include <QCursor>
 
-#include <iostream>
-#include <sstream>
 #include "Utilities/GL/Camera.h"
-#include "SceneOptions.h"
 #include "MainWindow.h"
-#include "SceneWin.h"
+#include "GLWidget.h"
 #include "CameraPosDialog.h"
+
 #include "Icons/ResetCamera.xpm"
 #include "Icons/BgColor.xpm"
 
-SceneOptions::SceneOptions(QWidget* _parent, MainWindow* _mainWindow)
+GLWidgetOptions::GLWidgetOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
     CreateActions();
     SetUpSubmenu("Scene");
@@ -25,7 +28,7 @@ SceneOptions::SceneOptions(QWidget* _parent, MainWindow* _mainWindow)
   }
 
 void
-SceneOptions::CreateActions(){
+GLWidgetOptions::CreateActions(){
 
   //1. Create actions and add them to the map
   QAction* showAxis = new QAction(tr("Axis"), this);
@@ -55,7 +58,7 @@ SceneOptions::CreateActions(){
 }
 
 void
-SceneOptions::SetUpToolbar(){
+GLWidgetOptions::SetUpToolbar(){
 
   m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["resetCamera"]);
@@ -63,14 +66,14 @@ SceneOptions::SetUpToolbar(){
 }
 
 void
-SceneOptions::Reset(){
+GLWidgetOptions::Reset(){
 
   m_actions["resetCamera"]->setEnabled(true);
   m_actions["changeBGColor"]->setEnabled(true);
 }
 
 void
-SceneOptions::SetHelpTips(){
+GLWidgetOptions::SetHelpTips(){
 
   m_actions["changeBGColor"]->setWhatsThis(tr("Click this button to"
     " change the <b>background</b> color in the scene."));
@@ -83,20 +86,20 @@ SceneOptions::SetHelpTips(){
 //Slots
 
 void
-SceneOptions::ShowAxis(){
+GLWidgetOptions::ShowAxis(){
 
   m_mainWindow->GetGLScene()->showAxis();
 }
 
 void
-SceneOptions::ResetCamera(){
+GLWidgetOptions::ResetCamera(){
 
   m_mainWindow->GetGLScene()->resetCamera();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-SceneOptions::SetCameraPosition(){
+GLWidgetOptions::SetCameraPosition(){
 
   Point3d p = GetCameraFactory().GetCurrentCamera()->GetCameraPos();
   //Unfortunately, points are defined backwards for x and y
@@ -115,7 +118,7 @@ SceneOptions::SetCameraPosition(){
 }
 
 void
-SceneOptions::ChangeBGColor(){
+GLWidgetOptions::ChangeBGColor(){
 
   QColor color = QColorDialog::getColor(Qt::white, this);
   if (color.isValid()){
@@ -128,7 +131,7 @@ SceneOptions::ChangeBGColor(){
 }
 
 void
-SceneOptions::ShowGeneralContextMenu(){
+GLWidgetOptions::ShowGeneralContextMenu(){
 
   QMenu cm(this);
   cm.addAction(m_actions["changeBGColor"]);

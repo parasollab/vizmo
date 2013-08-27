@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 
 #include "Models/Vizmo.h"
-#include "SceneWin.h"
+#include "GLWidget.h"
 #include "AnimationGUI.h"
 #include "ItemSelectionGUI.h"
 #include "TextGUI.h"
@@ -42,7 +42,7 @@ MainWindow::Init(){
   m_layoutWidget = new QWidget(this);
 
   //Create GLModel
-  if((m_gl = new VizGLWin(this, this)) == NULL)
+  if((m_gl = new GLWidget(this, this)) == NULL)
     return false;
 
   // Create Other GUI
@@ -123,7 +123,7 @@ MainWindow::SetUpLayout(){
   //The m_allTogether toolbar holds them all together when window is expanded
   m_allTogether = new QToolBar(this);
   m_allTogether->addWidget(m_mainMenu->m_fileOptions->GetToolbar());
-  m_allTogether->addWidget(m_mainMenu->m_sceneOptions->GetToolbar());
+  m_allTogether->addWidget(m_mainMenu->m_glWidgetOptions->GetToolbar());
   m_allTogether->addWidget(m_mainMenu->m_environmentOptions->GetToolbar());
   m_allTogether->addWidget(m_mainMenu->m_roadmapOptions->GetToolbar());
   m_allTogether->addWidget(m_mainMenu->m_pathOptions->GetToolbar());

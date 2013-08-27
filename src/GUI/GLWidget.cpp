@@ -1,4 +1,4 @@
-#include "SceneWin.h"
+#include "GLWidget.h"
 
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
 
-VizGLWin::VizGLWin(QWidget* _parent, MainWindow* _mainWindow)
+GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
   : QGLWidget(_parent){
     m_mainWindow = _mainWindow;
     setMinimumSize(400, 505); //original size: 400 x 600
@@ -26,13 +26,13 @@ VizGLWin::VizGLWin(QWidget* _parent, MainWindow* _mainWindow)
   }
 
 void
-VizGLWin::ToggleSelectionSlot(){
+GLWidget::ToggleSelectionSlot(){
 
   m_takingSnapShot =! m_takingSnapShot;
 }
 
 void
-VizGLWin::resetCamera(){
+GLWidget::resetCamera(){
   GetCameraFactory().GetCurrentCamera()->Set(Point3d(0, 0, 4*GetVizmo().GetEnvRadius()), 0, 0);
 }
 
@@ -44,7 +44,7 @@ VizmoSelect(const Box& _box){
 }
 
 void
-VizGLWin::initializeGL(){
+GLWidget::initializeGL(){
 
   /*Setup light and material properties*/
   SetLight();
@@ -62,7 +62,7 @@ VizGLWin::initializeGL(){
 }
 
 void
-VizGLWin::resizeGL(int w, int h){
+GLWidget::resizeGL(int w, int h){
   gliWS(w,h);
   glViewport(0, 0, w, h);
 
@@ -72,7 +72,7 @@ VizGLWin::resizeGL(int w, int h){
 }
 
 void
-VizGLWin::paintGL(){
+GLWidget::paintGL(){
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -87,7 +87,7 @@ VizGLWin::paintGL(){
 }
 
 void
-VizGLWin::SetLight(){
+GLWidget::SetLight(){
 
   //glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
   glEnable(GL_COLOR_MATERIAL);
@@ -101,7 +101,7 @@ VizGLWin::SetLight(){
 }
 
 void
-VizGLWin::mousePressEvent(QMouseEvent* e){
+GLWidget::mousePressEvent(QMouseEvent* e){
   if( gliMP(e) ){
     updateGL();
     return;
@@ -111,21 +111,21 @@ VizGLWin::mousePressEvent(QMouseEvent* e){
 }
 
 void
-VizGLWin::mouseDoubleClickEvent(QMouseEvent* _e){
+GLWidget::mouseDoubleClickEvent(QMouseEvent* _e){
 
   GetVizmo().SetDoubleClickStatus(true);
   updateGL();
 }
 
 void
-VizGLWin::SimulateMouseUpSlot(){
+GLWidget::SimulateMouseUpSlot(){
 
   gliSimMouseUp();
   updateGL();
 }
 
 void
-VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
+GLWidget::mouseReleaseEvent(QMouseEvent* _e){
   if(gliMR(_e, m_takingSnapShot)){ //handled by gli
     updateGL();
     emit MRbyGLI();
@@ -184,7 +184,7 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
 }
 
 void
-VizGLWin::mouseMoveEvent(QMouseEvent* e){
+GLWidget::mouseMoveEvent(QMouseEvent* e){
   if(gliMM(e)){
     //    if(CDOn)                   TEMPORARY(?) DISABLE
     //      GetVizmo().TurnOn_CD();
@@ -196,7 +196,7 @@ VizGLWin::mouseMoveEvent(QMouseEvent* e){
 }
 
 void
-VizGLWin::keyPressEvent (QKeyEvent* _e){
+GLWidget::keyPressEvent (QKeyEvent* _e){
 
 #ifdef USE_PHANTOM
   //cout << "key" << endl;
@@ -240,13 +240,13 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
 }
 
 void
-VizGLWin::showAxis() {
+GLWidget::showAxis() {
   m_showAxis = !m_showAxis;
   updateGL();
 }
 
 void
-VizGLWin::resetTransTool(){
+GLWidget::resetTransTool(){
   gliReset();
 }
 
@@ -254,7 +254,7 @@ VizGLWin::resetTransTool(){
 //Note: filename must have appropriate extension for QImage::save or no file
 //will be written
 void
-VizGLWin::SaveImage(QString _filename, bool _crop) {
+GLWidget::SaveImage(QString _filename, bool _crop) {
   //grab the gl scene. Copy into new QImage with size of imageRect. This will
   //crop the image appropriately.
   QRect imageRect = GetImageRect(_crop);
@@ -265,7 +265,7 @@ VizGLWin::SaveImage(QString _filename, bool _crop) {
 //Grab the size of image for saving. If crop is true, use the cropBox to
 //size the image down.
 QRect
-VizGLWin::GetImageRect(bool _crop){
+GLWidget::GetImageRect(bool _crop){
   if(_crop) {
     int xOff, yOff, w, h;
     gliPickBoxDim(&xOff, &yOff, &w, &h);

@@ -4,7 +4,6 @@
 using namespace stapl;
 
 #include "EnvObj/RobotModel.h"
-#include "GUI/SceneWin.h" //to call new drawText
 
 struct EdgeAccess {
   typedef double value_type;

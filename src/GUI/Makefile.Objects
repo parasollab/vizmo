@@ -3,7 +3,7 @@ OBJMOC = $(patsubst GUI/%.h, GUI/MOC/moc_%.o, $(shell grep -l Q_OBJECT GUI/*.h))
 OBJECTS += \
 	   $(OBJMOC) \
 	   GUI/MainWindow.o \
-	   GUI/SceneWin.o \
+	   GUI/GLWidget.o \
 	   GUI/AnimationGUI.o \
 	   GUI/ItemSelectionGUI.o \
 	   GUI/FileListDialog.o \
@@ -13,7 +13,7 @@ OBJECTS += \
 	   GUI/TextGUI.o \
 	   GUI/MainMenu.o \
 	   GUI/FileOptions.o \
-	   GUI/SceneOptions.o \
+	   GUI/GLWidgetOptions.o \
 	   GUI/RobotOptions.o \
 	   GUI/EnvironmentOptions.o \
 	   GUI/RoadmapOptions.o \

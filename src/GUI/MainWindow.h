@@ -23,14 +23,13 @@ class VizmoAttributeSelectionGUI;
 class queryGUI;
 class TextGUI;
 class MainMenu;
+class GLWidget;
 
 #define M_MAX 999.99
 #define M_MIN -999.99
 #define STEP 0.1
 #define D_MAX 1
 #define D_MIN 0
-///////////////////////////////////////////////////////////////////////////////
-class VizGLWin;
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -43,7 +42,7 @@ class MainWindow : public QMainWindow {
     vector<string>& GetArgs() { return m_args; }
     void SetVizmoInit(bool _tf) { m_vizmoInit = _tf; }
     bool GetVizmoInit() { return m_vizmoInit; }
-    VizGLWin* GetGLScene() { return m_gl; }
+    GLWidget* GetGLScene() { return m_gl; }
     TextGUI* GetOutbox(){ return m_outbox; }
     VizmoAnimationGUI* GetAnimationGUI() { return m_animationGUI; }
     VizmoItemSelectionGUI* GetObjectSelection() { return m_objectSelection; }
@@ -74,7 +73,7 @@ class MainWindow : public QMainWindow {
     QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextGUI
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
-    VizGLWin* m_gl;           //the scene window which displays environment..
+    GLWidget* m_gl;           //the scene window which displays environment..
     VizmoAnimationGUI *m_animationGUI;
     VizmoItemSelectionGUI *m_objectSelection;
 };

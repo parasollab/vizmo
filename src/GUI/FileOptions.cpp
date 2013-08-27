@@ -11,7 +11,7 @@
 
 #include "MainMenu.h"
 #include "FileListDialog.h"
-#include "SceneWin.h"
+#include "GLWidget.h"
 #include "AnimationGUI.h"
 #include "ItemSelectionGUI.h"
 #include "OptionsBase.h"

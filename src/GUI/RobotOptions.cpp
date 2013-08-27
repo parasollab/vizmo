@@ -4,7 +4,7 @@
 
 #include "MainWindow.h"
 #include "AnimationGUI.h"
-#include "SceneWin.h"
+#include "GLWidget.h"
 #include "Models/Vizmo.h"
 
 RobotOptions::RobotOptions(QWidget* _parent, MainWindow* _mainWindow)

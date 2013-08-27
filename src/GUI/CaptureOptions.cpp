@@ -8,7 +8,7 @@
 #include <QApplication>
 
 #include "MainWindow.h"
-#include "SceneWin.h"
+#include "GLWidget.h"
 #include "MovieSaveDialog.h"
 #include "AnimationGUI.h"
 #include "Models/Vizmo.h"

@@ -3,7 +3,7 @@
 #include "MainWindow.h"
 #include "OptionsBase.h"
 #include "FileOptions.h"
-#include "SceneOptions.h"
+#include "GLWidgetOptions.h"
 #include "RobotOptions.h"
 #include "EnvironmentOptions.h"
 #include "RoadmapOptions.h"
@@ -18,7 +18,7 @@ using namespace std;
 
 MainMenu::MainMenu(MainWindow* _parent) : QWidget(_parent) {
   m_fileOptions = new FileOptions(this, _parent);
-  m_sceneOptions = new SceneOptions(this, _parent);
+  m_glWidgetOptions = new GLWidgetOptions(this, _parent);
   m_robotOptions = new RobotOptions(this, _parent);
   m_environmentOptions = new EnvironmentOptions(this, _parent);
   m_roadmapOptions = new RoadmapOptions(this, _parent);
@@ -35,7 +35,7 @@ MainMenu::SetUpMainMenu(){
   m_menubar = new QMenuBar(this);
 
   m_menubar->addMenu(m_fileOptions->GetSubMenu());
-  m_menubar->addMenu(m_sceneOptions->GetSubMenu());
+  m_menubar->addMenu(m_glWidgetOptions->GetSubMenu());
   m_menubar->addMenu(m_robotOptions->GetSubMenu());
   m_menubar->addMenu(m_environmentOptions->GetSubMenu());
   m_menubar->addMenu(m_roadmapOptions->GetSubMenu());
@@ -48,7 +48,7 @@ void
 MainMenu::Reset(){
 
   m_fileOptions->Reset();
-  m_sceneOptions->Reset();
+  m_glWidgetOptions->Reset();
   m_robotOptions->Reset();
   m_environmentOptions->Reset();
   m_roadmapOptions->Reset();

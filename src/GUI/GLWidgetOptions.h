@@ -1,16 +1,16 @@
-#ifndef SCENEOPTIONS_H_
-#define SCENEOPTIONS_H_
+#ifndef GLWIDGETOPTIONS_H_
+#define GLWIDGETOPTIONS_H_
 
 #include "OptionsBase.h"
 
 class CameraPosDialog;
 
-class SceneOptions : public OptionsBase {
+class GLWidgetOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    SceneOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+    GLWidgetOptions(QWidget* _parent, MainWindow* _mainWindow);
 
     void CreateActions();
     void SetUpToolbar(); //two buttons: Reset camera and change BG color

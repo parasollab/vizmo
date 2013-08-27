@@ -1,12 +1,10 @@
-#ifndef _SCENE_WIN_H_
-#define _SCENE_WIN_H_
+#ifndef GLWIDGET_H_
+#define GLWIDGET_H_
 
 /**
- * This file defines class for scene window of vimzo2.
- * The scene window uses opengl widget.
+ * This file defines class for the open gl scene of Vizmo.
  */
 
-///////////////////////////////////////////////////////////////////////////////
 #include <list>
 using namespace std;
 
@@ -21,11 +19,12 @@ using namespace std;
 class MainWindow;
 class TextGUI;
 
-class VizGLWin : public QGLWidget {
+class GLWidget : public QGLWidget {
+
   Q_OBJECT
 
   public:
-    VizGLWin(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+    GLWidget(QWidget* _parent, MainWindow* _mainWindow);
     void resetCamera();
     MainWindow* m_mainWindow;
 
