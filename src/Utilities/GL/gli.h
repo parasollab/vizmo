@@ -9,7 +9,6 @@ using namespace std;
 extern int GLI_SHOW_AXIS;
 extern int GLI_SHOW_PICKBOX;
 extern int GLI_SHOW_TRANSFORMTOOL;
-extern int GLI_SHOW_GRID;
 
 //draw
 void gliDraw(int option=0);

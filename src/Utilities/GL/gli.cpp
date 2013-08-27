@@ -12,8 +12,6 @@
 int GLI_SHOW_AXIS=1<<0;
 int GLI_SHOW_PICKBOX=1<<1;
 int GLI_SHOW_TRANSFORMTOOL=1<<2;
-int GLI_SHOW_GRID=1<<3;
-
 
 //set picking function
 pick_func g_pick=NULL;
@@ -25,7 +23,6 @@ void gliSetPickingFunction(pick_func func) {
 void gliDraw(int option) {
   Camera* cam = GetCameraFactory().GetCurrentCamera();
   cam->Draw();
-  if(option & GLI_SHOW_GRID) DrawGrid();
   if(option & GLI_SHOW_PICKBOX) GetPickBox().Draw();
   if(option & GLI_SHOW_TRANSFORMTOOL) gliGetTransformTool().Draw();
   if(option & GLI_SHOW_AXIS) DrawRotateAxis(cam);

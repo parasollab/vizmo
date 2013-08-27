@@ -23,7 +23,6 @@ VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
     setFocusPolicy(Qt::StrongFocus);
 
     m_takingSnapShot=false;
-    m_showGrid=false;
     m_showAxis=true;
     CDOn = false;
   }
@@ -83,7 +82,6 @@ VizGLWin::paintGL(){
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   int param=GLI_SHOW_PICKBOX|GLI_SHOW_TRANSFORMTOOL;
-  if(m_showGrid) param=param|GLI_SHOW_GRID;
   if(m_showAxis) param=param|GLI_SHOW_AXIS;
   gliDraw(param);
   SetLightPos();
@@ -241,12 +239,6 @@ VizGLWin::keyPressEvent (QKeyEvent* _e){
     return;
   }
   _e->ignore(); //not handled
-}
-
-void
-VizGLWin::showGrid() {
-  m_showGrid = !m_showGrid;
-  updateGL();
 }
 
 void

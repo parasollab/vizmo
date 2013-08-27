@@ -67,42 +67,6 @@ DrawRotateAxis(Camera* _camera) {
   glMatrixMode(GL_MODELVIEW);
 }
 
-inline void
-DrawGrid() {
-  static GLuint gid = -1;
-  if(gid == -1) { //no gid is created
-    gid = glGenLists(1);
-    glNewList(gid,GL_COMPILE);
-
-    glLineWidth(1);
-    glDisable(GL_LIGHTING);
-    glColor3f(0,0,0);
-
-    glBegin(GL_LINE_LOOP);
-    glVertex3f(-50,0,0);
-    glVertex3f(-50,0,50);
-    glVertex3f(50,0,50);
-    glVertex3f(50,0,-50);
-    glVertex3f(-50,0,-50);
-    glEnd();
-
-    glBegin(GL_LINES);
-    glVertex3f(0,0,0);
-    glVertex3f(-50,0,0);
-    glVertex3f(0,0,0);
-    glVertex3f(50,0,0);
-    glVertex3f(0,0,0);
-    glVertex3f(0,0,-50);
-    glVertex3f(0,0,0);
-    glVertex3f(0,0,50);
-    glEnd();
-
-    glEndList();
-  }
-
-  glCallList(gid);
-}
-
 inline Point3d
 ProjectToWindow(const Point3d& _pt) {
   //Get matrix info

@@ -29,8 +29,6 @@ void
 SceneOptions::CreateActions(){
 
   //1. Create actions and add them to the map
-  QAction* showGrid = new QAction(tr("Grid"), this);
-  m_actions["showGrid"] = showGrid;
   QAction* showAxis = new QAction(tr("Axis"), this);
   m_actions["showAxis"] = showAxis;
   QAction* resetCamera = new QAction(QIcon(QPixmap(resetCameraIcon)), tr("Reset Camera"), this);
@@ -42,8 +40,6 @@ SceneOptions::CreateActions(){
   m_actions["changeBGColor"] = changeBGColor;
 
   //2. Set other specifications as necessary
-  m_actions["showGrid"]->setCheckable(true);
-  m_actions["showGrid"]->setChecked(false);
   m_actions["showAxis"]->setCheckable(true);
   m_actions["showAxis"]->setChecked(true);
   m_actions["resetCamera"]->setEnabled(false);
@@ -52,7 +48,6 @@ SceneOptions::CreateActions(){
   m_actions["changeBGColor"]->setStatusTip(tr("Change the color of the background"));
 
   //3. Make connections
-  connect(m_actions["showGrid"], SIGNAL(triggered()), this, SLOT(ShowGrid()));
   connect(m_actions["showAxis"], SIGNAL(triggered()), this, SLOT(ShowAxis()));
   connect(m_actions["resetCamera"], SIGNAL(triggered()), this, SLOT(ResetCamera()));
   connect(m_actions["setCameraPosition"], SIGNAL(triggered()), this, SLOT(SetCameraPosition()));
@@ -87,12 +82,6 @@ SceneOptions::SetHelpTips(){
 }
 
 //Slots
-
-void
-SceneOptions::ShowGrid(){
-
-  GetMainWin()->GetGLScene()->showGrid();
-}
 
 void
 SceneOptions::ShowAxis(){
@@ -146,7 +135,6 @@ SceneOptions::ShowGeneralContextMenu(){
   cm.addAction(m_actions["changeBGColor"]);
   cm.addAction(m_actions["resetCamera"]);
   cm.addAction(m_actions["setCameraPosition"]);
-  cm.addAction(m_actions["showGrid"]);
   cm.addAction(m_actions["showAxis"]);
 
   if(cm.exec(QCursor::pos()) != 0)

@@ -62,7 +62,6 @@ class VizGLWin : public QGLWidget {
     void keyPressEvent(QKeyEvent* _e);
 
   public slots:
-    void showGrid();
     void showAxis();
 
   private slots:
@@ -86,7 +85,7 @@ class VizGLWin : public QGLWidget {
     QRect GetImageRect(bool _crop);
 
     bool m_takingSnapShot;
-    bool m_showGrid, m_showAxis;
+    bool m_showAxis;
 
 };
 

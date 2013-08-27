@@ -17,7 +17,6 @@ class SceneOptions : public OptionsBase{
     void SetHelpTips();
 
   private slots:
-    void ShowGrid(); //a slot for every action for cleanliness' sake..
     void ShowAxis();
     void ResetCamera();
     void SetCameraPosition();
