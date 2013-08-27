@@ -50,6 +50,8 @@ MultiBodyModel::Draw(GLenum _mode){
 
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->Draw(_mode);
+  for(Robot::JointIT jit = m_jointMap.begin(), je=m_jointMap.end(); jit!=je; ++jit)
+    (*jit)->Draw(_mode);
 
   glPopMatrix();
 }
@@ -60,6 +62,8 @@ MultiBodyModel::DrawSelect(){
 
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->DrawSelect();
+  for(Robot::JointIT jit = m_jointMap.begin(), je=m_jointMap.end(); jit!=je; ++jit)
+    (*jit)->DrawSelect();
 
   glPopMatrix();
 }
@@ -69,6 +73,8 @@ MultiBodyModel::SetRenderMode(RenderMode _mode){
   GLModel::SetRenderMode(_mode);
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->SetRenderMode(_mode);
+  for(Robot::JointIT jit = m_jointMap.begin(), je=m_jointMap.end(); jit!=je; ++jit)
+    (*jit)->SetRenderMode(_mode);
 }
 
 void
@@ -76,12 +82,16 @@ MultiBodyModel::SetColor(const Color4& _c) {
   GLModel::SetColor(_c);
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->SetColor(_c);
+  for(Robot::JointIT jit = m_jointMap.begin(), je=m_jointMap.end(); jit!=je; ++jit)
+    (*jit)->SetColor(_c);
 }
 
 void
 MultiBodyModel::GetChildren(list<GLModel*>& _models) {
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     _models.push_back(*bit);
+  for(Robot::JointIT jit = m_jointMap.begin(), je=m_jointMap.end(); jit!=je; ++jit)
+    _models.push_back(*jit);
 }
 
 

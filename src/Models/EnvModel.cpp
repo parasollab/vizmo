@@ -161,7 +161,8 @@ EnvModel::BuildRobotStructure(){
       for(MIT mit = robot->GetJointMap().begin(); mit!=robot->GetJointMap().end(); mit++){
         if((*mit)->GetPreviousIndex() == index){
           jm.push_back(*mit);
-          if((*mit)->GetJointType() == ConnectionModel::REVOLUTE){
+          if((*mit)->GetJointType() == ConnectionModel::REVOLUTE ||
+              (*mit)->GetJointType() == ConnectionModel::SMAJOINT){
             m_dof += 1;
           }
           else if((*mit)->GetJointType() == ConnectionModel::SPHERICAL){

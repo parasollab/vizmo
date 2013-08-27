@@ -172,7 +172,7 @@ void RobotModel::Restore(){
 
 void RobotModel::Configure(double* cfg) {
   pthread_mutex_lock(&mutex);
-
+  
   vector<Robot>& robots = m_envModel->GetRobots();
 
   Vector3d position;
@@ -239,10 +239,13 @@ void RobotModel::Configure(double* cfg) {
     body->q(q.normalized()); //set new q
 
     //now for the joints of the robot
+    typedef Robot::JointMap::const_iterator MIT;
+    for(MIT mit = rit->GetJointMap().begin(); mit!=rit->GetJointMap().end(); mit++)
+      (*mit)->ResetTransform();
+    
     //this code from PMPL
     //configuration of links after the base
     //Compute position and orientation for all of the links left
-    typedef Robot::JointMap::const_iterator MIT;
     for(MIT mit = rit->GetJointMap().begin(); mit!=rit->GetJointMap().end(); mit++){
       double theta = cfg[index] * PI;
       index++;
@@ -257,14 +260,21 @@ void RobotModel::Configure(double* cfg) {
       size_t nextBodyIdx = (*mit)->GetNextIndex(); //index of next Body
       BodyModel* nextBody = *(m_robotModel->Begin() + nextBodyIdx);
 
-      for(BodyModel::ConnectionIter cit = currentBody->Begin(); cit!=currentBody->End(); ++cit){
-        if((*cit)->GetPreviousIndex() == currentBodyIdx && (*cit)->GetNextIndex() == nextBodyIdx){
-          (*cit)->SetAlpha(alpha);
-          (*cit)->SetTheta(theta);
-          break;
-        }
-      }
+      (*mit)->SetAlpha(alpha);
+      (*mit)->SetTheta(theta);
 
+      if(!(*mit)->IsTransformDone()) {
+        (*mit)->ComputeTransformFromPrev(currentBody->GetTransform());
+        (*mit)->SetTransformDone(true);
+
+        const Transformation& trans = (*mit)->GetTransform();
+        (*mit)->tx() = trans.translation()[0];
+        (*mit)->ty() = trans.translation()[1];
+        (*mit)->tz() = trans.translation()[2];
+        Quaternion q;
+        convertFromMatrix(q, trans.rotation().matrix());
+        (*mit)->q(q.normalized());
+      }
       if(!nextBody->IsTransformDone()) {
 
         nextBody->SetPrevTransform(currentBody->GetTransform());
