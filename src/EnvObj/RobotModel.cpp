@@ -253,13 +253,8 @@ void RobotModel::Configure(double* cfg) {
       size_t nextBodyIdx = (*mit)->GetNextIndex(); //index of next Body
       BodyModel* nextBody = *(m_robotModel->Begin() + nextBodyIdx);
 
-      for(BodyModel::ConnectionIter cit = currentBody->Begin(); cit!=currentBody->End(); ++cit){
-        if((*cit)->GetPreviousIndex() == currentBodyIdx && (*cit)->GetNextIndex() == nextBodyIdx){
-          (*cit)->SetAlpha(alpha);
-          (*cit)->SetTheta(theta);
-          break;
-        }
-      }
+      (*mit)->SetAlpha(alpha);
+      (*mit)->SetTheta(theta);
 
       if(!nextBody->IsTransformDone()) {
 
