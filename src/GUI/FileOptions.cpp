@@ -12,7 +12,7 @@
 #include "MainMenu.h"
 #include "FileListDialog.h"
 #include "GLWidget.h"
-#include "AnimationGUI.h"
+#include "AnimationWidget.h"
 #include "ItemSelectionGUI.h"
 #include "OptionsBase.h"
 #include "MainWindow.h"
@@ -119,7 +119,7 @@ FileOptions::UpdateFiles(){
     return;
 
   //reset guis
-  m_mainWindow->GetAnimationGUI()->reset();
+  m_mainWindow->GetAnimationWidget()->reset();
   m_mainWindow->GetObjectSelection()->ResetLists();
   m_mainWindow->m_mainMenu->CallReset();
   m_mainWindow->GetGLScene()->resetTransTool();

@@ -10,7 +10,7 @@
 #include "MainWindow.h"
 #include "GLWidget.h"
 #include "MovieSaveDialog.h"
-#include "AnimationGUI.h"
+#include "AnimationWidget.h"
 #include "Models/Vizmo.h"
 #include "Utilities/ImageFilters.h"
 
@@ -55,7 +55,7 @@ CaptureOptions::CreateActions(){
   connect(this, SIGNAL(ToggleSelectionSignal()), m_mainWindow->GetGLScene(), SLOT(ToggleSelectionSlot()));
   connect(this, SIGNAL(SimulateMouseUp()), m_mainWindow->GetGLScene(), SLOT(SimulateMouseUpSlot()));
   connect(this, SIGNAL(CallUpdate()), m_mainWindow, SLOT(updateScreen()));
-  connect(this, SIGNAL(GoToFrame(int)), m_mainWindow->GetAnimationGUI(), SLOT(goToFrame(int)));
+  connect(this, SIGNAL(GoToFrame(int)), m_mainWindow->GetAnimationWidget(), SLOT(goToFrame(int)));
 }
 
 void

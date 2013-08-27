@@ -2,26 +2,26 @@ SRCMOC += $(patsubst GUI/%.h, GUI/MOC/moc_%.cpp, $(shell grep -l Q_OBJECT GUI/*.
 OBJMOC = $(patsubst GUI/%.h, GUI/MOC/moc_%.o, $(shell grep -l Q_OBJECT GUI/*.h))
 OBJECTS += \
 	   $(OBJMOC) \
-	   GUI/MainWindow.o \
-	   GUI/GLWidget.o \
-	   GUI/AnimationGUI.o \
-	   GUI/ItemSelectionGUI.o \
-	   GUI/FileListDialog.o \
-	   GUI/QueryGUI.o \
+	   GUI/AnimationWidget.o \
 	   GUI/CameraPosDialog.o \
-	   GUI/CustomizePathDialog.o \
-	   GUI/TextGUI.o \
-	   GUI/MainMenu.o \
-	   GUI/FileOptions.o \
-	   GUI/GLWidgetOptions.o \
-	   GUI/RobotOptions.o \
-	   GUI/EnvironmentOptions.o \
-	   GUI/RoadmapOptions.o \
-	   GUI/PathOptions.o \
 	   GUI/CaptureOptions.o \
+	   GUI/CustomizePathDialog.o \
+	   GUI/EnvironmentOptions.o \
+	   GUI/FileListDialog.o \
+	   GUI/FileOptions.o \
+	   GUI/GLWidget.o \
+	   GUI/GLWidgetOptions.o \
 	   GUI/HelpOptions.o \
+	   GUI/ItemSelectionGUI.o \
+	   GUI/MainMenu.o \
+	   GUI/MainWindow.o \
 	   GUI/MovieSaveDialog.o \
-	   GUI/SliderDialog.o
+	   GUI/PathOptions.o \
+	   GUI/QueryGUI.o \
+	   GUI/RoadmapOptions.o \
+	   GUI/RobotOptions.o \
+	   GUI/SliderDialog.o \
+	   GUI/TextGUI.o
 
 ####### MOC
 .SECONDARY: $(SRCMOC)

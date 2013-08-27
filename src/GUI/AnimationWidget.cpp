@@ -1,4 +1,4 @@
-#include "AnimationGUI.h"
+#include "AnimationWidget.h"
 
 #include <QToolBar>
 #include <QPixmap>
@@ -22,7 +22,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-VizmoAnimationGUI::VizmoAnimationGUI(QString _title, QWidget* _parent)
+AnimationWidget::AnimationWidget(QString _title, QWidget* _parent)
   : QToolBar(_title, _parent), m_name("") {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     CreateGUI();
@@ -38,7 +38,7 @@ VizmoAnimationGUI::VizmoAnimationGUI(QString _title, QWidget* _parent)
   }
 
 void
-VizmoAnimationGUI::reset(){
+AnimationWidget::reset(){
   pauseAnimate();
 
   if(GetVizmo().getPathFileName()!="") {
@@ -69,7 +69,7 @@ VizmoAnimationGUI::reset(){
 
 ///////////////////////////////////////////////////////////////////////////////
 bool
-VizmoAnimationGUI::CreateGUI(){
+AnimationWidget::CreateGUI(){
 
   CreateActions();
   addSeparator();
@@ -83,7 +83,7 @@ VizmoAnimationGUI::CreateGUI(){
 }
 
 void
-VizmoAnimationGUI::CreateFrameInput(){
+AnimationWidget::CreateFrameInput(){
 
   m_frameLabel = new QLabel("Frame = ",this);     // need to delete it once done
   m_frameField = new QLineEdit(this);             // delete this on cleaning
@@ -104,7 +104,7 @@ VizmoAnimationGUI::CreateFrameInput(){
 }
 
 void
-VizmoAnimationGUI::CreateStepInput(){
+AnimationWidget::CreateStepInput(){
 
   m_stepLabel = new QLabel("Step = ",this);
   m_stepField = new QLineEdit(this);
@@ -117,7 +117,7 @@ VizmoAnimationGUI::CreateStepInput(){
   this->addWidget(m_stepField);
 }
 
-bool VizmoAnimationGUI::CreateActions(){
+bool AnimationWidget::CreateActions(){
 
   m_playPathAction = new QAction(QIcon(QPixmap(play)), tr("Play"), this);
   connect(m_playPathAction, SIGNAL(triggered()), SLOT(animate2()));
@@ -152,7 +152,7 @@ bool VizmoAnimationGUI::CreateActions(){
 }
 
 void
-VizmoAnimationGUI::updateFrameCounter(int newValue){
+AnimationWidget::updateFrameCounter(int newValue){
 
   QString result;
   result=result.setNum(newValue);
@@ -160,7 +160,7 @@ VizmoAnimationGUI::updateFrameCounter(int newValue){
 }
 
 void
-VizmoAnimationGUI::CreateSlider(){
+AnimationWidget::CreateSlider(){
 
   m_slider = new QSlider(Qt::Horizontal,this);
   m_slider->setRange(0,0);
@@ -174,13 +174,13 @@ VizmoAnimationGUI::CreateSlider(){
 }
 
 void
-VizmoAnimationGUI::pauseAnimate(){
+AnimationWidget::pauseAnimate(){
 
   m_timer->stop();
 }
 
 void
-VizmoAnimationGUI::backAnimate(){
+AnimationWidget::backAnimate(){
 
   updateStepSize();
   m_forwardDirection=false;
@@ -188,7 +188,7 @@ VizmoAnimationGUI::backAnimate(){
 }
 
 void
-VizmoAnimationGUI::animate2(){
+AnimationWidget::animate2(){
 
   // first update step size
   updateStepSize();
@@ -197,7 +197,7 @@ VizmoAnimationGUI::animate2(){
 }
 
 void
-VizmoAnimationGUI::UpdateCurValue(int value){
+AnimationWidget::UpdateCurValue(int value){
 
   m_curValue = value;
   if(m_curValue >= m_maxValue)
@@ -207,7 +207,7 @@ VizmoAnimationGUI::UpdateCurValue(int value){
 }
 
 void
-VizmoAnimationGUI::updateStepSize(){
+AnimationWidget::updateStepSize(){
 
   QString newValue;
   int newValueint;
@@ -221,13 +221,13 @@ VizmoAnimationGUI::updateStepSize(){
 }
 
 void
-VizmoAnimationGUI::getStepSize(int& size){
+AnimationWidget::getStepSize(int& size){
 
   size = m_stepSize;
 }
 
 void
-VizmoAnimationGUI::goToFrame(){
+AnimationWidget::goToFrame(){
 
   // Get the number from the frameCoutner
   bool conv;
@@ -237,7 +237,7 @@ VizmoAnimationGUI::goToFrame(){
 }
 
 void
-VizmoAnimationGUI::goToFrame(int frame){
+AnimationWidget::goToFrame(int frame){
 
   // the silde will send the slider moved signal and
   // the robot will update position automatically
@@ -248,21 +248,21 @@ VizmoAnimationGUI::goToFrame(int frame){
 }
 
 void
-VizmoAnimationGUI::gotoFirst(){
+AnimationWidget::gotoFirst(){
 
   UpdateCurValue(0);
   m_slider->setValue(m_curValue);
 }
 
 void
-VizmoAnimationGUI::gotoLast(){
+AnimationWidget::gotoLast(){
 
   UpdateCurValue(m_maxValue-1);
   m_slider->setValue(m_curValue);
 }
 
 void
-VizmoAnimationGUI::nextFrame(){
+AnimationWidget::nextFrame(){
 
   m_curValue += m_stepSize;
   UpdateCurValue(m_curValue);
@@ -270,7 +270,7 @@ VizmoAnimationGUI::nextFrame(){
 }
 
 void
-VizmoAnimationGUI::previousFrame(){
+AnimationWidget::previousFrame(){
 
   m_curValue -= m_stepSize;
   UpdateCurValue(m_curValue);
@@ -278,7 +278,7 @@ VizmoAnimationGUI::previousFrame(){
 }
 
 void
-VizmoAnimationGUI::sliderMoved(int newValue){
+AnimationWidget::sliderMoved(int newValue){
 
   UpdateCurValue(newValue);
   if (m_name == "Path")
@@ -289,7 +289,7 @@ VizmoAnimationGUI::sliderMoved(int newValue){
 }
 
 void
-VizmoAnimationGUI::timeout(){
+AnimationWidget::timeout(){
 
   if(m_forwardDirection)
     m_curValue += m_stepSize;

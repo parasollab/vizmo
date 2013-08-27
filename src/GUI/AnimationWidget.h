@@ -3,18 +3,14 @@
 // TO DO: Set up the slider values initially. When loaded, signal slider
 // and update slider values.
 
-#include "Models/Vizmo.h"
+#include <vector>
+#include <string>
+using namespace std;
 
-// This class deifines the animation GUI for vizmo2
-
-#ifdef WIN32
-#pragma warning(disable : 4786)
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-// QT Headers
 #include <QLabel>
 #include <QToolBar>
+
+#include "Models/Vizmo.h"
 
 class QMainWindow;
 class QTimer;
@@ -24,16 +20,11 @@ class QLineEdit;
 class QLabel;
 class QWidget;
 
-#include <vector>
-#include <string>
-
-using namespace std;
-
-class VizmoAnimationGUI : public QToolBar{
+class AnimationWidget : public QToolBar {
   Q_OBJECT
 
   public:
-    VizmoAnimationGUI(QString _title, QWidget* _parent = NULL);
+    AnimationWidget(QString _title, QWidget* _parent);
     void reset(); //reset everything
 
   signals:

@@ -16,7 +16,7 @@ class QGridLayout;
 class QHBoxLayout;
 class QVBoxLayout;
 
-class VizmoAnimationGUI;
+class AnimationWidget;
 class VizmoScreenShotGUI;
 class VizmoItemSelectionGUI;
 class VizmoAttributeSelectionGUI;
@@ -44,7 +44,7 @@ class MainWindow : public QMainWindow {
     bool GetVizmoInit() { return m_vizmoInit; }
     GLWidget* GetGLScene() { return m_gl; }
     TextGUI* GetOutbox(){ return m_outbox; }
-    VizmoAnimationGUI* GetAnimationGUI() { return m_animationGUI; }
+    AnimationWidget* GetAnimationWidget() { return m_animationWidget; }
     VizmoItemSelectionGUI* GetObjectSelection() { return m_objectSelection; }
 
     //command line to be executed to make a new roadmap
@@ -74,7 +74,7 @@ class MainWindow : public QMainWindow {
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     GLWidget* m_gl;           //the scene window which displays environment..
-    VizmoAnimationGUI *m_animationGUI;
+    AnimationWidget *m_animationWidget;
     VizmoItemSelectionGUI *m_objectSelection;
 };
 

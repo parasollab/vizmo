@@ -2,7 +2,7 @@
 
 #include "Models/Vizmo.h"
 #include "GLWidget.h"
-#include "AnimationGUI.h"
+#include "AnimationWidget.h"
 #include "ItemSelectionGUI.h"
 #include "TextGUI.h"
 #include "FileListDialog.h"
@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget* _parent)
   setMinimumSize(960, 700);
   setWindowTitle("Vizmo++");
   m_gl = NULL;
-  m_animationGUI = NULL;
+  m_animationWidget = NULL;
   move(0,0);
   m_setQS = false;
   m_setQG = false;
@@ -79,7 +79,7 @@ MainWindow::InitVizmo(){
   m_args.clear();
   m_gl->resetCamera();
   //reset guis
-  m_animationGUI->reset();
+  m_animationWidget->reset();
   m_objectSelection->ResetLists();
   m_mainMenu->CallReset();
   GetVizmo().RandomizeCCColors();
@@ -90,8 +90,8 @@ MainWindow::InitVizmo(){
 
 bool
 MainWindow::CreateGUI() {
-  m_animationGUI = new VizmoAnimationGUI("Animation", this);
-  connect(m_animationGUI, SIGNAL(callUpdate()), this, SLOT(updateScreen()));
+  m_animationWidget = new AnimationWidget("Animation", this);
+  connect(m_animationWidget, SIGNAL(callUpdate()), this, SLOT(updateScreen()));
 
   m_objectSelection = new VizmoItemSelectionGUI(this);
   connect(m_objectSelection, SIGNAL(CallUpdate()), this, SLOT(updateScreen()));
@@ -140,7 +140,7 @@ MainWindow::SetUpLayout(){
   m_layout->addLayout(m_objTextLayout, 2, 1, 4, 5);
 
   m_animationBarLayout = new QVBoxLayout();
-  m_animationBarLayout->addWidget(m_animationGUI);
+  m_animationBarLayout->addWidget(m_animationWidget);
 
   m_layout->addLayout(m_animationBarLayout, 8, 1, 9, 25);
 

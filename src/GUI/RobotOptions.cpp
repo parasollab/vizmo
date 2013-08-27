@@ -3,7 +3,7 @@
 #include <QAction>
 
 #include "MainWindow.h"
-#include "AnimationGUI.h"
+#include "AnimationWidget.h"
 #include "GLWidget.h"
 #include "Models/Vizmo.h"
 
@@ -55,7 +55,7 @@ RobotOptions::SetHelpTips(){
 
 void
 RobotOptions::ResetRobotPosition(){
-  m_mainWindow->GetAnimationGUI()->reset();
+  m_mainWindow->GetAnimationWidget()->reset();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
