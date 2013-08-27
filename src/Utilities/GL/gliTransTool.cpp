@@ -8,14 +8,14 @@ using namespace mathtool;
 
 #include "Camera.h"
 #include "PickBox.h"
-#include "gliDataStructure.h"
+#include "GLTransform.h"
 #include "GLUtilities.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // gliTToolBase
 ///////////////////////////////////////////////////////////////////////////////
 
-gliObj  gliTToolBase::m_pSObj=NULL;
+GLTransform* gliTToolBase::m_pSObj = NULL;
 Point3d gliTToolBase::m_sObjPrj;
 Point3d gliTToolBase::m_xPrj;
 Point3d gliTToolBase::m_yPrj;
@@ -42,13 +42,12 @@ void gliTToolBase::Draw(void)
 
 void gliTToolBase::Project2Win(){
   if(m_pSObj) {
-    double x, y, z;
-    x=m_pSObj->tx(); y=m_pSObj->ty(); z=m_pSObj->tz();
+    const Vector3d& pos = m_pSObj->Translation();
 
-    Point3d pts[4]={Point3d(x,y,z),Point3d(x+0.1,y,z),
-      Point3d(x,y+0.1,z),Point3d(x,y,z+0.1)};
+    Point3d pts[4]={pos, pos + Point3d(0.1, 0, 0),
+      pos + Point3d(0, 0.1, 0), pos + Point3d(0, 0, 0.1)};
     ProjectToWindow(pts, 4);
-    m_sObjPrj=pts[0]; m_xPrj=pts[1]; m_yPrj=pts[2]; m_zPrj=pts[3];
+    m_sObjPrj = pts[0]; m_xPrj = pts[1]; m_yPrj = pts[2]; m_zPrj = pts[3];
   }
 }
 
@@ -127,7 +126,7 @@ bool gliMoveTool::MP( QMouseEvent * e ) //mouse button pressed
     if( m_pSObj==NULL ) return false;
     if( e->button()&Qt::LeftButton ) return false; //not LMB
     if( Select(e->pos().x(),e->pos().y()) ){
-        m_sObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz()); //store old pos
+        m_sObjPosC = m_pSObj->Translation(); //store old pos
         m_sObjPrjC=m_sObjPrj;
         m_hitX=e->pos().x(); m_hitY=m_h-e->pos().y();
         m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_sObjPosC);
@@ -151,12 +150,21 @@ bool gliMoveTool::MM( QMouseEvent * e )  //mouse motion
     Point3d cur_pos = ProjectToWorld(x, y, m_sObjPosC);
     Vector3d v=cur_pos-m_hitUnPrj;
 
-    if( m_selType==X_AXIS ){ v(v[0], 0, 0); m_pSObj->tx()=m_sObjPosC[0]+v[0]; }
-    if( m_selType==Y_AXIS ){ v(0, v[1], 0); m_pSObj->ty()=m_sObjPosC[1]+v[1]; }
-    if( m_selType==Z_AXIS ){ v(0, 0, v[2]); m_pSObj->tz()=m_sObjPosC[2]+v[2]; }
-    if( m_selType==VIEW_PLANE ){
-        Point3d npos=m_sObjPosC+v;
-        m_pSObj->tx()=npos[0]; m_pSObj->ty()=npos[1]; m_pSObj->tz()=npos[2];
+    if(m_selType == X_AXIS) {
+      v(v[0], 0, 0);
+      m_pSObj->Translation()[0] = m_sObjPosC[0]+v[0];
+    }
+    if(m_selType == Y_AXIS) {
+      v(0, v[1], 0);
+      m_pSObj->Translation()[1] = m_sObjPosC[1]+v[1];
+    }
+    if(m_selType == Z_AXIS) {
+      v(0, 0, v[2]);
+      m_pSObj->Translation()[2] = m_sObjPosC[2]+v[2];
+    }
+    if(m_selType == VIEW_PLANE) {
+        Point3d npos = m_sObjPosC+v;
+        m_pSObj->Translation() += npos;
     }
 
     Project2Win();
@@ -288,13 +296,13 @@ bool gliScaleTool::MP( QMouseEvent * e ) //mouse button pressed
     if( m_pSObj==NULL ) return false;
     if( e->button()&Qt::LeftButton ) return false; //not LMB
     if( Select(e->pos().x(),e->pos().y()) ){
-        m_sObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz()); //store old pos
-        m_sObjPrjC=m_sObjPrj;
+        m_sObjPosC = m_pSObj->Translation(); //store old pos
+        m_sObjPrjC = m_sObjPrj;
         m_hitX=e->pos().x(); m_hitY=m_h-e->pos().y();
         m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_sObjPosC);
-		m_osX=m_pSObj->sx();
-		m_osY=m_pSObj->sy();
-		m_osZ=m_pSObj->sz();
+        m_osX = m_pSObj->Scale()[0];
+        m_osY = m_pSObj->Scale()[1];
+        m_osZ = m_pSObj->Scale()[2];
         return true;
     }
     return false;
@@ -315,15 +323,21 @@ bool gliScaleTool::MM( QMouseEvent * e )  //mouse motion
     Point3d cur_pos = ProjectToWorld(x, y, m_sObjPosC);
     Vector3d v=(cur_pos-m_hitUnPrj)/10;
 
-    if( m_selType==X_AXIS ){ if(m_osX+v[0]>0) m_pSObj->sx()=m_osX+v[0]; }
-    if( m_selType==Y_AXIS ){ if(m_osY+v[1]>0) m_pSObj->sy()=m_osY+v[1]; }
-    if( m_selType==Z_AXIS ){ if(m_osZ+v[2]>0) m_pSObj->sz()=m_osZ+v[2]; }
-    if( m_selType==VIEW_PLANE ){
-        if(m_osX+v[0]>0 && m_osY+v[0]>0 && m_osZ+v[0]>0){
-			m_pSObj->sx()=m_osX+v[0];
-			 m_pSObj->sy()=m_osY+v[0];
-			 m_pSObj->sz()=m_osZ+v[0];
-		}
+    if(m_selType==X_AXIS) {
+      if(m_osX+v[0]>0)
+        m_pSObj->Scale()[0] = m_osX+v[0];
+    }
+    if(m_selType==Y_AXIS) {
+      if(m_osY+v[1]>0)
+        m_pSObj->Scale()[1] = m_osY+v[1];
+    }
+    if(m_selType==Z_AXIS) {
+      if(m_osZ+v[2]>0)
+        m_pSObj->Scale()[2] = m_osZ+v[2];
+    }
+    if(m_selType==VIEW_PLANE) {
+      if(m_osX+v[0]>0 && m_osY+v[0]>0 && m_osZ+v[0]>0)
+        m_pSObj->Scale()(m_osX+v[0], m_osY+v[0], m_osZ+v[0]);
     }
 
     Project2Win();
@@ -467,8 +481,8 @@ bool gliRotateTool::MP( QMouseEvent * e ) //mouse button pressed
     if( Select(x,y) ){
         y=m_h-y;
         //gliCamera* pcam=gliGetCameraFactory().getCurrentCamera();
-        m_sObjPosC(m_pSObj->tx(), m_pSObj->ty(), m_pSObj->tz());
-        m_sObjQC = m_pSObj->q();
+        m_sObjPosC = m_pSObj->Translation();
+        m_sObjQC = m_pSObj->RotationQ();
         for( int id=0;id<3;id++ ) m_lAC[id]=m_lA[id];
         Vector3d axis, v1, v2; //rotation axis
         if( m_selType==X_AXIS ){
@@ -538,7 +552,7 @@ bool gliRotateTool::MM( QMouseEvent * e )  //mouse motion
 
     //compute new q
     Quaternion q(cos(da/2), sin(da/2) * axis);
-    m_pSObj->q() = (q*m_sObjQC).normalized();
+    m_pSObj->RotationQ() = (q*m_sObjQC).normalized();
 
     //update rotation variables for this body
     //m_pSObj->Quaternion2Euler();
@@ -637,7 +651,7 @@ void gliRotateTool::ComputLocalAxis()
     static Vector3d x(1,0,0);
     static Vector3d y(0,1,0);
     static Vector3d z(0,0,1);
-    const Quaternion& q=m_pSObj->q();
+    const Quaternion& q = m_pSObj->RotationQ();
 
     m_lA[0]=(q*x*(-q)).imaginary();
     m_lA[1]=(q*y*(-q)).imaginary();
@@ -654,7 +668,7 @@ void GLTransformTool::CheckSelectObject()
     //get selected objects
     const vector<GLModel*>& sobjs = GetPickedSceneObjs();
     if( sobjs.empty() ) return;
-    m_rT.setSObject((gliObj)sobjs.front());
+    m_rT.setSObject((GLTransform*)sobjs.front());
 }
 
 void GLTransformTool::Draw(void)

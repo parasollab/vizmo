@@ -57,7 +57,7 @@ void
 BodyModel::Draw(GLenum _mode) {
   glColor4fv(GetColor());
   glPushMatrix();
-  glTransform();
+  Transform();
   m_polyhedronModel->Draw(_mode);
   glPopMatrix();
 }
@@ -66,7 +66,7 @@ void
 BodyModel::DrawSelect() {
   glLineWidth(2);
   glPushMatrix();
-  glTransform();
+  Transform();
   m_polyhedronModel->DrawSelect();
   glPopMatrix();
 }

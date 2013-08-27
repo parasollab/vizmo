@@ -82,15 +82,13 @@ PolyhedronModel::BuildModels() {
     Quaternion qua;
     convertFromMatrix(qua, o.matrix());
 
-    m_bodyModel->tx() = p[0];
-    m_bodyModel->ty() = p[1];
-    m_bodyModel->tz() = p[2];
+    m_bodyModel->Translation() = p;
 
-    m_bodyModel->rx() = e.alpha();
-    m_bodyModel->ry() = e.beta();
-    m_bodyModel->rz() = e.gamma();
+    m_bodyModel->Rotation()[0] = e.alpha();
+    m_bodyModel->Rotation()[1] = e.beta();
+    m_bodyModel->Rotation()[2] = e.gamma();
 
-    m_bodyModel->q() = qua;
+    m_bodyModel->RotationQ() = qua;
   }
   delete imodel;
 }

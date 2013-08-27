@@ -6,8 +6,6 @@ using namespace std;
 
 #include <qgl.h>
 
-#include "gliDataStructure.h"
-
 extern int GLI_SHOW_AXIS;
 extern int GLI_SHOW_PICKBOX;
 extern int GLI_SHOW_TRANSFORMTOOL;

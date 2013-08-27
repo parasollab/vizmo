@@ -25,7 +25,7 @@ MultiBodyModel::BuildModels() {
   m_com /= m_bodies.size();
 
   //set position of multi-body as com
-  tx() = m_com[0]; ty() = m_com[1]; tz() = m_com[2];
+  Translation() = m_com;
 
   //compute radius
   m_radius = 0;
@@ -96,7 +96,7 @@ MultiBodyModel::GetInfo() const{
   }
   else {
     info.push_back(string("Obstacle"));
-    temp << "Position ( "<< tx()<<", "<<ty()<<", "<<tz()<<" )";
+    temp << "Position ( "<< Translation() << ")";
   }
   info.push_back(temp.str());
   return info;

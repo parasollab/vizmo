@@ -173,13 +173,11 @@ VizGLWin::mouseReleaseEvent(QMouseEvent* _e){
 
             //multiply polyhedron0 and multiBody quaternions
             //to get new rotation
-            Quaternion finalQ = objs[0]->q() * gl->q();
+            Quaternion finalQ = objs[0]->RotationQ() * gl->RotationQ();
             EulerAngle e;
             convertFromQuaternion(e, finalQ);
 
-            mbl->rx() = e.alpha();
-            mbl->ry() = e.beta();
-            mbl->rz() = e.gamma();
+            mbl->Rotation()(e.alpha(), e.beta(), e.gamma());
           }
         }//end IF  ...actually, this appears to be end for -NJ
       }//end for

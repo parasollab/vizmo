@@ -540,9 +540,9 @@ DebugModel::Draw(GLenum _mode){
       CfgModel ray = *m_tempRay;
       vector<double> cfg = ray.GetDataCfg();
       CfgModel* tmp = &(m_tempCfgs.back());
-      cfg[0]+=tmp->tx();
-      cfg[1]+=tmp->ty();
-      cfg[2]+=tmp->tz();
+      cfg[0]+=tmp->Translation()[0];
+      cfg[1]+=tmp->Translation()[1];
+      cfg[2]+=tmp->Translation()[2];
       ray.SetCfg(cfg);
       edge.Set(0, tmp, &ray);
       edge.SetColor(Color4(1, 1, 0, 1));

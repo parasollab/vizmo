@@ -9,7 +9,7 @@
 #include <QKeyEvent>
 
 #include <gl.h>
-#include "Utilities/GL/gliDataStructure.h"
+#include "Utilities/GL/GLTransform.h"
 #include "Utilities/Color.h"
 
 enum RenderMode {WIRE_MODE, SOLID_MODE, INVISIBLE_MODE};

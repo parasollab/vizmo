@@ -56,7 +56,7 @@ RobotModel::BuildModels() {
 void RobotModel::Draw(GLenum _mode){
   if( m_robotModel==NULL){cout<<"m_robotModel==NULL"<<endl; return;}
   glPushMatrix();
-  glTransform();
+  GLTransform::Transform();
   m_robotModel->Draw(mode);
   glPopMatrix();
   //getFinalCfg();
@@ -74,7 +74,7 @@ void RobotModel::DrawSelect()
 {
   if( m_robotModel==NULL ) return;
   glPushMatrix();
-  glTransform();
+  GLTransform::Transform();
   m_robotModel->DrawSelect();
   glPopMatrix();
   //getFinalCfg();
@@ -91,14 +91,12 @@ void RobotModel::InitialCfg(vector<double>& cfg){
   //save original size and color
   BodyModel* body = *m_robotModel->Begin();
   m_originalColor = body->GetColor();
-  originalSize[0]=sx();
-  originalSize[1]=sy();
-  originalSize[2]=sz();
+  originalSize = Scale();
 }
 
 void RobotModel::RestoreInitCfg(){
   //reset MultiBody values to 0's
-  m_robotModel->tx() = m_robotModel->ty() = m_robotModel->tz() = 0;
+  m_robotModel->Translation()(0, 0, 0);
   double z = 0.0;
   double cx_2=cos(z); double sx_2=sin(z);
   double cy_2=cos(z); double sy_2=sin(z);
@@ -109,7 +107,7 @@ void RobotModel::RestoreInitCfg(){
   Quaternion qz(cz_2,sz_2*Vector3d(0,0,1));
   Quaternion nq=qz*qy*qx; //new q
 
-  m_robotModel->q() = nq.normalized();
+  m_robotModel->RotationQ() = nq.normalized();
 
   Configure(StCfg);
 
@@ -125,28 +123,20 @@ void RobotModel::BackUp() {
 
   BodyModel* body = *m_robotModel->Begin();
 
-  m_polyBack[0] = body->tx();
-  m_polyBack[1] = body->ty();
-  m_polyBack[2] = body->tz();
+  m_polyBack = body->Translation();
 
   color = body->GetColor();
 
-  o_s[0]=sx();
-  o_s[1]=sy();
-  o_s[2]=sz();
+  o_s = Scale();
 
   //save current cfg. of robot
   //and set m_robotModel to zero
 
-  if(mbRobotBackUp == NULL)
-    mbRobotBackUp = new double[6];
-  mbRobotBackUp[0]= m_robotModel->tx();
-  mbRobotBackUp[1]= m_robotModel->ty();
-  mbRobotBackUp[2]= m_robotModel->tz();
+  mbRobotBackUp = m_robotModel->Translation();
 
-  m_robotModel->tx() =  m_robotModel->ty() =  m_robotModel->tz() = 0;
+  m_robotModel->Translation()(0, 0, 0);
 
-  MBq = m_robotModel->q();
+  MBq = m_robotModel->RotationQ();
 }
 
 void RobotModel::Restore(){
@@ -156,11 +146,9 @@ void RobotModel::Restore(){
 
   //restore multibody
 
-  m_robotModel->tx() = mbRobotBackUp[0];
-  m_robotModel->ty() = mbRobotBackUp[1];
-  m_robotModel->tz() = mbRobotBackUp[2];
+  m_robotModel->Translation() = mbRobotBackUp;
 
-  m_robotModel->q() = MBq;
+  m_robotModel->RotationQ() = MBq;
 
   SetRenderMode(m_renderModeBackUp);
   RestoreInitCfg();
@@ -216,13 +204,9 @@ void RobotModel::Configure(double* cfg) {
 
     BodyModel* body = *(m_robotModel->Begin() + rit->m_bodyIndex);
     //step from PMPL
-    body->tx()=x;
-    body->ty()=y;
-    body->tz()=z;
+    body->Translation()(x, y, z);
 
-    body->rx() = alpha;
-    body->ry() = beta;
-    body->rz() = gamma;
+    body->Rotation()(alpha, beta, gamma);
 
     Transformation t(Vector3d(x, y, z),
         Orientation(EulerAngle(gamma, beta, alpha)));
@@ -232,7 +216,7 @@ void RobotModel::Configure(double* cfg) {
     //compute rotation
     Quaternion q;
     convertFromMatrix(q, t.rotation().matrix());
-    body->q() = q.normalized(); //set new q
+    body->RotationQ() = q.normalized(); //set new q
 
     //now for the joints of the robot
     //this code from PMPL
@@ -262,15 +246,13 @@ void RobotModel::Configure(double* cfg) {
         nextBody->ComputeTransform(currentBody, nextBodyIdx);
         nextBody->SetTransformDone(true);
 
-        nextBody->tx() = nextBody->GetTransform().translation()[0];
-        nextBody->ty() = nextBody->GetTransform().translation()[1];
-        nextBody->tz() = nextBody->GetTransform().translation()[2];
+        nextBody->Translation() = nextBody->GetTransform().translation();
 
         //compute rotation
         Quaternion q;
         convertFromMatrix(q,
             nextBody->GetTransform().rotation().matrix());
-        nextBody->q() = q.normalized(); //set new q
+        nextBody->RotationQ() = q.normalized(); //set new q
       }
     }
   }
@@ -314,41 +296,41 @@ void RobotModel::SaveQry(vector<vector<double> >& cfg, char ch){
 
     //if user didn't move robot by hand, this means
     //the animation tool was used
-    if(m_robotModel->tx() == 0 && m_robotModel->ty() == 0 && m_robotModel->tz() == 0){
+    if(m_robotModel->Translation() == Point3d()){
       typedef list<GLModel *>::iterator RI;
 
       for(RI i=robotList.begin(); i!=robotList.end(); i++){
         rl = (GLModel*)(*i);
-        currCfg[0] = rl->tx();
-        currCfg[1] = rl->ty();
-        currCfg[2] = rl->tz();
+        currCfg[0] = rl->Translation()[0];
+        currCfg[1] = rl->Translation()[1];
+        currCfg[2] = rl->Translation()[2];
         //Need to compute rotation from Quaternion
 
         GLModel* rm = robotList.front();
 
         //get new rotation from GL
         Quaternion qrm;
-        qrm = m_robotModel->q();
+        qrm = m_robotModel->RotationQ();
 
         //multiply polyhedron0 and multiBody quaternions
         //to get new rotation
         Quaternion finalQ;
-        finalQ = qrm * rm->q();
+        finalQ = qrm * rm->RotationQ();
 
         //set new rotation angles to multiBody rx(), ry(), and rz()
         EulerAngle eFinal;
         convertFromQuaternion(eFinal, finalQ);
 
-        m_robotModel->rx() = eFinal.alpha();
-        m_robotModel->ry() = eFinal.beta();
-        m_robotModel->rz() = eFinal.gamma();
+        m_robotModel->Rotation()[0] = eFinal.alpha();
+        m_robotModel->Rotation()[1] = eFinal.beta();
+        m_robotModel->Rotation()[2] = eFinal.gamma();
 
         //set new angles for first polyhedron
         //NOTE:: This works for **FREE** robots
 
-        currCfg[3] =  m_robotModel->rx()/PI;
-        currCfg[4] =  m_robotModel->ry()/PI;
-        currCfg[5] =  m_robotModel->rz()/PI;
+        currCfg[3] =  m_robotModel->Rotation()[0]/PI;
+        currCfg[4] =  m_robotModel->Rotation()[1]/PI;
+        currCfg[5] =  m_robotModel->Rotation()[2]/PI;
 
         //currCfg[3] = rl->rx();
         //currCfg[4] = rl->ry();
@@ -357,12 +339,12 @@ void RobotModel::SaveQry(vector<vector<double> >& cfg, char ch){
     }
     else{ //user moved robot by hand
       EulerAngle e;
-      convertFromQuaternion(e, m_robotModel->q());
+      convertFromQuaternion(e, m_robotModel->RotationQ());
 
       //robot has not been moved before
-      currCfg[0] = m_robotModel->tx() + cfg[0][0];
-      currCfg[1] = m_robotModel->ty() + cfg[0][1];
-      currCfg[2] = m_robotModel->tz() + cfg[0][2];
+      currCfg[0] = m_robotModel->Translation()[0] + cfg[0][0];
+      currCfg[1] = m_robotModel->Translation()[1] + cfg[0][1];
+      currCfg[2] = m_robotModel->Translation()[2] + cfg[0][2];
 
       currCfg[3] = e.alpha()/PI;
       currCfg[4] = e.beta()/PI;
@@ -378,9 +360,9 @@ void RobotModel::SaveQry(vector<vector<double> >& cfg, char ch){
 
     currCfg = this->returnCurrCfg(dof);
     //add translation of MBody
-    currCfg[0] = currCfg[0] + m_robotModel->tx();
-    currCfg[1] = currCfg[1] + m_robotModel->ty();
-    currCfg[2] = currCfg[2] + m_robotModel->tz();
+    currCfg[0] = currCfg[0] + m_robotModel->Translation()[0];
+    currCfg[1] = currCfg[1] + m_robotModel->Translation()[1];
+    currCfg[2] = currCfg[2] + m_robotModel->Translation()[2];
 
     //Need to compute rotation from Quaternion
 
@@ -388,27 +370,27 @@ void RobotModel::SaveQry(vector<vector<double> >& cfg, char ch){
 
     //get new rotation from multiBody
     Quaternion qrm;
-    qrm = m_robotModel->q();
+    qrm = m_robotModel->RotationQ();
 
     //multiply polyhedron0 and multiBody quaternions
     //to get new rotation
     Quaternion finalQ;
-    finalQ = qrm * rm->q();
+    finalQ = qrm * rm->RotationQ();
 
     //set new rotation angles to multiBody rx(), ry(), and rz()
     EulerAngle eFinal;
     convertFromQuaternion(eFinal, finalQ);
 
-    m_robotModel->rx() = eFinal.alpha();
-    m_robotModel->ry() = eFinal.beta();
-    m_robotModel->rz() = eFinal.gamma();
+    m_robotModel->Rotation()[0] = eFinal.alpha();
+    m_robotModel->Rotation()[1] = eFinal.beta();
+    m_robotModel->Rotation()[2] = eFinal.gamma();
 
     //set new angles for first polyhedron
     //NOTE:: This works for **FREE** robots
 
-    currCfg[3] =  m_robotModel->rx()/PI;
-    currCfg[4] =  m_robotModel->ry()/PI;
-    currCfg[5] =  m_robotModel->rz()/PI;
+    currCfg[3] =  m_robotModel->Rotation()[0]/PI;
+    currCfg[4] =  m_robotModel->Rotation()[1]/PI;
+    currCfg[5] =  m_robotModel->Rotation()[2]/PI;
 
     vCfg.push_back(currCfg);
     this->storeCfg(vCfg, ch, dof);
@@ -437,15 +419,15 @@ vector<double> RobotModel::getFinalCfg(){
 
     //if user didn't move robot by hand, this means
     //the animation tool was used
-    if(m_robotModel->tx() == 0 && m_robotModel->ty() == 0 && m_robotModel->tz() == 0){
+    if(m_robotModel->Translation() == Point3d()){
       typedef list<GLModel *>::iterator RI;
 
       for(RI i=robotList.begin(); i!=robotList.end(); i++){
         rl = (GLModel*)(*i);
 
-        currCfg[0] = rl->tx();
-        currCfg[1] = rl->ty();
-        currCfg[2] = rl->tz();
+        currCfg[0] = rl->Translation()[0];
+        currCfg[1] = rl->Translation()[1];
+        currCfg[2] = rl->Translation()[2];
 
 
         //Need to compute rotation from Quaternion
@@ -454,35 +436,35 @@ vector<double> RobotModel::getFinalCfg(){
 
         //get new rotation from GL
         Quaternion qrm;
-        qrm = m_robotModel->q();
+        qrm = m_robotModel->RotationQ();
 
         //multiply polyhedron0 and multiBody quaternions
         //to get new rotation
-        Quaternion finalQ = qrm * rm->q();
+        Quaternion finalQ = qrm * rm->RotationQ();
 
         //set new rotation angles to multiBody rx(), ry(), and rz()
         EulerAngle eFinal;
         convertFromQuaternion(eFinal, finalQ);
 
-        m_robotModel->rx() = eFinal.alpha();
-        m_robotModel->ry() = eFinal.beta();
-        m_robotModel->rz() = eFinal.gamma();
+        m_robotModel->Rotation()[0] = eFinal.alpha();
+        m_robotModel->Rotation()[1] = eFinal.beta();
+        m_robotModel->Rotation()[2] = eFinal.gamma();
 
         //set new angles for first polyhedron
         //NOTE:: This works for **FREE** robots
 
-        currCfg[3] =  m_robotModel->rx()/PI;
-        currCfg[4] =  m_robotModel->ry()/PI;
-        currCfg[5] =  m_robotModel->rz()/PI;
+        currCfg[3] =  m_robotModel->Rotation()[0]/PI;
+        currCfg[4] =  m_robotModel->Rotation()[1]/PI;
+        currCfg[5] =  m_robotModel->Rotation()[2]/PI;
       }
     }
     else{ //user moved robot by hand
       EulerAngle e;
-      convertFromQuaternion(e, m_robotModel->q());
+      convertFromQuaternion(e, m_robotModel->RotationQ());
 
-      currCfg[0] = m_robotModel->tx();
-      currCfg[1] = m_robotModel->ty();
-      currCfg[2] = m_robotModel->tz();
+      currCfg[0] = m_robotModel->Translation()[0];
+      currCfg[1] = m_robotModel->Translation()[1];
+      currCfg[2] = m_robotModel->Translation()[2];
 
       currCfg[3] = e.alpha()/PI;
       currCfg[4] = e.beta()/PI;
@@ -496,9 +478,9 @@ vector<double> RobotModel::getFinalCfg(){
     currCfg = this->returnCurrCfg(dof);
     //add translation of MBody
     cout << "currCfg::" << currCfg[0] << endl;
-    currCfg[0] = currCfg[0] + m_robotModel->tx();
-    currCfg[1] = currCfg[1] + m_robotModel->ty();
-    currCfg[2] = currCfg[2] + m_robotModel->tz();
+    currCfg[0] = currCfg[0] + m_robotModel->Translation()[0];
+    currCfg[1] = currCfg[1] + m_robotModel->Translation()[1];
+    currCfg[2] = currCfg[2] + m_robotModel->Translation()[2];
 
     //Need to compute rotation from Quaternion
 
@@ -506,26 +488,26 @@ vector<double> RobotModel::getFinalCfg(){
 
     //get new rotation from multiBody
     Quaternion qrm;
-    qrm = m_robotModel->q();
+    qrm = m_robotModel->RotationQ();
 
     //multiply polyhedron0 and multiBody quaternions
     //to get new rotation
-    Quaternion finalQ = qrm * rm->q();
+    Quaternion finalQ = qrm * rm->RotationQ();
 
     //set new rotation angles to multiBody rx(), ry(), and rz()
     EulerAngle eFinal;
     convertFromQuaternion(eFinal, finalQ);
 
-    m_robotModel->rx() = eFinal.alpha();
-    m_robotModel->ry() = eFinal.beta();
-    m_robotModel->rz() = eFinal.gamma();
+    m_robotModel->Rotation()[0] = eFinal.alpha();
+    m_robotModel->Rotation()[1] = eFinal.beta();
+    m_robotModel->Rotation()[2] = eFinal.gamma();
 
     //set new angles for first polyhedron
     //NOTE:: This works for **FREE** robots
 
-    currCfg[3] =  m_robotModel->rx()/PI;
-    currCfg[4] =  m_robotModel->ry()/PI;
-    currCfg[5] =  m_robotModel->rz()/PI;
+    currCfg[3] =  m_robotModel->Rotation()[0]/PI;
+    currCfg[4] =  m_robotModel->Rotation()[1]/PI;
+    currCfg[5] =  m_robotModel->Rotation()[2]/PI;
 
     return currCfg;
   }//else articulated
@@ -797,26 +779,26 @@ bool RobotModel::KP( QKeyEvent * e )
 void RobotModel::Transform(int dir){
   switch(mode){
     case 0:
-      m_robotModel->tx()+=dir*delta;
+      m_robotModel->Translation()[0] += dir*delta;
       break;
     case 1:
-      m_robotModel->ty()+=dir*delta;
+      m_robotModel->Translation()[1] += dir*delta;
       break;
     case 2:
-      m_robotModel->tz()+=dir*delta;
+      m_robotModel->Translation()[2] += dir*delta;
       break;
     case 3:
-      m_robotModel->rx()+=dir*delta;
+      m_robotModel->Rotation()[0] += dir*delta;
       break;
     case 4:
-      m_robotModel->ry()+=dir*delta;
+      m_robotModel->Rotation()[1] += dir*delta;
       break;
     case 5:
-      m_robotModel->rz()+=dir*delta;
+      m_robotModel->Rotation()[2] += dir*delta;
       break;
   }
-  EulerAngle e(rx(), ry(), rz());
-  convertFromEuler(q(), e);
-  m_robotModel->glTransform();
+  EulerAngle e(Rotation()[0], Rotation()[1], Rotation()[2]);
+  convertFromEuler(RotationQ(), e);
+  m_robotModel->Transform();
 }
 

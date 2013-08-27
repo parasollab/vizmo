@@ -84,16 +84,13 @@ EdgeModel::Draw(GLenum _mode) {
   if(m_renderMode == SOLID_MODE || m_renderMode == WIRE_MODE){
 
     glColor4fv(GetColor());
-    glBegin(GL_LINES);
-    glVertex3d(m_startCfg.tx(), m_startCfg.ty(), m_startCfg.tz());
-
+    glBegin(GL_LINE_STRIP);
+    glVertex3dv(m_startCfg.Translation());
     for(CFGIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++){
-      glVertex3d (c->tx(), c->ty(), c->tz()); //ending point of prev line
-      glVertex3d (c->tx(), c->ty(), c->tz()); //starting point of next line
+      glVertex3dv(c->Translation()); //starting point of next line
     }
-
-    glVertex3d(m_endCfg.tx(), m_endCfg.ty(), m_endCfg.tz());
+    glVertex3dv(m_endCfg.Translation());
     glEnd();
 
     //draw intermediate configurations
@@ -115,16 +112,13 @@ EdgeModel::DrawSelect(){
   typedef vector<CfgModel>::iterator CFGIT;
   glLineWidth(m_edgeThickness + 4);
 
-  glBegin(GL_LINES);
-  glVertex3d(m_startCfg.tx(), m_startCfg.ty(), m_startCfg.tz());
-
-  for(CFGIT c = m_intermediateCfgs.begin();
-      c != m_intermediateCfgs.end(); c++) {
-    glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
-    glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
-  }
-
-  glVertex3d( m_endCfg.tx(),m_endCfg.ty(),m_endCfg.tz() );
+  glBegin(GL_LINE_STRIP);
+    glVertex3dv(m_startCfg.Translation());
+    for(CFGIT c = m_intermediateCfgs.begin();
+        c != m_intermediateCfgs.end(); c++){
+      glVertex3dv(c->Translation()); //starting point of next line
+    }
+    glVertex3dv(m_endCfg.Translation());
   glEnd();
 }
 

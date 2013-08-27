@@ -1,7 +1,7 @@
 OBJECTS += \
 	   Utilities/GL/gli.o \
 	   Utilities/GL/Camera.o \
-	   Utilities/GL/gliDataStructure.o \
+	   Utilities/GL/GLTransform.o \
 	   Utilities/GL/Font.o \
 	   Utilities/GL/PickBox.o \
 	   Utilities/GL/gliTransTool.o

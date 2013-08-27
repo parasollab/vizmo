@@ -162,7 +162,7 @@ void queryGUI::newCfg(const QString&){
       Quaternion qz(0,Vector3d(0,0,1));
       Quaternion nq=qz*qy*qx;
 
-      robotModel->getRobotModel()->q() = nq;
+      robotModel->getRobotModel()->RotationQ() = nq;
 
       Qcfg2[0] = (stx->value());
       Qcfg2[1] = (sty->value());

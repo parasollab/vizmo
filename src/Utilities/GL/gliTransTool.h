@@ -6,7 +6,8 @@
 using namespace mathtool;
 
 #include <qgl.h>
-#include "gliDataStructure.h"
+
+class GLTransform;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -32,8 +33,8 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Access
-    virtual void setSObject( gliObj obj ){
-        m_pSObj=obj;
+    virtual void setSObject(GLTransform* _obj) {
+        m_pSObj = _obj;
         Project2Win();
     }
 
@@ -50,7 +51,7 @@ public:
 protected:
     virtual void Draw(bool bSel)=0;
 
-    static gliObj  m_pSObj;    //selected Objects
+    static GLTransform* m_pSObj;    //selected Objects
     static Point3d m_sObjPrj; //project(m_pSObj.pos and 3 axis), (win coord)
     static Point3d m_xPrj, m_yPrj, m_zPrj;
     static int m_w, m_h;          //window size
@@ -146,8 +147,8 @@ public:
     bool MR( QMouseEvent * e ); //mouse button released
     bool MM( QMouseEvent * e );  //mouse motion
 
-    virtual void setSObject( gliObj obj ){
-        gliTToolBase::setSObject(obj);
+    virtual void setSObject(GLTransform* _obj) {
+        gliTToolBase::setSObject(_obj);
         ComputLocalAxis();
         ComputAngles();
     }

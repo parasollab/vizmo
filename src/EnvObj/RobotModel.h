@@ -19,12 +19,7 @@ class RobotModel : public GLModel {
   public:
 
     void Print(){
-      std::cout << m_robotModel->tx() << " "
-        << m_robotModel->ty() << " "
-        << m_robotModel->tz() << " "
-        << m_robotModel->rx() << " "
-        << m_robotModel->ry() << " "
-        << m_robotModel->rz() << endl;
+      std::cout << m_robotModel->Translation() << m_robotModel->Rotation() << endl;
     }
 
 
@@ -123,21 +118,21 @@ class RobotModel : public GLModel {
 
     double gettx(){
       if(m_robotModel!=NULL)
-        return m_robotModel->tx();
+        return m_robotModel->Translation()[0];
       else
         return 0;
     }
 
     double getty(){
       if(m_robotModel!=NULL)
-        return m_robotModel->ty();
+        return m_robotModel->Translation()[1];
       else
         return 0;
     }
 
     double gettz(){
       if(m_robotModel!=NULL)
-        return m_robotModel->tz();
+        return m_robotModel->Translation()[2];
       else
         return 0;
     }
