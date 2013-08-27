@@ -10,20 +10,19 @@
 #include <sstream>
 #include "Utilities/GL/Camera.h"
 #include "SceneOptions.h"
-#include "MainWin.h"
+#include "MainWindow.h"
 #include "SceneWin.h"
 #include "CameraPosDialog.h"
 #include "Icons/ResetCamera.xpm"
 #include "Icons/BgColor.xpm"
 
-SceneOptions::SceneOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  :OptionsBase(_parent, _mainWin)
-{
-  CreateActions();
-  SetUpSubmenu("Scene");
-  SetUpToolbar();
-  SetHelpTips();
-}
+SceneOptions::SceneOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow) {
+    CreateActions();
+    SetUpSubmenu("Scene");
+    SetUpToolbar();
+    SetHelpTips();
+  }
 
 void
 SceneOptions::CreateActions(){
@@ -52,13 +51,13 @@ SceneOptions::CreateActions(){
   connect(m_actions["resetCamera"], SIGNAL(triggered()), this, SLOT(ResetCamera()));
   connect(m_actions["setCameraPosition"], SIGNAL(triggered()), this, SLOT(SetCameraPosition()));
   connect(m_actions["changeBGColor"], SIGNAL(triggered()), this, SLOT(ChangeBGColor()));
-  connect(GetMainWin()->GetGLScene(), SIGNAL(clickByRMB()), this, SLOT(ShowGeneralContextMenu()));
+  connect(m_mainWindow->GetGLScene(), SIGNAL(clickByRMB()), this, SLOT(ShowGeneralContextMenu()));
 }
 
 void
 SceneOptions::SetUpToolbar(){
 
-  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["resetCamera"]);
   m_toolbar->addAction(m_actions["changeBGColor"]);
 }
@@ -86,14 +85,14 @@ SceneOptions::SetHelpTips(){
 void
 SceneOptions::ShowAxis(){
 
-  GetMainWin()->GetGLScene()->showAxis();
+  m_mainWindow->GetGLScene()->showAxis();
 }
 
 void
 SceneOptions::ResetCamera(){
 
-  GetMainWin()->GetGLScene()->resetCamera();
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->resetCamera();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -120,11 +119,11 @@ SceneOptions::ChangeBGColor(){
 
   QColor color = QColorDialog::getColor(Qt::white, this);
   if (color.isValid()){
-    GetMainWin()->GetGLScene()->setClearColor(
+    m_mainWindow->GetGLScene()->setClearColor(
         (double)(color.red()) / 255.0,
         (double)(color.green()) / 255.0,
         (double)(color.blue()) / 255.0);
-    GetMainWin()->GetGLScene()->updateGL();
+    m_mainWindow->GetGLScene()->updateGL();
   }
 }
 
@@ -138,5 +137,5 @@ SceneOptions::ShowGeneralContextMenu(){
   cm.addAction(m_actions["showAxis"]);
 
   if(cm.exec(QCursor::pos()) != 0)
-    GetMainWin()->GetGLScene()->updateGL();
+    m_mainWindow->GetGLScene()->updateGL();
 }

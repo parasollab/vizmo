@@ -15,14 +15,14 @@
 #include "AnimationGUI.h"
 #include "ItemSelectionGUI.h"
 #include "OptionsBase.h"
-#include "MainWin.h"
+#include "MainWindow.h"
 #include "Models/Vizmo.h"
 #include "Models/MapModel.h"
 
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
 
-FileOptions::FileOptions(QWidget* _parent, VizmoMainWin* _mainWin) : OptionsBase(_parent, _mainWin){
+FileOptions::FileOptions(QWidget* _parent, MainWindow* _mainWindow) : OptionsBase(_parent, _mainWindow) {
   CreateActions();
   SetUpSubmenu("File");
   SetUpToolbar();
@@ -67,7 +67,7 @@ FileOptions::CreateActions(){
 
 void
 FileOptions::SetUpToolbar(){
-  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["openFile"]);
 }
 
@@ -95,17 +95,17 @@ FileOptions::LoadFile(){
   QFileInfo fi(fn);
 
   if(!fn.isEmpty()){
-    GetMainWin()->GetArgs().clear();
-    GetMainWin()->GetArgs().push_back(QString(fn.toLatin1()).toStdString()); //access the actual main window
-    GetMainWin()->SetVizmoInit(false);
-    GetMainWin()->setWindowTitle("Vizmo++ - "+fi.baseName()+ " environment");
-    GetMainWin()->statusBar()->showMessage("File Loaded : "+fn);
+    m_mainWindow->GetArgs().clear();
+    m_mainWindow->GetArgs().push_back(QString(fn.toLatin1()).toStdString()); //access the actual main window
+    m_mainWindow->SetVizmoInit(false);
+    m_mainWindow->setWindowTitle("Vizmo++ - "+fi.baseName()+ " environment");
+    m_mainWindow->statusBar()->showMessage("File Loaded : "+fn);
   }
   else
-    GetMainWin()->statusBar()->showMessage("Loading aborted");
+    m_mainWindow->statusBar()->showMessage("Loading aborted");
 
-  GetMainWin()->GetGLScene()->resetTransTool();
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->resetTransTool();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -119,10 +119,10 @@ FileOptions::UpdateFiles(){
     return;
 
   //reset guis
-  GetMainWin()->GetAnimationGUI()->reset();
-  GetMainWin()->GetObjectSelection()->ResetLists();
-  GetMainWin()->m_mainMenu->CallReset();
-  GetMainWin()->GetGLScene()->resetTransTool();
+  m_mainWindow->GetAnimationGUI()->reset();
+  m_mainWindow->GetObjectSelection()->ResetLists();
+  m_mainWindow->m_mainMenu->CallReset();
+  m_mainWindow->GetGLScene()->resetTransTool();
 }
 
 void
@@ -139,9 +139,9 @@ FileOptions::SaveEnv(){
     GetVizmo().SaveEnv(f);
   }
   else{
-    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
+    m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
   }
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -158,9 +158,9 @@ FileOptions::SaveQryFile(){
     GetVizmo().SaveQry(f);
   }
   else{
-    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
+    m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
   }
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -177,7 +177,7 @@ FileOptions::SaveRoadmap(){
     GetVizmo().GetMap()->WriteMapFile(f);
   }
   else
-    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
+    m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
 
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }

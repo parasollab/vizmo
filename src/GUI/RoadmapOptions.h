@@ -2,8 +2,8 @@
  * Class for the "Roadmap" submenu and associated toolbars
  * *************************************************************/
 
-#ifndef ROADMAP_OPTIONS_H
-#define ROADMAP_OPTIONS_H
+#ifndef ROADMAPOPTIONS_H_
+#define ROADMAPOPTIONS_H_
 
 #include <string>
 
@@ -17,12 +17,12 @@
 class QPushButton;
 class SliderDialog;
 
-class RoadmapOptions : public OptionsBase{
+class RoadmapOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    RoadmapOptions(QWidget* _parent, VizmoMainWin* _mainWin);
+    RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow);
     void CreateActions();
     void SetUpCustomSubmenu(); //submenu has its own submenus and cannot be set up with simple loop through m_actions
     void SetUpToolbar();       //a lot of toolbar functionalities for this class

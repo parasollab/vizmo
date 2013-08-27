@@ -5,7 +5,7 @@ using namespace std;
 
 #include <QApplication>
 
-#include "GUI/MainWin.h"
+#include "GUI/MainWindow.h"
 
 int
 main(int _argc, char** _argv) {
@@ -19,14 +19,14 @@ main(int _argc, char** _argv) {
   QApplication::setColorSpec( QApplication::CustomColor );
   QApplication app(_argc, _argv);
 
-  VizmoMainWin win;
-  if(!win.Init()){
+  MainWindow window;
+  if(!window.Init()){
     cerr << "Error: vizmo++ could not intialize main window." << endl;
     return 1;
   }
 
   //execute main window and application
-  win.show();
+  window.show();
   app.exec();
   return 0;
 }

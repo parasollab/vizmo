@@ -1,5 +1,6 @@
 #include "MainMenu.h"
-#include "MainWin.h"
+
+#include "MainWindow.h"
 #include "OptionsBase.h"
 #include "FileOptions.h"
 #include "SceneOptions.h"
@@ -15,7 +16,7 @@
 
 using namespace std;
 
-MainMenu::MainMenu(VizmoMainWin* _parent) : QWidget(_parent){
+MainMenu::MainMenu(MainWindow* _parent) : QWidget(_parent) {
   m_fileOptions = new FileOptions(this, _parent);
   m_sceneOptions = new SceneOptions(this, _parent);
   m_robotOptions = new RobotOptions(this, _parent);
@@ -33,14 +34,14 @@ MainMenu::SetUpMainMenu(){
 
   m_menubar = new QMenuBar(this);
 
-  m_menubar->addMenu(m_fileOptions->m_submenu);
-  m_menubar->addMenu(m_sceneOptions->m_submenu);
-  m_menubar->addMenu(m_robotOptions->m_submenu);
-  m_menubar->addMenu(m_environmentOptions->m_submenu);
-  m_menubar->addMenu(m_roadmapOptions->m_submenu);
-  m_menubar->addMenu(m_pathOptions->m_submenu);
-  m_menubar->addMenu(m_captureOptions->m_submenu);
-  m_menubar->addMenu(m_help->m_submenu);
+  m_menubar->addMenu(m_fileOptions->GetSubMenu());
+  m_menubar->addMenu(m_sceneOptions->GetSubMenu());
+  m_menubar->addMenu(m_robotOptions->GetSubMenu());
+  m_menubar->addMenu(m_environmentOptions->GetSubMenu());
+  m_menubar->addMenu(m_roadmapOptions->GetSubMenu());
+  m_menubar->addMenu(m_pathOptions->GetSubMenu());
+  m_menubar->addMenu(m_captureOptions->GetSubMenu());
+  m_menubar->addMenu(m_help->GetSubMenu());
 }
 
 void

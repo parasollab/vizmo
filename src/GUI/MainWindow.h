@@ -1,8 +1,12 @@
-#ifndef _MAIN_WIN_H_
-#define _MAIN_WIN_H_
+#ifndef MAINWINDOW_H_
+#define MAINWINDOW_H_
 
-///////////////////////////////////////////////////////////////////////////////
-// Qt Headers
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+#include <string>
+using namespace std;
+
 #include <QMainWindow>
 #include <QToolBar>
 #include <QKeyEvent>
@@ -20,15 +24,6 @@ class queryGUI;
 class TextGUI;
 class MainMenu;
 
-#include<stdio.h>
-#include <stdlib.h>
-///////////////////////////////////////////////////////////////////////////////
-// std Headers
-#include <vector>
-#include <string>
-
-using namespace std;
-
 #define M_MAX 999.99
 #define M_MIN -999.99
 #define STEP 0.1
@@ -37,11 +32,11 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////////
 class VizGLWin;
 
-class VizmoMainWin : public QMainWindow {
+class MainWindow : public QMainWindow {
   Q_OBJECT
 
   public:
-    VizmoMainWin(QWidget* _parent = 0);
+    MainWindow(QWidget* _parent = 0);
 
     bool Init();
     bool InitVizmo();

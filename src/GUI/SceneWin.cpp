@@ -8,16 +8,14 @@
 
 #include "Utilities/GL/Camera.h"
 #include "Models/Vizmo.h"
-#include "MainWin.h"
+#include "MainWindow.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
 
-class VizmoMainWin;
-
-VizGLWin::VizGLWin(QWidget* _parent, VizmoMainWin* _mainWin)
+VizGLWin::VizGLWin(QWidget* _parent, MainWindow* _mainWindow)
   : QGLWidget(_parent){
-    m_mainWin = _mainWin;
+    m_mainWindow = _mainWindow;
     setMinimumSize(400, 505); //original size: 400 x 600
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setFocusPolicy(Qt::StrongFocus);
@@ -78,7 +76,7 @@ VizGLWin::paintGL(){
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  m_mainWin->InitVizmo();
+  m_mainWindow->InitVizmo();
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   int param=GLI_SHOW_PICKBOX|GLI_SHOW_TRANSFORMTOOL;

@@ -1,17 +1,18 @@
+#include "HelpOptions.h"
+
 #include <QAction>
 #include <QMessageBox>
 #include <QWhatsThis>
 
-#include "HelpOptions.h"
 #include "OptionsBase.h"
+#include "MainWindow.h"
 
-HelpOptions::HelpOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  :OptionsBase(_parent, _mainWin)
-{
-  CreateActions();
-  SetUpSubmenu("Help");
-  SetUpToolbar();
-}
+HelpOptions::HelpOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow) {
+    CreateActions();
+    SetUpSubmenu("Help");
+    SetUpToolbar();
+  }
 
 void
 HelpOptions::CreateActions(){
@@ -31,8 +32,7 @@ HelpOptions::CreateActions(){
 
 void
 HelpOptions::SetUpToolbar(){
-
-  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["whatsThis"]);
 }
 
@@ -48,13 +48,13 @@ void
 HelpOptions::ShowAboutBox(){
 
   QMessageBox::about(
-    this,"Vizmo++\n",
-    "A 3D Vizualiztion tool\n"
-    "Authors:\n"
-    "Jyh-Ming Lien\n"
-    "Aimee Vargas Estrada\n"
-    "Bharatinder Singh Sandhu\n"
-    );
+      this,"Vizmo++\n",
+      "A 3D Vizualiztion tool\n"
+      "Authors:\n"
+      "Jyh-Ming Lien\n"
+      "Aimee Vargas Estrada\n"
+      "Bharatinder Singh Sandhu\n"
+      );
 }
 
 

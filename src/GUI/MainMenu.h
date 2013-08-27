@@ -3,13 +3,13 @@
  File and Roadmap) that have associated buttons/toolbars and the submenus.
  **************************************************************/
 
-#ifndef MAIN_MENU_H
-#define MAIN_MENU_H
+#ifndef MAINMENU_H_
+#define MAINMENU_H_
 
 #include <QMenuBar>
 #include <QWidget>
 
-class VizmoMainWin;
+class MainWindow;
 class OptionsBase;
 
 using namespace std;
@@ -19,7 +19,7 @@ class MainMenu : public QWidget {
   Q_OBJECT
 
   public:
-    MainMenu(VizmoMainWin* _parent);
+    MainMenu(MainWindow* _parent);
 
     OptionsBase* m_fileOptions;         //File tool button and submenu
     OptionsBase* m_sceneOptions;        //2 scene buttons and submenu

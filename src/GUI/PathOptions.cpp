@@ -5,7 +5,7 @@
 #include <QPixmap>
 #include <QTranslator>
 
-#include "MainWin.h"
+#include "MainWindow.h"
 #include "SceneWin.h"
 #include "CustomizePathDialog.h"
 #include "QueryGUI.h"
@@ -14,8 +14,8 @@
 #include "Icons/Pen.xpm"
 #include "Icons/Flag.xpm"
 
-PathOptions::PathOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  : OptionsBase(_parent, _mainWin){
+PathOptions::PathOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow){
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
@@ -60,7 +60,7 @@ PathOptions::SetUpCustomSubmenu(){
 void
 PathOptions::SetUpToolbar(){
 
-  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar = new QToolBar(m_mainWindow);
 
   m_toolbar->addAction(m_actions["showHidePath"]);
   m_toolbar->addAction(m_actions["showHideSG"]);
@@ -109,7 +109,7 @@ PathOptions::ShowHidePath(){
   static bool show=false;
   show=!show;
   GetVizmo().ShowPathFrame(show);
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -117,7 +117,7 @@ PathOptions::ShowHideStartGoal(){
   static bool show=false;
   show=!show;
   GetVizmo().ShowQueryFrame(show);
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void

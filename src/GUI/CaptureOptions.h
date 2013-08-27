@@ -3,17 +3,17 @@
 * Both have actions Crop, Picture, and Movie.
 *************************************************************************/
 
-#ifndef CAPTUREOPTIONS_H
-#define CAPTUREOPTIONS_H
+#ifndef CAPTUREOPTIONS_H_
+#define CAPTUREOPTIONS_H_
 
 #include "OptionsBase.h"
 
-class CaptureOptions : public OptionsBase{
+class CaptureOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    CaptureOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
+    CaptureOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
     void CreateActions();
     void SetUpToolbar(); //crop, picture, and movie actions
     void SetHelpTips();

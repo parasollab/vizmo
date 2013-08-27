@@ -7,28 +7,27 @@
  */
 
 ///////////////////////////////////////////////////////////////////////////////
+#include <list>
+using namespace std;
+
 #include <qgl.h>
-//Added by qt3to4:
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QGLWidget>
-// BSS
+
 #include <Utilities/GL/gli.h>
-#include <list>
 #include "TextGUI.h"
-#include "MainWin.h"
 
-using namespace std;
-
+class MainWindow;
 class TextGUI;
 
 class VizGLWin : public QGLWidget {
   Q_OBJECT
 
   public:
-    VizGLWin(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
+    VizGLWin(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
     void resetCamera();
-    VizmoMainWin* m_mainWin;
+    MainWindow* m_mainWindow;
 
     void setClearColor(double r, double g, double b) const {
       glClearColor(r, g, b, 0);

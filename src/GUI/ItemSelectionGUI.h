@@ -3,8 +3,6 @@
 // TO DO: Set up the slider values initially. When loaded, signal slider
 // and update slider values.
 
-#include "MainWin.h"
-
 #include <vector>
 #include <string>
 using namespace std;

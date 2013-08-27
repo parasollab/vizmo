@@ -5,21 +5,20 @@
 #include <QPixmap>
 #include <QTranslator>
 
-#include "MainWin.h"
+#include "MainWindow.h"
 #include "SceneWin.h"
 #include "ItemSelectionGUI.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/RandEnv.xpm"
 
-  EnvironmentOptions::EnvironmentOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-:OptionsBase(_parent, _mainWin)
-{
-  CreateActions();
-  SetUpSubmenu("Environment");
-  SetUpToolbar();
-  SetHelpTips();
-}
+EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow) {
+    CreateActions();
+    SetUpSubmenu("Environment");
+    SetUpToolbar();
+    SetHelpTips();
+  }
 
 void
 EnvironmentOptions::CreateActions(){
@@ -46,7 +45,7 @@ EnvironmentOptions::CreateActions(){
 
 void
 EnvironmentOptions::SetUpToolbar(){
-  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["randEnvColors"]);
 }
 
@@ -60,7 +59,7 @@ EnvironmentOptions::Reset(){
 void
 EnvironmentOptions::SetHelpTips(){
   m_actions["randEnvColors"]->setWhatsThis(tr("Click this button to"
-    " randomize the colors of the environment objects."));
+        " randomize the colors of the environment objects."));
 }
 
 //Slots
@@ -68,14 +67,14 @@ EnvironmentOptions::SetHelpTips(){
 void
 EnvironmentOptions::RefreshEnv(){
   GetVizmo().RefreshEnv();
-  GetMainWin()->GetObjectSelection()->reset();
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetObjectSelection()->reset();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
 EnvironmentOptions::RandomizeEnvColors(){
   GetVizmo().RandomizeEnvColors();
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void

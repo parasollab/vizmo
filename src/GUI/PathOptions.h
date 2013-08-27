@@ -2,19 +2,19 @@
  * Class for the "Path" submenu and associated action buttons
  *****************************************************************/
 
-#ifndef PATH_OPTIONS_H
-#define PATH_OPTIONS_H
+#ifndef PATHOPTIONS_H_
+#define PATHOPTIONS_H_
 
 #include "OptionsBase.h"
 
 class CustomizePathDialog;
 
-class PathOptions : public OptionsBase{
+class PathOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    PathOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
+    PathOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
     void CreateActions();
     void SetUpCustomSubmenu(); //like RoadmapOptions
     void SetUpToolbar();       //show/hide path and show/hide start/goal

@@ -11,7 +11,6 @@
 #include <QString>
 
 #include "Models/Vizmo.h"
-#include "MainWin.h"
 
 #include "Icons/First.xpm"
 #include "Icons/Last.xpm"
@@ -41,7 +40,7 @@ VizmoAnimationGUI::VizmoAnimationGUI(QString _title, QWidget* _parent)
 void
 VizmoAnimationGUI::reset(){
   pauseAnimate();
-  
+
   if(GetVizmo().getPathFileName()!="") {
     m_name = "Path";
     m_maxValue = GetVizmo().GetPathSize();

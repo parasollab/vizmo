@@ -1,4 +1,4 @@
-#include "MainWin.h"
+#include "MainWindow.h"
 
 #include "Models/Vizmo.h"
 #include "SceneWin.h"
@@ -14,7 +14,7 @@
 
 #include "Icons/Eye.xpm"
 
-VizmoMainWin::VizmoMainWin(QWidget* _parent)
+MainWindow::MainWindow(QWidget* _parent)
   : QMainWindow(_parent), m_vizmoInit(false){
 
   setMinimumSize(960, 700);
@@ -36,7 +36,7 @@ VizmoMainWin::VizmoMainWin(QWidget* _parent)
 }
 
 bool
-VizmoMainWin::Init(){
+MainWindow::Init(){
 
   this->setWindowIcon(QPixmap(eye));
   m_layoutWidget = new QWidget(this);
@@ -55,7 +55,7 @@ VizmoMainWin::Init(){
 }
 
 bool
-VizmoMainWin::InitVizmo(){
+MainWindow::InitVizmo(){
 
   if(m_vizmoInit)
     return true;
@@ -89,7 +89,7 @@ VizmoMainWin::InitVizmo(){
 }
 
 bool
-VizmoMainWin::CreateGUI() {
+MainWindow::CreateGUI() {
   m_animationGUI = new VizmoAnimationGUI("Animation", this);
   connect(m_animationGUI, SIGNAL(callUpdate()), this, SLOT(updateScreen()));
 
@@ -113,7 +113,7 @@ VizmoMainWin::CreateGUI() {
 }
 
 void
-VizmoMainWin::SetUpLayout(){
+MainWindow::SetUpLayout(){
 
   m_layout = new QGridLayout();
   m_layoutWidget->setLayout(m_layout); //Set this before actual layout specifications
@@ -161,14 +161,14 @@ VizmoMainWin::SetUpLayout(){
 }
 
 void
-VizmoMainWin::keyPressEvent (QKeyEvent* _e){
+MainWindow::keyPressEvent (QKeyEvent* _e){
   switch(_e->key()){
     case Qt::Key_Escape: qApp->quit();
   }
 }
 
 void
-VizmoMainWin::updateScreen(){
+MainWindow::updateScreen(){
     m_gl->updateGL();
 }
 

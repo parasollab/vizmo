@@ -24,7 +24,7 @@
 #include "SliderDialog.h"
 #include "OptionsBase.h"
 #include "SceneWin.h"
-#include "MainWin.h"
+#include "MainWindow.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/Pallet.xpm"
@@ -37,8 +37,8 @@
 #include "Icons/EdgeThickness.xpm"
 #include "Icons/Navigate.xpm"
 
-RoadmapOptions::RoadmapOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  : OptionsBase(_parent, _mainWin){
+RoadmapOptions::RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow){
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
@@ -177,7 +177,7 @@ void RoadmapOptions::CreateActions(){
   connect(m_actions["saveStart"], SIGNAL(triggered()), this, SLOT(SaveQueryStart()));
   connect(m_actions["saveGoal"], SIGNAL(triggered()), this, SLOT(SaveQueryGoal()));
   connect(m_actions["changeObjectColor"], SIGNAL(triggered()), this, SLOT(ChangeObjectColor()));
-  connect(GetMainWin()->GetGLScene(), SIGNAL(selectByRMB()), this, SLOT(ShowObjectContextMenu()));
+  connect(m_mainWindow->GetGLScene(), SIGNAL(selectByRMB()), this, SLOT(ShowObjectContextMenu()));
 
 }
 
@@ -220,7 +220,7 @@ RoadmapOptions::SetUpCustomSubmenu(){
 void
 RoadmapOptions::SetUpToolbar(){
 
-  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar = new QToolBar(m_mainWindow);
 
   m_toolbar->addAction(m_actions["showHideRoadmap"]);
   m_toolbar->addWidget(m_robotButton);
@@ -337,7 +337,7 @@ void
 RoadmapOptions::ShowRoadmap(){
 
   GetVizmo().ShowRoadMap(m_actions["showHideRoadmap"]->isChecked());
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -358,7 +358,7 @@ RoadmapOptions::ChangeNodeShape(){
       else
         CfgModel::SetShape(CfgModel::Point);
 
-      GetMainWin()->GetGLScene()->updateGL();
+      m_mainWindow->GetGLScene()->updateGL();
     }
   }
 }
@@ -396,7 +396,7 @@ RoadmapOptions::MakeSolid(){
     s = gl->GetName();
     k++;
   }
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -409,7 +409,7 @@ RoadmapOptions::MakeWired(){
     GLModel *gl = (GLModel*)(*i);
     gl->SetRenderMode(WIRE_MODE);
   }
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -422,7 +422,7 @@ RoadmapOptions::MakeInvisible(){
     GLModel* gl = (GLModel*)(*i);
     gl->SetRenderMode(INVISIBLE_MODE);
   }
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -456,7 +456,7 @@ RoadmapOptions::ScaleNodes(){
   if(debug != NULL)
     debug->GetMapModel()->ScaleNodes(resize);
 
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -484,14 +484,14 @@ RoadmapOptions::ChangeEdgeThickness(){
   if(debug != NULL)
     debug->GetMapModel()->SetEdgeThickness(resize);
 
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
 RoadmapOptions::RandomizeCCColors(){
 
   GetVizmo().RandomizeCCColors();
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -540,7 +540,7 @@ RoadmapOptions::ShowObjectContextMenu(){
     /*LEAVE HERE*/  //cm.insertItem("Edit...", this,SLOT(objectEdit()));
   }
   if(cm.exec(QCursor::pos())!= 0) //was -1 for q3 version (index based)
-    GetMainWin()->GetGLScene()->updateGL();
+    m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
