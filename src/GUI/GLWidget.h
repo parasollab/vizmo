@@ -5,7 +5,7 @@
  * This file defines class for the open gl scene of Vizmo.
  */
 
-#include <list>
+#include <deque>
 using namespace std;
 
 #include <qgl.h>
@@ -60,7 +60,8 @@ class GLWidget : public QGLWidget {
     void keyPressEvent(QKeyEvent* _e);
 
   public slots:
-    void showAxis();
+    void ShowAxis();
+    void ShowFrameRate();
 
   private slots:
     void ToggleSelectionSlot();
@@ -82,9 +83,12 @@ class GLWidget : public QGLWidget {
     //size the image down.
     QRect GetImageRect(bool _crop);
 
-    bool m_takingSnapShot;
-    bool m_showAxis;
+    void DrawFrameRate(double _frameRate);
 
+    bool m_takingSnapShot;
+    bool m_showAxis, m_showFrameRate;
+
+    deque<double> m_frameTimes;
 };
 
-#endif /*_SCENE_WIN_H_ */
+#endif

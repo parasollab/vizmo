@@ -1,14 +1,18 @@
 #include "GLWidget.h"
 
+#include <numeric>
+#include <ctime>
+
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QGLWidget>
 
 #include <glut.h>
 
-#include "Utilities/GL/Camera.h"
-#include "Models/Vizmo.h"
 #include "MainWindow.h"
+#include "Models/Vizmo.h"
+#include "Utilities/GL/Camera.h"
+#include "Utilities/GL/Font.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
@@ -21,14 +25,14 @@ GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
     setFocusPolicy(Qt::StrongFocus);
 
     m_takingSnapShot=false;
-    m_showAxis=true;
+    m_showAxis = true;
+    m_showFrameRate = false;
     CDOn = false;
   }
 
 void
 GLWidget::ToggleSelectionSlot(){
-
-  m_takingSnapShot =! m_takingSnapShot;
+  m_takingSnapShot = !m_takingSnapShot;
 }
 
 void
@@ -73,17 +77,36 @@ GLWidget::resizeGL(int w, int h){
 
 void
 GLWidget::paintGL(){
+
+  //start clock
+  clock_t startTime = clock();
+
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   m_mainWindow->InitVizmo();
+
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  int param=GLI_SHOW_PICKBOX|GLI_SHOW_TRANSFORMTOOL;
-  if(m_showAxis) param=param|GLI_SHOW_AXIS;
+
+  int param = GLI_SHOW_PICKBOX | GLI_SHOW_TRANSFORMTOOL;
+  if(m_showAxis) param = param | GLI_SHOW_AXIS;
+
   gliDraw(param);
   SetLightPos();
   GetVizmo().Display();
+
+  //stop clock, update frametimes, and compute framerate
+  clock_t endTime = clock();
+
+  double time = double(endTime - startTime)/CLOCKS_PER_SEC;
+  m_frameTimes.push_back(time);
+  if(m_frameTimes.size() > 10)
+    m_frameTimes.pop_front();
+
+  double frameRate = 1./(accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.) / m_frameTimes.size());
+  if(m_showFrameRate)
+    DrawFrameRate(frameRate);
 }
 
 void
@@ -240,8 +263,14 @@ GLWidget::keyPressEvent (QKeyEvent* _e){
 }
 
 void
-GLWidget::showAxis() {
+GLWidget::ShowAxis() {
   m_showAxis = !m_showAxis;
+  updateGL();
+}
+
+void
+GLWidget::ShowFrameRate() {
+  m_showFrameRate = !m_showFrameRate;
   updateGL();
 }
 
@@ -273,4 +302,26 @@ GLWidget::GetImageRect(bool _crop){
   }
   else
     return QRect(0, 0, width(), height());
+}
+
+void
+GLWidget::DrawFrameRate(double _frameRate) {
+  glMatrixMode(GL_PROJECTION); //change to Ortho view
+  glPushMatrix();
+  glLoadIdentity();
+
+  glOrtho(0, 20, 0, 20, -20, 20);
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+
+  glColor3f(0, 0, 0);
+  ostringstream oss;
+  oss << "Theoretical Frame Rate: " << setw(5) << setprecision(4) << _frameRate;
+  DrawStr(15.25, 19.25, 0, oss.str());
+
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
 }

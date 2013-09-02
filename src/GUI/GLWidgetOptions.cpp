@@ -31,8 +31,8 @@ void
 GLWidgetOptions::CreateActions(){
 
   //1. Create actions and add them to the map
-  QAction* showAxis = new QAction(tr("Axis"), this);
-  m_actions["showAxis"] = showAxis;
+  m_actions["showAxis"] = new QAction(tr("Axis"), this);
+  m_actions["showFrameRate"] = new QAction(tr("Theoretical Frame Rate"), this);
   QAction* resetCamera = new QAction(QIcon(QPixmap(resetCameraIcon)), tr("Reset Camera"), this);
   m_actions["resetCamera"] = resetCamera;
   QAction* setCameraPosition = new QAction(tr("Set camera position"), this);
@@ -44,13 +44,17 @@ GLWidgetOptions::CreateActions(){
   //2. Set other specifications as necessary
   m_actions["showAxis"]->setCheckable(true);
   m_actions["showAxis"]->setChecked(true);
+  m_actions["showFrameRate"]->setCheckable(true);
   m_actions["resetCamera"]->setEnabled(false);
   m_actions["resetCamera"]->setStatusTip(tr("Reset the camera position"));
   m_actions["changeBGColor"]->setEnabled(false);
   m_actions["changeBGColor"]->setStatusTip(tr("Change the color of the background"));
 
   //3. Make connections
-  connect(m_actions["showAxis"], SIGNAL(triggered()), this, SLOT(ShowAxis()));
+  connect(m_actions["showAxis"], SIGNAL(triggered()),
+      m_mainWindow->GetGLScene(), SLOT(ShowAxis()));
+  connect(m_actions["showFrameRate"], SIGNAL(triggered()),
+      m_mainWindow->GetGLScene(), SLOT(ShowFrameRate()));
   connect(m_actions["resetCamera"], SIGNAL(triggered()), this, SLOT(ResetCamera()));
   connect(m_actions["setCameraPosition"], SIGNAL(triggered()), this, SLOT(SetCameraPosition()));
   connect(m_actions["changeBGColor"], SIGNAL(triggered()), this, SLOT(ChangeBGColor()));
@@ -59,7 +63,6 @@ GLWidgetOptions::CreateActions(){
 
 void
 GLWidgetOptions::SetUpToolbar(){
-
   m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["resetCamera"]);
   m_toolbar->addAction(m_actions["changeBGColor"]);
@@ -67,33 +70,23 @@ GLWidgetOptions::SetUpToolbar(){
 
 void
 GLWidgetOptions::Reset(){
-
   m_actions["resetCamera"]->setEnabled(true);
   m_actions["changeBGColor"]->setEnabled(true);
 }
 
 void
 GLWidgetOptions::SetHelpTips(){
-
   m_actions["changeBGColor"]->setWhatsThis(tr("Click this button to"
     " change the <b>background</b> color in the scene."));
   m_actions["resetCamera"]->setWhatsThis(tr("Click this button to"
     " restore the default camera position. You can also manually specify"
     " a camera position with the <b>Set Camera Position</b> menu option."));
-
 }
 
 //Slots
 
 void
-GLWidgetOptions::ShowAxis(){
-
-  m_mainWindow->GetGLScene()->showAxis();
-}
-
-void
 GLWidgetOptions::ResetCamera(){
-
   m_mainWindow->GetGLScene()->resetCamera();
   m_mainWindow->GetGLScene()->updateGL();
 }
@@ -138,6 +131,7 @@ GLWidgetOptions::ShowGeneralContextMenu(){
   cm.addAction(m_actions["resetCamera"]);
   cm.addAction(m_actions["setCameraPosition"]);
   cm.addAction(m_actions["showAxis"]);
+  cm.addAction(m_actions["showFrameRate"]);
 
   if(cm.exec(QCursor::pos()) != 0)
     m_mainWindow->GetGLScene()->updateGL();

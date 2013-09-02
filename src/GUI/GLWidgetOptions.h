@@ -18,7 +18,6 @@ class GLWidgetOptions : public OptionsBase {
     void SetHelpTips();
 
   private slots:
-    void ShowAxis();
     void ResetCamera();
     void SetCameraPosition();
     void ChangeBGColor();
