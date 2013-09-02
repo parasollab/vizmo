@@ -156,13 +156,18 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   //draw
+  glBegin(GL_TRIANGLES);
   typedef TriVector::const_iterator TRIT;
   for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
     const Tri& tri = *trit;
     glNormal3dv(_norms[trit-_tris.begin()]);
-    GLint id[3] = {tri[0], tri[1], tri[2]};
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, id);
+    glVertex3dv(_points[tri[0]]);
+    glVertex3dv(_points[tri[1]]);
+    glVertex3dv(_points[tri[2]]);
+    //GLint id[3] = {tri[0], tri[1], tri[2]};
+    //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, id);
   }
+  glEnd();
 
   glPopMatrix();
   glEndList();
