@@ -7,17 +7,16 @@ class BoundingBoxModel : public BoundaryModel {
   public:
     BoundingBoxModel();
 
-    virtual void BuildModels();
-
-    virtual const string GetName() const;
+    virtual const string GetName() const {return "BoundingBox";}
     virtual vector<string> GetInfo() const;
 
-    const pair<double, double>* getBBX(){return m_bbx;}
-
     virtual bool Parse(istream& _is);
+    virtual void BuildModels();
 
   private:
     pair<double, double> m_bbx[3];
+
+    friend class BoundingBoxesModel;
 };
 
 #endif
