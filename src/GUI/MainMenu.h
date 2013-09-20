@@ -19,7 +19,7 @@ class MainMenu : public QWidget {
   Q_OBJECT
 
   public:
-    MainMenu(MainWindow* _parent);
+    MainMenu(MainWindow* _mainWindow);
 
     OptionsBase* m_fileOptions;         //File tool button and submenu
     OptionsBase* m_glWidgetOptions;        //2 scene buttons and submenu

@@ -16,15 +16,15 @@
 
 using namespace std;
 
-MainMenu::MainMenu(MainWindow* _parent) : QWidget(_parent) {
-  m_fileOptions = new FileOptions(this, _parent);
-  m_glWidgetOptions = new GLWidgetOptions(this, _parent);
-  m_robotOptions = new RobotOptions(this, _parent);
-  m_environmentOptions = new EnvironmentOptions(this, _parent);
-  m_roadmapOptions = new RoadmapOptions(this, _parent);
-  m_pathOptions = new PathOptions(this, _parent);
-  m_captureOptions = new CaptureOptions(this, _parent);
-  m_help = new HelpOptions(this, _parent);              //This one should always be last!
+MainMenu::MainMenu(MainWindow* _mainWindow){
+  m_fileOptions = new FileOptions(this, _mainWindow);
+  m_glWidgetOptions = new GLWidgetOptions(this, _mainWindow);
+  m_robotOptions = new RobotOptions(this, _mainWindow);
+  m_environmentOptions = new EnvironmentOptions(this, _mainWindow);
+  m_roadmapOptions = new RoadmapOptions(this, _mainWindow);
+  m_pathOptions = new PathOptions(this, _mainWindow);
+  m_captureOptions = new CaptureOptions(this, _mainWindow);
+  m_help = new HelpOptions(this, _mainWindow);              //This one should always be last!
 
   SetUpMainMenu();
 }
