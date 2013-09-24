@@ -6,12 +6,17 @@ using namespace mathtool;
 
 #include "Utilities/Color.h"
 #include "Models/PolyhedronModel.h"
-#include "Models/RobotInfo.h"
 
 class ConnectionModel;
 
 class BodyModel : public GLModel {
   public:
+    enum Base {PLANAR, VOLUMETRIC, FIXED, JOINT}; //2D, 3D, 0D, not a base
+    enum BaseMovement {ROTATIONAL, TRANSLATIONAL}; //rotation+translation, just translation, no movement
+
+    static Base GetBaseFromTag(const string& _tag);
+    static BaseMovement GetMovementFromTag(const string& _tag);
+
     BodyModel(bool _isSurface = false);
     ~BodyModel();
 
@@ -31,9 +36,13 @@ class BodyModel : public GLModel {
     //base properties
     bool IsFixed() const {return m_isFixed;}
     bool IsSurface() const {return m_isSurface;}
-    bool IsBase() {return m_isBase;};
-    Robot::Base GetBase() const {return m_baseType;};
-    Robot::BaseMovement GetBaseMovement() const {return m_baseMovementType;};
+    bool IsBase() const {return m_isBase;}
+    bool IsBaseFixed() const {return m_baseType == FIXED;}
+    bool IsBasePlanar() const {return m_baseType == PLANAR;}
+    bool IsBaseVolumetric() const {return m_baseType == VOLUMETRIC;}
+    Base GetBase() const {return m_baseType;}
+    BaseMovement GetBaseMovement() const {return m_baseMovementType;}
+    bool IsBaseRotational() const {return m_baseMovementType == ROTATIONAL;}
 
     //access to connections
     typedef vector<ConnectionModel*>::const_iterator ConnectionIter;
@@ -69,8 +78,8 @@ class BodyModel : public GLModel {
     PolyhedronModel* m_polyhedronModel;
 
     bool m_isFixed, m_isSurface, m_isBase;
-    Robot::Base m_baseType;
-    Robot::BaseMovement m_baseMovementType;
+    Base m_baseType;
+    BaseMovement m_baseMovementType;
 
     vector<ConnectionModel*> m_connections;
 

@@ -5,7 +5,7 @@
 #include <string>
 using namespace std;
 
-#include <Plum/EnvObj/MultiBodyModel.h>
+#include <Models/MultiBodyModel.h>
 #include <Utilities/CollisionDetection.h>
 
 class Box;

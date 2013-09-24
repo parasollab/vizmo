@@ -1,8 +1,8 @@
 #include "RobotModel.h"
 
-#include "Models/Vizmo.h"
-#include "Plum/EnvObj/BodyModel.h"
-#include "Plum/EnvObj/ConnectionModel.h"
+#include "BodyModel.h"
+#include "ConnectionModel.h"
+#include "Vizmo.h"
 #include "Utilities/Exceptions.h"
 
 RobotModel::RobotModel(EnvModel* _env) : m_envModel(_env) {
@@ -25,15 +25,13 @@ void
 RobotModel::BackUp() {
   m_renderModeBackUp = m_renderMode;
   m_colorBackUp = m_robotModel->GetColor();
-  m_translationBackUp = m_robotModel->Translation();
-  m_quaternionBackUp = m_robotModel->RotationQ();
 }
 
 void
 RobotModel::Configure(vector<double>& _cfg) {
 
   m_currCfg = _cfg;
-  vector<Robot>& robots = m_envModel->GetRobots();
+  const MultiBodyModel::Robots& robots = m_robotModel->GetRobots();
 
   Vector3d position;
   Orientation orientation;
@@ -43,20 +41,21 @@ RobotModel::Configure(vector<double>& _cfg) {
     (*bit)->ResetTransform();
 
   int index = 0;
-  typedef vector<Robot>::iterator RIT;
+  typedef MultiBodyModel::Robots::const_iterator RIT;
   for(RIT rit = robots.begin(); rit!=robots.end(); rit++){
-    int posIndex=index;
+    int posIndex = index;
     double x = 0, y = 0, z = 0, alpha = 0, beta = 0, gamma = 0;
-    if(rit->m_base != Robot::FIXED) {
+    BodyModel* base = rit->first;
+    if(!base->IsBaseFixed()) {
       x = _cfg[posIndex];
       y = _cfg[posIndex+1];
       index += 2;
-      if(rit->m_base==Robot::VOLUMETRIC) {
+      if(base->IsBaseVolumetric()) {
         index++;
         z = _cfg[posIndex+2];
       }
-      if(rit->m_baseMovement == Robot::ROTATIONAL) {
-        if(rit->m_base==Robot::PLANAR) {
+      if(base->IsBaseRotational()) {
+        if(base->IsBasePlanar()) {
           index++;
           gamma = _cfg[posIndex+2] * PI;
         }
@@ -69,25 +68,24 @@ RobotModel::Configure(vector<double>& _cfg) {
       }
     }
 
-    BodyModel* body = *(m_robotModel->Begin() + rit->m_bodyIndex);
-    body->Translation()(x, y, z);
-    body->Rotation()(alpha, beta, gamma);
+    base->Translation()(x, y, z);
+    base->Rotation()(alpha, beta, gamma);
 
     Transformation t(Vector3d(x, y, z),
         Orientation(EulerAngle(gamma, beta, alpha)));
-    body->SetTransform(t);
-    body->SetTransformDone(true);
+    base->SetTransform(t);
+    base->SetTransformDone(true);
 
     //compute rotation
     Quaternion q;
     convertFromMatrix(q, t.rotation().matrix());
-    body->RotationQ() = q.normalized(); //set new q
+    base->RotationQ() = q.normalized(); //set new q
 
     //now for the joints of the robot
     //configuration of links after the base
     //Compute position and orientation for all of the links left
-    typedef Robot::JointMap::const_iterator MIT;
-    for(MIT mit = rit->GetJointMap().begin(); mit!=rit->GetJointMap().end(); mit++){
+    typedef MultiBodyModel::Joints::const_iterator MIT;
+    for(MIT mit = rit->second.begin(); mit!=rit->second.end(); mit++){
       double theta = _cfg[index] * PI;
       index++;
       double alpha = 0;
@@ -126,8 +124,6 @@ void
 RobotModel::Restore() {
   SetRenderMode(m_renderModeBackUp);
   SetColor(m_colorBackUp);
-  m_robotModel->Translation() = m_translationBackUp;
-  m_robotModel->RotationQ() = m_quaternionBackUp;
   Configure(m_initCfg);
 }
 

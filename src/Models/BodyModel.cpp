@@ -4,10 +4,36 @@
 #include "Models/PolyhedronModel.h"
 #include "Utilities/IOUtils.h"
 
+BodyModel::Base
+BodyModel::GetBaseFromTag(const string& _tag){
+  if(_tag == "PLANAR")
+    return PLANAR;
+  else if(_tag == "VOLUMETRIC")
+    return VOLUMETRIC;
+  else if(_tag == "FIXED")
+    return FIXED;
+  else if(_tag == "JOINT")
+    return JOINT;
+  else
+    throw ParseException(WHERE,
+        "Failed parsing robot base type. Choices are Planar, Volumetric, Fixed, or Joint.");
+}
+
+BodyModel::BaseMovement
+BodyModel::GetMovementFromTag(const string& _tag){
+  if(_tag == "ROTATIONAL")
+    return ROTATIONAL;
+  else if (_tag == "TRANSLATIONAL")
+    return TRANSLATIONAL;
+  else
+    throw ParseException(WHERE,
+        "Failed parsing robot movement type. Choices are Rotational or Translational.");
+}
+
 BodyModel::BodyModel(bool _isSurface) :
   m_polyhedronModel(NULL),
   m_isFixed(true), m_isSurface(_isSurface), m_isBase(true),
-  m_baseType(Robot::PLANAR), m_baseMovementType(Robot::TRANSLATIONAL),
+  m_baseType(PLANAR), m_baseMovementType(TRANSLATIONAL),
   m_currentTransform(), m_transformDone(false) {
   }
 
@@ -90,15 +116,15 @@ BodyModel::ParseActiveBody(istream& _is, const string& _modelDataDir, const Colo
   //If Joint skip this stuff. If Fixed read in positions like an obstacle
   string baseTag = ReadFieldString(_is, WHERE,
       "Failed reading base tag.");
-  m_baseType = Robot::GetBaseFromTag(baseTag);
+  m_baseType = GetBaseFromTag(baseTag);
 
-  if(m_baseType == Robot::VOLUMETRIC || m_baseType == Robot::PLANAR){
+  if(m_baseType == VOLUMETRIC || m_baseType == PLANAR){
     m_isBase = true;
     string rotationalTag = ReadFieldString(_is, WHERE,
         "Failed reading rotation tag.");
-    m_baseMovementType = Robot::GetMovementFromTag(rotationalTag);
+    m_baseMovementType = GetMovementFromTag(rotationalTag);
   }
-  else if(m_baseType == Robot::FIXED){
+  else if(m_baseType == FIXED){
     m_isBase = true;
     m_currentTransform = ReadField<Transformation>(_is, WHERE, "Failed reading body transformation");
   }

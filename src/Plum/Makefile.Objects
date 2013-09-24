@@ -1,4 +1,0 @@
-OBJECTS += \
-	   Plum/EnvObj/ConnectionModel.o \
-	   Plum/EnvObj/BodyModel.o \
-	   Plum/EnvObj/MultiBodyModel.o

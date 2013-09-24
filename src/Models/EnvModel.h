@@ -1,14 +1,9 @@
 #ifndef ENVMODEL_H_
 #define ENVMODEL_H_
 
+#include "BoundaryModel.h"
+#include "MultiBodyModel.h"
 #include "Plum/GLModel.h"
-#include "Plum/EnvObj/MultiBodyModel.h"
-#include "Models/BoundaryModel.h"
-#include "Models/RobotInfo.h"
-
-#include <graph.h>
-#include <algorithms/graph_input_output.h>
-#include <algorithms/connected_components.h>
 
 class EnvModel : public GLModel {
 
@@ -21,7 +16,6 @@ class EnvModel : public GLModel {
     string GetModelDataDir(){ return  m_modelDataDir; }
     int GetDOF(){ return m_dof; }
     vector<MultiBodyModel*> GetMultiBodies(){ return m_multibodies; }
-    vector<Robot>& GetRobots(){ return m_robots; }
     BoundaryModel* GetBoundary() {return m_boundary;}
     double GetRadius() const { return m_radius; }
     const Point3d& GetCOM() const { return m_centerOfMass; }
@@ -31,7 +25,6 @@ class EnvModel : public GLModel {
     void SetModelDataDir(const string _modelDataDir);
     void NewModelDir();
     void ParseBoundary(ifstream& _ifs);
-    void BuildRobotStructure();
 
     //Display functions
     void ChangeColor(); //changes object's color randomly
@@ -50,10 +43,6 @@ class EnvModel : public GLModel {
   private:
     string m_modelDataDir;
     bool m_containsSurfaces;
-
-    typedef stapl::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
-    RobotGraph m_robotGraph;
-    vector<Robot> m_robots;
 
     int m_dof;
 

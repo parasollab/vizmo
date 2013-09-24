@@ -1,7 +1,7 @@
 #ifndef ROBOTMODEL_H_
 #define ROBOTMODEL_H_
 
-#include "Plum/EnvObj/MultiBodyModel.h"
+#include "MultiBodyModel.h"
 #include "Plum/GLModel.h"
 
 class EnvModel;
@@ -36,8 +36,6 @@ class RobotModel : public GLModel {
     //variables for back up/restore
     RenderMode m_renderModeBackUp;
     Color4 m_colorBackUp;
-    Vector3d m_translationBackUp;
-    Quaternion m_quaternionBackUp;
 };
 
 #endif

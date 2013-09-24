@@ -1,15 +1,17 @@
 OBJECTS += \
+	   Models/BodyModel.o \
 	   Models/BoundingBoxModel.o \
 	   Models/BoundingBoxesModel.o \
 	   Models/BoundaryModel.o \
 	   Models/BoundingSphereModel.o \
 	   Models/CfgModel.o \
+	   Models/ConnectionModel.o \
 	   Models/DebugModel.o \
 	   Models/EdgeModel.o \
 	   Models/EnvModel.o \
+	   Models/MultiBodyModel.o \
 	   Models/PathModel.o \
 	   Models/PolyhedronModel.o \
 	   Models/QueryModel.o \
-	   Models/RobotInfo.o \
 	   Models/RobotModel.o \
 	   Models/Vizmo.o

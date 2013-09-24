@@ -3,8 +3,6 @@
 
 #include "CCModel.h"
 #include "CfgModel.h"
-#include "RobotInfo.h"
-
 
 CfgModel CfgModel::m_invalidCfg;
 int CfgModel::m_dof = 0;

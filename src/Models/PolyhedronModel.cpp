@@ -9,9 +9,9 @@
 
 #include "ModelFactory.h"
 
-#include "Utilities/Exceptions.h"
-#include "Plum/EnvObj/BodyModel.h"
+#include "BodyModel.h"
 #include "ModelGraph/ModelGraph.h"
+#include "Utilities/Exceptions.h"
 using namespace modelgraph;
 
 PolyhedronModel::PolyhedronModel(BodyModel* _bodyModel)

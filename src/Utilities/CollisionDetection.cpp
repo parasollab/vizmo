@@ -8,7 +8,7 @@
 
 #include "CollisionDetection.h"
 
-#include "Plum/EnvObj/BodyModel.h"
+#include "Models/BodyModel.h"
 
 //////////////////////////////
 // Constructor / Destructor

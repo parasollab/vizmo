@@ -1,5 +1,7 @@
 #include "QueryModel.h"
 
+#include <fstream>
+
 #include "CfgModel.h"
 #include "RobotModel.h"
 #include "Vizmo.h"

@@ -1,12 +1,14 @@
 #include "EnvModel.h"
 
-#include "Plum/EnvObj/ConnectionModel.h"
-#include "Plum/EnvObj/BodyModel.h"
+#include <fstream>
+
+#include "BodyModel.h"
+#include "BoundingBoxModel.h"
+#include "BoundingSphereModel.h"
 #include "CfgModel.h"
-#include "Models/BoundingBoxModel.h"
-#include "Models/BoundingSphereModel.h"
-#include "Utilities/IOUtils.h"
+#include "ConnectionModel.h"
 #include "Utilities/Exceptions.h"
+#include "Utilities/IOUtils.h"
 
 EnvModel::EnvModel(const string& _filename) :
   m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
@@ -61,11 +63,7 @@ EnvModel::ParseFile(){
     m_multibodies.push_back(m);
   }
 
-  BuildRobotStructure();
-  CfgModel::SetDOF(m_dof);
-  CfgModel::SetIsPlanarRobot(m_robots[0].m_base == Robot::PLANAR ? true : false);
-  CfgModel::SetIsVolumetricRobot(m_robots[0].m_base == Robot::VOLUMETRIC ? true : false);
-  CfgModel::SetIsRotationalRobot(m_robots[0].m_baseMovement == Robot::ROTATIONAL ? true : false);
+  //BuildRobotStructure();
 }
 
 void
@@ -91,94 +89,9 @@ EnvModel::ParseBoundary(ifstream& _ifs) {
 }
 
 void
-EnvModel::BuildRobotStructure(){
+EnvModel::BuildModels() {
 
   m_dof = 0;
-  int robotIndex = 0;
-  for(size_t i = 0; i < m_multibodies.size(); i++){
-    if(m_multibodies[i]->IsActive()){
-      robotIndex = i;
-      break;
-    }
-  }
-  MultiBodyModel* robot = m_multibodies[robotIndex];
-    //int fixedBodyCount = robot -> GetFixedBodyCount();
-    //int freeBodyCount = robot->GetFreeBodyCount();
-    //int numOfBodies = robot.m_numberOfBody;
-  for(int i = 0; i < distance(robot->Begin(), robot->End()); i++)
-    m_robotGraph.add_vertex(i);
-
-  //Total amount of bodies in environment: free + fixed
-  for (MultiBodyModel::BodyIter bit = robot->Begin(); bit!=robot->End(); ++bit)
-    //For each body, find forward connections and connect them
-    for(BodyModel::ConnectionIter cit = (*bit)->Begin(); cit!=(*bit)->End(); ++cit)
-      m_robotGraph.add_edge(bit-robot->Begin(), (*cit)->GetNextIndex());
-
-  //Robot ID typedef
-  typedef RobotGraph::vertex_descriptor RID;
-  vector<pair<size_t,RID> > ccs;
-  stapl::vector_property_map<RobotGraph, size_t> cmap;
-
-  //Initialize CC information
-  get_cc_stats(m_robotGraph, cmap, ccs);
-  for(size_t i = 0; i < ccs.size(); i++){
-    cmap.reset();
-    vector<RID> cc;
-    //Find CCs, construct robot objects
-    get_cc(m_robotGraph, cmap, ccs[i].second, cc);
-    size_t baseIndx = -1;
-
-    for(size_t j = 0; j < cc.size(); j++){
-      size_t index = m_robotGraph.find_vertex(cc[j])->property();
-      if((*(robot->Begin()+index))->IsBase()){
-        baseIndx = index;
-        break;
-      }
-    }
-
-    if(baseIndx == size_t(-1))
-      throw ParseException(WHERE, "Robot does not have base.");
-
-    const BodyModel* base = *(robot->Begin() + baseIndx);
-    Robot::Base bt = base->GetBase();
-    Robot::BaseMovement bm = base->GetBaseMovement();
-    if(bt == Robot::PLANAR){
-      m_dof += 2;
-      if(bm == Robot::ROTATIONAL){
-        m_dof += 1;
-      }
-    }
-    else if(bt == Robot::VOLUMETRIC){
-      m_dof += 3;
-      if(bm == Robot::ROTATIONAL){
-        m_dof += 3;
-      }
-    }
-
-    Robot::JointMap jm;
-    for(size_t j = 0; j<cc.size(); j++){
-      size_t index = m_robotGraph.find_vertex(cc[j])->property();
-      typedef Robot::JointMap::const_iterator MIT;
-      for(MIT mit = robot->GetJointMap().begin(); mit!=robot->GetJointMap().end(); mit++){
-        if((*mit)->GetPreviousIndex() == index){
-          jm.push_back(*mit);
-          if((*mit)->GetJointType() == ConnectionModel::REVOLUTE){
-            m_dof += 1;
-          }
-          else if((*mit)->GetJointType() == ConnectionModel::SPHERICAL){
-            m_dof += 2;
-          }
-        }
-      }
-    }
-
-    m_robots.push_back(Robot(bt, bm, jm, baseIndx));
-  }
-}
-
-//////////Display functions//////////
-void
-EnvModel::BuildModels(){
 
   //Build boundary model
   if(!m_boundary)
@@ -189,6 +102,7 @@ EnvModel::BuildModels(){
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit) {
     (*mit)->BuildModels();
+    m_dof += (*mit)->GetDOF();
     m_centerOfMass += (*mit)->GetCOM();
   }
 
