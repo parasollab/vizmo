@@ -5,8 +5,8 @@
 using namespace mathtool;
 
 #include "Utilities/Color.h"
-#include "RobotInfo.h"
 #include "Models/PolyhedronModel.h"
+#include "Models/RobotInfo.h"
 
 class ConnectionModel;
 

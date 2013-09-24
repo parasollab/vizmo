@@ -10,5 +10,6 @@ OBJECTS += \
 	   Models/PathModel.o \
 	   Models/PolyhedronModel.o \
 	   Models/QueryModel.o \
+	   Models/RobotInfo.o \
 	   Models/RobotModel.o \
 	   Models/Vizmo.o

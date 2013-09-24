@@ -4,7 +4,7 @@
 #include "Plum/GLModel.h"
 #include "Plum/EnvObj/MultiBodyModel.h"
 #include "Models/BoundaryModel.h"
-#include "Plum/EnvObj/RobotInfo.h"
+#include "Models/RobotInfo.h"
 
 #include <graph.h>
 #include <algorithms/graph_input_output.h>

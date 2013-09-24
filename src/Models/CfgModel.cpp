@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "CfgModel.h"
-#include "Plum/EnvObj/RobotInfo.h"
 #include "CCModel.h"
+#include "CfgModel.h"
+#include "RobotInfo.h"
 
 
 CfgModel CfgModel::m_invalidCfg;

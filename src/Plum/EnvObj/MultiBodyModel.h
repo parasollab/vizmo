@@ -2,7 +2,7 @@
 #define MULTIBODYMODEL_H_
 
 #include "Plum/GLModel.h"
-#include "RobotInfo.h"
+#include "Models/RobotInfo.h"
 
 class BodyModel;
 

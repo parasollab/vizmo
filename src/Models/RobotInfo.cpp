@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include "ConnectionModel.h"
+#include "Plum/EnvObj/ConnectionModel.h"
 #include "Utilities/Exceptions.h"
 
 class IsConnectionGloballyFirst {
@@ -15,13 +15,14 @@ class IsConnectionGloballyFirst {
 } connectionComparitor;
 
 Robot::Robot(Base _base, BaseMovement _baseMovement,
-    JointMap _joints, int _bodyIndex) :
+    const JointMap& _joints, int _bodyIndex) :
   m_base(_base), m_baseMovement(_baseMovement),
   m_bodyIndex(_bodyIndex), m_joints(_joints) {
     sort(m_joints.begin(), m_joints.end(), connectionComparitor);
   }
 
-Robot::Base Robot::GetBaseFromTag(const string _tag){
+Robot::Base
+Robot::GetBaseFromTag(const string& _tag){
   if(_tag == "PLANAR")
     return Robot::PLANAR;
   else if(_tag == "VOLUMETRIC")
@@ -35,7 +36,8 @@ Robot::Base Robot::GetBaseFromTag(const string _tag){
         "Failed parsing robot base type. Choices are Planar, Volumetric, Fixed, or Joint.");
 }
 
-Robot::BaseMovement Robot::GetMovementFromTag(const string _tag){
+Robot::BaseMovement
+Robot::GetMovementFromTag(const string& _tag){
   if(_tag == "ROTATIONAL")
     return Robot::ROTATIONAL;
   else if (_tag == "TRANSLATIONAL")
