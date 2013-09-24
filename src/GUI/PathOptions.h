@@ -15,11 +15,6 @@ class PathOptions : public OptionsBase {
 
   public:
     PathOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
-    void CreateActions();
-    void SetUpCustomSubmenu(); //like RoadmapOptions
-    void SetUpToolbar();       //show/hide path and show/hide start/goal
-    void Reset();
-    void SetHelpTips();
 
   private slots:
     void ShowHidePath();
@@ -30,8 +25,13 @@ class PathOptions : public OptionsBase {
     //void SetQueryGoal();
 
   private:
-    CustomizePathDialog* m_pathOptionsInput; //pop-up dialog for gradient input, etc.
+    void CreateActions();
+    void SetUpCustomSubmenu(); //like RoadmapOptions
+    void SetUpToolbar();       //show/hide path and show/hide start/goal
+    void Reset();
+    void SetHelpTips();
 
+    CustomizePathDialog* m_pathOptionsInput; //pop-up dialog for gradient input, etc.
     //queryGUI* m_qrySGUI; //these need some help
     //queryGUI* m_qryGGUI;
 };

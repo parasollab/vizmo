@@ -24,9 +24,7 @@ class FileListDialog : public QDialog {
     void ChangeQuery();
     void ChangePath();
     void ChangeDebug();
-
     void Accept();
-
     void PathChecked();
     void DebugChecked();
 

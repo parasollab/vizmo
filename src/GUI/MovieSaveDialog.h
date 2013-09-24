@@ -19,6 +19,12 @@ class MovieSaveDialog : public QDialog {
 
   public:
     MovieSaveDialog(QWidget* _parent, Qt::WFlags _f = 0);
+    size_t m_startFrame; //start frame of video
+    size_t m_endFrame; //end frame of video
+    size_t m_stepSize; //step size for video
+    size_t m_frameDigits; //number of # in the filename
+    size_t m_frameDigitStart; //first index of # in the filename
+    QString m_filename; //base filename for movie
 
   private slots:
     void SaveImages();
@@ -43,13 +49,6 @@ class MovieSaveDialog : public QDialog {
 
     QGridLayout* m_layout;
 
-  public:
-    size_t m_startFrame; //start frame of video
-    size_t m_endFrame; //end frame of video
-    size_t m_stepSize; //step size for video
-    size_t m_frameDigits; //number of # in the filename
-    size_t m_frameDigitStart; //first index of # in the filename
-    QString m_filename; //base filename for movie
 };
 
 #endif

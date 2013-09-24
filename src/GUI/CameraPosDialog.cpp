@@ -70,7 +70,7 @@ CameraPosDialog::CameraPosDialog(QWidget* _parent) :QDialog(_parent) {
 }
 
 void
-CameraPosDialog::SetCameraPos(double _x, double _y, double _z, double _azim, double _elev) {
+CameraPosDialog::SetCameraPos(double _x, double _y, double _z, double _azim, double _elev){
   ostringstream oss;
   oss << _x;
   m_xLineEdit->setText(oss.str().c_str());

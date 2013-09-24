@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget* _parent)
   move(0,0);
   m_setQS = false;
   m_setQG = false;
-  command = "";
+  m_command = "";
   m_mainMenu = NULL;
   m_outbox = NULL;
   m_layout = NULL;
@@ -37,7 +37,6 @@ MainWindow::MainWindow(QWidget* _parent)
 
 bool
 MainWindow::Init(){
-
   this->setWindowIcon(QPixmap(eye));
   m_layoutWidget = new QWidget(this);
 
@@ -56,7 +55,6 @@ MainWindow::Init(){
 
 bool
 MainWindow::InitVizmo(){
-
   if(m_vizmoInit)
     return true;
 
@@ -77,9 +75,9 @@ MainWindow::InitVizmo(){
 
   resize(width(),height());
   m_args.clear();
-  m_gl->resetCamera();
+  m_gl->ResetCamera();
   //reset guis
-  m_animationWidget->reset();
+  m_animationWidget->Reset();
   m_modelSelectionWidget->ResetLists();
   m_mainMenu->CallReset();
   GetVizmo().RandomizeCCColors();
@@ -89,12 +87,12 @@ MainWindow::InitVizmo(){
 }
 
 bool
-MainWindow::CreateGUI() {
+MainWindow::CreateGUI(){
   m_animationWidget = new AnimationWidget("Animation", this);
-  connect(m_animationWidget, SIGNAL(callUpdate()), this, SLOT(updateScreen()));
+  connect(m_animationWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
 
   m_modelSelectionWidget = new ModelSelectionWidget(this);
-  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(updateScreen()));
+  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
 
   m_mainMenu = new MainMenu(this);  //also creates the toolbars
 
@@ -114,7 +112,6 @@ MainWindow::CreateGUI() {
 
 void
 MainWindow::SetUpLayout(){
-
   m_layout = new QGridLayout();
   m_layoutWidget->setLayout(m_layout); //Set this before actual layout specifications
   m_layout->setHorizontalSpacing(3);
@@ -154,8 +151,9 @@ MainWindow::SetUpLayout(){
   for(int i = 6; i <= 25; i++)
     m_layout->setColumnStretch(i, 2); //...also helps GL scene expand better
 
+
   //The menubar
-  m_layout->setMenuBar(m_mainMenu->m_menubar);
+  m_layout->setMenuBar(m_mainMenu->m_menuBar);
 
   setCentralWidget(m_layoutWidget); //Finally, set layout onto MainWin
 }
@@ -168,7 +166,7 @@ MainWindow::keyPressEvent (QKeyEvent* _e){
 }
 
 void
-MainWindow::updateScreen(){
+MainWindow::UpdateScreen(){
     m_gl->updateGL();
 }
 

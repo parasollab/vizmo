@@ -25,17 +25,15 @@ class GLWidget : public QGLWidget {
 
   public:
     GLWidget(QWidget* _parent, MainWindow* _mainWindow);
-    void resetCamera();
+    void ResetCamera();
     MainWindow* m_mainWindow;
 
-    void setClearColor(double r, double g, double b) const {
-      glClearColor(r, g, b, 0);
+    void SetClearColor(double _r, double _g, double _b) const {
+      glClearColor(_r, _g, _b, 0);
     }
-    //Collision Detection related vars.
-    bool CDOn;
     // reset tranformation tool
     // it calls class gli::gliReset()
-    void resetTransTool();
+    void ResetTransTool();
 
     //save an image of the GL scene with the given filename
     //Note: filename must have appropriate extension for QImage::save or no file
@@ -59,26 +57,20 @@ class GLWidget : public QGLWidget {
     void mouseMoveEvent(QMouseEvent*);
     void keyPressEvent(QKeyEvent* _e);
 
-  public slots:
+  private slots:
     void ShowAxis();
     void ShowFrameRate();
-
-  private slots:
     void ToggleSelectionSlot();
     void SimulateMouseUpSlot();
 
   private:
     void SetLight();
-
-    void
-    SetLightPos(){ //set light position
-
-      static GLfloat light_position[] = { 250.0f, 250.0f, 250.0f, 1.0f };
-      glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-      static GLfloat light_position2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
-      glLightfv(GL_LIGHT1, GL_POSITION, light_position2);
+    void SetLightPos(){ //set light position
+      static GLfloat lightPosition[] = { 250.0f, 250.0f, 250.0f, 1.0f };
+      glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+      static GLfloat lightPosition2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
+      glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
     }
-
     //Grab the size of image for saving. If crop is true, use the cropBox to
     //size the image down.
     QRect GetImageRect(bool _crop);
@@ -87,7 +79,8 @@ class GLWidget : public QGLWidget {
 
     bool m_takingSnapShot;
     bool m_showAxis, m_showFrameRate;
-
+    //Collision Detection related vars.
+    bool m_cdOn;
     deque<double> m_frameTimes;
 };
 

@@ -16,7 +16,7 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
   QDialog(_parent, _f),
   m_startFrame(0), m_endFrame(-1), m_stepSize(10),
   m_frameDigits(5), m_frameDigitStart(11),
-  m_filename("vizmo_movie#####.jpg"){
+  m_filename("vizmo_movie#####.jpg") {
 
     int maxint = std::numeric_limits<int>::max();
 

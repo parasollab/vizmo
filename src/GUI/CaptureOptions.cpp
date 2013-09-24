@@ -54,8 +54,8 @@ CaptureOptions::CreateActions(){
 
   connect(this, SIGNAL(ToggleSelectionSignal()), m_mainWindow->GetGLScene(), SLOT(ToggleSelectionSlot()));
   connect(this, SIGNAL(SimulateMouseUp()), m_mainWindow->GetGLScene(), SLOT(SimulateMouseUpSlot()));
-  connect(this, SIGNAL(CallUpdate()), m_mainWindow, SLOT(updateScreen()));
-  connect(this, SIGNAL(GoToFrame(int)), m_mainWindow->GetAnimationWidget(), SLOT(goToFrame(int)));
+  connect(this, SIGNAL(CallUpdate()), m_mainWindow, SLOT(UpdateScreen()));
+  connect(this, SIGNAL(UpdateFrame(int)), m_mainWindow->GetAnimationWidget(), SLOT(UpdateFrame(int)));
 }
 
 void
@@ -136,7 +136,7 @@ CaptureOptions::CaptureMovie(){
         break;
 
       // update the GLScene
-      emit GoToFrame(i);
+      emit UpdateFrame(i);
 
       //grab string for frame number
       ostringstream oss;

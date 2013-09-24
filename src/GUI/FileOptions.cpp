@@ -22,11 +22,12 @@
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
 
-FileOptions::FileOptions(QWidget* _parent, MainWindow* _mainWindow) : OptionsBase(_parent, _mainWindow) {
-  CreateActions();
-  SetUpSubmenu("File");
-  SetUpToolbar();
-  SetHelpTips();
+FileOptions::FileOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow) {
+    CreateActions();
+    SetUpSubmenu("File");
+    SetUpToolbar();
+    SetHelpTips();
 }
 
 void
@@ -104,7 +105,7 @@ FileOptions::LoadFile(){
   else
     m_mainWindow->statusBar()->showMessage("Loading aborted");
 
-  m_mainWindow->GetGLScene()->resetTransTool();
+  m_mainWindow->GetGLScene()->ResetTransTool();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
@@ -119,10 +120,10 @@ FileOptions::UpdateFiles(){
     return;
 
   //reset guis
-  m_mainWindow->GetAnimationWidget()->reset();
+  m_mainWindow->GetAnimationWidget()->Reset();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->m_mainMenu->CallReset();
-  m_mainWindow->GetGLScene()->resetTransTool();
+  m_mainWindow->GetGLScene()->ResetTransTool();
 }
 
 void

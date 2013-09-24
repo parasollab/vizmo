@@ -14,12 +14,11 @@ class RobotOptions : public OptionsBase {
   public:
     RobotOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
+  private slots:
     void CreateActions();
     void SetUpToolbar(); //no tool buttons in this case; just a placeholder
     void Reset();
     void SetHelpTips();
-
-  private slots:
     void ResetRobotPosition();
     //	void ShowRobotCfg();
 };

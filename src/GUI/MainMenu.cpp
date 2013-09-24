@@ -16,7 +16,8 @@
 
 using namespace std;
 
-MainMenu::MainMenu(MainWindow* _mainWindow){
+MainMenu::MainMenu(MainWindow* _mainWindow) {
+
   m_fileOptions = new FileOptions(this, _mainWindow);
   m_glWidgetOptions = new GLWidgetOptions(this, _mainWindow);
   m_robotOptions = new RobotOptions(this, _mainWindow);
@@ -32,20 +33,20 @@ MainMenu::MainMenu(MainWindow* _mainWindow){
 void
 MainMenu::SetUpMainMenu(){
 
-  m_menubar = new QMenuBar(this);
+  m_menuBar = new QMenuBar(this);
 
-  m_menubar->addMenu(m_fileOptions->GetSubMenu());
-  m_menubar->addMenu(m_glWidgetOptions->GetSubMenu());
-  m_menubar->addMenu(m_robotOptions->GetSubMenu());
-  m_menubar->addMenu(m_environmentOptions->GetSubMenu());
-  m_menubar->addMenu(m_roadmapOptions->GetSubMenu());
-  m_menubar->addMenu(m_pathOptions->GetSubMenu());
-  m_menubar->addMenu(m_captureOptions->GetSubMenu());
-  m_menubar->addMenu(m_help->GetSubMenu());
+  m_menuBar->addMenu(m_fileOptions->GetSubMenu());
+  m_menuBar->addMenu(m_glWidgetOptions->GetSubMenu());
+  m_menuBar->addMenu(m_robotOptions->GetSubMenu());
+  m_menuBar->addMenu(m_environmentOptions->GetSubMenu());
+  m_menuBar->addMenu(m_roadmapOptions->GetSubMenu());
+  m_menuBar->addMenu(m_pathOptions->GetSubMenu());
+  m_menuBar->addMenu(m_captureOptions->GetSubMenu());
+  m_menuBar->addMenu(m_help->GetSubMenu());
 }
 
 void
-MainMenu::Reset(){
+MainMenu::CallReset(){
 
   m_fileOptions->Reset();
   m_glWidgetOptions->Reset();

@@ -47,7 +47,8 @@ RoadmapOptions::RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
     m_robotButton->click();
   }
 
-void RoadmapOptions::CreateActions(){
+void
+RoadmapOptions::CreateActions(){
 
   //1. Create actions/additional submenus and add them to the map
   QAction* showHideRoadmap = new QAction(QPixmap(navigate), tr("Show Roadmap"), this);

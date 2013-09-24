@@ -15,7 +15,7 @@
 #include "Icons/Flag.xpm"
 
 PathOptions::PathOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow){
+  : OptionsBase(_parent, _mainWindow) {
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();

@@ -7,7 +7,7 @@
 using namespace std;
 
 NodeSizeDialog::NodeSizeDialog(QWidget* _parent, RoadmapOptions* _accessParent)
-  :QDialog(_parent){
+  :QDialog(_parent) {
 
   m_parent = _accessParent;
   SetUpDialog(this);

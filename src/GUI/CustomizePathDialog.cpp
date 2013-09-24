@@ -8,7 +8,7 @@
 #include "Models/Vizmo.h"
 
 CustomizePathDialog::CustomizePathDialog(QWidget* _parent)
-  : QDialog(_parent), m_addColorDialog(NULL), m_brush(NULL), m_gradient(NULL){
+  : QDialog(_parent), m_addColorDialog(NULL), m_brush(NULL), m_gradient(NULL) {
 
   RestoreDefault();
   SetUpDialog(this);

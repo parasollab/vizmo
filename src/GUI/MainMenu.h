@@ -30,16 +30,12 @@ class MainMenu : public QWidget {
     OptionsBase* m_captureOptions;      //3 buttons and submenu
     OptionsBase* m_help;                //The What's This? button
 
-    QMenuBar* m_menubar;
+    QMenuBar* m_menuBar;
 
-    void CallReset() {Reset();}
+    void CallReset();
 
   public slots:
-      void SetUpMainMenu();
-
-  private:
-    void Reset();
-
+    void SetUpMainMenu();
 };
 
 #endif

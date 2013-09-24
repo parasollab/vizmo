@@ -6,14 +6,14 @@
 
 #include <QTextEdit>
 
-class TextGUI : public QTextEdit{
+class TextGUI : public QTextEdit {
 
   Q_OBJECT
 
   public:
     TextGUI(QWidget* _parent = NULL);
 
-  public slots:
+  private slots:
     void SetText();
 
 };

@@ -28,14 +28,12 @@ class ModelSelectionWidget : public QTreeWidget {
     void FillTree(vector<GLModel*>& _objs);
     ListViewItem* CreateItem(ListViewItem* _p, GLModel* _model);
 
-  public slots:
-    void Select();
-
   signals:
     void CallUpdate();
     void UpdateTextGUI();
 
   private slots:
+    void Select();
     void SelectionChanged();
 
   private:

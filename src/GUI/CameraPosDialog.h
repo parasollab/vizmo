@@ -24,11 +24,10 @@ class CameraPosDialog : public QDialog {
 
   public:
     CameraPosDialog(QWidget* _parent = 0);
-
     void SetCameraPos(double _x, double _y, double _z, double _azim, double _elev);
 
-  public slots:
-      void AcceptData();
+  private slots:
+    void AcceptData();
 
   private:
     QDialogButtonBox* m_buttonBox;

@@ -87,7 +87,7 @@ GLWidgetOptions::SetHelpTips(){
 
 void
 GLWidgetOptions::ResetCamera(){
-  m_mainWindow->GetGLScene()->resetCamera();
+  m_mainWindow->GetGLScene()->ResetCamera();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
@@ -115,7 +115,7 @@ GLWidgetOptions::ChangeBGColor(){
 
   QColor color = QColorDialog::getColor(Qt::white, this);
   if (color.isValid()){
-    m_mainWindow->GetGLScene()->setClearColor(
+    m_mainWindow->GetGLScene()->SetClearColor(
         (double)(color.red()) / 255.0,
         (double)(color.green()) / 255.0,
         (double)(color.blue()) / 255.0);

@@ -30,7 +30,6 @@ class SliderDialog : public QDialog {
     QSlider* GetSlider() { return m_slider; }
     double GetSliderValue() { return m_slider->value(); }
     virtual void show();
-
     void Reset();
 
   private:

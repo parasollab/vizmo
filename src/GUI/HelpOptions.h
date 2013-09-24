@@ -16,6 +16,7 @@ class HelpOptions : public OptionsBase {
     public:
       HelpOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
+    private:
       void CreateActions();
       void SetUpToolbar();
       void Reset();           //Just a placeholder in this case

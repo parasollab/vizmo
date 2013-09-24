@@ -47,22 +47,22 @@ class MainWindow : public QMainWindow {
     AnimationWidget* GetAnimationWidget() { return m_animationWidget; }
     ModelSelectionWidget* GetModelSelectionWidget() { return m_modelSelectionWidget; }
 
-    //command line to be executed to make a new roadmap
-    string command;
-    QStringList obprm_comm;
-    bool m_setQS, m_setQG;  //used to know if values in window will need to be updated
-    string m_firstQryFile;   //to hold name of first query file
     MainMenu* m_mainMenu;   //top menubar...owns everything
-    TextGUI* m_outbox;      //Q3TextView that displays node/edge(s) selection info, debug, etc.
 
   protected:
     void keyPressEvent(QKeyEvent* _e);
     bool CreateGUI();
 
   private slots:
-    void updateScreen();  // redraw GL scene
+    void UpdateScreen();  // redraw GL scene
 
   private:
+    string m_command;    //command line to be executed to make a new roadmap
+    QStringList m_obprmComm;
+    bool m_setQS, m_setQG;  //used to know if values in window will need to be updated
+    string m_firstQryFile;   //to hold name of first query file
+    TextGUI* m_outbox;      //Q3TextView that displays node/edge(s) selection info, debug, etc.
+
     void SetUpLayout();     //Set a QGridLayout for invisible central widget
 
     vector<string> m_args; //user input arguments.
@@ -74,8 +74,8 @@ class MainWindow : public QMainWindow {
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     GLWidget* m_gl;           //the scene window which displays environment..
-    AnimationWidget *m_animationWidget;
-    ModelSelectionWidget *m_modelSelectionWidget;
+    AnimationWidget* m_animationWidget;
+    ModelSelectionWidget* m_modelSelectionWidget;
 };
 
 #endif /*_MAIN_WIN_H_*/

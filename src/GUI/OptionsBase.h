@@ -33,13 +33,13 @@ class OptionsBase : public QWidget {
       QWidget(_parent), m_mainWindow(_mainWindow),
       m_submenu(NULL), m_toolbar(NULL) {}
 
-    QMenu* GetSubMenu() {return m_submenu;}
-    QToolBar* GetToolbar() {return m_toolbar;}
-
     virtual void CreateActions()=0;
     virtual void SetUpToolbar()=0;
     virtual void Reset()=0;        //enable appropriate actions when main win is reset
     virtual void SetHelpTips()=0;    //for the "What's This?" utility
+    QMenu* GetSubMenu() {return m_submenu;}
+    QToolBar* GetToolbar() {return m_toolbar;}
+
 
     void SetUpSubmenu(QString _title) {
       m_submenu = new QMenu(_title, this);

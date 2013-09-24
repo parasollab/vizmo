@@ -14,10 +14,6 @@ class CaptureOptions : public OptionsBase {
 
   public:
     CaptureOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
-    void CreateActions();
-    void SetUpToolbar(); //crop, picture, and movie actions
-    void SetHelpTips();
-    void Reset();
 
   private slots:
     void CropRegion();
@@ -28,9 +24,13 @@ class CaptureOptions : public OptionsBase {
     void SimulateMouseUp();
     void ToggleSelectionSignal();
     void CallUpdate();
-    void GoToFrame(int);
+    void UpdateFrame(int);
 
   private:
+    void CreateActions();
+    void SetUpToolbar(); //crop, picture, and movie actions
+    void SetHelpTips();
+    void Reset();
     bool m_cropBox;
 };
 

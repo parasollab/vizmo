@@ -27,8 +27,8 @@ GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
     m_takingSnapShot=false;
     m_showAxis = true;
     m_showFrameRate = false;
-    CDOn = false;
-  }
+    m_cdOn = false;
+}
 
 void
 GLWidget::ToggleSelectionSlot(){
@@ -36,7 +36,7 @@ GLWidget::ToggleSelectionSlot(){
 }
 
 void
-GLWidget::resetCamera(){
+GLWidget::ResetCamera(){
   GetCameraFactory().GetCurrentCamera()->Set(Point3d(0, 0, 4*GetVizmo().GetEnvRadius()), 0, 0);
 }
 
@@ -66,13 +66,13 @@ GLWidget::initializeGL(){
 }
 
 void
-GLWidget::resizeGL(int w, int h){
-  gliWS(w,h);
-  glViewport(0, 0, w, h);
+GLWidget::resizeGL(int _w, int _h){
+  gliWS(_w, _h);
+  glViewport(0, 0, _w, _h);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, ((GLfloat)w)/((GLfloat)h), 1, 1500);
+  gluPerspective(60, ((GLfloat)_w)/((GLfloat)_h), 1, 1500);
 }
 
 void
@@ -124,8 +124,8 @@ GLWidget::SetLight(){
 }
 
 void
-GLWidget::mousePressEvent(QMouseEvent* e){
-  if( gliMP(e) ){
+GLWidget::mousePressEvent(QMouseEvent* _e){
+  if( gliMP(_e) ){
     updateGL();
     return;
   }//handled by gli
@@ -207,8 +207,8 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
 }
 
 void
-GLWidget::mouseMoveEvent(QMouseEvent* e){
-  if(gliMM(e)){
+GLWidget::mouseMoveEvent(QMouseEvent* _e){
+  if(gliMM(_e)){
     //    if(CDOn)                   TEMPORARY(?) DISABLE
     //      GetVizmo().TurnOn_CD();
     updateGL();
@@ -259,19 +259,19 @@ GLWidget::keyPressEvent (QKeyEvent* _e){
 }
 
 void
-GLWidget::ShowAxis() {
+GLWidget::ShowAxis(){
   m_showAxis = !m_showAxis;
   updateGL();
 }
 
 void
-GLWidget::ShowFrameRate() {
+GLWidget::ShowFrameRate(){
   m_showFrameRate = !m_showFrameRate;
   updateGL();
 }
 
 void
-GLWidget::resetTransTool(){
+GLWidget::ResetTransTool(){
   gliReset();
 }
 
@@ -279,7 +279,7 @@ GLWidget::resetTransTool(){
 //Note: filename must have appropriate extension for QImage::save or no file
 //will be written
 void
-GLWidget::SaveImage(QString _filename, bool _crop) {
+GLWidget::SaveImage(QString _filename, bool _crop){
   //grab the gl scene. Copy into new QImage with size of imageRect. This will
   //crop the image appropriately.
   QRect imageRect = GetImageRect(_crop);
@@ -301,7 +301,7 @@ GLWidget::GetImageRect(bool _crop){
 }
 
 void
-GLWidget::DrawFrameRate(double _frameRate) {
+GLWidget::DrawFrameRate(double _frameRate){
   glMatrixMode(GL_PROJECTION); //change to Ortho view
   glPushMatrix();
   glLoadIdentity();

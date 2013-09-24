@@ -10,7 +10,7 @@
 #include "Models/DebugModel.h"
 
 TextGUI::TextGUI(QWidget* _parent)
-  :QTextEdit(_parent){
+  :QTextEdit(_parent) {
 
   setFixedSize(205, 225);
   setReadOnly(true);

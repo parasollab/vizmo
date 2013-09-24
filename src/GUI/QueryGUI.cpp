@@ -2,84 +2,79 @@
 
 #include "Models/Vizmo.h"
 
-queryGUI::queryGUI(QWidget* _parent, Qt::WFlags f) : QDialog(_parent){
+QueryGUI::QueryGUI(QWidget* _parent, Qt::WFlags _f) : QDialog(_parent) {
 
-  node_cfg = NULL;
-
-  filledFirstTime = false;
+  m_nodeCfg = NULL;
+  m_filledFirstTime = false;
   typedef vector<GLModel*>::iterator GIT;
   vector< list<string> > info;
-  string objname;
+  string objName;
   //to store a cfg
   QString qs;
   //int I=0;
-  for(GIT ig= GetVizmo().GetSelectedModels().begin();ig!=GetVizmo().GetSelectedModels().end();ig++){
+  for(GIT ig= GetVizmo().GetSelectedModels().begin();
+      ig!=GetVizmo().GetSelectedModels().end(); ig++){
     GLModel* gl=(GLModel *)(*ig);
-    //objname = gl->GetInfo();
-    objname = gl->GetName();
+    //objName = gl->GetInfo();
+    objName = gl->GetName();
   }
-  m_objName = objname;
+  m_objName = objName;
 
   RobotModel* robotModel = GetVizmo().GetRobot();
   m_dof = GetVizmo().GetEnv()->GetDOF();
 
   //here I should put query values...
-  vector<double> Qcfg = robotModel->getFinalCfg();
+  vector<double> qCfg = robotModel->getFinalCfg();
 
   QGridLayout* controls = new QGridLayout();
   controls->addWidget(new QLabel("Configuration ", this),
       0,0, Qt::AlignHCenter);
   controls->addWidget(new QLabel("to be added", this),
       0,1, Qt::AlignHCenter);
-
-
   controls->addWidget(new QLabel("<b>X</b>:     ", this),
       1,0 , Qt::AlignRight);
-  stx = new QDoubleSpinBox(this);
-  stx->setDecimals(DECIMALS);
-  stx->setRange(M_MIN, M_MAX);
-  stx->setSingleStep (STEP);
-  stx->setSpecialValueText(qs.setNum(Qcfg[0]));
-  stx->setValue(Qcfg[0]);
-  stx->setButtonSymbols(QAbstractSpinBox::PlusMinus);
-  connect(stx, SIGNAL(valueChanged (const QString&)),this,
+  m_stx = new QDoubleSpinBox(this);
+  m_stx->setDecimals(DECIMALS);
+  m_stx->setRange(M_MIN, M_MAX);
+  m_stx->setSingleStep (STEP);
+  m_stx->setSpecialValueText(qs.setNum(qCfg[0]));
+  m_stx->setValue(qCfg[0]);
+  m_stx->setButtonSymbols(QAbstractSpinBox::PlusMinus);
+  connect(m_stx, SIGNAL(valueChanged (const QString&)), this,
       SLOT(newCfg(const QString&)) );
 
-  controls->addWidget(stx, 1,1, Qt::AlignRight);
-
-
+  controls->addWidget(m_stx, 1,1, Qt::AlignRight);
   controls->addWidget(new QLabel("<b>Y</b>:     ", this),
       2,0 , Qt::AlignRight);
 
+  m_sty = new QDoubleSpinBox(this);
+  m_sty->setDecimals (DECIMALS);
+  m_sty->setRange(M_MIN, M_MAX);
+  m_sty->setSingleStep (STEP);
+  m_sty->setSpecialValueText(qs.setNum(qCfg[1]));
+  m_sty->setValue (qCfg[1]);
+  m_sty->setButtonSymbols(QAbstractSpinBox::PlusMinus);
 
-  sty = new QDoubleSpinBox(this);
-  sty->setDecimals (DECIMALS);
-  sty->setRange(M_MIN, M_MAX);
-  sty->setSingleStep (STEP);
-  sty->setSpecialValueText(qs.setNum(Qcfg[1]));
-  sty->setValue (Qcfg[1]);
-  sty->setButtonSymbols(QAbstractSpinBox::PlusMinus);
-
-  connect(sty, SIGNAL(valueChanged (const QString&)),this,
+  connect(m_sty, SIGNAL(valueChanged (const QString&)),this,
       SLOT(newCfg(const QString&)) );
 
-  controls->addWidget(sty,2,1 , Qt::AlignRight);
+  controls->addWidget(m_sty,2,1 , Qt::AlignRight);
 
   controls->addWidget(new QLabel("<b>Z</b>:     ", this),
       3,0 , Qt::AlignRight);
 
-  stz = new QDoubleSpinBox(this);
-  stz->setRange(M_MIN, M_MAX);
-  stz->setDecimals ( DECIMALS );
-  stz->setSingleStep (STEP);
-  stz->setSpecialValueText(qs.setNum(Qcfg[2]));
-  stz->setValue (Qcfg[2]);
-  stz->setButtonSymbols(QAbstractSpinBox::PlusMinus);
+  m_stz = new QDoubleSpinBox(this);
+  m_stz->setRange(M_MIN, M_MAX);
+  m_stz->setDecimals (DECIMALS);
+  m_stz->setSingleStep (STEP);
+  m_stz->setSpecialValueText(qs.setNum(qCfg[2]));
+  m_stz->setValue (qCfg[2]);
+  m_stz->setButtonSymbols(QAbstractSpinBox::PlusMinus);
 
-  connect(stz, SIGNAL(valueChanged (const QString&)),this,
+  connect(m_stz, SIGNAL(valueChanged (const QString&)),this,
       SLOT(newCfg(const QString&)) );
 
-  controls->addWidget(stz,3,1 , Qt::AlignRight);
+  controls->addWidget(m_stz,3,1 , Qt::AlignRight);
 
   QString qst;
   int i, j=0;
@@ -92,9 +87,9 @@ queryGUI::queryGUI(QWidget* _parent, Qt::WFlags f) : QDialog(_parent){
     m_spin[j]->setDecimals(DECIMALS);
     m_spin[j]->setRange(D_MIN, D_MAX);
     m_spin[j]->setSingleStep (STEP_ANGLE);
-    m_spin[j]->setSpecialValueText(qs.setNum(Qcfg[i]));
+    m_spin[j]->setSpecialValueText(qs.setNum(qCfg[i]));
     m_spin[j]->setButtonSymbols(QAbstractSpinBox::PlusMinus);
-    m_spin[j]->setValue(Qcfg[i]);
+    m_spin[j]->setValue(qCfg[i]);
     connect(m_spin[j], SIGNAL(valueChanged(const QString&)),this,
         SLOT(newCfg(const QString&)) );
     j++;
@@ -115,25 +110,27 @@ queryGUI::queryGUI(QWidget* _parent, Qt::WFlags f) : QDialog(_parent){
 ///////                        METHODS
 //////////////////////////////////////////////////////////////////////////////
 
-void queryGUI::setQuery(vector<double>& q){
-  query_org = q;
+void
+QueryGUI::SetQuery(vector<double>& _q){
+  m_queryOrg = _q;
 }
 
-void queryGUI::resetPointer(){
+void
+QueryGUI::ResetPointer(){
 }
 
-void queryGUI::setNodeVal(int dof, double *cfg){
+void
+QueryGUI::SetNodeVal(int _dof, double* _cfg){
+  m_dof = _dof;
+  m_nodeCfg = _cfg;
 
-  m_dof = dof;
-  node_cfg = cfg;
-
-  stx->setValue(node_cfg[0]);
-  sty->setValue(node_cfg[1]);
-  stz->setValue(node_cfg[2]);
+  m_stx->setValue(m_nodeCfg[0]);
+  m_sty->setValue(m_nodeCfg[1]);
+  m_stz->setValue(m_nodeCfg[2]);
 
   int j=0;
   for(int i=3; i<m_dof; i++){
-    m_spin[j]->setValue(node_cfg[i]);
+    m_spin[j]->setValue(m_nodeCfg[i]);
     j++;
   }
 }
@@ -142,12 +139,12 @@ void queryGUI::setNodeVal(int dof, double *cfg){
 ///////                        SLOTS
 //////////////////////////////////////////////////////////////////////////////
 
-void queryGUI::newCfg(const QString&){
+void
+QueryGUI::NewCfg(const QString&){
+  if(m_objName == "MultiBody"){
+    if (isActiveWindow ()){
 
-  if(m_objName == "MultiBody") {
-    if (isActiveWindow () ){
-
-      vector<double> Qcfg2(m_dof);
+      vector<double> qCfg2(m_dof);
 
       RobotModel* robotModel = GetVizmo().GetRobot();
       robotModel->BackUp();
@@ -158,82 +155,78 @@ void queryGUI::newCfg(const QString&){
 
       robotModel->getRobotModel()->RotationQ() = nq;
 
-      Qcfg2[0] = (stx->value());
-      Qcfg2[1] = (sty->value());
-      Qcfg2[2] = (stz->value());
+      qCfg2[0] = (m_stx->value());
+      qCfg2[1] = (m_sty->value());
+      qCfg2[2] = (m_stz->value());
 
       int j=0;
       for(int i=3; i<m_dof; i++){
-        Qcfg2[i] = m_spin[j]->value();
+        qCfg2[i] = m_spin[j]->value();
         j++;
       }
-      robotModel->Configure(Qcfg2);
+      robotModel->Configure(qCfg2);
 
-      emit callUpdate();
+      emit CallUpdate();
     }
   }
   else { //node
-    if(isVisible() && !filledFirstTime){
-      vector<double> Vcfg;
-      Vcfg.clear();
-      Vcfg.push_back(stx->value());
-      Vcfg.push_back(sty->value());
-      Vcfg.push_back(stz->value());
+    if(isVisible() && !m_filledFirstTime){
+      vector<double> vCfg;
+      vCfg.clear();
+      vCfg.push_back(m_stx->value());
+      vCfg.push_back(m_sty->value());
+      vCfg.push_back(m_stz->value());
       int j=0;
       for(int i=3; i<m_dof; i++){
-        Vcfg.push_back(m_spin[j]->value());
+        vCfg.push_back(m_spin[j]->value());
         j++;
       }
-      emit callUpdate();
+      emit CallUpdate();
     }
   }
 }
 
-void queryGUI::updateQryCfg(){
-
+void
+QueryGUI::UpdateQryCfg(){
   RobotModel* robotModel = GetVizmo().GetRobot();
-  vector<double> Qcfg3  = robotModel->getFinalCfg();
+  vector<double> qCfg3  = robotModel->getFinalCfg();
 
-  stx->setValue(Qcfg3[0]);
-  sty->setValue(Qcfg3[1]);
-  stz->setValue(Qcfg3[2]);
+  m_stx->setValue(qCfg3[0]);
+  m_sty->setValue(qCfg3[1]);
+  m_stz->setValue(qCfg3[2]);
 
   int j=0;
   for(int i=3; i<m_dof; i++){
-    m_spin[j]->setValue(Qcfg3[i]);
+    m_spin[j]->setValue(qCfg3[i]);
     j++;
   }
-
 }
 
 
-void queryGUI::resetCfg(){
-
-  stx->setValue(query_org[0]);
-  sty->setValue(query_org[1]);
-  stz->setValue(query_org[2]);
+void
+QueryGUI::ResetCfg(){
+  m_stx->setValue(m_queryOrg[0]);
+  m_sty->setValue(m_queryOrg[1]);
+  m_stz->setValue(m_queryOrg[2]);
 
   int j=0;
   for(int i=3; i<m_dof; i++){
-    m_spin[j]->setValue(query_org[i]);
+    m_spin[j]->setValue(m_queryOrg[i]);
     j++;
   }
-
 }
 
-vector<double> queryGUI::getNodeCfg(){
-
-  vector<double> Vcfg;
-  Vcfg.clear();
-  Vcfg.push_back(stx->value());
-  Vcfg.push_back(sty->value());
-  Vcfg.push_back(stz->value());
+vector<double>
+QueryGUI::GetNodeCfg(){
+  vector<double> vCfg;
+  vCfg.clear();
+  vCfg.push_back(m_stx->value());
+  vCfg.push_back(m_sty->value());
+  vCfg.push_back(m_stz->value());
   int j=0;
   for(int i=3; i<m_dof; i++){
-    Vcfg.push_back(m_spin[j]->value());
+    vCfg.push_back(m_spin[j]->value());
     j++;
   }
-
-  return Vcfg;
-
+  return vCfg;
 }

@@ -23,20 +23,7 @@ class RoadmapOptions : public OptionsBase {
 
   public:
     RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow);
-    void CreateActions();
-    void SetUpCustomSubmenu(); //submenu has its own submenus and cannot be set up with simple loop through m_actions
-    void SetUpToolbar();       //a lot of toolbar functionalities for this class
-    void Reset();
-    void SetHelpTips();
 
-    typedef MapModel<CfgModel, EdgeModel> MM;
-    MM* GetMapModel(){
-      if(!GetVizmo().GetMap())
-        return NULL;
-      else
-        return GetVizmo().GetMap();
-    }
-    string GetNodeShape(){return (string)(m_nodeView->checkedButton())->text().toAscii();}
 
   private slots:
     void ShowRoadmap();
@@ -59,6 +46,23 @@ class RoadmapOptions : public OptionsBase {
     void ChangeObjectColor();
 
   private:
+    void CreateActions();
+    void SetUpCustomSubmenu(); //submenu has its own submenus and cannot be set up with simple loop through m_actions
+    void SetUpToolbar();       //a lot of toolbar functionalities for this class
+    void Reset();
+    void SetHelpTips();
+
+    typedef MapModel<CfgModel, EdgeModel> MM;
+    MM* GetMapModel(){
+      if(!GetVizmo().GetMap())
+        return NULL;
+      else
+        return GetVizmo().GetMap();
+    }
+    string GetNodeShape(){
+      return (string)(m_nodeView->checkedButton())->text().toAscii();
+    }
+
     QButtonGroup* m_nodeView;   //For ease of use--includes the 3 buttons below
     QPushButton* m_robotButton; //These 3 particular menu items have text only and thus look better as buttons
     QPushButton* m_boxButton;

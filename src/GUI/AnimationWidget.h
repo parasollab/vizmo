@@ -25,25 +25,26 @@ class AnimationWidget : public QToolBar {
 
   public:
     AnimationWidget(QString _title, QWidget* _parent);
-    void reset(); //reset everything
+    void Reset(); //reset everything
 
   signals:
-    void callUpdate();
+    void CallUpdate();
+
   private slots:
-    void animate2();
-    void timeout();
-    void pauseAnimate();
-    void sliderMoved(int);
-    void updateFrameCounter(int);
-    void goToFrame();
-    void goToFrame(int);
-    void updateStepSize();
-    void getStepSize(int& size);
-    void gotoFirst();
-    void gotoLast();
-    void backAnimate();
-    void nextFrame();
-    void previousFrame();
+    void Animate();
+    void Timeout();
+    void PauseAnimate();
+    void SliderMoved(int);
+    void UpdateFrameCounter(int);
+    void GoToFrame();
+    void UpdateFrame(int);
+    void UpdateStepSize();
+    void GetStepSize(int& _size);
+    void GoToFirst();
+    void GoToLast();
+    void BackAnimate();
+    void NextFrame();
+    void PreviousFrame();
 
   private:
     bool CreateActions(); //Play, pause, etc.
@@ -51,7 +52,7 @@ class AnimationWidget : public QToolBar {
     void CreateSlider();
     void CreateFrameInput();
     void CreateStepInput();
-    void UpdateCurValue(int value);
+    void UpdateCurValue(int _value);
 
     QAction* m_playPathAction;
     QAction* m_pausePathAction;

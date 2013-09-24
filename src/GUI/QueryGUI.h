@@ -16,39 +16,32 @@ using namespace std;
 #define DECIMALS 6
 ///////////////////////////////////////////////////////////////////////////////
 
-class queryGUI: public QDialog
-{
+class QueryGUI: public QDialog {
 
   Q_OBJECT
 
- public:
+  public:
+    QueryGUI(QWidget* _parent, Qt::WFlags _f=0);
 
-  queryGUI(QWidget* _parent, Qt::WFlags f=0);
+  signals:
+    void CallUpdate();
 
-  void setQuery(vector<double>& q);
-  void setNodeVal(int dof, double *cfg);
-  vector<double> getNodeCfg();
-  bool filledFirstTime;
+  private slots:
+    void NewCfg(const QString&);
+    void UpdateQryCfg();
+    void ResetCfg();
 
-signals:
-    void callUpdate();
-
-
-private slots:
-
-    void newCfg(const QString&);
-    void updateQryCfg();
-    void resetCfg();
-
-private:
-
-    void resetPointer();
-
+  private:
+    void SetQuery(vector<double>& _q);
+    void SetNodeVal(int _dof, double* _cfg);
+    vector<double> GetNodeCfg();
+    void ResetPointer();
+    bool m_filledFirstTime;
     int m_dof;
-    QDoubleSpinBox *stx, *sty, *stz;
+    double* m_qCfgTmp;
+    QDoubleSpinBox* m_stx,* m_sty,* m_stz;
     vector<QDoubleSpinBox*> m_spin;
-    vector<double> query_org;
-    double* node_cfg;
+    vector<double> m_queryOrg;
+    double* m_nodeCfg;
     string m_objName;
-
 };
