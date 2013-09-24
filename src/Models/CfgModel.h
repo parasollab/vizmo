@@ -3,17 +3,15 @@
 
 #include <iostream>
 #include <string>
+using namespace std;
 
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#include "EnvObj/RobotModel.h"
-
-using namespace std;
+#include "RobotModel.h"
 
 template <typename, typename>
 class CCModel;
-
 class EdgeModel;
 
 class CfgModel : public GLModel{

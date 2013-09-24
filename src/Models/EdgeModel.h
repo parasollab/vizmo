@@ -3,16 +3,12 @@
 
 #include <iostream>
 #include <string>
+using namespace std;
 
 #include <GL/gl.h>
 #include <GL/glut.h>
 
 #include "CfgModel.h"
-#include "EnvObj/RobotModel.h"
-
-using namespace std;
-
-class CfgModel;
 
 class EdgeModel : public GLModel {
 

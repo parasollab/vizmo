@@ -151,17 +151,13 @@ CfgModel::Draw(GLenum _mode){
 
 void
 CfgModel::DrawRobot(){
-
   if(m_robot == NULL)
     return;
 
-  vector<double> cfg = m_dofs;
-
-  m_robot->RestoreInitCfg();
   m_robot->BackUp();
   m_robot->SetRenderMode(m_renderMode);
   m_robot->SetColor(m_color);
-  m_robot->Configure(cfg);
+  m_robot->Configure(m_dofs);
   m_robot->Draw(GL_RENDER);
   m_robot->Restore();
 }

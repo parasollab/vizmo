@@ -22,12 +22,9 @@
 
 //EnvModel.h includes MultiBodyModel.h
 #include "Models/EnvModel.h"
-
-#include "EnvObj/RobotModel.h"
+#include "Models/RobotModel.h"
 
 #include <RAPID.H>
-
-class EnvModel;
 
 #ifndef Rapid
 class Rapid;

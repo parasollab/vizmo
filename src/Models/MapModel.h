@@ -9,7 +9,7 @@ using namespace stapl;
 #include "CCModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h"
-#include "EnvObj/RobotModel.h"
+#include "RobotModel.h"
 #include "Utilities/IOUtils.h"
 
 template<typename, typename>

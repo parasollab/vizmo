@@ -24,7 +24,7 @@ QueryGUI::QueryGUI(QWidget* _parent, Qt::WFlags _f) : QDialog(_parent) {
   m_dof = GetVizmo().GetEnv()->GetDOF();
 
   //here I should put query values...
-  vector<double> qCfg = robotModel->getFinalCfg();
+  vector<double> qCfg = robotModel->CurrentCfg();
 
   QGridLayout* controls = new QGridLayout();
   controls->addWidget(new QLabel("Configuration ", this),
@@ -148,22 +148,14 @@ QueryGUI::NewCfg(const QString&){
 
       RobotModel* robotModel = GetVizmo().GetRobot();
       robotModel->BackUp();
-      Quaternion qx(0,Vector3d(1,0,0));
-      Quaternion qy(0,Vector3d(0,1,0));
-      Quaternion qz(0,Vector3d(0,0,1));
-      Quaternion nq=qz*qy*qx;
-
-      robotModel->getRobotModel()->RotationQ() = nq;
 
       qCfg2[0] = (m_stx->value());
       qCfg2[1] = (m_sty->value());
       qCfg2[2] = (m_stz->value());
 
-      int j=0;
-      for(int i=3; i<m_dof; i++){
+      for(int i = 3, j = 0; i<m_dof; ++i, ++j)
         qCfg2[i] = m_spin[j]->value();
-        j++;
-      }
+
       robotModel->Configure(qCfg2);
 
       emit CallUpdate();
@@ -189,7 +181,7 @@ QueryGUI::NewCfg(const QString&){
 void
 QueryGUI::UpdateQryCfg(){
   RobotModel* robotModel = GetVizmo().GetRobot();
-  vector<double> qCfg3  = robotModel->getFinalCfg();
+  vector<double> qCfg3  = robotModel->CurrentCfg();
 
   m_stx->setValue(qCfg3[0]);
   m_sty->setValue(qCfg3[1]);

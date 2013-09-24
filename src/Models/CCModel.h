@@ -11,11 +11,11 @@ using namespace std;
 #include <algorithms/connected_components.h>
 using namespace stapl;
 
-#include "Plum/GLModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h"
 #include "MapModel.h"
-#include "EnvObj/RobotModel.h"
+#include "RobotModel.h"
+#include "Plum/GLModel.h"
 #include "Utilities/Exceptions.h"
 
 template<typename, typename>

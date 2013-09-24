@@ -152,16 +152,12 @@ FileOptions::SaveQryFile(){
       QString::null, "Files (*.query)");
 
   QFileInfo fi(fn);
-  if(!fn.isEmpty()){
-    string filename = fn.toStdString();
-    const char* f;
-    f = filename.c_str();
-    GetVizmo().SaveQry(f);
-  }
-  else{
+  if(!fn.isEmpty())
+    GetVizmo().SaveQuery(fn.toStdString());
+  else
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
-  }
-  m_mainWindow->GetGLScene()->updateGL();
+
+  //m_mainWindow->GetGLScene()->updateGL();
 }
 
 void

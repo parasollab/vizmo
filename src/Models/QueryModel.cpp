@@ -1,8 +1,8 @@
 #include "QueryModel.h"
 
 #include "CfgModel.h"
+#include "RobotModel.h"
 #include "Vizmo.h"
-#include "EnvObj/RobotModel.h"
 #include "Utilities/IOUtils.h"
 #include "Utilities/Exceptions.h"
 #include "Utilities/GL/Font.h"

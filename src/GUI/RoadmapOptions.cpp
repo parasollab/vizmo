@@ -175,11 +175,8 @@ RoadmapOptions::CreateActions(){
 
   connect(m_actions["randomizeColors"], SIGNAL(triggered()), this, SLOT(RandomizeCCColors()));
   connect(m_actions["ccsOneColor"], SIGNAL(triggered()), this, SLOT(MakeCCsOneColor()));
-  connect(m_actions["saveStart"], SIGNAL(triggered()), this, SLOT(SaveQueryStart()));
-  connect(m_actions["saveGoal"], SIGNAL(triggered()), this, SLOT(SaveQueryGoal()));
   connect(m_actions["changeObjectColor"], SIGNAL(triggered()), this, SLOT(ChangeObjectColor()));
   connect(m_mainWindow->GetGLScene(), SIGNAL(selectByRMB()), this, SLOT(ShowObjectContextMenu()));
-
 }
 
 void
@@ -542,18 +539,6 @@ RoadmapOptions::ShowObjectContextMenu(){
   }
   if(cm.exec(QCursor::pos())!= 0) //was -1 for q3 version (index based)
     m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-RoadmapOptions::SaveQueryStart(){
-
-  GetVizmo().SaveQryCfg('s');
-}
-
-void
-RoadmapOptions::SaveQueryGoal(){
-
-  GetVizmo().SaveQryCfg('g');
 }
 
 void

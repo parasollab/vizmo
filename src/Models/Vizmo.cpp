@@ -7,11 +7,11 @@ using namespace std;
 
 #include "Utilities/GL/PickBox.h"
 #include "Plum/GLModel.h"
-#include "EnvObj/RobotModel.h"
 #include "Models/CfgModel.h"
-#include "Models/QueryModel.h"
-#include "Models/PathModel.h"
 #include "Models/DebugModel.h"
+#include "Models/PathModel.h"
+#include "Models/QueryModel.h"
+#include "Models/RobotModel.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //Define Vizmo singleton
@@ -265,10 +265,6 @@ void Vizmo::TurnOn_CD(){
 //
 // bool Vizmo::SaveEnv(const char *filename)
 //
-// bool SaveQry(const char *filename)
-// which uses
-// SaveQryStart() and SaveQryGoal()
-//
 ///////////////////////////////////////////////////
 
 bool
@@ -277,69 +273,21 @@ Vizmo::SaveEnv(const char* _filename){
   return true;
 }
 
-void Vizmo::SaveQryCfg(char ch){
-
-  string name;
-
-  RobotModel* robot = m_robotModel;
-
-  for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit) {
-    name = (*mit)->GetInfo().front();
+void
+Vizmo::SaveQuery(const string& _filename) {
+  if(m_queryModel->GetQuerySize()) {
+    ofstream ofs(_filename.c_str());
+    for(size_t i = 0; i<m_queryModel->GetQuerySize(); ++i) {
+      //output robot index. For now always a 0.
+      ofs << "0 ";
+      //output dofs
+      typedef vector<double>::const_iterator DIT;
+      const vector<double>& query = m_queryModel->GetStartGoal(i);
+      for(DIT dit = query.begin(); dit != query.end(); ++dit)
+        ofs << *dit << " ";
+      ofs << endl;
+    }
   }
-
-  if(name == "Robot"){
-    //to store a single cfg
-    vector<vector<double> > cfg;
-
-    int dof = CfgModel::GetDOF();
-    if(m_queryModel != NULL){
-      //get original Cfgs from QueryModel
-      QueryModel* q = m_queryModel;
-
-      size_t iQSize = q->GetQuerySize();
-
-      for(size_t iQ=0; iQ<iQSize; iQ++){
-        vector<double> Cfg(dof);
-        Cfg = q->GetStartGoal(iQ);
-        cfg.push_back(Cfg);
-      }
-    }
-    else{
-      vector<double> c = robot->getFinalCfg();
-      cfg.push_back(c);
-      cfg.push_back(c);
-    }
-
-    robot->SaveQry(cfg, ch);
-  }
-
-}
-
-bool Vizmo::SaveQry(const char *filename){
-  int dof = CfgModel::GetDOF();
-  vector<double *> cfg;
-  FILE *qryFile;
-
-  RobotModel* robot = m_robotModel;
-  vector<vector<double> > vSG = robot->getNewStartAndGoal();
-
-  if(!vSG.empty()){
-    //open file
-    if((qryFile = fopen(filename, "a")) == NULL){
-      cout<<"Couldn't open the file"<<endl;
-      return 0;
-    }
-    //get values
-    typedef vector<vector<double> >::iterator IC;
-    for(IC ic=vSG.begin(); ic!=vSG.end(); ic++){
-      for(int i=0; i<dof; i++){
-        fprintf(qryFile, "%2f ", (*ic)[i]);
-      }
-      fprintf(qryFile, "\n");
-    }
-    fclose(qryFile);
-  }
-  return 1;
 }
 
 void
@@ -566,7 +514,7 @@ Vizmo::PlaceRobot(){
     if(!cfg.empty()) {
       //copy initial cfg. to RobotModel
       r->Configure(cfg);
-      r->InitialCfg(cfg);
+      r->SetInitialCfg(cfg);
     }
   }
 }

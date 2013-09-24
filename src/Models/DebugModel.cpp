@@ -3,7 +3,7 @@
 #include <algorithms/dijkstra.h>
 using namespace stapl;
 
-#include "EnvObj/RobotModel.h"
+#include "RobotModel.h"
 
 struct EdgeAccess {
   typedef double value_type;

@@ -50,48 +50,45 @@ class Vizmo {
     void AnimateDebug(int frame);
 
     // Environment Related Functions
+    EnvModel* GetEnv() const { return m_envModel; }
     // Change the appearance of an object - Hidden/ Wire / Soid
     void ChangeAppearance(int );
     void RefreshEnv();
     void RandomizeEnvColors();
     bool SaveEnv(const char *filename); //save env. file
-    bool SaveQry(const char *filename); //save query file
-    void SaveQryStart(); //save start cfg
-    //void SaveQryGoal(); //save goal cfg.
-    void SaveQryCfg(char ch); //save start or goal cfg.
     void DeleteObject(MultiBodyModel * mbl);
     //called form main_win::autoMkmp()
     double GetEnvRadius();
-    EnvModel* GetEnv() const { return m_envModel; }
 
     // Robot Related Functions
     RobotModel* GetRobot() const {  return m_robotModel; }
 
     // Roadmap Related Functions
+    MapModel<CfgModel, EdgeModel>* GetMap() const { return m_mapModel; }
     void ShowRoadMap(bool _show = true);
     bool IsRoadMapShown() const { return m_showMap; }
     bool IsRoadMapLoaded(){return m_mapModel;}
     //void ChangeNodeColor(double _r, double _g, double _b, string _s); //May be
     //used later?
     void RandomizeCCColors();
-    MapModel<CfgModel, EdgeModel>* GetMap() const { return m_mapModel; }
     void SetMapObj(MapModel<CfgModel, EdgeModel>* _mm) { m_mapModel = _mm; }
 
     // Query Related Functions
+    QueryModel* GetQry() const { return m_queryModel; }
     void ShowQueryFrame( bool bshow = true );   // to know if the Query has to be showed
     bool IsQueryLoaded(){ return m_queryModel; }
-    QueryModel* GetQry() const { return m_queryModel; }
+    void SaveQuery(const string& _filename); //save query file
 
     // Path Related Functions
+    PathModel* GetPath() const { return m_pathModel; }
     void ShowPathFrame( bool bShow=true );
     int GetPathSize();
     bool IsPathLoaded(){ return m_pathModel; }
-    PathModel* GetPath() const { return m_pathModel; }
 
     // Debug Related Functions
+    DebugModel* GetDebug() const {return m_debugModel;}
     int GetDebugSize();
     bool IsDebugLoaded(){return m_debugModel != NULL;}
-    DebugModel* GetDebug() const {return m_debugModel;}
 
     // Collision Detection Related Functions
     CollisionDetection CD;
@@ -105,7 +102,7 @@ class Vizmo {
     vector<double> m_nodeCfg;
     bool m_isNode;
 
-    vector<GLModel*>& GetLoadedModels(){ return m_loadedModels; }
+    vector<GLModel*>& GetLoadedModels() {return m_loadedModels;}
     vector<GLModel*>& GetSelectedModels() {return m_selectedModels;}
 
     //Miscellaneous

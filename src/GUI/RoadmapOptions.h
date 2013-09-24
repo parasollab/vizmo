@@ -41,8 +41,6 @@ class RoadmapOptions : public OptionsBase {
     void RandomizeCCColors();
     void MakeCCsOneColor();
     void ShowObjectContextMenu();
-    void SaveQueryStart();
-    void SaveQueryGoal();
     void ChangeObjectColor();
 
   private:
