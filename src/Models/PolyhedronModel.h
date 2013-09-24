@@ -1,7 +1,7 @@
 #ifndef POLYHEDRONMODEL_H_
 #define POLYHEDRONMODEL_H_
 
-#include "Plum/GLModel.h"
+#include "GLModel.h"
 
 class BodyModel;
 class RAPID_model;

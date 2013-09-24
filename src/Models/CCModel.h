@@ -13,9 +13,9 @@ using namespace stapl;
 
 #include "CfgModel.h"
 #include "EdgeModel.h"
+#include "GLModel.h"
 #include "MapModel.h"
 #include "RobotModel.h"
-#include "Plum/GLModel.h"
 #include "Utilities/Exceptions.h"
 
 template<typename, typename>

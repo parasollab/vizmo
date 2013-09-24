@@ -4,7 +4,7 @@
 #include <Vector.h>
 using namespace mathtool;
 
-#include "Plum/GLModel.h"
+#include "GLModel.h"
 
 class RobotModel;
 

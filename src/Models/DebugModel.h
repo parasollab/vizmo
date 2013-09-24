@@ -2,8 +2,8 @@
 #define DEBUGMODEL_H_
 
 #include "CfgModel.h"
+#include "GLModel.h"
 #include "MapModel.h"
-#include "Plum/GLModel.h"
 
 class RobotModel;
 

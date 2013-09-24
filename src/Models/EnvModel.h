@@ -2,8 +2,8 @@
 #define ENVMODEL_H_
 
 #include "BoundaryModel.h"
+#include "GLModel.h"
 #include "MultiBodyModel.h"
-#include "Plum/GLModel.h"
 
 class EnvModel : public GLModel {
 

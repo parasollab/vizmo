@@ -6,12 +6,12 @@
 using namespace std;
 
 #include "Utilities/GL/PickBox.h"
-#include "Plum/GLModel.h"
-#include "Models/CfgModel.h"
-#include "Models/DebugModel.h"
-#include "Models/PathModel.h"
-#include "Models/QueryModel.h"
-#include "Models/RobotModel.h"
+#include "CfgModel.h"
+#include "DebugModel.h"
+#include "GLModel.h"
+#include "PathModel.h"
+#include "QueryModel.h"
+#include "RobotModel.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //Define Vizmo singleton

@@ -1,7 +1,7 @@
 #ifndef BOUNDINGBOXESMODEL_H_
 #define BOUNDINGBOXESMODEL_H_
 
-#include "Plum/GLModel.h"
+#include "GLModel.h"
 
 class BoundingBoxModel;
 

@@ -1,7 +1,7 @@
 #ifndef QUERY_H_
 #define QUERY_H_
 
-#include "Plum/GLModel.h"
+#include "GLModel.h"
 
 class RobotModel;
 

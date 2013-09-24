@@ -1,9 +1,9 @@
 #ifndef MULTIBODYMODEL_H_
 #define MULTIBODYMODEL_H_
 
-#include "Plum/GLModel.h"
-
 #include <graph.h>
+
+#include "GLModel.h"
 
 class BodyModel;
 class ConnectionModel;

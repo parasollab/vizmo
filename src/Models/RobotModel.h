@@ -1,8 +1,8 @@
 #ifndef ROBOTMODEL_H_
 #define ROBOTMODEL_H_
 
+#include "GLModel.h"
 #include "MultiBodyModel.h"
-#include "Plum/GLModel.h"
 
 class EnvModel;
 

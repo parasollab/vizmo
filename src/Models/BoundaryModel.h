@@ -1,7 +1,7 @@
 #ifndef BOUNDARYMODEL_H_
 #define BOUNDARYMODEL_H_
 
-#include "Plum/GLModel.h"
+#include "GLModel.h"
 
 class BoundaryModel : public GLModel {
   public:
