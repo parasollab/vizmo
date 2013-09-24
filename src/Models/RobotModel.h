@@ -10,7 +10,7 @@ class RobotModel : public GLModel {
   public:
     RobotModel(EnvModel* _env);
 
-    virtual void GetChildren(list<GLModel*>& _models) const {_models.push_back(m_robotModel);}
+    virtual void GetChildren(list<GLModel*>& _models) {_models.push_back(m_robotModel);}
     virtual const string GetName() const {return "Robot";}
     virtual void SetRenderMode(RenderMode _mode);
     virtual void SetColor(const Color4& _c);
