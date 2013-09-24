@@ -255,10 +255,6 @@ GLWidget::keyPressEvent (QKeyEvent* _e){
     updateGL();
     return;
   }
-  if(GetVizmo().GetRobot()->KP(_e)){
-    updateGL();
-    return;
-  }
   _e->ignore(); //not handled
 }
 

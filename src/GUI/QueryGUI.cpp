@@ -21,13 +21,10 @@ queryGUI::queryGUI(QWidget* _parent, Qt::WFlags f) : QDialog(_parent){
   m_objName = objname;
 
   RobotModel* robotModel = GetVizmo().GetRobot();
-  m_dof = robotModel->GetEnvModel()->GetDOF();
+  m_dof = GetVizmo().GetEnv()->GetDOF();
 
   //here I should put query values...
   vector<double> Qcfg = robotModel->getFinalCfg();
-
-  //will be used in newCfg funct.
-  QcfgTmp = new double [m_dof];
 
   QGridLayout* controls = new QGridLayout();
   controls->addWidget(new QLabel("Configuration ", this),
@@ -123,9 +120,6 @@ void queryGUI::setQuery(vector<double>& q){
 }
 
 void queryGUI::resetPointer(){
-
-  for(int i=0; i<m_dof; i++)
-    QcfgTmp[i]= 0.0;
 }
 
 void queryGUI::setNodeVal(int dof, double *cfg){
@@ -153,7 +147,7 @@ void queryGUI::newCfg(const QString&){
   if(m_objName == "MultiBody") {
     if (isActiveWindow () ){
 
-      double* Qcfg2 = new double[m_dof];
+      vector<double> Qcfg2(m_dof);
 
       RobotModel* robotModel = GetVizmo().GetRobot();
       robotModel->BackUp();
@@ -174,7 +168,6 @@ void queryGUI::newCfg(const QString&){
         j++;
       }
       robotModel->Configure(Qcfg2);
-      delete [] Qcfg2;
 
       emit callUpdate();
     }

@@ -60,8 +60,8 @@ class CollisionDetection{
 		     MultiBodyModel* _robotModel,
 		     RobotModel* _robotObj);
 
-  void CopyNodeCfg(double* cfg, int dof);
-  double* nodeCfg;
+  void CopyNodeCfg(vector<double>& cfg, int dof);
+  vector<double> nodeCfg;
   bool TestNode;
   //  CollisionDetectionMethod cdMethod;
 
@@ -86,7 +86,7 @@ class CollisionDetectionMethod {
 class Rapid: public CollisionDetectionMethod {
  public:
 
-  Rapid() : DoF(0), nodeCfg(NULL) {test_node = false;}
+  Rapid() : DoF(0) {test_node = false;}
   virtual ~Rapid(){}
 
   virtual string GetName() const {return "RAPID";}
@@ -108,13 +108,13 @@ class Rapid: public CollisionDetectionMethod {
 			     RobotModel * robotObj, int dof,
   			     MultiBodyModel * obstacle);
 
-  void RCopyNodeCfg(double * n_cfg, int dof);
+  void RCopyNodeCfg(vector<double>& n_cfg, int dof);
 
   ///////////////////////////////////////
   // Variables
   //////////////////////////////////////
  public:
   int DoF;
-  double * nodeCfg; //to keep node cfg.
+  vector<double> nodeCfg; //to keep node cfg.
   bool test_node; //to know whether this is a CD for a node
 };

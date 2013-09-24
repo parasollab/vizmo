@@ -94,11 +94,6 @@ gliCameraKEY(QKeyEvent* e) {
   return GetCameraFactory().GetCurrentCamera()->KeyPressed(e);
 }
 
-bool gliRobotKEY(QKeyEvent* _e) {
-  return GetVizmo().GetRobot()->KP(_e);
-}
-
-
 /// window resize event
 void gliWS( int w, int h ) {
   gliGetTransformTool().setWinSize(w,h);

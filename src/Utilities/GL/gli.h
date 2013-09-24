@@ -27,8 +27,6 @@ bool gliKEY( QKeyEvent * e );
 
 bool gliCameraKEY( QKeyEvent * e );
 
-bool gliRobotKEY( QKeyEvent * e);
-
 /// window resize event
 void gliWS( int w, int h );
 

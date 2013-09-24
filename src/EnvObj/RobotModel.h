@@ -1,5 +1,5 @@
-#ifndef OBPRMVIEWROBOT_H_
-#define OBPRMVIEWROBOT_H_
+#ifndef ROBOTMODEL_H_
+#define ROBOTMODEL_H_
 
 #include <QKeyEvent>
 
@@ -18,57 +18,22 @@ class RobotModel : public GLModel {
 
   public:
 
-    void Print(){
-      std::cout << m_robotModel->Translation() << m_robotModel->Rotation() << endl;
-    }
-
-
     RobotModel(EnvModel* _env);
     ~RobotModel();
 
-    EnvModel* GetEnvModel()const { return m_envModel; }
+    virtual void GetChildren(list<GLModel*>& _models) const {_models.push_back(m_robotModel);}
+    virtual const string GetName() const {return "Robot";}
+    virtual void SetRenderMode(RenderMode _mode);
+    virtual void SetColor(const Color4& _c);
 
     virtual void BuildModels();
     virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
-    virtual void Select( unsigned int * index, vector<GLModel*>& sel );
-
-    //set wire/solid to all items
-    virtual void SetRenderMode(RenderMode _mode){
-      GLModel::SetRenderMode(_mode);
-      if(m_robotModel!=NULL) m_robotModel->SetRenderMode(_mode);
-    }
-    virtual void SetColor(const Color4& _c){
-      GLModel::SetColor(_c);
-      if(m_robotModel!=NULL)
-        m_robotModel->SetColor(_c);
-    }
-    const Color4& GetOriginalColor() const {return m_originalColor;}
-
-    virtual const string GetName() const {
-      if( m_robotModel!=NULL ) return "Robot";
-      return "No Robot";
-    }
-
-    virtual void GetChildren( list<GLModel*>& models ){
-      if( m_robotModel!=NULL )
-        models.push_back(m_robotModel);
-    }
+    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
 
     void SaveQry(vector<vector<double> >& cfg, char ch);
-
-    //copy query configuration
-    //this info. is used to set the *actual* position and
-    //orientation of the robot.
-    //void setQueryCfg(double * CfgModel);
-
-    int returnDOF(){ return dof; }
-    //////////////////////////////////////////////////////////////////////
-    // Access Functions
-    //////////////////////////////////////////////////////////////////////
-    //configure the Robot to cfg
-    void Configure(double * cfg);
     void Configure(vector<double>& _cfg);
+
     //return current configuration
     vector<double> getFinalCfg();
 
@@ -79,114 +44,36 @@ class RobotModel : public GLModel {
     void InitialCfg(vector<double>& cfg);
     void RestoreInitCfg();
 
-    Color4 color;
-    Vector3d o_s;
+    vector<vector<double> > getNewStartAndGoal();
 
-    Quaternion quat, q1, q2;
+    const vector<double>& CurrentCfg() {return m_currCfg;}
 
-    /*void Scale(double x, double y, double z)
-    {
-      if(m_robotModel!=NULL)
-        m_robotModel->Scale(x,y,z);
-    }*/
+  private:
+    //////////////////////////////////////////////
+    // storeCfg::
+    //    cfg the cfg. to store
+    //    c tells if cfg. is start or goal
+    //////////////////////////////////////////////
+    void storeCfg(vector<vector<double> >& cfg, char c, int dof);
+
+    EnvModel* m_envModel;
+    MultiBodyModel* m_robotModel;
 
     //////////////////////////////////////////////////////
     //To store start/goal cfgs for NEW Query
     /////////////////////////////////////////////////////
     vector<vector<double> > StartCfg;
     vector<vector<double> > GoalCfg;
-    //////////////////////////////////////////////
-    // storeCfg::
-    //    cfg the cfg. to store
-    //    c tells if cfg. is start or goal
-    //////////////////////////////////////////////
-    void storeCfg(vector<vector<double> >& cfg, char c, int dof){
-      typedef vector<vector<double> >::iterator IC;
-      if(c == 's'){
-        StartCfg.clear();
-        for(IC ic=cfg.begin(); ic!=cfg.end(); ic++){
-          StartCfg.push_back(*ic);
-        }
-      }
-      else{
-        GoalCfg.clear();
-        for(IC ic=cfg.begin(); ic!=cfg.end(); ic++){
-          GoalCfg.push_back(*ic);
-        }
-      }
-    }
+    vector<double> m_currCfg;
 
-    double gettx(){
-      if(m_robotModel!=NULL)
-        return m_robotModel->Translation()[0];
-      else
-        return 0;
-    }
-
-    double getty(){
-      if(m_robotModel!=NULL)
-        return m_robotModel->Translation()[1];
-      else
-        return 0;
-    }
-
-    double gettz(){
-      if(m_robotModel!=NULL)
-        return m_robotModel->Translation()[2];
-      else
-        return 0;
-    }
-
-
-
-
-    vector<vector<double> > getNewStartAndGoal(){
-
-      vector<vector<double> > v;
-      if(!StartCfg.empty())
-        v.push_back(StartCfg[0]);
-      if(!GoalCfg.empty())
-        v.push_back(GoalCfg[0]);
-      return v;
-
-    }
-
-    bool KP( QKeyEvent * e );
-    void Transform(int dir);
-
-    vector<double> returnCurrCfg(int dof);
-
-    double * RotFstBody; //keeps rot. angles of body0
-    double * queryCfg; //stores query cfg.
-    //////////////////////////////////////////////////////////////////////
-    // Private Stuff
-    //////////////////////////////////////////////////////////////////////
-  public:
-    int mode;
-    double delta;
-    double phantomdelta;
-
-    EnvModel* m_envModel;
-    MultiBodyModel* m_robotModel;
-
-    Vector3d m_polyBack;
-    //MultiBodyModel * mbRobotBackUp;
-    double * mbRobotBackUp;
-    double * tempCfg;
-    double * currentCfg;
-    double * rotation_axis;
-    //double * RotFstBody; //keeps rot. angles of body0
-    Quaternion MBq; //keeps rot. for robotModel
-    pthread_mutex_t mutex;
-
-    vector<double *> vCfg; //to store start/goal cfgs.
-    int dof;
-    //to store the START cfg. It comes from Query or Path files
-    double * StCfg;
-    //store ORIGINAL size and color
-    Color4 m_originalColor;
-    Vector3d originalSize;
+    //variables for back up/restore
+    Vector3d m_translationBackUp;
+    Quaternion m_quaternionBackUp;
+    Color4 m_colorBackUp;
     RenderMode m_renderModeBackUp;
+
+    //to store the START cfg. It comes from Query or Path files
+    vector<double> StCfg;
 };
 
 #endif

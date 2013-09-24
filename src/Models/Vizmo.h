@@ -102,7 +102,7 @@ class Vizmo {
     bool getCD_value(){ return is_collison;}//used in roadmap.cpp:printRobCfg()
     void Node_CD(double *cfg);
     void Node_CD(CfgModel * cfg);
-    double * m_nodeCfg;
+    vector<double> m_nodeCfg;
     bool m_isNode;
 
     vector<GLModel*>& GetLoadedModels(){ return m_loadedModels; }

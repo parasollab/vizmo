@@ -15,7 +15,6 @@
 //////////////////////////////
 
 CollisionDetection::CollisionDetection(){
-  nodeCfg = NULL;
   m_rapid = new RAPID_model();
   rapid = new Rapid();
   TestNode = false;
@@ -108,12 +107,9 @@ bool CollisionDetection::IsInCollision(int _numMB,
 }
 
 //called from vizmo::TurnOn_CD()
-void CollisionDetection::CopyNodeCfg(double * cfg, int dof){
+void CollisionDetection::CopyNodeCfg(vector<double>& cfg, int dof) {
   TestNode = true;
-  nodeCfg = new double[dof];
-  for(int i=0; i<dof; i++){
-    nodeCfg[i] = cfg[i];
-  }
+  nodeCfg = cfg;
 }
 
 /*******************************************************************/
@@ -124,11 +120,8 @@ void CollisionDetection::CopyNodeCfg(double * cfg, int dof){
 /////////////////////////////////////////////////////////////////
 /*******************************************************************/
 
-void Rapid::RCopyNodeCfg(double * n_cfg, int dof){
-  nodeCfg = new double[dof];
-  for(int i=0;i<dof;i++){
-    nodeCfg[i] = n_cfg[i];
-  }
+void Rapid::RCopyNodeCfg(vector<double>& n_cfg, int dof){
+  nodeCfg = n_cfg;
 }
 
 bool Rapid::IsInCollision(MultiBodyModel * robot,
@@ -223,13 +216,13 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
 
           if(last_dof != 0){
 
-            double* CurrCfg = new double[dof];
+            vector<double> CurrCfg(dof);
             CurrCfg[0] = pRt[0]; CurrCfg[1] = pRt[1];  CurrCfg[2] = pRt[2];
             CurrCfg[3] = etmp.alpha();
             CurrCfg[4] = etmp.beta();
             CurrCfg[5] = etmp.gamma();
 
-            vector<double> Cfg = robotObj->returnCurrCfg(dof);
+            vector<double> Cfg = robotObj->CurrentCfg();
 
             for(int c=6; c<dof; c++)
               CurrCfg[c] = Cfg[c];
@@ -243,7 +236,6 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
             convertFromQuaternion(m, qtmp);
 
             robotObj->Restore();
-            delete [] CurrCfg;
           }
         }
       }// ROBOT

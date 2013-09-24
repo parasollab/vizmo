@@ -156,17 +156,14 @@ CfgModel::DrawRobot(){
     return;
 
   vector<double> cfg = m_dofs;
-  Color4 origColor = m_robot->GetColor();
 
   m_robot->RestoreInitCfg();
   m_robot->BackUp();
-  glColor4fv(m_color);
   m_robot->SetRenderMode(m_renderMode);
   m_robot->SetColor(m_color);
   m_robot->Configure(cfg);
   m_robot->Draw(GL_RENDER);
   m_robot->Restore();
-  m_robot->SetColor(origColor);
 }
 
 void
@@ -225,16 +222,11 @@ CfgModel::DrawSelect(){
   switch(m_shape){
     case Robot:
       if(m_robot != NULL){
-        vector<double> cfg = m_dofs;
         m_robot->BackUp();
-        Color4 origColor = m_robot->GetColor();
-        //change
         m_robot->SetColor(GetColor());
-        m_robot->Configure(cfg);
-        //draw
+        m_robot->Configure(m_dofs);
         m_robot->DrawSelect();
         m_robot->Restore();
-        m_robot->SetColor(origColor);
       };
       break;
 

@@ -45,7 +45,6 @@ private:
     void resetPointer();
 
     int m_dof;
-    double* QcfgTmp;
     QDoubleSpinBox *stx, *sty, *stz;
     vector<QDoubleSpinBox*> m_spin;
     vector<double> query_org;

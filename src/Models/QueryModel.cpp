@@ -1,6 +1,7 @@
 #include "QueryModel.h"
 
 #include "CfgModel.h"
+#include "Vizmo.h"
 #include "EnvObj/RobotModel.h"
 #include "Utilities/IOUtils.h"
 #include "Utilities/Exceptions.h"
@@ -22,7 +23,7 @@ QueryModel::~QueryModel() {
 vector<string>
 QueryModel::GetInfo() const {
   vector<string> info;
-  int dof = m_robotModel->returnDOF();
+  int dof = GetVizmo().GetEnv()->GetDOF();
 
   info.push_back(GetFilename());
 

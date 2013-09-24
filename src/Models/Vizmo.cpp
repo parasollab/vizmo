@@ -31,7 +31,6 @@ Vizmo::Vizmo() :
     //temporary initialization of "unused" objects
     m_cfg = NULL;
     is_collison = false;
-    m_nodeCfg = NULL;
     m_isNode = false;
     mR = mG = mB = 0.0;
     m_doubleClick = false;
@@ -212,13 +211,7 @@ void Vizmo::Node_CD(CfgModel *cfg){
 
   int dof = CfgModel::GetDOF();
   m_isNode = true;
-  vector<double> dataCfg;
-  dataCfg = cfg->GetDataCfg();
-  m_nodeCfg = new double[dof];
-
-  for(int i=0;i<dof;i++){
-    m_nodeCfg[i] = dataCfg[i];
-  }
+  m_nodeCfg = cfg->GetDataCfg();
 }
 
 void Vizmo::TurnOn_CD(){
@@ -397,7 +390,7 @@ void Vizmo::ChangeAppearance(int status)
     }
     else if(status == 3){
       if((model->GetInfo()).front() == "Robot"){
-        robot->SetColor(Color4(mR, mG, mB, 1.0));
+        robot->SetColor(Color4(mR, mG, mB, 1));
         robot->BackUp();
       }
       else
