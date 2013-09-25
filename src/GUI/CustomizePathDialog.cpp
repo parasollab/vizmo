@@ -3,6 +3,12 @@
 #include <iostream>
 
 #include <QPainter>
+#include <QPushButton>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QColorDialog>
+#include <QFrame>
 
 #include "Models/PathModel.h"
 #include "Models/Vizmo.h"

@@ -1,7 +1,6 @@
 #ifndef FILELISTDIALOG_H_
 #define FILELISTDIALOG_H_
 
-#include <string>
 using namespace std;
 
 #include <QDialog>

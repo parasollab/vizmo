@@ -6,23 +6,13 @@
 #ifndef CUSTOMIZE_PATH_DIALOG_H
 #define CUSTOMIZE_PATH_DIALOG_H
 
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
-#include <QtGui/QPixmap>
-#include <QtGui/QPainter>
-#include <QtGui/QColor>
-#include <QtGui/QBrush>
-#include <QtGui/QGradient>
-#include <QtGui/QColorDialog>
-#include <QtGui/QFrame>
+#include <QDialog>
+
+class QDialogButtonBox;
+class QLabel;
+class QLineEdit;
+class QColorDialog;
+class QFrame;
 
 using namespace std;
 

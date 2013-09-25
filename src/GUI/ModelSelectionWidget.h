@@ -3,12 +3,9 @@
 // TO DO: Set up the slider values initially. When loaded, signal slider
 // and update slider values.
 
-#include <vector>
-#include <string>
 using namespace std;
 
 #include <QTreeWidget>
-#include <QTreeWidgetItem>
 
 class Model;
 
@@ -22,11 +19,8 @@ class ModelSelectionWidget : public QTreeWidget {
       ListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
       Model* m_model;
     };
-
     ModelSelectionWidget(QWidget* _parent = NULL);
     void ResetLists();
-    void FillTree(vector<Model*>& _objs);
-    ListViewItem* CreateItem(ListViewItem* _p, Model* _model);
 
   signals:
     void CallUpdate();
@@ -37,6 +31,8 @@ class ModelSelectionWidget : public QTreeWidget {
     void SelectionChanged();
 
   private:
+    void FillTree(vector<Model*>& _objs);
+    ListViewItem* CreateItem(ListViewItem* _p, Model* _model);
     void ClearLists();
     int m_maxNoModels;
     vector<ListViewItem*> m_items;

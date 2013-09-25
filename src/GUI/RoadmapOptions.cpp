@@ -26,6 +26,7 @@
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "Models/Vizmo.h"
+#include "Models/DebugModel.h"
 
 #include "Icons/Pallet.xpm"
 #include "Icons/MakeSolid.xpm"

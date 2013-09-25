@@ -10,10 +10,6 @@
 #ifndef OPTIONSBASE_H_
 #define OPTIONSBASE_H_
 
-#include <string>
-#include <map>
-#include <vector>
-
 #include <QAction> //may be able to trim this later...
 #include <QMenu>
 #include <QToolBar>
@@ -33,25 +29,25 @@ class OptionsBase : public QWidget {
       QWidget(_parent), m_mainWindow(_mainWindow),
       m_submenu(NULL), m_toolbar(NULL) {}
 
-    virtual void CreateActions()=0;
-    virtual void SetUpToolbar()=0;
     virtual void Reset()=0;        //enable appropriate actions when main win is reset
-    virtual void SetHelpTips()=0;    //for the "What's This?" utility
     QMenu* GetSubMenu() {return m_submenu;}
     QToolBar* GetToolbar() {return m_toolbar;}
 
 
-    void SetUpSubmenu(QString _title) {
-      m_submenu = new QMenu(_title, this);
-      for(map<string, QAction*>::iterator ait = m_actions.begin(); ait != m_actions.end(); ait++)
-        m_submenu->addAction(ait->second);
-    }
 
   protected:
     MainWindow* m_mainWindow;
     QMenu* m_submenu;    //has all associated actions
     map<string, QAction*> m_actions;
     QToolBar* m_toolbar; //may have none, one, some, or all assoc. actions
+    virtual void CreateActions()=0;
+    virtual void SetUpToolbar()=0;
+    virtual void SetHelpTips()=0;    //for the "What's This?" utility
+    void SetUpSubmenu(QString _title) {
+      m_submenu = new QMenu(_title, this);
+      for(map<string, QAction*>::iterator ait = m_actions.begin(); ait != m_actions.end(); ait++)
+        m_submenu->addAction(ait->second);
+    }
 };
 
 #endif

@@ -8,13 +8,7 @@
 #include <deque>
 using namespace std;
 
-#include <qgl.h>
-#include <QMouseEvent>
-#include <QKeyEvent>
 #include <QGLWidget>
-
-#include <Utilities/GL/gli.h>
-#include "TextGUI.h"
 
 class MainWindow;
 class TextGUI;
@@ -47,7 +41,13 @@ class GLWidget : public QGLWidget {
     void clickByLMB();
     void MRbyGLI();
 
-  protected:
+  private slots:
+    void ShowAxis();
+    void ShowFrameRate();
+    void ToggleSelectionSlot();
+    void SimulateMouseUpSlot();
+
+  private:
     void initializeGL();
     void resizeGL(int, int);
     void paintGL();
@@ -57,13 +57,6 @@ class GLWidget : public QGLWidget {
     void mouseMoveEvent(QMouseEvent*);
     void keyPressEvent(QKeyEvent* _e);
 
-  private slots:
-    void ShowAxis();
-    void ShowFrameRate();
-    void ToggleSelectionSlot();
-    void SimulateMouseUpSlot();
-
-  private:
     void SetLight();
     void SetLightPos(){ //set light position
       static GLfloat lightPosition[] = { 250.0f, 250.0f, 250.0f, 1.0f };

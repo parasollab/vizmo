@@ -1,6 +1,12 @@
 #include "CameraPosDialog.h"
 
 #include <sstream>
+
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+
 using namespace std;
 
 #include "Utilities/GL/Camera.h"

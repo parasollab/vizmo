@@ -6,17 +6,12 @@
 #ifndef CAMERA_POS_DIALOG_H
 #define CAMERA_POS_DIALOG_H
 
-#include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QWidget>
+#include <QDialog>
+
+class QDialogButtonBox;
+class QFormLayout;
+class QLabel;
+class QLineEdit;
 
 class CameraPosDialog : public QDialog {
 

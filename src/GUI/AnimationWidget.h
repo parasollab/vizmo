@@ -3,16 +3,11 @@
 // TO DO: Set up the slider values initially. When loaded, signal slider
 // and update slider values.
 
-#include <vector>
-#include <string>
 using namespace std;
 
-#include <QLabel>
 #include <QToolBar>
 
-#include "Models/Vizmo.h"
 
-class QMainWindow;
 class QTimer;
 class QSlider;
 class QAction;

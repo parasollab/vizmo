@@ -6,17 +6,13 @@
 #ifndef SLIDER_DIALOG_H
 #define SLIDER_DIALOG_H
 
-#include <QVariant>
-#include <QAction>
-#include <QApplication>
 #include <QDialog>
-#include <QDialogButtonBox>
-#include <QHeaderView>
-#include <QLabel>
 #include <QSlider>
-#include <QString>
 
 using namespace std;
+
+class QDialogButtonBox;
+class QLabel;
 
 class SliderDialog : public QDialog {
 

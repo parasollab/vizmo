@@ -6,11 +6,11 @@
 #ifndef MAINMENU_H_
 #define MAINMENU_H_
 
-#include <QMenuBar>
 #include <QWidget>
 
 class MainWindow;
 class OptionsBase;
+class QMenuBar;
 
 using namespace std;
 
@@ -23,7 +23,6 @@ class MainMenu : public QWidget {
 
     OptionsBase* m_fileOptions;         //File tool button and submenu
     OptionsBase* m_glWidgetOptions;        //2 scene buttons and submenu
-    OptionsBase* m_robotOptions;        //just a submenu
     OptionsBase* m_environmentOptions;  //randomize colors button and submenu
     OptionsBase* m_roadmapOptions;      //large toolbar and submenu
     OptionsBase* m_pathOptions;         //2 buttons and submenu
@@ -34,8 +33,12 @@ class MainMenu : public QWidget {
 
     void CallReset();
 
-  public slots:
+  private slots:
     void SetUpMainMenu();
+
+  private:
+    OptionsBase* m_robotOptions;        //just a submenu
+
 };
 
 #endif

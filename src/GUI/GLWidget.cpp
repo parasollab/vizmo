@@ -13,6 +13,7 @@
 #include "Models/Vizmo.h"
 #include "Utilities/GL/Camera.h"
 #include "Utilities/GL/Font.h"
+#include <Utilities/GL/gli.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features

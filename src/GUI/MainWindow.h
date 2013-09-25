@@ -1,15 +1,9 @@
 #ifndef MAINWINDOW_H_
 #define MAINWINDOW_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-#include <string>
 using namespace std;
 
 #include <QMainWindow>
-#include <QToolBar>
-#include <QKeyEvent>
 
 class QAction;
 class QGridLayout;
@@ -49,10 +43,6 @@ class MainWindow : public QMainWindow {
 
     MainMenu* m_mainMenu;   //top menubar...owns everything
 
-  protected:
-    void keyPressEvent(QKeyEvent* _e);
-    bool CreateGUI();
-
   private slots:
     void UpdateScreen();  // redraw GL scene
 
@@ -64,6 +54,8 @@ class MainWindow : public QMainWindow {
     TextGUI* m_outbox;      //Q3TextView that displays node/edge(s) selection info, debug, etc.
 
     void SetUpLayout();     //Set a QGridLayout for invisible central widget
+    void keyPressEvent(QKeyEvent* _e);
+    bool CreateGUI();
 
     vector<string> m_args; //user input arguments.
     bool m_vizmoInit;     //true if vizmo is init.
