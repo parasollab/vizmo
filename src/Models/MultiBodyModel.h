@@ -3,12 +3,12 @@
 
 #include <graph.h>
 
-#include "GLModel.h"
+#include "Model.h"
 
 class BodyModel;
 class ConnectionModel;
 
-class MultiBodyModel : public GLModel {
+class MultiBodyModel : public Model {
   public:
     typedef vector<ConnectionModel*> Joints;
     typedef pair<BodyModel*, Joints> Robot;
@@ -20,7 +20,7 @@ class MultiBodyModel : public GLModel {
     //access properties
     virtual const string GetName() const{return "MultiBody";}
     virtual vector<string> GetInfo() const;
-    virtual void GetChildren(list<GLModel*>& _models);
+    virtual void GetChildren(list<Model*>& _models);
     virtual void SetRenderMode(RenderMode _mode);
     virtual void SetColor(const Color4& _c);
 
@@ -37,7 +37,7 @@ class MultiBodyModel : public GLModel {
 
     //drawing
     virtual void BuildModels();
-    virtual void Select(unsigned int* _index, vector<GLModel*>& sel);
+    virtual void Select(unsigned int* _index, vector<Model*>& sel);
     virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
 

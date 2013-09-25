@@ -1,11 +1,11 @@
 #ifndef QUERY_H_
 #define QUERY_H_
 
-#include "GLModel.h"
+#include "Model.h"
 
 class RobotModel;
 
-class QueryModel : public GLModel {
+class QueryModel : public Model {
   public:
     QueryModel(const string& _filename, RobotModel* _robotModel);
     virtual ~QueryModel();

@@ -35,8 +35,8 @@ void gliCM();
 
 //set select method
 class Box;
-class GLModel;
-typedef vector<GLModel*>& (*pick_func)(const Box&);
+class Model;
+typedef vector<Model*>& (*pick_func)(const Box&);
 void gliSetPickingFunction(pick_func func);
 
 /// simulate mouse up

@@ -18,9 +18,9 @@ TextGUI::TextGUI(QWidget* _parent)
 
 void
 TextGUI::SetText(){
-  vector<GLModel*>& sel=GetVizmo().GetSelectedModels();
+  vector<Model*>& sel=GetVizmo().GetSelectedModels();
 
-  typedef vector<GLModel*>::iterator SIT;
+  typedef vector<Model*>::iterator SIT;
 
   //Holds whatever will go into the QTextEdit box: a selected node/group of
   //nodes' configurations, VDebug comments, etc.
@@ -30,7 +30,7 @@ TextGUI::SetText(){
   //infoVect
   if(sel.size() > 0){
     for(SIT i=sel.begin(); i!=sel.end(); i++){
-      GLModel* gl = (GLModel *)(*i);
+      Model* gl = (Model *)(*i);
       if(gl != NULL){
         vector<string> info = gl->GetInfo();
         if(info.size() > 0)

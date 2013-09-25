@@ -16,7 +16,7 @@ template<typename, typename>
 class CCModel;
 
 template <class CfgModel, class WEIGHT>
-class MapModel : public GLModel{
+class MapModel : public Model{
 
   public:
     typedef CCModel<CfgModel, WEIGHT> CCM;
@@ -39,8 +39,8 @@ class MapModel : public GLModel{
     const string  GetFileDir() const{ return m_fileDir; }
     Wg* GetGraph(){ return m_graph; }
     vector<CCM*>& GetCCModels(){ return m_cCModels; }
-    list<GLModel*>& GetNodeList(){ return m_nodes; }
-    vector<GLModel*>& GetNodesToConnect(){ return m_nodesToConnect; }
+    list<Model*>& GetNodeList(){ return m_nodes; }
+    vector<Model*>& GetNodesToConnect(){ return m_nodesToConnect; }
     void SetMBEditModel(bool _setting){ m_editModel = _setting; }
     CCM* GetCCModel(int _id){ return m_cCModels[_id]; }
     int NumberOfCC(){ return m_cCModels.size(); }
@@ -52,7 +52,7 @@ class MapModel : public GLModel{
 
 
     //Load functions
-    //Moving generic load functions to virtual in GLModel.h
+    //Moving generic load functions to virtual in Model.h
     void InitGraph(){ m_graph = new Wg(); }
     void WriteMapFile(const string& _filename);
     void ParseHeader(istream& _in);
@@ -63,10 +63,10 @@ class MapModel : public GLModel{
     //Display fuctions
     virtual void BuildModels();
     virtual void Draw(GLenum _mode);
-    void Select(unsigned int* _index, vector<GLModel*>& _sel);
+    void Select(unsigned int* _index, vector<Model*>& _sel);
     virtual void SetRenderMode(RenderMode _mode); //Wire, solid, or invisible
     bool AddCC(int _vid);
-    virtual void GetChildren(list<GLModel*>& _models);
+    virtual void GetChildren(list<Model*>& _models);
     virtual vector<string> GetInfo() const;
     //void SetProperties(typename CCM::Shape _s, float _size, vector<float> _color, bool _isNew);
     void ScaleNodes(float _scale);
@@ -86,8 +86,8 @@ class MapModel : public GLModel{
     //int m_dof;
     RobotModel* m_robot;
     vector<CCM*> m_cCModels;
-    list<GLModel*> m_nodes;
-    vector<GLModel*> m_nodesToConnect; //nodes to be connected
+    list<Model*> m_nodes;
+    vector<Model*> m_nodesToConnect; //nodes to be connected
     //double m_oldT[3], m_oldR[3];  //old_T
     string m_cfgString, m_robCfgString; //s_cfg, s_robCfg
     bool m_editModel;
@@ -319,7 +319,7 @@ MapModel<CfgModel, WEIGHT>::AddCC(int _vid){
 
 template <class CfgModel, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
+MapModel<CfgModel, WEIGHT>::GetChildren(list<Model*>& _models){
   typedef typename vector<CCM*>::iterator CIT;
   for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++)
     _models.push_back(*ic);
@@ -354,7 +354,7 @@ MapModel<CfgModel, WEIGHT>::ScaleNodes(float _scale){
 
 template <class CfgModel, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel){
+MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<Model*>& _sel){
   if(_index == NULL)
     return;
   m_cCModels[_index[0]]->Select(&_index[1],_sel);
@@ -369,14 +369,14 @@ MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel)
 
 //find nodes
 m_nodes.clear();
-vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
-typedef vector<GLModel*>::iterator OIT;
+vector<Model*>& sel = this->GetVizmo().GetSelectedItem();
+typedef vector<Model*>::iterator OIT;
 
 for(OIT i=sel.begin(); i!=sel.end(); i++){  //GETS THE NODES FROM SELECTED ITEM AND PUTS THEM IN NODE VECTOR
-string myName = ((GLModel*)(*i))->GetName();
-if(((GLModel*)(*i)) != NULL)
+string myName = ((Model*)(*i))->GetName();
+if(((Model*)(*i)) != NULL)
 if(myName.find("Node")!=string::npos){
-m_nodes.push_back((GLModel*)(*i));
+m_nodes.push_back((Model*)(*i));
 }//end if
 
 if(m_robCfgOn){
@@ -388,7 +388,7 @@ this->GetVizmo().getRoboCfg();
 if(!m_editModel){return;}
 
 if(m_nodes.size() > 0){
-GLModel* n = m_nodes.front();
+Model* n = m_nodes.front();
 //   printNodeCfg((CfgModel*)n); MAY NEED TO RESTORE THIS
 }
 
@@ -417,7 +417,7 @@ graph = m_loader->GetGraph();
 //get VID from those Cfgs
 //add edge
 
-list<GLModel*>::const_iterator it;
+list<Model*>::const_iterator it;
 for(it = m_nodes.begin(); it != m_nodes.end(); it++){
 m_nodesToConnect.push_back(*it);
 }
@@ -460,10 +460,10 @@ m_nodesToConnect.clear();
 template <class CfgModel, class WEIGHT>
 void MapModel<CfgModel, WEIGHT>::HandleAddNode(){
 
-vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
+vector<Model*>& sel = this->GetVizmo().GetSelectedItem();
 if(sel.size() !=0){
 if(!m_nodes.empty()){
-GLModel* n = m_nodes.front();
+Model* n = m_nodes.front();
 CfgModel* cfg = (CfgModel*)n;
 //get current node's cfg
 vector<double> c = cfg->GetDataCfg();
@@ -531,7 +531,7 @@ else{ //no node selected and assumes there is not roadmap....
     //uselect
     this->GetVizmo().cleanSelectedItem();
     //select new node
-    this->GetVizmo().addSelectedItem((GLModel*)cfgNew);
+    this->GetVizmo().addSelectedItem((Model*)cfgNew);
     vector<double> cf = cfgNew->GetDataCfg();
     m_cfg = new double [cf.size()];
     for(unsigned int i=0; i<cf.size(); i++)
@@ -558,7 +558,7 @@ else{ //no node selected and assumes there is not roadmap....
    void MapModel<CfgModel, WEIGHT>::HandleEditMap(){
 
    if(m_nodes.empty()==false){
-   GLModel* n = m_nodes.front();
+   Model* n = m_nodes.front();
    m_oldT[0] = n->tx();
    m_oldT[1] = n->ty();
    m_oldT[2] = n->tz();
@@ -574,7 +574,7 @@ else{ //no node selected and assumes there is not roadmap....
   void MapModel<CfgModel, WEIGHT>::MoveNode(){
 
   if(m_nodes.empty()) return;
-  GLModel * n=m_nodes.front();
+  Model * n=m_nodes.front();
   double diff = fabs(m_oldT[0]-n->tx())+
   fabs(m_oldT[1]-n->ty())+
   fabs(m_oldT[2]-n->tz())+
@@ -583,14 +583,14 @@ else{ //no node selected and assumes there is not roadmap....
   fabs(m_oldR[2]-n->rz());
 
   if(diff > 1e-10){
-  vector<GLModel*>& sel=GetVizmo().GetSelectedItem();
+  vector<Model*>& sel=GetVizmo().GetSelectedItem();
   if(sel.size() !=0){
   GetVizmo().Node_CD((CfgModel*)n);
   }
 
-  typedef vector<GLModel*>::iterator OIT;
+  typedef vector<Model*>::iterator OIT;
   for(OIT i=sel.begin();i!=sel.end();i++){
-  if(((GLModel*)(*i))->GetName()=="Node")
+  if(((Model*)(*i))->GetName()=="Node")
   printNodeCfg((CfgModel*)n);
   }
 

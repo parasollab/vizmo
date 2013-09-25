@@ -49,19 +49,19 @@ BodyModel::GetInfo() const {
 }
 
 void
-BodyModel::GetChildren(list<GLModel*>& _models) {
+BodyModel::GetChildren(list<Model*>& _models) {
   _models.push_back(m_polyhedronModel);
 }
 
 void
 BodyModel::SetRenderMode(RenderMode _mode) {
-  GLModel::SetRenderMode(_mode);
+  Model::SetRenderMode(_mode);
   m_polyhedronModel->SetRenderMode(_mode);
 }
 
 void
 BodyModel::SetColor(const Color4& _c) {
-  GLModel::SetColor(_c);
+  Model::SetColor(_c);
   m_polyhedronModel->SetColor(_c);
 }
 

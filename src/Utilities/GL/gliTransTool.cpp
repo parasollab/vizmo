@@ -666,7 +666,7 @@ void GLTransformTool::CheckSelectObject()
     m_rT.setSObject(NULL);
 
     //get selected objects
-    const vector<GLModel*>& sobjs = GetPickedSceneObjs();
+    const vector<Model*>& sobjs = GetPickedSceneObjs();
     if( sobjs.empty() ) return;
     m_rT.setSObject((GLTransform*)sobjs.front());
 }

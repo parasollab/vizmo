@@ -386,10 +386,10 @@ RoadmapOptions::MakeSolid(){
 
   string s;
   int k = 0;
-  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<GLModel*>::iterator SI;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    GLModel* gl = (GLModel*)(*i);
+    Model* gl = (Model*)(*i);
     gl->SetRenderMode(SOLID_MODE);
     s = gl->GetName();
     k++;
@@ -401,10 +401,10 @@ void
 RoadmapOptions::MakeWired(){
 
   string s;
-  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<GLModel*>::iterator SI;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    GLModel *gl = (GLModel*)(*i);
+    Model *gl = (Model*)(*i);
     gl->SetRenderMode(WIRE_MODE);
   }
   m_mainWindow->GetGLScene()->updateGL();
@@ -414,10 +414,10 @@ void
 RoadmapOptions::MakeInvisible(){
 
   string s;
-  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<GLModel*>::iterator SI;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    GLModel* gl = (GLModel*)(*i);
+    Model* gl = (Model*)(*i);
     gl->SetRenderMode(INVISIBLE_MODE);
   }
   m_mainWindow->GetGLScene()->updateGL();
@@ -515,11 +515,11 @@ RoadmapOptions::ShowObjectContextMenu(){
   //Create submenu to set start and goal configs.
   //create it just if RobotModel.has been selected
   string str;
-  typedef vector<GLModel*>::iterator GIT;
+  typedef vector<Model*>::iterator GIT;
 
   for(GIT ig = GetVizmo().GetSelectedModels().begin();
       ig!=GetVizmo().GetSelectedModels().end(); ig++){
-    GLModel* gl=(GLModel*)(*ig);
+    Model* gl=(Model*)(*ig);
     vector<string> info=gl->GetInfo();
     str = info.front();
   }
@@ -558,7 +558,7 @@ RoadmapOptions::ChangeObjectColor(){
 
   if(m_nodeGUI != NULL && m_nodeGUI->isVisible() && m_nodeGUI->filledFirstTime==false){
   if(!GetMapModel()->GetNodeList().empty()){
-  GLModel* n = GetMapModel()->GetNodeList().front();
+  Model* n = GetMapModel()->GetNodeList().front();
   CCfg* cfg = (CCfgModel*)n;
   vector<double> VNodeCfgModel;
   VNodeCfg.clear();

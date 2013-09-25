@@ -9,7 +9,7 @@ using namespace mathtool;
 
 class ConnectionModel;
 
-class BodyModel : public GLModel {
+class BodyModel : public Model {
   public:
     enum Base {PLANAR, VOLUMETRIC, FIXED, JOINT}; //2D, 3D, 0D, not a base
     enum BaseMovement {ROTATIONAL, TRANSLATIONAL}; //rotation+translation, just translation, no movement
@@ -23,7 +23,7 @@ class BodyModel : public GLModel {
     //properties
     virtual const string GetName() const{return "Body";}
     virtual vector<string> GetInfo() const;
-    virtual void GetChildren(list<GLModel*>& _models);
+    virtual void GetChildren(list<Model*>& _models);
     const string& GetFilename() const {return m_filename;}
     const string& GetModelFilename() const {return m_modelFilename;}
     const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
@@ -66,7 +66,7 @@ class BodyModel : public GLModel {
     void BuildModels() {}
     void Draw(GLenum _mode);
     void DrawSelect();
-    void Select(unsigned int* _index, vector<GLModel*>& sel) {m_polyhedronModel->Select(_index, sel);}
+    void Select(unsigned int* _index, vector<Model*>& sel) {m_polyhedronModel->Select(_index, sel);}
 
     //file IO
     void ParseActiveBody(istream& _is, const string& _modelDataDir, const Color4 _color);

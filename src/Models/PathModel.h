@@ -4,11 +4,11 @@
 #include <Vector.h>
 using namespace mathtool;
 
-#include "GLModel.h"
+#include "Model.h"
 
 class RobotModel;
 
-class PathModel : public GLModel {
+class PathModel : public Model {
   public:
     typedef Vector<float, 4> Color4;
 

@@ -14,7 +14,7 @@ template <typename, typename>
 class CCModel;
 class EdgeModel;
 
-class CfgModel : public GLModel{
+class CfgModel : public Model{
 
   friend ostream& operator<<(ostream& _out, const CfgModel& _cfg);
   friend istream& operator>>(istream& _in, CfgModel& _cfg);

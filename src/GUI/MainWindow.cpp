@@ -40,7 +40,7 @@ MainWindow::Init(){
   this->setWindowIcon(QPixmap(eye));
   m_layoutWidget = new QWidget(this);
 
-  //Create GLModel
+  //Create Model
   if((m_gl = new GLWidget(this, this)) == NULL)
     return false;
 

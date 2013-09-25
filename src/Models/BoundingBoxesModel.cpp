@@ -30,7 +30,7 @@ BoundingBoxesModel::GetInfo() const {
 }
 
 void
-BoundingBoxesModel::GetChildren(list<GLModel*>& _models) {
+BoundingBoxesModel::GetChildren(list<Model*>& _models) {
   typedef vector<BoundingBoxModel*>::iterator BIT;
   for(BIT bit = m_bbxModels.begin(); bit != m_bbxModels.end(); ++bit)
     _models.push_back(*bit);
@@ -61,7 +61,7 @@ BoundingBoxesModel::Draw(GLenum _mode) {
 }
 
 void
-BoundingBoxesModel::Select(unsigned int* _index, vector<GLModel*>& _sel) {
+BoundingBoxesModel::Select(unsigned int* _index, vector<Model*>& _sel) {
   if(!_index || *_index >= m_bbxModels.size())
     return;
   m_bbxModels[*_index]->Select(_index+1, _sel);

@@ -2,10 +2,10 @@
 #define ENVMODEL_H_
 
 #include "BoundaryModel.h"
-#include "GLModel.h"
+#include "Model.h"
 #include "MultiBodyModel.h"
 
-class EnvModel : public GLModel {
+class EnvModel : public Model {
 
   public:
     EnvModel(const string& _filename);
@@ -36,8 +36,8 @@ class EnvModel : public GLModel {
 
     virtual void BuildModels();
     virtual void Draw(GLenum _mode);
-    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
-    virtual void GetChildren(list<GLModel*>& _models);
+    virtual void Select(unsigned int* _index, vector<Model*>& _sel);
+    virtual void GetChildren(list<Model*>& _models);
     virtual vector<string> GetInfo() const;
 
   private:

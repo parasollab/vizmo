@@ -102,8 +102,8 @@ class Vizmo {
     vector<double> m_nodeCfg;
     bool m_isNode;
 
-    vector<GLModel*>& GetLoadedModels() {return m_loadedModels;}
-    vector<GLModel*>& GetSelectedModels() {return m_selectedModels;}
+    vector<Model*>& GetLoadedModels() {return m_loadedModels;}
+    vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
     //Miscellaneous
     bool StringToInt(const string &s, int &i);
@@ -161,8 +161,8 @@ class Vizmo {
     DebugModel* m_debugModel;
     string m_debugFilename;
 
-    typedef vector<GLModel*>::iterator MIT;
-    vector<GLModel*> m_loadedModels, m_selectedModels;
+    typedef vector<Model*>::iterator MIT;
+    vector<Model*> m_loadedModels, m_selectedModels;
     bool m_doubleClick;
 };
 

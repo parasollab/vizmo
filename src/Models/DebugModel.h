@@ -2,7 +2,7 @@
 #define DEBUGMODEL_H_
 
 #include "CfgModel.h"
-#include "GLModel.h"
+#include "Model.h"
 #include "MapModel.h"
 
 class RobotModel;
@@ -105,7 +105,7 @@ struct Query : public Instruction {
 // Stores a map model and temporary vectors of objects to display the debug at
 // any given frame
 ////////////////////////////////////////////////////////////////////////////////
-class DebugModel : public GLModel {
+class DebugModel : public Model {
   public:
     typedef MapModel<CfgModel, EdgeModel> MM;
 

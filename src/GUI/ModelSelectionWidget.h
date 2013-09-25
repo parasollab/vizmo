@@ -10,7 +10,7 @@ using namespace std;
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-class GLModel;
+class Model;
 
 class ModelSelectionWidget : public QTreeWidget {
 
@@ -20,13 +20,13 @@ class ModelSelectionWidget : public QTreeWidget {
     struct ListViewItem : public QTreeWidgetItem {
       ListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
       ListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
-      GLModel* m_model;
+      Model* m_model;
     };
 
     ModelSelectionWidget(QWidget* _parent = NULL);
     void ResetLists();
-    void FillTree(vector<GLModel*>& _objs);
-    ListViewItem* CreateItem(ListViewItem* _p, GLModel* _model);
+    void FillTree(vector<Model*>& _objs);
+    ListViewItem* CreateItem(ListViewItem* _p, Model* _model);
 
   signals:
     void CallUpdate();

@@ -6,7 +6,7 @@ QueryGUI::QueryGUI(QWidget* _parent, Qt::WFlags _f) : QDialog(_parent) {
 
   m_nodeCfg = NULL;
   m_filledFirstTime = false;
-  typedef vector<GLModel*>::iterator GIT;
+  typedef vector<Model*>::iterator GIT;
   vector< list<string> > info;
   string objName;
   //to store a cfg
@@ -14,7 +14,7 @@ QueryGUI::QueryGUI(QWidget* _parent, Qt::WFlags _f) : QDialog(_parent) {
   //int I=0;
   for(GIT ig= GetVizmo().GetSelectedModels().begin();
       ig!=GetVizmo().GetSelectedModels().end(); ig++){
-    GLModel* gl=(GLModel *)(*ig);
+    Model* gl=(Model *)(*ig);
     //objName = gl->GetInfo();
     objName = gl->GetName();
   }

@@ -8,7 +8,7 @@ using namespace std;
 #include "Utilities/GL/PickBox.h"
 #include "CfgModel.h"
 #include "DebugModel.h"
-#include "GLModel.h"
+#include "Model.h"
 #include "PathModel.h"
 #include "QueryModel.h"
 #include "RobotModel.h"
@@ -127,7 +127,7 @@ Vizmo::Clean() {
 //Display OpenGL Scene
 void
 Vizmo::Display() {
-  typedef vector<GLModel*>::iterator MIT;
+  typedef vector<Model*>::iterator MIT;
   for(MIT mit = m_loadedModels.begin(); mit!=m_loadedModels.end(); ++mit)
     (*mit)->Draw(GL_RENDER);
 
@@ -172,7 +172,7 @@ Vizmo::Select(const Box& _box) {
 
   //draw
   glMatrixMode(GL_MODELVIEW);
-  typedef vector<GLModel*>::iterator MIT;
+  typedef vector<Model*>::iterator MIT;
   for(MIT mit = m_loadedModels.begin(); mit != m_loadedModels.end(); ++mit) {
     glPushName(mit-m_loadedModels.begin());
     (*mit)->Draw(GL_SELECT);
@@ -209,7 +209,6 @@ void Vizmo::Node_CD(CfgModel *cfg){
   //cfg->coll = false; //used to write message in CfgModel::GetInfo()
   m_cfg = cfg;
 
-  int dof = CfgModel::GetDOF();
   m_isNode = true;
   m_nodeCfg = cfg->GetDataCfg();
 }
@@ -225,7 +224,7 @@ void Vizmo::TurnOn_CD(){
 
     RobotModel* robot = m_robotModel;
 
-    list<GLModel*> robotList,modelList;
+    list<Model*> robotList,modelList;
     //obtain robot model
     robot->GetChildren(modelList);
     MultiBodyModel* robotModel = (MultiBodyModel*)modelList.front();
@@ -327,7 +326,7 @@ void Vizmo::ChangeAppearance(int status)
   robot->BackUp();
 
   for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit) {
-    GLModel* model = *mit;
+    Model* model = *mit;
     if(status==0)
       model->SetRenderMode(SOLID_MODE);
     else if(status==1)
@@ -437,7 +436,7 @@ void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
   int m_i;
   string m_sO;
   for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit){
-    GLModel* gl = *mit;
+    Model* gl = *mit;
     m_sO = gl->GetName();
 
     string m_s="NULL";
@@ -562,7 +561,7 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
     }
     else{ //select all
       if(curName[0] <= m_loadedModels.size()) {
-        GLModel* selectModel = m_loadedModels[curName[0]];
+        Model* selectModel = m_loadedModels[curName[0]];
         selectModel->Select(&curName[1], m_selectedModels);
       }
     }
@@ -574,7 +573,7 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
   if(!_all) {
     // analyze selected item
     if(selName && selName[0] <= m_loadedModels.size()) {
-      GLModel* selectModel = m_loadedModels[selName[0]];
+      Model* selectModel = m_loadedModels[selName[0]];
       selectModel->Select(&selName[1], m_selectedModels);
     }
   }

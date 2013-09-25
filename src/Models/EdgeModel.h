@@ -10,7 +10,7 @@ using namespace std;
 
 #include "CfgModel.h"
 
-class EdgeModel : public GLModel {
+class EdgeModel : public Model {
 
   friend ostream& operator<<(ostream& _out, const EdgeModel& _edge);
   friend istream& operator>>(istream& _in, EdgeModel& _edge);

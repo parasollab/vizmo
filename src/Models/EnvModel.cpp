@@ -147,7 +147,7 @@ EnvModel::ChangeColor(){
 }
 
 void
-EnvModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
+EnvModel::Select(unsigned int* _index, vector<Model*>& _sel){
   //unselect old one
   if(!_index || *_index > m_multibodies.size()) //input error
     return;
@@ -158,7 +158,7 @@ EnvModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
 }
 
 void
-EnvModel::GetChildren(list<GLModel*>& _models){
+EnvModel::GetChildren(list<Model*>& _models){
   typedef vector<MultiBodyModel *>::iterator MIT;
   for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); i++){
     if(!(*i)->IsActive())
@@ -227,9 +227,9 @@ EnvModel::SaveFile(const char* _filename){
       //write Num. of Bodies in the current MultiBody
       fprintf(envFile,"%d\n", nB);
       //write COLOR tag
-      list<GLModel*> tmpList;
+      list<Model*> tmpList;
       mBModels[i]->GetChildren(tmpList);
-      GLModel* om = tmpList.front();
+      Model* om = tmpList.front();
       if(mBI[i].m_active){
         fprintf(envFile,"#VIZMO_COLOR %2f %2f %2f\n",
             mBI[i].m_mBodyInfo[0].rgb[0],
@@ -274,9 +274,9 @@ EnvModel::SaveFile(const char* _filename){
 
         //get prev. rotation
 
-        list<GLModel*> objList;
+        list<Model*> objList;
         mBModels[i]->GetChildren(objList);
-        GLModel* om = objList.front();
+        Model* om = objList.front();
 
         //multiply polyhedron0 and multiBody quaternions
         //to get new rotation

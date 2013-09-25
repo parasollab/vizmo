@@ -11,13 +11,13 @@ RobotModel::RobotModel(EnvModel* _env) : m_envModel(_env) {
 
 void
 RobotModel::SetRenderMode(RenderMode _mode) {
-  GLModel::SetRenderMode(_mode);
+  Model::SetRenderMode(_mode);
   m_robotModel->SetRenderMode(_mode);
 }
 
 void
 RobotModel::SetColor(const Color4& _c) {
-  GLModel::SetColor(_c);
+  Model::SetColor(_c);
   m_robotModel->SetColor(_c);
 }
 
@@ -145,7 +145,7 @@ RobotModel::BuildModels() {
 }
 
 void
-RobotModel::Select(unsigned int* _index, vector<GLModel*>& _sel) {
+RobotModel::Select(unsigned int* _index, vector<Model*>& _sel) {
   if(!_index) return;
   m_robotModel->Select(_index+1, _sel);
 }

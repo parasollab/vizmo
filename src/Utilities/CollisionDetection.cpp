@@ -48,14 +48,14 @@ bool CollisionDetection::IsInCollision(int _numMB,
 
   RobotModel* robotCpy(_robotObj);
 
-  list<GLModel*> robotList,modelList;
+  list<Model*> robotList,modelList;
   //obtain robot model
   robotCpy->GetChildren(modelList);
   MultiBodyModel * m_robotModel = (MultiBodyModel*)modelList.front();
 
 
   //get current color of robot
-  //  GLModel* m_gl = modelList.front();
+  //  Model* m_gl = modelList.front();
   //const float * curr_color = m_gl->GetColor();
 
   if(TestNode){
@@ -177,8 +177,8 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
         //rotation link0
         //Need to compute rotation from Quaternion
 
-        list<GLModel*> modelList;
-        GLModel* gl;
+        list<Model*> modelList;
+        Model* gl;
         robot->GetChildren(modelList);
         gl = modelList.front();
         //get initial quaternion from polyhedron

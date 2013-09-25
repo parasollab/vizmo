@@ -6,9 +6,9 @@
 
 #include "gliTransTool.h"
 
-vector<GLModel*> g_pickedSceneObjs;
+vector<Model*> g_pickedSceneObjs;
 
-vector<GLModel*>&
+vector<Model*>&
 GetPickedSceneObjs() {
   return g_pickedSceneObjs;
 }

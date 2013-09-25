@@ -22,7 +22,7 @@ CfgModel::CfgModel(){
   m_cc = NULL;
 }
 
-CfgModel::CfgModel(const CfgModel& _cfg) : GLModel(_cfg) {
+CfgModel::CfgModel(const CfgModel& _cfg) : Model(_cfg) {
   m_index = _cfg.m_index;
   m_robot = _cfg.m_robot;
   m_cc = _cfg.m_cc;

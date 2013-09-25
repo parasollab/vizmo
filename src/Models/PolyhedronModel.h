@@ -1,12 +1,12 @@
 #ifndef POLYHEDRONMODEL_H_
 #define POLYHEDRONMODEL_H_
 
-#include "GLModel.h"
+#include "Model.h"
 
 class BodyModel;
 class RAPID_model;
 
-class PolyhedronModel : public GLModel {
+class PolyhedronModel : public Model {
   public:
     typedef Vector<int,  3> Tri;
     typedef vector<Point3d> PtVector;

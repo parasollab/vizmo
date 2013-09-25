@@ -39,21 +39,21 @@ MultiBodyModel::GetInfo() const{
 }
 
 void
-MultiBodyModel::GetChildren(list<GLModel*>& _models) {
+MultiBodyModel::GetChildren(list<Model*>& _models) {
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     _models.push_back(*bit);
 }
 
 void
 MultiBodyModel::SetRenderMode(RenderMode _mode){
-  GLModel::SetRenderMode(_mode);
+  Model::SetRenderMode(_mode);
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->SetRenderMode(_mode);
 }
 
 void
 MultiBodyModel::SetColor(const Color4& _c) {
-  GLModel::SetColor(_c);
+  Model::SetColor(_c);
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->SetColor(_c);
 }
@@ -81,7 +81,7 @@ MultiBodyModel::BuildModels() {
 }
 
 void
-MultiBodyModel::Select(unsigned int* _index, vector<GLModel*>& sel){
+MultiBodyModel::Select(unsigned int* _index, vector<Model*>& sel){
   if(!_index)
     sel.push_back(this);
 }
@@ -172,7 +172,7 @@ MultiBodyModel::BuildRobotStructure() {
     return;
 
   //add a node to the robot graph for each body
-  for(int i = 0; i < m_bodies.size(); i++)
+  for(size_t i = 0; i < m_bodies.size(); i++)
     m_robotGraph.add_vertex(i);
 
   //Total amount of bodies in environment: free + fixed

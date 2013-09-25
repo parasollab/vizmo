@@ -1,14 +1,14 @@
 #ifndef BOUNDARYMODEL_H_
 #define BOUNDARYMODEL_H_
 
-#include "GLModel.h"
+#include "Model.h"
 
-class BoundaryModel : public GLModel {
+class BoundaryModel : public Model {
   public:
     BoundaryModel();
     virtual ~BoundaryModel();
 
-    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
+    virtual void Select(unsigned int* _index, vector<Model*>& _sel);
     virtual void BuildModels() = 0;
     virtual void Draw(GLenum mode);
     virtual void DrawSelect();

@@ -18,21 +18,21 @@ ModelSelectionWidget::ModelSelectionWidget(QWidget* _parent) :
 
 void
 ModelSelectionWidget::ResetLists(){
-  vector<GLModel*>& objs = GetVizmo().GetLoadedModels();
+  vector<Model*>& objs = GetVizmo().GetLoadedModels();
   ClearLists();
   FillTree(objs);
   setEnabled(!objs.empty());
 }
 
 void
-ModelSelectionWidget::FillTree(vector<GLModel*>& _obj){
-  typedef vector<GLModel*>::iterator MIT;
+ModelSelectionWidget::FillTree(vector<Model*>& _obj){
+  typedef vector<Model*>::iterator MIT;
   for(MIT mit = _obj.begin(); mit != _obj.end(); ++mit)
     CreateItem(NULL, *mit);
 }
 
 ModelSelectionWidget::ListViewItem*
-ModelSelectionWidget::CreateItem(ListViewItem* _p, GLModel* _model){
+ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
   ListViewItem* item = NULL;
   if(!_p){
     item = new ListViewItem(this);
@@ -46,12 +46,12 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, GLModel* _model){
   item->setText(0, qstr); //Set the text to column 0, which is the only column in this tree widget
   m_items.push_back(item);
 
-  list<GLModel*> objlist;
+  list<Model*> objlist;
   _model->GetChildren(objlist);
   if(objlist.empty())
     return item;
 
-  typedef list<GLModel*>::iterator OIT;
+  typedef list<Model*>::iterator OIT;
   for(OIT i = objlist.begin(); i != objlist.end(); i++)
     CreateItem(item, *i);
   return item;
@@ -60,7 +60,7 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, GLModel* _model){
 void
 ModelSelectionWidget::SelectionChanged(){
   //Selects in MAP whatever has been selected in the tree widget
-  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
   sel.clear();
   typedef vector<ListViewItem*>::iterator IIT;
   for(IIT i = m_items.begin(); i != m_items.end(); i++){
@@ -86,7 +86,7 @@ ModelSelectionWidget::ClearLists(){
 void
 ModelSelectionWidget::Select(){
   //Selects in the TREE WIDGET whatever has been selected in the map
-  vector<GLModel*>& sel = GetVizmo().GetSelectedModels();
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<ListViewItem*>::iterator IIT;
 
   //Unselect everything

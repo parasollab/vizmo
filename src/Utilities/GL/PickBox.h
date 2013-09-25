@@ -13,8 +13,8 @@ struct Box{
   double m_left, m_right, m_bottom, m_top; //left, right,top,bottom
 };
 
-class GLModel;
-vector<GLModel*>& GetPickedSceneObjs();
+class Model;
+vector<Model*>& GetPickedSceneObjs();
 
 //Handle user picking
 class PickBox {

@@ -1,22 +1,22 @@
 #ifndef BOUNDINGBOXESMODEL_H_
 #define BOUNDINGBOXESMODEL_H_
 
-#include "GLModel.h"
+#include "Model.h"
 
 class BoundingBoxModel;
 
-class BoundingBoxesModel : public GLModel {
+class BoundingBoxesModel : public Model {
   public:
     BoundingBoxesModel();
     ~BoundingBoxesModel();
 
     virtual const string GetName() const {return "BoundingBoxes";}
     virtual vector<string> GetInfo() const;
-    virtual void GetChildren(list<GLModel*>& _models);
+    virtual void GetChildren(list<Model*>& _models);
 
     virtual void BuildModels();
     virtual void Draw(GLenum _mode);
-    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
+    virtual void Select(unsigned int* _index, vector<Model*>& _sel);
 
   private:
     enum OverlapType {O, EN, EP, D};

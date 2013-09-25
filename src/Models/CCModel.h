@@ -13,7 +13,7 @@ using namespace stapl;
 
 #include "CfgModel.h"
 #include "EdgeModel.h"
-#include "GLModel.h"
+#include "Model.h"
 #include "MapModel.h"
 #include "RobotModel.h"
 #include "Utilities/Exceptions.h"
@@ -24,7 +24,7 @@ class MapModel;
 class CfgModel;
 
 template <class CfgModel, class WEIGHT>
-class CCModel : public GLModel{
+class CCModel : public Model{
 
   public:
     typedef typename MapModel<CfgModel, WEIGHT>::Wg WG;
@@ -52,7 +52,7 @@ class CCModel : public GLModel{
     void BuildModels(); //not used, should not call this
     void Draw(GLenum _mode);
     void DrawSelect();
-    void Select(unsigned int* _index, vector<GLModel*>& _sel);
+    void Select(unsigned int* _index, vector<Model*>& _sel);
     void BuildModels(VID _id, WG* _g); //call this instead
     virtual vector<string> GetInfo() const;
 
@@ -62,7 +62,7 @@ class CCModel : public GLModel{
     void SetColor(const Color4& _c);
     void AddEdge(CfgModel* _c1, CfgModel* _c2);
     //void ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew);
-    virtual void GetChildren(list<GLModel*>& _models);
+    virtual void GetChildren(list<Model*>& _models);
 
   private:
     int m_id; //CC ID
@@ -79,7 +79,7 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
   m_id = _id;
   m_renderMode = INVISIBLE_MODE;
   //Set random Color
-  GLModel::SetColor(Color4(drand48(), drand48(), drand48(), 1));
+  Model::SetColor(Color4(drand48(), drand48(), drand48(), 1));
   m_newColor = false;
   m_graph = NULL;
   m_robot = NULL;
@@ -181,7 +181,7 @@ template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
 
-  GLModel::SetColor(_c);
+  Model::SetColor(_c);
 
   typedef typename map<VID, CfgModel>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
@@ -228,7 +228,7 @@ CCModel<CfgModel, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float>
 
 template <class CfgModel, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
+CCModel<CfgModel, WEIGHT>::GetChildren(list<Model*>& _models){
 
   typedef typename map<VID, CfgModel>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
@@ -293,7 +293,7 @@ CCModel<CfgModel, WEIGHT>::DrawSelect(){
 
 template <class CfgModel, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel){
+CCModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<Model*>& _sel){
 
   typename WG::vertex_iterator cvi;
   if(_index == NULL || m_graph == NULL)
