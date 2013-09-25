@@ -9,18 +9,19 @@ using namespace std;
 
 int
 main(int _argc, char** _argv) {
-  if(_argc > 1){
+  if(_argc > 1) {
     cerr << "Error: vizmo++ doesn't take arguments." << endl;
     return 1;
   }
+
   //initialize gui, qapp, and main window
   glutInit(&_argc, _argv);
 
-  QApplication::setColorSpec( QApplication::CustomColor );
+  QApplication::setColorSpec(QApplication::CustomColor);
   QApplication app(_argc, _argv);
 
   MainWindow window;
-  if(!window.Init()){
+  if(!window.Init()) {
     cerr << "Error: vizmo++ could not intialize main window." << endl;
     return 1;
   }
