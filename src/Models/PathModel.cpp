@@ -7,8 +7,9 @@
 #include "Utilities/IOUtils.h"
 #include "Utilities/Exceptions.h"
 
-PathModel::PathModel(const string& _filename, RobotModel* _robotModel)
-  : m_glPathIndex(-1), m_robotModel(_robotModel),
+PathModel::PathModel(const string& _filename, RobotModel* _robotModel) :
+  LoadableModel("Path"),
+  m_glPathIndex(-1), m_robotModel(_robotModel),
   m_lineWidth(1), m_displayInterval(3) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
@@ -22,16 +23,6 @@ PathModel::PathModel(const string& _filename, RobotModel* _robotModel)
     ParseFile();
     BuildModels();
   }
-
-vector<string>
-PathModel::GetInfo() const {
-  vector<string> info;
-  info.push_back(GetFilename());
-  ostringstream temp;
-  temp<<"There are " << m_path.size() << " path frames";
-  info.push_back(temp.str());
-  return info;
-}
 
 void
 PathModel::ParseFile() {
@@ -142,7 +133,14 @@ void PathModel::Draw(GLenum _mode){
   glCallList(m_glPathIndex);
 }
 
-PathModel::Color4
+void
+PathModel::Print(ostream& _os) const {
+  _os << Name() << ": " << GetFilename() << endl
+    << m_path.size() << " path frames" << endl;
+}
+
+
+Color4
 PathModel::Mix(Color4& _a, Color4& _b, float _percent){
   return _a*(1-_percent) + _b*_percent;
 }

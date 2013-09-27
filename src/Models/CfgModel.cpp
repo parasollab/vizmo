@@ -14,7 +14,7 @@ bool CfgModel::m_isPlanarRobot = false;
 bool CfgModel::m_isVolumetricRobot = false;
 bool CfgModel::m_isRotationalRobot = false;
 
-CfgModel::CfgModel(){
+CfgModel::CfgModel() : Model("") {
   m_index = -1;
   m_coll = false;
   m_dofs.clear();
@@ -30,64 +30,30 @@ CfgModel::CfgModel(const CfgModel& _cfg) : Model(_cfg) {
   m_dofs = _cfg.m_dofs;
 }
 
-const string
-CfgModel::GetName() const {
-
+void
+CfgModel::SetName() {
   ostringstream temp;
-  temp << "Node" << m_index;
-  return temp.str();
+  temp << "Node " << m_index;
+  m_name = temp.str();
 }
 
 // Fucntion not used:
 // this information is controlled by VizmoRoadmapGUI::printNodeCfg()
 // in roadmap.cpp, which calls CfgModel::GetNodeInfo()
-vector<string>
-CfgModel::GetInfo() const {
+void
+CfgModel::Print(ostream& _os) const {
+  _os << "Node ID = " << m_index << endl
+    << "Cfg ( ";
 
-  vector<string> info;
-  int dof = CfgModel::m_dof;
-
-  ostringstream temp;
-  temp << "Node ID = " << m_index << " ";
-  temp << " Cfg ( ";
-
-  for(int i=0; i<dof;i++){
-    temp << m_dofs[i];
-    if(i == dof-1)
-      temp << " )";
-    else
-      temp << ", ";
+  for(size_t i = 0; i < m_dofs.size(); ++i){
+    _os << m_dofs[i];
+    _os << (i == m_dofs.size() - 1 ? " )" : ", ");
   }
 
-  info.push_back(temp.str());
+  _os << endl;
 
   if(m_coll)
-    info.push_back("\t\t **** IS IN COLLISION!! ****");
-
-  return info;
-}
-
-vector<string>
-CfgModel::GetNodeInfo() const {
-
-  vector<string> info;
-  int dof = CfgModel::m_dof;
-
-  ostringstream temp;
-  temp << "Node ID = " << m_index << " ";
-
-  for(int i=0; i<dof; i++){
-    if(i < 3)
-      temp << m_dofs[i];
-    else
-      temp << m_dofs[i];
-    if(i == dof-1)
-      temp << " )";
-    else
-      temp << ", ";
-  }
-  info.push_back(temp.str());
-  return info;
+    _os << "**** IS IN COLLISION!! ****" << endl;
 }
 
 int
@@ -116,6 +82,7 @@ CfgModel::operator==(const CfgModel& _other) const{
 void
 CfgModel::Set(int _index , RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc){
   m_index = _index;
+  SetName();
   m_robot = _robot;
   m_cc = _cc;
 }

@@ -19,8 +19,7 @@ class EdgeModel : public Model {
     EdgeModel();
     EdgeModel(double _weight);
 
-    const string GetName() const;
-    vector<string> GetInfo() const;
+    void SetName();
     vector<int> GetEdgeNodes();
     int& GetLP(){ return m_lp; }
     double& GetWeight(){ return m_weight; }
@@ -34,8 +33,12 @@ class EdgeModel : public Model {
 
     bool operator==(const EdgeModel& _other);
     void Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot = NULL);
+
+    void BuildModels() {}
+    void Select(GLuint* _index, vector<Model*>& _sel) {};
     void Draw(GLenum _mode);
     void DrawSelect();
+    void Print(ostream& _os) const;
 
     static double m_edgeThickness;
 

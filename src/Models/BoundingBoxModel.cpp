@@ -1,26 +1,11 @@
 #include "BoundingBoxModel.h"
 #include <limits>
 
-BoundingBoxModel::BoundingBoxModel() : BoundaryModel() {
+BoundingBoxModel::BoundingBoxModel() : BoundaryModel("BoundingBox") {
   for(int i = 0; i<3; ++i){
     m_bbx[i].first = -numeric_limits<double>::max();
     m_bbx[i].second = numeric_limits<double>::max();
   }
-}
-
-vector<string>
-BoundingBoxModel::GetInfo() const {
-  vector<string> info;
-  info.push_back(GetName());
-  info.push_back(" [ ");
-  for(int i = 0; i < 3; ++i){
-    if(m_bbx[i].second != numeric_limits<double>::max()){
-      ostringstream tmp;
-      tmp << m_bbx[i].first << ":" << m_bbx[i].second << " ";
-      info.push_back(tmp.str());
-    }
-  }
-  return info;
 }
 
 bool
@@ -121,5 +106,15 @@ BoundingBoxModel::BuildModels() {
   glEndList();
 
   glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void
+BoundingBoxModel::Print(ostream& _os) const {
+  _os << Name() << endl
+    << "[ ";
+  for(int i = 0; i < 3; ++i)
+    if(m_bbx[i].second != numeric_limits<double>::max())
+      _os << m_bbx[i].first << ":" << m_bbx[i].second << " ";
+  _os << "]" << endl;
 }
 

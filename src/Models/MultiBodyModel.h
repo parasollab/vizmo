@@ -18,8 +18,6 @@ class MultiBodyModel : public Model {
     ~MultiBodyModel();
 
     //access properties
-    virtual const string GetName() const{return "MultiBody";}
-    virtual vector<string> GetInfo() const;
     virtual void GetChildren(list<Model*>& _models);
     virtual void SetRenderMode(RenderMode _mode);
     virtual void SetColor(const Color4& _c);
@@ -37,9 +35,10 @@ class MultiBodyModel : public Model {
 
     //drawing
     virtual void BuildModels();
-    virtual void Select(unsigned int* _index, vector<Model*>& sel);
+    virtual void Select(GLuint* _index, vector<Model*>& sel);
     virtual void Draw(GLenum _mode);
     virtual void DrawSelect();
+    virtual void Print(ostream& _os) const;
 
     //IO
     void ParseMultiBody(istream& _is, const string& _modelDir);

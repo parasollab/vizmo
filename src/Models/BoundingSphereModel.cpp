@@ -2,10 +2,20 @@
 #include "glut.h"
 #include <limits>
 
-BoundingSphereModel::BoundingSphereModel() : BoundaryModel(), m_center(0.0, 0.0, 0.0), m_radius(numeric_limits<double>::max()) {
+BoundingSphereModel::BoundingSphereModel() : BoundaryModel("Bounding Sphere"), m_radius(numeric_limits<double>::max()) {
 }
 
-void BoundingSphereModel::BuildModels(){
+bool
+BoundingSphereModel::Parse(istream& _is) {
+  if(!(_is >> m_center >> m_radius)){
+    cerr << "Error reading Bounding Sphere" << endl;
+    return false;
+  }
+  return true;
+}
+
+void
+BoundingSphereModel::BuildModels() {
   GLUquadricObj* quad =gluNewQuadric();
 
   m_displayID = glGenLists(1);
@@ -33,23 +43,9 @@ void BoundingSphereModel::BuildModels(){
   gluDeleteQuadric(quad);
 }
 
-vector<string>
-BoundingSphereModel::GetInfo() const {
-  vector<string> info;
-  info.push_back(GetName());
-  info.push_back(" [ ");
-  ostringstream tmp;
-  tmp << m_center << " " << m_radius << endl;
-  info.push_back(tmp.str());
-  info.push_back(" ] ");
-  return info;
+void
+BoundingSphereModel::Print(ostream& _os) const {
+  _os << Name() << endl
+    << "[ " << m_center << " " << m_radius << " ]" << endl;
 }
 
-bool
-BoundingSphereModel::Parse(istream& _is){
-  if(!(_is >> m_center >> m_radius)){
-    cerr << "Error reading Bounding Sphere" << endl;
-    return false;
-  }
-  return true;
-}

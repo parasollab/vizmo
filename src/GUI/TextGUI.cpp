@@ -28,25 +28,21 @@ TextGUI::SetText(){
 
   //If selecting one or more nodes, edges, etc., add their cfg(s) to the
   //infoVect
-  if(sel.size() > 0){
-    for(SIT i=sel.begin(); i!=sel.end(); i++){
+  if(sel.size() > 0) {
+    for(SIT i=sel.begin(); i!=sel.end(); i++) {
+      ostringstream oss;
       Model* gl = (Model *)(*i);
-      if(gl != NULL){
-        vector<string> info = gl->GetInfo();
-        if(info.size() > 0)
-          infoVect.insert(infoVect.end(), info.begin(), info.end());
-      }
+      gl->Print(oss);
+      infoVect.push_back(oss.str());
     }
   }
 
   //If we are trying to view VDebug comments, add those to the infoVect
-  if(GetVizmo().GetDebug()!=NULL){
+  if(GetVizmo().GetDebug()) {
     DebugModel* cdm = GetVizmo().GetDebug();
-    if(cdm != NULL){
-      vector<string> comments = cdm->GetComments();
-      if(!comments.empty())
-        infoVect.insert(infoVect.end(), comments.begin(), comments.end());
-    }
+    vector<string> comments = cdm->GetComments();
+    if(!comments.empty())
+      infoVect.insert(infoVect.end(), comments.begin(), comments.end());
   }
 
   clear();

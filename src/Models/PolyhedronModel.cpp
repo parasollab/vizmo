@@ -15,7 +15,7 @@
 using namespace modelgraph;
 
 PolyhedronModel::PolyhedronModel(BodyModel* _bodyModel)
-  : m_solidID(-1), m_wiredID(-1), m_bodyModel(_bodyModel), m_rapidModel(NULL) {
+  : Model(_bodyModel->GetFilename()), m_solidID(-1), m_wiredID(-1), m_bodyModel(_bodyModel), m_rapidModel(NULL) {
     BuildModels();
     SetColor(m_bodyModel->GetColor());
   }
@@ -24,18 +24,6 @@ PolyhedronModel::~PolyhedronModel(){
   delete m_rapidModel;
   glDeleteLists(m_wiredID,1);
   glDeleteLists(m_solidID,1);
-}
-
-const string
-PolyhedronModel::GetName() const {
-  return m_bodyModel->GetFilename();
-}
-
-vector<string>
-PolyhedronModel::GetInfo() const {
-  vector<string> info;
-  info.push_back(m_bodyModel->GetModelFilename());
-  return info;
 }
 
 void
@@ -111,6 +99,11 @@ void PolyhedronModel::Draw(GLenum _mode) {
 
 void PolyhedronModel::DrawSelect() {
   glCallList(m_wiredID);
+}
+
+void
+PolyhedronModel::Print(ostream& _os) const {
+  _os << m_bodyModel->GetModelFilename() << endl;
 }
 
 //build models, given points and triangles

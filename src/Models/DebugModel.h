@@ -105,22 +105,23 @@ struct Query : public Instruction {
 // Stores a map model and temporary vectors of objects to display the debug at
 // any given frame
 ////////////////////////////////////////////////////////////////////////////////
-class DebugModel : public Model {
+class DebugModel : public LoadableModel {
   public:
     typedef MapModel<CfgModel, EdgeModel> MM;
 
     DebugModel(const string& _filename, RobotModel* _robotModel);
     virtual ~DebugModel();
 
-    virtual const string GetName() const { return "Debug"; }
-    virtual vector<string> GetInfo() const;
     size_t GetDebugSize(){ return m_instructions.size(); }
     vector<string> GetComments();
     MM* GetMapModel() {return m_mapModel;}
 
-    virtual void ParseFile();
-    virtual void BuildModels();
-    virtual void Draw(GLenum _mode);
+    void ParseFile();
+    void BuildModels();
+    void Select(GLuint* _index, vector<Model*>& _sel) {}
+    void Draw(GLenum _mode);
+    void DrawSelect() {}
+    void Print(ostream& _os) const;
 
     void ConfigureFrame(int _frame);
     void BuildForward();

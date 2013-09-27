@@ -1,5 +1,5 @@
-#ifndef CFG_MODEL_H_
-#define CFG_MODEL_H_
+#ifndef CFGMODEL_H_
+#define CFGMODEL_H_
 
 #include <iostream>
 #include <string>
@@ -14,7 +14,7 @@ template <typename, typename>
 class CCModel;
 class EdgeModel;
 
-class CfgModel : public Model{
+class CfgModel : public Model {
 
   friend ostream& operator<<(ostream& _out, const CfgModel& _cfg);
   friend istream& operator>>(istream& _in, CfgModel& _cfg);
@@ -25,9 +25,7 @@ class CfgModel : public Model{
     CfgModel();
     CfgModel(const CfgModel& _cfg);
 
-    const string GetName() const;
-    vector<string> GetInfo() const;
-    vector<string> GetNodeInfo() const;
+    void SetName();
     int GetIndex() const { return m_index; }
     int GetCCID();
     const vector<double>& GetDataCfg() { return m_dofs; }
@@ -44,18 +42,22 @@ class CfgModel : public Model{
     static void SetShape(Shape _shape){ m_shape =_shape; }
     //Set new values to dofs vector
     void SetCfg(vector<double> _newCfg);
-    void SetIndex(int _i) { m_index = _i; }
+    void SetIndex(int _i) { m_index = _i; SetName();}
     void SetCCModel(CCModel<CfgModel, EdgeModel>* _cc) { m_cc = _cc; }
     void SetRobot(RobotModel* _r) { m_robot = _r; }
 
     bool operator==(const CfgModel& _other) const;
     void Set(int _index, RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc);
     static void Scale(float _scale);
+
+    void BuildModels() {}
+    void Select(GLuint* _index, vector<Model*>& _sel) {};
     void Draw(GLenum _mode);
     void DrawRobot();
     void DrawBox();
     void DrawPoint();
     void DrawSelect();
+    void Print(ostream& _os) const;
 
   private:
     static CfgModel m_invalidCfg;

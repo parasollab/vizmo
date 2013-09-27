@@ -5,43 +5,38 @@
 
 double EdgeModel::m_edgeThickness = 1;
 
-EdgeModel::EdgeModel() {
+EdgeModel::EdgeModel() : Model("") {
   m_lp = INT_MAX;
   m_weight = LONG_MAX;
   m_id = -1;
   m_cfgShape = CfgModel::Point;
 }
 
-EdgeModel::EdgeModel(double _weight) {
+EdgeModel::EdgeModel(double _weight) : Model("") {
   m_lp = INT_MAX;
   m_weight = _weight;
   m_id = -1;
   m_cfgShape = CfgModel::Point;
 }
 
-const string
-EdgeModel::GetName() const {
+void
+EdgeModel::SetName() {
   ostringstream temp;
-  temp << "Edge" << m_id;
-  return temp.str();
+  temp << "Edge " << m_id;
+  m_name = temp.str();
 }
 
-vector<string>
-EdgeModel::GetInfo() const {
-
-  vector<string> info;
-  ostringstream temp;
-
-  temp << "Edge, ID= " << m_id << ", ";
-  temp << "connects Node " << m_startCfg.GetIndex() << " and Node " << m_endCfg.GetIndex();
-  temp << "Intermediates | ";
+void
+EdgeModel::Print(ostream& _os) const {
+  _os << "Edge ID= " << m_id << endl
+    << "Connects Nodes: " << m_startCfg.GetIndex() << " and " << m_endCfg.GetIndex() << endl
+    << "Intermediats: ";
 
   typedef vector<CfgModel>::const_iterator CFGIT;
   for(CFGIT c = m_intermediateCfgs.begin(); c != m_intermediateCfgs.end(); c++)
-    temp << *c << " | ";
-  info.push_back(temp.str());
+    _os << *c << " | ";
 
-  return info;
+  _os << endl;
 }
 
 vector<int>

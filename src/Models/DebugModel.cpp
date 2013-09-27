@@ -15,6 +15,7 @@ struct EdgeAccess {
 };
 
 DebugModel::DebugModel(const string& _filename, RobotModel* _robotModel) :
+  LoadableModel("Debug"),
   m_robotModel(_robotModel), m_index(-1),
   m_mapModel(new MapModel<CfgModel, EdgeModel>(_robotModel)),
   m_edgeNum(-1) {
@@ -30,16 +31,6 @@ DebugModel::~DebugModel() {
   typedef vector<Instruction*>::iterator IIT;
   for(IIT iit = m_instructions.begin(); iit != m_instructions.end(); ++iit)
     delete *iit;
-}
-
-vector<string>
-DebugModel::GetInfo() const {
-  vector<string> info;
-  info.push_back(GetFilename());
-  ostringstream temp;
-  temp << "There are " << m_instructions.size() << " debug frames";
-  info.push_back(temp.str());
-  return info;
 }
 
 vector<string>
@@ -549,6 +540,12 @@ DebugModel::Draw(GLenum _mode){
       edge.Draw(_mode);
     }
   }
+}
+
+void
+DebugModel::Print(ostream& _os) const {
+  _os << Name() << ": " << GetFilename() << endl
+    << m_instructions.size() << " debug frames" << endl;
 }
 
 void

@@ -5,7 +5,7 @@
 #include "Vizmo.h"
 #include "Utilities/Exceptions.h"
 
-RobotModel::RobotModel(EnvModel* _env) : m_envModel(_env) {
+RobotModel::RobotModel(EnvModel* _env) : Model("Robot"), m_envModel(_env) {
   BuildModels();
 }
 
@@ -158,10 +158,15 @@ RobotModel::Draw(GLenum _mode) {
   glPopMatrix();
 }
 
-void RobotModel::DrawSelect() {
+void
+RobotModel::DrawSelect() {
   glPushMatrix();
   GLTransform::Transform();
   m_robotModel->DrawSelect();
   glPopMatrix();
 }
 
+void
+RobotModel::Print(ostream& _os) const {
+  _os << Name() << endl;
+}

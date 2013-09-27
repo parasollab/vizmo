@@ -10,10 +10,9 @@ class RobotModel : public Model {
   public:
     RobotModel(EnvModel* _env);
 
-    virtual void GetChildren(list<Model*>& _models) {_models.push_back(m_robotModel);}
-    virtual const string GetName() const {return "Robot";}
-    virtual void SetRenderMode(RenderMode _mode);
-    virtual void SetColor(const Color4& _c);
+    void GetChildren(list<Model*>& _models) {_models.push_back(m_robotModel);}
+    void SetRenderMode(RenderMode _mode);
+    void SetColor(const Color4& _c);
 
     void SetInitialCfg(vector<double>& _cfg) {m_initCfg = _cfg;}
     const vector<double>& CurrentCfg() {return m_currCfg;}
@@ -22,10 +21,11 @@ class RobotModel : public Model {
     void Configure(vector<double>& _cfg);
     void Restore();
 
-    virtual void BuildModels();
-    virtual void Select(unsigned int* _index, vector<Model*>& _sel);
-    virtual void Draw(GLenum _mode);
-    virtual void DrawSelect();
+    void BuildModels();
+    void Select(GLuint* _index, vector<Model*>& _sel);
+    void Draw(GLenum _mode);
+    void DrawSelect();
+    void Print(ostream& _os) const;
 
   private:
     EnvModel* m_envModel;

@@ -5,17 +5,14 @@
 using namespace mathtool;
 
 #include "Model.h"
+#include "Utilities/Color.h"
 
 class RobotModel;
 
-class PathModel : public Model {
+class PathModel : public LoadableModel {
   public:
-    typedef Vector<float, 4> Color4;
-
     PathModel(const string& _filename, RobotModel* _robotModel);
 
-    virtual const string GetName() const {return "Path";}
-    virtual vector<string> GetInfo() const;
     size_t GetPathSize() {return m_path.size();}
     vector<Color4>& GetGradientVector() {return m_stopColors;}
     const vector<double>& GetConfiguration(size_t _i) const {return m_path[_i];}
@@ -25,7 +22,10 @@ class PathModel : public Model {
 
     virtual void ParseFile();
     virtual void BuildModels();
+    void Select(GLuint* _index, vector<Model*>& _sel) {}
     virtual void Draw(GLenum _mode);
+    void DrawSelect() {}
+    void Print(ostream& _os) const;
 
   private:
     Color4 Mix(Color4& _a, Color4& _b, float _percent);

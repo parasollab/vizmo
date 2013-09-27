@@ -1,6 +1,6 @@
 #include "BoundaryModel.h"
 
-BoundaryModel::BoundaryModel() : m_displayID(-1), m_linesID(-1) {
+BoundaryModel::BoundaryModel(const string& _name) : Model(_name), m_displayID(-1), m_linesID(-1) {
 }
 
 BoundaryModel::~BoundaryModel() {
@@ -9,7 +9,7 @@ BoundaryModel::~BoundaryModel() {
 }
 
 void
-BoundaryModel::Select(unsigned int* _index, vector<Model*>& _sel){
+BoundaryModel::Select(GLuint* _index, vector<Model*>& _sel) {
   if(_index)
     _sel.push_back(this);
 }

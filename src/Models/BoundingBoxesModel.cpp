@@ -5,7 +5,7 @@
 
 #include "Models/BoundingBoxModel.h"
 
-BoundingBoxesModel::BoundingBoxesModel() {}
+BoundingBoxesModel::BoundingBoxesModel() : Model("BoundingBoxes") {}
 
 BoundingBoxesModel::~BoundingBoxesModel() {
   typedef vector<BoundingBoxModel*>::iterator BIT;
@@ -15,18 +15,6 @@ BoundingBoxesModel::~BoundingBoxesModel() {
     delete *bit;
   m_bbxModels.clear();
   m_bbxOverlaps.clear();
-}
-
-vector<string>
-BoundingBoxesModel::GetInfo() const {
-  vector<string> info;
-  info.push_back("Bounding Box");
-  info.push_back("");
-  string name = "Num Bounding Boxes=";
-  ostringstream temp;
-  temp << m_bbxModels.size();
-  info.push_back(name + temp.str());
-  return info;
 }
 
 void
@@ -48,6 +36,13 @@ BoundingBoxesModel::BuildModels() {
 }
 
 void
+BoundingBoxesModel::Select(GLuint* _index, vector<Model*>& _sel) {
+  if(!_index || *_index >= m_bbxModels.size())
+    return;
+  m_bbxModels[*_index]->Select(_index+1, _sel);
+}
+
+void
 BoundingBoxesModel::Draw(GLenum _mode) {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -61,10 +56,9 @@ BoundingBoxesModel::Draw(GLenum _mode) {
 }
 
 void
-BoundingBoxesModel::Select(unsigned int* _index, vector<Model*>& _sel) {
-  if(!_index || *_index >= m_bbxModels.size())
-    return;
-  m_bbxModels[*_index]->Select(_index+1, _sel);
+BoundingBoxesModel::Print(ostream& _os) const {
+  _os << Name() << endl << endl
+    << "Num Bounding Boxes: " << m_bbxModels.size() << endl;
 }
 
 void

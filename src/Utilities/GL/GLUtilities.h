@@ -10,7 +10,7 @@
 inline void
 DrawRotateAxis(Camera* _camera) {
   static GLuint gid = -1;
-  if(gid == -1) { //no gid is created
+  if(gid == (GLuint)-1) { //no gid is created
     gid = glGenLists(1);
     glNewList(gid, GL_COMPILE);
 

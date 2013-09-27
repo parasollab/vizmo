@@ -7,12 +7,10 @@ class BoundingSphereModel : public BoundaryModel {
   public:
     BoundingSphereModel();
 
-    virtual void BuildModels();
-
-    virtual const string GetName() const {return "Bounding Sphere";}
-    virtual vector<string> GetInfo() const;
-
     virtual bool Parse(istream& _is);
+
+    virtual void BuildModels();
+    virtual void Print(ostream& _os) const;
 
   private:
     Vector3d m_center;

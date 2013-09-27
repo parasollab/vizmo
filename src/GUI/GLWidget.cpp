@@ -177,7 +177,7 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
     vector<Model*>& sel=GetVizmo().GetSelectedModels();
     typedef vector<Model*>::iterator OIT;
     for(OIT oit = sel.begin(); oit != sel.end(); oit++){
-      if(((Model*)(*oit))->GetName() != "Node") {
+      if(((Model*)(*oit))->Name() != "Node") {
         typedef vector<Model*>::iterator GIT;
         MultiBodyModel* mbl;
         list<Model*> modelList;

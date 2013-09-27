@@ -7,11 +7,10 @@ class BoundingBoxModel : public BoundaryModel {
   public:
     BoundingBoxModel();
 
-    virtual const string GetName() const {return "BoundingBox";}
-    virtual vector<string> GetInfo() const;
+    bool Parse(istream& _is);
 
-    virtual bool Parse(istream& _is);
-    virtual void BuildModels();
+    void BuildModels();
+    void Print(ostream& _os) const;
 
   private:
     pair<double, double> m_bbx[3];

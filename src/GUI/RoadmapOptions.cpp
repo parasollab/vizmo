@@ -384,24 +384,17 @@ RoadmapOptions::ClickPoint(){
 
 void
 RoadmapOptions::MakeSolid(){
-
-  string s;
-  int k = 0;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     Model* gl = (Model*)(*i);
     gl->SetRenderMode(SOLID_MODE);
-    s = gl->GetName();
-    k++;
   }
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
 RoadmapOptions::MakeWired(){
-
-  string s;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
@@ -413,8 +406,6 @@ RoadmapOptions::MakeWired(){
 
 void
 RoadmapOptions::MakeInvisible(){
-
-  string s;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
@@ -521,8 +512,7 @@ RoadmapOptions::ShowObjectContextMenu(){
   for(GIT ig = GetVizmo().GetSelectedModels().begin();
       ig!=GetVizmo().GetSelectedModels().end(); ig++){
     Model* gl=(Model*)(*ig);
-    vector<string> info=gl->GetInfo();
-    str = info.front();
+    str = gl->Name();
   }
 
   if(str == "Robot"){

@@ -24,7 +24,7 @@ class MapModel;
 class CfgModel;
 
 template <class CfgModel, class WEIGHT>
-class CCModel : public Model{
+class CCModel : public Model {
 
   public:
     typedef typename MapModel<CfgModel, WEIGHT>::Wg WG;
@@ -35,7 +35,7 @@ class CCModel : public Model{
     CCModel(unsigned int _id);
     ~CCModel();
 
-    const string GetName() const;
+    void SetName();
     int GetID() const {return m_id;}
     int GetNumNodes(){ return m_nodes.size(); }
     int GetNumEdges(){ return m_edges.size(); }
@@ -50,11 +50,11 @@ class CCModel : public Model{
     void SetColorChanged(bool _isNew) { m_newColor = _isNew; }
 
     void BuildModels(); //not used, should not call this
+    void BuildModels(VID _id, WG* _g); //call this instead
+    void Select(GLuint* _index, vector<Model*>& _sel);
     void Draw(GLenum _mode);
     void DrawSelect();
-    void Select(unsigned int* _index, vector<Model*>& _sel);
-    void BuildModels(VID _id, WG* _g); //call this instead
-    virtual vector<string> GetInfo() const;
+    void Print(ostream& _os) const;
 
     void BuildNodeModels(GLenum _mode);
     void DrawNodes(GLenum _mode);
@@ -75,8 +75,9 @@ class CCModel : public Model{
 };
 
 template <class CfgModel, class WEIGHT>
-CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
+CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id) : Model("") {
   m_id = _id;
+  SetName();
   m_renderMode = INVISIBLE_MODE;
   //Set random Color
   Model::SetColor(Color4(drand48(), drand48(), drand48(), 1));
@@ -293,7 +294,7 @@ CCModel<CfgModel, WEIGHT>::DrawSelect(){
 
 template <class CfgModel, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<Model*>& _sel){
+CCModel<CfgModel, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
 
   typename WG::vertex_iterator cvi;
   if(_index == NULL || m_graph == NULL)
@@ -306,25 +307,19 @@ CCModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<Model*>& _sel){
 }
 
 template <class CfgModel, class WEIGHT>
-const string
-CCModel<CfgModel, WEIGHT>::GetName() const{
-
+void
+CCModel<CfgModel, WEIGHT>::SetName() {
   ostringstream temp;
-  temp << "CC" << m_id;
-  return temp.str();
+  temp << "CC " << m_id;
+  m_name = temp.str();
 }
 
 template <class CfgModel, class WEIGHT>
-vector<string>
-CCModel<CfgModel, WEIGHT>::GetInfo() const{
-
-  vector<string> info;
-  ostringstream temp, temp2;
-  temp << "There are " << m_nodes.size() << " nodes";
-  info.push_back(temp.str());
-  temp2 << "There are " << m_edges.size() << " edges";
-  info.push_back(temp2.str());
-  return info;
+void
+CCModel<CfgModel, WEIGHT>::Print(ostream& _os) const {
+  _os << Name() << endl
+    << m_nodes.size() << " nodes" << endl
+    << m_edges.size() << " edges" << endl;
 }
 
 #endif //CCMODEL_H_

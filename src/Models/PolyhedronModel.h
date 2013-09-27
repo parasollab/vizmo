@@ -15,17 +15,16 @@ class PolyhedronModel : public Model {
     PolyhedronModel(BodyModel* _bodyModel);
     ~PolyhedronModel();
 
-    const string GetName() const;
-    vector<string> GetInfo() const;
-
     double GetRadius() const {return m_radius;}
     const Point3d& GetCOM() const {return m_com;}
 
     RAPID_model* GetRapidModel() const {return m_rapidModel;}
 
     void BuildModels();
+    void Select(GLuint* _index, vector<Model*>& sel) {}
     void Draw(GLenum _mode);
     void DrawSelect();
+    void Print(ostream& _os) const;
 
   protected:
     //build models, given points and triangles

@@ -10,6 +10,7 @@
 #include "Utilities/GL/Font.h"
 
 QueryModel::QueryModel(const string& _filename, RobotModel* _robotModel) :
+  LoadableModel("Query"),
   m_glQueryIndex(-1), m_robotModel(_robotModel) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
@@ -20,38 +21,6 @@ QueryModel::QueryModel(const string& _filename, RobotModel* _robotModel) :
 
 QueryModel::~QueryModel() {
   glDeleteLists(m_glQueryIndex, 1);
-}
-
-vector<string>
-QueryModel::GetInfo() const {
-  vector<string> info;
-  int dof = GetVizmo().GetEnv()->GetDOF();
-
-  info.push_back(GetFilename());
-
-  //output start
-  ostringstream temp;
-  temp << "Start = ( ";
-  for(int i=0; i < dof; i++){
-    temp << m_queries[0][i];
-    if(i < dof-1)
-      temp << ", ";
-  }
-  temp << " )" << endl;
-  info.push_back(temp.str());
-
-  //output goal
-  temp.str("");
-  temp <<"Goal = ( " ;
-  for(int i=0; i<dof; i++){
-    temp << m_queries[1][i];
-    if(i < dof-1)
-      temp << ", ";
-  }
-  temp << " )" << endl;
-  info.push_back(temp.str());
-
-  return info;
 }
 
 void
@@ -133,5 +102,27 @@ void QueryModel::Draw(GLenum _mode) {
     return; //not draw anything
   glLineWidth(2.0);
   glCallList(m_glQueryIndex);
+}
+
+void
+QueryModel::Print(ostream& _os) const {
+  _os << Name() << ": " << GetFilename() << endl;
+  //output start
+  _os << "Start: ( ";
+  for(size_t i=0; i < m_queries[0].size(); ++i){
+    _os << m_queries[0][i];
+    if(i < m_queries[0].size()-1)
+      _os << ", ";
+  }
+  _os << " )" << endl;
+
+  //output goal
+  _os << "Goal: ( " ;
+  for(size_t i=0; i<m_queries[1].size(); ++i){
+    _os << m_queries[1][i];
+    if(i < m_queries[1].size()-1)
+      _os << ", ";
+  }
+  _os << " )" << endl;
 }
 

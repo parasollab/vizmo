@@ -5,14 +5,13 @@
 #include "Model.h"
 #include "MultiBodyModel.h"
 
-class EnvModel : public Model {
+class EnvModel : public LoadableModel {
 
   public:
     EnvModel(const string& _filename);
     ~EnvModel();
 
     //Access functions
-    virtual const string GetName() const { return "Environment"; }
     string GetModelDataDir(){ return  m_modelDataDir; }
     int GetDOF(){ return m_dof; }
     vector<MultiBodyModel*> GetMultiBodies(){ return m_multibodies; }
@@ -34,11 +33,13 @@ class EnvModel : public Model {
     // TESTING to save Env. file
     bool SaveFile(const char* _filename);
 
-    virtual void BuildModels();
-    virtual void Draw(GLenum _mode);
-    virtual void Select(unsigned int* _index, vector<Model*>& _sel);
     virtual void GetChildren(list<Model*>& _models);
-    virtual vector<string> GetInfo() const;
+
+    void BuildModels();
+    void Select(GLuint* _index, vector<Model*>& _sel);
+    void Draw(GLenum _mode);
+    void DrawSelect() {}
+    void Print(ostream& _os) const;
 
   private:
     string m_modelDataDir;

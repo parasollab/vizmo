@@ -81,7 +81,7 @@ CustomizePathDialog::AcceptData(){
   path->GetGradientVector().clear();
   typedef vector<QColor>::iterator QIT;
   for(QIT qit = m_colors.begin(); qit != m_colors.end(); qit++){
-    path->GetGradientVector().push_back(PathModel::Color4(qit->redF(), qit->greenF(), qit->blueF(), 1.0));
+    path->GetGradientVector().push_back(Color4(qit->redF(), qit->greenF(), qit->blueF(), 1.0));
   }
 
   path->BuildModels();

@@ -10,13 +10,13 @@ class BoundingBoxesModel : public Model {
     BoundingBoxesModel();
     ~BoundingBoxesModel();
 
-    virtual const string GetName() const {return "BoundingBoxes";}
-    virtual vector<string> GetInfo() const;
     virtual void GetChildren(list<Model*>& _models);
 
     virtual void BuildModels();
+    virtual void Select(GLuint* _index, vector<Model*>& _sel);
     virtual void Draw(GLenum _mode);
-    virtual void Select(unsigned int* _index, vector<Model*>& _sel);
+    virtual void DrawSelect() {}
+    virtual void Print(ostream& _os) const;
 
   private:
     enum OverlapType {O, EN, EP, D};

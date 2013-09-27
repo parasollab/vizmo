@@ -14,28 +14,11 @@ class IsConnectionGloballyFirst {
     }
 } connectionComparator;
 
-MultiBodyModel::MultiBodyModel() : m_active(false), m_surface(false), m_radius(false) {}
+MultiBodyModel::MultiBodyModel() : Model("MultiBody"), m_active(false), m_surface(false), m_radius(false) {}
 
 MultiBodyModel::~MultiBodyModel() {
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     delete *bit;
-}
-
-vector<string>
-MultiBodyModel::GetInfo() const{
-  vector<string> info;
-  ostringstream temp, os;
-
-  if(m_active){
-    info.push_back(string("Robot"));
-    temp << m_bodies.size();
-  }
-  else {
-    info.push_back(string("Obstacle"));
-    temp << "Position ( "<< Translation() << ")";
-  }
-  info.push_back(temp.str());
-  return info;
 }
 
 void
@@ -82,7 +65,7 @@ MultiBodyModel::BuildModels() {
 
 void
 MultiBodyModel::Select(unsigned int* _index, vector<Model*>& sel){
-  if(!_index)
+  if(_index)
     sel.push_back(this);
 }
 
@@ -105,6 +88,15 @@ MultiBodyModel::DrawSelect(){
     (*bit)->DrawSelect();
 
   glPopMatrix();
+}
+
+void
+MultiBodyModel::Print(ostream& _os) const {
+  _os << Name() << endl;
+  if(m_active)
+    _os << "Active: "  << m_bodies.size() << endl;
+  else
+    _os << "Passive: "  << Translation() << endl;
 }
 
 void

@@ -218,7 +218,7 @@ void Vizmo::TurnOn_CD(){
   string m_objName;
 
   for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit)
-    m_objName = (*mit)->GetName();
+    m_objName = (*mit)->Name();
   EnvModel* env = m_envModel;
   if(env != NULL){ //previously checked if loader was null
 
@@ -336,7 +336,7 @@ void Vizmo::ChangeAppearance(int status)
       DeleteObject((MultiBodyModel*)model);
     }
     else if(status == 3){
-      if((model->GetInfo()).front() == "Robot"){
+      if(model->Name() == "Robot"){
         robot->SetColor(Color4(mR, mG, mB, 1));
         robot->BackUp();
       }

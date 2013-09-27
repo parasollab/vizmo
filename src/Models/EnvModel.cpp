@@ -10,7 +10,7 @@
 #include "Utilities/Exceptions.h"
 #include "Utilities/IOUtils.h"
 
-EnvModel::EnvModel(const string& _filename) :
+EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
   m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
     SetFilename(_filename);
     SetModelDataDir(_filename.substr(0, _filename.rfind('/')));
@@ -62,8 +62,6 @@ EnvModel::ParseFile(){
     m->ParseMultiBody(ifs, m_modelDataDir);
     m_multibodies.push_back(m);
   }
-
-  //BuildRobotStructure();
 }
 
 void
@@ -117,6 +115,17 @@ EnvModel::BuildModels() {
 }
 
 void
+EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
+  //unselect old one
+  if(!_index || *_index > m_multibodies.size()) //input error
+    return;
+  else if(*_index == m_multibodies.size())
+    m_boundary->Select(_index+1, _sel);
+  else
+    m_multibodies[_index[0]]->Select(_index+1, _sel);
+}
+
+void
 EnvModel::Draw(GLenum _mode) {
   int numMBs = m_multibodies.size();
   if(_mode == GL_SELECT)
@@ -140,6 +149,12 @@ EnvModel::Draw(GLenum _mode) {
 }
 
 void
+EnvModel::Print(ostream& _os) const {
+  _os << Name() << ": " << GetFilename() << endl
+    << m_multibodies.size() << " multibodies" << endl;
+}
+
+void
 EnvModel::ChangeColor(){
   int numMBs = m_multibodies.size();
   for(int i = 0; i < numMBs; i++)
@@ -147,36 +162,13 @@ EnvModel::ChangeColor(){
 }
 
 void
-EnvModel::Select(unsigned int* _index, vector<Model*>& _sel){
-  //unselect old one
-  if(!_index || *_index > m_multibodies.size()) //input error
-    return;
-  else if(*_index == m_multibodies.size())
-    m_boundary->Select(_index+1, _sel);
-  else
-    m_multibodies[_index[0]]->Select(_index+1, _sel);
-}
-
-void
 EnvModel::GetChildren(list<Model*>& _models){
   typedef vector<MultiBodyModel *>::iterator MIT;
-  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); i++){
+  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); i++) {
     if(!(*i)->IsActive())
       _models.push_back(*i);
   }
   _models.push_back(m_boundary);
-}
-
-vector<string>
-EnvModel::GetInfo() const{
-  vector<string> info;
-  info.push_back(GetFilename());
-
-  ostringstream temp;
-  temp << "There are " << m_multibodies.size() << " multibodies";
-  info.push_back(temp.str());
-
-  return info;
 }
 
 void

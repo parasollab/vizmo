@@ -21,17 +21,15 @@ class BodyModel : public Model {
     ~BodyModel();
 
     //properties
-    virtual const string GetName() const{return "Body";}
-    virtual vector<string> GetInfo() const;
-    virtual void GetChildren(list<Model*>& _models);
+    void GetChildren(list<Model*>& _models);
+    void SetRenderMode(RenderMode _mode);
+    void SetColor(const Color4& _c);
+
     const string& GetFilename() const {return m_filename;}
     const string& GetModelFilename() const {return m_modelFilename;}
     const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
     double GetRadius() const {return m_polyhedronModel->GetRadius();}
-    //PolyhedronModel* GetPolyhedronModel() const {return m_polyhedronModel;}
     RAPID_model* GetRapidModel() const {return m_polyhedronModel->GetRapidModel();}
-    virtual void SetRenderMode(RenderMode _mode);
-    virtual void SetColor(const Color4& _c);
 
     //base properties
     bool IsFixed() const {return m_isFixed;}
@@ -64,9 +62,10 @@ class BodyModel : public Model {
     void ComputeTransform(const BodyModel* _body, size_t _nextBody);
 
     void BuildModels() {}
+    void Select(GLuint* _index, vector<Model*>& sel) {m_polyhedronModel->Select(_index, sel);}
     void Draw(GLenum _mode);
     void DrawSelect();
-    void Select(unsigned int* _index, vector<Model*>& sel) {m_polyhedronModel->Select(_index, sel);}
+    void Print(ostream& _os) const;
 
     //file IO
     void ParseActiveBody(istream& _is, const string& _modelDataDir, const Color4 _color);

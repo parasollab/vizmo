@@ -42,7 +42,7 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
     item = new ListViewItem(_p);
 
   item->m_model = _model;
-  QString qstr = QString::fromStdString(_model->GetName());
+  QString qstr = QString::fromStdString(_model->Name());
   item->setText(0, qstr); //Set the text to column 0, which is the only column in this tree widget
   m_items.push_back(item);
 

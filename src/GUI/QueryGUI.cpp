@@ -16,7 +16,7 @@ QueryGUI::QueryGUI(QWidget* _parent, Qt::WFlags _f) : QDialog(_parent) {
       ig!=GetVizmo().GetSelectedModels().end(); ig++){
     Model* gl=(Model *)(*ig);
     //objName = gl->GetInfo();
-    objName = gl->GetName();
+    objName = gl->Name();
   }
   m_objName = objName;
 
