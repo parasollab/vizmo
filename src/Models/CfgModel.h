@@ -29,6 +29,7 @@ class CfgModel : public Model {
     int GetIndex() const { return m_index; }
     int GetCCID();
     const vector<double>& GetDataCfg() { return m_dofs; }
+    static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
     RobotModel* GetRobot() const { return m_robot; }
     static int GetDOF() { return m_dof; }
@@ -47,6 +48,8 @@ class CfgModel : public Model {
     void SetRobot(RobotModel* _r) { m_robot = _r; }
 
     bool operator==(const CfgModel& _other) const;
+    double& operator[](size_t _i) { return m_dofs[_i]; }
+    const double& operator[](size_t _i) const { return m_dofs[_i]; }
     void Set(int _index, RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc);
     static void Scale(float _scale);
 

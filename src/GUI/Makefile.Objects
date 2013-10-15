@@ -16,6 +16,7 @@ OBJECTS += \
 	   GUI/MainWindow.o \
 	   GUI/ModelSelectionWidget.o \
 	   GUI/MovieSaveDialog.o \
+	   GUI/NodeEditDialog.o \
 	   GUI/PathOptions.o \
 	   GUI/QueryGUI.o \
 	   GUI/RoadmapOptions.o \

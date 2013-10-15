@@ -2,10 +2,17 @@
 
 #include <algorithms/connected_components.h>
 
+#include "BoundaryModel.h"
+#include "BoundingBoxModel.h"
+#include "BoundingSphereModel.h"
+#include "Vizmo.h"
 #include "BodyModel.h"
 #include "ConnectionModel.h"
 #include "Models/CfgModel.h"
+#include "EnvModel.h"
 #include "Utilities/IOUtils.h"
+
+vector<MultiBodyModel::DOFInfo> MultiBodyModel::m_dofInfo = vector<MultiBodyModel::DOFInfo>();
 
 class IsConnectionGloballyFirst {
   public:
@@ -59,7 +66,6 @@ MultiBodyModel::BuildModels() {
     if(m_radius < dist)
       m_radius = dist;
   }
-
   BuildRobotStructure();
 }
 
@@ -159,9 +165,11 @@ MultiBodyModel::BuildRobotStructure() {
 
   m_dof = 0;
 
-  //only active robots have DOF
   if(!IsActive())
     return;
+
+  BoundaryModel* b = m_env->GetBoundary();
+  vector<pair<double, double> > dofRanges = b->GetRanges();
 
   //add a node to the robot graph for each body
   for(size_t i = 0; i < m_bodies.size(); i++)
@@ -201,27 +209,57 @@ MultiBodyModel::BuildRobotStructure() {
     BodyModel* base = *(Begin() + baseIndx);
     if(base->IsBasePlanar()){
       m_dof += 2;
-      if(base->IsBaseRotational())
+      m_dofInfo.push_back(DOFInfo("Base X Translation ",
+        dofRanges[0].first, dofRanges[0].second));
+      m_dofInfo.push_back(DOFInfo("Base Y Translation ",
+        dofRanges[1].first, dofRanges[1].second));
+      if(base->IsBaseRotational()){
         m_dof += 1;
+        m_dofInfo.push_back(DOFInfo("Base Rotation ", -1.0, 1.0));
+      }
     }
     else if(base->IsBaseVolumetric()){
       m_dof += 3;
-      if(base->IsBaseRotational())
+      m_dofInfo.push_back(DOFInfo("Base X Translation ",
+        dofRanges[0].first, dofRanges[0].second));
+      m_dofInfo.push_back(DOFInfo("Base Y Translation ",
+        dofRanges[1].first, dofRanges[1].second));
+      m_dofInfo.push_back(DOFInfo("Base Z Translation ",
+        dofRanges[2].first, dofRanges[2].second));
+      if(base->IsBaseRotational()){
         m_dof += 3;
+        m_dofInfo.push_back(DOFInfo("Base X Rotation ", -1.0, 1.0));
+        m_dofInfo.push_back(DOFInfo("Base Y Rotation ", -1.0, 1.0));
+        m_dofInfo.push_back(DOFInfo("Base Z Rotation ", -1.0, 1.0));
+      }
     }
 
     Joints jm;
     for(size_t j = 0; j < cc.size(); ++j){
       size_t index = m_robotGraph.find_vertex(cc[j])->property();
       typedef Joints::const_iterator MIT;
+      int jointIdx = 0;
       for(MIT mit = m_joints.begin(); mit != m_joints.end(); ++mit){
         if((*mit)->GetPreviousIndex() == index){
           jm.push_back(*mit);
-          if((*mit)->GetJointType() == ConnectionModel::REVOLUTE)
+          if((*mit)->GetJointType() == ConnectionModel::REVOLUTE){
             m_dof += 1;
-          else if((*mit)->GetJointType() == ConnectionModel::SPHERICAL)
+            ostringstream oss;
+            oss << "Revolute Joint " << jointIdx << " Angle ";
+            m_dofInfo.push_back(DOFInfo(oss.str(), -1.0, 1.0));
+          }
+          else if((*mit)->GetJointType() == ConnectionModel::SPHERICAL){
             m_dof += 2;
+            ostringstream oss;
+            oss << "Spherical Joint " << jointIdx << " Angle 1 ";
+            m_dofInfo.push_back(DOFInfo(oss.str(), -1.0, 1.0));
+            oss.str("");
+            oss.clear();
+            oss << "Spherical Joint " << jointIdx << " Angle 2 ";
+            m_dofInfo.push_back(DOFInfo(oss.str(), -1.0, 1.0));
+          }
         }
+        jointIdx++;
       }
     }
 

@@ -8,8 +8,8 @@ class BoundaryModel : public Model {
     BoundaryModel(const string& _name);
     virtual ~BoundaryModel();
 
+    virtual vector<pair<double, double> > GetRanges() = 0;
     virtual bool Parse(istream& _is) = 0;
-
     virtual void BuildModels() = 0;
     void Select(GLuint* _index, vector<Model*>& _sel);
     void Draw(GLenum _mode);

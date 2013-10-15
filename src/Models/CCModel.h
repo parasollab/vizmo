@@ -47,7 +47,6 @@ class CCModel : public Model {
     vector<WEIGHT>& GetEdgesInfo() { return m_edges; }
     WG* GetGraph(){ return m_graph; }
     void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
-    void SetColorChanged(bool _isNew) { m_newColor = _isNew; }
 
     void BuildModels(); //not used, should not call this
     void BuildModels(VID _id, WG* _g); //call this instead
@@ -55,33 +54,33 @@ class CCModel : public Model {
     void Draw(GLenum _mode);
     void DrawSelect();
     void Print(ostream& _os) const;
-
     void BuildNodeModels(GLenum _mode);
     void DrawNodes(GLenum _mode);
     void DrawEdges();
     void SetColor(const Color4& _c);
-    void AddEdge(CfgModel* _c1, CfgModel* _c2);
+    //void AddEdge(CfgModel* _c1, CfgModel* _c2);
     //void ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew);
     virtual void GetChildren(list<Model*>& _models);
 
   private:
     int m_id; //CC ID
-    bool m_newColor; //Have CC colors been changed?
     RobotModel* m_robot;
     WG* m_graph;
     ColorMap m_colorMap;
     map<VID, CfgModel> m_nodes;
     vector<WEIGHT> m_edges;
+
+    static map<VID, Color4> m_colorIndex;
 };
+
+template <class CfgModel, class WEIGHT>
+map<typename CCModel<CfgModel, WEIGHT>::VID, Color4> CCModel<CfgModel, WEIGHT>::m_colorIndex = map<VID, Color4>();
 
 template <class CfgModel, class WEIGHT>
 CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id) : Model("") {
   m_id = _id;
   SetName();
   m_renderMode = INVISIBLE_MODE;
-  //Set random Color
-  Model::SetColor(Color4(drand48(), drand48(), drand48(), 1));
-  m_newColor = false;
   m_graph = NULL;
   m_robot = NULL;
 }
@@ -114,10 +113,11 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
   typename WG::vertex_iterator cvi, cvi2, vi;
   typename WG::adj_edge_iterator ei;
   m_nodes.clear();
+
   for(int i = 0; i < nSize; i++){
-    VID nid=cc[i];
+    VID nid = cc[i];
     CfgModel cfg = (_g->find_vertex(nid))->property();
-    cfg.Set(nid, m_robot,this);
+    cfg.Set(nid, m_robot, this);
     m_nodes[nid] = cfg;
   }
 
@@ -143,6 +143,12 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
     w.Set(edgeIdx++,cfg1,cfg2, m_robot);
     m_edges.push_back(w);
   }
+
+  //If user changes a CC's color, color at associated index is changed
+  VID key = _id;
+  if(m_colorIndex.find(key) == m_colorIndex.end())
+    m_colorIndex[key] = Color4(drand48(), drand48(), drand48(), 1);
+  SetColor(m_colorIndex[key]);
 }
 
 template <class CfgModel, class WEIGHT>
@@ -182,6 +188,7 @@ template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
 
+  m_colorIndex[m_id] = _c;
   Model::SetColor(_c);
 
   typedef typename map<VID, CfgModel>::iterator CIT;
@@ -195,7 +202,12 @@ CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
 
 //add a new Edge (from the 'add edge' option)
 //June 16-05
-template <class CfgModel, class WEIGHT>
+
+//Throws bad_alloc and seems to only apply to one cc anyway.
+//Not using for new add edge utility, which will be in
+//map and can apply to nodes from different CCs
+
+/*template <class CfgModel, class WEIGHT>
 void
 CCModel<CfgModel, WEIGHT>::AddEdge(CfgModel* _c1, CfgModel* _c2){
 
@@ -208,7 +220,7 @@ CCModel<CfgModel, WEIGHT>::AddEdge(CfgModel* _c1, CfgModel* _c2){
   w.Set(m_edges.size(),_c1,_c2);
   m_edges.push_back(w);
 }
-
+*/
 //Doesn't seem to be used anywhere...
 /*template <class CfgModel, class WEIGHT>
 void

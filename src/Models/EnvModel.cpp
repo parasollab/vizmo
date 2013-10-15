@@ -12,6 +12,7 @@
 
 EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
   m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
+
     SetFilename(_filename);
     SetModelDataDir(_filename.substr(0, _filename.rfind('/')));
 
@@ -20,6 +21,7 @@ EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
   }
 
 EnvModel::~EnvModel() {
+
   delete m_boundary;
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
@@ -59,6 +61,7 @@ EnvModel::ParseFile(){
 
   for(size_t i = 0; i < numMultiBodies && ifs; i++) {
     MultiBodyModel* m = new MultiBodyModel();
+    m->SetEnv(this);
     m->ParseMultiBody(ifs, m_modelDataDir);
     m_multibodies.push_back(m);
   }
@@ -72,24 +75,22 @@ EnvModel::SetModelDataDir(const string _modelDataDir){
 
 void
 EnvModel::ParseBoundary(ifstream& _ifs) {
-
   string type = ReadFieldString(_ifs, WHERE, "Failed reading Boundary type.");
 
   if(type == "BOX")
     m_boundary = new BoundingBoxModel();
+
   else if(type == "SPHERE")
     m_boundary = new BoundingSphereModel();
   else
     throw ParseException(WHERE,
-        "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
+      "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
 
   m_boundary->Parse(_ifs);
 }
 
 void
-EnvModel::BuildModels() {
-
-  m_dof = 0;
+EnvModel::BuildModels(){
 
   //Build boundary model
   if(!m_boundary)
@@ -97,6 +98,7 @@ EnvModel::BuildModels() {
   m_boundary->BuildModels();
 
   //Build each
+  MultiBodyModel::ClearDOFInfo();
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit) {
     (*mit)->BuildModels();

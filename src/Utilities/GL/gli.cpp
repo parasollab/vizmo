@@ -12,6 +12,7 @@
 int GLI_SHOW_AXIS=1<<0;
 int GLI_SHOW_PICKBOX=1<<1;
 int GLI_SHOW_TRANSFORMTOOL=1<<2;
+bool SHIFT_CLICK = false;
 
 //set picking function
 pick_func g_pick=NULL;
@@ -29,6 +30,12 @@ void gliDraw(int option) {
 }
 
 bool gliMP(QMouseEvent * e) {
+
+  if(e->buttons() && (e->modifiers() == Qt::ShiftModifier))
+    SHIFT_CLICK = true;
+  else
+    SHIFT_CLICK = false;
+
   if(GetCameraFactory().GetCurrentCamera()->MousePressed(e)) {
     gliCM(); //camera moved
     return true;
@@ -40,7 +47,7 @@ bool gliMP(QMouseEvent * e) {
   return false; //need further process
 }
 
-bool gliMR(QMouseEvent * e, bool drawonly) {
+bool gliMR(QMouseEvent * e, bool drawOnly) {
   if(GetCameraFactory().GetCurrentCamera()->MouseReleased(e)) {
     gliCM(); //camera moved
     return true;
@@ -49,17 +56,22 @@ bool gliMR(QMouseEvent * e, bool drawonly) {
 
   //select
   PickBox& pick = GetPickBox();
-  if(!drawonly) {
+  if(!drawOnly){
     if(pick.IsPicking()){
       pick.MouseReleased(e);
       if(g_pick != NULL){
         vector<Model*>& objs = GetPickedSceneObjs();
-        //if(!(e->state() & Qt::ShiftButton)) objs.clear(); //add
-        if(!(e->buttons() & Qt::ShiftModifier)) objs.clear(); //add
+        //Shift key not pressed; discard current selection and start anew
+        if(SHIFT_CLICK == false)
+          objs.clear();
+        //Get new set of picked objects if shift key not pressed
+        //If shift is pressed, these are additional objects to add to
+        //selection
         vector<Model*>& newobjs = g_pick(pick.GetBox());
         objs.insert(objs.end(), newobjs.begin(), newobjs.end());
-        //if(e->state()&Qt::ShiftButton)  newobjs=objs; //add
-        if(e->buttons() & Qt::ShiftModifier) newobjs = objs; //add
+
+        if(SHIFT_CLICK == true)
+          newobjs = objs;
         gliGetTransformTool().CheckSelectObject();
       }
     }

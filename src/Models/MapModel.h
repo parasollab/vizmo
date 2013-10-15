@@ -22,6 +22,7 @@ class MapModel : public LoadableModel {
     typedef CCModel<CfgModel, WEIGHT> CCM;
     typedef graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT> Wg;
     typedef typename Wg::vertex_descriptor VID;
+    typedef typename Wg::edge_descriptor EID;
     typedef vector_property_map<Wg, size_t> ColorMap;
     ColorMap m_colorMap;
     typedef typename Wg::vertex_iterator VI;
@@ -38,7 +39,7 @@ class MapModel : public LoadableModel {
     const string  GetFileDir() const{ return m_fileDir; }
     Wg* GetGraph(){ return m_graph; }
     vector<CCM*>& GetCCModels(){ return m_ccModels; }
-    list<Model*>& GetNodeList(){ return m_nodes; }
+    //list<Model*>& GetNodeList(){ return m_nodes; }
     vector<Model*>& GetNodesToConnect(){ return m_nodesToConnect; }
     void SetMBEditModel(bool _setting){ m_editModel = _setting; }
     CCM* GetCCModel(int _id){ return m_ccModels[_id]; }
@@ -70,13 +71,11 @@ class MapModel : public LoadableModel {
     void Print(ostream& _os) const;
 
     bool AddCC(int _vid);
-    //void SetProperties(typename CCM::Shape _s, float _size, vector<float> _color, bool _isNew);
     void ScaleNodes(float _scale);
-    //  void HandleSelect(); ORIGINALLY IN ROADMAP.H/.CPP
-    //  void HandleAddEdge();
-    //  void HandleAddNode();
-    //  void HandleEditMap();
-    //  void MoveNode();
+
+    //Modification functions
+    void MoveNode(CfgModel* _node, vector<double>& _newCfg);
+    void RefreshMap();
 
   private:
     string  m_envFileName;
@@ -84,21 +83,15 @@ class MapModel : public LoadableModel {
     bool m_robCfgOn;
     bool m_addNode;
     bool m_addEdge;
-    //double* m_cfg; (Originally used in Roadmap.h/Roadmap.cpp)
-    //int m_dof;
     RobotModel* m_robot;
     vector<CCM*> m_ccModels;
-    list<Model*> m_nodes;
     vector<Model*> m_nodesToConnect; //nodes to be connected
-    //double m_oldT[3], m_oldR[3];  //old_T
     string m_cfgString, m_robCfgString; //s_cfg, s_robCfg
     bool m_editModel;
     bool m_noMap;
 
   protected:
     Wg* m_graph;
-    //virtual void DumpNode();
-    //virtual void SelectNode( bool bSel );
 };
 
 template <class CfgModel, class WEIGHT>
@@ -241,10 +234,10 @@ MapModel<CfgModel, WEIGHT>::GenGraph(){
 template <class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel, WEIGHT>::BuildModels() {
+
   typedef typename vector<CCM*>::iterator CCIT;
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete (*ic);
-
   m_ccModels.clear();
 
   //Get CCs
@@ -252,7 +245,6 @@ MapModel<CfgModel, WEIGHT>::BuildModels() {
   vector<pair<size_t,VID> > ccs;
   m_colorMap.reset();
   get_cc_stats(*m_graph, m_colorMap, ccs);
-
   int CCSize = ccs.size();
   m_ccModels.reserve(CCSize);
   for(CIT ic = ccs.begin(); ic != ccs.end(); ic++){
@@ -285,9 +277,8 @@ void
 MapModel<CfgModel, WEIGHT>::SetRenderMode(RenderMode _mode){
   m_renderMode = _mode;
   typedef typename vector<CCM*>::iterator CIT;//CC iterator
-  for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++){
+  for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     (*ic)->SetRenderMode(_mode);
-  }
 }
 
 
@@ -334,15 +325,6 @@ MapModel<CfgModel, WEIGHT>::Print(ostream& _os) const {
     << "Connected components: " << m_ccModels.size() << endl;
 }
 
-/*template <class CfgModel, class WEIGHT>
-void
-MapModel<CfgModel, WEIGHT>::SetProperties(typename CCM::Shape _s, float _size,
-    vector<float> _color, bool _isNew){
-  typedef typename vector<CCM*>::iterator CIT;//CC iterator
-  for(CIT ic = m_ccModels.begin(); ic!= m_ccModels.end(); ic++)
-    (*ic)->change_properties(_s, _size, _color, _isNew);
-}
-*/
 template <class CfgModel, class WEIGHT>
 void
 MapModel<CfgModel, WEIGHT>::ScaleNodes(float _scale){
@@ -358,259 +340,22 @@ MapModel<CfgModel, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
   m_ccModels[_index[0]]->Select(&_index[1],_sel);
 }
 
-//Commented out functions below are from Roadmap.h/.cpp and did not work there
-//(or need other attn.)
-//They should probably be here when fixed.
+template <class CfgModel, class WEIGHT>
+void
+MapModel<CfgModel, WEIGHT>::MoveNode(CfgModel* _node, vector<double>& _newCfg){
 
-/* template <class CfgModel, class WEIGHT>
-   void MapModel<CfgModel, WEIGHT>::HandleSelect(){
-
-//find nodes
-m_nodes.clear();
-vector<Model*>& sel = this->GetVizmo().GetSelectedItem();
-typedef vector<Model*>::iterator OIT;
-
-for(OIT i=sel.begin(); i!=sel.end(); i++){  //GETS THE NODES FROM SELECTED ITEM AND PUTS THEM IN NODE VECTOR
-string myName = ((Model*)(*i))->GetName();
-if(((Model*)(*i)) != NULL)
-if(myName.find("Node")!=string::npos){
-m_nodes.push_back((Model*)(*i));
-}//end if
-
-if(m_robCfgOn){
-this->GetVizmo().getRoboCfg();
-//  printRobCfg(); MAY NEED TO RESTORE THIS
-}
-}//end for
-
-if(!m_editModel){return;}
-
-if(m_nodes.size() > 0){
-Model* n = m_nodes.front();
-//   printNodeCfg((CfgModel*)n); MAY NEED TO RESTORE THIS
-}
-
-if(m_addEdge)
-this->HandleAddEdge();
-else if(m_addNode)
-this->HandleAddNode();
-// else
-//   handleEditMap();
-}*/
-
-/*  template <class CfgModel, class WEIGHT>
-    void MapModel<CfgModel, WEIGHT>::HandleAddEdge(){
-
-//find two nodes...
-PlumObject* m_map;
-m_map = this->GetVizmo().GetMap();
-CfgModel *cfg1, *cfg2;
-
-typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
-WG* graph;
-CMapLoader<CfgModel,EdgeModel>* m_loader=(CMapLoader<CfgModel,EdgeModel>*)m_map->getLoader();
-graph = m_loader->GetGraph();
-
-//get from m_nodes node1 and node2
-//get VID from those Cfgs
-//add edge
-
-list<Model*>::const_iterator it;
-for(it = m_nodes.begin(); it != m_nodes.end(); it++){
-m_nodesToConnect.push_back(*it);
-}
-if(m_nodesToConnect.size() == 2){
-cfg1 = (CfgModel*)m_nodesToConnect[0];
-cfg2 = (CfgModel*)m_nodesToConnect[1];
-graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);
-//////////  Jun 16-05 ///////////////
-// Add edge to CCModel:
-// get a CC id
-int CC_id = cfg1->GetCC_ID();
-//get mapModel
-MapModel<CfgModel,EdgeModel>* mmodel =(MapModel<CfgModel,EdgeModel>*)m_map->getModel();
-//get the CCModel of CfgModel
-CCModel<CfgModel,EdgeModel>* m_cCModel = mmodel->GetCCModel(CC_id);
-//add edge to CC
-//m_cCModel->addEdge(cfg1, cfg2); Jul 17-12
-
-//backUp current prpoperties:
-CCModel<CfgModel,EdgeModel>::Shape shape = m_cCModel->getShape();
-float size;
-if(shape == 0)
-size = m_cCModel->getRobotSize();
-else if (shape == 1)
-size = m_cCModel->getBoxSize();
-else
-size = 0;
-vector<float> rgb;
-rgb = m_cCModel->getColor();
-
-mmodel->BuildModels();
-mmodel->SetProperties(shape, size, rgb, false);
-//emit callUpdate();
-//  'UpdateNodeCfg();' //FIX THIS!!!
-
-m_nodesToConnect.clear();
-}
+  //Actualllly....no
 }
 
 template <class CfgModel, class WEIGHT>
-void MapModel<CfgModel, WEIGHT>::HandleAddNode(){
+void
+MapModel<CfgModel, WEIGHT>::RefreshMap(){
 
-vector<Model*>& sel = this->GetVizmo().GetSelectedItem();
-if(sel.size() !=0){
-if(!m_nodes.empty()){
-Model* n = m_nodes.front();
-CfgModel* cfg = (CfgModel*)n;
-//get current node's cfg
-vector<double> c = cfg->GetDataCfg();
-m_cfg = new double [c.size()];
-m_dof = c.size();
+  BuildModels();
 
-for(unsigned int i=0; i<c.size(); i++){
-m_cfg[i] = c[i];
-}
-//create a window to let user change Cfg:
-//  createWindow();
-// to avoid add other more nodes every time the user clicks on
-// this cfg.
-//addNodeAction->setChecked(false);
-m_addNode = false;
-//  m_messageLabel->clear();
-//  m_iconLabel->clear();
-}
-
-else{ //no node selected and assumes there is not roadmap....
-
-  if (this->GetVizmo().GetMap() == NULL) {
-    CMapLoader<CfgModel,EdgeModel>* mloader=new CMapLoader<CfgModel,EdgeModel>();
-    MapModel<CfgModel,EdgeModel>* mmodel = new MapModel<CfgModel,EdgeModel>();
-
-    mmodel->SetMapLoader(mloader);
-
-    PlumObject* m_rob;
-    m_rob = this->GetVizmo().GetRobot();
-    RobotModel* r = (RobotModel*)m_rob->getModel();
-
-    if(r != NULL)
-      mmodel->SetRobotModel(r);
-
-    this->GetVizmo().setMapObj(mloader, mmodel);
-    mloader->genGraph();
-
-    //add node to graph
-    typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
-    WG* graph;
-    graph = mloader->GetGraph();
-    CfgModel* cfgNew = new CfgModel();
-    //get robot's current cfg
-    m_dof = r->returnDOF();
-
-    vector<double> rCfg = r->getFinalCfg();
-    vector<double> tmp;
-    tmp.clear();
-    for(int i=0; i<m_dof; i++){
-      if(i==0)
-        tmp.push_back(rCfg[i]+1);
-      else
-        tmp.push_back(rCfg[i]);
-    }
-    cfgNew->SetDof(m_dof);
-    cfgNew->SetCfg(tmp);
-    int vertx = graph->add_vertex(*cfgNew);
-    cfgNew->SetIndex(vertx);
-
-    mmodel->BuildModels();
-    this->GetVizmo().ShowRoadMap(true);
-
-    cfgNew->SetCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
-
-    //uselect
-    this->GetVizmo().cleanSelectedItem();
-    //select new node
-    this->GetVizmo().addSelectedItem((Model*)cfgNew);
-    vector<double> cf = cfgNew->GetDataCfg();
-    m_cfg = new double [cf.size()];
-    for(unsigned int i=0; i<cf.size(); i++)
-      m_cfg[i] = cf[i];
-
-    m_noMap = true;
-    // createWindow();
-    //now, shape automatically set upon construction of RoadmapOptions class
-    // setShape(); //clicks the robot button
-    //   emit getSelectedItem();
-    this->GetVizmo().Display();
-    //addNodeAction->setChecked(false);
-    m_addNode = false;
-    //  m_messageLabel->clear();
-    //  m_iconLabel->clear();
-    m_noMap = false;
+  for(size_t i = 0; i < m_ccModels.size(); i++){
+    m_ccModels[i]->SetRenderMode(m_renderMode);
   }
 }
-}
-}
-*/
-/*
-   template <class CfgModel, class WEIGHT>
-   void MapModel<CfgModel, WEIGHT>::HandleEditMap(){
-
-   if(m_nodes.empty()==false){
-   Model* n = m_nodes.front();
-   m_oldT[0] = n->tx();
-   m_oldT[1] = n->ty();
-   m_oldT[2] = n->tz();
-
-   m_oldR[0] = n->rx();
-   m_oldR[1] = n->ry();
-   m_oldR[2] = n->rz();
-   }
-   }
-   */
-
-/*template <class CfgModel, class WEIGHT>
-  void MapModel<CfgModel, WEIGHT>::MoveNode(){
-
-  if(m_nodes.empty()) return;
-  Model * n=m_nodes.front();
-  double diff = fabs(m_oldT[0]-n->tx())+
-  fabs(m_oldT[1]-n->ty())+
-  fabs(m_oldT[2]-n->tz())+
-  fabs(m_oldR[0]-n->rx())+
-  fabs(m_oldR[1]-n->ry())+
-  fabs(m_oldR[2]-n->rz());
-
-  if(diff > 1e-10){
-  vector<Model*>& sel=GetVizmo().GetSelectedItem();
-  if(sel.size() !=0){
-  GetVizmo().Node_CD((CfgModel*)n);
-  }
-
-  typedef vector<Model*>::iterator OIT;
-  for(OIT i=sel.begin();i!=sel.end();i++){
-  if(((Model*)(*i))->GetName()=="Node")
-  printNodeCfg((CfgModel*)n);
-  }
-
-  if(nodeGUI!= NULL){
-  if(nodeGUI->isVisible()){
-  v_cfg = ((CfgModel*)n)->GetDataCfg();
-  double* new_cfg = new double [v_cfg.size()];
-  for(unsigned int v= 0; v<v_cfg.size(); v++)
-  new_cfg[v] = v_cfg[v];
-  nodeGUI->setNodeVal(v_cfg.size(), new_cfg);
-  nodeGUI->filledFirstTime = false;
-  }
-  }
-  m_map_Changed=true;
-
-//  emit callUpdate(); ****CHECK THIS**********
-}
-}*/
-
-//  void
-//  TestMapModel(){
-//    MapModel<CfgModel,EdgeModel> model;
-//  }
 
 #endif

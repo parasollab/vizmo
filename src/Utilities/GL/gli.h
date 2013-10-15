@@ -9,6 +9,7 @@ using namespace std;
 extern int GLI_SHOW_AXIS;
 extern int GLI_SHOW_PICKBOX;
 extern int GLI_SHOW_TRANSFORMTOOL;
+extern bool SHIFT_CLICK; //At least until gli is redone or done away with...
 
 //draw
 void gliDraw(int option=0);

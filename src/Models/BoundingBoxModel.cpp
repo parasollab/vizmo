@@ -1,7 +1,9 @@
-#include "BoundingBoxModel.h"
 #include <limits>
 
+#include "BoundingBoxModel.h"
+
 BoundingBoxModel::BoundingBoxModel() : BoundaryModel("BoundingBox") {
+  m_bbx.reserve(3);
   for(int i = 0; i<3; ++i){
     m_bbx[i].first = -numeric_limits<double>::max();
     m_bbx[i].second = numeric_limits<double>::max();
@@ -22,11 +24,13 @@ BoundingBoxModel::Parse(istream& _is) {
         cerr << "Error::Reading bounding box range " << i << ". Should be delimited by ':'." << endl;
         return false;
       }
-      istringstream minv(tok.substr(0,del)), maxv(tok.substr(del+1, tok.length()));
-      if(!(minv>>m_bbx[i].first && maxv>>m_bbx[i].second)){
+      istringstream minVStr(tok.substr(0, del)), maxVStr(tok.substr(del+1, tok.length()));
+      double minV, maxV;
+      if((minVStr >> minV && maxVStr >> maxV) == false){
         cerr << "Error::Reading bounding box range " << i << "." << endl;
         return false;
       }
+      m_bbx.push_back(make_pair(minV, maxV));
     }
     else if(i < 2) { //error. only 1 token provided.
       cerr << "Error::Reading bounding box ranges. Only one provided." << endl;

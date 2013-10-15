@@ -7,8 +7,8 @@ class BoundingSphereModel : public BoundaryModel {
   public:
     BoundingSphereModel();
 
+    virtual vector<pair<double, double> > GetRanges();
     virtual bool Parse(istream& _is);
-
     virtual void BuildModels();
     virtual void Print(ostream& _os) const;
 

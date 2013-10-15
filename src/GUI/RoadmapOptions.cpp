@@ -22,9 +22,11 @@
 #include <QMessageBox>
 
 #include "SliderDialog.h"
+#include "NodeEditDialog.h"
 #include "OptionsBase.h"
 #include "GLWidget.h"
 #include "MainWindow.h"
+#include "ModelSelectionWidget.h"
 #include "Models/Vizmo.h"
 #include "Models/DebugModel.h"
 
@@ -37,6 +39,7 @@
 #include "Icons/NodeSize.xpm"
 #include "Icons/EdgeThickness.xpm"
 #include "Icons/Navigate.xpm"
+#include "Icons/EditNode.xpm"
 
 RoadmapOptions::RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow){
@@ -106,6 +109,9 @@ RoadmapOptions::CreateActions(){
   m_edgeThicknessDialog = new SliderDialog("Edge Thickness",
       "Drag the slider to change the edge thickness", 100, 1000, 100, this);
 
+  QAction* editNode = new QAction(QPixmap(editnode), tr("Edit Map"), this);
+  m_actions["editNode"] = editNode;
+
   QAction* randomizeColors = new QAction(QPixmap(rcolor), tr("Randomize Colors"), this);
   m_actions["randomizeColors"] = randomizeColors;
   QAction* ccsOneColor = new QAction(QPixmap(ccsOneColorIcon), tr("Make All One Color"), this);
@@ -149,6 +155,9 @@ RoadmapOptions::CreateActions(){
   m_actions["edgeThickness"]->setEnabled(false);
   m_actions["edgeThickness"]->setStatusTip(tr("Change edge thickness"));
 
+  m_actions["editNode"]->setEnabled(false);
+  m_actions["editNode"]->setStatusTip(tr("Modify a roadmap node"));
+
   m_actions["randomizeColors"]->setShortcut(tr("CTRL+R"));
   m_actions["randomizeColors"]->setEnabled(false);
   m_actions["randomizeColors"]->setStatusTip(tr("Randomize CC colors"));
@@ -173,6 +182,8 @@ RoadmapOptions::CreateActions(){
 
   connect(m_actions["edgeThickness"], SIGNAL(triggered()), this, SLOT(ShowEdgeThicknessDialog()));
   connect(m_edgeThicknessDialog->GetSlider(), SIGNAL(valueChanged(int)), this, SLOT(ChangeEdgeThickness()));
+
+  connect(m_actions["editNode"], SIGNAL(triggered()), this, SLOT(ShowNodeEditDialog()));
 
   connect(m_actions["randomizeColors"], SIGNAL(triggered()), this, SLOT(RandomizeCCColors()));
   connect(m_actions["ccsOneColor"], SIGNAL(triggered()), this, SLOT(MakeCCsOneColor()));
@@ -204,6 +215,8 @@ RoadmapOptions::SetUpCustomSubmenu(){
 
   m_submenu->addAction(m_actions["edgeThickness"]);
 
+  m_submenu->addAction(m_actions["editNode"]);
+
   m_modifyCCs = new QMenu("Modify CCs", this);
   m_modifyCCs->addAction(m_actions["randomizeColors"]);
   m_modifyCCs->addAction(m_actions["ccsOneColor"]);
@@ -213,7 +226,6 @@ RoadmapOptions::SetUpCustomSubmenu(){
   m_nodeShape->setEnabled(false);
   m_modifySelected->setEnabled(false);
   m_modifyCCs->setEnabled(false);
-
 }
 
 void
@@ -234,6 +246,8 @@ RoadmapOptions::SetUpToolbar(){
   m_toolbar->addAction(m_actions["edgeThickness"]);
   m_toolbar->addAction(m_actions["randomizeColors"]);
   m_toolbar->addAction(m_actions["ccsOneColor"]);
+  m_toolbar->addSeparator();
+  m_toolbar->addAction(m_actions["editNode"]);
 }
 
 void
@@ -268,6 +282,8 @@ RoadmapOptions::Reset(){
 
   m_actions["edgeThickness"]->setEnabled(true);
 
+  m_actions["editNode"]->setEnabled(true);
+
   m_modifyCCs->setEnabled(true);
   m_actions["randomizeColors"]->setEnabled(true);
   m_actions["ccsOneColor"]->setEnabled(true);
@@ -276,23 +292,8 @@ RoadmapOptions::Reset(){
   m_edgeThicknessDialog->Reset();
 
   if(GetMapModel() != NULL){
-    GetMapModel()->GetNodeList().clear();
     GetMapModel()->GetNodesToConnect().clear();
-    // GetMapModel()->GetCfgLabel()->clear(); temporarily removed/what is it for?
-    //GetMap()->l_cfg->clear();
-
     if(GetMapModel()->RobCfgOn() == false) {
-      //**MORE TEMPORARY(?) REMOVALS
-      //  GetMapModel()->GetRobCfgLabel()->clear;
-      //GetMap()->l_robCfg->clear();
-
-      //editAction->setChecked(false);
-      //addNodeAction->setChecked(false);
-      //addEdgeAction->setChecked(false);
-      // GetMapModel()->GetMessageLabel()->clear();
-      //GetMap()->GetLMessage()->clear();
-      //GetMapModel()->GetIconLabel()->clear();
-      //GetMap()->GetLIcon()->clear();
       GetMapModel()->SetMBEditModel(false);
       GetMapModel()->SetAddNode(false);
       GetMapModel()->SetAddEdge(false);
@@ -324,6 +325,8 @@ RoadmapOptions::SetHelpTips(){
         " roadmap nodes by a specified factor."));
   m_actions["edgeThickness"]->setWhatsThis(tr("Click this button to scale the"
         " thickness of the edges."));
+  m_actions["editNode"]->setWhatsThis(tr("Click this button to open the map editing"
+        " widget"));
   m_actions["randomizeColors"]->setWhatsThis(tr("Click this button to randomize"
         " the colors of the connected components."));
   m_actions["ccsOneColor"]->setWhatsThis(tr("Click this button to set all of the"
@@ -478,6 +481,27 @@ RoadmapOptions::ChangeEdgeThickness(){
 }
 
 void
+RoadmapOptions::ShowNodeEditDialog(){
+
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+
+  if(sel.size() != 1){
+    QMessageBox::about(this, "", "Please select exactly one node to modify.");
+    return;
+  }
+
+  string objName = sel[0]->Name();
+  if(objName.substr(0, 4) != "Node"){
+    QMessageBox::about(this, "", "Please select exactly one node to modify.");
+    return;
+  }
+
+  CfgModel* node = (CfgModel*)sel[0];
+  NodeEditDialog n(this, node, m_mainWindow->GetGLScene());
+  n.exec();
+}
+
+void
 RoadmapOptions::RandomizeCCColors(){
 
   GetVizmo().RandomizeCCColors();
@@ -543,24 +567,3 @@ RoadmapOptions::ChangeObjectColor(){
   }
   GetVizmo().ChangeAppearance(3);
 }
-
-/*void                                ANOTHER TEMPORARY DISABLING
-  RoadmapOptions::UpdateNodeCfg(){
-
-  if(m_nodeGUI != NULL && m_nodeGUI->isVisible() && m_nodeGUI->filledFirstTime==false){
-  if(!GetMapModel()->GetNodeList().empty()){
-  Model* n = GetMapModel()->GetNodeList().front();
-  CCfg* cfg = (CCfgModel*)n;
-  vector<double> VNodeCfgModel;
-  VNodeCfg.clear();
-
-  VNodeCfg =  m_nodeGUI->getNodeCfg();
-
-  cfg->SetCfg(VNodeCfg);
-  cfg->GetCC()->ReBuildAll();
-//emit callUpdate();
-UpdateNodeCfg();  //well, then...
-}
-}
-}
-*/

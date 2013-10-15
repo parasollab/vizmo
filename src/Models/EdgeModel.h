@@ -26,6 +26,9 @@ class EdgeModel : public Model {
     double& Weight(){ return m_weight; }
     int GetID() { return m_id; }
     const CfgModel& GetStartCfg() { return m_startCfg; }
+    const CfgModel& GetEndCfg() { return m_endCfg; }
+    void SetStartCfg(CfgModel _s) { m_startCfg = _s; }
+    void SetEndCfg(CfgModel _e) { m_endCfg = _e; }
     void SetCfgShape(CfgModel::Shape _s) { m_cfgShape = _s; }
     //Want m_edgeThickness to be private, but cannot figure out how to compile
     //with this declaration
@@ -46,7 +49,6 @@ class EdgeModel : public Model {
     CfgModel m_startCfg, m_endCfg;
     int m_lp;
     double m_weight;
-    //static double m_edgeThickness;
     int m_id;
     CfgModel::Shape m_cfgShape;
     vector <CfgModel> m_intermediateCfgs;

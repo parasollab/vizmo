@@ -13,6 +13,7 @@
 
 class QPushButton;
 class SliderDialog;
+class NodeEditDialog;
 
 class RoadmapOptions : public OptionsBase {
 
@@ -20,7 +21,6 @@ class RoadmapOptions : public OptionsBase {
 
   public:
     RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow);
-
 
   private slots:
     void ShowRoadmap();
@@ -35,6 +35,7 @@ class RoadmapOptions : public OptionsBase {
     void ScaleNodes();
     void ShowEdgeThicknessDialog();
     void ChangeEdgeThickness();
+    void ShowNodeEditDialog(); //Named box as reminder that it's not yet a QDialog as desired..
     void RandomizeCCColors();
     void MakeCCsOneColor();
     void ShowObjectContextMenu();
@@ -68,9 +69,6 @@ class RoadmapOptions : public OptionsBase {
 
     SliderDialog* m_nodeSizeDialog; //Provides slider to scale nodes
     SliderDialog* m_edgeThicknessDialog; //Slider to scale the edges
-
-    //  queryGUI* m_nodeGUI;  ***TEMPORARY DISABLE
-    //  void UpdateNodeCfg();
 };
 
 #endif
