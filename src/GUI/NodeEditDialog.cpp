@@ -96,7 +96,7 @@ NodeEditDialog::SetUpWidgets(){
     s->GetSlider()->setRange(100000*dofInfo[i].m_minVal, 100000*dofInfo[i].m_maxVal);
     //Longer/more informative DOF name pops up when moused over
     s->GetDOFName()->setToolTip(QString::fromStdString(dofInfo[i].m_name));
-    connect(s->GetSlider(), SIGNAL(sliderMoved(int)), m_sliderMapper, SLOT(map()));
+    connect(s->GetSlider(), SIGNAL(valueChanged(int)), m_sliderMapper, SLOT(map()));
     m_sliderMapper->setMapping(s->GetSlider(), i);
     m_sliders.push_back(s);
     m_scrollAreaBoxLayout->addWidget(s);
