@@ -63,6 +63,8 @@ EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot){
   m_startCfg = *_c1;
   m_endCfg = *_c2;
 
+  SetName();
+
   typedef vector<CfgModel>::iterator CIT;
   for(CIT c = m_intermediateCfgs.begin();
       c != m_intermediateCfgs.end(); c++){
