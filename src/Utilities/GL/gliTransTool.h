@@ -7,7 +7,7 @@ using namespace mathtool;
 
 #include <qgl.h>
 
-class GLTransform;
+class TransformableModel;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -33,7 +33,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Access
-    virtual void setSObject(GLTransform* _obj) {
+    virtual void setSObject(TransformableModel* _obj) {
         m_pSObj = _obj;
         Project2Win();
     }
@@ -51,7 +51,7 @@ public:
 protected:
     virtual void Draw(bool bSel)=0;
 
-    static GLTransform* m_pSObj;    //selected Objects
+    static TransformableModel* m_pSObj;    //selected Objects
     static Point3d m_sObjPrj; //project(m_pSObj.pos and 3 axis), (win coord)
     static Point3d m_xPrj, m_yPrj, m_zPrj;
     static int m_w, m_h;          //window size
@@ -147,7 +147,7 @@ public:
     bool MR( QMouseEvent * e ); //mouse button released
     bool MM( QMouseEvent * e );  //mouse motion
 
-    virtual void setSObject(GLTransform* _obj) {
+    virtual void setSObject(TransformableModel* _obj) {
         gliTToolBase::setSObject(_obj);
         ComputLocalAxis();
         ComputAngles();

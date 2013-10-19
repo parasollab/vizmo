@@ -8,14 +8,14 @@ using namespace mathtool;
 
 #include "Camera.h"
 #include "PickBox.h"
-#include "GLTransform.h"
 #include "GLUtilities.h"
+#include "Models/Model.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // gliTToolBase
 ///////////////////////////////////////////////////////////////////////////////
 
-GLTransform* gliTToolBase::m_pSObj = NULL;
+TransformableModel* gliTToolBase::m_pSObj = NULL;
 Point3d gliTToolBase::m_sObjPrj;
 Point3d gliTToolBase::m_xPrj;
 Point3d gliTToolBase::m_yPrj;
@@ -668,7 +668,7 @@ void GLTransformTool::CheckSelectObject()
     //get selected objects
     const vector<Model*>& sobjs = GetPickedSceneObjs();
     if( sobjs.empty() ) return;
-    m_rT.setSObject((GLTransform*)sobjs.front());
+    m_rT.setSObject((TransformableModel*)sobjs.front());
 }
 
 void GLTransformTool::Draw(void)

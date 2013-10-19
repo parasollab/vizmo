@@ -2,14 +2,16 @@
 #define MODEL_H_
 
 #include <list>
+#include <vector>
 #include <string>
-#include <sstream>
-#include <cstring>
+using namespace std;
+
+#include "Quaternion.h"
+using namespace mathtool;
 
 #include <QKeyEvent>
 
 #include <gl.h>
-#include "Utilities/GL/GLTransform.h"
 #include "Utilities/Color.h"
 
 enum RenderMode {INVISIBLE_MODE, WIRE_MODE, SOLID_MODE};
@@ -68,9 +70,42 @@ class LoadableModel : public Model {
     string m_filename;
 };
 
-class TransformableModel : public Model, public GLTransform {
+class TransformableModel : public Model {
   public:
-    TransformableModel(const string& _name) : Model(_name) {}
+    TransformableModel(const string& _name) : Model(_name), m_scale(1, 1, 1) {}
+
+    void Transform() {
+      //translation applied last
+      glTranslated(m_pos[0], m_pos[1], m_pos[2]);
+
+      //rotation applied second.
+      //Need to convert Quaternion to Angle-axis for OpenGL
+      const Vector3d& v = m_rotQ.imaginary();
+      double t = atan2d(v.norm(), m_rotQ.real())*2;
+      glRotated(t, v[0], v[1], v[2]);
+
+      //scaling applied first
+      glScaled(m_scale[0], m_scale[1], m_scale[2]);
+    }
+
+    //Translation
+    Vector3d& Translation() {return m_pos;}
+    const Vector3d& Translation() const {return m_pos;}
+
+    //Rotation
+    Vector3d& Rotation() {return m_rot;}
+    const Vector3d& Rotation() const {return m_rot;}
+    Quaternion& RotationQ() {return m_rotQ;}
+    const Quaternion& RotationQ() const {return m_rotQ;}
+
+    //Scale
+    Vector3d& Scale() {return m_scale;}
+    const Vector3d& Scale() const {return m_scale;}
+
+  protected:
+    Vector3d m_pos, m_scale;
+    Vector3d m_rot;
+    Quaternion m_rotQ; //Rotation
 };
 
 #endif
