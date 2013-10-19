@@ -14,7 +14,7 @@
 
 enum RenderMode {INVISIBLE_MODE, WIRE_MODE, SOLID_MODE};
 
-class Model : public GLTransform {
+class Model {
   public:
     Model(const string& _name) : m_name(_name), m_renderMode(SOLID_MODE) {}
     ~Model() {
@@ -66,6 +66,11 @@ class LoadableModel : public Model {
 
   protected:
     string m_filename;
+};
+
+class TransformableModel : public Model, public GLTransform {
+  public:
+    TransformableModel(const string& _name) : Model(_name) {}
 };
 
 #endif

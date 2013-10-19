@@ -64,9 +64,8 @@ CfgModel::GetCCID(){
 }
 
 void
-CfgModel::SetCfg(vector<double> _newCfg){
+CfgModel::SetCfg(const vector<double>& _newCfg) {
   m_dofs.assign(_newCfg.begin(), _newCfg.end());
-  Translation()(m_dofs[0], m_dofs[1], m_isVolumetricRobot ? m_dofs[2] : 0);
 }
 
 bool
@@ -250,9 +249,6 @@ operator>>(istream& _in, CfgModel& _cfg){
     _in >> value;
     _cfg.m_dofs.push_back(value);
   }
-
-  _cfg.Translation()(_cfg.m_dofs[0], _cfg.m_dofs[1],
-      CfgModel::m_isVolumetricRobot ? _cfg.m_dofs[2] : 0);
 
   return _in;
 }

@@ -173,7 +173,7 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
   }
 
   //Update rotation of object
-  if(objs.size()!=0){
+  /*if(objs.size()!=0){
     vector<Model*>& sel=GetVizmo().GetSelectedModels();
     typedef vector<Model*>::iterator OIT;
     for(OIT oit = sel.begin(); oit != sel.end(); oit++){
@@ -202,7 +202,7 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
         }//end IF  ...actually, this appears to be end for -NJ
       }//end for
     }
-  }
+  }*/
 
   updateGL();
 }

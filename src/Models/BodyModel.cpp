@@ -30,7 +30,7 @@ BodyModel::GetMovementFromTag(const string& _tag){
         "Failed parsing robot movement type. Choices are Rotational or Translational.");
 }
 
-BodyModel::BodyModel(bool _isSurface) : Model("Body"),
+BodyModel::BodyModel(bool _isSurface) : TransformableModel("Body"),
   m_polyhedronModel(NULL),
   m_isFixed(true), m_isSurface(_isSurface), m_isBase(true),
   m_baseType(PLANAR), m_baseMovementType(TRANSLATIONAL),

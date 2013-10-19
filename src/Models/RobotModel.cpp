@@ -153,7 +153,6 @@ RobotModel::Select(unsigned int* _index, vector<Model*>& _sel) {
 void
 RobotModel::Draw(GLenum _mode) {
   glPushMatrix();
-  GLTransform::Transform();
   m_robotModel->Draw(_mode);
   glPopMatrix();
 }
@@ -161,7 +160,6 @@ RobotModel::Draw(GLenum _mode) {
 void
 RobotModel::DrawSelect() {
   glPushMatrix();
-  GLTransform::Transform();
   m_robotModel->DrawSelect();
   glPopMatrix();
 }

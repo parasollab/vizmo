@@ -29,6 +29,8 @@ class CfgModel : public Model {
     int GetIndex() const { return m_index; }
     int GetCCID();
     const vector<double>& GetDataCfg() { return m_dofs; }
+    Point3d GetPoint() const {return Point3d(m_dofs[0], m_dofs[1], m_isVolumetricRobot ? m_dofs[2] : 0); }
+
     static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
     RobotModel* GetRobot() const { return m_robot; }
@@ -42,7 +44,7 @@ class CfgModel : public Model {
     void SetInCollision(bool _isColl) { m_coll = _isColl; }
     static void SetShape(Shape _shape){ m_shape =_shape; }
     //Set new values to dofs vector
-    void SetCfg(vector<double> _newCfg);
+    void SetCfg(const vector<double>& _newCfg);
     void SetIndex(int _i) { m_index = _i; SetName();}
     void SetCCModel(CCModel<CfgModel, EdgeModel>* _cc) { m_cc = _cc; }
     void SetRobot(RobotModel* _r) { m_robot = _r; }

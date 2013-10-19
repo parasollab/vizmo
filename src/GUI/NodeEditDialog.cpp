@@ -142,9 +142,6 @@ void
 NodeEditDialog::UpdateDOF(int _id){
   //Also assumes index alignment
   (*m_currentNode)[_id] = m_sliders[_id]->GetSlider()->value() / 100000.0;
-  //Until GLTransform business is cleaned up
-  m_currentNode->Translation()((*m_currentNode)[0], (*m_currentNode)[1],
-    m_currentNode->GetIsVolumetricRobot() ? (*m_currentNode)[2] : 0);
 
   vector<EdgeModel>& cCEdges = m_currentNode->GetCC()->GetEdgesInfo();
   for(size_t i = 0; i < cCEdges.size(); i++){

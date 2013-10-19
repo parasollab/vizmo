@@ -173,7 +173,7 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
       //moved with the animation tool
       //use tx, ty, tz, rx, ry, rz variables otherwise
       if(!test_node) {
-        pRt = (*rbit)->Translation() + robot->Translation();
+        pRt = (*rbit)->Translation();
         //rotation link0
         //Need to compute rotation from Quaternion
 
@@ -183,10 +183,10 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
         gl = modelList.front();
         //get initial quaternion from polyhedron
         Quaternion qt0;
-        qt0 = gl->RotationQ();
+        qt0 = (*rbit)->RotationQ();
 
         //get current/new rotation from objs var.
-        Quaternion qrm = robot->RotationQ();
+        Quaternion qrm = (*rbit)->RotationQ();
 
         //multiply polyhedron0 and multiBody quaternions
         //to get new rotation
@@ -270,15 +270,15 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
       //                 OBSTACLE
       //////////////////////////////////////////////////
 
-      pO = obstacle->Translation();
+      pO = (*obit)->Translation();
 
       //get matrix
       Matrix3x3 mObs;
       convertFromEuler(mObs,
           EulerAngle(
-            obstacle->Rotation()[2],
-            obstacle->Rotation()[1],
-            obstacle->Rotation()[0]));
+            (*obit)->Rotation()[2],
+            (*obit)->Rotation()[1],
+            (*obit)->Rotation()[0]));
 
       for(int a =0; a<3; a++){
         for(int b=0; b<3; b++){

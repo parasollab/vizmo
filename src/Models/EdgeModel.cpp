@@ -82,12 +82,12 @@ EdgeModel::Draw(GLenum _mode) {
 
     glColor4fv(GetColor());
     glBegin(GL_LINE_STRIP);
-    glVertex3dv(m_startCfg.Translation());
+    glVertex3dv(m_startCfg.GetPoint());
     for(CFGIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++){
-      glVertex3dv(c->Translation()); //starting point of next line
+      glVertex3dv(c->GetPoint()); //starting point of next line
     }
-    glVertex3dv(m_endCfg.Translation());
+    glVertex3dv(m_endCfg.GetPoint());
     glEnd();
 
     //draw intermediate configurations
@@ -110,12 +110,12 @@ EdgeModel::DrawSelect(){
   glLineWidth(m_edgeThickness + 4);
 
   glBegin(GL_LINE_STRIP);
-    glVertex3dv(m_startCfg.Translation());
+    glVertex3dv(m_startCfg.GetPoint());
     for(CFGIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++){
-      glVertex3dv(c->Translation()); //starting point of next line
+      glVertex3dv(c->GetPoint()); //starting point of next line
     }
-    glVertex3dv(m_endCfg.Translation());
+    glVertex3dv(m_endCfg.GetPoint());
   glEnd();
 }
 

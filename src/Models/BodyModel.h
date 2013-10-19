@@ -9,7 +9,7 @@ using namespace mathtool;
 
 class ConnectionModel;
 
-class BodyModel : public Model {
+class BodyModel : public TransformableModel {
   public:
     enum Base {PLANAR, VOLUMETRIC, FIXED, JOINT}; //2D, 3D, 0D, not a base
     enum BaseMovement {ROTATIONAL, TRANSLATIONAL}; //rotation+translation, just translation, no movement

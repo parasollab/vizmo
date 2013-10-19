@@ -56,9 +56,6 @@ MultiBodyModel::BuildModels() {
     m_com += (*bit)->GetTransform().translation();
   m_com /= m_bodies.size();
 
-  //set position of multi-body as com
-  Translation() = m_com;
-
   //compute radius
   m_radius = 0;
   for(BodyIter bit = Begin(); bit!=End(); ++bit) {
@@ -102,7 +99,7 @@ MultiBodyModel::Print(ostream& _os) const {
   if(m_active)
     _os << "Active: "  << m_bodies.size() << endl;
   else
-    _os << "Passive: "  << Translation() << endl;
+    _os << "Passive: "  << m_bodies[0]->Translation() << endl;
 }
 
 void
