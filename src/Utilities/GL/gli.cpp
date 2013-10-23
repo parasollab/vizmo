@@ -6,7 +6,7 @@
 #include "Camera.h"
 #include "GLUtilities.h"
 #include "PickBox.h"
-#include "gliTransTool.h"
+#include "TransformTool.h"
 #include "Models/Vizmo.h"
 
 int GLI_SHOW_AXIS=1<<0;
@@ -25,7 +25,7 @@ void gliDraw(int option) {
   Camera* cam = GetCameraFactory().GetCurrentCamera();
   cam->Draw();
   if(option & GLI_SHOW_PICKBOX) GetPickBox().Draw();
-  if(option & GLI_SHOW_TRANSFORMTOOL) gliGetTransformTool().Draw();
+  if(option & GLI_SHOW_TRANSFORMTOOL) GetTransformTool().Draw();
   if(option & GLI_SHOW_AXIS) DrawRotateAxis(cam);
 }
 
@@ -40,7 +40,7 @@ bool gliMP(QMouseEvent * e) {
     gliCM(); //camera moved
     return true;
   }
-  if( gliGetTransformTool().MP(e) ) return true;
+  if( GetTransformTool().MousePressed(e) ) return true;
 
   GetPickBox().MousePressed(e);
 
@@ -52,7 +52,7 @@ bool gliMR(QMouseEvent * e, bool drawOnly) {
     gliCM(); //camera moved
     return true;
   }
-  if( gliGetTransformTool().MR(e) ) return true;
+  if( GetTransformTool().MouseReleased(e) ) return true;
 
   //select
   PickBox& pick = GetPickBox();
@@ -72,7 +72,7 @@ bool gliMR(QMouseEvent * e, bool drawOnly) {
 
         if(SHIFT_CLICK == true)
           newobjs = objs;
-        gliGetTransformTool().CheckSelectObject();
+        GetTransformTool().CheckSelectObject();
       }
     }
   }
@@ -86,7 +86,7 @@ bool gliMM(QMouseEvent* e) {
     gliCM(); //camera moved
     return true;
   }
-  if(gliGetTransformTool().MM(e))
+  if(GetTransformTool().MouseMotion(e))
     return true;
 
   GetPickBox().MouseMotion(e);
@@ -97,7 +97,7 @@ bool gliMM(QMouseEvent* e) {
 /// key event, return true if handled
 bool
 gliKEY(QKeyEvent* e) {
-  return gliGetTransformTool().KEY(e);
+  return GetTransformTool().KeyPressed(e);
 }
 
 
@@ -108,13 +108,13 @@ gliCameraKEY(QKeyEvent* e) {
 
 /// window resize event
 void gliWS( int w, int h ) {
-  gliGetTransformTool().setWinSize(w,h);
+  GetTransformTool().SetWindowSize(w,h);
   GetPickBox().SetWinSize(w,h);
 }
 
 /// camera move event
 void gliCM() {
-  gliGetTransformTool().CM();
+  GetTransformTool().CameraMotion();
 }
 
 //simulate mouse up
@@ -148,8 +148,6 @@ gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h) {
 }
 
 void gliReset(){
-
-  gliGetTransformTool().resetObj();
-
+  GetTransformTool().ResetSelectedObj();
 }
 

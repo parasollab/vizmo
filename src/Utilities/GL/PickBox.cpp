@@ -4,8 +4,6 @@
 
 #include <QMouseEvent>
 
-#include "gliTransTool.h"
-
 vector<Model*> g_pickedSceneObjs;
 
 vector<Model*>&
