@@ -1,10 +1,58 @@
 #ifndef GLUTILITIES_H_
 #define GLUTILITIES_H_
 
+#include <vector>
+using namespace std;
+
 #include "glut.h"
+
+#include <qgl.h>
 
 #include "Camera.h"
 #include "Font.h"
+
+extern int GLI_SHOW_AXIS;
+extern int GLI_SHOW_PICKBOX;
+extern int GLI_SHOW_TRANSFORMTOOL;
+extern bool SHIFT_CLICK; //At least until gli is redone or done away with...
+
+//draw
+void Draw(int option=0);
+
+//mouse button presse event, return true if handled
+bool MousePressed( QMouseEvent * e );
+
+//mouse button release event, return true if handled
+bool MouseReleased( QMouseEvent * e, bool drawonly=false );
+
+//mouse movement evenet, return true if handled
+bool MouseMotion( QMouseEvent * e );
+
+//key event, return true if handled
+bool KeyPressed( QKeyEvent * e );
+
+bool CameraKeyPressed( QKeyEvent * e );
+
+//window resize event
+void WindowResize( int w, int h );
+
+//camera move event
+void CameraMotion();
+
+//set select method
+class Box;
+class Model;
+typedef vector<Model*>& (*pick_func)(const Box&);
+void SetPickingFunction(pick_func func);
+
+//simulate mouse up
+void SimMouseUp();
+
+//Get the picking box dimensions
+void PickBoxDim(int *xOffset,int *yOffset,int *w,int *h);
+
+//Reset gliObj
+void Reset();
 
 //draw axis rotated accroding to camera's rotation
 inline void

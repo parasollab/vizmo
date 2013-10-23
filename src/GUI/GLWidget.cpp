@@ -13,7 +13,7 @@
 #include "Models/Vizmo.h"
 #include "Utilities/GL/Camera.h"
 #include "Utilities/GL/Font.h"
-#include <Utilities/GL/gli.h>
+#include <Utilities/GL/GLUtilities.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
@@ -63,12 +63,12 @@ GLWidget::initializeGL(){
   glLineStipple(2, 0xAAAA);
 
   //create models
-  gliSetPickingFunction(VizmoSelect);
+  SetPickingFunction(VizmoSelect);
 }
 
 void
 GLWidget::resizeGL(int _w, int _h){
-  gliWS(_w, _h);
+  WindowResize(_w, _h);
   glViewport(0, 0, _w, _h);
 
   glMatrixMode(GL_PROJECTION);
@@ -93,7 +93,7 @@ GLWidget::paintGL(){
   int param = GLI_SHOW_PICKBOX | GLI_SHOW_TRANSFORMTOOL;
   if(m_showAxis) param = param | GLI_SHOW_AXIS;
 
-  gliDraw(param);
+  Draw(param);
   SetLightPos();
   GetVizmo().Display();
 
@@ -126,7 +126,7 @@ GLWidget::SetLight(){
 
 void
 GLWidget::mousePressEvent(QMouseEvent* _e){
-  if( gliMP(_e) ){
+  if( MousePressed(_e) ){
     updateGL();
     return;
   }//handled by gli
@@ -144,13 +144,13 @@ GLWidget::mouseDoubleClickEvent(QMouseEvent* _e){
 void
 GLWidget::SimulateMouseUpSlot(){
 
-  gliSimMouseUp();
+  SimMouseUp();
   updateGL();
 }
 
 void
 GLWidget::mouseReleaseEvent(QMouseEvent* _e){
-  if(gliMR(_e, m_takingSnapShot)){ //handled by gli
+  if(MouseReleased(_e, m_takingSnapShot)){ //handled by gli
     updateGL();
     emit MRbyGLI();
     return;
@@ -209,7 +209,7 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
 
 void
 GLWidget::mouseMoveEvent(QMouseEvent* _e){
-  if(gliMM(_e)){
+  if(MouseMotion(_e)){
     //    if(CDOn)                   TEMPORARY(?) DISABLE
     //      GetVizmo().TurnOn_CD();
     updateGL();
@@ -244,11 +244,11 @@ GLWidget::keyPressEvent (QKeyEvent* _e){
 #endif
 
   updateGL();
-  if(gliCameraKEY(_e)){
+  if(CameraKeyPressed(_e)){
     updateGL();
     return;
   }
-  if(gliKEY(_e)){
+  if(KeyPressed(_e)){
     updateGL();
     return;
   }//handled by gli
@@ -273,7 +273,7 @@ GLWidget::ShowFrameRate(){
 
 void
 GLWidget::ResetTransTool(){
-  gliReset();
+  Reset();
 }
 
 //save an image of the GL scene with the given filename
@@ -294,7 +294,7 @@ QRect
 GLWidget::GetImageRect(bool _crop){
   if(_crop) {
     int xOff, yOff, w, h;
-    gliPickBoxDim(&xOff, &yOff, &w, &h);
+    PickBoxDim(&xOff, &yOff, &w, &h);
     return QRect(xOff+1, height()-yOff+1, w-2, h-2);
   }
   else

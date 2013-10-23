@@ -1,4 +1,4 @@
-#include "gli.h"
+#include "GLUtilities.h"
 
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -16,12 +16,12 @@ bool SHIFT_CLICK = false;
 
 //set picking function
 pick_func g_pick=NULL;
-void gliSetPickingFunction(pick_func func) {
+void SetPickingFunction(pick_func func) {
   g_pick=func;
 }
 
 //draw
-void gliDraw(int option) {
+void Draw(int option) {
   Camera* cam = GetCameraFactory().GetCurrentCamera();
   cam->Draw();
   if(option & GLI_SHOW_PICKBOX) GetPickBox().Draw();
@@ -29,7 +29,7 @@ void gliDraw(int option) {
   if(option & GLI_SHOW_AXIS) DrawRotateAxis(cam);
 }
 
-bool gliMP(QMouseEvent * e) {
+bool MousePressed(QMouseEvent * e) {
 
   if(e->buttons() && (e->modifiers() == Qt::ShiftModifier))
     SHIFT_CLICK = true;
@@ -37,7 +37,7 @@ bool gliMP(QMouseEvent * e) {
     SHIFT_CLICK = false;
 
   if(GetCameraFactory().GetCurrentCamera()->MousePressed(e)) {
-    gliCM(); //camera moved
+    CameraMotion(); //camera moved
     return true;
   }
   if( GetTransformTool().MousePressed(e) ) return true;
@@ -47,9 +47,9 @@ bool gliMP(QMouseEvent * e) {
   return false; //need further process
 }
 
-bool gliMR(QMouseEvent * e, bool drawOnly) {
+bool MouseReleased(QMouseEvent * e, bool drawOnly) {
   if(GetCameraFactory().GetCurrentCamera()->MouseReleased(e)) {
-    gliCM(); //camera moved
+    CameraMotion(); //camera moved
     return true;
   }
   if( GetTransformTool().MouseReleased(e) ) return true;
@@ -81,9 +81,9 @@ bool gliMR(QMouseEvent * e, bool drawOnly) {
 }
 
 /// mouse movement event, return true if handled
-bool gliMM(QMouseEvent* e) {
+bool MouseMotion(QMouseEvent* e) {
   if(GetCameraFactory().GetCurrentCamera()->MouseMotion(e)) {
-    gliCM(); //camera moved
+    CameraMotion(); //camera moved
     return true;
   }
   if(GetTransformTool().MouseMotion(e))
@@ -96,29 +96,29 @@ bool gliMM(QMouseEvent* e) {
 
 /// key event, return true if handled
 bool
-gliKEY(QKeyEvent* e) {
+KeyPressed(QKeyEvent* e) {
   return GetTransformTool().KeyPressed(e);
 }
 
 
 bool
-gliCameraKEY(QKeyEvent* e) {
+CameraKeyPressed(QKeyEvent* e) {
   return GetCameraFactory().GetCurrentCamera()->KeyPressed(e);
 }
 
 /// window resize event
-void gliWS( int w, int h ) {
+void WindowResize( int w, int h ) {
   GetTransformTool().SetWindowSize(w,h);
   GetPickBox().SetWinSize(w,h);
 }
 
 /// camera move event
-void gliCM() {
+void CameraMotion() {
   GetTransformTool().CameraMotion();
 }
 
 //simulate mouse up
-void gliSimMouseUp() {
+void SimMouseUp() {
   PickBox& pick = GetPickBox();
   // Dummy
   QMouseEvent * e=NULL;
@@ -126,7 +126,7 @@ void gliSimMouseUp() {
 }
 
 void
-gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h) {
+PickBoxDim(int *xOffset,int *yOffset, int *w, int *h) {
   /*
      P4 --------------- P3
      |                   |
@@ -147,7 +147,7 @@ gliPickBoxDim(int *xOffset,int *yOffset, int *w, int *h) {
   *h = abs(box.m_bottom - box.m_top);
 }
 
-void gliReset(){
+void Reset(){
   GetTransformTool().ResetSelectedObj();
 }
 
