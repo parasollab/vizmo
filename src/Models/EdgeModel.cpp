@@ -30,7 +30,7 @@ void
 EdgeModel::Print(ostream& _os) const {
   _os << "Edge ID= " << m_id << endl
     << "Connects Nodes: " << m_startCfg.GetIndex() << " and " << m_endCfg.GetIndex() << endl
-    << "Intermediats: ";
+    << "Intermediates: ";
 
   typedef vector<CfgModel>::const_iterator CFGIT;
   for(CFGIT c = m_intermediateCfgs.begin(); c != m_intermediateCfgs.end(); c++)

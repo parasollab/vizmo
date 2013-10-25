@@ -16,7 +16,7 @@ bool CfgModel::m_isRotationalRobot = false;
 
 CfgModel::CfgModel() : Model("") {
   m_index = -1;
-  m_coll = false;
+  m_inColl = false;
   m_dofs.clear();
   m_robot = NULL;
   m_cc = NULL;
@@ -26,7 +26,7 @@ CfgModel::CfgModel(const CfgModel& _cfg) : Model(_cfg) {
   m_index = _cfg.m_index;
   m_robot = _cfg.m_robot;
   m_cc = _cfg.m_cc;
-  m_coll = _cfg.m_coll;
+  m_inColl = _cfg.m_inColl;
   m_dofs = _cfg.m_dofs;
 }
 
@@ -52,7 +52,7 @@ CfgModel::Print(ostream& _os) const {
 
   _os << endl;
 
-  if(m_coll)
+  if(m_inColl)
     _os << "**** IS IN COLLISION!! ****" << endl;
 }
 
@@ -120,7 +120,12 @@ CfgModel::DrawRobot(){
 
   m_robot->BackUp();
   m_robot->SetRenderMode(m_renderMode);
-  m_robot->SetColor(m_color);
+
+  if(m_inColl)
+    m_robot->SetColor(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0)); //Invert colors. Black case?
+  else
+    m_robot->SetColor(m_color);
+
   m_robot->Configure(m_dofs);
   m_robot->Draw(GL_RENDER);
   m_robot->Restore();
@@ -130,7 +135,11 @@ void
 CfgModel::DrawBox(){
 
   glPushMatrix();
-  glColor4fv(m_color);
+
+  if(m_inColl)
+    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
+  else
+    glColor4fv(m_color);
 
   //If base is not FIXED, perform translations
   //Additionally, perform rotations if base is also ROTATIONAL
@@ -164,7 +173,12 @@ void
 CfgModel::DrawPoint(){
 
   glBegin(GL_POINTS);
-  glColor4fv(GetColor());
+
+  if(m_inColl)
+    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
+  else
+    glColor4fv(GetColor());
+
   if(m_renderMode == SOLID_MODE ||
       m_renderMode == WIRE_MODE){
     if(m_isPlanarRobot)
@@ -187,7 +201,7 @@ CfgModel::DrawSelect(){
         m_robot->Configure(m_dofs);
         m_robot->DrawSelect();
         m_robot->Restore();
-      };
+      }
       break;
 
     case Box:
@@ -208,9 +222,7 @@ CfgModel::DrawSelect(){
           glRotated(m_dofs[3]*360, 1, 0, 0);
         }
       }
-
       glutWireCube(m_boxScale+0.1); //may need adjustment
-
       glPopMatrix();
       break;
 

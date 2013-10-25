@@ -8,6 +8,21 @@
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
 
+QValidator::State
+NodeEditValidator::validate(QString& _s, int& _i) const {
+
+  if(_s.isEmpty() || _s == "-" || _s == "." || _s == "-.")
+    return QValidator::Intermediate;
+
+  bool ok;
+  double d = _s.toDouble(&ok);
+
+  if(ok && d >= m_min && d <= m_max)
+    return QValidator::Acceptable;
+  else
+    return QValidator::Invalid;
+}
+
 NodeEditSlider::NodeEditSlider(QWidget* _parent, string _label){
 
   m_layout = new QHBoxLayout();
@@ -26,8 +41,8 @@ NodeEditSlider::NodeEditSlider(QWidget* _parent, string _label){
   m_slider->installEventFilter(this);
   m_layout->addWidget(m_slider);
 
-  m_dofValue = new QLabel(this);
-  m_dofValue->setFixedWidth(65);
+  m_dofValue = new QLineEdit(this);
+  m_dofValue->setFixedSize(65, 22);
   m_dofValue->setStyleSheet("font: 9pt;");
   m_layout->addWidget(m_dofValue);
 
@@ -43,15 +58,20 @@ NodeEditSlider::UpdateDOFLabel(int _newVal){
   m_dofValue->setText(qs);
 }
 
+void
+NodeEditSlider::MoveSlider(QString _inputVal){
+
+ m_slider->setSliderPosition(_inputVal.toDouble() * 100000.0);
+}
+
 bool
 NodeEditSlider::eventFilter(QObject* _target, QEvent* _event){
 
   if(_target == m_slider && _event->type() == QEvent::Wheel){
-    _event->ignore();
+    _event->ignore(); //Prevent mouse wheel from moving sliders
     return true;
   }
-  else
-    return false;
+  return false;
 }
 
 NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene)
@@ -66,7 +86,7 @@ NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _sce
   m_scrollAreaBoxLayout = new QVBoxLayout();
   m_scrollArea = new QScrollArea(this);
   m_scrollAreaBox = new QGroupBox(this);
-  m_setButton = new QPushButton(this);
+  m_doneButton = new QPushButton(this);
   m_sliderMapper = new QSignalMapper(this);
 
   setFixedWidth(390);
@@ -75,9 +95,9 @@ NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _sce
   m_overallLayout->addWidget(m_nodeLabel);
   m_overallLayout->addWidget(m_scrollArea);
   m_scrollAreaBoxLayout->setSpacing(0);
-  m_scrollAreaBoxLayout->setContentsMargins(7, 7, 7, 7);
+  m_scrollAreaBoxLayout->setContentsMargins(3, 7, 3, 7); //L, T, R, B
 
-  connect(m_setButton, SIGNAL(pressed()), this, SLOT(close()));
+  connect(m_doneButton, SIGNAL(pressed()), this, SLOT(close()));
 
   SetUpWidgets();
   SetCurrentNode(_node);
@@ -93,10 +113,17 @@ NodeEditDialog::SetUpWidgets(){
     ostringstream oss;
     oss << "DOF " << i;
     NodeEditSlider* s = new NodeEditSlider(this, oss.str());
-    s->GetSlider()->setRange(100000*dofInfo[i].m_minVal, 100000*dofInfo[i].m_maxVal);
+
+    double minVal = dofInfo[i].m_minVal;
+    double maxVal = dofInfo[i].m_maxVal;
+    s->GetSlider()->setRange(100000*minVal, 100000*maxVal);
+    s->GetDOFValue()->setValidator(new NodeEditValidator(minVal, maxVal, 5, s->GetDOFValue()));
     //Longer/more informative DOF name pops up when moused over
     s->GetDOFName()->setToolTip(QString::fromStdString(dofInfo[i].m_name));
+
     connect(s->GetSlider(), SIGNAL(valueChanged(int)), m_sliderMapper, SLOT(map()));
+    connect(s->GetDOFValue(), SIGNAL(textEdited(const QString&)), s, SLOT(MoveSlider(QString)));
+
     m_sliderMapper->setMapping(s->GetSlider(), i);
     m_sliders.push_back(s);
     m_scrollAreaBoxLayout->addWidget(s);
@@ -106,9 +133,9 @@ NodeEditDialog::SetUpWidgets(){
 
   m_scrollAreaBox->setLayout(m_scrollAreaBoxLayout);
   m_scrollArea->setWidget(m_scrollAreaBox);
-  m_setButton->setFixedWidth(75);
-  m_setButton->setText("Set");
-  m_overallLayout->addWidget(m_setButton);
+  m_doneButton->setFixedWidth(80);
+  m_doneButton->setText("Done");
+  m_overallLayout->addWidget(m_doneButton);
   this->setLayout(m_overallLayout);
 }
 
@@ -118,7 +145,10 @@ NodeEditDialog::SetCurrentNode(CfgModel* _node){
   m_currentNode = _node;
 
   ostringstream oss;
-  oss << _node->Name() << " --- CCID: " << _node->GetCCID();
+  if(_node->GetCC() != NULL)
+    oss << _node->Name() << " --- CCID: " << _node->GetCCID();
+  else
+    oss << "Intermediate configuration";
   QString qNodeLabel = QString::fromStdString(oss.str());
   m_nodeLabel->setText(qNodeLabel);
 
@@ -143,13 +173,33 @@ NodeEditDialog::UpdateDOF(int _id){
   //Also assumes index alignment
   (*m_currentNode)[_id] = m_sliders[_id]->GetSlider()->value() / 100000.0;
 
-  vector<EdgeModel>& cCEdges = m_currentNode->GetCC()->GetEdgesInfo();
-  for(size_t i = 0; i < cCEdges.size(); i++){
-    if(m_currentNode->GetIndex() == cCEdges[i].GetStartCfg().GetIndex())
-      cCEdges[i].SetStartCfg(*m_currentNode);
-    else if(m_currentNode->GetIndex() == cCEdges[i].GetEndCfg().GetIndex())
-      cCEdges[i].SetEndCfg(*m_currentNode);
-  }
+  CollisionCheck();
 
+  if(m_currentNode->GetCC() != NULL){   //TODO: assign intermediates to proper CC?
+    vector<EdgeModel>& cCEdges = m_currentNode->GetCC()->GetEdgesInfo();
+    for(size_t i = 0; i < cCEdges.size(); i++){
+      if(m_currentNode->GetIndex() == cCEdges[i].GetStartCfg().GetIndex())
+        cCEdges[i].SetStartCfg(*m_currentNode);
+      else if(m_currentNode->GetIndex() == cCEdges[i].GetEndCfg().GetIndex())
+        cCEdges[i].SetEndCfg(*m_currentNode);
+    }
+  }
   m_gLScene->updateGL();
+}
+
+void
+NodeEditDialog::CollisionCheck(){
+  //Checks boundaries for now
+  //call collision stuff elsewhere!
+  vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
+  bool collFound = false; //new or existing
+  for(size_t i = 0; i < dofInfo.size(); i++){
+    if(((*m_currentNode)[i] <= dofInfo[i].m_minVal) ||
+     ((*m_currentNode)[i] >= dofInfo[i].m_maxVal)){
+      m_currentNode->SetInCollision(true); //test
+      collFound = true;
+    }
+  }
+  if(collFound == false)
+    m_currentNode->SetInCollision(false);
 }

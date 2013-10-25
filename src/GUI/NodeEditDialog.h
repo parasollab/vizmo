@@ -1,5 +1,6 @@
 /********************************************************************************
  * A dialog for modifying the cfg of a single node.
+ * 2 input options from here: Slider adjustment or explicit value entry
  ********************************************************************************/
 
 #ifndef NODE_EDIT_DIALOG_H
@@ -12,9 +13,8 @@
 #include <QVariant>
 #include <QAction>
 #include <QApplication>
-#include <QButtonGroup>
-#include <QHeaderView>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QWidget>
 #include <QSlider>
@@ -23,11 +23,24 @@
 #include <QGroupBox>
 #include <QScrollArea>
 #include <QSignalMapper>
+#include <QDoubleValidator>
 
 using namespace std;
 
 class GLWidget;
 class CfgModel;
+
+class NodeEditValidator : public QDoubleValidator{
+
+  public:
+    NodeEditValidator(double _min, double _max, int _decimals, QWidget* _parent)
+      : QDoubleValidator(_min, _max, _decimals, _parent), m_min(_min), m_max(_max){}
+    virtual QValidator::State validate(QString& _s, int& _i) const;
+
+  private:
+    double m_min;
+    double m_max;
+};
 
 class NodeEditSlider : public QWidget {
 
@@ -38,18 +51,19 @@ class NodeEditSlider : public QWidget {
 
     QSlider* GetSlider() { return m_slider; }
     QLabel* GetDOFName() { return m_dofName; }
-    QLabel* GetDOFValue() { return m_dofValue; }
+    QLineEdit* GetDOFValue() { return m_dofValue; }
 
   private slots:
     void UpdateDOFLabel(int _newVal);
+    void MoveSlider(QString _inputVal);
 
   private:
-    virtual bool eventFilter(QObject* _target, QEvent* _event); //ignore mouse wheel on sliders
+    virtual bool eventFilter(QObject* _target, QEvent* _event);
 
     QHBoxLayout* m_layout;
     QSlider* m_slider;
     QLabel* m_dofName;
-    QLabel* m_dofValue;
+    QLineEdit* m_dofValue;
 };
 
 class NodeEditDialog : public QDialog {
@@ -68,8 +82,10 @@ class NodeEditDialog : public QDialog {
     void UpdateDOF(int _id); //Update value of DOF associated with m_sliders[_id]
 
   private:
+    void CollisionCheck();
+
     QLabel* m_nodeLabel;
-    QPushButton* m_setButton;
+    QPushButton* m_doneButton;
     QGroupBox* m_scrollAreaBox;
     QVBoxLayout* m_overallLayout;
     QVBoxLayout* m_scrollAreaBoxLayout;

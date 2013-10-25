@@ -34,14 +34,16 @@ class CfgModel : public Model {
     static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
     RobotModel* GetRobot() const { return m_robot; }
+    bool IsInCollision() { return m_inColl; }
     static int GetDOF() { return m_dof; }
     static Shape GetShape() { return m_shape; }
     static float GetPointSize() { return m_pointScale; }
+
     static void SetDOF(int _d) { m_dof = _d; }
     static void SetIsPlanarRobot(bool _b) { m_isPlanarRobot = _b; }
     static void SetIsVolumetricRobot(bool _b) { m_isVolumetricRobot = _b; }
     static void SetIsRotationalRobot(bool _b) { m_isRotationalRobot = _b; }
-    void SetInCollision(bool _isColl) { m_coll = _isColl; }
+    void SetInCollision(bool _isColl) { m_inColl = _isColl; }
     static void SetShape(Shape _shape){ m_shape =_shape; }
     //Set new values to dofs vector
     void SetCfg(const vector<double>& _newCfg);
@@ -75,7 +77,7 @@ class CfgModel : public Model {
     static float m_boxScale;
     static float m_pointScale;
 
-    bool m_coll; //For collision detection
+    bool m_inColl; //For collision detection
     RobotModel* m_robot; //Testing
     vector<double> m_dofs;
     int m_index;

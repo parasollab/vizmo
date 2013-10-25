@@ -109,7 +109,7 @@ RoadmapOptions::CreateActions(){
   m_edgeThicknessDialog = new SliderDialog("Edge Thickness",
       "Drag the slider to change the edge thickness", 100, 1000, 100, this);
 
-  QAction* editNode = new QAction(QPixmap(editnode), tr("Edit Map"), this);
+  QAction* editNode = new QAction(QPixmap(editnode), tr("Edit Node"), this);
   m_actions["editNode"] = editNode;
 
   QAction* randomizeColors = new QAction(QPixmap(rcolor), tr("Randomize Colors"), this);
@@ -325,8 +325,8 @@ RoadmapOptions::SetHelpTips(){
         " roadmap nodes by a specified factor."));
   m_actions["edgeThickness"]->setWhatsThis(tr("Click this button to scale the"
         " thickness of the edges."));
-  m_actions["editNode"]->setWhatsThis(tr("Click this button to open the map editing"
-        " widget"));
+  m_actions["editNode"]->setWhatsThis(tr("Click this button to open the node editing"
+        " widget."));
   m_actions["randomizeColors"]->setWhatsThis(tr("Click this button to randomize"
         " the colors of the connected components."));
   m_actions["ccsOneColor"]->setWhatsThis(tr("Click this button to set all of the"

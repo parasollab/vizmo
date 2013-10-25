@@ -27,6 +27,7 @@ class EdgeModel : public Model {
     int GetID() { return m_id; }
     const CfgModel& GetStartCfg() { return m_startCfg; }
     const CfgModel& GetEndCfg() { return m_endCfg; }
+    vector<CfgModel>& GetIntermediateCfgs() { return m_intermediateCfgs; }
     void SetStartCfg(CfgModel _s) { m_startCfg = _s; }
     void SetEndCfg(CfgModel _e) { m_endCfg = _e; }
     void SetCfgShape(CfgModel::Shape _s) { m_cfgShape = _s; }
