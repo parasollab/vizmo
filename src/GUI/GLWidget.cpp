@@ -11,10 +11,10 @@
 
 #include "MainWindow.h"
 #include "Models/Vizmo.h"
-#include "Utilities/GL/Camera.h"
-#include "Utilities/GL/Font.h"
-#include "Utilities/GL/PickBox.h"
-#include "Utilities/GL/TransformTool.h"
+#include "Utilities/Camera.h"
+#include "Utilities/Font.h"
+#include "Utilities/PickBox.h"
+#include "Utilities/TransformTool.h"
 
 bool SHIFT_CLICK = false;
 

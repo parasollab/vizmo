@@ -62,7 +62,6 @@ UTILS_LIBFILES = $(RAPID_LIBFILE) $(MODELLOADER_LIBFILE)
 #Define Vizmo Objects
 OBJECTS =
 SRCMOC =
-include $(VIZMO_DIR)/Utilities/GL/Makefile.Objects
 include $(VIZMO_DIR)/Utilities/Makefile.Objects
 include $(VIZMO_DIR)/Models/ModelGraph/Makefile.Objects
 include $(VIZMO_DIR)/Models/Makefile.Objects

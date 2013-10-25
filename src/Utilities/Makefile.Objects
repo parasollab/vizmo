@@ -1,4 +1,8 @@
 OBJECTS += \
+	  Utilities/Camera.o \
 	  Utilities/CollisionDetection.o \
+	  Utilities/Font.o \
 	  Utilities/ImageFilters.o \
-	  Utilities/IOUtils.o
+	  Utilities/IOUtils.o \
+	  Utilities/PickBox.o \
+	  Utilities/TransformTool.o

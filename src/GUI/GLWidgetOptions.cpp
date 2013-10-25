@@ -11,10 +11,10 @@
 #include <QColorDialog>
 #include <QCursor>
 
-#include "Utilities/GL/Camera.h"
-#include "MainWindow.h"
-#include "GLWidget.h"
 #include "CameraPosDialog.h"
+#include "GLWidget.h"
+#include "MainWindow.h"
+#include "Utilities/Camera.h"
 
 #include "Icons/ResetCamera.xpm"
 #include "Icons/BgColor.xpm"

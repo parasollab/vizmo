@@ -5,13 +5,13 @@
 #include <fstream>
 using namespace std;
 
-#include "Utilities/GL/PickBox.h"
 #include "CfgModel.h"
 #include "DebugModel.h"
 #include "Model.h"
 #include "PathModel.h"
 #include "QueryModel.h"
 #include "RobotModel.h"
+#include "Utilities/PickBox.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //Define Vizmo singleton

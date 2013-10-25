@@ -1,15 +1,14 @@
 #include "CameraPosDialog.h"
 
 #include <sstream>
+using namespace std;
 
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 
-using namespace std;
-
-#include "Utilities/GL/Camera.h"
+#include "Utilities/Camera.h"
 
 CameraPosDialog::CameraPosDialog(QWidget* _parent) :QDialog(_parent) {
   resize(450, 245);

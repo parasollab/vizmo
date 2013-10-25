@@ -1,5 +1,0 @@
-OBJECTS += \
-	   Utilities/GL/Camera.o \
-	   Utilities/GL/Font.o \
-	   Utilities/GL/PickBox.o \
-	   Utilities/GL/TransformTool.o

@@ -5,9 +5,9 @@
 #include "CfgModel.h"
 #include "RobotModel.h"
 #include "Vizmo.h"
-#include "Utilities/IOUtils.h"
 #include "Utilities/Exceptions.h"
-#include "Utilities/GL/Font.h"
+#include "Utilities/Font.h"
+#include "Utilities/IOUtils.h"
 
 QueryModel::QueryModel(const string& _filename, RobotModel* _robotModel) :
   LoadableModel("Query"),
