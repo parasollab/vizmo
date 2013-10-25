@@ -1,8 +1,20 @@
 #include "PickBox.h"
 
+#include <cmath>
+
 #include <GL/glut.h>
 
 #include <QMouseEvent>
+
+//set picking function
+pick_func g_pick=NULL;
+void SetPickingFunction(pick_func func) {
+  g_pick=func;
+}
+
+pick_func GetPickingFunction() {
+  return g_pick;
+}
 
 vector<Model*> g_pickedSceneObjs;
 
@@ -70,8 +82,30 @@ PickBox::MouseMotion(QMouseEvent* _e) {
 }
 
 PickBox g_pickBox;
-
 PickBox&
 GetPickBox(){
   return g_pickBox;
 }
+
+void
+PickBoxDim(int *xOffset,int *yOffset, int *w, int *h) {
+  /*
+     P4 --------------- P3
+     |                   |
+     |                   |
+     |                   |
+     |                   |
+     |                   |
+     |                   |
+     P1 --------------- P2
+     */
+
+  const Box& box = GetPickBox().GetBox();
+
+  // handle all the ways the box can be drawn
+  *xOffset = min(box.m_left, box.m_right);
+  *yOffset = max(box.m_bottom, box.m_top);
+  *w = abs(box.m_right - box.m_left);
+  *h = abs(box.m_bottom - box.m_top);
+}
+

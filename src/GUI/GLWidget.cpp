@@ -13,7 +13,10 @@
 #include "Models/Vizmo.h"
 #include "Utilities/GL/Camera.h"
 #include "Utilities/GL/Font.h"
-#include <Utilities/GL/GLUtilities.h>
+#include "Utilities/GL/PickBox.h"
+#include "Utilities/GL/TransformTool.h"
+
+bool SHIFT_CLICK = false;
 
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
@@ -67,10 +70,11 @@ GLWidget::initializeGL(){
 }
 
 void
-GLWidget::resizeGL(int _w, int _h){
-  WindowResize(_w, _h);
-  glViewport(0, 0, _w, _h);
+GLWidget::resizeGL(int _w, int _h) {
+  GetTransformTool().SetWindowSize(_w, _h);
+  GetPickBox().SetWinSize(_w, _h);
 
+  glViewport(0, 0, _w, _h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(60, ((GLfloat)_w)/((GLfloat)_h), 1, 1500);
@@ -90,11 +94,22 @@ GLWidget::paintGL(){
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  int param = GLI_SHOW_PICKBOX | GLI_SHOW_TRANSFORMTOOL;
-  if(m_showAxis) param = param | GLI_SHOW_AXIS;
+  //draw camera
+  GetCameraFactory().GetCurrentCamera()->Draw();
 
-  Draw(param);
+  //draw pick box
+  GetPickBox().Draw();
+
+  //draw transform tool
+  GetTransformTool().Draw();
+
+  //draw axis
+  DrawAxis();
+
+  //set lights
   SetLightPos();
+
+  //draw scene
   GetVizmo().Display();
 
   //stop clock, update frametimes, and compute framerate
@@ -125,18 +140,30 @@ GLWidget::SetLight(){
 }
 
 void
+GLWidget::SetLightPos() {
+  static GLfloat lightPosition[] = { 250.0f, 250.0f, 250.0f, 1.0f };
+  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+  static GLfloat lightPosition2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
+  glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
+}
+
+void
 GLWidget::mousePressEvent(QMouseEvent* _e){
-  if( MousePressed(_e) ){
-    updateGL();
-    return;
-  }//handled by gli
+
+  SHIFT_CLICK = _e->modifiers() == Qt::ShiftModifier;
+
+  //test camera motion first, then transform tool, then pick box
+  if(GetCameraFactory().GetCurrentCamera()->MousePressed(_e)) {
+    GetTransformTool().CameraMotion();
+  }
+  else if(!GetTransformTool().MousePressed(_e))
+    GetPickBox().MousePressed(_e);
 
   updateGL();
 }
 
 void
 GLWidget::mouseDoubleClickEvent(QMouseEvent* _e){
-
   GetVizmo().SetDoubleClickStatus(true);
   updateGL();
 }
@@ -144,19 +171,52 @@ GLWidget::mouseDoubleClickEvent(QMouseEvent* _e){
 void
 GLWidget::SimulateMouseUpSlot(){
 
-  SimMouseUp();
+  //simulate pick mouse up
+  PickBox& pick = GetPickBox();
+  QMouseEvent* e=NULL;
+  pick.MouseReleased(e);
+
   updateGL();
 }
 
 void
 GLWidget::mouseReleaseEvent(QMouseEvent* _e){
-  if(MouseReleased(_e, m_takingSnapShot)){ //handled by gli
+  bool handled = false;
+  if(GetCameraFactory().GetCurrentCamera()->MouseReleased(_e)) {
+    GetTransformTool().CameraMotion();
+    handled = true;
+  }
+  else if(GetTransformTool().MouseReleased(_e))
+    handled = true;
+
+  if(handled){ //handled by gli
     updateGL();
     emit MRbyGLI();
     return;
   }
 
-  //updateGL();
+  //select
+  PickBox& pick = GetPickBox();
+  if(!m_takingSnapShot){
+    if(pick.IsPicking()){
+      pick.MouseReleased(_e);
+      if(GetPickingFunction() != NULL){
+        vector<Model*>& objs = GetPickedSceneObjs();
+        //Shift key not pressed; discard current selection and start anew
+        if(SHIFT_CLICK == false)
+          objs.clear();
+        //Get new set of picked objects if shift key not pressed
+        //If shift is pressed, these are additional objects to add to
+        //selection
+        vector<Model*>& newobjs = GetPickingFunction()(pick.GetBox());
+        objs.insert(objs.end(), newobjs.begin(), newobjs.end());
+
+        if(SHIFT_CLICK == true)
+          newobjs = objs;
+        GetTransformTool().CheckSelectObject();
+      }
+    }
+  }
 
   vector<Model*>& objs=GetVizmo().GetSelectedModels();
   if(_e->button() == Qt::RightButton){
@@ -209,54 +269,23 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
 
 void
 GLWidget::mouseMoveEvent(QMouseEvent* _e){
-  if(MouseMotion(_e)){
-    //    if(CDOn)                   TEMPORARY(?) DISABLE
-    //      GetVizmo().TurnOn_CD();
-    updateGL();
-    return;
-  }//handled by gli
+  //test camera motion first, then transform tool, then pick box
+  if(GetCameraFactory().GetCurrentCamera()->MouseMotion(_e)) {
+    GetTransformTool().CameraMotion();
+  }
+  else if(!GetTransformTool().MouseMotion(_e))
+    GetPickBox().MouseMotion(_e);
 
   updateGL();
 }
 
 void
-GLWidget::keyPressEvent (QKeyEvent* _e){
-
-#ifdef USE_PHANTOM
-  //cout << "key" << endl;
-  if(CDOn){
-    RobotModel* rob = (RobotModel*)(GetVizmo().GetRobot()->getModel());
-    //cout << "on " << endl;
-    GetPhantomManager().CDOn = true;
-    GetVizmo().TurnOn_CD();
-    double x = rob -> gettx();
-    double y = rob -> getty();
-    double z = rob -> gettz();
-    //cout << x << " " << y << " " << z << endl;
-    GetPhantomManager().fpos.clear();
-    GetPhantomManager().fpos.push_back(x);
-    GetPhantomManager().fpos.push_back(y);
-    GetPhantomManager().fpos.push_back(z);
-    GetPhantomManager().proceed = true;
-  }
-  else
-    GetPhantomManager().CDOn = false;
-#endif
-
+GLWidget::keyPressEvent(QKeyEvent* _e) {
+  //check camera then transform tool
+  if(!GetCameraFactory().GetCurrentCamera()->KeyPressed(_e) &&
+      !GetTransformTool().KeyPressed(_e))
+    _e->ignore(); //not handled
   updateGL();
-  if(CameraKeyPressed(_e)){
-    updateGL();
-    return;
-  }
-  if(KeyPressed(_e)){
-    updateGL();
-    return;
-  }//handled by gli
-  if(!GetVizmo().GetRobot()) {
-    updateGL();
-    return;
-  }
-  _e->ignore(); //not handled
 }
 
 void
@@ -273,7 +302,7 @@ GLWidget::ShowFrameRate(){
 
 void
 GLWidget::ResetTransTool(){
-  Reset();
+  GetTransformTool().ResetSelectedObj();
 }
 
 //save an image of the GL scene with the given filename
@@ -322,3 +351,67 @@ GLWidget::DrawFrameRate(double _frameRate){
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
 }
+
+void
+GLWidget::DrawAxis() {
+  if(m_showAxis) {
+    static GLuint gid = -1;
+    if(gid == (GLuint)-1) { //no gid is created
+      gid = glGenLists(1);
+      glNewList(gid, GL_COMPILE);
+
+      //create lines
+      glLineWidth(2);
+      glDisable(GL_LIGHTING);
+
+      glBegin(GL_LINES);
+      glColor3f(1,0,0);
+      glVertex3f(0,0,0);
+      glVertex3f(1,0,0);
+      glColor3f(0,1,0);
+      glVertex3f(0,0,0);
+      glVertex3f(0,1,0);
+      glColor3f(0,0,1);
+      glVertex3f(0,0,0);
+      glVertex3f(0,0,1);
+      glEnd();
+
+      //create letters
+      glColor3f(1, 0, 0);
+      DrawStr(1.25, 0, 0, "x");
+      glColor3f(0, 1, 0);
+      DrawStr(0, 1.25, 0, "y");
+      glColor3f(0, 0, 1);
+      DrawStr(0, 0, 1.25, "z");
+
+      glEndList();
+    }
+
+    //draw reference axis
+    glMatrixMode(GL_PROJECTION); //change to Ortho view
+    glPushMatrix();
+    glLoadIdentity();
+
+    glOrtho(0, 20, 0, 20, -20, 20);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glTranslated(1.2, 1.2, 0);
+    Camera* cam = GetCameraFactory().GetCurrentCamera();
+    glRotated(cam->GetCameraElev(), 1.0, 0.0, 0.0);
+    glRotated(cam->GetCameraAzim(), 0.0, 1.0, 0.0);
+
+    glCallList(gid);
+
+    glPopMatrix();
+
+    //pop to perspective view
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    glMatrixMode(GL_MODELVIEW);
+  }
+}
+

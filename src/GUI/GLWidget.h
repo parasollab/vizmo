@@ -48,26 +48,28 @@ class GLWidget : public QGLWidget {
     void SimulateMouseUpSlot();
 
   private:
-    void initializeGL();
-    void resizeGL(int, int);
-    void paintGL();
-    void mousePressEvent(QMouseEvent*);
-    void mouseDoubleClickEvent(QMouseEvent*);
-    void mouseReleaseEvent(QMouseEvent*);
-    void mouseMoveEvent(QMouseEvent*);
-    void keyPressEvent(QKeyEvent* _e);
 
+    /////////////////////////////////////////////
+    //overridden from qglwidget
+    void initializeGL();
+    void resizeGL(int _w, int _h);
+    void paintGL();
+    void mousePressEvent(QMouseEvent* _e);
+    void mouseDoubleClickEvent(QMouseEvent* _e);
+    void mouseReleaseEvent(QMouseEvent* _e);
+    void mouseMoveEvent(QMouseEvent* _e);
+    void keyPressEvent(QKeyEvent* _e);
+    /////////////////////////////////////////////
+
+    //setup for lighting
     void SetLight();
-    void SetLightPos(){ //set light position
-      static GLfloat lightPosition[] = { 250.0f, 250.0f, 250.0f, 1.0f };
-      glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-      static GLfloat lightPosition2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
-      glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
-    }
+    void SetLightPos();
+
     //Grab the size of image for saving. If crop is true, use the cropBox to
     //size the image down.
     QRect GetImageRect(bool _crop);
 
+    void DrawAxis();
     void DrawFrameRate(double _frameRate);
 
     bool m_takingSnapShot;
