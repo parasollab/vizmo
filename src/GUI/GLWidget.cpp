@@ -197,18 +197,19 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
     if(pick.IsPicking()) {
       pick.MouseReleased(_e);
 
-      vector<Model*>& objs = GetPickedSceneObjs();
-      //Shift key not pressed; discard current selection and start anew
-      if(SHIFT_CLICK == false)
+      static vector<Model*> objs;
+      if(!SHIFT_CLICK)
         objs.clear();
+
       //Get new set of picked objects if shift key not pressed
       //If shift is pressed, these are additional objects to add to
       //selection
       vector<Model*>& newobjs = VizmoSelect(pick.GetBox());
       objs.insert(objs.end(), newobjs.begin(), newobjs.end());
 
-      if(SHIFT_CLICK == true)
+      if(SHIFT_CLICK)
         newobjs = objs;
+
       GetTransformTool().CheckSelectObject();
     }
   }

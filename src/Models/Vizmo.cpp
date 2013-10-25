@@ -139,15 +139,13 @@ Vizmo::Display() {
 //Select Objects in OpenGL Scene
 void
 Vizmo::Select(const Box& _box) {
-  GLuint hitBuffer[1024];
-  GLint viewport[4];
-  GLuint hits;
-
   // prepare for selection mode
+  GLuint hitBuffer[1024];
   glSelectBuffer(1024, hitBuffer);
   glRenderMode(GL_SELECT);
 
   // get view port
+  GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
 
   // initialize stack
@@ -182,7 +180,7 @@ Vizmo::Select(const Box& _box) {
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
 
-  hits = glRenderMode(GL_RENDER);
+  GLuint hits = glRenderMode(GL_RENDER);
 
   // unselect everything first
   m_selectedModels.clear();

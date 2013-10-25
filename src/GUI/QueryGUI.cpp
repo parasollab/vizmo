@@ -13,11 +13,9 @@ QueryGUI::QueryGUI(QWidget* _parent, Qt::WFlags _f) : QDialog(_parent) {
   QString qs;
   //int I=0;
   for(GIT ig= GetVizmo().GetSelectedModels().begin();
-      ig!=GetVizmo().GetSelectedModels().end(); ig++){
-    Model* gl=(Model *)(*ig);
-    //objName = gl->GetInfo();
-    objName = gl->Name();
-  }
+      ig!=GetVizmo().GetSelectedModels().end(); ig++)
+    objName = (*ig)->Name();
+
   m_objName = objName;
 
   RobotModel* robotModel = GetVizmo().GetRobot();

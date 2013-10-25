@@ -11,6 +11,7 @@ using namespace mathtool;
 #include "Camera.h"
 #include "PickBox.h"
 #include "Models/Model.h"
+#include "Models/Vizmo.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //Helper functions for Transform Tools
@@ -886,7 +887,7 @@ TransformTool::CheckSelectObject() {
   m_rotationTool.ResetSelectedObj();
 
   //get selected objects
-  const vector<Model*>& objs = GetPickedSceneObjs();
+  const vector<Model*>& objs = GetVizmo().GetSelectedModels();
   if(!objs.empty())
     m_rotationTool.SetSelectedObj((TransformableModel*)objs.front());
 }

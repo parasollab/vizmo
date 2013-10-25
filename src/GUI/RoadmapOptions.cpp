@@ -389,10 +389,8 @@ void
 RoadmapOptions::MakeSolid(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++){
-    Model* gl = (Model*)(*i);
-    gl->SetRenderMode(SOLID_MODE);
-  }
+  for(SI i = sel.begin(); i!= sel.end(); i++)
+    (*i)->SetRenderMode(SOLID_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
@@ -400,10 +398,8 @@ void
 RoadmapOptions::MakeWired(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++){
-    Model *gl = (Model*)(*i);
-    gl->SetRenderMode(WIRE_MODE);
-  }
+  for(SI i = sel.begin(); i!= sel.end(); i++)
+    (*i)->SetRenderMode(WIRE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
@@ -411,10 +407,8 @@ void
 RoadmapOptions::MakeInvisible(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++){
-    Model* gl = (Model*)(*i);
-    gl->SetRenderMode(INVISIBLE_MODE);
-  }
+  for(SI i = sel.begin(); i!= sel.end(); i++)
+    (*i)->SetRenderMode(INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
@@ -534,10 +528,8 @@ RoadmapOptions::ShowObjectContextMenu(){
   typedef vector<Model*>::iterator GIT;
 
   for(GIT ig = GetVizmo().GetSelectedModels().begin();
-      ig!=GetVizmo().GetSelectedModels().end(); ig++){
-    Model* gl=(Model*)(*ig);
-    str = gl->Name();
-  }
+      ig!=GetVizmo().GetSelectedModels().end(); ig++)
+    str = (*ig)->Name();
 
   if(str == "Robot"){
     QMenu* cfgs = new QMenu("Set Query", this);  //Special robot menu

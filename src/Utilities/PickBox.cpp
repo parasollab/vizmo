@@ -6,13 +6,6 @@
 
 #include <QMouseEvent>
 
-vector<Model*> g_pickedSceneObjs;
-
-vector<Model*>&
-GetPickedSceneObjs() {
-  return g_pickedSceneObjs;
-}
-
 void
 PickBox::Draw() {
   if(m_leftMouseButton) {
