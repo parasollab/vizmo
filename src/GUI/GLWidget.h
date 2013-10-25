@@ -10,6 +10,8 @@ using namespace std;
 
 #include <QGLWidget>
 
+#include "Utilities/PickBox.h"
+
 class MainWindow;
 class TextGUI;
 
@@ -76,7 +78,10 @@ class GLWidget : public QGLWidget {
     bool m_showAxis, m_showFrameRate;
     //Collision Detection related vars.
     bool m_cdOn;
+
     deque<double> m_frameTimes;
+
+    PickBox m_pickBox;
 };
 
 #endif

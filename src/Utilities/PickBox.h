@@ -39,9 +39,4 @@ class PickBox {
     int m_w, m_h; //width and height of window
 };
 
-PickBox& GetPickBox();
-
-//Get the picking box dimensions
-void PickBoxDim(int *xOffset,int *yOffset,int *w,int *h);
-
 #endif

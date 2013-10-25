@@ -13,7 +13,6 @@
 #include "Models/Vizmo.h"
 #include "Utilities/Camera.h"
 #include "Utilities/Font.h"
-#include "Utilities/PickBox.h"
 #include "Utilities/TransformTool.h"
 
 bool SHIFT_CLICK = false;
@@ -68,7 +67,7 @@ GLWidget::initializeGL(){
 void
 GLWidget::resizeGL(int _w, int _h) {
   GetTransformTool().SetWindowSize(_w, _h);
-  GetPickBox().SetWinSize(_w, _h);
+  m_pickBox.SetWinSize(_w, _h);
 
   glViewport(0, 0, _w, _h);
   glMatrixMode(GL_PROJECTION);
@@ -94,7 +93,7 @@ GLWidget::paintGL(){
   GetCameraFactory().GetCurrentCamera()->Draw();
 
   //draw pick box
-  GetPickBox().Draw();
+  m_pickBox.Draw();
 
   //draw transform tool
   GetTransformTool().Draw();
@@ -153,7 +152,7 @@ GLWidget::mousePressEvent(QMouseEvent* _e){
     GetTransformTool().CameraMotion();
   }
   else if(!GetTransformTool().MousePressed(_e))
-    GetPickBox().MousePressed(_e);
+    m_pickBox.MousePressed(_e);
 
   updateGL();
 }
@@ -168,9 +167,7 @@ void
 GLWidget::SimulateMouseUpSlot(){
 
   //simulate pick mouse up
-  PickBox& pick = GetPickBox();
-  QMouseEvent* e=NULL;
-  pick.MouseReleased(e);
+  m_pickBox.MouseReleased(NULL);
 
   updateGL();
 }
@@ -192,7 +189,7 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
   }
 
   //select
-  PickBox& pick = GetPickBox();
+  PickBox& pick = m_pickBox;
   if(!m_takingSnapShot) {
     if(pick.IsPicking()) {
       pick.MouseReleased(_e);
@@ -270,7 +267,7 @@ GLWidget::mouseMoveEvent(QMouseEvent* _e){
     GetTransformTool().CameraMotion();
   }
   else if(!GetTransformTool().MouseMotion(_e))
-    GetPickBox().MouseMotion(_e);
+    m_pickBox.MouseMotion(_e);
 
   updateGL();
 }
@@ -318,8 +315,13 @@ GLWidget::SaveImage(QString _filename, bool _crop){
 QRect
 GLWidget::GetImageRect(bool _crop){
   if(_crop) {
-    int xOff, yOff, w, h;
-    PickBoxDim(&xOff, &yOff, &w, &h);
+    // handle all the ways the pick box can be drawn
+    const Box& box = m_pickBox.GetBox();
+    int xOff = min(box.m_left, box.m_right);
+    int yOff = max(box.m_bottom, box.m_top);
+    int w = abs(box.m_right - box.m_left);
+    int h = abs(box.m_bottom - box.m_top);
+
     return QRect(xOff+1, height()-yOff+1, w-2, h-2);
   }
   else
