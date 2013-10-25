@@ -93,20 +93,7 @@ GLWidgetOptions::ResetCamera(){
 
 void
 GLWidgetOptions::SetCameraPosition(){
-
-  Point3d p = GetCameraFactory().GetCurrentCamera()->GetCameraPos();
-  //Unfortunately, points are defined backwards for x and y
-  //We want "X=3" to mean that VIEWER has moved to X=3
-  if(p[0] != 0) //otherwise displays '-0' !
-    p[0] = -p[0];
-  if(p[1] != 0)
-    p[1] = -p[1];
-
-  double azim = GetCameraFactory().GetCurrentCamera()->GetCameraAzim();
-  double elev = GetCameraFactory().GetCurrentCamera()->GetCameraElev();
-
-  m_cameraPosInput->SetCameraPos(p[0], p[1], p[2], azim, elev);
-
+  m_cameraPosInput->SetCamera(m_mainWindow->GetGLScene()->GetCurrentCamera());
   m_cameraPosInput->show();
 }
 

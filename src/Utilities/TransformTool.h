@@ -7,6 +7,7 @@ using namespace mathtool;
 
 #include <qgl.h>
 
+class Camera;
 class TransformableModel;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,7 +17,8 @@ class TransformableModel;
 class TransformToolBase {
   public:
     TransformToolBase() {}
-    virtual ~TransformToolBase() {}
+
+    static void SetCurrentCamera(Camera* _camera) {m_currentCamera = _camera;}
 
     void ResetSelectedObj() {m_obj = NULL;}
     virtual void SetSelectedObj(TransformableModel* _obj);
@@ -36,6 +38,7 @@ class TransformToolBase {
     virtual void Draw(bool _selected) = 0;
 
     static TransformableModel* m_obj;    //selected Object
+    static Camera* m_currentCamera;
     static Point3d m_objPosPrj; //project(m_obj.pos and 3 axis), (win coord)
     static Point3d m_xPrj, m_yPrj, m_zPrj;
     static int m_w, m_h;          //window size
@@ -142,7 +145,9 @@ class ScaleTool : public TransformToolBase {
 
 class TransformTool {
   public:
-    TransformTool() : m_tool(NULL) {}
+    TransformTool(Camera* _camera) : m_tool(NULL) {
+      TransformToolBase::SetCurrentCamera(_camera);
+    }
 
     void SetWindowSize(int _w, int _h);
     void CheckSelectObject();
@@ -161,10 +166,5 @@ class TransformTool {
     RotationTool m_rotationTool;
     ScaleTool m_scaleTool;
 };
-
-static TransformTool& GetTransformTool() {
-  static TransformTool transformTool;
-  return transformTool;
-}
 
 #endif

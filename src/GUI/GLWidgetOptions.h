@@ -23,8 +23,8 @@ class GLWidgetOptions : public OptionsBase {
     void SetUpToolbar(); //two buttons: Reset camera and change BG color
     void Reset();
     void SetHelpTips();
-    CameraPosDialog* m_cameraPosInput; //allow user to manually specify a camera position
 
+    CameraPosDialog* m_cameraPosInput; //allow user to manually specify a camera position
 };
 
 #endif

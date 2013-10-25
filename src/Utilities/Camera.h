@@ -68,6 +68,4 @@ class CameraFactory {
     Camera* m_currentCam;
 };
 
-CameraFactory& GetCameraFactory();
-
 #endif

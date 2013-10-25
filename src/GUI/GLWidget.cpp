@@ -21,7 +21,7 @@ bool SHIFT_CLICK = false;
 //This class handle opengl features
 
 GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
-  : QGLWidget(_parent){
+  : QGLWidget(_parent), m_transformTool(m_cameraFactory.GetCurrentCamera()) {
     m_mainWindow = _mainWindow;
     setMinimumSize(400, 505); //original size: 400 x 600
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -40,22 +40,19 @@ GLWidget::ToggleSelectionSlot(){
 
 void
 GLWidget::ResetCamera(){
-  GetCameraFactory().GetCurrentCamera()->Set(Point3d(0, 0, 4*GetVizmo().GetEnvRadius()), 0, 0);
+  GetCurrentCamera()->Set(Point3d(0, 0, 4*GetVizmo().GetEnvRadius()), 0, 0);
 }
 
-//used as callback for gli
-inline vector<Model*>&
-VizmoSelect(const Box& _box){
-  GetVizmo().Select(_box);
-  return GetVizmo().GetSelectedModels();
+Camera*
+GLWidget::GetCurrentCamera() {
+  return m_cameraFactory.GetCurrentCamera();
 }
 
 void
 GLWidget::initializeGL(){
-  /*Setup light and material properties*/
+  //Setup light and material properties
   SetLight();
 
-  /*others*/
   glEnable(GL_DEPTH_TEST);
 
   glClearColor(1, 1, 1, 0);
@@ -66,7 +63,7 @@ GLWidget::initializeGL(){
 
 void
 GLWidget::resizeGL(int _w, int _h) {
-  GetTransformTool().SetWindowSize(_w, _h);
+  m_transformTool.SetWindowSize(_w, _h);
   m_pickBox.SetWinSize(_w, _h);
 
   glViewport(0, 0, _w, _h);
@@ -90,13 +87,13 @@ GLWidget::paintGL(){
   glLoadIdentity();
 
   //draw camera
-  GetCameraFactory().GetCurrentCamera()->Draw();
+  GetCurrentCamera()->Draw();
 
   //draw pick box
   m_pickBox.Draw();
 
   //draw transform tool
-  GetTransformTool().Draw();
+  m_transformTool.Draw();
 
   //draw axis
   DrawAxis();
@@ -148,10 +145,10 @@ GLWidget::mousePressEvent(QMouseEvent* _e){
   SHIFT_CLICK = _e->modifiers() == Qt::ShiftModifier;
 
   //test camera motion first, then transform tool, then pick box
-  if(GetCameraFactory().GetCurrentCamera()->MousePressed(_e)) {
-    GetTransformTool().CameraMotion();
+  if(GetCurrentCamera()->MousePressed(_e)) {
+    m_transformTool.CameraMotion();
   }
-  else if(!GetTransformTool().MousePressed(_e))
+  else if(!m_transformTool.MousePressed(_e))
     m_pickBox.MousePressed(_e);
 
   updateGL();
@@ -175,11 +172,11 @@ GLWidget::SimulateMouseUpSlot(){
 void
 GLWidget::mouseReleaseEvent(QMouseEvent* _e){
   bool handled = false;
-  if(GetCameraFactory().GetCurrentCamera()->MouseReleased(_e)) {
-    GetTransformTool().CameraMotion();
+  if(GetCurrentCamera()->MouseReleased(_e)) {
+    m_transformTool.CameraMotion();
     handled = true;
   }
-  else if(GetTransformTool().MouseReleased(_e))
+  else if(m_transformTool.MouseReleased(_e))
     handled = true;
 
   if(handled){ //handled by gli
@@ -201,13 +198,14 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
       //Get new set of picked objects if shift key not pressed
       //If shift is pressed, these are additional objects to add to
       //selection
-      vector<Model*>& newobjs = VizmoSelect(pick.GetBox());
+      GetVizmo().Select(m_pickBox.GetBox());
+      vector<Model*>& newobjs = GetVizmo().GetSelectedModels();
       objs.insert(objs.end(), newobjs.begin(), newobjs.end());
 
       if(SHIFT_CLICK)
         newobjs = objs;
 
-      GetTransformTool().CheckSelectObject();
+      m_transformTool.CheckSelectObject();
     }
   }
 
@@ -263,10 +261,10 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
 void
 GLWidget::mouseMoveEvent(QMouseEvent* _e){
   //test camera motion first, then transform tool, then pick box
-  if(GetCameraFactory().GetCurrentCamera()->MouseMotion(_e)) {
-    GetTransformTool().CameraMotion();
+  if(GetCurrentCamera()->MouseMotion(_e)) {
+    m_transformTool.CameraMotion();
   }
-  else if(!GetTransformTool().MouseMotion(_e))
+  else if(!m_transformTool.MouseMotion(_e))
     m_pickBox.MouseMotion(_e);
 
   updateGL();
@@ -275,8 +273,8 @@ GLWidget::mouseMoveEvent(QMouseEvent* _e){
 void
 GLWidget::keyPressEvent(QKeyEvent* _e) {
   //check camera then transform tool
-  if(!GetCameraFactory().GetCurrentCamera()->KeyPressed(_e) &&
-      !GetTransformTool().KeyPressed(_e))
+  if(!GetCurrentCamera()->KeyPressed(_e) &&
+      !m_transformTool.KeyPressed(_e))
     _e->ignore(); //not handled
   updateGL();
 }
@@ -295,7 +293,7 @@ GLWidget::ShowFrameRate(){
 
 void
 GLWidget::ResetTransTool(){
-  GetTransformTool().ResetSelectedObj();
+  m_transformTool.ResetSelectedObj();
 }
 
 //save an image of the GL scene with the given filename
@@ -397,7 +395,7 @@ GLWidget::DrawAxis() {
     glLoadIdentity();
 
     glTranslated(1.2, 1.2, 0);
-    Camera* cam = GetCameraFactory().GetCurrentCamera();
+    Camera* cam = GetCurrentCamera();
     glRotated(cam->GetCameraElev(), 1.0, 0.0, 0.0);
     glRotated(cam->GetCameraAzim(), 0.0, 1.0, 0.0);
 

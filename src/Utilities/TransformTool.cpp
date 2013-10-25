@@ -120,13 +120,6 @@ ProjectToWorld(double _x, double _y, const Point3d& _ref, const Vector3d& _n) {
   }
 }
 
-inline Point3d
-ProjectToWorld(double _x, double _y, const Point3d& _ref) {
-  Camera* cam = GetCameraFactory().GetCurrentCamera();
-  Vector3d n = cam->GetWindowZ();
-  return ProjectToWorld(_x, _y, _ref, n);
-}
-
 inline void
 DrawCircle(double _r) {
   glBegin(GL_LINE_LOOP);
@@ -150,6 +143,7 @@ DrawArc(double _r, double _s, double _e, const Vector3d& _v1, const Vector3d& _v
 ///////////////////////////////////////////////////////////////////////////////
 
 TransformableModel* TransformToolBase::m_obj = NULL;
+Camera* TransformToolBase::m_currentCamera = NULL;
 Point3d TransformToolBase::m_objPosPrj;
 Point3d TransformToolBase::m_xPrj;
 Point3d TransformToolBase::m_yPrj;
@@ -215,7 +209,7 @@ TranslationTool::MousePressed(QMouseEvent* _e) {
     m_objPosCatchPrj = m_objPosPrj;
     m_hitX = _e->pos().x();
     m_hitY = m_h - _e->pos().y();
-    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch);
+    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch, m_currentCamera->GetWindowZ());
     return true;
   }
   return false;
@@ -237,7 +231,7 @@ TranslationTool::MouseMotion(QMouseEvent* _e) {
   int x = _e->pos().x();
   int y = m_h - _e->pos().y();
 
-  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch);
+  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch, m_currentCamera->GetWindowZ());
   Vector3d v = curPos - m_hitUnPrj;
 
   switch(m_movementType) {
@@ -397,8 +391,7 @@ RotationTool::SetSelectedObj(TransformableModel* _obj) {
 
 void
 RotationTool::ComputeArcs() {
-  Camera* cam = GetCameraFactory().GetCurrentCamera();
-  Vector3d v = cam->GetWindowZ();
+  Vector3d v = m_currentCamera->GetWindowZ();
   ComputeArcs(m_arcs[0], m_localAxis[0], m_localAxis[1], m_localAxis[2], v);
   ComputeArcs(m_arcs[1], m_localAxis[1], m_localAxis[2], m_localAxis[0], v);
   ComputeArcs(m_arcs[2], m_localAxis[2], m_localAxis[0], m_localAxis[1], v);
@@ -434,10 +427,9 @@ RotationTool::MousePressed(QMouseEvent* _e) {
       v2 = m_localAxisCatch[1];
       break;
     case VIEW_PLANE:
-      Camera* cam = GetCameraFactory().GetCurrentCamera();
-      axis = cam->GetWindowZ();
-      v1 = cam->GetWindowX();
-      v2 = cam->GetWindowY();
+      axis = m_currentCamera->GetWindowZ();
+      v1 = m_currentCamera->GetWindowX();
+      v2 = m_currentCamera->GetWindowY();
       break;
   }
 
@@ -482,10 +474,9 @@ RotationTool::MouseMotion(QMouseEvent* _e) {
       v2 = m_localAxisCatch[1];
       break;
     case VIEW_PLANE:
-      Camera* cam = GetCameraFactory().GetCurrentCamera();
-      axis = cam->GetWindowZ();
-      v1 = cam->GetWindowX();
-      v2 = cam->GetWindowY();
+      axis = m_currentCamera->GetWindowZ();
+      v1 = m_currentCamera->GetWindowX();
+      v2 = m_currentCamera->GetWindowY();
       break;
   }
 
@@ -519,7 +510,6 @@ void
 RotationTool::Draw(bool _selected) {
 
   //draw reference axis
-  Camera* cam = GetCameraFactory().GetCurrentCamera();
   double x = m_objPosPrj[0], y = m_objPosPrj[1];
 
   glDisable(GL_LIGHTING);
@@ -530,8 +520,8 @@ RotationTool::Draw(bool _selected) {
   glTranslatef(x, y, 0);
 
   glPushMatrix();
-  glRotated(cam->GetCameraElev(), 1.0, 0.0, 0.0);
-  glRotated(cam->GetCameraAzim(), 0.0, 1.0, 0.0);
+  glRotated(m_currentCamera->GetCameraElev(), 1.0, 0.0, 0.0);
+  glRotated(m_currentCamera->GetCameraAzim(), 0.0, 1.0, 0.0);
 
   if(m_movementType != NON) {
     Vector3d v1, v2;
@@ -549,8 +539,8 @@ RotationTool::Draw(bool _selected) {
         v2 = m_localAxisCatch[1];
         break;
       case VIEW_PLANE:
-        v1 = cam->GetWindowX();
-        v2 = cam->GetWindowY();
+        v1 = m_currentCamera->GetWindowX();
+        v2 = m_currentCamera->GetWindowY();
         break;
     }
 
@@ -700,7 +690,7 @@ ScaleTool::MousePressed(QMouseEvent* _e) {
     m_objPosCatchPrj = m_objPosPrj;
     m_hitX = x;
     m_hitY = y;
-    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch);
+    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch, m_currentCamera->GetWindowZ());
     m_origScale = m_obj->Scale();
     return true;
   }
@@ -724,7 +714,7 @@ ScaleTool::MouseMotion(QMouseEvent* _e) {
   int x = _e->pos().x();
   int y = m_h - _e->pos().y();
 
-  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch);
+  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch, m_currentCamera->GetWindowZ());
   Vector3d v = (curPos-m_hitUnPrj)/10;
 
   switch(m_movementType) {

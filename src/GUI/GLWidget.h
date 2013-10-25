@@ -10,7 +10,9 @@ using namespace std;
 
 #include <QGLWidget>
 
+#include "Utilities/Camera.h"
 #include "Utilities/PickBox.h"
+#include "Utilities/TransformTool.h"
 
 class MainWindow;
 class TextGUI;
@@ -21,8 +23,9 @@ class GLWidget : public QGLWidget {
 
   public:
     GLWidget(QWidget* _parent, MainWindow* _mainWindow);
+
     void ResetCamera();
-    MainWindow* m_mainWindow;
+    Camera* GetCurrentCamera();
 
     void SetClearColor(double _r, double _g, double _b) const {
       glClearColor(_r, _g, _b, 0);
@@ -74,6 +77,8 @@ class GLWidget : public QGLWidget {
     void DrawAxis();
     void DrawFrameRate(double _frameRate);
 
+    MainWindow* m_mainWindow;
+
     bool m_takingSnapShot;
     bool m_showAxis, m_showFrameRate;
     //Collision Detection related vars.
@@ -81,6 +86,8 @@ class GLWidget : public QGLWidget {
 
     deque<double> m_frameTimes;
 
+    CameraFactory m_cameraFactory;
+    TransformTool m_transformTool;
     PickBox m_pickBox;
 };
 

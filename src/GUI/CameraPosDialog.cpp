@@ -10,7 +10,7 @@ using namespace std;
 
 #include "Utilities/Camera.h"
 
-CameraPosDialog::CameraPosDialog(QWidget* _parent) :QDialog(_parent) {
+CameraPosDialog::CameraPosDialog(QWidget* _parent) : QDialog(_parent) {
   resize(450, 245);
   setWindowTitle("Set Camera Position and Rotation");
 
@@ -75,38 +75,34 @@ CameraPosDialog::CameraPosDialog(QWidget* _parent) :QDialog(_parent) {
 }
 
 void
-CameraPosDialog::SetCameraPos(double _x, double _y, double _z, double _azim, double _elev){
-  ostringstream oss;
-  oss << _x;
-  m_xLineEdit->setText(oss.str().c_str());
+CameraPosDialog::SetCamera(Camera* _camera){
+  m_camera = _camera;
 
-  oss.str("");
-  oss << _y;
-  m_yLineEdit->setText(oss.str().c_str());
+  Point3d p = m_camera->GetCameraPos();
+  //Unfortunately, points are defined backwards for x and y
+  //We want "X=3" to mean that VIEWER has moved to X=3
+  if(p[0] != 0) //otherwise displays '-0' !
+    p[0] = -p[0];
+  if(p[1] != 0)
+    p[1] = -p[1];
 
-  oss.str("");
-  oss << _z;
-  m_zLineEdit->setText(oss.str().c_str());
-
-  oss.str("");
-  oss << _azim;
-  m_azimLineEdit->setText(oss.str().c_str());
-
-  oss.str("");
-  oss << _elev;
-  m_elevLineEdit->setText(oss.str().c_str());
+  double azim = m_camera->GetCameraAzim();
+  double elev = m_camera->GetCameraElev();
+  m_xLineEdit->setText(QString::number(p[0]));
+  m_yLineEdit->setText(QString::number(p[1]));
+  m_zLineEdit->setText(QString::number(p[2]));
+  m_azimLineEdit->setText(QString::number(azim));
+  m_elevLineEdit->setText(QString::number(elev));
 }
 
 void
 CameraPosDialog::AcceptData(){
-  double x = (m_xLineEdit->text()).toDouble();
-  double y = (m_yLineEdit->text()).toDouble();
-  double z = (m_zLineEdit->text()).toDouble();
-
-  double azim = (m_azimLineEdit->text()).toDouble();
-  double elev = (m_elevLineEdit->text()).toDouble();
-
-  GetCameraFactory().GetCurrentCamera()->Set(Point3d(x, y, z), azim, elev);
+  double x = m_xLineEdit->text().toDouble();
+  double y = m_yLineEdit->text().toDouble();
+  double z = m_zLineEdit->text().toDouble();
+  double azim = m_azimLineEdit->text().toDouble();
+  double elev = m_elevLineEdit->text().toDouble();
+  m_camera->Set(Point3d(x, y, z), azim, elev);
 
   accept();
 }

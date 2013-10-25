@@ -1,7 +1,7 @@
-/*****************************************************************************
-** A custom-made box (unfortunately) for multi-field input to set camera
-**rotation coordinates.
-********************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+//A custom-made box (unfortunately) for multi-field input to set camera
+//rotation coordinates.
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef CAMERA_POS_DIALOG_H
 #define CAMERA_POS_DIALOG_H
@@ -13,13 +13,15 @@ class QFormLayout;
 class QLabel;
 class QLineEdit;
 
+class Camera;
+
 class CameraPosDialog : public QDialog {
 
   Q_OBJECT
 
   public:
-    CameraPosDialog(QWidget* _parent = 0);
-    void SetCameraPos(double _x, double _y, double _z, double _azim, double _elev);
+    CameraPosDialog(QWidget* _parent);
+    void SetCamera(Camera* _camera);
 
   private slots:
     void AcceptData();
@@ -41,6 +43,8 @@ class CameraPosDialog : public QDialog {
     QLabel* m_elevLabel;
     QLineEdit* m_azimLineEdit;
     QLineEdit* m_elevLineEdit;
+
+    Camera* m_camera;
 };
 
 #endif // CAMERA_POS_DIALOG_H

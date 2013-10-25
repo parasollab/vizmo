@@ -191,11 +191,3 @@ CameraFactory::SetCurrentCamera(const string& _name) {
     << "' does not exist in CameraFactory." << endl;
 }
 
-//Global variables and access
-CameraFactory g_cameraFactory;
-
-CameraFactory&
-GetCameraFactory() {
-  return g_cameraFactory;
-}
-
