@@ -6,16 +6,6 @@
 
 #include <QMouseEvent>
 
-//set picking function
-pick_func g_pick=NULL;
-void SetPickingFunction(pick_func func) {
-  g_pick=func;
-}
-
-pick_func GetPickingFunction() {
-  return g_pick;
-}
-
 vector<Model*> g_pickedSceneObjs;
 
 vector<Model*>&

@@ -13,12 +13,7 @@ struct Box{
   double m_left, m_right, m_bottom, m_top; //left, right,top,bottom
 };
 
-//set select method
 class Model;
-typedef vector<Model*>& (*pick_func)(const Box&);
-void SetPickingFunction(pick_func func);
-pick_func GetPickingFunction();
-
 vector<Model*>& GetPickedSceneObjs();
 
 //Handle user picking

@@ -53,7 +53,6 @@ VizmoSelect(const Box& _box){
 
 void
 GLWidget::initializeGL(){
-
   /*Setup light and material properties*/
   SetLight();
 
@@ -64,9 +63,6 @@ GLWidget::initializeGL(){
   //glEnable(GL_CULL_FACE);
   //glCullFace(GL_BACK);
   glLineStipple(2, 0xAAAA);
-
-  //create models
-  SetPickingFunction(VizmoSelect);
 }
 
 void
@@ -197,24 +193,23 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
 
   //select
   PickBox& pick = GetPickBox();
-  if(!m_takingSnapShot){
-    if(pick.IsPicking()){
+  if(!m_takingSnapShot) {
+    if(pick.IsPicking()) {
       pick.MouseReleased(_e);
-      if(GetPickingFunction() != NULL){
-        vector<Model*>& objs = GetPickedSceneObjs();
-        //Shift key not pressed; discard current selection and start anew
-        if(SHIFT_CLICK == false)
-          objs.clear();
-        //Get new set of picked objects if shift key not pressed
-        //If shift is pressed, these are additional objects to add to
-        //selection
-        vector<Model*>& newobjs = GetPickingFunction()(pick.GetBox());
-        objs.insert(objs.end(), newobjs.begin(), newobjs.end());
 
-        if(SHIFT_CLICK == true)
-          newobjs = objs;
-        GetTransformTool().CheckSelectObject();
-      }
+      vector<Model*>& objs = GetPickedSceneObjs();
+      //Shift key not pressed; discard current selection and start anew
+      if(SHIFT_CLICK == false)
+        objs.clear();
+      //Get new set of picked objects if shift key not pressed
+      //If shift is pressed, these are additional objects to add to
+      //selection
+      vector<Model*>& newobjs = VizmoSelect(pick.GetBox());
+      objs.insert(objs.end(), newobjs.begin(), newobjs.end());
+
+      if(SHIFT_CLICK == true)
+        newobjs = objs;
+      GetTransformTool().CheckSelectObject();
     }
   }
 
