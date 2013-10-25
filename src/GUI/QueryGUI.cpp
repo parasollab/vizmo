@@ -104,10 +104,6 @@ QueryGUI::QueryGUI(QWidget* _parent, Qt::WFlags _f) : QDialog(_parent) {
   controls->addWidget(close, i+1, 2, Qt::AlignHCenter);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-///////                        METHODS
-//////////////////////////////////////////////////////////////////////////////
-
 void
 QueryGUI::SetQuery(vector<double>& _q){
   m_queryOrg = _q;

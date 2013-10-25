@@ -126,3 +126,17 @@ QueryModel::Print(ostream& _os) const {
   _os << " )" << endl;
 }
 
+void
+QueryModel::SaveQuery(const string& _filename) {
+  ofstream ofs(_filename.c_str());
+  for(size_t i = 0; i < m_queries.size(); ++i) {
+    //output robot index. For now always a 0.
+    ofs << "0 ";
+    //output dofs
+    typedef vector<double>::const_iterator DIT;
+    const vector<double>& query = m_queries[i];
+    for(DIT dit = query.begin(); dit != query.end(); ++dit)
+      ofs << *dit << " ";
+    ofs << endl;
+  }
+}

@@ -74,23 +74,23 @@ void
 FileListDialog::GetAssociatedFiles(const string& _filename) {
   //empty filename provided, so grab previous values
   if(_filename.empty()) {
-    string envname = GetVizmo().getEnvFileName();
+    string envname = GetVizmo().GetEnvFileName();
     m_envFilename->setText(envname.c_str());
     m_envCheckBox->setChecked(!envname.empty());
 
-    string mapname = GetVizmo().getMapFileName();
+    string mapname = GetVizmo().GetMapFileName();
     m_mapFilename->setText(mapname.c_str());
     m_mapCheckBox->setChecked(!mapname.empty());
 
-    string queryname = GetVizmo().getQryFileName();
+    string queryname = GetVizmo().GetQryFileName();
     m_queryFilename->setText(queryname.c_str());
     m_queryCheckBox->setChecked(!queryname.empty());
 
-    string pathname = GetVizmo().getPathFileName();
+    string pathname = GetVizmo().GetPathFileName();
     m_pathFilename->setText(pathname.c_str());
     m_pathCheckBox->setChecked(!pathname.empty());
 
-    string debugname = GetVizmo().getDebugFileName();
+    string debugname = GetVizmo().GetDebugFileName();
     m_debugFilename->setText(debugname.c_str());
     m_debugCheckBox->setChecked(!debugname.empty());
   }
@@ -111,12 +111,12 @@ FileListDialog::GetAssociatedFiles(const string& _filename) {
       MapModel<CfgModel,EdgeModel> headerParser(mapname);
       envname = headerParser.GetEnvFileName();
     }
-    
+
     if(FileExists(envname, false)){
       m_envFilename->setText(envname.c_str());
       m_envCheckBox->setChecked(true);
     }
-    
+
     if(FileExists(queryname, false)){
       m_queryFilename->setText(queryname.c_str());
       m_queryCheckBox->setChecked(true);
@@ -217,24 +217,23 @@ FileListDialog::ChangeDebug(){
 void
 FileListDialog::Accept() {
   if(m_envCheckBox->isChecked()) {
-    GetVizmo().setEnvFileName(m_envFilename->text().toStdString());
+    GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
 
-    GetVizmo().setMapFileName("");
-    GetVizmo().setPathFileName("");
-    GetVizmo().setDebugFileName("");
-    GetVizmo().setQryFileName("");
-
+    GetVizmo().SetMapFileName("");
     if(m_mapCheckBox->isChecked())
-      GetVizmo().setMapFileName(m_mapFilename->text().toStdString());
+      GetVizmo().SetMapFileName(m_mapFilename->text().toStdString());
 
+    GetVizmo().SetQryFileName("");
     if(m_queryCheckBox->isChecked())
-      GetVizmo().setQryFileName(m_queryFilename->text().toStdString());
+      GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
 
+    GetVizmo().SetPathFileName("");
     if(m_pathCheckBox->isChecked())
-      GetVizmo().setPathFileName(m_pathFilename->text().toStdString());
+      GetVizmo().SetPathFileName(m_pathFilename->text().toStdString());
 
+    GetVizmo().SetDebugFileName("");
     if(m_debugCheckBox->isChecked())
-      GetVizmo().setDebugFileName(m_debugFilename->text().toStdString());
+      GetVizmo().SetDebugFileName(m_debugFilename->text().toStdString());
 
     accept();
   }

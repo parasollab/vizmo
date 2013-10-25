@@ -20,6 +20,8 @@ class QueryModel : public LoadableModel {
     void DrawSelect() {}
     void Print(ostream& _os) const;
 
+    void SaveQuery(const string& _filename);
+
   private:
     vector<vector<double> > m_queries; //vector of queries
     size_t m_glQueryIndex; //Display list index

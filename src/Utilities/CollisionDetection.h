@@ -57,7 +57,7 @@ class CollisionDetection{
 		     MultiBodyModel* _robotModel,
 		     RobotModel* _robotObj);
 
-  void CopyNodeCfg(vector<double>& cfg, int dof);
+  void CopyNodeCfg(const vector<double>& cfg);
   vector<double> nodeCfg;
   bool TestNode;
   //  CollisionDetectionMethod cdMethod;

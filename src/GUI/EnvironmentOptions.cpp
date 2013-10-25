@@ -66,14 +66,14 @@ EnvironmentOptions::SetHelpTips(){
 
 void
 EnvironmentOptions::RefreshEnv(){
-  GetVizmo().RefreshEnv();
+  GetVizmo().GetEnv()->SetRenderMode(SOLID_MODE);
   m_mainWindow->GetModelSelectionWidget()->reset();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
 EnvironmentOptions::RandomizeEnvColors(){
-  GetVizmo().RandomizeEnvColors();
+  GetVizmo().GetEnv()->ChangeColor();
   m_mainWindow->GetGLScene()->updateGL();
 }
 

@@ -16,8 +16,9 @@
 #include "ModelSelectionWidget.h"
 #include "OptionsBase.h"
 #include "MainWindow.h"
-#include "Models/Vizmo.h"
 #include "Models/MapModel.h"
+#include "Models/QueryModel.h"
+#include "Models/Vizmo.h"
 
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
@@ -137,7 +138,7 @@ FileOptions::SaveEnv(){
     string filename = fn.toStdString();
     const char* f;
     f = filename.c_str();
-    GetVizmo().SaveEnv(f);
+    GetVizmo().GetEnv()->SaveFile(f);
   }
   else{
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
@@ -153,7 +154,7 @@ FileOptions::SaveQryFile(){
 
   QFileInfo fi(fn);
   if(!fn.isEmpty())
-    GetVizmo().SaveQuery(fn.toStdString());
+    GetVizmo().GetQry()->SaveQuery(fn.toStdString());
   else
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
 

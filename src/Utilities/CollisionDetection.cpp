@@ -107,7 +107,7 @@ bool CollisionDetection::IsInCollision(int _numMB,
 }
 
 //called from vizmo::TurnOn_CD()
-void CollisionDetection::CopyNodeCfg(vector<double>& cfg, int dof) {
+void CollisionDetection::CopyNodeCfg(const vector<double>& cfg) {
   TestNode = true;
   nodeCfg = cfg;
 }

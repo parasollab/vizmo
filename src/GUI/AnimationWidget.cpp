@@ -10,6 +10,8 @@
 #include <QValidator>
 #include <QString>
 
+#include "Models/DebugModel.h"
+#include "Models/PathModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/First.xpm"
@@ -41,11 +43,11 @@ void
 AnimationWidget::Reset(){
   PauseAnimate();
 
-  if(GetVizmo().getPathFileName()!="") {
+  if(GetVizmo().GetPathFileName()!="") {
     m_name = "Path";
     m_maxValue = GetVizmo().GetPathSize();
   }
-  else if(GetVizmo().getDebugFileName()!="") {
+  else if(GetVizmo().GetDebugFileName()!="") {
     m_name = "Debug";
     m_maxValue = GetVizmo().GetDebugSize();
   }
@@ -222,7 +224,6 @@ AnimationWidget::UpdateStepSize(){
 
 void
 AnimationWidget::GetStepSize(int& _size){
-
   _size = m_stepSize;
 }
 
@@ -247,21 +248,18 @@ AnimationWidget::UpdateFrame(int _frame){
 
 void
 AnimationWidget::GoToFirst(){
-
   UpdateCurValue(0);
   m_slider->setValue(m_curValue);
 }
 
 void
 AnimationWidget::GoToLast(){
-
   UpdateCurValue(m_maxValue-1);
   m_slider->setValue(m_curValue);
 }
 
 void
 AnimationWidget::NextFrame(){
-
   m_curValue += m_stepSize;
   UpdateCurValue(m_curValue);
   m_slider->setValue(m_curValue);
@@ -269,7 +267,6 @@ AnimationWidget::NextFrame(){
 
 void
 AnimationWidget::PreviousFrame(){
-
   m_curValue -= m_stepSize;
   UpdateCurValue(m_curValue);
   m_slider->setValue(m_curValue);
@@ -277,12 +274,13 @@ AnimationWidget::PreviousFrame(){
 
 void
 AnimationWidget::SliderMoved(int _newValue){
-
   UpdateCurValue(_newValue);
-  if (m_name == "Path")
-    GetVizmo().Animate(m_curValue);
-  else if (m_name == "Debug")
-    GetVizmo().AnimateDebug(m_curValue);
+  if(m_name == "Path") {
+    vector<double> dCfg = GetVizmo().GetPath()->GetConfiguration(_newValue);
+    GetVizmo().GetRobot()->Configure(dCfg);
+  }
+  else if(m_name == "Debug")
+    GetVizmo().GetDebug()->ConfigureFrame(_newValue);
   emit CallUpdate();
 }
 

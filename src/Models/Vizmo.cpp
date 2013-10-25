@@ -30,8 +30,6 @@ Vizmo::Vizmo() :
   m_debugModel(NULL) {
     //temporary initialization of "unused" objects
     m_cfg = NULL;
-    is_collison = false;
-    m_isNode = false;
     mR = mG = mB = 0.0;
     m_doubleClick = false;
   }
@@ -189,108 +187,31 @@ Vizmo::Select(const Box& _box) {
     SearchSelectedItems(hits, hitBuffer, (w*h) > 100);
 }
 
-void
-Vizmo::RefreshEnv(){
-  if(m_envModel)
-    m_envModel->SetRenderMode(SOLID_MODE);
-}
-
 //////////////////////////////////////////////////
 // Collision Detection related functions
 //////////////////////////////////////////////////
 
-//* Node_CD is called from roadmap.cpp
-//* receives the cfg of the node moved
-//* which will be tested for collision
-void Vizmo::Node_CD(CfgModel *cfg){
-
-  //cfg->coll = false; //used to write message in CfgModel::GetInfo()
-  m_cfg = cfg;
-
-  m_isNode = true;
-  m_nodeCfg = cfg->GetDataCfg();
-}
-
-void Vizmo::TurnOn_CD(){
-
-  string m_objName;
-
-  for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit)
-    m_objName = (*mit)->Name();
-  EnvModel* env = m_envModel;
-  if(env != NULL){ //previously checked if loader was null
-
-    RobotModel* robot = m_robotModel;
-
-    list<Model*> robotList,modelList;
-    //obtain robot model
-    robot->GetChildren(modelList);
-    MultiBodyModel* robotModel = (MultiBodyModel*)modelList.front();
-
-    //If we'll test a node, copy CfgModel to CD class
-    if(m_isNode){
-      int dof = CfgModel::GetDOF();
-      CD.CopyNodeCfg(m_nodeCfg, dof);
-    }
-
-    if(m_objName != "Node"){
-      m_isNode = false;
-    }
-
-    bool b = false;
-    b = CD.IsInCollision(0, env, robotModel, robot);
-    is_collison = b;
-
-    if (b){
-
-      if(m_cfg != NULL){
-        m_cfg->SetInCollision(true);
-      }
-    }
-    else{
-
-      if(m_cfg != NULL){
-        m_cfg->SetInCollision(false);
-      }
-    }
-  }
-}
-
-
-////////////////////////////////////////////////////
-// Saving files related functions
-//
-// bool Vizmo::SaveEnv(const char *filename)
-//
-///////////////////////////////////////////////////
-
 bool
-Vizmo::SaveEnv(const char* _filename){
-  m_envModel->SaveFile(_filename);
-  return true;
-}
+Vizmo::CollisionCheck(CfgModel* _cfg) {
+  if(m_envModel) { //previously checked if loader was null
+    //obtain robot model
+    list<Model*> modelList;
+    m_robotModel->GetChildren(modelList);
+    MultiBodyModel* rmbm = (MultiBodyModel*)modelList.front();
 
-void
-Vizmo::SaveQuery(const string& _filename) {
-  if(m_queryModel->GetQuerySize()) {
-    ofstream ofs(_filename.c_str());
-    for(size_t i = 0; i<m_queryModel->GetQuerySize(); ++i) {
-      //output robot index. For now always a 0.
-      ofs << "0 ";
-      //output dofs
-      typedef vector<double>::const_iterator DIT;
-      const vector<double>& query = m_queryModel->GetStartGoal(i);
-      for(DIT dit = query.begin(); dit != query.end(); ++dit)
-        ofs << *dit << " ";
-      ofs << endl;
-    }
+    m_cd.CopyNodeCfg(_cfg->GetDataCfg());
+
+    bool b = m_cd.IsInCollision(0, m_envModel, rmbm, m_robotModel);
+    if(m_cfg)
+      m_cfg->SetInCollision(b);
+    return b;
   }
+  return false;
 }
 
 void
 Vizmo::ShowRoadMap(bool _show){
   m_showMap = _show;
-
   if(m_mapModel)
     m_mapModel->SetRenderMode(_show ? SOLID_MODE : INVISIBLE_MODE);
 }
@@ -298,7 +219,6 @@ Vizmo::ShowRoadMap(bool _show){
 void
 Vizmo::ShowPathFrame(bool _show){
   m_showPath = _show;
-
   if(m_pathModel)
     m_pathModel->SetRenderMode(_show ? SOLID_MODE : INVISIBLE_MODE);
 }
@@ -306,7 +226,6 @@ Vizmo::ShowPathFrame(bool _show){
 void
 Vizmo::ShowQueryFrame(bool _show){
   m_showQuery = _show;
-
   if(m_queryModel)
     m_queryModel->SetRenderMode(_show ? SOLID_MODE : INVISIBLE_MODE);
 }
@@ -331,7 +250,6 @@ void Vizmo::ChangeAppearance(int status)
       model->SetRenderMode(WIRE_MODE);
     else if(status==2){
       model->SetRenderMode(INVISIBLE_MODE);
-      DeleteObject((MultiBodyModel*)model);
     }
     else if(status == 3){
       if(model->Name() == "Robot"){
@@ -344,62 +262,6 @@ void Vizmo::ChangeAppearance(int status)
   }
 
   robot->Restore();
-}
-
-void Vizmo::DeleteObject(MultiBodyModel *mbl){
-  /*
-  EnvModel* envModel = m_envModel;
-  int MBnum = envModel->GetNumMultiBodies();
-
-  const MultiBodyInfo * mbi;
-  MultiBodyInfo *mbiTmp;
-  mbiTmp = new MultiBodyInfo [MBnum];
-  mbi = envModel->GetMultiBodyInfo();
-
-  int j=0;
-  for(int i=0; i<MBnum; i++){
-    if( (mbi[i].m_mBodyInfo[0].m_modelDataFileName !=
-          mbl->GetMBinfo().m_mBodyInfo[0].m_modelDataFileName) ||
-        (mbi[i].m_mBodyInfo[0].m_x != mbl->GetMBinfo().m_mBodyInfo[0].m_x )||
-        (mbi[i].m_mBodyInfo[0].m_y != mbl->GetMBinfo().m_mBodyInfo[0].m_y)||
-        (mbi[i].m_mBodyInfo[0].m_z != mbl->GetMBinfo().m_mBodyInfo[0].m_z) ){
-
-      mbiTmp[j] = mbi[i];
-      j++;
-    }
-  }
-
-  //envLoader->DecreaseNumMB();
-  //envLoader->SetNewMultiBodyInfo(mbiTmp);
-  envModel->DecreaseNumMB();
-  envModel->SetNewMultiBodyInfo(mbiTmp);
-
-  //////////////////////////////////////////////////////////
-  //  Recreate MBModel: some elements could've been deleted
-  //////////////////////////////////////////////////////////
-  envModel->DeleteMBModel(mbl);
-  */
-}
-
-void Vizmo::Animate(int frame){
-  if( m_robotModel==NULL || m_pathModel==NULL)
-    return;
-
-  PathModel* pathModel = m_pathModel;
-  RobotModel* rmodel = m_robotModel;
-
-  //Get Cfg
-  vector<double> dCfg = pathModel->GetConfiguration(frame);
-
-  rmodel->Configure(dCfg);
-}
-
-void Vizmo::AnimateDebug(int frame){
-  if( m_robotModel==NULL || m_debugModel==NULL)
-    return;
-  DebugModel* debugModel = m_debugModel;
-
-  debugModel->ConfigureFrame(frame);
 }
 
 int Vizmo::GetPathSize(){
@@ -417,51 +279,6 @@ int Vizmo::GetDebugSize(){
   return debugModel->GetDebugSize();
 }
 
-/*
-void Vizmo::ChangeNodeColor(double _r, double _g, double _b, string _s){
-
-  if(m_robotModel == NULL)
-    return;
-
-  if(m_mapModel == NULL)
-    return;
-
-  typedef MapModel<CfgModel,EdgeModel> MM;
-  typedef CCModel<CfgModel,EdgeModel> CC;
-  typedef vector<CC*>::iterator CCIT;
-
-  //change color of one CC at a time
-  int m_i;
-  string m_sO;
-  for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit){
-    Model* gl = *mit;
-    m_sO = gl->GetName();
-
-    string m_s="NULL";
-    size_t position = m_sO.find("Node",0);
-    if(position != string::npos){
-      m_s = m_sO.substr(position+4, m_sO.length());
-    }
-
-    MapModel<CfgModel,EdgeModel>* mmodel = m_mapModel;
-    vector<CC*>& cc=mmodel->GetCCModels();
-    if(m_s != "NULL"){
-      for(CCIT ic=cc.begin();ic!=cc.end();ic++){
-        typedef map<CC::VID, CfgModel>::iterator NIT;
-        for(NIT i = (*ic)->GetNodesInfo().begin(); i != (*ic)->GetNodesInfo().end(); i++)
-          if(StringToInt(m_s, m_i)){
-            if(m_i == i->second.GetIndex()){
-              (*ic)->RebuildAll();
-              i->second.SetColor(Color4(_r, _g, _b, 1));
-              (*ic)->DrawRobotNodes((*ic)->m_renderMode);
-              (*ic)->DrawSelect();
-            }
-          }
-      }
-    }
-  }
-}
-*/
 void
 Vizmo::RandomizeCCColors(){
 
@@ -477,20 +294,6 @@ Vizmo::RandomizeCCColors(){
   for(CCIT ic = cc.begin(); ic != cc.end(); ++ic){
     (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
   }
-}
-
-bool Vizmo::StringToInt(const string &s, int &i){
-  istringstream myStream(s);
-  return myStream >> i;
-}
-
-void Vizmo::RandomizeEnvColors(){
-
-  m_envModel->ChangeColor();
-}
-
-double Vizmo::GetEnvRadius(){
-  return m_envModel ? m_envModel->GetRadius() : 200;
 }
 
 void

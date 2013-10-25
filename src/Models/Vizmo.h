@@ -13,8 +13,7 @@ class EnvModel;
 class RobotModel;
 class CfgModel;
 class EdgeModel;
-template<typename, typename>
-class MapModel;
+template<typename, typename> class MapModel;
 class QueryModel;
 class PathModel;
 class DebugModel;
@@ -44,69 +43,53 @@ class Vizmo {
     //Select Objects in OpenGL Scene
     void Select(const Box& _box);
 
-    //Animate Robot motion
-    void Animate(int frame);
-    //Animate map creation
-    void AnimateDebug(int frame);
-
     // Environment Related Functions
-    EnvModel* GetEnv() const { return m_envModel; }
+    EnvModel* GetEnv() const {return m_envModel;}
+    const string& GetEnvFileName() const {return m_envFilename;}
+    void SetEnvFileName(const string& name) {m_envFilename = name;}
     // Change the appearance of an object - Hidden/ Wire / Soid
-    void ChangeAppearance(int );
-    void RefreshEnv();
-    void RandomizeEnvColors();
-    bool SaveEnv(const char *filename); //save env. file
-    void DeleteObject(MultiBodyModel * mbl);
-    //called form main_win::autoMkmp()
-    double GetEnvRadius();
+    void ChangeAppearance(int);
 
     // Robot Related Functions
-    RobotModel* GetRobot() const {  return m_robotModel; }
+    RobotModel* GetRobot() const {return m_robotModel;}
 
     // Roadmap Related Functions
-    MapModel<CfgModel, EdgeModel>* GetMap() const { return m_mapModel; }
-    void ShowRoadMap(bool _show = true);
-    bool IsRoadMapShown() const { return m_showMap; }
+    MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
+    const string& GetMapFileName() const {return m_mapFilename;}
+    void SetMapFileName(const string& name) {m_mapFilename = name;}
+    void ShowRoadMap(bool _show);
     bool IsRoadMapLoaded(){return m_mapModel;}
-    //void ChangeNodeColor(double _r, double _g, double _b, string _s); //May be
-    //used later?
     void RandomizeCCColors();
-    void SetMapObj(MapModel<CfgModel, EdgeModel>* _mm) { m_mapModel = _mm; }
 
     // Query Related Functions
-    QueryModel* GetQry() const { return m_queryModel; }
-    void ShowQueryFrame( bool bshow = true );   // to know if the Query has to be showed
+    QueryModel* GetQry() const {return m_queryModel;}
+    const string& GetQryFileName() const {return m_queryFilename;}
+    void SetQryFileName(const string& name) {m_queryFilename = name;}
+    void ShowQueryFrame(bool _show);   // to know if the Query has to be showed
     bool IsQueryLoaded(){ return m_queryModel; }
-    void SaveQuery(const string& _filename); //save query file
 
     // Path Related Functions
-    PathModel* GetPath() const { return m_pathModel; }
-    void ShowPathFrame( bool bShow=true );
+    PathModel* GetPath() const {return m_pathModel;}
+    const string& GetPathFileName() const {return m_pathFilename;}
+    void SetPathFileName(const string& name) {m_pathFilename = name;}
+    void ShowPathFrame(bool _show);
     int GetPathSize();
-    bool IsPathLoaded(){ return m_pathModel; }
+    bool IsPathLoaded() const {return m_pathModel;}
 
     // Debug Related Functions
     DebugModel* GetDebug() const {return m_debugModel;}
+    const string& GetDebugFileName() const {return m_debugFilename;}
+    void SetDebugFileName(const string& name) {m_debugFilename = name;}
     int GetDebugSize();
-    bool IsDebugLoaded(){return m_debugModel != NULL;}
+    bool IsDebugLoaded() const {return m_debugModel;}
 
     // Collision Detection Related Functions
-    CollisionDetection CD;
-    void TurnOn_CD();
-    bool IsCDOn();
-    CfgModel * m_cfg;
-    bool is_collison; //used in roadmap.cpp:printRobCfg()
-    bool getCD_value(){ return is_collison;}//used in roadmap.cpp:printRobCfg()
-    void Node_CD(double *cfg);
-    void Node_CD(CfgModel * cfg);
-    vector<double> m_nodeCfg;
-    bool m_isNode;
+    bool CollisionCheck(CfgModel* _cfg);
 
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
     //Miscellaneous
-    bool StringToInt(const string &s, int &i);
     void SetDoubleClickStatus(bool _setting) { m_doubleClick = _setting; }
     bool GetDoubleClickStatus() { return m_doubleClick; }
 
@@ -114,21 +97,7 @@ class Vizmo {
     // Variables used to change color of objects in the environment.
     float mR, mG, mB;
 
-    /////////////////////////////////////////////////////////////////////
-    // Filenames
-    const string& getEnvFileName() const { return m_envFilename; }
-    const string& getMapFileName() const { return m_mapFilename; }
-    const string& getQryFileName() const { return m_queryFilename; }
-    const string& getPathFileName() const { return m_pathFilename; }
-    const string& getDebugFileName() const { return m_debugFilename; }
-
-    void setEnvFileName(const string& name){ m_envFilename=name; }
-    void setMapFileName(const string& name){ m_mapFilename=name; }
-    void setQryFileName(const string& name){ m_queryFilename=name; }
-    void setPathFileName(const string& name) { m_pathFilename=name; }
-    void setDebugFileName(const string& name) { m_debugFilename=name; }
-
-  protected:
+  private:
     //Put robot in start configuration if possible
     void PlaceRobot();
 
@@ -143,27 +112,37 @@ class Vizmo {
     //environment
     EnvModel* m_envModel;
     string m_envFilename;
+
     //robot
     RobotModel* m_robotModel;
+
     //map
     MapModel<CfgModel, EdgeModel>* m_mapModel;
     bool m_showMap;
     string m_mapFilename;
+
     //query
     QueryModel* m_queryModel;
     bool m_showQuery;
     string m_queryFilename;
+
     //path
     PathModel* m_pathModel;
     bool m_showPath;
     string m_pathFilename;
+
     //debug
     DebugModel* m_debugModel;
     string m_debugFilename;
 
     typedef vector<Model*>::iterator MIT;
     vector<Model*> m_loadedModels, m_selectedModels;
+
     bool m_doubleClick;
+
+    //for collision detection
+    CollisionDetection m_cd;
+    CfgModel* m_cfg;
 };
 
 #endif
