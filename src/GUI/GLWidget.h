@@ -31,7 +31,6 @@ class GLWidget : public QGLWidget {
       glClearColor(_r, _g, _b, 0);
     }
     // reset tranformation tool
-    // it calls class gli::gliReset()
     void ResetTransTool();
 
     //save an image of the GL scene with the given filename
