@@ -77,11 +77,14 @@ void
 EnvModel::ParseBoundary(ifstream& _ifs) {
   string type = ReadFieldString(_ifs, WHERE, "Failed reading Boundary type.");
 
-  if(type == "BOX")
+  if(type == "BOX"){
     m_boundary = new BoundingBoxModel();
-
-  else if(type == "SPHERE")
+    m_boundaryType="BOX";
+  }
+  else if(type == "SPHERE"){
     m_boundary = new BoundingSphereModel();
+    m_boundaryType="SPHERE";
+  }
   else
     throw ParseException(WHERE,
       "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
@@ -90,8 +93,24 @@ EnvModel::ParseBoundary(ifstream& _ifs) {
 }
 
 void
-EnvModel::BuildModels(){
+EnvModel::ChangeBoundary(string _type, istream& _coord){
+  if(_type == "SPHERE"){
+    m_boundary = new BoundingSphereModel();
+    m_boundaryType="SPHERE";
+  }
+  else if(_type == "BOX"){
+    m_boundary = new BoundingBoxModel();
+    m_boundaryType="BOX";
+  }
+  m_boundary->Parse(_coord);
 
+  if(!m_boundary)
+    throw BuildException(WHERE, "Boundary is NULL");
+  m_boundary->BuildModels();
+}
+
+void
+EnvModel::BuildModels(){
   //Build boundary model
   if(!m_boundary)
     throw BuildException(WHERE, "Boundary is NULL");
@@ -175,7 +194,6 @@ EnvModel::GetChildren(list<Model*>& _models){
 
 void
 EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
-
   vector<MultiBodyModel*>::iterator mbit;
   for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){
     if((*mbit) == _mbl){
@@ -193,180 +211,93 @@ EnvModel::AddMBModel(MultiBodyModel* _m){
 
 bool
 EnvModel::SaveFile(const char* _filename){
-/*
-  const MultiBodyInfo* mBI = GetMultiBodyInfo();
-
-  FILE* envFile;
-  if((envFile = fopen(_filename, "a")) == NULL){
+  ofstream envFile(_filename);
+  if(!envFile.is_open()){
     cout<<"Couldn't open the file"<<endl;
     return false;
   }
-
-  int numMBs = GetNumMultiBodies(); //number of objects in env.
-  //write num. of Bodies
-  fprintf(envFile,"%d\n\n", numMBs);
-
-  //getMBody() and then current position and orientation
-  vector<MultiBodyModel*> mBModels = this->GetMultiBodies();
-
-  for(int i = 0; i < numMBs; i++){ //for each body in *.env
-
-    if(mBI[i].m_active)
-      fprintf(envFile,"Multibody   Active\n");
+  envFile<<"Boundary "<<m_boundaryType<<" "<<m_boundary->GetCoord();
+  envFile<<"\n\n";
+  int numMBs = m_multibodies.size();
+  envFile<<"Multibodies\n"<<numMBs<<"\n\n";
+  vector<MultiBodyModel*> saveMB = GetMultiBodies();
+  reverse(saveMB.begin(),saveMB.end());
+  while(!saveMB.empty()){
+    if(saveMB.back()->IsActive())
+      envFile<<"Active\n";
+    else if(saveMB.back()->IsSurface())
+      envFile<<"Surface\n";
     else
-      fprintf(envFile,"Multibody   Passive\n");
-
-    if(mBI[i].m_numberOfBody != 0){
-      int nB = mBI[i].m_numberOfBody;
-      //write Num. of Bodies in the current MultiBody
-      fprintf(envFile,"%d\n", nB);
-      //write COLOR tag
-      list<Model*> tmpList;
-      mBModels[i]->GetChildren(tmpList);
-      Model* om = tmpList.front();
-      if(mBI[i].m_active){
-        fprintf(envFile,"#VIZMO_COLOR %2f %2f %2f\n",
-            mBI[i].m_mBodyInfo[0].rgb[0],
-            mBI[i].m_mBodyInfo[0].rgb[1],
-            mBI[i].m_mBodyInfo[0].rgb[2]);
+      envFile<<"Passive\n";
+    int nB = saveMB.back()->GetNbBodies();
+    if(nB!= 0){
+      if(saveMB.back()->IsActive())
+        envFile<<nB<<endl;
+      vector<BodyModel*> bodies = saveMB.back()->GetBodies();
+      reverse(bodies.begin(),bodies.end());
+      envFile<<"#VIZMO_COLOR"<<" "<<bodies.back()->GetColor()[0]
+                             <<" "<<bodies.back()->GetColor()[1]
+                             <<" "<<bodies.back()->GetColor()[2]<<endl;
+      if(saveMB.back()->IsActive()){
+        int nbJoints = 0;
+        vector<ConnectionModel*> joints = saveMB.back()->GetJoints();
+        reverse(joints.begin(),joints.end());
+        while(!bodies.empty()){
+          envFile<<bodies.back()->GetFilename()<<" ";
+          if(bodies.back()->IsBaseVolumetric()||bodies.back()->IsBasePlanar()){
+            string baseMovement = "Translational";
+            if (bodies.back()->IsBaseRotational())
+              baseMovement = "Rotational";
+            if(bodies.back()->IsBaseVolumetric())
+              envFile<<"Volumetric "<<baseMovement<<endl;
+            else
+              envFile<<"Planar "<<baseMovement<<endl;
+          }
+          else if(bodies.back()->IsBaseFixed())
+            envFile<<"Fixed "<<bodies.back()->GetTransform()<<endl;
+          else{
+            envFile<<"Joint"<<endl;
+            nbJoints++;
+          }
+          bodies.pop_back();
+        }
+        envFile<<"Connection"<<endl<<nbJoints<<endl;
+        if(nbJoints!=0){
+          while(!joints.empty()){
+            pair<double, double> jointLimits[2] = joints.back()->GetJointLimits();
+            ostringstream limits;
+            string jointType = "NonActuated ";
+            if(joints.back()->IsSpherical()){
+              jointType = "Spherical ";
+              limits<<jointLimits[0].first<<":"<<jointLimits[0].second<<" "
+                    <<jointLimits[1].first<<":"<<jointLimits[1].second;
+            }
+            else if(joints.back()->IsRevolute()){
+              jointType = "Revolute ";
+              limits<<jointLimits[0].first<<":"<<jointLimits[0].second<<" ";
+            }
+            envFile<<joints.back()->GetPreviousIndex()<<" "
+                     <<joints.back()->GetNextIndex()<<"  "
+                     <<jointType<<limits.str()<<endl
+                     <<joints.back()->TransformToDHFrame()<<"   "
+                     <<joints.back()->GetAlpha()<<" "
+                     <<joints.back()->GetA()<<" "<<joints.back()->GetD()<<" "
+                     <<joints.back()->GetTheta()<<"   "
+                     <<joints.back()->TransformToBody2()
+                     <<endl;
+            joints.pop_back();
+          }
+        }
       }
       else{
-        fprintf(envFile,"#VIZMO_COLOR %2f %2f %2f\n",
-                om->GetColor()[0],om->GetColor()[1], om->GetColor()[2]);
+        envFile<<bodies.back()->GetFilename()<<"  "
+                                        <<bodies.back()->GetTransform()<<endl;
       }
-
-      for(int j = 0; j < nB; j++){
-        if(mBI[i].m_mBodyInfo[j].m_isFixed)
-          fprintf(envFile,"FixedBody    ");
-        else
-          fprintf(envFile,"FreeBody    ");
-
-        fprintf(envFile, "%d  ", mBI[i].m_mBodyInfo[j].m_index);
-        string s_tmp = mBI[i].m_mBodyInfo[j].m_modelDataFileName;
-        const char* st;
-        st = s_tmp.c_str();
-        const char *pos = strrchr(st, '/');
-        int position = pos-st+1;
-        string sub_string = s_tmp.substr(position);
-
-        const char* f;
-        f = sub_string.c_str();
-
-        if(!mBI[i].m_active){
-          string s = mBI[i].m_mBodyInfo[j].m_fileName;
-          f = s.c_str();
-          fprintf(envFile,"%s  ",f);
-        }
-        else
-          fprintf(envFile,"%s  ",f);
-
-        //get current (new) rotation
-
-        Quaternion qtmp = mBModels[i]->q();
-        //Matrix3x3 mtmp = qtmp.getMatrix();
-        //Vector3d vtmp = qtmp.MatrixToEuler(mtmp);
-
-        //get prev. rotation
-
-        list<Model*> objList;
-        mBModels[i]->GetChildren(objList);
-        Model* om = objList.front();
-
-        //multiply polyhedron0 and multiBody quaternions
-        //to get new rotation
-        Quaternion finalQ;
-        finalQ = qtmp * om->q();
-
-        EulerAngle e;
-        convertFromQuaternion(e, finalQ);
-
-        fprintf(envFile,"%.1f %.1f %.1f %.1f %.1f %.1f\n",
-            mBModels[i]->tx(), mBModels[i]->ty(), mBModels[i]->tz(),
-            radToDeg(e.alpha()),
-            radToDeg(e.beta()),
-            radToDeg(e.gamma()));
-
-      }
-      //write Connection tag
-
-      if(mBI[i].m_numberOfConnections != 0)
-        fprintf(envFile, "\nConnection\n");
-      else
-        fprintf(envFile,"Connection\n");
-
-      fprintf(envFile, "%d\n", mBI[i].m_numberOfConnections);
-
-      //write Connection info.
-      if(mBI[i].m_numberOfConnections != 0){
-        const char* str;
-        int numConn = mBI[i].GetJointMap().size();
-
-        for(int l = 0; l < numConn; l++){
-          int indexList = mBI[i].GetJointMap()[l]->GetPreviousBody();
-          if(mBI[i].m_mBodyInfo[indexList].m_connectionInfo->m_actuated)
-            str = "Actuated";
-          else
-            str = "NonActuated";
-
-          fprintf(envFile,"%d %d  %s\n",indexList,
-              mBI[i].GetJointMap()[l]->GetNextBody(), str);
-
-          //get info. from current Body and current connection
-          int index = 0;
-          for(int b = 0;
-              b<mBI[i].m_mBodyInfo[indexList].m_numberOfConnection; b++){
-
-            int n = mBI[i].m_mBodyInfo[indexList].m_connectionInfo[b].m_nextIndex;
-
-            if(mBI[i].GetJointMap()[l]->GetNextBody() == n){
-              index = b;
-              break;
-            }
-          }
-
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_posX);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_posY);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_posZ);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orientX*57.29578);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orientY* 57.29578);
-          fprintf(envFile, "%.1f\t",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orientZ* 57.29578);
-
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].alpha);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].a);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].d);
-          fprintf(envFile, "%.1f        ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_theta);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_pos2X);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_pos2Y);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_pos2Z);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orient2X* 57.29578);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orient2Y* 57.29578);
-          fprintf(envFile, "%.1f\n\n",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orient2Z* 57.29578);
-        }
-
-      }
-
     }
-    fprintf(envFile,"\n");
+    envFile<<endl;
+    saveMB.pop_back();
   }
-
-  fclose(envFile);
-  */
-  return 1;
+  envFile.close();
+  return true;
 }
 

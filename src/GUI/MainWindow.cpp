@@ -141,6 +141,7 @@ MainWindow::SetUpLayout(){
 
   m_layout->addLayout(m_animationBarLayout, 8, 1, 9, 25);
 
+
   //The GL Scene
   m_layout->addWidget(m_gl, 2, 6, 4, 25);
   m_layout->setRowStretch(1, 3);
@@ -150,7 +151,6 @@ MainWindow::SetUpLayout(){
 
   for(int i = 6; i <= 25; i++)
     m_layout->setColumnStretch(i, 2); //...also helps GL scene expand better
-
 
   //The menubar
   m_layout->setMenuBar(m_mainMenu->m_menuBar);

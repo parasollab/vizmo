@@ -107,7 +107,7 @@ BodyModel::ParseActiveBody(istream& _is, const string& _modelDataDir, const Colo
   if(!_modelDataDir.empty()) {
     //store just the path of the current directory
     m_directory = _modelDataDir;
-    m_modelFilename += _modelDataDir + "/";
+    m_modelFilename = _modelDataDir + "/";
   }
 
   m_modelFilename += m_filename;
@@ -164,3 +164,14 @@ operator<<(ostream& _os, const BodyModel& _b) {
   return _os;
 }
 
+void
+BodyModel::DeleteConnection(ConnectionModel* _c){
+  int index=0;
+  for(ConnectionIter cit=Begin(); cit!=End(); cit++){
+    if((*cit)==_c){
+      m_connections.erase(m_connections.begin()+index);
+      return;
+    }
+    index++;
+  }
+}

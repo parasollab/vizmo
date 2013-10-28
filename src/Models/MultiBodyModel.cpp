@@ -158,6 +158,47 @@ MultiBodyModel::ParseMultiBody(istream& _is, const string& _modelDir) {
 }
 
 void
+MultiBodyModel::AddJoint(ConnectionModel* _c, int _indexBase, int _indexJoint, int _bodyNum){
+  m_robots.at(_indexBase).second.insert(m_robots.at(_indexBase).second.begin()+_indexJoint, _c);
+  m_joints.insert(m_joints.begin()+(_bodyNum-(_indexBase+1)), _c);
+}
+
+void
+MultiBodyModel::AddBody(BodyModel* _b, int _index){
+  if(_index<=m_bodies.size())
+    m_bodies.insert(m_bodies.begin()+_index, _b);
+  else
+    m_bodies.push_back(_b);
+}
+
+void
+MultiBodyModel::DeleteBody(int _index){
+  m_bodies.erase(m_bodies.begin()+_index);
+}
+
+void
+MultiBodyModel::DeleteJoint(int _indexBase, int _indexJoint, int _bodyNumber){
+  m_joints.erase(m_joints.begin()+(_bodyNumber-(_indexBase+1)));
+  m_robots.at(_indexBase).second.erase(m_robots.at(_indexBase).second.begin()+_indexJoint);
+}
+
+void
+MultiBodyModel::DeleteJoints(){
+  while(!m_joints.empty())
+    m_joints.pop_back();
+}
+
+void
+MultiBodyModel::DeleteRobot(int _index){
+  m_robots.erase(m_robots.begin()+_index);
+}
+
+void
+MultiBodyModel::AddBase(BodyModel* _newBase){
+  m_robots.push_back(make_pair(_newBase, NULL));
+}
+
+void
 MultiBodyModel::BuildRobotStructure() {
 
   m_dof = 0;
@@ -270,3 +311,8 @@ MultiBodyModel::BuildRobotStructure() {
   CfgModel::SetIsRotationalRobot(m_robots[0].first->IsBaseRotational() ? true : false);
 }
 
+void
+MultiBodyModel::ChangeDOF(int _dof){
+  m_dof=_dof;
+  CfgModel::SetDOF(m_dof);
+}

@@ -65,6 +65,7 @@ class MainWindow : public QMainWindow {
     QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextGUI
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
+    QVBoxLayout* m_obstacleWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     GLWidget* m_gl;           //the scene window which displays environment..
     AnimationWidget* m_animationWidget;
     ModelSelectionWidget* m_modelSelectionWidget;

@@ -307,7 +307,6 @@ Vizmo::PlaceRobot(){
       cfg = m_pathModel->GetConfiguration(0);
     else
       cfg = vector<double>(CfgModel::GetDOF());
-
     if(m_debugModel || (m_mapModel && !(m_pathModel || m_queryModel)))
       r->SetRenderMode(INVISIBLE_MODE);
 

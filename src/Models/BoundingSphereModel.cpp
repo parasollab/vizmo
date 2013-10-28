@@ -1,6 +1,7 @@
 #include "BoundingSphereModel.h"
 #include "glut.h"
 #include <limits>
+#include <sstream>
 
 BoundingSphereModel::BoundingSphereModel() : BoundaryModel("Bounding Sphere"), m_radius(numeric_limits<double>::max()) {
 }
@@ -59,3 +60,9 @@ BoundingSphereModel::Print(ostream& _os) const {
     << "[ " << m_center << " " << m_radius << " ]" << endl;
 }
 
+string
+BoundingSphereModel::GetCoord(){
+  ostringstream coord;
+  coord<<m_center<<" "<<m_radius;
+  return coord.str();
+}

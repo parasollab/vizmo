@@ -27,6 +27,7 @@ class BodyModel : public TransformableModel {
 
     const string& GetFilename() const {return m_filename;}
     const string& GetModelFilename() const {return m_modelFilename;}
+    string GetDirectory() {return m_directory;}
     const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
     double GetRadius() const {return m_polyhedronModel->GetRadius();}
     RAPID_model* GetRapidModel() const {return m_polyhedronModel->GetRapidModel();}
@@ -47,6 +48,7 @@ class BodyModel : public TransformableModel {
     ConnectionIter Begin() const {return m_connections.begin();}
     ConnectionIter End() const {return m_connections.end();}
     void AddConnection(ConnectionModel* _c) {m_connections.push_back(_c);}
+    void DeleteConnection(ConnectionModel* _c);
 
     //access to transformations
     const Transformation& GetTransform() const {return m_currentTransform;}
@@ -60,6 +62,7 @@ class BodyModel : public TransformableModel {
     //Compute prevtranform * TDH * dh * TBody2
     //receives the Body THIS body is connected to, the id of that connection
     void ComputeTransform(const BodyModel* _body, size_t _nextBody);
+    void UpdateModel() {m_polyhedronModel = new PolyhedronModel(this);}
 
     void BuildModels() {}
     void Select(GLuint* _index, vector<Model*>& sel) {m_polyhedronModel->Select(_index, sel);}

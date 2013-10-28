@@ -32,20 +32,24 @@ class MultiBodyModel : public Model {
     virtual void SetRenderMode(RenderMode _mode);
     virtual void SetColor(const Color4& _c);
 
-    bool IsActive() const{ return m_active; }
-    const Point3d& GetCOM() const { return m_com; }
-    double GetRadius() const { return m_radius; }
-    int GetDOF() const { return m_dof; } //check where used
-    static vector<DOFInfo>& GetDOFInfo() { return m_dofInfo; }
-    const Robots& GetRobots() const { return m_robots; }
+    bool IsActive() const{return m_active;}
+    bool IsSurface() const {return m_surface;}
+    const Point3d& GetCOM() const {return m_com;}
+    double GetRadius() const {return m_radius;}
+    int GetDOF() const {return m_dof;}
+    int GetNbBodies() {return m_bodies.size();}
+    Robots GetRobots() const {return m_robots;}
 
     void SetEnv(EnvModel* _env){ m_env = _env; }
+    static vector<DOFInfo>& GetDOFInfo() { return m_dofInfo; }
     static void ClearDOFInfo() { m_dofInfo.clear(); } //Clear/reset every time a file is opened
 
     //access bodies
     typedef vector<BodyModel*>::const_iterator BodyIter;
     BodyIter Begin() const { return m_bodies.begin(); }
     BodyIter End() const { return m_bodies.end(); }
+    vector <BodyModel*> GetBodies() {return m_bodies;}
+    vector <ConnectionModel*> GetJoints() {return m_joints;}
 
     //drawing
     virtual void BuildModels();
@@ -56,6 +60,16 @@ class MultiBodyModel : public Model {
 
     //IO
     void ParseMultiBody(istream& _is, const string& _modelDir);
+
+    //Edit Robot
+    void DeleteBody(int _index);
+    void DeleteRobot(int _index);
+    void DeleteJoint(int _indexBase, int _indexJoint, int _bodyNumber);
+    void DeleteJoints();
+    void AddBase(BodyModel* _newBase);
+    void AddBody(BodyModel* _b, int _index);
+    void AddJoint(ConnectionModel* _c, int _indexBase, int _indexJoint, int _bodyNum);
+    void ChangeDOF(int _dof);
 
   private:
     void BuildRobotStructure();

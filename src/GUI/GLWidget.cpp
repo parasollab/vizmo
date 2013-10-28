@@ -23,7 +23,7 @@ bool SHIFT_CLICK = false;
 GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
   : QGLWidget(_parent), m_transformTool(m_cameraFactory.GetCurrentCamera()) {
     m_mainWindow = _mainWindow;
-    setMinimumSize(400, 505); //original size: 400 x 600
+    setMinimumSize(271, 211); //original size: 400 x 600
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setFocusPolicy(Qt::StrongFocus);
 

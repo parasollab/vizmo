@@ -2,6 +2,7 @@
 #define BOUNDARYMODEL_H_
 
 #include "Model.h"
+#include <string>
 
 class BoundaryModel : public Model {
   public:
@@ -10,6 +11,7 @@ class BoundaryModel : public Model {
 
     virtual vector<pair<double, double> > GetRanges() = 0;
     virtual bool Parse(istream& _is) = 0;
+    virtual string GetCoord()=0;
     virtual void BuildModels() = 0;
     void Select(GLuint* _index, vector<Model*>& _sel);
     void Draw(GLenum _mode);

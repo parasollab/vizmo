@@ -5,7 +5,9 @@ OBJECTS += \
 	   GUI/AnimationWidget.o \
 	   GUI/CameraPosDialog.o \
 	   GUI/CaptureOptions.o \
+		 GUI/ChangeBoundaryDialog.o \
 	   GUI/CustomizePathDialog.o \
+		 GUI/EditRobotDialog.o \
 	   GUI/EnvironmentOptions.o \
 	   GUI/FileListDialog.o \
 	   GUI/FileOptions.o \
@@ -16,6 +18,7 @@ OBJECTS += \
 	   GUI/MainWindow.o \
 	   GUI/ModelSelectionWidget.o \
 	   GUI/MovieSaveDialog.o \
+		 GUI/ObstaclePosDialog.o \
 	   GUI/NodeEditDialog.o \
 	   GUI/PathOptions.o \
 	   GUI/QueryGUI.o \

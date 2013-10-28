@@ -16,6 +16,7 @@ class EnvModel : public LoadableModel {
     int GetDOF(){ return m_dof; }
     vector<MultiBodyModel*> GetMultiBodies(){ return m_multibodies; }
     BoundaryModel* GetBoundary() {return m_boundary;}
+    string GetBoundaryType() {return m_boundaryType;}
     double GetRadius() const { return m_radius; }
     const Point3d& GetCOM() const { return m_centerOfMass; }
 
@@ -32,6 +33,7 @@ class EnvModel : public LoadableModel {
 
     // TESTING to save Env. file
     bool SaveFile(const char* _filename);
+    void ChangeBoundary(string _type, istream& _coord);
 
     virtual void GetChildren(list<Model*>& _models);
 
@@ -52,6 +54,7 @@ class EnvModel : public LoadableModel {
     double m_radius;
     Point3d m_centerOfMass;
     BoundaryModel* m_boundary;
+    string m_boundaryType;
 };
 
 #endif

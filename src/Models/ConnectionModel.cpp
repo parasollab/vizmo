@@ -29,6 +29,13 @@ ConnectionModel::DHTransform() const {
   return Transformation(pos, Orientation(rot));
 }
 
+void
+ConnectionModel::ChangeIndex(int _num){
+  m_globalIndex+=_num;
+  m_previousIndex+=_num;
+  m_nextIndex+=_num;
+}
+
 istream&
 operator>>(istream& _is, ConnectionModel& _c) {
   //body indices

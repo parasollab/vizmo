@@ -41,6 +41,16 @@ BoundingBoxModel::Parse(istream& _is) {
   return true;
 }
 
+string
+BoundingBoxModel::GetCoord(){
+
+  ostringstream coord;
+  coord<<m_bbx[0].first<<":"<<m_bbx[0].second<<" "<<
+              m_bbx[1].first<<":"<<m_bbx[1].second<<" "<<
+              m_bbx[2].first<<":"<<m_bbx[2].second<<" ";
+  return coord.str();
+}
+
 void
 BoundingBoxModel::BuildModels() {
   double zmin = m_bbx[2].second == numeric_limits<double>::max() ? -1 : m_bbx[2].first;

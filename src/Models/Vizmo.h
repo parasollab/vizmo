@@ -52,6 +52,8 @@ class Vizmo {
 
     // Robot Related Functions
     RobotModel* GetRobot() const {return m_robotModel;}
+    //Put robot in start configuration if possible
+    void PlaceRobot();
 
     // Roadmap Related Functions
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
@@ -98,8 +100,6 @@ class Vizmo {
     float mR, mG, mB;
 
   private:
-    //Put robot in start configuration if possible
-    void PlaceRobot();
 
     //Parse the Hit Buffer. Store selected obj into m_selectedModels.
     //hit is the number of hit by this selection

@@ -19,9 +19,18 @@ class ConnectionModel {
     size_t GetNextIndex() const {return m_nextIndex;}
     JointType GetJointType() const {return m_jointType;}
     static JointType GetJointTypeFromTag(const string& _tag);
+    bool IsRevolute(){return (m_jointType==REVOLUTE);}
+    bool IsSpherical(){return (m_jointType==SPHERICAL);}
+    pair<double, double> GetJointLimits() const {return *m_jointLimits;} //ranges of joints
+    double GetAlpha() const {return m_alpha;}
+    double GetA() const {return m_a;}
+    double GetD() const {return m_d;}
+    double GetTheta() const {return m_theta;}
 
     void SetAlpha(double _a) {m_alpha = _a;}
     void SetTheta(double _t) {m_theta = _t;}
+    void ChangeIndex(int _num);
+    void SetGlobalIndex(int _index) {m_globalIndex=_index;}
 
     Transformation DHTransform() const;
     const Transformation& TransformToDHFrame() const {return m_toDHFrame;}
@@ -32,7 +41,6 @@ class ConnectionModel {
 
   private:
     static size_t m_globalCounter;
-
     size_t m_globalIndex; //ordering information
     size_t m_previousIndex, m_nextIndex; //indices of bodies
     JointType m_jointType; //joint type

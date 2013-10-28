@@ -23,6 +23,9 @@ FileListDialog::FileListDialog(const string& _filename,
   setWindowIcon(QPixmap(eye));
 
   //1. Create subwidgets
+  m_loadButton = new QPushButton("Load", this);
+  m_cancelButton = new QPushButton("Cancel", this);
+
   m_envCheckBox = new QCheckBox(this);
   m_envCheckBox->setEnabled(false);
   m_envLabel = new QLabel("<b>Env File</b>:", this);
@@ -48,9 +51,6 @@ FileListDialog::FileListDialog(const string& _filename,
   m_debugLabel = new QLabel("<b>Debug File</b>:", this);
   m_debugFilename = new QLabel(this);
   m_debugButton = new QPushButton(QIcon(folder), "Browse", this);
-
-  m_loadButton = new QPushButton("Load", this);
-  m_cancelButton = new QPushButton("Cancel", this);
 
   //2. Make connections
   connect(m_mapButton, SIGNAL(clicked()), this, SLOT(ChangeMap()));
