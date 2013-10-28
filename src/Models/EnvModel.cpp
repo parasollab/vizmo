@@ -253,8 +253,26 @@ EnvModel::SaveFile(const char* _filename){
             else
               envFile<<"Planar "<<baseMovement<<endl;
           }
-          else if(bodies.back()->IsBaseFixed())
-            envFile<<"Fixed "<<bodies.back()->GetTransform()<<endl;
+          else if(bodies.back()->IsBaseFixed()){
+            envFile<<"Fixed ";
+            ostringstream transform;
+            transform<<bodies.back()->GetTransform();
+            string transformString=transform.str();
+            istringstream splitTransform(transformString);
+            string splittedTransform[6]={"","","","","",""};
+            int j=0;
+            do{
+              splitTransform>>splittedTransform[j];
+              j++;
+            }while(splitTransform);
+            string temp;
+            temp=splittedTransform[3];
+            splittedTransform[3]=splittedTransform[5];
+            splittedTransform[5]=temp;
+            for(int i=0; i<6; i++)
+              envFile<<splittedTransform[i]<<" ";
+            envFile<<endl;
+          }
           else{
             envFile<<"Joint"<<endl;
             nbJoints++;
@@ -290,8 +308,24 @@ EnvModel::SaveFile(const char* _filename){
         }
       }
       else{
-        envFile<<bodies.back()->GetFilename()<<"  "
-                                        <<bodies.back()->GetTransform()<<endl;
+        envFile<<bodies.back()->GetFilename()<<"  ";
+        ostringstream transform;
+        transform<<bodies.back()->GetTransform();
+        string transformString=transform.str();
+        istringstream splitTransform(transformString);
+        string splittedTransform[6]={"","","","","",""};
+        int j=0;
+        do{
+          splitTransform>>splittedTransform[j];
+          j++;
+        }while(splitTransform);
+        string temp;
+        temp=splittedTransform[3];
+        splittedTransform[3]=splittedTransform[5];
+        splittedTransform[5]=temp;
+        for(int i=0; i<6; i++)
+          envFile<<splittedTransform[i]<<" ";
+        envFile<<endl;
       }
     }
     envFile<<endl;

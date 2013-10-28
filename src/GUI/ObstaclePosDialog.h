@@ -50,9 +50,9 @@ class ObstaclePosDialog : public QDialog {
     QLabel* m_xPosLabel;
     QLabel* m_yPosLabel;
     QLabel* m_zPosLabel;
-    QLabel* m_xRotLabel;
-    QLabel* m_yRotLabel;
-    QLabel* m_zRotLabel;
+    QLabel* m_alphaLabel;
+    QLabel* m_betaLabel;
+    QLabel* m_gammaLabel;
     QLabel* m_posLabel;
     QLabel* m_coordLabel;
     QLabel* m_rotLabel;

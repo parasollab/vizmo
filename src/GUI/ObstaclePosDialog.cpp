@@ -23,9 +23,9 @@ ObstaclePosDialog::ObstaclePosDialog(MultiBodyModel* _multiBody, MainWindow* _ma
   m_xPosLabel = new QLabel("x", this);
   m_yPosLabel = new QLabel("y", this);
   m_zPosLabel = new QLabel("z", this);
-  m_xRotLabel = new QLabel("x", this);
-  m_yRotLabel = new QLabel("y", this);
-  m_zRotLabel = new QLabel("z", this);
+  m_alphaLabel = new QLabel(QChar(0x03B1), this);
+  m_betaLabel = new QLabel(QChar(0x03B2), this);
+  m_gammaLabel = new QLabel(QChar(0x03B3), this);
   for(int i=0; i<6; i++)
     m_sliders[i] = new QSlider(this);
   for(int i=0; i<6; i++)
@@ -55,9 +55,9 @@ ObstaclePosDialog::SetUpLayout(){
   m_xPosLabel->setGeometry(QRect(20,40,16,21));
   m_yPosLabel->setGeometry(QRect(20,70,16,21));
   m_zPosLabel->setGeometry(QRect(20,100,16,21));
-  m_xRotLabel->setGeometry(QRect(20,160,16,21));
-  m_yRotLabel->setGeometry(QRect(20,190,16,21));
-  m_zRotLabel->setGeometry(QRect(20,220,16,21));
+  m_alphaLabel->setGeometry(QRect(20,160,16,21));
+  m_betaLabel->setGeometry(QRect(20,190,16,21));
+  m_gammaLabel->setGeometry(QRect(20,220,16,21));
   m_rotLabel->setGeometry(QRect(20,130,91,21));
   m_coordLabel->setGeometry(QRect(20,10,91,21));
   for(int i=0; i<6; i++)
