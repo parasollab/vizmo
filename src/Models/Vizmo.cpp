@@ -199,7 +199,7 @@ Vizmo::CollisionCheck(CfgModel* _cfg) {
     m_robotModel->GetChildren(modelList);
     MultiBodyModel* rmbm = (MultiBodyModel*)modelList.front();
 
-    m_cd.CopyNodeCfg(_cfg->GetDataCfg());
+    m_cd.CopyNodeCfg(_cfg->GetData());
 
     bool b = m_cd.IsInCollision(0, m_envModel, rmbm, m_robotModel);
     if(m_cfg)
@@ -306,7 +306,7 @@ Vizmo::PlaceRobot(){
     else if(m_pathModel)
       cfg = m_pathModel->GetConfiguration(0);
     else
-      cfg = vector<double>(CfgModel::GetDOF());
+      cfg = vector<double>(CfgModel::DOF());
     if(m_debugModel || (m_mapModel && !(m_pathModel || m_queryModel)))
       r->SetRenderMode(INVISIBLE_MODE);
 

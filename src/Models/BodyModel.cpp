@@ -2,7 +2,7 @@
 
 #include "ConnectionModel.h"
 #include "Models/PolyhedronModel.h"
-#include "Utilities/IOUtils.h"
+#include "Utilities/IO.h"
 
 BodyModel::Base
 BodyModel::GetBaseFromTag(const string& _tag){

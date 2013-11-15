@@ -8,38 +8,33 @@ using namespace std;
 #include <GL/gl.h>
 #include <GL/glut.h>
 
+#include "Cfg/Cfg.h"
+
 #include "RobotModel.h"
 
-template <typename, typename>
-class CCModel;
+template<typename, typename> class CCModel;
 class EdgeModel;
 
-class CfgModel : public Model {
-
-  friend ostream& operator<<(ostream& _out, const CfgModel& _cfg);
-  friend istream& operator>>(istream& _in, CfgModel& _cfg);
+class CfgModel : public Model, public Cfg {
 
   public:
     enum Shape { Robot, Box, Point }; //Node representation
 
     CfgModel();
-    CfgModel(const CfgModel& _cfg);
 
     void SetName();
     int GetIndex() const { return m_index; }
     int GetCCID();
-    const vector<double>& GetDataCfg() { return m_dofs; }
-    Point3d GetPoint() const {return Point3d(m_dofs[0], m_dofs[1], m_isVolumetricRobot ? m_dofs[2] : 0); }
+    Point3d GetPoint() const {return Point3d(m_v[0], m_v[1], m_isVolumetricRobot ? m_v[2] : 0); }
 
     static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
     RobotModel* GetRobot() const { return m_robot; }
     bool IsInCollision() { return m_inColl; }
-    static int GetDOF() { return m_dof; }
     static Shape GetShape() { return m_shape; }
     static float GetPointSize() { return m_pointScale; }
 
-    static void SetDOF(int _d) { m_dof = _d; }
+    static void SetDOF(size_t _d) { m_dof = _d; }
     static void SetIsPlanarRobot(bool _b) { m_isPlanarRobot = _b; }
     static void SetIsVolumetricRobot(bool _b) { m_isVolumetricRobot = _b; }
     static void SetIsRotationalRobot(bool _b) { m_isRotationalRobot = _b; }
@@ -51,9 +46,6 @@ class CfgModel : public Model {
     void SetCCModel(CCModel<CfgModel, EdgeModel>* _cc) { m_cc = _cc; }
     void SetRobot(RobotModel* _r) { m_robot = _r; }
 
-    bool operator==(const CfgModel& _other) const;
-    double& operator[](size_t _i) { return m_dofs[_i]; }
-    const double& operator[](size_t _i) const { return m_dofs[_i]; }
     void Set(int _index, RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc);
     static void Scale(float _scale);
 
@@ -68,7 +60,6 @@ class CfgModel : public Model {
 
   private:
     static CfgModel m_invalidCfg;
-    static int m_dof;
     static double m_defaultDOF;
     static bool m_isPlanarRobot;
     static bool m_isVolumetricRobot;
@@ -79,7 +70,6 @@ class CfgModel : public Model {
 
     bool m_inColl; //For collision detection
     RobotModel* m_robot; //Testing
-    vector<double> m_dofs;
     int m_index;
     CCModel<CfgModel, EdgeModel>* m_cc;
 };

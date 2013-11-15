@@ -152,7 +152,7 @@ NodeEditDialog::SetCurrentNode(CfgModel* _node){
   QString qNodeLabel = QString::fromStdString(oss.str());
   m_nodeLabel->setText(qNodeLabel);
 
-  const vector<double>& currCfg = _node->GetDataCfg();
+  const vector<double>& currCfg = _node->GetData();
   InitSliderValues(currCfg);
 }
 

@@ -8,7 +8,7 @@
 #include "CfgModel.h"
 #include "ConnectionModel.h"
 #include "Utilities/Exceptions.h"
-#include "Utilities/IOUtils.h"
+#include "Utilities/IO.h"
 
 EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
   m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {

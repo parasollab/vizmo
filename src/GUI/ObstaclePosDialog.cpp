@@ -1,6 +1,7 @@
 #include "ObstaclePosDialog.h"
 
 #include <iostream>
+
 #include <QDialog>
 #include <QPushButton>
 #include <QLineEdit>
@@ -8,12 +9,12 @@
 #include <QValidator>
 #include <QSlider>
 
-#include "Transformation.h"
-#include "MainWindow.h"
 #include "GLWidget.h"
-#include "Models/Vizmo.h"
-#include "Utilities/IOUtils.h"
+#include "MainWindow.h"
+#include "Transformation.h"
 #include "Models/PolyhedronModel.h"
+#include "Models/Vizmo.h"
+#include "Utilities/IO.h"
 
 ObstaclePosDialog::ObstaclePosDialog(MultiBodyModel* _multiBody, MainWindow* _mainWindow,
     QWidget* _parent) : QDialog(_parent) {

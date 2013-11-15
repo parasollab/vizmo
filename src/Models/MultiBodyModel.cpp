@@ -2,15 +2,15 @@
 
 #include <GraphAlgo.h>
 
-#include "BoundaryModel.h"
-#include "BoundingBoxModel.h"
-#include "BoundingSphereModel.h"
-#include "Vizmo.h"
 #include "BodyModel.h"
+#include "BoundingBoxModel.h"
+#include "BoundaryModel.h"
+#include "BoundingSphereModel.h"
+#include "CfgModel.h"
 #include "ConnectionModel.h"
-#include "Models/CfgModel.h"
 #include "EnvModel.h"
-#include "Utilities/IOUtils.h"
+#include "Vizmo.h"
+#include "Utilities/IO.h"
 
 vector<MultiBodyModel::DOFInfo> MultiBodyModel::m_dofInfo = vector<MultiBodyModel::DOFInfo>();
 
@@ -19,7 +19,7 @@ class IsConnectionGloballyFirst {
     bool operator()(const ConnectionModel* _a, const ConnectionModel* _b) const {
       return _a->GetGlobalIndex() < _b->GetGlobalIndex();
     }
-} connectionComparator;
+} connectionComp;
 
 MultiBodyModel::MultiBodyModel() : Model("MultiBody"), m_active(false), m_surface(false), m_radius(false) {}
 
@@ -301,7 +301,7 @@ MultiBodyModel::BuildRobotStructure() {
       }
     }
 
-    sort(jm.begin(), jm.end(), connectionComparator);
+    sort(jm.begin(), jm.end(), connectionComp);
     m_robots.push_back(make_pair(base, jm));
   }
 

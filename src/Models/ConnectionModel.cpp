@@ -1,7 +1,7 @@
 #include "ConnectionModel.h"
 
 #include "Utilities/Exceptions.h"
-#include "Utilities/IOUtils.h"
+#include "Utilities/IO.h"
 
 size_t ConnectionModel::m_globalCounter = 0;
 

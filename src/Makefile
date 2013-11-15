@@ -29,6 +29,8 @@ default_target: $(MP_LIBFILE) $(VIZMO_LIBFILE) vizmo++
 
 vizmo++: $(MP_LIBFILE) $(VIZMO_OBJECTS) $(VIZMO_LIBFILE) main.cpp
 	$(CXX) $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) main.cpp $(VIZMO_LIBFILE) $(LIBS) -o $@
+	cat .d >> Dependencies
+	rm -f .d
 
 %.o: %.cpp
 	@${MAKE} -s check_platform

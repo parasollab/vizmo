@@ -4,8 +4,7 @@
 
 #include "CfgModel.h"
 #include "RobotModel.h"
-#include "Utilities/IOUtils.h"
-#include "Utilities/Exceptions.h"
+#include "Utilities/IO.h"
 
 PathModel::PathModel(const string& _filename, RobotModel* _robotModel) :
   LoadableModel("Path"),
@@ -43,20 +42,10 @@ PathModel::ParseFile() {
   size_t pathSize=0;
   ifs >> pathSize;
 
-  int dof = CfgModel::GetDOF();
-
   for(size_t i = 0; i < pathSize && ifs; ++i) {
-    vector<double> cfg(dof);
-
-    //need to track robot index
-    //for now just discard
-    int robotIndex;
-    ifs >> robotIndex;
-
-    for(int j=0; j<dof; j++)
-      ifs >> cfg[j];
-
-    m_path.push_back(cfg);
+    CfgModel cfg;
+    ifs >> cfg;
+    m_path.push_back(cfg.GetData());
   }
 }
 

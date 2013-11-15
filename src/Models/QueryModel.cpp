@@ -5,9 +5,8 @@
 #include "CfgModel.h"
 #include "RobotModel.h"
 #include "Vizmo.h"
-#include "Utilities/Exceptions.h"
 #include "Utilities/Font.h"
-#include "Utilities/IOUtils.h"
+#include "Utilities/IO.h"
 
 QueryModel::QueryModel(const string& _filename, RobotModel* _robotModel) :
   LoadableModel("Query"),
@@ -37,21 +36,10 @@ QueryModel::ParseFile() {
   size_t numLines=2;
 
   //Build  Model
-  int dof  = CfgModel::GetDOF();
   for(size_t i = 0; i < numLines; ++i) {
-    vector<double> cfg;
-
-    //read in Robot Index and throw it away for now
-    double robotIndex;
-    ifs >> robotIndex;
-
-    for(int j=0; j<dof; ++j){
-      double d;
-      ifs >> d;
-      cfg.push_back(d);
-    }
-
-    m_queries.push_back(cfg);
+    CfgModel cfg;
+    ifs >> cfg;
+    m_queries.push_back(cfg.GetData());
   }
 }
 
