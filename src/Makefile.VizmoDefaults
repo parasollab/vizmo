@@ -29,8 +29,8 @@ QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL
 #Vizmo Utilities
 ################################################################################
 #stapl graph
-GRAPH_DIR = $(UTILS_DIR)/graph
-GRAPH_INCL = -I$(GRAPH_DIR)
+STAPL_DIR = $(UTILS_DIR)/stapl_release
+STAPL_INCL  = -I${STAPL_DIR} -I${STAPL_DIR}/include -I${STAPL_DIR}/stapl
 
 #mathtool
 MATHTOOL_DIR = ${UTILS_DIR}/mathtool
@@ -52,7 +52,7 @@ RAPID_LIBFILE = $(RAPID_DIR)/libRAPID.a
 $(RAPID_DIR)/libRAPID.a:
 	cd ${RAPID_DIR}; ${MAKE} platform=${platform} debug=${debug};
 
-UTILS_INCL = $(GRAPH_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL) $(RAPID_INCL)
+UTILS_INCL = $(STAPL_INCL) $(MATHTOOL_INCL) $(MODELLOADER_INCL) $(RAPID_INCL)
 UTILS_LIBS = $(MODELLOADER_LIB) $(RAPID_LIB)
 UTILS_LIBFILES = $(RAPID_LIBFILE) $(MODELLOADER_LIBFILE)
 

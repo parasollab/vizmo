@@ -7,9 +7,8 @@
 #include <string>
 using namespace std;
 
-#include <graph.h>
-#include <algorithms/connected_components.h>
-using namespace stapl;
+#include <include/Graph.h>
+#include <include/GraphAlgo.h>
 
 #include "CfgModel.h"
 #include "EdgeModel.h"
@@ -27,10 +26,11 @@ template <class CfgModel, class WEIGHT>
 class CCModel : public Model {
 
   public:
-    typedef typename MapModel<CfgModel, WEIGHT>::Wg WG;
+    typedef MapModel<CfgModel, WEIGHT> MM;
+    typedef typename MM::Wg WG;
     typedef typename WG::vertex_descriptor VID;
     typedef typename WG::edge_descriptor EID;
-    typedef vector_property_map<WG, size_t> ColorMap;
+    typedef typename MM::ColorMap ColorMap;
 
     CCModel(unsigned int _id);
     ~CCModel();

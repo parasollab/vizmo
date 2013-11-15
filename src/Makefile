@@ -14,7 +14,7 @@ ifndef VIZMO_DIR
 endif
 
 ifndef UTILS_DIR
-  UTILS_DIR = $(VIZMO_DIR)/../utils
+  UTILS_DIR = $(VIZMO_DIR)/../pmpl/utils
 endif
 
 # include makefile defaults

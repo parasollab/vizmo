@@ -1,16 +1,23 @@
 #ifndef MAPMODEL_H_
 #define MAPMODEL_H_
 
-#include <graph.h>
-#include <algorithms/graph_algo_util.h>
-#include <algorithms/graph_input_output.h>
-using namespace stapl;
+#include <Graph.h>
+#include <GraphAlgo.h>
 
 #include "CCModel.h"
 #include "CfgModel.h"
 #include "EdgeModel.h"
 #include "RobotModel.h"
 #include "Utilities/IOUtils.h"
+
+struct EdgeAccess {
+  typedef double value_type;
+  template<typename Property>
+    value_type get(Property& p) {return p.GetWeight();}
+
+  template<typename Property>
+    void put(Property& p, value_type _v) {p.GetWeight()=_v;}
+};
 
 template<typename, typename>
 class CCModel;
@@ -20,10 +27,11 @@ class MapModel : public LoadableModel {
 
   public:
     typedef CCModel<CfgModel, WEIGHT> CCM;
-    typedef graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT> Wg;
+    typedef stapl::sequential::graph<stapl::DIRECTED, stapl::MULTIEDGES, CfgModel, WEIGHT> Wg;
     typedef typename Wg::vertex_descriptor VID;
     typedef typename Wg::edge_descriptor EID;
-    typedef vector_property_map<Wg, size_t> ColorMap;
+    typedef stapl::sequential::vector_property_map<Wg, size_t> ColorMap;
+    typedef stapl::sequential::edge_property_map<Wg, EdgeAccess> EdgeMap;
     ColorMap m_colorMap;
     typedef typename Wg::vertex_iterator VI;
     typedef typename CfgModel::Shape Shape;
@@ -208,12 +216,12 @@ MapModel<CfgModel, WEIGHT>::WriteMapFile(const string& _filename){
 
 template <class CfgModel, class WEIGHT>
 //VID
-typename graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT>::vertex_descriptor
+typename MapModel<CfgModel, WEIGHT>::VID
 MapModel<CfgModel, WEIGHT>::Cfg2VID(const CfgModel& _target){
 
   VI vi;
   //typename VID tvid = -1;
-  typename graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT>::vertex_descriptor tvid = -1;
+  VID tvid = -1;
   for(vi = m_graph->begin(); vi != m_graph->end(); vi++){
     if(_target == (*vi).property()){
       tvid=(*vi).descriptor();

@@ -1,18 +1,6 @@
 #include "DebugModel.h"
 
-#include <algorithms/dijkstra.h>
-using namespace stapl;
-
 #include "RobotModel.h"
-
-struct EdgeAccess {
-  typedef double value_type;
-  template<typename Property>
-    value_type get(Property& p) {return p.GetWeight();}
-
-  template<typename Property>
-    void put(Property& p, value_type _v) {p.GetWeight()=_v;}
-};
 
 DebugModel::DebugModel(const string& _filename, RobotModel* _robotModel) :
   LoadableModel("Debug"),
@@ -136,14 +124,15 @@ DebugModel::BuildModels(){
 
 void
 DebugModel::BuildForward() {
-  typedef graph<DIRECTED,MULTIEDGES,CfgModel,EdgeModel> WG;
+  typedef MapModel<CfgModel, EdgeModel> MM;
+  typedef MM::Wg WG;
   typedef WG::vertex_iterator VI;
   typedef WG::vertex_descriptor VID;
   typedef WG::adj_edge_iterator EI;
   typedef WG::edge_descriptor EID;
   typedef vector<VID>::iterator ITVID;
-  typedef vector_property_map<WG, size_t> ColorMap;
-  typedef edge_property_map<WG, EdgeAccess> EdgeMap;
+  typedef MM::ColorMap ColorMap;
+  typedef MM::EdgeMap EdgeMap;
 
   for(int i = m_prevIndex; i < m_index; i++){
     Instruction* ins = m_instructions[i];
@@ -338,12 +327,13 @@ DebugModel::BuildForward() {
 
 void
 DebugModel::BuildBackward(){
-  typedef graph<DIRECTED,MULTIEDGES,CfgModel,EdgeModel> WG;
+  typedef MapModel<CfgModel, EdgeModel> MM;
+  typedef MM::Wg WG;
   typedef WG::vertex_iterator VI;
   typedef WG::vertex_descriptor VID;
   typedef WG::edge_descriptor EID;
   typedef WG::adj_edge_iterator EI;
-  typedef vector_property_map<WG, size_t> ColorMap;
+  typedef MM::ColorMap ColorMap;
   typedef vector<VID>::iterator ITVID;
 
   //traverse list of instructions BACKWARDS

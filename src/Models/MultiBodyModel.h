@@ -1,7 +1,7 @@
 #ifndef MULTIBODYMODEL_H_
 #define MULTIBODYMODEL_H_
 
-#include <graph.h>
+#include <include/Graph.h>
 
 #include "Model.h"
 
@@ -84,7 +84,7 @@ class MultiBodyModel : public Model {
     vector<BodyModel*> m_bodies;       //complete list of all bodies
     vector<ConnectionModel*> m_joints; //complete list of all joints
 
-    typedef stapl::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
+    typedef stapl::sequential::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
     RobotGraph m_robotGraph;
     vector<Robot> m_robots; //list of base/joint set pairs. One for each component of multibody
 

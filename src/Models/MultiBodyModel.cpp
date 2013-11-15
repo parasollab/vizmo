@@ -1,6 +1,6 @@
 #include "MultiBodyModel.h"
 
-#include <algorithms/connected_components.h>
+#include <GraphAlgo.h>
 
 #include "BoundaryModel.h"
 #include "BoundingBoxModel.h"
@@ -222,7 +222,7 @@ MultiBodyModel::BuildRobotStructure() {
   //Robot ID typedef
   typedef RobotGraph::vertex_descriptor RID;
   vector<pair<size_t, RID> > ccs;
-  stapl::vector_property_map<RobotGraph, size_t> cmap;
+  stapl::sequential::vector_property_map<RobotGraph, size_t> cmap;
 
   //Initialize CC information
   get_cc_stats(m_robotGraph, cmap, ccs);
