@@ -147,7 +147,7 @@ EnvironmentOptions::DeleteObstacle(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    for(int j=0;j<mBody.size();j++){
+    for(size_t j=0;j<mBody.size();j++){
       if(*i==mBody[j]&&!mBody[j]->IsActive())
         GetVizmo().GetEnv()->DeleteMBModel(mBody[j]);
     }
@@ -162,7 +162,7 @@ EnvironmentOptions::MoveObstacle(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
-    for(int j=0;j<mBody.size();j++){
+    for(size_t j=0;j<mBody.size();j++){
       if(*i==mBody[j]&&!mBody[j]->IsActive()){
         ObstaclePosDialog o(mBody[j], m_mainWindow, this);
         o.exec();
