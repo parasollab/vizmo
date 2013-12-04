@@ -246,6 +246,9 @@ TranslationTool::MouseMotion(QMouseEvent* _e) {
       break;
     case VIEW_PLANE:
       m_obj->Translation() = m_objPosCatch + v;
+      break;
+    default:
+      break;
   }
 
   ProjectToWindow();
@@ -431,6 +434,8 @@ RotationTool::MousePressed(QMouseEvent* _e) {
       v1 = m_currentCamera->GetWindowX();
       v2 = m_currentCamera->GetWindowY();
       break;
+    default:
+      break;
   }
 
   Point3d prj = ProjectToWorld(x, y, m_objPosCatch, axis);
@@ -477,6 +482,8 @@ RotationTool::MouseMotion(QMouseEvent* _e) {
       axis = m_currentCamera->GetWindowZ();
       v1 = m_currentCamera->GetWindowX();
       v2 = m_currentCamera->GetWindowY();
+      break;
+    default:
       break;
   }
 
@@ -541,6 +548,8 @@ RotationTool::Draw(bool _selected) {
       case VIEW_PLANE:
         v1 = m_currentCamera->GetWindowX();
         v2 = m_currentCamera->GetWindowY();
+        break;
+      default:
         break;
     }
 
@@ -736,6 +745,9 @@ ScaleTool::MouseMotion(QMouseEvent* _e) {
     case VIEW_PLANE:
       if((m_origScale+v).norm() > 0)
         m_obj->Scale() = m_origScale + v;
+      break;
+
+    default:
       break;
   }
 

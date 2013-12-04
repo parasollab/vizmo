@@ -165,7 +165,7 @@ MultiBodyModel::AddJoint(ConnectionModel* _c, int _indexBase, int _indexJoint, i
 
 void
 MultiBodyModel::AddBody(BodyModel* _b, int _index){
-  if(_index<=m_bodies.size())
+  if(_index <= (int)m_bodies.size())
     m_bodies.insert(m_bodies.begin()+_index, _b);
   else
     m_bodies.push_back(_b);

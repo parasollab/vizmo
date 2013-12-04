@@ -177,10 +177,6 @@ bool Rapid::IsInCollision(MultiBodyModel * robot,
         //rotation link0
         //Need to compute rotation from Quaternion
 
-        list<Model*> modelList;
-        Model* gl;
-        robot->GetChildren(modelList);
-        gl = modelList.front();
         //get initial quaternion from polyhedron
         Quaternion qt0;
         qt0 = (*rbit)->RotationQ();
