@@ -83,7 +83,7 @@ Vizmo::InitModels() {
       cout << "Load Debug File : " << m_debugFilename << endl;
     }
   }
-  catch(VizmoException& _e) {
+  catch(PMPLException& _e) {
     cerr << _e.what() << endl;
     cerr << "Cleaning vizmo objects." << endl;
     Clean();
