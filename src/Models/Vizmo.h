@@ -5,7 +5,6 @@
 #include <string>
 using namespace std;
 
-//#include <Models/MultiBodyModel.h>
 #include <Models/VizmoTraits.h>
 
 class Box;

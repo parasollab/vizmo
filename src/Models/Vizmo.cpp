@@ -1,8 +1,6 @@
 #include "Vizmo.h"
 
-#include <string>
 #include <iostream>
-#include <fstream>
 using namespace std;
 
 #include "CfgModel.h"
