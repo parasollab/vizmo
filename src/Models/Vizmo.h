@@ -89,10 +89,6 @@ class Vizmo {
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
-    //Miscellaneous
-    void SetDoubleClickStatus(bool _setting) { m_doubleClick = _setting; }
-    bool GetDoubleClickStatus() { return m_doubleClick; }
-
     ////////////////////////////////////////////////////////////////
     // Variables used to change color of objects in the environment.
     float mR, mG, mB;

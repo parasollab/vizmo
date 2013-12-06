@@ -90,7 +90,7 @@ MainWindow::CreateGUI(){
   m_animationWidget = new AnimationWidget("Animation", this);
   connect(m_animationWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
 
-  m_modelSelectionWidget = new ModelSelectionWidget(this);
+  m_modelSelectionWidget = new ModelSelectionWidget(m_gl, this);
   connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
 
   m_mainMenu = new MainMenu(this);  //also creates the toolbars

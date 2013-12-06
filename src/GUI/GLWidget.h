@@ -24,6 +24,9 @@ class GLWidget : public QGLWidget {
   public:
     GLWidget(QWidget* _parent, MainWindow* _mainWindow);
 
+    bool GetDoubleClickStatus() const {return m_doubleClick;}
+    void SetDoubleClickStatus(bool _b) {m_doubleClick = _b;}
+
     void ResetCamera();
     Camera* GetCurrentCamera();
 
@@ -82,6 +85,7 @@ class GLWidget : public QGLWidget {
     bool m_showAxis, m_showFrameRate;
     //Collision Detection related vars.
     bool m_cdOn;
+    bool m_doubleClick;
 
     deque<double> m_frameTimes;
 

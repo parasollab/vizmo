@@ -2,11 +2,12 @@
 
 #include <QString>
 
+#include "GLWidget.h"
 #include "Models/CCModel.h"
 #include "Models/Vizmo.h"
 
-ModelSelectionWidget::ModelSelectionWidget(QWidget* _parent) :
-  QTreeWidget(_parent) {
+ModelSelectionWidget::ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent) :
+  QTreeWidget(_parent), m_glWidget(_glWidget) {
     setMinimumSize(205, 277);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     m_maxNoModels = 0;
@@ -100,10 +101,10 @@ ModelSelectionWidget::Select(){
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
       if(sel[s] == (*i)->m_model){
         (*i)->setSelected(true);
-        if(GetVizmo().GetDoubleClickStatus() == true){
+        if(m_glWidget->GetDoubleClickStatus() == true){
           (*i)->parent()->setSelected(true);
           (*i)->setSelected(false);
-          GetVizmo().SetDoubleClickStatus(false);
+          m_glWidget->SetDoubleClickStatus(false);
         }
       }
     }

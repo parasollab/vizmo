@@ -8,6 +8,7 @@ using namespace std;
 #include <QTreeWidget>
 
 class Model;
+class GLWidget;
 
 class ModelSelectionWidget : public QTreeWidget {
 
@@ -19,7 +20,7 @@ class ModelSelectionWidget : public QTreeWidget {
       ListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
       Model* m_model;
     };
-    ModelSelectionWidget(QWidget* _parent = NULL);
+    ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent = NULL);
     void ResetLists();
 
   signals:
@@ -36,4 +37,5 @@ class ModelSelectionWidget : public QTreeWidget {
     void ClearLists();
     int m_maxNoModels;
     vector<ListViewItem*> m_items;
+    GLWidget* m_glWidget;
 };

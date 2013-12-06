@@ -32,6 +32,7 @@ GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
     m_showAxis = true;
     m_showFrameRate = false;
     m_cdOn = false;
+    m_doubleClick = false;
 }
 
 void
@@ -157,9 +158,8 @@ GLWidget::mousePressEvent(QMouseEvent* _e){
 }
 
 void
-GLWidget::mouseDoubleClickEvent(QMouseEvent* _e){
-  GetVizmo().SetDoubleClickStatus(true);
-  updateGL();
+GLWidget::mouseDoubleClickEvent(QMouseEvent* _e) {
+  m_doubleClick = true;
 }
 
 void
