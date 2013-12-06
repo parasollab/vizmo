@@ -4,7 +4,7 @@
 #include "ConnectionModel.h"
 #include "EnvModel.h"
 #include "Vizmo.h"
-#include "Utilities/Exceptions.h"
+#include "Utilities/VizmoExceptions.h"
 
 RobotModel::RobotModel(EnvModel* _env) : Model("Robot"), m_envModel(_env) {
   BuildModels();

@@ -9,7 +9,7 @@ using namespace std;
 
 #include "Utilities/IOUtils.h"
 
-#include "Exceptions.h"
+#include "VizmoExceptions.h"
 #include "Color.h"
 
 //optionally read a color from a comment line

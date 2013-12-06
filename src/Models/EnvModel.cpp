@@ -7,7 +7,7 @@
 #include "BoundingSphereModel.h"
 #include "CfgModel.h"
 #include "ConnectionModel.h"
-#include "Utilities/Exceptions.h"
+#include "Utilities/VizmoExceptions.h"
 #include "Utilities/IO.h"
 
 EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),

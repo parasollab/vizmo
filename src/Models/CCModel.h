@@ -15,7 +15,7 @@ using namespace std;
 #include "Model.h"
 #include "MapModel.h"
 #include "RobotModel.h"
-#include "Utilities/Exceptions.h"
+#include "Utilities/VizmoExceptions.h"
 
 template<typename, typename>
 class MapModel;

@@ -8,7 +8,7 @@
 
 #include "BodyModel.h"
 #include "ModelGraph/ModelGraph.h"
-#include "Utilities/Exceptions.h"
+#include "Utilities/VizmoExceptions.h"
 using namespace modelgraph;
 
 PolyhedronModel::PolyhedronModel(BodyModel* _bodyModel)
