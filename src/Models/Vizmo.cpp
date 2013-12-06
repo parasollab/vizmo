@@ -7,6 +7,7 @@ using namespace std;
 
 #include "CfgModel.h"
 #include "DebugModel.h"
+#include "EnvModel.h"
 #include "Model.h"
 #include "PathModel.h"
 #include "QueryModel.h"
@@ -29,7 +30,6 @@ Vizmo::Vizmo() :
   m_pathModel(NULL), m_showPath(false),
   m_debugModel(NULL) {
     //temporary initialization of "unused" objects
-    m_cfg = NULL;
     mR = mG = mB = 0.0;
     m_doubleClick = false;
   }
@@ -100,7 +100,29 @@ Vizmo::InitModels() {
   //Init. variables used to change color of env. objects
   mR = mG = mB = 0;
 
+  InitPMPL();
+
   return true;
+}
+
+void
+Vizmo::InitPMPL() {
+  //initialize PMPL structures for collision detection
+  m_problem = new VizmoProblem();
+  m_problem->SetEnvironment(m_envModel->GetEnvironment());
+
+  //add rapid collision detection validity
+  CollisionDetectionMethod* cd = new Rapid();
+  VizmoProblem::ValidityCheckerPointer vc(new CollisionDetectionValidity<VizmoTraits>(cd));
+  m_problem->AddValidityChecker(vc, "rapid");
+
+  //add straight line local planner
+  VizmoProblem::LocalPlannerPointer lp(new StraightLine<VizmoTraits>("rapid", true));
+  m_problem->AddLocalPlanner(lp, "sl");
+
+  //set the MPProblem pointer and build CD structures
+  m_problem->SetMPProblem();
+  m_problem->BuildCDStructures();
 }
 
 void
@@ -120,6 +142,7 @@ Vizmo::Clean() {
   m_showMap = m_showQuery = m_showPath = false;
   m_loadedModels.clear();
   m_selectedModels.clear();
+  delete m_problem;
 }
 
 //Display OpenGL Scene
@@ -192,20 +215,26 @@ Vizmo::Select(const Box& _box) {
 //////////////////////////////////////////////////
 
 bool
-Vizmo::CollisionCheck(CfgModel* _cfg) {
-  if(m_envModel) { //previously checked if loader was null
-    //obtain robot model
-    list<Model*> modelList;
-    m_robotModel->GetChildren(modelList);
-    MultiBodyModel* rmbm = (MultiBodyModel*)modelList.front();
-
-    m_cd.CopyNodeCfg(_cfg->GetData());
-
-    bool b = m_cd.IsInCollision(0, m_envModel, rmbm, m_robotModel);
-    if(m_cfg)
-      m_cfg->SetInCollision(b);
+Vizmo::CollisionCheck(CfgModel& _c) {
+  if(m_envModel) {
+    VizmoProblem::ValidityCheckerPointer vc = m_problem->GetValidityChecker("rapid");
+    bool b = vc->IsValid(_c, "Vizmo");
+    _c.SetInCollision(b);
     return b;
   }
+  cerr << "Warning::Collision checking when there is no environment. Returning false." << endl;
+  return false;
+}
+
+bool
+Vizmo::VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
+  if(m_envModel) {
+    Environment* env = m_problem->GetEnvironment();
+    VizmoProblem::LocalPlannerPointer lp = m_problem->GetLocalPlanner("sl");
+    LPOutput<VizmoTraits> lpout;
+    return lp->IsConnected(_c1, _c2, &lpout, env->GetPositionRes(), env->GetOrientationRes());
+  }
+  cerr << "Warning::Visibility checking when there is no environment. Returning false." << endl;
   return false;
 }
 

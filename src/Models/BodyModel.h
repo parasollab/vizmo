@@ -30,7 +30,6 @@ class BodyModel : public TransformableModel {
     string GetDirectory() {return m_directory;}
     const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
     double GetRadius() const {return m_polyhedronModel->GetRadius();}
-    RAPID_model* GetRapidModel() const {return m_polyhedronModel->GetRapidModel();}
 
     //base properties
     bool IsFixed() const {return m_isFixed;}

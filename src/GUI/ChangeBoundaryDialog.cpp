@@ -10,6 +10,7 @@
 #include <QValidator>
 
 #include "MainWindow.h"
+#include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
 ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) {

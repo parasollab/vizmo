@@ -10,6 +10,7 @@
 #include <glut.h>
 
 #include "MainWindow.h"
+#include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 #include "Utilities/Camera.h"
 #include "Utilities/Font.h"

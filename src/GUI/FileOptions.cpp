@@ -16,6 +16,7 @@
 #include "ModelSelectionWidget.h"
 #include "OptionsBase.h"
 #include "MainWindow.h"
+#include "Models/EnvModel.h"
 #include "Models/MapModel.h"
 #include "Models/QueryModel.h"
 #include "Models/Vizmo.h"

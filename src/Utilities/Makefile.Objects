@@ -1,6 +1,5 @@
 OBJECTS += \
 	  Utilities/Camera.o \
-	  Utilities/CollisionDetection.o \
 	  Utilities/Font.o \
 	  Utilities/ImageFilters.o \
 	  Utilities/IO.o \

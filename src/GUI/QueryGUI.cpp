@@ -1,5 +1,7 @@
 #include "QueryGUI.h"
 
+#include "Models/EnvModel.h"
+#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 QueryGUI::QueryGUI(QWidget* _parent, Qt::WFlags _f) : QDialog(_parent) {

@@ -12,6 +12,7 @@
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "Transformation.h"
+#include "Models/EnvModel.h"
 #include "Models/PolyhedronModel.h"
 #include "Models/Vizmo.h"
 #include "Utilities/IO.h"

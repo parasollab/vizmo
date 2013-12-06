@@ -4,7 +4,6 @@
 #include "Model.h"
 
 class BodyModel;
-class RAPID_model;
 
 class PolyhedronModel : public Model {
   public:
@@ -18,8 +17,6 @@ class PolyhedronModel : public Model {
     double GetRadius() const {return m_radius;}
     const Point3d& GetCOM() const {return m_com;}
 
-    RAPID_model* GetRapidModel() const {return m_rapidModel;}
-
     void BuildModels();
     void Select(GLuint* _index, vector<Model*>& sel) {}
     void Draw(GLenum _mode);
@@ -29,7 +26,6 @@ class PolyhedronModel : public Model {
   protected:
     //build models, given points and triangles
     void ComputeNormals(const PtVector& _points, const TriVector& _tris, vector<Vector3d>& _norms);
-    void BuildRapid(const PtVector& _points, const TriVector& _tris);
     void BuildSolid(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
     void BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
 
@@ -39,7 +35,6 @@ class PolyhedronModel : public Model {
     void Radius(const PtVector& _points);
 
   private:
-    void CopyRapidModel(const PolyhedronModel& _source);
     GLuint m_solidID; //the compiled model id for solid model
     GLuint m_wiredID; //the compiled model id for wire frame
 
@@ -47,7 +42,6 @@ class PolyhedronModel : public Model {
     Point3d m_com; //Center of Mass
 
     BodyModel* m_bodyModel;
-    RAPID_model* m_rapidModel;
 };
 
 #endif

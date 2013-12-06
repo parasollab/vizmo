@@ -17,6 +17,7 @@
 #include "ModelSelectionWidget.h"
 #include "Models/BodyModel.h"
 #include "Models/ConnectionModel.h"
+#include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
 #define DEFAULT_COLOR Color4(0.0,0.0,0.0,1)

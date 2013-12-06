@@ -2,6 +2,7 @@
 
 #include "BodyModel.h"
 #include "ConnectionModel.h"
+#include "EnvModel.h"
 #include "Vizmo.h"
 #include "Utilities/Exceptions.h"
 

@@ -6,7 +6,7 @@
 using namespace std;
 
 #include <Models/MultiBodyModel.h>
-#include <Utilities/CollisionDetection.h>
+#include <Models/VizmoTraits.h>
 
 class Box;
 class EnvModel;
@@ -35,6 +35,8 @@ class Vizmo {
 
     //Create VizmoObj.
     bool InitModels();
+    //initialize PMPL data structures for collision checking
+    void InitPMPL();
     void Clean();
 
     //Display OpenGL Scene
@@ -86,7 +88,8 @@ class Vizmo {
     bool IsDebugLoaded() const {return m_debugModel;}
 
     // Collision Detection Related Functions
-    bool CollisionCheck(CfgModel* _cfg);
+    bool CollisionCheck(CfgModel& _c1);
+    bool VisibilityCheck(CfgModel& _c1, CfgModel& _c2);
 
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
@@ -140,9 +143,8 @@ class Vizmo {
 
     bool m_doubleClick;
 
-    //for collision detection
-    CollisionDetection m_cd;
-    CfgModel* m_cfg;
+    //PMPL
+    VizmoProblem* m_problem;
 };
 
 #endif

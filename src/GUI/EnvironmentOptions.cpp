@@ -15,6 +15,7 @@
 #include "ChangeBoundaryDialog.h"
 #include "EditRobotDialog.h"
 #include "MainWindow.h"
+#include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/RandEnv.xpm"

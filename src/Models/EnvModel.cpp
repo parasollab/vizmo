@@ -14,14 +14,18 @@ EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
   m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
 
     SetFilename(_filename);
-    SetModelDataDir(_filename.substr(0, _filename.rfind('/')));
+    size_t sl = _filename.rfind('/');
+    SetModelDataDir(_filename.substr(0, sl == string::npos ? 0 : sl));
 
     ParseFile();
     BuildModels();
+
+    m_environment = new Environment();
+    m_environment->Read(_filename);
+    m_environment->ComputeResolution();
   }
 
 EnvModel::~EnvModel() {
-
   delete m_boundary;
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)

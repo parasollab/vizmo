@@ -4,9 +4,6 @@
 #include <algorithm>
 #include <numeric>
 
-#include <RAPID.H>
-#include <obb.H>
-
 #include "ModelFactory.h"
 
 #include "BodyModel.h"
@@ -15,13 +12,12 @@
 using namespace modelgraph;
 
 PolyhedronModel::PolyhedronModel(BodyModel* _bodyModel)
-  : Model(_bodyModel->GetFilename()), m_solidID(-1), m_wiredID(-1), m_bodyModel(_bodyModel), m_rapidModel(NULL) {
+  : Model(_bodyModel->GetFilename()), m_solidID(-1), m_wiredID(-1), m_bodyModel(_bodyModel) {
     BuildModels();
     SetColor(m_bodyModel->GetColor());
   }
 
 PolyhedronModel::~PolyhedronModel(){
-  delete m_rapidModel;
   glDeleteLists(m_wiredID,1);
   glDeleteLists(m_solidID,1);
 }
@@ -51,8 +47,6 @@ PolyhedronModel::BuildModels() {
 
   vector<Vector3d> normals;
   ComputeNormals(points, tris, normals);
-
-  BuildRapid(points, tris);
 
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_DOUBLE, 0, vertice);
@@ -117,24 +111,6 @@ PolyhedronModel::ComputeNormals(const PtVector& _points, const TriVector& _tris,
     Vector3d v2 = _points[tri[2]] - _points[tri[0]];
     _norms.push_back((v1%v2).normalize());
   }
-}
-
-void
-PolyhedronModel::BuildRapid(const PtVector& _points, const TriVector& _tris) {
-  m_rapidModel = new RAPID_model;
-  m_rapidModel->BeginModel();
-
-  typedef TriVector::const_iterator TRIT;
-  for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
-    const Tri& tri = *trit;
-
-    Vector3d p1 = _points[tri[0]] - m_com;
-    Vector3d p2 = _points[tri[1]] - m_com;
-    Vector3d p3 = _points[tri[2]] - m_com;
-
-    m_rapidModel->AddTri(p1, p2, p3, trit - _tris.begin());
-  }
-  m_rapidModel->EndModel();
 }
 
 void
@@ -218,25 +194,5 @@ PolyhedronModel::Radius(const PtVector& _points) {
       m_radius = d;
   }
   m_radius = sqrt(m_radius);
-}
-
-void
-PolyhedronModel::CopyRapidModel(const PolyhedronModel& _source){
-  m_rapidModel = new RAPID_model;
-
-  m_rapidModel->num_tris = (_source.m_rapidModel)->num_tris;
-  m_rapidModel->build_state = (_source.m_rapidModel)->build_state;
-  m_rapidModel->num_tris_alloced = (_source.m_rapidModel)->num_tris_alloced;
-  m_rapidModel->num_boxes_alloced = (_source.m_rapidModel)->num_boxes_alloced;
-
-  m_rapidModel->b = new box[(_source.m_rapidModel)->num_boxes_alloced];
-  box* boxBeginPtr = &((_source.m_rapidModel)->b)[0];
-  box* boxEndPtr = &((_source.m_rapidModel)->b)[m_rapidModel->num_boxes_alloced];
-  copy(boxBeginPtr, boxEndPtr, &(m_rapidModel->b)[0]);
-
-  m_rapidModel->tris = new tri[(_source.m_rapidModel)->num_tris_alloced];
-  tri* triBeginPtr = &((_source.m_rapidModel)->tris)[0];
-  tri* triEndPtr = &((_source.m_rapidModel)->tris)[m_rapidModel->num_tris_alloced];
-  copy(triBeginPtr, triEndPtr, &(m_rapidModel->tris)[0]);
 }
 

@@ -1,6 +1,8 @@
 #ifndef ENVMODEL_H_
 #define ENVMODEL_H_
 
+#include "MPProblem/Environment.h"
+
 #include "BoundaryModel.h"
 #include "Model.h"
 #include "MultiBodyModel.h"
@@ -12,13 +14,14 @@ class EnvModel : public LoadableModel {
     ~EnvModel();
 
     //Access functions
-    string GetModelDataDir(){ return  m_modelDataDir; }
-    int GetDOF(){ return m_dof; }
-    vector<MultiBodyModel*> GetMultiBodies(){ return m_multibodies; }
+    string GetModelDataDir() {return  m_modelDataDir;}
+    int GetDOF() {return m_dof;}
+    vector<MultiBodyModel*> GetMultiBodies() {return m_multibodies;}
     BoundaryModel* GetBoundary() {return m_boundary;}
     string GetBoundaryType() {return m_boundaryType;}
-    double GetRadius() const { return m_radius; }
-    const Point3d& GetCOM() const { return m_centerOfMass; }
+    double GetRadius() const {return m_radius;}
+    const Point3d& GetCOM() const {return m_centerOfMass;}
+    Environment* GetEnvironment() {return m_environment;}
 
     //Load functions
     virtual void ParseFile();
@@ -55,6 +58,9 @@ class EnvModel : public LoadableModel {
     Point3d m_centerOfMass;
     BoundaryModel* m_boundary;
     string m_boundaryType;
+
+    //PMPL environment
+    Environment* m_environment;
 };
 
 #endif
