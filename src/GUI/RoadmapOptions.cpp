@@ -550,10 +550,24 @@ void
 RoadmapOptions::ChangeObjectColor(){
 
   QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
+  double r, g, b;
   if (color.isValid()){
-    GetVizmo().mR = (double)(color.red()) / 255.0;
-    GetVizmo().mG = (double)(color.green()) / 255.0;
-    GetVizmo().mB = (double)(color.blue()) / 255.0;
+    r = color.red() / 255.0;
+    g = color.green() / 255.0;
+    b = color.blue() / 255.0;
   }
-  GetVizmo().ChangeAppearance(3);
+  else
+    return;
+
+  typedef vector<Model*>::iterator MIT;
+  vector<Model*>& selectedModels = GetVizmo().GetSelectedModels();
+  for(MIT mit = selectedModels.begin(); mit != selectedModels.end(); ++mit) {
+    Model* model = *mit;
+    if(model->Name() == "Robot"){
+      model->SetColor(Color4(r, g, b, 1));
+      ((RobotModel*)model)->BackUp();
+    }
+    else
+      model->SetColor(Color4(r, g, b, 1));
+  }
 }

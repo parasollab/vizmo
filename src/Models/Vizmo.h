@@ -50,8 +50,6 @@ class Vizmo {
     EnvModel* GetEnv() const {return m_envModel;}
     const string& GetEnvFileName() const {return m_envFilename;}
     void SetEnvFileName(const string& name) {m_envFilename = name;}
-    // Change the appearance of an object - Hidden/ Wire / Soid
-    void ChangeAppearance(int);
 
     // Robot Related Functions
     RobotModel* GetRobot() const {return m_robotModel;}
@@ -89,10 +87,6 @@ class Vizmo {
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
-    ////////////////////////////////////////////////////////////////
-    // Variables used to change color of objects in the environment.
-    float mR, mG, mB;
-
   private:
 
     //Parse the Hit Buffer. Store selected obj into m_selectedModels.
@@ -102,7 +96,6 @@ class Vizmo {
     //otherwise only the closest will be selected.
     void SearchSelectedItems(int _hit, void* _buffer, bool _all);
 
-  private:
     //environment
     EnvModel* m_envModel;
     string m_envFilename;
@@ -128,8 +121,6 @@ class Vizmo {
 
     typedef vector<Model*>::iterator MIT;
     vector<Model*> m_loadedModels, m_selectedModels;
-
-    bool m_doubleClick;
 
     //PMPL
     VizmoProblem* m_problem;

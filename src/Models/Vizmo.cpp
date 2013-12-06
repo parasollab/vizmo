@@ -31,9 +31,6 @@ Vizmo::Vizmo() :
   m_pathModel(NULL),
   m_debugModel(NULL),
   m_problem(NULL) {
-    //temporary initialization of "unused" objects
-    mR = mG = mB = 0.0;
-    m_doubleClick = false;
   }
 
 Vizmo::~Vizmo() {
@@ -98,9 +95,6 @@ Vizmo::InitModels() {
 
   //Put robot in start cfg, if availiable
   PlaceRobot();
-
-  //Init. variables used to change color of env. objects
-  mR = mG = mB = 0;
 
   InitPMPL();
 
@@ -239,40 +233,6 @@ Vizmo::VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
   }
   cerr << "Warning::Visibility checking when there is no environment. Returning false." << endl;
   return false;
-}
-
-// Code To change the appearance of the env..
-// BSS
-void Vizmo::ChangeAppearance(int status)
-{
-  // status 0 = solid
-  // status 1 = wire
-  // status 2 = delete
-  // status 3 = change color
-
-  RobotModel* robot = m_robotModel;
-  robot->BackUp();
-
-  for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit) {
-    Model* model = *mit;
-    if(status==0)
-      model->SetRenderMode(SOLID_MODE);
-    else if(status==1)
-      model->SetRenderMode(WIRE_MODE);
-    else if(status==2){
-      model->SetRenderMode(INVISIBLE_MODE);
-    }
-    else if(status == 3){
-      if(model->Name() == "Robot"){
-        robot->SetColor(Color4(mR, mG, mB, 1));
-        robot->BackUp();
-      }
-      else
-        model->SetColor(Color4(mR, mG, mB, 1));
-    }
-  }
-
-  robot->Restore();
 }
 
 void
