@@ -82,7 +82,7 @@ void
 CaptureOptions::Reset(){
   m_actions["crop"]->setEnabled(true);
   m_actions["picture"]->setEnabled(true);
-  m_actions["movie"]->setEnabled(GetVizmo().GetPathSize() || GetVizmo().GetDebugSize());
+  m_actions["movie"]->setEnabled(GetVizmo().GetPath() || GetVizmo().GetDebug());
 }
 
 //Slots

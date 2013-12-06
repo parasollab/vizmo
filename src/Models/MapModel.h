@@ -82,6 +82,7 @@ class MapModel : public LoadableModel {
     void ScaleNodes(float _scale);
 
     //Modification functions
+    void RandomizeCCColors();
     void MoveNode(CfgModel* _node, vector<double>& _newCfg);
     void RefreshMap();
 
@@ -346,6 +347,16 @@ MapModel<CfgModel, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
   if(_index == NULL)
     return;
   m_ccModels[_index[0]]->Select(&_index[1],_sel);
+}
+
+template <class CfgModel, class WEIGHT>
+void
+MapModel<CfgModel, WEIGHT>::RandomizeCCColors() {
+  typedef CCModel<CfgModel, WEIGHT> CC;
+  typedef typename vector<CC*>::iterator CCIT;
+  vector<CC*>& cc = GetCCModels();
+  for(CCIT ic = cc.begin(); ic != cc.end(); ++ic)
+    (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }
 
 template <class CfgModel, class WEIGHT>

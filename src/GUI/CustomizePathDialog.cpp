@@ -75,7 +75,7 @@ CustomizePathDialog::AcceptData(){
   path->SetLineWidth(width);
 
   size_t disp = (m_modLineEdit->text()).toInt();
-  if(disp < path->GetPathSize() && disp > 0) //if 0, floating point exception!
+  if(disp < path->GetSize() && disp > 0) //if 0, floating point exception!
     path->SetDisplayInterval(disp);
 
   path->GetGradientVector().clear();

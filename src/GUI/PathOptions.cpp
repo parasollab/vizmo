@@ -9,6 +9,8 @@
 #include "GLWidget.h"
 #include "CustomizePathDialog.h"
 #include "QueryGUI.h"
+#include "Models/PathModel.h"
+#include "Models/QueryModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/Pen.xpm"
@@ -35,8 +37,10 @@ PathOptions::CreateActions(){
   m_pathOptionsInput = new CustomizePathDialog(this);          //pop-up window
 
   //2. Set other specifications as necessary
+  m_actions["showHidePath"]->setCheckable(true);
   m_actions["showHidePath"]->setEnabled(false);
   m_actions["showHidePath"]->setStatusTip(tr("Show or hide the path"));
+  m_actions["showHideSG"]->setCheckable(true);
   m_actions["showHideSG"]->setEnabled(false);
   m_actions["showHideSG"]->setStatusTip(tr("Show or hide the start and goal"));
   m_actions["pathOptions"]->setEnabled(false);
@@ -70,18 +74,13 @@ void
 PathOptions::Reset(){
 
   if(m_actions["showHidePath"] != NULL){
-    if(GetVizmo().GetPathSize()==0)
-      m_actions["showHidePath"]->setEnabled(false);
-    else{
-      m_actions["showHidePath"]->setEnabled(true);
-      m_actions["pathOptions"]->setEnabled(true);
-    }
+    m_actions["showHidePath"]->setEnabled(GetVizmo().IsPathLoaded());
+    m_actions["pathOptions"]->setEnabled(GetVizmo().IsPathLoaded());
+    m_actions["showHidePath"]->setChecked(false);
   }
-  if(m_actions["showHideSG"] != NULL){
-    if(GetVizmo().IsQueryLoaded())
-      m_actions["showHideSG"]->setEnabled(true);
-    else
-      m_actions["showHideSG"]->setEnabled(false);
+  if(m_actions["showHideSG"] != NULL) {
+    m_actions["showHideSG"]->setEnabled(GetVizmo().IsQueryLoaded());
+    m_actions["showHideSG"]->setChecked(false);
   }
 
   m_pathOptionsInput->RestoreDefault();
@@ -106,17 +105,13 @@ PathOptions::SetHelpTips(){
 //Slots
 void
 PathOptions::ShowHidePath(){
-  static bool show=false;
-  show=!show;
-  GetVizmo().ShowPathFrame(show);
+  GetVizmo().GetPath()->SetRenderMode(m_actions["showHidePath"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
 PathOptions::ShowHideStartGoal(){
-  static bool show=false;
-  show=!show;
-  GetVizmo().ShowQueryFrame(show);
+  GetVizmo().GetQry()->SetRenderMode(m_actions["showHideSG"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 

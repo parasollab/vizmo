@@ -9,6 +9,8 @@
 #include <QPushButton>
 #include <QFileDialog>
 
+#include "Models/DebugModel.h"
+#include "Models/PathModel.h"
 #include "Models/Vizmo.h"
 #include "Utilities/ImageFilters.h"
 
@@ -20,11 +22,11 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
 
     int maxint = std::numeric_limits<int>::max();
 
-    if(GetVizmo().GetPathSize() > 0){
-      m_endFrame = GetVizmo().GetPathSize()-1;
+    if(GetVizmo().GetPath()->GetSize() > 0){
+      m_endFrame = GetVizmo().GetPath()->GetSize()-1;
     }
-    else if(GetVizmo().GetDebugSize() > 0){
-      m_endFrame = GetVizmo().GetDebugSize()-1;
+    else if(GetVizmo().GetDebug()->GetSize() > 0){
+      m_endFrame = GetVizmo().GetDebug()->GetSize()-1;
     }
 
     //1. Create subwidgets/members

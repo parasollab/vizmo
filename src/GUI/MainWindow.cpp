@@ -80,7 +80,6 @@ MainWindow::InitVizmo(){
   m_animationWidget->Reset();
   m_modelSelectionWidget->ResetLists();
   m_mainMenu->CallReset();
-  GetVizmo().RandomizeCCColors();
   m_gl->updateGL();
 
   return true;

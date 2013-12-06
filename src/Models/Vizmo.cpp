@@ -24,11 +24,13 @@ Vizmo& GetVizmo(){return vizmo;}
 // Vizmo
 ////////////////////////////////////////////////////////////////////////////////
 Vizmo::Vizmo() :
-  m_envModel(NULL), m_robotModel(NULL),
-  m_mapModel(NULL), m_showMap(false),
-  m_queryModel(NULL), m_showQuery(false),
-  m_pathModel(NULL), m_showPath(false),
-  m_debugModel(NULL) {
+  m_envModel(NULL),
+  m_robotModel(NULL),
+  m_mapModel(NULL),
+  m_queryModel(NULL),
+  m_pathModel(NULL),
+  m_debugModel(NULL),
+  m_problem(NULL) {
     //temporary initialization of "unused" objects
     mR = mG = mB = 0.0;
     m_doubleClick = false;
@@ -133,21 +135,22 @@ Vizmo::Clean() {
   delete m_queryModel;
   delete m_pathModel;
   delete m_debugModel;
+  delete m_problem;
   m_envModel = NULL;
   m_robotModel = NULL;
   m_mapModel = NULL;
   m_queryModel = NULL;
   m_pathModel = NULL;
   m_debugModel = NULL;
-  m_showMap = m_showQuery = m_showPath = false;
+  m_problem = NULL;
+
   m_loadedModels.clear();
   m_selectedModels.clear();
-  delete m_problem;
 }
 
 //Display OpenGL Scene
 void
-Vizmo::Display() {
+Vizmo::Draw() {
   typedef vector<Model*>::iterator MIT;
   for(MIT mit = m_loadedModels.begin(); mit!=m_loadedModels.end(); ++mit)
     (*mit)->Draw(GL_RENDER);
@@ -238,27 +241,6 @@ Vizmo::VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
   return false;
 }
 
-void
-Vizmo::ShowRoadMap(bool _show){
-  m_showMap = _show;
-  if(m_mapModel)
-    m_mapModel->SetRenderMode(_show ? SOLID_MODE : INVISIBLE_MODE);
-}
-
-void
-Vizmo::ShowPathFrame(bool _show){
-  m_showPath = _show;
-  if(m_pathModel)
-    m_pathModel->SetRenderMode(_show ? SOLID_MODE : INVISIBLE_MODE);
-}
-
-void
-Vizmo::ShowQueryFrame(bool _show){
-  m_showQuery = _show;
-  if(m_queryModel)
-    m_queryModel->SetRenderMode(_show ? SOLID_MODE : INVISIBLE_MODE);
-}
-
 // Code To change the appearance of the env..
 // BSS
 void Vizmo::ChangeAppearance(int status)
@@ -293,42 +275,9 @@ void Vizmo::ChangeAppearance(int status)
   robot->Restore();
 }
 
-int Vizmo::GetPathSize(){
-  if(m_pathModel==NULL)
-    return 0;
-
-  PathModel* pathModel = m_pathModel;
-  return pathModel->GetPathSize();
-}
-
-int Vizmo::GetDebugSize(){
-  if(m_debugModel==NULL)
-    return 0;
-  DebugModel* debugModel = m_debugModel;
-  return debugModel->GetDebugSize();
-}
-
 void
-Vizmo::RandomizeCCColors(){
-
-  if(!m_robotModel || !m_mapModel)
-    return;
-
-  typedef CCModel<CfgModel,EdgeModel> CC;
-  typedef vector<CC*>::iterator CCIT;
-
-  //change color
-  MapModel<CfgModel,EdgeModel>* mmodel = m_mapModel;
-  vector<CC*>& cc = mmodel->GetCCModels();
-  for(CCIT ic = cc.begin(); ic != cc.end(); ++ic){
-    (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
-  }
-}
-
-void
-Vizmo::PlaceRobot(){
-  RobotModel* r = m_robotModel;
-  if(r){
+Vizmo::PlaceRobot() {
+  if(m_robotModel){
     vector<double> cfg;
     if(m_queryModel)
       cfg = m_queryModel->GetStartGoal(0);
@@ -337,12 +286,12 @@ Vizmo::PlaceRobot(){
     else
       cfg = vector<double>(CfgModel::DOF());
     if(m_debugModel || (m_mapModel && !(m_pathModel || m_queryModel)))
-      r->SetRenderMode(INVISIBLE_MODE);
+      m_robotModel->SetRenderMode(INVISIBLE_MODE);
 
     if(!cfg.empty()) {
       //copy initial cfg. to RobotModel
-      r->Configure(cfg);
-      r->SetInitialCfg(cfg);
+      m_robotModel->Configure(cfg);
+      m_robotModel->SetInitialCfg(cfg);
     }
   }
 }

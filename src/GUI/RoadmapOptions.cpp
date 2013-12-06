@@ -337,8 +337,7 @@ RoadmapOptions::SetHelpTips(){
 
 void
 RoadmapOptions::ShowRoadmap(){
-
-  GetVizmo().ShowRoadMap(m_actions["showHideRoadmap"]->isChecked());
+  GetVizmo().GetMap()->SetRenderMode(m_actions["showHideRoadmap"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
@@ -497,8 +496,7 @@ RoadmapOptions::ShowNodeEditDialog(){
 
 void
 RoadmapOptions::RandomizeCCColors(){
-
-  GetVizmo().RandomizeCCColors();
+  GetVizmo().GetMap()->RandomizeCCColors();
   m_mainWindow->GetGLScene()->updateGL();
 }
 

@@ -13,7 +13,7 @@ class PathModel : public LoadableModel {
   public:
     PathModel(const string& _filename, RobotModel* _robotModel);
 
-    size_t GetPathSize() {return m_path.size();}
+    size_t GetSize() {return m_path.size();}
     vector<Color4>& GetGradientVector() {return m_stopColors;}
     const vector<double>& GetConfiguration(size_t _i) const {return m_path[_i];}
 

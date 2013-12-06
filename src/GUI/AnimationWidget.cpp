@@ -45,11 +45,11 @@ AnimationWidget::Reset(){
 
   if(GetVizmo().GetPathFileName()!="") {
     m_name = "Path";
-    m_maxValue = GetVizmo().GetPathSize();
+    m_maxValue = GetVizmo().GetPath()->GetSize();
   }
   else if(GetVizmo().GetDebugFileName()!="") {
     m_name = "Debug";
-    m_maxValue = GetVizmo().GetDebugSize();
+    m_maxValue = GetVizmo().GetDebug()->GetSize();
   }
   else {
     m_name = "";

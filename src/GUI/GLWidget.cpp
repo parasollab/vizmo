@@ -104,7 +104,7 @@ GLWidget::paintGL(){
   SetLightPos();
 
   //draw scene
-  GetVizmo().Display();
+  GetVizmo().Draw();
 
   //stop clock, update frametimes, and compute framerate
   clock_t endTime = clock();

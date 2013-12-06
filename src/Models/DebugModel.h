@@ -112,7 +112,7 @@ class DebugModel : public LoadableModel {
     DebugModel(const string& _filename, RobotModel* _robotModel);
     virtual ~DebugModel();
 
-    size_t GetDebugSize(){ return m_instructions.size(); }
+    size_t GetSize(){ return m_instructions.size(); }
     vector<string> GetComments();
     MM* GetMapModel() {return m_mapModel;}
 
