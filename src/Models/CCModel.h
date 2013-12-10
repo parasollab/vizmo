@@ -33,13 +33,6 @@ class CCModel : public Model {
 
     void SetName();
     int GetID() const {return m_id;}
-    int GetNumNodes(){ return m_nodes.size(); }
-    int GetNumEdges(){ return m_edges.size(); }
-    double GetNodeData() { return m_nodes[0]->tx(); }
-    // Functions to be accessed to get nodes and edges info.
-    //to write a new *.map file (this functions are
-    //currently accessed from vizmo2.ccp: vizmo::GetNodeInfo()
-    map<VID, CFG>& GetNodesInfo() { return m_nodes; }
     vector<WEIGHT>& GetEdgesInfo() { return m_edges; }
     WG* GetGraph(){ return m_graph; }
     void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
@@ -54,8 +47,6 @@ class CCModel : public Model {
     void DrawNodes(GLenum _mode);
     void DrawEdges();
     void SetColor(const Color4& _c);
-    //void AddEdge(CFG* _c1, CFG* _c2);
-    //void ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew);
     virtual void GetChildren(list<Model*>& _models);
 
   private:
@@ -196,45 +187,6 @@ CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
     eit->SetColor(_c);
 }
 
-//add a new Edge (from the 'add edge' option)
-//June 16-05
-
-//Throws bad_alloc and seems to only apply to one cc anyway.
-//Not using for new add edge utility, which will be in
-//map and can apply to nodes from different CCs
-
-/*template <class CFG, class WEIGHT>
-void
-CCModel<CFG, WEIGHT>::AddEdge(CFG* _c1, CFG* _c2){
-
-  typename WG::vertex_iterator vi;
-  typename WG::adj_edge_iterator ei;
-  EID ed(_c1->GetIndex(),_c2->GetIndex());
-  m_graph->find_edge(ed, vi, ei);
-
-  WEIGHT w  = (*ei).property();
-  w.Set(m_edges.size(),_c1,_c2);
-  m_edges.push_back(w);
-}
-*/
-//Doesn't seem to be used anywhere...
-/*template <class CFG, class WEIGHT>
-void
-CCModel<CFG, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew){
-
-  m_renderMode = SOLID_MODE;
-  m_cfgShape = _s;
-
-  if(_s == CFG::Point)
-    m_pointScale = _size;
-  else
-    m_boxScale = _size;
-
-  if(_isNew)
-    SetColor(_color[0], _color[1], _color[2], 1);
-}
-*/
-
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
@@ -252,8 +204,7 @@ template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::DrawEdges(){
   glDisable(GL_LIGHTING);
-  //Worth performance cost to antialias and prevent automatic
-  //conversion to integer?
+
   glLineWidth(WEIGHT::m_edgeThickness);
 
   typedef typename vector<WEIGHT>::iterator EIT;
@@ -327,6 +278,4 @@ CCModel<CFG, WEIGHT>::Print(ostream& _os) const {
     << m_edges.size() << " edges" << endl;
 }
 
-#endif //CCMODEL_H_
-
-
+#endif
