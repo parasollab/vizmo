@@ -10,10 +10,10 @@ using namespace std;
 
 #include "Cfg/Cfg.h"
 
+#include "EdgeModel.h"
 #include "RobotModel.h"
 
 template<typename, typename> class CCModel;
-class EdgeModel;
 
 class CfgModel : public Model, public Cfg {
 
@@ -24,7 +24,6 @@ class CfgModel : public Model, public Cfg {
 
     void SetName();
     int GetIndex() const { return m_index; }
-    int GetCCID();
     Point3d GetPoint() const {return Point3d(m_v[0], m_v[1], m_isVolumetricRobot ? m_v[2] : 0); }
 
     static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
@@ -59,7 +58,6 @@ class CfgModel : public Model, public Cfg {
     void Print(ostream& _os) const;
 
   private:
-    static CfgModel m_invalidCfg;
     static double m_defaultDOF;
     static bool m_isPlanarRobot;
     static bool m_isVolumetricRobot;

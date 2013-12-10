@@ -1,7 +1,9 @@
-#include <limits.h>
-#include <stdlib.h>
-
 #include "EdgeModel.h"
+
+#include <limits.h>
+#include <cstdlib>
+
+#include "CfgModel.h"
 
 double EdgeModel::m_edgeThickness = 1;
 
@@ -9,14 +11,12 @@ EdgeModel::EdgeModel() : Model("") {
   m_lp = INT_MAX;
   m_weight = LONG_MAX;
   m_id = -1;
-  m_cfgShape = CfgModel::Point;
 }
 
 EdgeModel::EdgeModel(double _weight) : Model("") {
   m_lp = INT_MAX;
   m_weight = _weight;
   m_id = -1;
-  m_cfgShape = CfgModel::Point;
 }
 
 void
@@ -29,7 +29,7 @@ EdgeModel::SetName() {
 void
 EdgeModel::Print(ostream& _os) const {
   _os << "Edge ID= " << m_id << endl
-    << "Connects Nodes: " << m_startCfg.GetIndex() << " and " << m_endCfg.GetIndex() << endl
+    << "Connects Nodes: " << m_startCfg->GetIndex() << " and " << m_endCfg->GetIndex() << endl
     << "Intermediates: ";
 
   typedef vector<CfgModel>::const_iterator CFGIT;
@@ -43,8 +43,8 @@ vector<int>
 EdgeModel::GetEdgeNodes(){
 
   vector<int> v;
-  v.push_back(m_startCfg.GetIndex());
-  v.push_back(m_endCfg.GetIndex());
+  v.push_back(m_startCfg->GetIndex());
+  v.push_back(m_endCfg->GetIndex());
   return v;
 }
 
@@ -60,8 +60,8 @@ void
 EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot){
 
   m_id = _id;
-  m_startCfg = *_c1;
-  m_endCfg = *_c2;
+  m_startCfg = _c1;
+  m_endCfg = _c2;
 
   SetName();
 
@@ -82,19 +82,18 @@ EdgeModel::Draw(GLenum _mode) {
 
     glColor4fv(GetColor());
     glBegin(GL_LINE_STRIP);
-    glVertex3dv(m_startCfg.GetPoint());
+    glVertex3dv(m_startCfg->GetPoint());
     for(CFGIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++){
       glVertex3dv(c->GetPoint()); //starting point of next line
     }
-    glVertex3dv(m_endCfg.GetPoint());
+    glVertex3dv(m_endCfg->GetPoint());
     glEnd();
 
     //draw intermediate configurations
-    if(m_cfgShape == CfgModel::Box || m_cfgShape == CfgModel::Robot){
+    if(CfgModel::GetShape() == CfgModel::Box || CfgModel::GetShape() == CfgModel::Robot){
       for(CFGIT c = m_intermediateCfgs.begin();
           c != m_intermediateCfgs.end(); c++){
-          c->SetShape(m_cfgShape);
           c->SetRenderMode(WIRE_MODE);
           c->Draw(_mode);
       }
@@ -110,12 +109,12 @@ EdgeModel::DrawSelect(){
   glLineWidth(m_edgeThickness + 4);
 
   glBegin(GL_LINE_STRIP);
-    glVertex3dv(m_startCfg.GetPoint());
+    glVertex3dv(m_startCfg->GetPoint());
     for(CFGIT c = m_intermediateCfgs.begin();
         c != m_intermediateCfgs.end(); c++){
       glVertex3dv(c->GetPoint()); //starting point of next line
     }
-    glVertex3dv(m_endCfg.GetPoint());
+    glVertex3dv(m_endCfg->GetPoint());
   glEnd();
 }
 

@@ -1,8 +1,5 @@
 #include "CfgModel.h"
 
-#include "CCModel.h"
-
-CfgModel CfgModel::m_invalidCfg;
 double CfgModel::m_defaultDOF = 0;
 CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
@@ -31,24 +28,10 @@ CfgModel::SetName() {
 void
 CfgModel::Print(ostream& _os) const {
   _os << "Node ID = " << m_index << endl
-    << "Cfg ( ";
-
-  for(size_t i = 0; i < m_v.size(); ++i){
-    _os << m_v[i];
-    _os << (i == m_v.size() - 1 ? " )" : ", ");
-  }
-
-  _os << endl;
+    << "Cfg ( " << *this << " )" << endl;
 
   if(m_inColl)
     _os << "**** IS IN COLLISION!! ****" << endl;
-}
-
-int
-CfgModel::GetCCID(){
-
-  int i = m_cc->GetID();
-  return i;
 }
 
 void

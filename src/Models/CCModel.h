@@ -10,8 +10,6 @@ using namespace std;
 #include <include/Graph.h>
 #include <include/GraphAlgo.h>
 
-#include "CfgModel.h"
-#include "EdgeModel.h"
 #include "Model.h"
 #include "MapModel.h"
 #include "RobotModel.h"
@@ -20,13 +18,11 @@ using namespace std;
 template<typename, typename>
 class MapModel;
 
-class CfgModel;
-
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 class CCModel : public Model {
 
   public:
-    typedef MapModel<CfgModel, WEIGHT> MM;
+    typedef MapModel<CFG, WEIGHT> MM;
     typedef typename MM::Wg WG;
     typedef typename WG::vertex_descriptor VID;
     typedef typename WG::edge_descriptor EID;
@@ -43,7 +39,7 @@ class CCModel : public Model {
     // Functions to be accessed to get nodes and edges info.
     //to write a new *.map file (this functions are
     //currently accessed from vizmo2.ccp: vizmo::GetNodeInfo()
-    map<VID, CfgModel>& GetNodesInfo() { return m_nodes; }
+    map<VID, CFG>& GetNodesInfo() { return m_nodes; }
     vector<WEIGHT>& GetEdgesInfo() { return m_edges; }
     WG* GetGraph(){ return m_graph; }
     void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
@@ -58,7 +54,7 @@ class CCModel : public Model {
     void DrawNodes(GLenum _mode);
     void DrawEdges();
     void SetColor(const Color4& _c);
-    //void AddEdge(CfgModel* _c1, CfgModel* _c2);
+    //void AddEdge(CFG* _c1, CFG* _c2);
     //void ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew);
     virtual void GetChildren(list<Model*>& _models);
 
@@ -67,17 +63,17 @@ class CCModel : public Model {
     RobotModel* m_robot;
     WG* m_graph;
     ColorMap m_colorMap;
-    map<VID, CfgModel> m_nodes;
+    map<VID, CFG> m_nodes;
     vector<WEIGHT> m_edges;
 
     static map<VID, Color4> m_colorIndex;
 };
 
-template <class CfgModel, class WEIGHT>
-map<typename CCModel<CfgModel, WEIGHT>::VID, Color4> CCModel<CfgModel, WEIGHT>::m_colorIndex = map<VID, Color4>();
+template <class CFG, class WEIGHT>
+map<typename CCModel<CFG, WEIGHT>::VID, Color4> CCModel<CFG, WEIGHT>::m_colorIndex = map<VID, Color4>();
 
-template <class CfgModel, class WEIGHT>
-CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id) : Model("") {
+template <class CFG, class WEIGHT>
+CCModel<CFG, WEIGHT>::CCModel(unsigned int _id) : Model("") {
   m_id = _id;
   SetName();
   m_renderMode = INVISIBLE_MODE;
@@ -85,19 +81,19 @@ CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id) : Model("") {
   m_robot = NULL;
 }
 
-template <class CfgModel, class WEIGHT>
-CCModel<CfgModel, WEIGHT>::~CCModel(){}
+template <class CFG, class WEIGHT>
+CCModel<CFG, WEIGHT>::~CCModel(){}
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::BuildModels() {
+CCModel<CFG, WEIGHT>::BuildModels() {
   cerr << "Error::CCModel.h::Calling wrong build models function." << endl;
   exit(1);
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
+CCModel<CFG, WEIGHT>::BuildModels(VID _id, WG* _g){
 
   if(!_g)
     throw BuildException(WHERE, "Passed in null graph");
@@ -116,7 +112,7 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
 
   for(int i = 0; i < nSize; i++){
     VID nid = cc[i];
-    CfgModel cfg = (_g->find_vertex(nid))->property();
+    CFG cfg = (_g->find_vertex(nid))->property();
     cfg.Set(nid, m_robot, this);
     m_nodes[nid] = cfg;
   }
@@ -133,9 +129,9 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
     if(ccedges[iE].first<ccedges[iE].second)
       continue;
 
-    CfgModel* cfg1 = &((_g->find_vertex(ccedges[iE].first))->property());
+    CFG* cfg1 = &((_g->find_vertex(ccedges[iE].first))->property());
     cfg1->SetIndex(ccedges[iE].first);
-    CfgModel* cfg2 = &((_g->find_vertex(ccedges[iE].second))->property());
+    CFG* cfg2 = &((_g->find_vertex(ccedges[iE].second))->property());
     cfg2->SetIndex(ccedges[iE].second);
     EID ed(ccedges[iE].first,ccedges[iE].second);
     _g->find_edge(ed, vi, ei);
@@ -151,13 +147,13 @@ CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
   SetColor(m_colorIndex[key]);
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::DrawNodes(GLenum _mode){
+CCModel<CFG, WEIGHT>::DrawNodes(GLenum _mode){
 
-  switch(CfgModel::GetShape()){
+  switch(CFG::GetShape()){
 
-    case CfgModel::Robot:
+    case CFG::Robot:
       if(m_robot == NULL)
         return;
       if(_mode == GL_RENDER)
@@ -165,18 +161,18 @@ CCModel<CfgModel, WEIGHT>::DrawNodes(GLenum _mode){
       glLineWidth(1);
     break;
 
-    case CfgModel::Box:
+    case CFG::Box:
       glEnable(GL_LIGHTING);
       glLineWidth(1);
     break;
 
-    case CfgModel::Point:
+    case CFG::Point:
       glDisable(GL_LIGHTING);
-      glPointSize(CfgModel::GetPointSize());
+      glPointSize(CFG::GetPointSize());
     break;
   }
 
-  typedef typename map<VID, CfgModel>::iterator CIT;
+  typedef typename map<VID, CFG>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
     glPushName(cit->first);
     cit->second.Draw(_mode);
@@ -184,14 +180,14 @@ CCModel<CfgModel, WEIGHT>::DrawNodes(GLenum _mode){
   }
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
+CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
 
   m_colorIndex[m_id] = _c;
   Model::SetColor(_c);
 
-  typedef typename map<VID, CfgModel>::iterator CIT;
+  typedef typename map<VID, CFG>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
     cit->second.SetColor(_c);
 
@@ -207,9 +203,9 @@ CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
 //Not using for new add edge utility, which will be in
 //map and can apply to nodes from different CCs
 
-/*template <class CfgModel, class WEIGHT>
+/*template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::AddEdge(CfgModel* _c1, CfgModel* _c2){
+CCModel<CFG, WEIGHT>::AddEdge(CFG* _c1, CFG* _c2){
 
   typename WG::vertex_iterator vi;
   typename WG::adj_edge_iterator ei;
@@ -222,14 +218,14 @@ CCModel<CfgModel, WEIGHT>::AddEdge(CfgModel* _c1, CfgModel* _c2){
 }
 */
 //Doesn't seem to be used anywhere...
-/*template <class CfgModel, class WEIGHT>
+/*template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew){
+CCModel<CFG, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew){
 
   m_renderMode = SOLID_MODE;
   m_cfgShape = _s;
 
-  if(_s == CfgModel::Point)
+  if(_s == CFG::Point)
     m_pointScale = _size;
   else
     m_boxScale = _size;
@@ -239,11 +235,11 @@ CCModel<CfgModel, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float>
 }
 */
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::GetChildren(list<Model*>& _models){
+CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
 
-  typedef typename map<VID, CfgModel>::iterator CIT;
+  typedef typename map<VID, CFG>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
     _models.push_back(&cit->second);
 
@@ -252,24 +248,21 @@ CCModel<CfgModel, WEIGHT>::GetChildren(list<Model*>& _models){
     _models.push_back(&*eit);
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::DrawEdges(){
-
+CCModel<CFG, WEIGHT>::DrawEdges(){
   glDisable(GL_LIGHTING);
   //Worth performance cost to antialias and prevent automatic
   //conversion to integer?
-  glLineWidth(EdgeModel::m_edgeThickness);
+  glLineWidth(WEIGHT::m_edgeThickness);
 
   typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); eit++){
-    eit->SetCfgShape(CfgModel::GetShape());
+  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); eit++)
     eit->Draw(m_renderMode);
-  }
 }
 
-template <class CfgModel, class WEIGHT>
-void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
+template <class CFG, class WEIGHT>
+void CCModel<CFG, WEIGHT>::Draw(GLenum _mode) {
 
   if(m_renderMode == INVISIBLE_MODE)
     return;
@@ -291,9 +284,9 @@ void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
     glPopName();
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::DrawSelect(){
+CCModel<CFG, WEIGHT>::DrawSelect(){
 
   /*Disabled for now; later modifications likely*/
   //if(m_edgeID == -1)
@@ -304,9 +297,9 @@ CCModel<CfgModel, WEIGHT>::DrawSelect(){
   //glLineWidth(1);
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
+CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
 
   typename WG::vertex_iterator cvi;
   if(_index == NULL || m_graph == NULL)
@@ -318,17 +311,17 @@ CCModel<CfgModel, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
     _sel.push_back(&m_edges[_index[1]]);
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::SetName() {
+CCModel<CFG, WEIGHT>::SetName() {
   ostringstream temp;
   temp << "CC " << m_id;
   m_name = temp.str();
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::Print(ostream& _os) const {
+CCModel<CFG, WEIGHT>::Print(ostream& _os) const {
   _os << Name() << endl
     << m_nodes.size() << " nodes" << endl
     << m_edges.size() << " edges" << endl;

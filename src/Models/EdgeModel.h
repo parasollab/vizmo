@@ -3,12 +3,15 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#include "CfgModel.h"
+#include "RobotModel.h"
+
+class CfgModel;
 
 class EdgeModel : public Model {
 
@@ -25,12 +28,11 @@ class EdgeModel : public Model {
     double& GetWeight(){ return m_weight; }
     double& Weight(){ return m_weight; }
     int GetID() { return m_id; }
-    const CfgModel& GetStartCfg() { return m_startCfg; }
-    const CfgModel& GetEndCfg() { return m_endCfg; }
+    CfgModel* GetStartCfg() { return m_startCfg; }
+    CfgModel* GetEndCfg() { return m_endCfg; }
     vector<CfgModel>& GetIntermediateCfgs() { return m_intermediateCfgs; }
-    void SetStartCfg(CfgModel _s) { m_startCfg = _s; }
-    void SetEndCfg(CfgModel _e) { m_endCfg = _e; }
-    void SetCfgShape(CfgModel::Shape _s) { m_cfgShape = _s; }
+    void SetStartCfg(CfgModel* _s) { m_startCfg = _s; }
+    void SetEndCfg(CfgModel* _e) { m_endCfg = _e; }
     //Want m_edgeThickness to be private, but cannot figure out how to compile
     //with this declaration
     //template<class CfgModel, class EdgeModel> friend void MapModel<CfgModel, EdgeModel>::SetEdgeThickness(double _thickness);
@@ -47,11 +49,10 @@ class EdgeModel : public Model {
     static double m_edgeThickness;
 
   private:
-    CfgModel m_startCfg, m_endCfg;
+    CfgModel* m_startCfg, * m_endCfg;
     int m_lp;
     double m_weight;
     int m_id;
-    CfgModel::Shape m_cfgShape;
     vector <CfgModel> m_intermediateCfgs;
 
     friend class CfgModel;

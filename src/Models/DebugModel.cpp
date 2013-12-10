@@ -9,7 +9,6 @@ DebugModel::DebugModel(const string& _filename, RobotModel* _robotModel) :
   m_edgeNum(-1) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
-    m_mapModel->InitGraph();
     ParseFile();
     BuildModels();
   }

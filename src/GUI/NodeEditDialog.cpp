@@ -146,7 +146,7 @@ NodeEditDialog::SetCurrentNode(CfgModel* _node){
 
   ostringstream oss;
   if(_node->GetCC() != NULL)
-    oss << _node->Name() << " --- CCID: " << _node->GetCCID();
+    oss << _node->Name() << " --- CCID: " << _node->GetCC()->GetID();
   else
     oss << "Intermediate configuration";
   QString qNodeLabel = QString::fromStdString(oss.str());
@@ -178,10 +178,10 @@ NodeEditDialog::UpdateDOF(int _id){
   if(m_currentNode->GetCC() != NULL){   //TODO: assign intermediates to proper CC?
     vector<EdgeModel>& cCEdges = m_currentNode->GetCC()->GetEdgesInfo();
     for(size_t i = 0; i < cCEdges.size(); i++){
-      if(m_currentNode->GetIndex() == cCEdges[i].GetStartCfg().GetIndex())
-        cCEdges[i].SetStartCfg(*m_currentNode);
-      else if(m_currentNode->GetIndex() == cCEdges[i].GetEndCfg().GetIndex())
-        cCEdges[i].SetEndCfg(*m_currentNode);
+      if(m_currentNode->GetIndex() == cCEdges[i].GetStartCfg()->GetIndex())
+        cCEdges[i].SetStartCfg(m_currentNode);
+      else if(m_currentNode->GetIndex() == cCEdges[i].GetEndCfg()->GetIndex())
+        cCEdges[i].SetEndCfg(m_currentNode);
     }
   }
   m_gLScene->updateGL();

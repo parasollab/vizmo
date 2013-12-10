@@ -5,14 +5,14 @@
 #include <string>
 using namespace std;
 
-#include <Models/VizmoTraits.h>
+#include "Models/CfgModel.h"
+#include "Models/EdgeModel.h"
+#include "Models/VizmoTraits.h"
 
 class Box;
 class Model;
 class EnvModel;
 class RobotModel;
-class CfgModel;
-class EdgeModel;
 template<typename, typename> class MapModel;
 class QueryModel;
 class PathModel;

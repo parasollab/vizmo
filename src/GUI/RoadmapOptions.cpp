@@ -290,15 +290,6 @@ RoadmapOptions::Reset(){
 
   m_nodeSizeDialog->Reset();
   m_edgeThicknessDialog->Reset();
-
-  if(GetMapModel() != NULL){
-    GetMapModel()->GetNodesToConnect().clear();
-    if(GetMapModel()->RobCfgOn() == false) {
-      GetMapModel()->SetMBEditModel(false);
-      GetMapModel()->SetAddNode(false);
-      GetMapModel()->SetAddEdge(false);
-    }
-  }
 }
 
 void
@@ -425,51 +416,20 @@ RoadmapOptions::ShowNodeSizeDialog(){
 
 void
 RoadmapOptions::ScaleNodes(){
-
-  double resize = m_nodeSizeDialog->GetSliderValue() / (double)1000;
-
-  if(GetVizmo().GetRobot() == NULL)
-    return;
-
-  MapModel<CfgModel, EdgeModel>* map = GetVizmo().GetMap();
-  DebugModel* debug = GetVizmo().GetDebug();
-
-  if(map == NULL && debug == NULL)
-    return;
-
-  if(map != NULL)
-    map->ScaleNodes(resize);
-  if(debug != NULL)
-    debug->GetMapModel()->ScaleNodes(resize);
-
+  double resize = m_nodeSizeDialog->GetSliderValue() / 1000;
+  CfgModel::Scale(resize);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
 RoadmapOptions::ShowEdgeThicknessDialog(){
-
   m_edgeThicknessDialog->show();
 }
 
 void
 RoadmapOptions::ChangeEdgeThickness(){
-
-  double resize = m_edgeThicknessDialog->GetSliderValue() / (double)100;
-
-  if(GetVizmo().GetRobot() == NULL)
-    return;
-
-  MapModel<CfgModel, EdgeModel>* map = GetVizmo().GetMap();
-  DebugModel* debug = GetVizmo().GetDebug();
-
-  if(map == NULL && debug == NULL)
-    return;
-
-  if(map != NULL)
-    map->SetEdgeThickness(resize);
-  if(debug != NULL)
-    debug->GetMapModel()->SetEdgeThickness(resize);
-
+  double resize = m_edgeThicknessDialog->GetSliderValue() / 100;
+  EdgeModel::m_edgeThickness = resize;
   m_mainWindow->GetGLScene()->updateGL();
 }
 
