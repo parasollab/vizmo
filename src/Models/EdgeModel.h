@@ -24,7 +24,6 @@ class EdgeModel : public Model {
 
     void SetName();
     vector<int> GetEdgeNodes();
-    int& NumIntermediates(){ return m_numIntermediates; }
     double& GetWeight(){ return m_weight; }
     double& Weight(){ return m_weight; }
     int GetID() { return m_id; }
@@ -50,7 +49,6 @@ class EdgeModel : public Model {
 
   private:
     CfgModel* m_startCfg, * m_endCfg;
-    int m_numIntermediates;
     double m_weight;
     int m_id;
     vector <CfgModel> m_intermediateCfgs;
