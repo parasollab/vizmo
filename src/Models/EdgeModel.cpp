@@ -8,13 +8,13 @@
 double EdgeModel::m_edgeThickness = 1;
 
 EdgeModel::EdgeModel() : Model("") {
-  m_lp = INT_MAX;
+  m_numIntermediates = INT_MAX;
   m_weight = LONG_MAX;
   m_id = -1;
 }
 
 EdgeModel::EdgeModel(double _weight) : Model("") {
-  m_lp = INT_MAX;
+  m_numIntermediates = INT_MAX;
   m_weight = _weight;
   m_id = -1;
 }
@@ -51,7 +51,7 @@ EdgeModel::GetEdgeNodes(){
 bool
 EdgeModel::operator==(const EdgeModel& _other){
 
-  if(m_lp != _other.m_lp || m_weight != _other.m_weight)
+  if(m_numIntermediates != _other.m_numIntermediates || m_weight != _other.m_weight)
     return false;
   return true;
 }
@@ -120,7 +120,7 @@ EdgeModel::DrawSelect(){
 
 ostream&
 operator<<(ostream& _out, const EdgeModel& _edge){
-  _out << _edge.m_lp << " " << _edge.m_weight << " ";
+  _out << _edge.m_numIntermediates << " " << _edge.m_weight << " ";
   return _out;
 }
 
@@ -128,11 +128,10 @@ istream&
 operator>>(istream&  _is, EdgeModel& _edge){
 
   _edge.m_intermediateCfgs.clear();
-  int numIntermediates = 0;
   CfgModel cfgtmp;
 
-  _is >> numIntermediates;
-  for(int i = 0; i < numIntermediates && _is; i++){
+  _is >> _edge.m_numIntermediates;
+  for(int i = 0; i < _edge.m_numIntermediates && _is; i++){
     _is >> cfgtmp;
     _edge.m_intermediateCfgs.push_back(cfgtmp);
   }
