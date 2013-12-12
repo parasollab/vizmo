@@ -2,10 +2,8 @@
 #define DEBUGMODEL_H_
 
 #include "CfgModel.h"
-#include "Model.h"
 #include "MapModel.h"
-
-class RobotModel;
+#include "Model.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Instruction classes for the Debug model
@@ -109,7 +107,7 @@ class DebugModel : public LoadableModel {
   public:
     typedef MapModel<CfgModel, EdgeModel> MM;
 
-    DebugModel(const string& _filename, RobotModel* _robotModel);
+    DebugModel(const string& _filename);
     virtual ~DebugModel();
 
     size_t GetSize(){ return m_instructions.size(); }
@@ -128,8 +126,6 @@ class DebugModel : public LoadableModel {
     void BuildBackward();
 
   private:
-    RobotModel* m_robotModel;
-
     //instructions
     vector<Instruction*> m_instructions;
 

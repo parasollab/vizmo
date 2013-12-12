@@ -11,7 +11,7 @@ using namespace std;
 #include "Cfg/Cfg.h"
 
 #include "EdgeModel.h"
-#include "RobotModel.h"
+#include "Model.h"
 
 template<typename, typename> class CCModel;
 class EdgeModel;
@@ -29,7 +29,6 @@ class CfgModel : public Model, public Cfg {
 
     static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
-    RobotModel* GetRobot() const { return m_robot; }
     bool IsInCollision() { return m_inColl; }
     static Shape GetShape() { return m_shape; }
     static float GetPointSize() { return m_pointScale; }
@@ -44,9 +43,8 @@ class CfgModel : public Model, public Cfg {
     void SetCfg(const vector<double>& _newCfg);
     void SetIndex(int _i) { m_index = _i; SetName();}
     void SetCCModel(CCModel<CfgModel, EdgeModel>* _cc) { m_cc = _cc; }
-    void SetRobot(RobotModel* _r) { m_robot = _r; }
 
-    void Set(int _index, RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc);
+    void Set(int _index, CCModel<CfgModel, EdgeModel>* _cc);
     static void Scale(float _scale);
 
     void BuildModels() {}
@@ -68,7 +66,6 @@ class CfgModel : public Model, public Cfg {
     static float m_pointScale;
 
     bool m_inColl; //For collision detection
-    RobotModel* m_robot; //Testing
     int m_index;
     CCModel<CfgModel, EdgeModel>* m_cc;
 };

@@ -12,6 +12,7 @@
 
 #include "Models/DebugModel.h"
 #include "Models/PathModel.h"
+#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/First.xpm"

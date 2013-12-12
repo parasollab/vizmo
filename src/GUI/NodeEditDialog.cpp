@@ -1,12 +1,14 @@
+#include "NodeEditDialog.h"
+
 #include <sstream>
 
-#include "NodeEditDialog.h"
 #include "GLWidget.h"
-#include "Models/Vizmo.h"
-#include "Models/CfgModel.h"
-#include "Models/MapModel.h"
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
+#include "Models/CfgModel.h"
+#include "Models/MapModel.h"
+#include "Models/MultiBodyModel.h"
+#include "Models/Vizmo.h"
 
 QValidator::State
 NodeEditValidator::validate(QString& _s, int& _i) const {

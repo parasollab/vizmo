@@ -75,7 +75,7 @@ Vizmo::InitModels() {
 
     //Create debug
     if(!m_debugFilename.empty()){
-      m_debugModel = new DebugModel(m_debugFilename, m_robotModel);
+      m_debugModel = new DebugModel(m_debugFilename);
       m_loadedModels.push_back(m_debugModel);
       cout << "Load Debug File : " << m_debugFilename << endl;
     }

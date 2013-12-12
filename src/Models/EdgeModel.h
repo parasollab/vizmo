@@ -1,5 +1,5 @@
-#ifndef EDGE_MODEL_H_
-#define EDGE_MODEL_H_
+#ifndef EDGEMODEL_H_
+#define EDGEMODEL_H_
 
 #include <iostream>
 #include <string>
@@ -12,7 +12,7 @@ using namespace std;
 #include "MPProblem/Weight.h"
 
 #include "CfgModel.h"
-#include "RobotModel.h"
+#include "Model.h"
 
 class CfgModel;
 
@@ -29,7 +29,7 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
     void SetStartCfg(CfgModel* _s) { m_startCfg = _s; }
     void SetEndCfg(CfgModel* _e) { m_endCfg = _e; }
 
-    void Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot = NULL);
+    void Set(int _id, CfgModel* _c1, CfgModel* _c2);
 
     void BuildModels() {}
     void Select(GLuint* _index, vector<Model*>& _sel) {};

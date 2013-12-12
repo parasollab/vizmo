@@ -12,7 +12,6 @@ using namespace std;
 
 #include "Model.h"
 #include "MapModel.h"
-#include "RobotModel.h"
 #include "Utilities/VizmoExceptions.h"
 
 template<typename, typename>
@@ -35,7 +34,6 @@ class CCModel : public Model {
     int GetID() const {return m_id;}
     vector<WEIGHT>& GetEdgesInfo() { return m_edges; }
     WG* GetGraph(){ return m_graph; }
-    void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
 
     void BuildModels(); //not used, should not call this
     void BuildModels(VID _id, WG* _g); //call this instead
@@ -51,7 +49,6 @@ class CCModel : public Model {
 
   private:
     int m_id; //CC ID
-    RobotModel* m_robot;
     WG* m_graph;
     ColorMap m_colorMap;
     map<VID, CFG> m_nodes;
@@ -69,7 +66,6 @@ CCModel<CFG, WEIGHT>::CCModel(unsigned int _id) : Model("") {
   SetName();
   m_renderMode = INVISIBLE_MODE;
   m_graph = NULL;
-  m_robot = NULL;
 }
 
 template <class CFG, class WEIGHT>
@@ -104,7 +100,7 @@ CCModel<CFG, WEIGHT>::BuildModels(VID _id, WG* _g){
   for(int i = 0; i < nSize; i++){
     VID nid = cc[i];
     CFG cfg = (_g->find_vertex(nid))->property();
-    cfg.Set(nid, m_robot, this);
+    cfg.Set(nid, this);
     m_nodes[nid] = cfg;
   }
 
@@ -127,7 +123,7 @@ CCModel<CFG, WEIGHT>::BuildModels(VID _id, WG* _g){
     EID ed(ccedges[iE].first,ccedges[iE].second);
     _g->find_edge(ed, vi, ei);
     WEIGHT w  = (*ei).property();
-    w.Set(edgeIdx++,cfg1,cfg2, m_robot);
+    w.Set(edgeIdx++,cfg1,cfg2);
     m_edges.push_back(w);
   }
 
@@ -143,10 +139,7 @@ void
 CCModel<CFG, WEIGHT>::DrawNodes(GLenum _mode){
 
   switch(CFG::GetShape()){
-
     case CFG::Robot:
-      if(m_robot == NULL)
-        return;
       if(_mode == GL_RENDER)
         glEnable(GL_LIGHTING);
       glLineWidth(1);

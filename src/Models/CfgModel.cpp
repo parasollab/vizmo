@@ -1,5 +1,8 @@
 #include "CfgModel.h"
 
+#include "RobotModel.h"
+#include "Vizmo.h"
+
 double CfgModel::m_defaultDOF = 0;
 CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
@@ -11,7 +14,6 @@ bool CfgModel::m_isRotationalRobot = false;
 CfgModel::CfgModel() : Model("") {
   m_index = -1;
   m_inColl = false;
-  m_robot = NULL;
   m_cc = NULL;
 }
 
@@ -40,10 +42,9 @@ CfgModel::SetCfg(const vector<double>& _newCfg) {
 }
 
 void
-CfgModel::Set(int _index , RobotModel* _robot, CCModel<CfgModel, EdgeModel>* _cc){
+CfgModel::Set(int _index, CCModel<CfgModel, EdgeModel>* _cc){
   m_index = _index;
   SetName();
-  m_robot = _robot;
   m_cc = _cc;
 }
 
@@ -76,20 +77,18 @@ CfgModel::Draw(GLenum _mode){
 
 void
 CfgModel::DrawRobot(){
-  if(m_robot == NULL)
-    return;
-
-  m_robot->BackUp();
-  m_robot->SetRenderMode(m_renderMode);
+  RobotModel* robot = GetVizmo().GetRobot();
+  robot->BackUp();
+  robot->SetRenderMode(m_renderMode);
 
   if(m_inColl)
-    m_robot->SetColor(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0)); //Invert colors. Black case?
+    robot->SetColor(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0)); //Invert colors. Black case?
   else
-    m_robot->SetColor(m_color);
+    robot->SetColor(m_color);
 
-  m_robot->Configure(m_v);
-  m_robot->Draw(GL_RENDER);
-  m_robot->Restore();
+  robot->Configure(m_v);
+  robot->Draw(GL_RENDER);
+  robot->Restore();
 }
 
 void
@@ -156,12 +155,13 @@ CfgModel::DrawSelect(){
   glDisable(GL_LIGHTING);
   switch(m_shape){
     case Robot:
-      if(m_robot != NULL){
-        m_robot->BackUp();
-        m_robot->SetColor(GetColor());
-        m_robot->Configure(m_v);
-        m_robot->DrawSelect();
-        m_robot->Restore();
+      {
+        RobotModel* robot = GetVizmo().GetRobot();
+        robot->BackUp();
+        robot->SetColor(GetColor());
+        robot->Configure(m_v);
+        robot->DrawSelect();
+        robot->Restore();
       }
       break;
 

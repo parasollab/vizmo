@@ -27,8 +27,9 @@
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
-#include "Models/Vizmo.h"
 #include "Models/DebugModel.h"
+#include "Models/RobotModel.h"
+#include "Models/Vizmo.h"
 
 #include "Icons/Pallet.xpm"
 #include "Icons/MakeSolid.xpm"

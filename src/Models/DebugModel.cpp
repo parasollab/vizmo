@@ -1,11 +1,9 @@
 #include "DebugModel.h"
 
-#include "RobotModel.h"
-
-DebugModel::DebugModel(const string& _filename, RobotModel* _robotModel) :
+DebugModel::DebugModel(const string& _filename) :
   LoadableModel("Debug"),
-  m_robotModel(_robotModel), m_index(-1),
-  m_mapModel(new MapModel<CfgModel, EdgeModel>(_robotModel)),
+  m_index(-1),
+  m_mapModel(new MapModel<CfgModel, EdgeModel>()),
   m_edgeNum(-1) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
@@ -108,10 +106,6 @@ DebugModel::ParseFile() {
 
 void
 DebugModel::BuildModels(){
-  //can't build model without robot
-  if(!m_robotModel)
-    throw BuildException(WHERE, "RobotModel is null.");
-
   m_prevIndex = 0;
   m_index = 0;
   m_edgeNum = 0;
@@ -201,7 +195,7 @@ DebugModel::BuildForward() {
       //add temporary cfg
       AddTempCfg* atc = static_cast<AddTempCfg*>(ins);
       m_tempCfgs.push_back(atc->m_cfg);
-      m_tempCfgs.back().Set(0, m_robotModel, NULL);
+      m_tempCfgs.back().Set(0, NULL);
       m_tempCfgs.back().SetShape(CfgModel::Robot);
       if(!atc->m_valid)
         m_tempCfgs.back().SetColor(Color4(1, 0, 0, 1));

@@ -31,19 +31,12 @@ EdgeModel::Print(ostream& _os) const {
 }
 
 void
-EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot){
-
+EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2){
   m_id = _id;
   m_startCfg = _c1;
   m_endCfg = _c2;
 
   SetName();
-
-  typedef vector<CfgModel>::iterator CIT;
-  for(CIT c = m_intermediates.begin();
-      c != m_intermediates.end(); c++){
-    c->SetRobot(_robot);
-  }
 }
 
 void

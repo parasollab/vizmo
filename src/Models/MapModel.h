@@ -5,7 +5,6 @@
 #include <GraphAlgo.h>
 
 #include "CCModel.h"
-#include "RobotModel.h"
 #include "Utilities/IO.h"
 
 struct EdgeAccess {
@@ -33,10 +32,9 @@ class MapModel : public LoadableModel {
     typedef typename Wg::vertex_iterator VI;
     typedef typename CFG::Shape Shape;
 
-    MapModel(RobotModel* _robotModel);
-    //constructor only to grab header environment name
-    MapModel(const string& _filename);
-    MapModel(const string& _filename, RobotModel* _robotModel);
+    MapModel();
+    //if !build, constructor will only grab environment filename
+    MapModel(const string& _filename, bool _build);
     virtual ~MapModel();
 
     //Access functions
@@ -69,40 +67,32 @@ class MapModel : public LoadableModel {
   private:
     string  m_envFileName;
     string  m_fileDir;
-    RobotModel* m_robot;
     vector<CCM*> m_ccModels;
     Wg* m_graph;
 };
 
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel(RobotModel* _robotModel) : LoadableModel("Map") {
+MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map") {
   m_renderMode = INVISIBLE_MODE;
-  m_robot = _robotModel;
   m_graph = new Wg();
-  m_robot = NULL;
 }
 
 //constructor only to grab header environment name
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map") {
-  SetFilename(_filename);
-  if(FileExists(_filename)) {
-    ifstream ifs(_filename.c_str());
-    ParseHeader(ifs);
-  }
-
-  m_graph = NULL;
-  m_robot = NULL;
-}
-
-template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel(const string& _filename, RobotModel* _robotModel) : LoadableModel("Map") {
+MapModel<CFG, WEIGHT>::MapModel(const string& _filename, bool _build) : LoadableModel("Map") {
   SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
-  m_robot = _robotModel;
-
-  ParseFile();
-  BuildModels();
+  m_graph = new Wg();
+  if(!_build) {
+    if(FileExists(_filename)) {
+      ifstream ifs(_filename.c_str());
+      ParseHeader(ifs);
+    }
+  }
+  else {
+    ParseFile();
+    BuildModels();
+  }
 }
 
 template <class CFG, class WEIGHT>
@@ -149,7 +139,6 @@ MapModel<CFG,WEIGHT>::ParseFile(){
   //Get Graph Data
   string s;
   getline(ifs, s);
-  m_graph  = new Wg();
   read_graph(*m_graph, ifs);
 }
 
@@ -195,7 +184,6 @@ MapModel<CFG, WEIGHT>::BuildModels() {
   m_ccModels.reserve(CCSize);
   for(CIT ic = ccs.begin(); ic != ccs.end(); ic++){
     CCM* cc = new CCM(ic-ccs.begin());
-    cc->SetRobotModel(m_robot);
     cc->BuildModels(ic->second, m_graph);
     m_ccModels.push_back(cc);
   }
