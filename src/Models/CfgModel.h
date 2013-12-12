@@ -14,6 +14,7 @@ using namespace std;
 #include "RobotModel.h"
 
 template<typename, typename> class CCModel;
+class EdgeModel;
 
 class CfgModel : public Model, public Cfg {
 
