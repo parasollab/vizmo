@@ -25,6 +25,7 @@ class EnvironmentOptions : public OptionsBase {
     void AddObstacle();
     void DeleteObstacle();
     void MoveObstacle();
+    void DuplicateObstacles();
     void ChangeBoundaryForm();
     void EditRobot();
 

@@ -40,8 +40,10 @@ EnvironmentOptions::CreateActions(){
   m_actions["addObstacle"] = addObstacle;
   QAction* deleteObstacle = new QAction(tr("Delete Obstacle(s)"), this);
   m_actions["deleteObstacle"] = deleteObstacle;
-  QAction* moveObstacle = new QAction(tr("Move Obstacle"), this);
+  QAction* moveObstacle = new QAction(tr("Move Obstacle(s)"), this);
   m_actions["moveObstacle"] = moveObstacle;
+  QAction* duplicateObstacle = new QAction(tr("Duplicate Obstacle(s)"), this);
+  m_actions["duplicateObstacle"] = duplicateObstacle;
   QAction* changeBoundary = new QAction(tr("Change Boundary Form"), this);
   m_actions["changeBoundary"] = changeBoundary;
   QAction* editRobot = new QAction(tr("Edit the Robot "), this);
@@ -54,6 +56,7 @@ EnvironmentOptions::CreateActions(){
   m_actions["addObstacle"]->setEnabled(false);
   m_actions["deleteObstacle"]->setEnabled(false);
   m_actions["moveObstacle"]->setEnabled(false);
+  m_actions["duplicateObstacle"]->setEnabled(false);
   m_actions["changeBoundary"]->setEnabled(false);
   m_actions["editRobot"]->setEnabled(false);
 
@@ -63,6 +66,7 @@ EnvironmentOptions::CreateActions(){
   connect(m_actions["addObstacle"], SIGNAL(triggered()), this, SLOT(AddObstacle()));
   connect(m_actions["deleteObstacle"], SIGNAL(triggered()), this, SLOT(DeleteObstacle()));
   connect(m_actions["moveObstacle"], SIGNAL(triggered()), this, SLOT(MoveObstacle()));
+  connect(m_actions["duplicateObstacle"], SIGNAL(triggered()), this, SLOT(DuplicateObstacles()));
   connect(m_actions["changeBoundary"], SIGNAL(triggered()), this, SLOT(ChangeBoundaryForm()));
   connect(m_actions["editRobot"], SIGNAL(triggered()), this, SLOT(EditRobot()));
 }
@@ -76,6 +80,7 @@ EnvironmentOptions::SetUpCustomSubmenu(){
   m_obstacleMenu->addAction(m_actions["addObstacle"]);
   m_obstacleMenu->addAction(m_actions["deleteObstacle"]);
   m_obstacleMenu->addAction(m_actions["moveObstacle"]);
+  m_obstacleMenu->addAction(m_actions["duplicateObstacle"]);
   m_submenu->addMenu(m_obstacleMenu);
   m_submenu->addAction(m_actions["changeBoundary"]);
   m_submenu->addAction(m_actions["editRobot"]);
@@ -95,6 +100,7 @@ EnvironmentOptions::Reset(){
   m_actions["addObstacle"]->setEnabled(true);
   m_actions["deleteObstacle"]->setEnabled(true);
   m_actions["moveObstacle"]->setEnabled(true);
+  m_actions["duplicateObstacle"]->setEnabled(true);
   m_actions["changeBoundary"]->setEnabled(true);
   m_actions["editRobot"]->setEnabled(true);
   m_obstacleMenu->setEnabled(true);
@@ -107,6 +113,7 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["addObstacle"]->setWhatsThis(tr("Add obstacle button"));
   m_actions["deleteObstacle"]->setWhatsThis(tr("Delete obstacle button"));
   m_actions["moveObstacle"]->setWhatsThis(tr("Move obstacle button"));
+  m_actions["duplicateObstacle"]->setWhatsThis(tr("duplicate obstacle button"));
   m_actions["changeBoundary"]->setWhatsThis(tr("Change the form of the boundary"));
   m_actions["editRobot"]->setWhatsThis(tr("Edit the robot"));
 }
@@ -117,6 +124,9 @@ EnvironmentOptions::ChangeBoundaryForm(){
   ChangeBoundaryDialog c(this);
   if(c.exec() != QDialog::Accepted)
     return;
+  while(GetVizmo().GetSelectedModels().size()!=0)
+    GetVizmo().GetSelectedModels().pop_back();
+  GetVizmo().GetSelectedModels().push_back(GetVizmo().GetEnv()->GetBoundary());
   RefreshEnv();
   m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
   m_modelSelectionWidget->ResetLists();
@@ -153,23 +163,81 @@ EnvironmentOptions::DeleteObstacle(){
         GetVizmo().GetEnv()->DeleteMBModel(mBody[j]);
     }
   }
+  while(GetVizmo().GetSelectedModels().size()!=0)
+    GetVizmo().GetSelectedModels().pop_back();
   RefreshEnv();
   m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
   m_modelSelectionWidget->ResetLists();
 }
+
 void
 EnvironmentOptions::MoveObstacle(){
   vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
+  vector<MultiBodyModel*> mBodiesToMove;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SI;
   for(SI i = sel.begin(); i!= sel.end(); i++){
     for(size_t j=0;j<mBody.size();j++){
       if(*i==mBody[j]&&!mBody[j]->IsActive()){
-        ObstaclePosDialog o(mBody[j], m_mainWindow, this);
-        o.exec();
+        mBodiesToMove.push_back(mBody[j]);
       }
     }
   }
+  ObstaclePosDialog o(mBodiesToMove, m_mainWindow, this);
+  o.exec();
+  RefreshEnv();
+  m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
+  m_modelSelectionWidget->ResetLists();
+}
+
+void
+EnvironmentOptions::DuplicateObstacles(){
+  vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
+  vector<MultiBodyModel*> mBodiesToCopy;
+  int sizeMB=mBody.size();
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  typedef vector<Model*>::iterator SI;
+  for(SI i = sel.begin(); i!= sel.end(); i++){
+    for(int j=0;j<sizeMB;j++){
+      if(*i==mBody[j]&&!mBody[j]->IsActive()){
+        stringstream properties;
+        properties<<"Passive \n #VIZMO_COLOR ";
+        vector<BodyModel*> bodies = mBody[j]->GetBodies();
+        properties<<" "<<bodies.back()->GetColor()[0]
+                  <<" "<<bodies.back()->GetColor()[1]
+                  <<" "<<bodies.back()->GetColor()[2]<<endl;
+        properties<<bodies.back()->GetFilename()<<"  ";
+        ostringstream transform;
+        transform<<bodies.back()->GetTransform();
+        string transformString=transform.str();
+        istringstream splitTransform(transformString);
+        string splittedTransform[6]={"","","","","",""};
+        int j=0;
+        do{
+          splitTransform>>splittedTransform[j];
+          j++;
+        }while(splitTransform);
+        string temp;
+        temp=splittedTransform[3];
+        splittedTransform[3]=splittedTransform[5];
+        splittedTransform[5]=temp;
+        for(int i=0; i<6; i++)
+          properties<<splittedTransform[i]<<" ";
+        properties<<endl;
+        m_multiBodyModel = new MultiBodyModel();
+        m_multiBodyModel->ParseMultiBody(properties,bodies.back()->GetDirectory());
+        mBodiesToCopy.push_back(m_multiBodyModel);
+        GetVizmo().GetEnv()->AddMBModel(m_multiBodyModel);
+      }
+    }
+  }
+  while(GetVizmo().GetSelectedModels().size()!=0)
+    GetVizmo().GetSelectedModels().pop_back();
+  typedef vector<MultiBodyModel*>::iterator MB;
+  for(MB i = mBodiesToCopy.begin(); i!= mBodiesToCopy.end(); i++)
+    GetVizmo().GetSelectedModels().push_back(*i);
+  ObstaclePosDialog o(mBodiesToCopy, m_mainWindow, this);
+  o.exec();
   RefreshEnv();
   m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
   m_modelSelectionWidget->ResetLists();
@@ -178,7 +246,7 @@ EnvironmentOptions::MoveObstacle(){
 void
 EnvironmentOptions::AddObstacle(){
   QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
-      QString::null, "Files (*.g)");
+      QString::null, "Files  (*.g *.obj)");
   if (!fn.isEmpty()){
     m_modelFilename = fn.toStdString();
     m_filename = GetFilename(m_modelFilename);
@@ -189,10 +257,15 @@ EnvironmentOptions::AddObstacle(){
     m_multiBodyModel = new MultiBodyModel();
     m_multiBodyModel->ParseMultiBody(isStringAttributes,m_modelFileDir);
     GetVizmo().GetEnv()->AddMBModel(m_multiBodyModel);
+    while(GetVizmo().GetSelectedModels().size()!=0)
+      GetVizmo().GetSelectedModels().pop_back();
+    GetVizmo().GetSelectedModels().push_back(m_multiBodyModel);
     RefreshEnv();
     m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
     m_modelSelectionWidget->ResetLists();
-    ObstaclePosDialog o(m_multiBodyModel, m_mainWindow, this);
+    vector<MultiBodyModel*> vMB;
+    vMB.push_back(m_multiBodyModel);
+    ObstaclePosDialog o(vMB, m_mainWindow, this);
     if(o.exec() != QDialog::Accepted)
       return;
   }

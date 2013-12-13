@@ -21,7 +21,8 @@ class ObstaclePosDialog : public QDialog {
   Q_OBJECT
 
   public:
-    ObstaclePosDialog(MultiBodyModel* _multiBody, MainWindow* _mainWindow,  QWidget* _parent);
+    ObstaclePosDialog(const vector<MultiBodyModel*>& _multiBody, MainWindow* _mainWindow,  QWidget* _parent);
+    ~ObstaclePosDialog();
 
   public slots:
    // void AddToEnv();
@@ -34,15 +35,20 @@ class ObstaclePosDialog : public QDialog {
     void SetSlidersInit();
     void GetBoundingValues();
     void RefreshPosition();
+    void GetGravityCenter();
     string GetCoord();
+    string AddCoord(string _toAdd[6]);
     //Model Variables
     EnvModel* m_envModel;
-    MultiBodyModel* m_multiBody;
+    vector<MultiBodyModel*> m_multiBody;
     BodyModel* m_obstacle;
     MainWindow* m_mainWindow;
+    int m_sizeMB;
     //Obstacle Variables
     string m_stringCoord;
     pair<int, int> m_boundingValues[3];
+    double m_gravityCenter[3];
+    double m_lastValues[6];
     bool m_valueEdited;
     //Qt Variables
     QPushButton* m_loadButton;

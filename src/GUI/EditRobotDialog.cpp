@@ -405,8 +405,10 @@ EditRobotDialog::ShowJoint(){
     m_jointConnectionsLine1->insert(QString::number(m_newRobotModel.at(indexBase).second.at(indexJoint)->GetPreviousIndex()));
     m_jointConnectionsLine2->insert(QString::number(m_newRobotModel.at(indexBase).second.at(indexJoint)->GetNextIndex()));
     for(int j=0; j<2; j++){
-      for(int i=0; i<6; i++)
+      for(int i=0; i<3; i++)
         m_jointPos[j][i]->setValue(atof(splittedTransform[j][i].c_str()));
+      for(int i=0; i<3; i++)
+        m_jointPos[j][5-i]->setValue(atof(splittedTransform[j][i+3].c_str()));
     }
     m_jointAlphaLine->insert(QString::number(m_newRobotModel.at(indexBase).second.at(indexJoint)->GetAlpha()));
     m_jointALine->insert(QString::number(m_newRobotModel.at(indexBase).second.at(indexJoint)->GetA()));
@@ -698,7 +700,7 @@ EditRobotDialog::BaseRotationalChecked(){
 void
 EditRobotDialog::AddBase(){
   QString fn = QFileDialog::getOpenFileName(this, "Choose a base to load",
-      QString::null, "Files (*.g)");
+      QString::null, "Files (*.g *.obj)");
   if (!fn.isEmpty()){
     string newBaseFilename = fn.toStdString();
     stringstream modelFilename(newBaseFilename);
@@ -747,7 +749,7 @@ void
 EditRobotDialog::AddJoint(){
   if(m_baseList->currentItem()!=NULL){
     QString fn = QFileDialog::getOpenFileName(this, "Choose a joint to load",
-        QString::null, "Files (*.g)");
+        QString::null, "Files (*.g *.obj)");
     if (!fn.isEmpty()){
       string newJointFilename = fn.toStdString();
       stringstream modelFilename(newJointFilename);
