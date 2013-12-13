@@ -45,9 +45,8 @@ string
 BoundingBoxModel::GetCoord(){
 
   ostringstream coord;
-  coord<<m_bbx[0].first<<":"<<m_bbx[0].second<<" "<<
-              m_bbx[1].first<<":"<<m_bbx[1].second<<" "<<
-              m_bbx[2].first<<":"<<m_bbx[2].second<<" ";
+  for(int i=0; i<3; i++)
+    coord<<m_bbx[i].first<<":"<<m_bbx[i].second<<" ";
   return coord.str();
 }
 

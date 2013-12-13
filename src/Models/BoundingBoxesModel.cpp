@@ -67,15 +67,13 @@ BoundingBoxesModel::BuildOverlapModel(BoundingBoxModel* _a, BoundingBoxModel* _b
   OverlapType y = ClassifyOverlap(_a->m_bbx[1].first, _a->m_bbx[1].second, _b->m_bbx[1].first, _b->m_bbx[1].second);
   OverlapType z = ClassifyOverlap(_a->m_bbx[2].first, _a->m_bbx[2].second, _b->m_bbx[2].first, _b->m_bbx[2].second);
 
-  if(!((x==D && y==D && z==D) || (x==EP && y==EP && z==EP) || (x==EN && y==EN && y==EN))){
+  if(!(x==y && y==z && x!=O)){
     vector<double> ov = Overlap(_a, _b);
     BoundingBoxModel* cbbm = new BoundingBoxModel();
-    cbbm->m_bbx[0].first = ov[0];
-    cbbm->m_bbx[0].second = ov[1];
-    cbbm->m_bbx[1].first = ov[2];
-    cbbm->m_bbx[1].second = ov[3];
-    cbbm->m_bbx[2].first = ov[4];
-    cbbm->m_bbx[2].second = ov[5];
+    for(int i=0; i<3; i++){
+    cbbm->m_bbx[i].first = ov[2*i];
+    cbbm->m_bbx[i].second = ov[2*i+1];
+    }
     cbbm->BuildModels();
     m_bbxOverlaps.push_back(cbbm);
   }
@@ -103,12 +101,10 @@ BoundingBoxesModel::ClassifyOverlap(double _min1, double _max1, double _min2, do
 vector<double>
 BoundingBoxesModel::Overlap(BoundingBoxModel* _a, BoundingBoxModel* _b){
   vector<double> ov = vector<double>(6);
-  ov[0] = max(_a->m_bbx[0].first, _b->m_bbx[0].first);
-  ov[2] = max(_a->m_bbx[1].first, _b->m_bbx[1].first);
-  ov[4] = max(_a->m_bbx[2].first, _b->m_bbx[2].first);
-  ov[1] = min(_a->m_bbx[0].second, _b->m_bbx[0].second);
-  ov[3] = min(_a->m_bbx[1].second, _b->m_bbx[1].second);
-  ov[5] = min(_a->m_bbx[2].second, _b->m_bbx[2].second);
+  for(int i=0; i<3; i++ ){
+  ov[2*i] = max(_a->m_bbx[i].first, _b->m_bbx[i].first);
+  ov[2*i+1] = min(_a->m_bbx[i].second, _b->m_bbx[i].second);
+  }
   return ov;
 }
 

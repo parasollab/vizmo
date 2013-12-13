@@ -130,9 +130,8 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
   for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
     const Tri& tri = *trit;
     glNormal3dv(_norms[trit-_tris.begin()]);
-    glVertex3dv(_points[tri[0]]);
-    glVertex3dv(_points[tri[1]]);
-    glVertex3dv(_points[tri[2]]);
+    for(int i=0; i<3; i++)
+      glVertex3dv(_points[tri[i]]);
     //GLint id[3] = {tri[0], tri[1], tri[2]};
     //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, id);
   }

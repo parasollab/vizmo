@@ -123,6 +123,7 @@ MainWindow::SetUpLayout(){
   m_allTogether->addWidget(m_mainMenu->m_environmentOptions->GetToolbar());
   m_allTogether->addWidget(m_mainMenu->m_roadmapOptions->GetToolbar());
   m_allTogether->addWidget(m_mainMenu->m_pathOptions->GetToolbar());
+  m_allTogether->addWidget(m_mainMenu->m_queryOptions->GetToolbar());
   m_allTogether->addWidget(m_mainMenu->m_captureOptions->GetToolbar());
   m_allTogether->addWidget(m_mainMenu->m_help->GetToolbar());
 

@@ -8,6 +8,7 @@
 #include "EnvironmentOptions.h"
 #include "RoadmapOptions.h"
 #include "PathOptions.h"
+#include "QueryOptions.h"
 #include "CaptureOptions.h"
 #include "HelpOptions.h"
 
@@ -24,6 +25,7 @@ MainMenu::MainMenu(MainWindow* _mainWindow) {
   m_environmentOptions = new EnvironmentOptions(this, _mainWindow);
   m_roadmapOptions = new RoadmapOptions(this, _mainWindow);
   m_pathOptions = new PathOptions(this, _mainWindow);
+  m_queryOptions = new QueryOptions(this, _mainWindow);
   m_captureOptions = new CaptureOptions(this, _mainWindow);
   m_help = new HelpOptions(this, _mainWindow);              //This one should always be last!
 
@@ -41,6 +43,7 @@ MainMenu::SetUpMainMenu(){
   m_menuBar->addMenu(m_environmentOptions->GetSubMenu());
   m_menuBar->addMenu(m_roadmapOptions->GetSubMenu());
   m_menuBar->addMenu(m_pathOptions->GetSubMenu());
+  m_menuBar->addMenu(m_queryOptions->GetSubMenu());
   m_menuBar->addMenu(m_captureOptions->GetSubMenu());
   m_menuBar->addMenu(m_help->GetSubMenu());
 }
@@ -54,6 +57,7 @@ MainMenu::CallReset(){
   m_environmentOptions->Reset();
   m_roadmapOptions->Reset();
   m_pathOptions->Reset();
+  m_queryOptions->Reset();
   m_captureOptions->Reset();
   m_help->Reset();
 }

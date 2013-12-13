@@ -238,7 +238,8 @@ Vizmo::PlaceRobot() {
   if(m_robotModel){
     vector<double> cfg;
     if(m_queryModel)
-      cfg = m_queryModel->GetStartGoal(0);
+      cfg = m_queryModel->GetQueryCfg()[0]->Cfg::GetData();
+      //cfg = m_queryModel->GetStartGoal(0);
     else if(m_pathModel)
       cfg = m_pathModel->GetConfiguration(0);
     else

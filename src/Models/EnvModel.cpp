@@ -261,21 +261,7 @@ EnvModel::SaveFile(const char* _filename){
             envFile<<"Fixed ";
             ostringstream transform;
             transform<<bodies.back()->GetTransform();
-            string transformString=transform.str();
-            istringstream splitTransform(transformString);
-            string splittedTransform[6]={"","","","","",""};
-            int j=0;
-            do{
-              splitTransform>>splittedTransform[j];
-              j++;
-            }while(splitTransform);
-            string temp;
-            temp=splittedTransform[3];
-            splittedTransform[3]=splittedTransform[5];
-            splittedTransform[5]=temp;
-            for(int i=0; i<6; i++)
-              envFile<<splittedTransform[i]<<" ";
-            envFile<<endl;
+            envFile<<SetTransformRight(transform.str())<<endl;
           }
           else{
             envFile<<"Joint"<<endl;
@@ -283,7 +269,7 @@ EnvModel::SaveFile(const char* _filename){
           }
           bodies.pop_back();
         }
-        envFile<<"Connection"<<endl<<nbJoints<<endl;
+        envFile<<"Connections"<<endl<<nbJoints<<endl;
         if(nbJoints!=0){
           while(!joints.empty()){
             pair<double, double> jointLimits[2] = joints.back()->GetJointLimits();
@@ -300,13 +286,16 @@ EnvModel::SaveFile(const char* _filename){
             }
             envFile<<joints.back()->GetPreviousIndex()<<" "
                      <<joints.back()->GetNextIndex()<<"  "
-                     <<jointType<<limits.str()<<endl
-                     <<joints.back()->TransformToDHFrame()<<"   "
-                     <<joints.back()->GetAlpha()<<" "
+                     <<jointType<<limits.str()<<endl;
+            ostringstream transform;
+            transform<<joints.back()->TransformToDHFrame();
+            envFile<<SetTransformRight(transform.str())<<"   ";
+            envFile<<joints.back()->GetAlpha()<<" "
                      <<joints.back()->GetA()<<" "<<joints.back()->GetD()<<" "
-                     <<joints.back()->GetTheta()<<"   "
-                     <<joints.back()->TransformToBody2()
-                     <<endl;
+                     <<joints.back()->GetTheta()<<"   ";
+            ostringstream transform2;
+            transform2<<joints.back()->TransformToBody2();
+            envFile<<SetTransformRight(transform2.str())<<endl;
             joints.pop_back();
           }
         }
@@ -315,21 +304,7 @@ EnvModel::SaveFile(const char* _filename){
         envFile<<bodies.back()->GetFilename()<<"  ";
         ostringstream transform;
         transform<<bodies.back()->GetTransform();
-        string transformString=transform.str();
-        istringstream splitTransform(transformString);
-        string splittedTransform[6]={"","","","","",""};
-        int j=0;
-        do{
-          splitTransform>>splittedTransform[j];
-          j++;
-        }while(splitTransform);
-        string temp;
-        temp=splittedTransform[3];
-        splittedTransform[3]=splittedTransform[5];
-        splittedTransform[5]=temp;
-        for(int i=0; i<6; i++)
-          envFile<<splittedTransform[i]<<" ";
-        envFile<<endl;
+        envFile<<SetTransformRight(transform.str())<<endl;
       }
     }
     envFile<<endl;
@@ -339,3 +314,22 @@ EnvModel::SaveFile(const char* _filename){
   return true;
 }
 
+
+string
+EnvModel::SetTransformRight(string _transformString){
+  stringstream transform;
+  istringstream splitTransform(_transformString);
+  string splittedTransform[6]={"","","","","",""};
+  int j=0;
+  do{
+    splitTransform>>splittedTransform[j];
+    j++;
+  }while(splitTransform);
+  string temp;
+  temp=splittedTransform[3];
+  splittedTransform[3]=splittedTransform[5];
+  splittedTransform[5]=temp;
+  for(int i=0; i<6; i++)
+    transform<<splittedTransform[i]<<" ";
+  return transform.str();
+}

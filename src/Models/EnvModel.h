@@ -51,6 +51,7 @@ class EnvModel : public LoadableModel {
     bool m_containsSurfaces;
 
     int m_dof;
+    string SetTransformRight(string _transformString);
 
     vector<MultiBodyModel*> m_multibodies;
 

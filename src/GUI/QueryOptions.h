@@ -2,23 +2,21 @@
  * Class for the "Path" submenu and associated action buttons
  *****************************************************************/
 
-#ifndef PATHOPTIONS_H_
-#define PATHOPTIONS_H_
+#ifndef QUERYOPTIONS_H_
+#define QUERYOPTIONS_H_
 
 #include "OptionsBase.h"
 
-class CustomizePathDialog;
-
-class PathOptions : public OptionsBase {
+class QueryOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    PathOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+    QueryOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
   private slots:
-    void ShowHidePath();
-    void PathDisplayOptions();
+    void ShowHideQuery();
+    void EditQuery();
 
   private:
     void CreateActions();
@@ -27,7 +25,6 @@ class PathOptions : public OptionsBase {
     void Reset();
     void SetHelpTips();
 
-    CustomizePathDialog* m_pathOptionsInput; //pop-up dialog for gradient input, etc.
 };
 
 #endif

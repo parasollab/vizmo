@@ -26,6 +26,7 @@ class MainMenu : public QWidget {
     OptionsBase* m_environmentOptions;  //randomize colors button and submenu
     OptionsBase* m_roadmapOptions;      //large toolbar and submenu
     OptionsBase* m_pathOptions;         //2 buttons and submenu
+    OptionsBase* m_queryOptions;         //2 buttons and submenu
     OptionsBase* m_captureOptions;      //3 buttons and submenu
     OptionsBase* m_help;                //The What's This? button
 

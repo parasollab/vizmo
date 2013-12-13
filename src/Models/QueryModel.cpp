@@ -30,16 +30,28 @@ QueryModel::ParseFile() {
 
   ifstream ifs(GetFilename().c_str());
 
-  m_queries.clear();
+  m_cfgs.clear();
 
-  //TODO: Fix to load arbitrary number of queries
-  size_t numLines=2;
-
+  int dof  = Cfg::DOF();
   //Build  Model
-  for(size_t i = 0; i < numLines; ++i) {
-    CfgModel cfg;
-    ifs >> cfg;
-    m_queries.push_back(cfg.GetData());
+  while(ifs!=NULL){
+    vector<double> cfg;
+
+    //read in Robot Index and throw it away for now
+    double robotIndex;
+    ifs >> robotIndex;
+
+    for(int j=0; j<dof; ++j){
+      double d;
+      ifs >> d;
+      cfg.push_back(d);
+    }
+    if(ifs!=NULL){
+      CfgModel* cfgModel=new CfgModel();
+      cfgModel->SetCfg(cfg);
+      cfgModel->SetIsQuery();
+      m_cfgs.push_back(cfgModel);
+    }
   }
 }
 
@@ -54,19 +66,21 @@ QueryModel::BuildModels(){
 
   m_robotModel->SetRenderMode(WIRE_MODE);
 
-  Color4 oldcol = m_robotModel->GetColor(); //remember old color
+  Color4 oldCol = m_robotModel->GetColor(); //remember old color
+  m_queries.clear();
 
-  m_robotModel->SetColor(Color4(0, 1, 0, 0));
   //create list
   m_glQueryIndex = glGenLists(1);
   glNewList(m_glQueryIndex, GL_COMPILE);
 
-  for(size_t i=0; i<m_queries.size(); i++ ){
-    vector<double> cfg = m_queries[i];
+  for(size_t i=0; i<m_cfgs.size(); i++ ){
+    vector<double> cfg = m_cfgs[i]->GetDataCfg();
     m_robotModel->Configure(cfg);
+    m_queries.push_back(cfg);
 
-    if(i==1)
-      m_robotModel->SetColor(Color4(1, 0.6, 0, 0));
+    m_robotModel->SetColor(Color4(1.0-double(i/(m_cfgs.size()-1.0)),
+                                  0,
+                                (double(i/(m_cfgs.size()-1.0)))));
 
     m_robotModel->Draw(GL_RENDER);
 
@@ -75,13 +89,16 @@ QueryModel::BuildModels(){
     glColor3d(0.1, 0.1, 0.1);
     if(i==0)
       DrawStr(cfg[0]-0.5, cfg[1]-0.5, cfg[2],"S");
-    else
-      DrawStr(cfg[0]-0.2, cfg[1]-0.2, cfg[2],"G");
+    else{
+      stringstream gNum;
+      gNum<<"G"<<i;
+      DrawStr(cfg[0]-0.2, cfg[1]-0.2, cfg[2],gNum.str());
+    }
   }
   glEndList();
 
   //set back
-  m_robotModel->SetColor(oldcol);
+  m_robotModel->SetColor(oldCol);
   m_robotModel->SetRenderMode(SOLID_MODE);
 }
 
@@ -95,36 +112,42 @@ void QueryModel::Draw(GLenum _mode) {
 void
 QueryModel::Print(ostream& _os) const {
   _os << Name() << ": " << GetFilename() << endl;
-  //output start
   _os << "Start: ( ";
-  for(size_t i=0; i < m_queries[0].size(); ++i){
-    _os << m_queries[0][i];
-    if(i < m_queries[0].size()-1)
-      _os << ", ";
+  for(size_t j=0; j<m_cfgs.size(); j++){
+    if(j!=0)
+      _os << "G"<<j<<": ( " ;
+    for(size_t i=0; i < m_queries[j].size(); ++i){
+      _os << m_queries[j][i];
+      if(i < m_queries[j].size()-1)
+        _os << ", ";
+    }
+    _os << " )" << endl;
   }
-  _os << " )" << endl;
-
-  //output goal
-  _os << "Goal: ( " ;
-  for(size_t i=0; i<m_queries[1].size(); ++i){
-    _os << m_queries[1][i];
-    if(i < m_queries[1].size()-1)
-      _os << ", ";
-  }
-  _os << " )" << endl;
 }
 
 void
 QueryModel::SaveQuery(const string& _filename) {
   ofstream ofs(_filename.c_str());
-  for(size_t i = 0; i < m_queries.size(); ++i) {
+  for(size_t i = 0; i < m_cfgs.size(); ++i) {
     //output robot index. For now always a 0.
     ofs << "0 ";
     //output dofs
     typedef vector<double>::const_iterator DIT;
-    const vector<double>& query = m_queries[i];
+    const vector<double>& query = m_cfgs[i]->GetDataCfg();
     for(DIT dit = query.begin(); dit != query.end(); ++dit)
       ofs << *dit << " ";
     ofs << endl;
   }
 }
+
+void
+QueryModel::AddCfg(int _num){
+  vector<double> cfg;
+  for(int j=0; j<Cfg::DOF(); ++j)
+    cfg.push_back(0);
+  CfgModel* cfgModel=new CfgModel();
+  cfgModel->SetCfg(cfg);
+  cfgModel->SetIsQuery();
+  m_cfgs.insert(m_cfgs.begin()+_num, cfgModel);
+}
+

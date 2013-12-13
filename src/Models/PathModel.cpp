@@ -15,9 +15,9 @@ PathModel::PathModel(const string& _filename, RobotModel* _robotModel) :
 
     //set default stop colors for path gradient (cyan, green, yellow)
     Color4 cyan(0, 1, 1, 1), green(0, 1, 0, 1), yellow (1, 1, 0, 1);
-    m_stopColors.push_back(Color4(0, 1, 1, 1));
-    m_stopColors.push_back(Color4(0, 1, 0, 1));
-    m_stopColors.push_back(Color4(1, 1, 0, 1));
+    m_stopColors.push_back(cyan);
+    m_stopColors.push_back(green);
+    m_stopColors.push_back(yellow);
 
     ParseFile();
     BuildModels();
@@ -58,7 +58,7 @@ PathModel::BuildModels(){
   //Build Path Model
   m_robotModel->SetRenderMode(WIRE_MODE);
 
-  Color4 oldcol = m_robotModel->GetColor(); //old color
+  Color4 oldCol = m_robotModel->GetColor(); //old color
 
   glMatrixMode(GL_MODELVIEW);
 
@@ -110,7 +110,7 @@ PathModel::BuildModels(){
 
   //set back
   m_robotModel->SetRenderMode(SOLID_MODE);
-  m_robotModel->SetColor(oldcol);
+  m_robotModel->SetColor(oldCol);
 }
 
 void PathModel::Draw(GLenum _mode){

@@ -21,7 +21,9 @@ OBJECTS += \
 		 GUI/ObstaclePosDialog.o \
 	   GUI/NodeEditDialog.o \
 	   GUI/PathOptions.o \
+		 GUI/QueryEditDialog.o \
 	   GUI/QueryGUI.o \
+		 GUI/QueryOptions.o \
 	   GUI/RoadmapOptions.o \
 	   GUI/RobotOptions.o \
 	   GUI/SliderDialog.o \

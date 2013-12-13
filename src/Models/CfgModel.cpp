@@ -15,6 +15,7 @@ CfgModel::CfgModel() : Model("") {
   m_index = -1;
   m_inColl = false;
   m_cc = NULL;
+  m_isQuery = false;
 }
 
 void
@@ -92,6 +93,24 @@ CfgModel::DrawRobot(){
 }
 
 void
+CfgModel::PerformBoxTranslation(){
+  if(m_isPlanarRobot){
+    glTranslated(m_v[0], m_v[1], 0);
+    if(m_isRotationalRobot){
+      glRotated(m_v[2]*360, 0, 0, 1);
+    }
+  }
+  else if(m_isVolumetricRobot){
+    glTranslated(m_v[0], m_v[1], m_v[2]);
+    if(m_isRotationalRobot){
+      glRotated(m_v[5]*360, 0, 0, 1);
+      glRotated(m_v[4]*360, 0, 1, 0);
+      glRotated(m_v[3]*360, 1, 0, 0);
+    }
+  }
+}
+
+void
 CfgModel::DrawBox(){
 
   glPushMatrix();
@@ -101,24 +120,7 @@ CfgModel::DrawBox(){
   else
     glColor4fv(m_color);
 
-  //If base is not FIXED, perform translations
-  //Additionally, perform rotations if base is also ROTATIONAL
-  if(m_isPlanarRobot){
-    glTranslated(m_v[0], m_v[1], 0);
-    if(m_isRotationalRobot){
-      //2D planar robot can have one rotational DOF
-      glRotated(m_v[2]*360, 0, 0, 1);
-    }
-  }
-  else if(m_isVolumetricRobot){
-    glTranslated(m_v[0], m_v[1], m_v[2]);
-    if(m_isRotationalRobot){
-      //3D volumetric robot can have 3 rotational DOFs
-      glRotated(m_v[5]*360, 0, 0, 1);
-      glRotated(m_v[4]*360, 0, 1, 0);
-      glRotated(m_v[3]*360, 1, 0, 0);
-    }
-  }
+  PerformBoxTranslation();
 
   glEnable(GL_NORMALIZE);
   if(m_renderMode == SOLID_MODE)
@@ -168,21 +170,7 @@ CfgModel::DrawSelect(){
     case Box:
       glLineWidth(2);
       glPushMatrix();
-
-      if(m_isPlanarRobot){
-        glTranslated(m_v[0], m_v[1], 0);
-        if(m_isRotationalRobot)
-          glRotated(m_v[2]*360, 0, 0, 1);
-      }
-
-      else if(m_isVolumetricRobot){
-        glTranslated(m_v[0], m_v[1], m_v[2]);
-        if(m_isRotationalRobot){
-          glRotated(m_v[5]*360, 0, 0, 1);
-          glRotated(m_v[4]*360, 0, 1, 0);
-          glRotated(m_v[3]*360, 1, 0, 0);
-        }
-      }
+      PerformBoxTranslation();
       glutWireCube(m_boxScale+0.1); //may need adjustment
       glPopMatrix();
       break;

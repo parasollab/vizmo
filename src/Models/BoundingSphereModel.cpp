@@ -10,9 +10,8 @@ vector<pair<double, double> >
 BoundingSphereModel::GetRanges(){
 
   vector<pair<double, double> > ranges;
-  ranges.push_back(make_pair(m_center[0] - m_radius, m_center[0] + m_radius));
-  ranges.push_back(make_pair(m_center[1] - m_radius, m_center[1] + m_radius));
-  ranges.push_back(make_pair(m_center[2] - m_radius, m_center[2] + m_radius));
+  for(int i=0; i<3; i++)
+    ranges.push_back(make_pair(m_center[i] - m_radius, m_center[i] + m_radius));
   return ranges;
 }
 

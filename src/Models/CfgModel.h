@@ -25,7 +25,10 @@ class CfgModel : public Model, public Cfg {
 
     void SetName();
     size_t GetIndex() const { return m_index; }
+    vector<double> GetDataCfg() { return m_v; }
     Point3d GetPoint() const {return Point3d(m_v[0], m_v[1], m_isVolumetricRobot ? m_v[2] : 0); }
+    void SetIsQuery(){ m_isQuery=true;}
+    bool IsQuery(){ return m_isQuery;}
 
     static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
@@ -57,6 +60,7 @@ class CfgModel : public Model, public Cfg {
     void Print(ostream& _os) const;
 
   private:
+    void PerformBoxTranslation();
     static double m_defaultDOF;
     static bool m_isPlanarRobot;
     static bool m_isVolumetricRobot;
@@ -66,6 +70,7 @@ class CfgModel : public Model, public Cfg {
     static float m_pointScale;
 
     bool m_inColl; //For collision detection
+    bool m_isQuery;
     size_t m_index;
     CCModel<CfgModel, EdgeModel>* m_cc;
 };

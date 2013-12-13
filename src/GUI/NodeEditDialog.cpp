@@ -6,6 +6,7 @@
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
 #include "Models/CfgModel.h"
+#include "Models/QueryModel.h"
 #include "Models/MapModel.h"
 #include "Models/MultiBodyModel.h"
 #include "Models/Vizmo.h"
@@ -173,6 +174,10 @@ NodeEditDialog::UpdateDOF(int _id){
 
   CollisionCheck();
 
+  if(m_currentNode->IsQuery()){
+    GetVizmo().GetQry()->BuildModels();
+    GetVizmo().PlaceRobot();
+  }
   m_gLScene->updateGL();
 }
 

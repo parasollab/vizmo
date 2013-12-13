@@ -50,9 +50,8 @@ EdgeModel::Draw(GLenum _mode) {
     glBegin(GL_LINE_STRIP);
     glVertex3dv(m_startCfg->GetPoint());
     for(CFGIT c = m_intermediates.begin();
-        c != m_intermediates.end(); c++){
+        c != m_intermediates.end(); c++)
       glVertex3dv(c->GetPoint()); //starting point of next line
-    }
     glVertex3dv(m_endCfg->GetPoint());
     glEnd();
 
@@ -76,9 +75,8 @@ EdgeModel::DrawSelect(){
   glBegin(GL_LINE_STRIP);
     glVertex3dv(m_startCfg->GetPoint());
     for(CFGIT c = m_intermediates.begin();
-        c != m_intermediates.end(); c++){
+        c != m_intermediates.end(); c++)
       glVertex3dv(c->GetPoint()); //starting point of next line
-    }
     glVertex3dv(m_endCfg->GetPoint());
   glEnd();
 }
