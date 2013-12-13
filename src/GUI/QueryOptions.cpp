@@ -11,7 +11,6 @@
 #include "QueryEditDialog.h"
 #include "NodeEditDialog.h"
 
-#include "QueryGUI.h"
 #include "Models/Vizmo.h"
 #include "Models/QueryModel.h"
 

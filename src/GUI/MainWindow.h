@@ -14,7 +14,6 @@ class AnimationWidget;
 class VizmoScreenShotGUI;
 class ModelSelectionWidget;
 class VizmoAttributeSelectionGUI;
-class queryGUI;
 class TextGUI;
 class MainMenu;
 class GLWidget;

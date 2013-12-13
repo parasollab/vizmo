@@ -1,16 +1,15 @@
 #include "MainWindow.h"
 
-#include "Models/Vizmo.h"
-#include "GLWidget.h"
-#include "AnimationWidget.h"
-#include "ModelSelectionWidget.h"
-#include "TextGUI.h"
-#include "FileListDialog.h"
-#include "QueryGUI.h"
-#include "MainMenu.h"
-#include "OptionsBase.h"
+#include <QtGui>
 
-#include <QKeyEvent>
+#include "AnimationWidget.h"
+#include "FileListDialog.h"
+#include "GLWidget.h"
+#include "MainMenu.h"
+#include "ModelSelectionWidget.h"
+#include "OptionsBase.h"
+#include "TextGUI.h"
+#include "Models/Vizmo.h"
 
 #include "Icons/Eye.xpm"
 
