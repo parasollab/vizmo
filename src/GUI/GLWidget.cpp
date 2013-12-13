@@ -8,6 +8,7 @@
 #include <QGLWidget>
 
 #include <glut.h>
+#include <GL/glu.h>
 
 #include "MainWindow.h"
 #include "Models/EnvModel.h"
@@ -43,7 +44,7 @@ GLWidget::ToggleSelectionSlot(){
 void
 GLWidget::ResetCamera(){
   EnvModel* e = GetVizmo().GetEnv();
-  GetCurrentCamera()->Set(Point3d(0, 0, 4*(e ? e->GetRadius() : 200)), 0, 0);
+  GetCurrentCamera()->Set(Vector3d(0,0,4*(e ? e->GetRadius() : 100)),Vector3d(0,0,0), Vector3d(0,1,0));
 }
 
 Camera*
@@ -72,7 +73,7 @@ GLWidget::resizeGL(int _w, int _h) {
   glViewport(0, 0, _w, _h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, ((GLfloat)_w)/((GLfloat)_h), 1, 1500);
+  gluPerspective(60, ((GLfloat)_w)/((GLfloat)_h), 1, 10000);
 }
 
 void
@@ -201,11 +202,36 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
       //If shift is pressed, these are additional objects to add to
       //selection
       GetVizmo().Select(m_pickBox.GetBox());
-      vector<Model*>& newobjs = GetVizmo().GetSelectedModels();
-      objs.insert(objs.end(), newobjs.begin(), newobjs.end());
+      vector<Model*>& newObjs = GetVizmo().GetSelectedModels();
+      if((SHIFT_CLICK)&&(newObjs.size()==1)){
+        vector<int> toErase[2];
+        typedef vector<Model*>::iterator SI;
+        int u=0;
+        for(SI i = objs.begin(); i!= objs.end(); i++){
+          int v=0;
+          for(SI j = newObjs.begin(); j!= newObjs.end(); j++){
+            if((*i)==(*j)){
+              toErase[0].push_back(u);
+              toErase[1].push_back(v);
+            }
+            u++;
+          }
+          v++;
+        }
+        while(toErase[0].size()!=0){
+          objs.erase(objs.begin()+toErase[0].back());
+          toErase[0].pop_back();
+        }
+        while(toErase[1].size()!=0){
+          newObjs.erase(newObjs.begin()+toErase[1].back());
+          toErase[1].pop_back();
+        }
+      }
+      if(newObjs.size()!=0)
+        objs.insert(objs.end(), newObjs.begin(), newObjs.end());
 
       if(SHIFT_CLICK)
-        newobjs = objs;
+        newObjs = objs;
 
       m_transformTool.CheckSelectObject();
     }

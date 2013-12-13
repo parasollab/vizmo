@@ -4,48 +4,54 @@
 #include <iostream>
 
 #include <QMouseEvent>
+#include <GL/glu.h>
 
 #include "Models/Vizmo.h"
+#include "Models/EnvModel.h"
 
 Camera::Camera(const string& _name, const Point3d& _pos, const Vector3d& _up)
-  : m_camName(_name), m_cameraPos(_pos), m_up(_up),
+  : m_camName(_name),  m_up(_up),
+  m_eye(Vector3d(0,0,0)), m_at(Vector3d(0,0,0)),
+  m_vector(Vector3d(0,0,0)),
   m_currentAzim(0), m_deltaAzim(0),
   m_currentElev(0), m_deltaElev(0),
-  m_speed(0.5), m_angle(0.5),
+  m_speed(0.4), m_defaultSpeed(0),
   m_mousePressed(false) {
   }
 
 void
-Camera::Set(const Point3d& _pos, double _azim, double _elev) {
-  m_cameraPos = _pos;
-  m_currentAzim = _azim;
-  m_currentElev = _elev;
+Camera::Set(const Vector3d& _eye, const Vector3d& _at, const Vector3d& _up) {
+  m_eye = _eye;
+  m_at = _at ;
+  m_up= _up;
+  m_vector=m_eye-m_at;
+  if(m_up[1]>=0)
+    m_currentElev=radToDeg(acos(-m_vector[1]/ m_vector.norm())-M_PI/2);
+  else
+    m_currentElev=radToDeg(2*M_PI-acos(-m_vector[1]/ m_vector.norm())-M_PI/2);
+  if(m_vector[2]>=0)
+    m_currentAzim=radToDeg(acos(-m_vector[0]/sqrt(sqr(m_vector[0])+ sqr(m_vector[2])))-PI/2)+180*(m_up[1]<0);
+  else
+    m_currentAzim=radToDeg(-acos(-m_vector[0]/sqrt(sqr(m_vector[0])+ sqr(m_vector[2])))-PI/2)+180*(m_up[1]<0);
+  EnvModel* e = GetVizmo().GetEnv();
+  m_defaultSpeed=2000/e->GetRadius();
 }
 
 void
 Camera::Draw() {
-  glTranslatef(m_cameraPos[0]+m_deltaDis[0],
-      m_cameraPos[1]+m_deltaDis[1],
-      -m_cameraPos[2]-m_deltaDis[2]);
-
-  glRotated(m_currentElev+m_deltaElev, 1.0, 0.0, 0.0);
-  glRotated(m_currentAzim+m_deltaAzim, 0.0, 1.0, 0.0);
-
-  /*
-     gluLookAt( (m_cameraPos[0]+m_deltaDis[0]), //eye pos
-     -(m_cameraPos[1]+m_deltaDis[1]),
-     -(m_cameraPos[2]+m_deltaDis[2]),
-     0,0,0, //center
-     m_up[0],m_up[1],m_up[2]);
-     */
+  gluLookAt( m_eye[0], m_eye[1], m_eye[2],
+  m_at[0],m_at[1],m_at[2],
+  m_up[0],m_up[1],m_up[2]);
 }
 
 bool
 Camera::MousePressed(QMouseEvent* _e) {
-  if(_e->buttons() && _e->modifiers() == Qt::ControlModifier) {
-    m_mousePressed = true;
-    m_pressedPt = _e->pos();
-    return true; //handled
+  if(_e->buttons()) {
+    if(_e->modifiers() & Qt::ControlModifier){
+      m_mousePressed = true;
+      m_pressedPt = _e->pos();
+      return true; //handled
+    }
   }
   return false;
 }
@@ -55,13 +61,13 @@ Camera::MouseReleased(QMouseEvent* _e) {
   if(m_mousePressed) {
     m_mousePressed = false;
 
-    m_cameraPos += m_deltaDis;
     m_currentElev += m_deltaElev;
     m_currentAzim += m_deltaAzim;
 
     m_deltaDis(0, 0, 0);
     m_deltaElev = 0.0;
     m_deltaAzim = 0.0;
+
 
     return true;
   }
@@ -72,22 +78,65 @@ bool
 Camera::MouseMotion(QMouseEvent* _e){
   if(m_mousePressed) {
     QPoint drag = _e->pos() - m_pressedPt;
-
     //displacement
-    if(_e->buttons() & Qt::MidButton) {
-      m_deltaDis[0] = drag.x()/10.0;
-      m_deltaDis[1] = -drag.y()/10.0;
+    if((_e->modifiers() & Qt::ShiftModifier)&&(_e->buttons() & Qt::LeftButton)) {
+      /*******Y-AXIS:ROTATE UP/DOWN**X/Z-AXIS:ROTATE RIGHT-LEFT**********/
+      m_deltaAzim = -drag.x()/5*m_speed;
+      m_deltaElev = drag.y()/5*m_speed;
+      double radAzim=degToRad(m_currentAzim+m_deltaAzim-90);
+      double radElev=degToRad(m_currentElev+m_deltaElev+90);
+      if(sin(radElev)>=0)
+        m_up[1]=1;
+      else
+        m_up[1]=-1;
+      m_eye[0]= sin(radElev)*m_vector.norm()*cos(radAzim);
+      m_eye[1]= -cos(radElev)*m_vector.norm();
+      m_eye[2]= -sin(radElev)*m_vector.norm()*sin(radAzim);
+      m_eye+=m_at;
     }
     else if(_e->buttons() & Qt::RightButton) {
-      m_deltaDis[2] = drag.y()/10.0;
+      /*******Y-AXIS:GO UP/DOWN**X/Z-AXIS:GO RIGHT-LEFT**********/
+      m_deltaDis[0] = drag.x()/m_defaultSpeed*m_speed;
+      m_deltaDis[1] = drag.y()/m_defaultSpeed*m_speed;
+      double radAzim=degToRad(m_currentAzim);
+
+      m_eye[0] = m_eye[0]       + cos(radAzim)*m_deltaDis[0];
+      m_at[0] = m_at[0] + cos(radAzim)*m_deltaDis[0];
+      m_eye[1]=m_eye[1]-m_up[1]*m_deltaDis[1];
+      m_at[1]=m_at[1]-m_up[1]*m_deltaDis[1];
+      m_eye[2] = m_eye[2]       - sin(radAzim)*m_deltaDis[0];
+      m_at[2] = m_at[2] - sin(radAzim)*m_deltaDis[0];
+
     }
     else if(_e->buttons() & Qt::LeftButton) {
-      m_deltaAzim = drag.x()/5.0;
-      m_deltaElev = drag.y()/5.0;
+      /******Y/Z-AXIS:LOOK UP/DOWN**X/Z-AXIS:LOOK RIGHT-LEFT*****/
+      m_deltaAzim = -drag.x()/5*m_speed;
+      m_deltaElev = drag.y()/5*m_speed;
+      double radAzim=degToRad(m_currentAzim+m_deltaAzim-90);
+      double radElev=degToRad(m_currentElev+m_deltaElev+90);
+      if(sin(radElev)>=0)
+        m_up[1]=1;
+      else
+        m_up[1]=-1;
+      m_at[0]= -sin(radElev)*m_vector.norm()*cos(radAzim);
+      m_at[1]= cos(radElev)*m_vector.norm();
+      m_at[2]= sin(radElev)*m_vector.norm()*sin(radAzim);
+      m_at+=m_eye;
+    }
+    else if(_e->buttons()&Qt::MidButton){
+      /*****************X/Z-AXIS:GO FORWARD/BACKWARD*************/
+      m_deltaDis[0] = drag.x()/m_defaultSpeed*m_speed;
+      m_deltaDis[2] = drag.y()/m_defaultSpeed*m_speed;
+      double radAzim=degToRad(m_currentAzim);
+      m_eye[0] = m_eye[0]       +m_up[1]*sin(radAzim)*m_deltaDis[2]+ cos(radAzim)*m_deltaDis[0];
+      m_at[0] = m_at[0] +m_up[1]*sin(radAzim)*m_deltaDis[2]+ cos(radAzim)*m_deltaDis[0];
+      m_eye[2] = m_eye[2]       +m_up[1]*cos(radAzim)*m_deltaDis[2]- sin(radAzim)*m_deltaDis[0];
+      m_at[2] = m_at[2] +m_up[1]*cos(radAzim)*m_deltaDis[2]- sin(radAzim)*m_deltaDis[0];
     }
     else
       return false; //not handled
 
+    m_vector=m_eye-m_at;
     return true;
   }
   return false; //mouse is not pressed
@@ -99,50 +148,71 @@ Camera::KeyPressed(QKeyEvent* _e) {
   switch(_e->key()){
     //case 'h': PrintHelp();return true;
     case '-':
-      m_speed /= 1.5;
+        m_speed -= 0.1;
+      if(m_speed<=0.0)
+        m_speed=0.1;
       return true;
     case '+':
-      m_speed *= 1.5;
-      return true;
-    case '/':
-      m_angle /= 1.5;
-      return true;
-    case '*':
-      m_angle *= 1.5;
-      return true;
-    case '6': //left
-      m_cameraPos[0] += m_speed;
-      return true;
-    case '4': //right
-      m_cameraPos[0] -= m_speed;
-      return true;
-    case '7': //up
-      m_cameraPos[1] += m_speed;
-      return true;
-    case '1': //down
-      m_cameraPos[1] -= m_speed;
-      return true;
-    case '8': //forward
-      m_cameraPos[2] -= m_speed;
-      return true;
-    case '2': //back
-      m_cameraPos[2] += m_speed;
+      m_speed += 0.1;
       return true;
     case Qt::Key_Left: //look left
-      m_currentAzim -= m_angle;
+      m_deltaAzim += 10;
+      KeyRotatePressed();
       return true;
     case Qt::Key_Right: //look right
-      m_currentAzim += m_angle;
+      m_deltaAzim -= 10;
+      KeyRotatePressed();
       return true;
     case Qt::Key_Up: //look up
-      m_currentElev -= m_angle;
+      if(_e->modifiers() & Qt::ControlModifier){
+        if(_e->modifiers() & Qt::ShiftModifier){
+          m_eye=m_eye*4/5;
+          m_vector=m_eye-m_at;
+        }
+      }
+      else{
+        m_deltaElev += 10;
+        KeyRotatePressed();
+      }
       return true;
     case Qt::Key_Down: //look down
-      m_currentElev += m_angle;
+      if(_e->modifiers() & Qt::ControlModifier){
+        if(_e->modifiers() & Qt::ShiftModifier){
+          m_eye=m_eye*5/4;
+          m_vector=m_eye-m_at;
+        }
+      }
+      else{
+        m_deltaElev -= 10;
+        KeyRotatePressed();
+      }
       return true;
     default:
       return false;
   }
+}
+void
+Camera::KeyRotatePressed(){
+
+  double radAzim=degToRad(m_currentAzim+m_deltaAzim-90);
+  double radElev=degToRad(m_currentElev+m_deltaElev+90);
+  if(sin(radElev)>=0)
+    m_up[1]=1;
+  else
+    m_up[1]=-1;
+  m_eye[0]= sin(radElev)*m_vector.norm()*cos(radAzim);
+  m_eye[1]= -cos(radElev)*m_vector.norm();
+  m_eye[2]= -sin(radElev)*m_vector.norm()*sin(radAzim);
+  m_eye+=m_at;
+
+  m_currentElev += m_deltaElev;
+  m_currentAzim += m_deltaAzim;
+
+  m_deltaDis(0, 0, 0);
+  m_deltaElev = 0.0;
+  m_deltaAzim = 0.0;
+
+  m_vector=m_eye-m_at;
 }
 
 Vector3d
@@ -191,3 +261,11 @@ CameraFactory::SetCurrentCamera(const string& _name) {
     << "' does not exist in CameraFactory." << endl;
 }
 
+vector<Vector3d>
+Camera::GetCameraPos() const{
+  vector<Vector3d> pos;
+  pos.push_back(m_eye);
+  pos.push_back(m_at);
+  pos.push_back(m_up);
+  return pos;
+}

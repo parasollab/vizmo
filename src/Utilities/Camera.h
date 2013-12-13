@@ -15,8 +15,7 @@ class Camera {
     Camera(const string& _name, const Point3d& _pos, const Vector3d& _up);
 
     //allow user to explicitly specify camera position/orientation
-    void Set(const Point3d& _pos, double _azim, double _elev);
-
+    void Set(const Vector3d& _eye, const Vector3d& _at, const Vector3d& _up);
     void Draw();
 
     //event handling
@@ -26,8 +25,7 @@ class Camera {
     bool KeyPressed(QKeyEvent* _e);
 
     const string& GetCameraName() const {return m_camName;}
-    Point3d GetCameraPos() const {return m_cameraPos + m_deltaDis;}
-    void SetCameraPos(const Point3d& _pos) {m_cameraPos = _pos;}
+    vector<Vector3d> GetCameraPos() const;
     double GetCameraAzim() const {return m_currentAzim + m_deltaAzim;}
     double GetCameraElev() const {return m_currentElev + m_deltaElev;}
 
@@ -37,16 +35,18 @@ class Camera {
     Vector3d GetWindowZ() const;
 
   private:
+    void KeyRotatePressed();
+
     string m_camName;
 
-    Point3d m_cameraPos;
     Vector3d m_deltaDis; // displacement caused by user
     Vector3d m_up;
+    Vector3d m_eye, m_at;
+    Vector3d m_vector;
 
     double m_currentAzim, m_deltaAzim;
     double m_currentElev, m_deltaElev;
-    double m_speed;
-    double m_angle;
+    double m_speed, m_defaultSpeed;
 
     QPoint m_pressedPt;
     bool m_mousePressed;

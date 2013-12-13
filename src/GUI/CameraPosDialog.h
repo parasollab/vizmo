@@ -9,7 +9,6 @@
 #include <QDialog>
 
 class QDialogButtonBox;
-class QFormLayout;
 class QLabel;
 class QLineEdit;
 
@@ -29,20 +28,14 @@ class CameraPosDialog : public QDialog {
   private:
     QDialogButtonBox* m_buttonBox;
     QLabel* m_label;
-    QWidget* m_formLayoutWidget;
-    QFormLayout* m_formLayout;
-    QLabel* m_xLabel;
-    QLineEdit* m_xLineEdit;
-    QLabel* m_yLabel;
-    QLineEdit* m_yLineEdit;
-    QLabel* m_zLabel;
-    QLineEdit* m_zLineEdit;
-    QWidget* m_formLayoutWidget_2;
-    QFormLayout* m_formLayout_2;
-    QLabel* m_azimLabel;
-    QLabel* m_elevLabel;
-    QLineEdit* m_azimLineEdit;
-    QLineEdit* m_elevLineEdit;
+    QLabel* m_labelEye[3];
+    QLabel* m_labelCenter[3];
+    QLabel* m_labelUp[3];
+    QLabel* m_labelElev;
+    QLabel* m_labelAzim;
+    QLineEdit* m_lineEye[3];
+    QLineEdit* m_lineCenter[3];
+    QLineEdit* m_lineUp[3];
 
     Camera* m_camera;
 };
