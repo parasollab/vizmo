@@ -91,7 +91,7 @@ PathModel::BuildModels(){
     if(i % m_displayInterval == 0){
       m_robotModel->SetColor(*cit);
       m_robotModel->Configure(m_path[i]);
-      m_robotModel->Draw(GL_RENDER);
+      m_robotModel->Draw();
     }
   }
 
@@ -102,7 +102,7 @@ PathModel::BuildModels(){
     if(j%m_displayInterval==0){
       m_robotModel->SetColor(allColors.back());
       m_robotModel->Configure(m_path[allColors.size()+j]);
-      m_robotModel->Draw(GL_RENDER);
+      m_robotModel->Draw();
     }
   }
 
@@ -113,8 +113,8 @@ PathModel::BuildModels(){
   m_robotModel->SetColor(oldCol);
 }
 
-void PathModel::Draw(GLenum _mode){
-  if(_mode==GL_SELECT || m_renderMode == INVISIBLE_MODE)
+void PathModel::Draw() {
+  if(m_renderMode == INVISIBLE_MODE)
     return; //not draw any thing
 
   //set to line represnet

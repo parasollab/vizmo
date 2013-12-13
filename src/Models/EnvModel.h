@@ -42,7 +42,7 @@ class EnvModel : public LoadableModel {
 
     void BuildModels();
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw(GLenum _mode);
+    void Draw();
     void DrawSelect() {}
     void Print(ostream& _os) const;
 

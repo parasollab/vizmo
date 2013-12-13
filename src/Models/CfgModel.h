@@ -52,7 +52,7 @@ class CfgModel : public Model, public Cfg {
 
     void BuildModels() {}
     void Select(GLuint* _index, vector<Model*>& _sel) {};
-    void Draw(GLenum _mode);
+    void Draw();
     void DrawRobot();
     void DrawBox();
     void DrawPoint();

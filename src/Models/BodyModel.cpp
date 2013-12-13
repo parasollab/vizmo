@@ -80,11 +80,11 @@ BodyModel::ComputeTransform(const BodyModel* _body, size_t _nextBody){
 }
 
 void
-BodyModel::Draw(GLenum _mode) {
+BodyModel::Draw() {
   glColor4fv(GetColor());
   glPushMatrix();
   Transform();
-  m_polyhedronModel->Draw(_mode);
+  m_polyhedronModel->Draw();
   glPopMatrix();
 }
 

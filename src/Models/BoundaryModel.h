@@ -14,7 +14,7 @@ class BoundaryModel : public Model {
     virtual string GetCoord()=0;
     virtual void BuildModels() = 0;
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw(GLenum _mode);
+    void Draw();
     void DrawSelect();
     virtual void Print(ostream& _os) const = 0;
 

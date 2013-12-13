@@ -57,8 +57,7 @@ CfgModel::Scale(float _scale){
 }
 
 void
-CfgModel::Draw(GLenum _mode){
-
+CfgModel::Draw(){
   glPushName(m_index);
   switch(m_shape){
     case Robot:
@@ -88,7 +87,7 @@ CfgModel::DrawRobot(){
     robot->SetColor(m_color);
 
   robot->Configure(m_v);
-  robot->Draw(GL_RENDER);
+  robot->Draw();
   robot->Restore();
 }
 

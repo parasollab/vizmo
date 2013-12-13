@@ -15,8 +15,10 @@ BoundaryModel::Select(GLuint* _index, vector<Model*>& _sel) {
 }
 
 void
-BoundaryModel::Draw(GLenum _mode){
-  if(m_renderMode == INVISIBLE_MODE) return;
+BoundaryModel::Draw() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
   glDisable(GL_LIGHTING);
   glCallList(m_displayID);
   glEnable(GL_LIGHTING);

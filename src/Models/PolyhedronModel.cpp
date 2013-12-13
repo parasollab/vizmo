@@ -75,9 +75,9 @@ PolyhedronModel::BuildModels() {
   delete imodel;
 }
 
-void PolyhedronModel::Draw(GLenum _mode) {
-  if(m_solidID == GLuint(-1)) return;
-  if(m_renderMode == INVISIBLE_MODE) return;
+void PolyhedronModel::Draw() {
+  if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
+    return;
 
   if(m_renderMode == SOLID_MODE){
     glEnable(GL_POLYGON_OFFSET_FILL);

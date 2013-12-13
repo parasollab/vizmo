@@ -53,7 +53,7 @@ class MapModel : public LoadableModel {
 
     void BuildModels();
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw(GLenum _mode);
+    void Draw();
     void DrawSelect() {}
     void Print(ostream& _os) const;
     void SetColor(const Color4& _c);
@@ -158,7 +158,7 @@ MapModel<CFG, WEIGHT>::BuildModels() {
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::Draw(GLenum _mode){
+MapModel<CFG, WEIGHT>::Draw(){
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
@@ -166,7 +166,7 @@ MapModel<CFG, WEIGHT>::Draw(GLenum _mode){
   typedef typename vector<CCM*>::iterator CIT;//CC iterator
   for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++){
     glPushName((*ic)->GetID());
-    (*ic)->Draw(_mode);
+    (*ic)->Draw();
     glPopName();
   }
 }

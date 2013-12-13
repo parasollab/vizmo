@@ -73,12 +73,12 @@ MultiBodyModel::Select(unsigned int* _index, vector<Model*>& sel){
 }
 
 void
-MultiBodyModel::Draw(GLenum _mode){
+MultiBodyModel::Draw() {
   glColor4fv(GetColor());
   glPushMatrix();
 
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
-    (*bit)->Draw(_mode);
+    (*bit)->Draw();
 
   glPopMatrix();
 }

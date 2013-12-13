@@ -31,11 +31,10 @@ class CCModel : public Model {
 
     void BuildModels();
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw(GLenum _mode);
+    void Draw();
     void DrawSelect();
     void Print(ostream& _os) const;
-    void BuildNodeModels(GLenum _mode);
-    void DrawNodes(GLenum _mode);
+    void DrawNodes();
     void DrawEdges();
     void SetColor(const Color4& _c);
     virtual void GetChildren(list<Model*>& _models);
@@ -110,7 +109,7 @@ CCModel<CFG, WEIGHT>::BuildModels() {
 
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::DrawNodes(GLenum _mode){
+CCModel<CFG, WEIGHT>::DrawNodes(){
   switch(CFG::GetShape()){
     case CFG::Robot:
     case CFG::Box:
@@ -127,7 +126,7 @@ CCModel<CFG, WEIGHT>::DrawNodes(GLenum _mode){
   typedef typename vector<VID>::iterator VIT;
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit){
     glPushName(*vit);
-    GetCfg(*vit).Draw(_mode);
+    GetCfg(*vit).Draw();
     glPopName();
   }
 }
@@ -168,19 +167,19 @@ CCModel<CFG, WEIGHT>::DrawEdges(){
   typedef typename vector<EID>::iterator EIT;
   for(EIT eit = m_edges.begin(); eit!=m_edges.end(); ++eit) {
     glPushName(eit-m_edges.begin());
-    GetEdge(*eit).Draw(m_renderMode);
+    GetEdge(*eit).Draw();
     glPopName();
   }
 }
 
 template <class CFG, class WEIGHT>
-void CCModel<CFG, WEIGHT>::Draw(GLenum _mode) {
+void CCModel<CFG, WEIGHT>::Draw() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
   //Names: 1 = Nodes, 2 = Edges
   glPushName(1);
-  DrawNodes(_mode);
+  DrawNodes();
   glPopName();
 
   glPushName(2);

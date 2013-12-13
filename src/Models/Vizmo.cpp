@@ -145,7 +145,7 @@ void
 Vizmo::Draw() {
   typedef vector<Model*>::iterator MIT;
   for(MIT mit = m_loadedModels.begin(); mit!=m_loadedModels.end(); ++mit)
-    (*mit)->Draw(GL_RENDER);
+    (*mit)->Draw();
 
   glColor3f(1,1,0); //Selections are yellow, so set the color once now
   for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit)
@@ -189,7 +189,7 @@ Vizmo::Select(const Box& _box) {
   typedef vector<Model*>::iterator MIT;
   for(MIT mit = m_loadedModels.begin(); mit != m_loadedModels.end(); ++mit) {
     glPushName(mit-m_loadedModels.begin());
-    (*mit)->Draw(GL_SELECT);
+    (*mit)->Draw();
     glPopName();
   }
 

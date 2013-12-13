@@ -23,7 +23,7 @@ class PathModel : public LoadableModel {
     virtual void ParseFile();
     virtual void BuildModels();
     void Select(GLuint* _index, vector<Model*>& _sel) {}
-    virtual void Draw(GLenum _mode);
+    virtual void Draw();
     void DrawSelect() {}
     void Print(ostream& _os) const;
 

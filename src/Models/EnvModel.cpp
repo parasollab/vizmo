@@ -151,24 +151,19 @@ EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
 }
 
 void
-EnvModel::Draw(GLenum _mode) {
-  int numMBs = m_multibodies.size();
-  if(_mode == GL_SELECT)
-    glPushName(numMBs);
+EnvModel::Draw() {
+  size_t numMBs = m_multibodies.size();
 
-  m_boundary->Draw(_mode);
-
-  if(_mode == GL_SELECT)
-    glPopName();
+  glPushName(numMBs);
+  m_boundary->Draw();
+  glPopName();
 
   glLineWidth(1);
-  for(int i = 0; i < numMBs; i++){
+  for(size_t i = 0; i < numMBs; i++){
     if(!m_multibodies[i]->IsActive()){
-      if(_mode == GL_SELECT)
-        glPushName(i);
-      m_multibodies[i]->Draw(_mode);
-      if(_mode == GL_SELECT)
-        glPopName();
+      glPushName(i);
+      m_multibodies[i]->Draw();
+      glPopName();
     }
   }
 }

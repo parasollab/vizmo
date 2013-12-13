@@ -40,7 +40,7 @@ EdgeModel::Set(size_t _id, CfgModel* _c1, CfgModel* _c2){
 }
 
 void
-EdgeModel::Draw(GLenum _mode) {
+EdgeModel::Draw() {
 
   typedef vector<CfgModel>::iterator CFGIT;
 
@@ -60,7 +60,7 @@ EdgeModel::Draw(GLenum _mode) {
       for(CFGIT c = m_intermediates.begin();
           c != m_intermediates.end(); c++){
           c->SetRenderMode(WIRE_MODE);
-          c->Draw(_mode);
+          c->Draw();
       }
     }
   }

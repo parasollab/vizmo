@@ -43,7 +43,7 @@ class Model {
     //determing if _index is this GL model
     virtual void Select(GLuint* _index, vector<Model*>& _sel) = 0;
     //draw is called for the scene.
-    virtual void Draw(GLenum _mode) = 0;
+    virtual void Draw() = 0;
     //DrawSelect is only called if item is selected
     virtual void DrawSelect() = 0;
     //output model info

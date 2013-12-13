@@ -65,7 +65,7 @@ class BodyModel : public TransformableModel {
 
     void BuildModels() {}
     void Select(GLuint* _index, vector<Model*>& sel) {m_polyhedronModel->Select(_index, sel);}
-    void Draw(GLenum _mode);
+    void Draw();
     void DrawSelect();
     void Print(ostream& _os) const;
 

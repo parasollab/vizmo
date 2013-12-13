@@ -14,7 +14,7 @@ class BoundingBoxesModel : public Model {
 
     virtual void BuildModels();
     virtual void Select(GLuint* _index, vector<Model*>& _sel);
-    virtual void Draw(GLenum _mode);
+    virtual void Draw();
     virtual void DrawSelect() {}
     virtual void Print(ostream& _os) const;
 

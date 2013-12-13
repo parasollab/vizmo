@@ -82,7 +82,7 @@ QueryModel::BuildModels(){
                                   0,
                                 (double(i/(m_cfgs.size()-1.0)))));
 
-    m_robotModel->Draw(GL_RENDER);
+    m_robotModel->Draw();
 
     //draw text for start and goal
     //TODO: Move to using Qt functions for drawing text to scene
@@ -102,9 +102,10 @@ QueryModel::BuildModels(){
   m_robotModel->SetRenderMode(SOLID_MODE);
 }
 
-void QueryModel::Draw(GLenum _mode) {
-  if(_mode == GL_SELECT || m_renderMode == INVISIBLE_MODE)
+void QueryModel::Draw() {
+  if(m_renderMode == INVISIBLE_MODE)
     return; //not draw anything
+
   glLineWidth(2.0);
   glCallList(m_glQueryIndex);
 }

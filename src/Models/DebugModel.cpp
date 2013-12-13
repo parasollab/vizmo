@@ -475,7 +475,7 @@ DebugModel::BuildBackward(){
 }
 
 void
-DebugModel::Draw(GLenum _mode){
+DebugModel::Draw(){
 
   typedef vector<CfgModel>::iterator CIT;
   typedef vector<EdgeModel>::iterator EIT;
@@ -492,15 +492,15 @@ DebugModel::Draw(GLenum _mode){
   m_prevIndex = m_index;
 
   if(m_index){
-    m_mapModel->Draw(_mode);
+    m_mapModel->Draw();
     for(CIT cit = m_tempCfgs.begin(); cit!=m_tempCfgs.end(); cit++)
-      cit->Draw(_mode);
+      cit->Draw();
     for(EIT eit = m_tempEdges.begin(); eit!=m_tempEdges.end(); eit++)
-      eit->Draw(_mode);
+      eit->Draw();
     for(EIT eit = m_query.begin(); eit!=m_query.end(); eit++) {
       glLineWidth(32);
       eit->SetColor(Color4(1, 1, 0, 1));
-      eit->Draw(_mode);
+      eit->Draw();
     }
     if(m_tempRay != NULL && m_tempCfgs.size() > 0) {
       EdgeModel edge;
@@ -511,7 +511,7 @@ DebugModel::Draw(GLenum _mode){
       edge.Set(0, tmp, &ray);
       edge.SetColor(Color4(1, 1, 0, 1));
       glLineWidth(8);
-      edge.Draw(_mode);
+      edge.Draw();
     }
   }
 }

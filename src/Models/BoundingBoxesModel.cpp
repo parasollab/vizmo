@@ -43,12 +43,12 @@ BoundingBoxesModel::Select(GLuint* _index, vector<Model*>& _sel) {
 }
 
 void
-BoundingBoxesModel::Draw(GLenum _mode) {
+BoundingBoxesModel::Draw() {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
   typedef vector<BoundingBoxModel*>::iterator BIT;
   for(BIT bit = m_bbxModels.begin(); bit != m_bbxModels.end(); ++bit)
-    (*bit)->Draw(_mode);
+    (*bit)->Draw();
   glDisable(GL_CULL_FACE);
 
   for(BIT bit = m_bbxOverlaps.begin(); bit != m_bbxOverlaps.end(); ++bit)
