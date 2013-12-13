@@ -54,7 +54,7 @@ Vizmo::InitModels() {
 
     //Create map
     if(!m_mapFilename.empty()) {
-      m_mapModel = new MapModel<CfgModel, EdgeModel>(m_mapFilename, m_robotModel);
+      m_mapModel = new MapModel<CfgModel, EdgeModel>(m_mapFilename);
       m_loadedModels.push_back(m_mapModel);
       cout << "Load Map File : " << m_mapFilename << endl;
     }

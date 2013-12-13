@@ -1,7 +1,25 @@
 #include "IO.h"
 
-#include <iostream>
 #include <fstream>
+
+//parse filename out of map header
+string ParseMapHeader(const string& _filename) {
+  string envDir = GetPathName(_filename);
+
+  if(!FileExists(_filename))
+    throw ParseException(WHERE, "File '" + _filename + "' does not exist.");
+
+  ifstream ifs(_filename.c_str());
+
+  //Open file for reading data
+  string env, s;
+
+  //Get env file name info
+  GoToNext(ifs);
+  getline(ifs, env);
+
+  return envDir + env;
+}
 
 //optionally read a color from a comment line
 Color4

@@ -12,6 +12,9 @@ using namespace std;
 #include "VizmoExceptions.h"
 #include "Color.h"
 
+//parse filename out of map header
+string ParseMapHeader(const string& _filename);
+
 //optionally read a color from a comment line
 Color4 GetColorFromComment(istream& _is);
 

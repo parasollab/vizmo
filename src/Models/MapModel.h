@@ -24,31 +24,30 @@ class MapModel : public LoadableModel {
 
   public:
     typedef CCModel<CFG, WEIGHT> CCM;
-    typedef stapl::sequential::graph<stapl::DIRECTED, stapl::NONMULTIEDGES, CFG, WEIGHT> Wg;
-    typedef typename Wg::vertex_descriptor VID;
-    typedef typename Wg::edge_descriptor EID;
-    typedef stapl::sequential::vector_property_map<Wg, size_t> ColorMap;
-    typedef stapl::sequential::edge_property_map<Wg, EdgeAccess> EdgeMap;
-    typedef typename Wg::vertex_iterator VI;
-    typedef typename CFG::Shape Shape;
+    typedef stapl::sequential::graph<stapl::DIRECTED, stapl::NONMULTIEDGES, CFG, WEIGHT> Graph;
+    typedef typename Graph::vertex_descriptor VID;
+    typedef typename Graph::vertex_iterator VI;
+    typedef typename Graph::edge_descriptor EID;
+    typedef typename Graph::adj_edge_iterator EI;
+    typedef stapl::sequential::vector_property_map<Graph, size_t> ColorMap;
+    typedef stapl::sequential::edge_property_map<Graph, EdgeAccess> EdgeMap;
 
     MapModel();
-    //if !build, constructor will only grab environment filename
-    MapModel(const string& _filename, bool _build);
-    virtual ~MapModel();
+    MapModel(const string& _filename);
+    ~MapModel();
 
     //Access functions
-    const string  GetEnvFileName() const{ return m_envFileName; }
-    Wg* GetGraph(){ return m_graph; }
-    CCM* GetCCModel(int _id){ return m_ccModels[_id]; }
-    int NumberOfCC(){ return m_ccModels.size(); }
+    const string& GetEnvFileName() const {return m_envFileName;}
+    Graph* GetGraph(){return m_graph;}
+    CCM* GetCCModel(size_t _id) {return m_ccModels[_id];}
+    size_t NumberOfCC() const {return m_ccModels.size();}
+
+    VID Cfg2VID(const CFG& _target);
 
     //Load functions
     //Moving generic load functions to virtual in Model.h
-    void WriteMapFile(const string& _filename);
-    void ParseHeader(istream& _in);
+    void Write(const string& _filename);
     virtual void ParseFile();
-    VID Cfg2VID(const CFG& _target);
 
     //Display fuctions
     virtual void SetRenderMode(RenderMode _mode); //Wire, solid, or invisible
@@ -65,87 +64,60 @@ class MapModel : public LoadableModel {
     void RefreshMap();
 
   private:
-    string  m_envFileName;
-    string  m_fileDir;
+    string m_envFileName;
+
     vector<CCM*> m_ccModels;
-    Wg* m_graph;
+    Graph* m_graph;
 };
 
 template <class CFG, class WEIGHT>
 MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map") {
   m_renderMode = INVISIBLE_MODE;
-  m_graph = new Wg();
+  m_graph = new Graph();
 }
 
 //constructor only to grab header environment name
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel(const string& _filename, bool _build) : LoadableModel("Map") {
+MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map") {
   SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
-  m_graph = new Wg();
-  if(!_build) {
-    if(FileExists(_filename)) {
-      ifstream ifs(_filename.c_str());
-      ParseHeader(ifs);
-    }
-  }
-  else {
-    ParseFile();
-    BuildModels();
-  }
+  m_graph = new Graph();
+
+  ParseFile();
+  BuildModels();
 }
 
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::~MapModel(){
+MapModel<CFG, WEIGHT>::~MapModel() {
   typedef typename vector<CCM*>::iterator CIT;
   for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
   delete m_graph;
-  m_graph = NULL;
 }
 
 ///////////Load functions//////////
-
-template <class CFG, class WEIGHT>
-void
-MapModel<CFG, WEIGHT>::ParseHeader(istream& _in){
-
-  m_fileDir = GetPathName(GetFilename());
-
-  //Open file for reading data
-  string s;
-
-  //Get env file name info
-  GoToNext(_in);
-  getline(_in, s);
-
-  //See if we need to add directory
-  if(s[0] != '/')
-    m_envFileName = m_fileDir + s;
-  else
-    m_envFileName = s;
-}
 
 template<class CFG, class WEIGHT>
 void
 MapModel<CFG,WEIGHT>::ParseFile(){
   if(!FileExists(GetFilename()))
-    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
+    throw ParseException(WHERE, "File '" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
 
-  ParseHeader(ifs);
+  //parse env filename
+  string s;
+  GoToNext(ifs);
+  getline(ifs, m_envFileName);
+  getline(ifs, s);
 
   //Get Graph Data
-  string s;
-  getline(ifs, s);
   read_graph(*m_graph, ifs);
 }
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::WriteMapFile(const string& _filename){
-
+MapModel<CFG, WEIGHT>::Write(const string& _filename){
   ofstream outfile(_filename.c_str());
 
   outfile << "#####ENVFILESTART##### \n";
@@ -172,21 +144,17 @@ MapModel<CFG, WEIGHT>::BuildModels() {
 
   typedef typename vector<CCM*>::iterator CCIT;
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
-    delete (*ic);
+    delete *ic;
   m_ccModels.clear();
 
   //Get CCs
-  typedef typename vector< pair<size_t,VID> >::iterator CIT;
-  vector<pair<size_t,VID> > ccs;
+  typedef typename vector<pair<size_t, VID> >::iterator CIT;
+  vector<pair<size_t, VID> > ccs;
   ColorMap colorMap;
   get_cc_stats(*m_graph, colorMap, ccs);
-  int CCSize = ccs.size();
-  m_ccModels.reserve(CCSize);
-  for(CIT ic = ccs.begin(); ic != ccs.end(); ic++){
-    CCM* cc = new CCM(ic-ccs.begin());
-    cc->BuildModels(ic->second, m_graph);
-    m_ccModels.push_back(cc);
-  }
+  m_ccModels.reserve(ccs.size());
+  for(CIT ic = ccs.begin(); ic != ccs.end(); ic++)
+    m_ccModels.push_back(new CCM(ic-ccs.begin(), ic->second, m_graph));
 }
 
 template <class CFG, class WEIGHT>
@@ -198,11 +166,9 @@ MapModel<CFG, WEIGHT>::Draw(GLenum _mode){
   //Draw each CC
   typedef typename vector<CCM*>::iterator CIT;//CC iterator
   for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++){
-    if(_mode == GL_SELECT)
-      glPushName((*ic)->GetID());
+    glPushName((*ic)->GetID());
     (*ic)->Draw(_mode);
-    if(_mode == GL_SELECT)
-      glPopName();
+    glPopName();
   }
 }
 
@@ -210,7 +176,7 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::SetRenderMode(RenderMode _mode){
   m_renderMode = _mode;
-  typedef typename vector<CCM*>::iterator CIT;//CC iterator
+  typedef typename vector<CCM*>::iterator CIT;
   for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     (*ic)->SetRenderMode(_mode);
 }
@@ -235,14 +201,13 @@ void
 MapModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
   if(_index == NULL)
     return;
-  m_ccModels[_index[0]]->Select(&_index[1],_sel);
+  m_ccModels[_index[0]]->Select(&_index[1], _sel);
 }
 
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::RandomizeCCColors() {
-  typedef CCModel<CFG, WEIGHT> CC;
-  typedef typename vector<CC*>::iterator CCIT;
+  typedef typename vector<CCM*>::iterator CCIT;
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
     (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }

@@ -22,21 +22,21 @@ class CCModel : public Model {
 
   public:
     typedef MapModel<CFG, WEIGHT> MM;
-    typedef typename MM::Wg WG;
-    typedef typename WG::vertex_descriptor VID;
-    typedef typename WG::edge_descriptor EID;
+    typedef typename MM::Graph Graph;
+    typedef typename MM::VID VID;
+    typedef typename MM::VI VI;
+    typedef typename MM::EID EID;
+    typedef typename MM::EI EI;
     typedef typename MM::ColorMap ColorMap;
 
-    CCModel(unsigned int _id);
-    ~CCModel();
+    CCModel(size_t _id, VID _rep, Graph* _graph);
 
     void SetName();
     int GetID() const {return m_id;}
     vector<WEIGHT>& GetEdgesInfo() { return m_edges; }
-    WG* GetGraph(){ return m_graph; }
+    Graph* GetGraph(){ return m_graph; }
 
-    void BuildModels(); //not used, should not call this
-    void BuildModels(VID _id, WG* _g); //call this instead
+    void BuildModels();
     void Select(GLuint* _index, vector<Model*>& _sel);
     void Draw(GLenum _mode);
     void DrawSelect();
@@ -48,8 +48,9 @@ class CCModel : public Model {
     virtual void GetChildren(list<Model*>& _models);
 
   private:
-    int m_id; //CC ID
-    WG* m_graph;
+    int m_id;
+    VID m_rep;
+    Graph* m_graph;
     ColorMap m_colorMap;
     map<VID, CFG> m_nodes;
     vector<WEIGHT> m_edges;
@@ -61,45 +62,31 @@ template <class CFG, class WEIGHT>
 map<typename CCModel<CFG, WEIGHT>::VID, Color4> CCModel<CFG, WEIGHT>::m_colorIndex = map<VID, Color4>();
 
 template <class CFG, class WEIGHT>
-CCModel<CFG, WEIGHT>::CCModel(unsigned int _id) : Model("") {
-  m_id = _id;
-  SetName();
-  m_renderMode = INVISIBLE_MODE;
-  m_graph = NULL;
-}
+CCModel<CFG, WEIGHT>::CCModel(size_t _id, VID _rep, Graph* _graph) :
+  Model(""), m_id(_id), m_rep(_rep), m_graph(_graph) {
+    SetName();
+    m_renderMode = INVISIBLE_MODE;
 
-template <class CFG, class WEIGHT>
-CCModel<CFG, WEIGHT>::~CCModel(){}
+    BuildModels();
+  }
 
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::BuildModels() {
-  cerr << "Error::CCModel.h::Calling wrong build models function." << endl;
-  exit(1);
-}
-
-template <class CFG, class WEIGHT>
-void
-CCModel<CFG, WEIGHT>::BuildModels(VID _id, WG* _g){
-
-  if(!_g)
-    throw BuildException(WHERE, "Passed in null graph");
-
-  m_graph = _g;
 
   //Set up CC nodes
   vector<VID> cc;
   m_colorMap.reset();
-  get_cc(*_g, m_colorMap, _id, cc);
+  get_cc(*m_graph, m_colorMap, m_rep, cc);
 
   int nSize = cc.size();
-  typename WG::vertex_iterator cvi, cvi2, vi;
-  typename WG::adj_edge_iterator ei;
+  VI cvi, cvi2, vi;
+  EI ei;
   m_nodes.clear();
 
   for(int i = 0; i < nSize; i++){
     VID nid = cc[i];
-    CFG cfg = (_g->find_vertex(nid))->property();
+    CFG cfg = m_graph->find_vertex(nid)->property();
     cfg.Set(nid, this);
     m_nodes[nid] = cfg;
   }
@@ -108,7 +95,7 @@ CCModel<CFG, WEIGHT>::BuildModels(VID _id, WG* _g){
   vector< pair<VID,VID> > ccedges;
 
   m_colorMap.reset();
-  get_cc_edges(*_g, m_colorMap, ccedges, _id);
+  get_cc_edges(*m_graph, m_colorMap, ccedges, m_rep);
   int eSize=ccedges.size(), edgeIdx = 0;
 
   m_edges.clear();
@@ -116,44 +103,37 @@ CCModel<CFG, WEIGHT>::BuildModels(VID _id, WG* _g){
     if(ccedges[iE].first<ccedges[iE].second)
       continue;
 
-    CFG* cfg1 = &((_g->find_vertex(ccedges[iE].first))->property());
+    CFG* cfg1 = &(m_graph->find_vertex(ccedges[iE].first)->property());
     cfg1->SetIndex(ccedges[iE].first);
-    CFG* cfg2 = &((_g->find_vertex(ccedges[iE].second))->property());
+    CFG* cfg2 = &(m_graph->find_vertex(ccedges[iE].second)->property());
     cfg2->SetIndex(ccedges[iE].second);
     EID ed(ccedges[iE].first,ccedges[iE].second);
-    _g->find_edge(ed, vi, ei);
+    m_graph->find_edge(ed, vi, ei);
     WEIGHT w  = (*ei).property();
     w.Set(edgeIdx++,cfg1,cfg2);
     m_edges.push_back(w);
   }
 
   //If user changes a CC's color, color at associated index is changed
-  VID key = _id;
-  if(m_colorIndex.find(key) == m_colorIndex.end())
-    m_colorIndex[key] = Color4(drand48(), drand48(), drand48(), 1);
-  SetColor(m_colorIndex[key]);
+  if(m_colorIndex.find(m_rep) == m_colorIndex.end())
+    m_colorIndex[m_rep] = Color4(drand48(), drand48(), drand48(), 1);
+  SetColor(m_colorIndex[m_rep]);
 }
 
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::DrawNodes(GLenum _mode){
-
   switch(CFG::GetShape()){
     case CFG::Robot:
-      if(_mode == GL_RENDER)
-        glEnable(GL_LIGHTING);
-      glLineWidth(1);
-    break;
-
     case CFG::Box:
       glEnable(GL_LIGHTING);
       glLineWidth(1);
-    break;
+      break;
 
     case CFG::Point:
       glDisable(GL_LIGHTING);
       glPointSize(CFG::GetPointSize());
-    break;
+      break;
   }
 
   typedef typename map<VID, CFG>::iterator CIT;
@@ -167,9 +147,8 @@ CCModel<CFG, WEIGHT>::DrawNodes(GLenum _mode){
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
-
-  m_colorIndex[m_id] = _c;
   Model::SetColor(_c);
+  m_colorIndex[m_rep] = _c;
 
   typedef typename map<VID, CFG>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
@@ -183,7 +162,6 @@ CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
-
   typedef typename map<VID, CFG>::iterator CIT;
   for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
     _models.push_back(&cit->second);
@@ -197,7 +175,6 @@ template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::DrawEdges(){
   glDisable(GL_LIGHTING);
-
   glLineWidth(WEIGHT::m_edgeThickness);
 
   typedef typename vector<WEIGHT>::iterator EIT;
@@ -207,25 +184,17 @@ CCModel<CFG, WEIGHT>::DrawEdges(){
 
 template <class CFG, class WEIGHT>
 void CCModel<CFG, WEIGHT>::Draw(GLenum _mode) {
-
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
-  if(_mode == GL_SELECT)
-    glPushName(1); //1 means nodes
-
+  //Names: 1 = Nodes, 2 = Edges
+  glPushName(1);
   DrawNodes(_mode);
+  glPopName();
 
-  if(_mode == GL_SELECT)
-    glPopName();
-
-  if(_mode == GL_SELECT)
-    glPushName(2); //2 means edge
-
+  glPushName(2);
   DrawEdges();
-
-  if(_mode == GL_SELECT)
-    glPopName();
+  glPopName();
 }
 
 template <class CFG, class WEIGHT>
@@ -244,9 +213,7 @@ CCModel<CFG, WEIGHT>::DrawSelect(){
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
-
-  typename WG::vertex_iterator cvi;
-  if(_index == NULL || m_graph == NULL)
+  if(_index == NULL)
     return;
 
   if(_index[0] == 1)

@@ -108,8 +108,9 @@ FileListDialog::GetAssociatedFiles(const string& _filename) {
     if(FileExists(mapname, false)){
       m_mapFilename->setText(mapname.c_str());
       m_mapCheckBox->setChecked(true);
-      MapModel<CfgModel,EdgeModel> headerParser(mapname, false);
-      envname = headerParser.GetEnvFileName();
+      envname = ParseMapHeader(mapname);
+      cout << "MapName::" << mapname << endl;
+      cout << "EnvName::" << envname << endl;
     }
 
     if(FileExists(envname, false)){

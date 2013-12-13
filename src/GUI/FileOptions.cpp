@@ -173,7 +173,7 @@ FileOptions::SaveRoadmap(){
     string filename = fn.toStdString();
     const char* f;
     f = filename.c_str();
-    GetVizmo().GetMap()->WriteMapFile(f);
+    GetVizmo().GetMap()->Write(f);
   }
   else
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);

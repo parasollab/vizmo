@@ -118,11 +118,10 @@ DebugModel::BuildModels(){
 void
 DebugModel::BuildForward() {
   typedef MapModel<CfgModel, EdgeModel> MM;
-  typedef MM::Wg WG;
-  typedef WG::vertex_iterator VI;
-  typedef WG::vertex_descriptor VID;
-  typedef WG::adj_edge_iterator EI;
-  typedef WG::edge_descriptor EID;
+  typedef MM::VID VID;
+  typedef MM::VI VI;
+  typedef MM::EID EID;
+  typedef MM::EI EI;
   typedef vector<VID>::iterator ITVID;
   typedef MM::ColorMap ColorMap;
   typedef MM::EdgeMap EdgeMap;
@@ -321,11 +320,10 @@ DebugModel::BuildForward() {
 void
 DebugModel::BuildBackward(){
   typedef MapModel<CfgModel, EdgeModel> MM;
-  typedef MM::Wg WG;
-  typedef WG::vertex_iterator VI;
-  typedef WG::vertex_descriptor VID;
-  typedef WG::edge_descriptor EID;
-  typedef WG::adj_edge_iterator EI;
+  typedef MM::VID VID;
+  typedef MM::VI VI;
+  typedef MM::EID EID;
+  typedef MM::EI EI;
   typedef MM::ColorMap ColorMap;
   typedef vector<VID>::iterator ITVID;
 

@@ -143,16 +143,12 @@ NodeEditDialog::SetUpWidgets(){
 
 void
 NodeEditDialog::SetCurrentNode(CfgModel* _node){
-
   m_currentNode = _node;
 
-  ostringstream oss;
   if(_node->GetCC() != NULL)
-    oss << _node->Name() << " --- CCID: " << _node->GetCC()->GetID();
+    m_nodeLabel->setText(QString::fromStdString(_node->Name()));
   else
-    oss << "Intermediate configuration";
-  QString qNodeLabel = QString::fromStdString(oss.str());
-  m_nodeLabel->setText(qNodeLabel);
+    m_nodeLabel->setText("Intermediate configuration");
 
   const vector<double>& currCfg = _node->GetData();
   InitSliderValues(currCfg);
