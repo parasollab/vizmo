@@ -24,7 +24,7 @@ class CfgModel : public Model, public Cfg {
     CfgModel();
 
     void SetName();
-    int GetIndex() const { return m_index; }
+    size_t GetIndex() const { return m_index; }
     Point3d GetPoint() const {return Point3d(m_v[0], m_v[1], m_isVolumetricRobot ? m_v[2] : 0); }
 
     static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
@@ -41,10 +41,10 @@ class CfgModel : public Model, public Cfg {
     static void SetShape(Shape _shape){ m_shape =_shape; }
     //Set new values to dofs vector
     void SetCfg(const vector<double>& _newCfg);
-    void SetIndex(int _i) { m_index = _i; SetName();}
+    void SetIndex(size_t _i) { m_index = _i; SetName();}
     void SetCCModel(CCModel<CfgModel, EdgeModel>* _cc) { m_cc = _cc; }
 
-    void Set(int _index, CCModel<CfgModel, EdgeModel>* _cc);
+    void Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc);
     static void Scale(float _scale);
 
     void BuildModels() {}
@@ -66,7 +66,7 @@ class CfgModel : public Model, public Cfg {
     static float m_pointScale;
 
     bool m_inColl; //For collision detection
-    int m_index;
+    size_t m_index;
     CCModel<CfgModel, EdgeModel>* m_cc;
 };
 

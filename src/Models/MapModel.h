@@ -39,8 +39,6 @@ class MapModel : public LoadableModel {
     //Access functions
     const string& GetEnvFileName() const {return m_envFileName;}
     Graph* GetGraph(){return m_graph;}
-    CCM* GetCCModel(size_t _id) {return m_ccModels[_id];}
-    size_t NumberOfCC() const {return m_ccModels.size();}
 
     VID Cfg2VID(const CFG& _target);
 
@@ -58,6 +56,7 @@ class MapModel : public LoadableModel {
     void Draw(GLenum _mode);
     void DrawSelect() {}
     void Print(ostream& _os) const;
+    void SetColor(const Color4& _c);
 
     //Modification functions
     void RandomizeCCColors();
@@ -202,6 +201,15 @@ MapModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
   if(_index == NULL)
     return;
   m_ccModels[_index[0]]->Select(&_index[1], _sel);
+}
+
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::SetColor(const Color4& _c) {
+  Model::SetColor(_c);
+  typedef typename vector<CCM*>::iterator CCIT;
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
+    (*ic)->SetColor(_c);
 }
 
 template <class CFG, class WEIGHT>

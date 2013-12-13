@@ -4,15 +4,10 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <string>
 using namespace std;
-
-#include <include/Graph.h>
-#include <include/GraphAlgo.h>
 
 #include "Model.h"
 #include "MapModel.h"
-#include "Utilities/VizmoExceptions.h"
 
 template<typename, typename>
 class MapModel;
@@ -32,9 +27,7 @@ class CCModel : public Model {
     CCModel(size_t _id, VID _rep, Graph* _graph);
 
     void SetName();
-    int GetID() const {return m_id;}
-    vector<WEIGHT>& GetEdgesInfo() { return m_edges; }
-    Graph* GetGraph(){ return m_graph; }
+    size_t GetID() const {return m_id;}
 
     void BuildModels();
     void Select(GLuint* _index, vector<Model*>& _sel);
@@ -48,12 +41,15 @@ class CCModel : public Model {
     virtual void GetChildren(list<Model*>& _models);
 
   private:
-    int m_id;
+    CFG& GetCfg(VID _v);
+    WEIGHT& GetEdge(EID _e);
+
+    size_t m_id;
     VID m_rep;
     Graph* m_graph;
     ColorMap m_colorMap;
-    map<VID, CFG> m_nodes;
-    vector<WEIGHT> m_edges;
+    vector<VID> m_nodes;
+    vector<EID> m_edges;
 
     static map<VID, Color4> m_colorIndex;
 };
@@ -75,43 +71,35 @@ void
 CCModel<CFG, WEIGHT>::BuildModels() {
 
   //Set up CC nodes
-  vector<VID> cc;
-  m_colorMap.reset();
-  get_cc(*m_graph, m_colorMap, m_rep, cc);
-
-  int nSize = cc.size();
-  VI cvi, cvi2, vi;
-  EI ei;
   m_nodes.clear();
+  m_edges.clear();
+  m_colorMap.reset();
+  get_cc(*m_graph, m_colorMap, m_rep, m_nodes);
 
-  for(int i = 0; i < nSize; i++){
-    VID nid = cc[i];
-    CFG cfg = m_graph->find_vertex(nid)->property();
-    cfg.Set(nid, this);
-    m_nodes[nid] = cfg;
-  }
+  VI vi;
+  EI ei;
+
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+    GetCfg(*vit).Set(*vit, this);
 
   //Set up edges
-  vector< pair<VID,VID> > ccedges;
+  vector<pair<VID, VID> > ccedges;
 
   m_colorMap.reset();
   get_cc_edges(*m_graph, m_colorMap, ccedges, m_rep);
-  int eSize=ccedges.size(), edgeIdx = 0;
+  int edgeIdx = 0;
 
-  m_edges.clear();
-  for(int iE=0; iE<eSize; iE++){
-    if(ccedges[iE].first<ccedges[iE].second)
+  typedef typename vector<pair<VID, VID> >::iterator EIT;
+  for(EIT eit = ccedges.begin(); eit != ccedges.end(); ++eit) {
+    if(eit->first < eit->second)
       continue;
 
-    CFG* cfg1 = &(m_graph->find_vertex(ccedges[iE].first)->property());
-    cfg1->SetIndex(ccedges[iE].first);
-    CFG* cfg2 = &(m_graph->find_vertex(ccedges[iE].second)->property());
-    cfg2->SetIndex(ccedges[iE].second);
-    EID ed(ccedges[iE].first,ccedges[iE].second);
-    m_graph->find_edge(ed, vi, ei);
-    WEIGHT w  = (*ei).property();
-    w.Set(edgeIdx++,cfg1,cfg2);
-    m_edges.push_back(w);
+    CFG* cfg1 = &GetCfg(eit->first);
+    CFG* cfg2 = &GetCfg(eit->second);
+    EID ed(eit->first, eit->second);
+    GetEdge(ed).Set(edgeIdx++, cfg1, cfg2);
+    m_edges.push_back(ed);
   }
 
   //If user changes a CC's color, color at associated index is changed
@@ -136,10 +124,10 @@ CCModel<CFG, WEIGHT>::DrawNodes(GLenum _mode){
       break;
   }
 
-  typedef typename map<VID, CFG>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
-    glPushName(cit->first);
-    cit->second.Draw(_mode);
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit){
+    glPushName(*vit);
+    GetCfg(*vit).Draw(_mode);
     glPopName();
   }
 }
@@ -150,25 +138,25 @@ CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
   Model::SetColor(_c);
   m_colorIndex[m_rep] = _c;
 
-  typedef typename map<VID, CFG>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
-    cit->second.SetColor(_c);
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+    GetCfg(*vit).SetColor(_c);
 
-  typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++)
-    eit->SetColor(_c);
+  typedef typename vector<EID>::iterator EIT;
+  for(EIT eit = m_edges.begin(); eit != m_edges.end(); ++eit)
+    GetEdge(*eit).SetColor(_c);
 }
 
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
-  typedef typename map<VID, CFG>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
-    _models.push_back(&cit->second);
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+    _models.push_back(&GetCfg(*vit));
 
-  typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++)
-    _models.push_back(&*eit);
+  typedef typename vector<EID>::iterator EIT;
+  for(EIT eit = m_edges.begin(); eit != m_edges.end(); ++eit)
+    _models.push_back(&GetEdge(*eit));
 }
 
 template <class CFG, class WEIGHT>
@@ -177,9 +165,12 @@ CCModel<CFG, WEIGHT>::DrawEdges(){
   glDisable(GL_LIGHTING);
   glLineWidth(WEIGHT::m_edgeThickness);
 
-  typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); eit++)
-    eit->Draw(m_renderMode);
+  typedef typename vector<EID>::iterator EIT;
+  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); ++eit) {
+    glPushName(eit-m_edges.begin());
+    GetEdge(*eit).Draw(m_renderMode);
+    glPopName();
+  }
 }
 
 template <class CFG, class WEIGHT>
@@ -217,9 +208,9 @@ CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
     return;
 
   if(_index[0] == 1)
-    _sel.push_back(&m_nodes[(VID)_index[1]]);
+    _sel.push_back(&GetCfg(_index[1]));
   else
-    _sel.push_back(&m_edges[_index[1]]);
+    _sel.push_back(&GetEdge(m_edges[_index[1]]));
 }
 
 template <class CFG, class WEIGHT>
@@ -236,6 +227,21 @@ CCModel<CFG, WEIGHT>::Print(ostream& _os) const {
   _os << Name() << endl
     << m_nodes.size() << " nodes" << endl
     << m_edges.size() << " edges" << endl;
+}
+
+template<class CFG, class WEIGHT>
+CFG&
+CCModel<CFG, WEIGHT>::GetCfg(VID _v) {
+  return m_graph->find_vertex(_v)->property();
+}
+
+template<class CFG, class WEIGHT>
+WEIGHT&
+CCModel<CFG, WEIGHT>::GetEdge(EID _e) {
+  VI vi;
+  EI ei;
+  m_graph->find_edge(_e, vi, ei);
+  return (*ei).property();
 }
 
 #endif

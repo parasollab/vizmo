@@ -31,7 +31,7 @@ EdgeModel::Print(ostream& _os) const {
 }
 
 void
-EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2){
+EdgeModel::Set(size_t _id, CfgModel* _c1, CfgModel* _c2){
   m_id = _id;
   m_startCfg = _c1;
   m_endCfg = _c2;
@@ -43,7 +43,6 @@ void
 EdgeModel::Draw(GLenum _mode) {
 
   typedef vector<CfgModel>::iterator CFGIT;
-  glPushName(m_id);
 
   if(m_renderMode == SOLID_MODE || m_renderMode == WIRE_MODE){
 
@@ -66,7 +65,6 @@ EdgeModel::Draw(GLenum _mode) {
       }
     }
   }
-  glPopName();
 }
 
 void

@@ -463,14 +463,12 @@ RoadmapOptions::RandomizeCCColors(){
 
 void
 RoadmapOptions::MakeCCsOneColor(){
-
   QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
-  if (color.isValid()){
-    float r = (double)(color.red()) / 255.0;
-    float g = (double)(color.green()) / 255.0;
-    float b = (double)(color.blue()) / 255.0;
-    for(int i = 0; i < (GetVizmo().GetMap())->NumberOfCC(); i++)
-      ((GetVizmo().GetMap())->GetCCModel(i))->SetColor(Color4(r,g,b,1));
+  if(color.isValid()) {
+    float r = color.red()/255.;
+    float g = color.green()/255.;
+    float b = color.blue()/255.;
+    GetVizmo().GetMap()->SetColor(Color4(r, g, b, 1));
   }
 }
 

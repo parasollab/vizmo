@@ -173,15 +173,6 @@ NodeEditDialog::UpdateDOF(int _id){
 
   CollisionCheck();
 
-  if(m_currentNode->GetCC() != NULL){   //TODO: assign intermediates to proper CC?
-    vector<EdgeModel>& cCEdges = m_currentNode->GetCC()->GetEdgesInfo();
-    for(size_t i = 0; i < cCEdges.size(); i++){
-      if(m_currentNode->GetIndex() == cCEdges[i].GetStartCfg()->GetIndex())
-        cCEdges[i].SetStartCfg(m_currentNode);
-      else if(m_currentNode->GetIndex() == cCEdges[i].GetEndCfg()->GetIndex())
-        cCEdges[i].SetEndCfg(m_currentNode);
-    }
-  }
   m_gLScene->updateGL();
 }
 

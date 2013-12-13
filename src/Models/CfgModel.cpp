@@ -42,7 +42,7 @@ CfgModel::SetCfg(const vector<double>& _newCfg) {
 }
 
 void
-CfgModel::Set(int _index, CCModel<CfgModel, EdgeModel>* _cc){
+CfgModel::Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc){
   m_index = _index;
   SetName();
   m_cc = _cc;

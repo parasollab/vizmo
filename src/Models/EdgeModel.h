@@ -22,14 +22,14 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
     EdgeModel(double _weight = LONG_MAX);
 
     void SetName();
-    int GetID() { return m_id; }
+    size_t GetID() { return m_id; }
 
     CfgModel* GetStartCfg() { return m_startCfg; }
     CfgModel* GetEndCfg() { return m_endCfg; }
     void SetStartCfg(CfgModel* _s) { m_startCfg = _s; }
     void SetEndCfg(CfgModel* _e) { m_endCfg = _e; }
 
-    void Set(int _id, CfgModel* _c1, CfgModel* _c2);
+    void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
 
     void BuildModels() {}
     void Select(GLuint* _index, vector<Model*>& _sel) {};
@@ -41,7 +41,7 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
   private:
     CfgModel* m_startCfg, * m_endCfg;
-    int m_id;
+    size_t m_id;
 };
 
 #endif
