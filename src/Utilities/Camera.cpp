@@ -13,6 +13,7 @@ Camera::Camera(const string& _name, const Point3d& _pos, const Vector3d& _up)
   : m_camName(_name),  m_up(_up),
   m_eye(Vector3d(0,0,0)), m_at(Vector3d(0,0,0)),
   m_vector(Vector3d(0,0,0)),
+  m_drag(QPoint(0,0)),
   m_currentAzim(0), m_deltaAzim(0),
   m_currentElev(0), m_deltaElev(0),
   m_speed(0.4), m_defaultSpeed(0),
@@ -50,6 +51,7 @@ Camera::MousePressed(QMouseEvent* _e) {
     if(_e->modifiers() & Qt::ControlModifier){
       m_mousePressed = true;
       m_pressedPt = _e->pos();
+      m_drag=QPoint(0,0);
       return true; //handled
     }
   }
@@ -63,11 +65,10 @@ Camera::MouseReleased(QMouseEvent* _e) {
 
     m_currentElev += m_deltaElev;
     m_currentAzim += m_deltaAzim;
-
     m_deltaDis(0, 0, 0);
     m_deltaElev = 0.0;
     m_deltaAzim = 0.0;
-
+    m_drag=QPoint(0,0);
 
     return true;
   }
@@ -77,12 +78,11 @@ Camera::MouseReleased(QMouseEvent* _e) {
 bool
 Camera::MouseMotion(QMouseEvent* _e){
   if(m_mousePressed) {
-    QPoint drag = _e->pos() - m_pressedPt;
-    //displacement
     if((_e->modifiers() & Qt::ShiftModifier)&&(_e->buttons() & Qt::LeftButton)) {
       /*******Y-AXIS:ROTATE UP/DOWN**X/Z-AXIS:ROTATE RIGHT-LEFT**********/
-      m_deltaAzim = -drag.x()/5*m_speed;
-      m_deltaElev = drag.y()/5*m_speed;
+      m_drag = _e->pos() - m_pressedPt;
+      m_deltaAzim = -m_drag.x()/5*m_speed;
+      m_deltaElev = m_drag.y()/5*m_speed;
       double radAzim=degToRad(m_currentAzim+m_deltaAzim-90);
       double radElev=degToRad(m_currentElev+m_deltaElev+90);
       if(sin(radElev)>=0)
@@ -94,10 +94,18 @@ Camera::MouseMotion(QMouseEvent* _e){
       m_eye[2]= -sin(radElev)*m_vector.norm()*sin(radAzim);
       m_eye+=m_at;
     }
+    else if(_e->modifiers() & Qt::ShiftModifier){}//DO NOTHING
     else if(_e->buttons() & Qt::RightButton) {
       /*******Y-AXIS:GO UP/DOWN**X/Z-AXIS:GO RIGHT-LEFT**********/
-      m_deltaDis[0] = drag.x()/m_defaultSpeed*m_speed;
-      m_deltaDis[1] = drag.y()/m_defaultSpeed*m_speed;
+      if(((m_drag.x()<0)&&(m_drag.x()<(_e->pos().x()-m_pressedPt.x())))||
+          ((m_drag.x()>0)&&(m_drag.x()>(_e->pos().x()-m_pressedPt.x()))))
+        m_pressedPt.setX( _e->pos().x());
+      else if(((m_drag.y()<0)&&(m_drag.y()<(_e->pos().y()-m_pressedPt.y())))||
+          ((m_drag.y()>0)&&(m_drag.y()>(_e->pos().y()-m_pressedPt.y()))))
+        m_pressedPt.setY( _e->pos().y());
+      m_drag = _e->pos() - m_pressedPt;
+      m_deltaDis[0] = m_drag.x()/m_defaultSpeed*m_speed;
+      m_deltaDis[1] = m_drag.y()/m_defaultSpeed*m_speed;
       double radAzim=degToRad(m_currentAzim);
 
       m_eye[0] = m_eye[0]       + cos(radAzim)*m_deltaDis[0];
@@ -110,8 +118,9 @@ Camera::MouseMotion(QMouseEvent* _e){
     }
     else if(_e->buttons() & Qt::LeftButton) {
       /******Y/Z-AXIS:LOOK UP/DOWN**X/Z-AXIS:LOOK RIGHT-LEFT*****/
-      m_deltaAzim = -drag.x()/5*m_speed;
-      m_deltaElev = drag.y()/5*m_speed;
+      m_drag = _e->pos() - m_pressedPt;
+      m_deltaAzim = -m_drag.x()/5*m_speed;
+      m_deltaElev = m_drag.y()/5*m_speed;
       double radAzim=degToRad(m_currentAzim+m_deltaAzim-90);
       double radElev=degToRad(m_currentElev+m_deltaElev+90);
       if(sin(radElev)>=0)
@@ -125,8 +134,15 @@ Camera::MouseMotion(QMouseEvent* _e){
     }
     else if(_e->buttons()&Qt::MidButton){
       /*****************X/Z-AXIS:GO FORWARD/BACKWARD*************/
-      m_deltaDis[0] = drag.x()/m_defaultSpeed*m_speed;
-      m_deltaDis[2] = drag.y()/m_defaultSpeed*m_speed;
+      if(((m_drag.x()<0)&&(m_drag.x()<(_e->pos().x()-m_pressedPt.x())))||
+          ((m_drag.x()>0)&&(m_drag.x()>(_e->pos().x()-m_pressedPt.x()))))
+        m_pressedPt.setX( _e->pos().x());
+      else if(((m_drag.y()<0)&&(m_drag.y()<(_e->pos().y()-m_pressedPt.y())))||
+          ((m_drag.y()>0)&&(m_drag.y()>(_e->pos().y()-m_pressedPt.y()))))
+        m_pressedPt.setY( _e->pos().y());
+      m_drag = _e->pos() - m_pressedPt;
+      m_deltaDis[0] = m_drag.x()/m_defaultSpeed*m_speed;
+      m_deltaDis[2] = m_drag.y()/m_defaultSpeed*m_speed;
       double radAzim=degToRad(m_currentAzim);
       m_eye[0] = m_eye[0]       +m_up[1]*sin(radAzim)*m_deltaDis[2]+ cos(radAzim)*m_deltaDis[0];
       m_at[0] = m_at[0] +m_up[1]*sin(radAzim)*m_deltaDis[2]+ cos(radAzim)*m_deltaDis[0];

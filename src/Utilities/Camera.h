@@ -43,6 +43,7 @@ class Camera {
     Vector3d m_up;
     Vector3d m_eye, m_at;
     Vector3d m_vector;
+    QPoint m_drag;
 
     double m_currentAzim, m_deltaAzim;
     double m_currentElev, m_deltaElev;
