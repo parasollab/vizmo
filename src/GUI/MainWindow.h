@@ -14,7 +14,7 @@ class AnimationWidget;
 class VizmoScreenShotGUI;
 class ModelSelectionWidget;
 class VizmoAttributeSelectionGUI;
-class TextGUI;
+class TextWidget;
 class MainMenu;
 class GLWidget;
 
@@ -36,7 +36,7 @@ class MainWindow : public QMainWindow {
     void SetVizmoInit(bool _tf) { m_vizmoInit = _tf; }
     bool GetVizmoInit() { return m_vizmoInit; }
     GLWidget* GetGLScene() { return m_gl; }
-    TextGUI* GetOutbox(){ return m_outbox; }
+    TextWidget* GetOutbox(){ return m_outbox; }
     AnimationWidget* GetAnimationWidget() { return m_animationWidget; }
     ModelSelectionWidget* GetModelSelectionWidget() { return m_modelSelectionWidget; }
 
@@ -50,7 +50,7 @@ class MainWindow : public QMainWindow {
     QStringList m_obprmComm;
     bool m_setQS, m_setQG;  //used to know if values in window will need to be updated
     string m_firstQryFile;   //to hold name of first query file
-    TextGUI* m_outbox;      //Q3TextView that displays node/edge(s) selection info, debug, etc.
+    TextWidget* m_outbox;      //Q3TextView that displays node/edge(s) selection info, debug, etc.
 
     void SetUpLayout();     //Set a QGridLayout for invisible central widget
     void keyPressEvent(QKeyEvent* _e);
@@ -61,7 +61,7 @@ class MainWindow : public QMainWindow {
 
     QGridLayout* m_layout;
     QToolBar* m_allTogether;       //all of the toolbars in one...keeps them together for window resize
-    QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextGUI
+    QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextWidget
     QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
     QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     QVBoxLayout* m_obstacleWidget;  //placeholder to hold the overall layout. This is the invisible central widget.

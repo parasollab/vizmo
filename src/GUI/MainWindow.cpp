@@ -8,7 +8,7 @@
 #include "MainMenu.h"
 #include "ModelSelectionWidget.h"
 #include "OptionsBase.h"
-#include "TextGUI.h"
+#include "TextWidget.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/Eye.xpm"
@@ -94,9 +94,9 @@ MainWindow::CreateGUI(){
 
   m_mainMenu = new MainMenu(this);  //also creates the toolbars
 
-  m_outbox = new TextGUI(this);
+  m_outbox = new TextWidget(this);
 
-  connect(m_modelSelectionWidget, SIGNAL(UpdateTextGUI()), m_outbox, SLOT(SetText()));
+  connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()), m_outbox, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_modelSelectionWidget, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_modelSelectionWidget, SLOT(Select()));
   //HandleSelect now in Plum/MapObj/MapModel.cpp and temporarily disabled
@@ -130,7 +130,7 @@ MainWindow::SetUpLayout(){
 
   m_objTextLayout = new QVBoxLayout();
   m_objTextLayout->addWidget(m_modelSelectionWidget); //The Environment Objects list
-  m_objTextLayout->addWidget(m_outbox);          //The TextGUI
+  m_objTextLayout->addWidget(m_outbox);          //The TextWidget
   m_objTextLayout->setStretchFactor(m_modelSelectionWidget, 1);
 
   m_layout->addLayout(m_objTextLayout, 2, 1, 4, 5);

@@ -1,6 +1,6 @@
-/*TextGUI.cpp--implementation of text output for node cfgs, VDebug, etc.*/
+/*TextWidget.cpp--implementation of text output for node cfgs, VDebug, etc.*/
 
-#include "TextGUI.h"
+#include "TextWidget.h"
 #include <vector>
 #include <string>
 
@@ -9,7 +9,7 @@
 #include "Models/Vizmo.h"
 #include "Models/DebugModel.h"
 
-TextGUI::TextGUI(QWidget* _parent)
+TextWidget::TextWidget(QWidget* _parent)
   :QTextEdit(_parent) {
 
   setFixedSize(205, 225);
@@ -17,7 +17,7 @@ TextGUI::TextGUI(QWidget* _parent)
 }
 
 void
-TextGUI::SetText(){
+TextWidget::SetText(){
   const vector<Model*>& sel=GetVizmo().GetSelectedModels();
 
   typedef vector<Model*>::const_iterator SIT;

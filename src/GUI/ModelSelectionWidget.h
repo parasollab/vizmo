@@ -25,7 +25,7 @@ class ModelSelectionWidget : public QTreeWidget {
 
   signals:
     void CallUpdate();
-    void UpdateTextGUI();
+    void UpdateTextWidget();
 
   private slots:
     void Select();

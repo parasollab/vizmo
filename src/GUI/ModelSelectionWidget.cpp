@@ -74,7 +74,7 @@ ModelSelectionWidget::SelectionChanged(){
     }
   }
   emit CallUpdate();
-  emit UpdateTextGUI();
+  emit UpdateTextWidget();
 }
 
 void
