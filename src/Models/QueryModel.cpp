@@ -143,9 +143,7 @@ QueryModel::SaveQuery(const string& _filename) {
 
 void
 QueryModel::AddCfg(int _num){
-  vector<double> cfg;
-  for(int j=0; j<Cfg::DOF(); ++j)
-    cfg.push_back(0);
+  vector<double> cfg(Cfg::DOF(), 0);
   CfgModel* cfgModel=new CfgModel();
   cfgModel->SetCfg(cfg);
   cfgModel->SetIsQuery();
