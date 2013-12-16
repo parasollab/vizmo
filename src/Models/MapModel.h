@@ -24,6 +24,7 @@ class MapModel : public LoadableModel {
 
   public:
     typedef CCModel<CFG, WEIGHT> CCM;
+    typedef typename vector<CCM*>::iterator CCIT;
     typedef stapl::sequential::graph<stapl::DIRECTED, stapl::NONMULTIEDGES, CFG, WEIGHT> Graph;
     typedef typename Graph::vertex_descriptor VID;
     typedef typename Graph::vertex_iterator VI;
@@ -88,8 +89,7 @@ MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map") 
 
 template <class CFG, class WEIGHT>
 MapModel<CFG, WEIGHT>::~MapModel() {
-  typedef typename vector<CCM*>::iterator CIT;
-  for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
   delete m_graph;
 }
@@ -141,7 +141,6 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::BuildModels() {
 
-  typedef typename vector<CCM*>::iterator CCIT;
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
   m_ccModels.clear();
@@ -163,8 +162,7 @@ MapModel<CFG, WEIGHT>::Draw(){
     return;
 
   //Draw each CC
-  typedef typename vector<CCM*>::iterator CIT;//CC iterator
-  for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++){
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++){
     glPushName((*ic)->GetID());
     (*ic)->Draw();
     glPopName();
@@ -175,16 +173,14 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::SetRenderMode(RenderMode _mode){
   m_renderMode = _mode;
-  typedef typename vector<CCM*>::iterator CIT;
-  for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     (*ic)->SetRenderMode(_mode);
 }
 
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
-  typedef typename vector<CCM*>::iterator CIT;
-  for(CIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     _models.push_back(*ic);
 }
 
@@ -207,7 +203,6 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::SetColor(const Color4& _c) {
   Model::SetColor(_c);
-  typedef typename vector<CCM*>::iterator CCIT;
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
     (*ic)->SetColor(_c);
 }
@@ -215,7 +210,6 @@ MapModel<CFG, WEIGHT>::SetColor(const Color4& _c) {
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::RandomizeCCColors() {
-  typedef typename vector<CCM*>::iterator CCIT;
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
     (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }
