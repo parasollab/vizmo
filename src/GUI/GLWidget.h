@@ -15,7 +15,6 @@ using namespace std;
 #include "Utilities/TransformTool.h"
 
 class MainWindow;
-class TextGUI;
 
 class GLWidget : public QGLWidget {
 

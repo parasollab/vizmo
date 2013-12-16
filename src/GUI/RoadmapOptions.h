@@ -20,6 +20,13 @@ class RoadmapOptions : public OptionsBase {
   Q_OBJECT
 
   public:
+    typedef MapModel<CfgModel, EdgeModel> Map;
+    typedef Map::Graph Graph;
+    typedef Graph::vertex_descriptor VID;
+    typedef vector<Model*>::iterator MIT;
+    typedef vector<VID>::iterator VIT;
+    typedef vector<pair<VID, VID> >::iterator EIT;
+
     RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow);
 
   private slots:
@@ -35,7 +42,10 @@ class RoadmapOptions : public OptionsBase {
     void ScaleNodes();
     void ShowEdgeThicknessDialog();
     void ChangeEdgeThickness();
-    void ShowNodeEditDialog(); //Named box as reminder that it's not yet a QDialog as desired..
+    void ShowNodeEditDialog();
+    void ShowEdgeEditDialog();
+    void AddEdge();
+    void DeleteSelectedItems();
     void RandomizeCCColors();
     void MakeCCsOneColor();
     void ShowObjectContextMenu();

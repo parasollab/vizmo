@@ -23,6 +23,7 @@
 
 #include "SliderDialog.h"
 #include "NodeEditDialog.h"
+#include "EdgeEditDialog.h"
 #include "OptionsBase.h"
 #include "GLWidget.h"
 #include "MainWindow.h"
@@ -41,6 +42,7 @@
 #include "Icons/EdgeThickness.xpm"
 #include "Icons/Navigate.xpm"
 #include "Icons/EditNode.xpm"
+#include "Icons/EditEdge.xpm"
 
 RoadmapOptions::RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow){
@@ -112,6 +114,12 @@ RoadmapOptions::CreateActions(){
 
   QAction* editNode = new QAction(QPixmap(editnode), tr("Edit Node"), this);
   m_actions["editNode"] = editNode;
+  QAction* editEdge = new QAction(QPixmap(editedge), tr("Edit Edge"), this);
+  m_actions["editEdge"] = editEdge;
+  QAction* addEdge = new QAction(tr("Add Edge"), this);
+  m_actions["addEdge"] = addEdge;
+  QAction* deleteSelected = new QAction(tr("Delete Selected Items"), this);
+  m_actions["deleteSelected"] = deleteSelected;
 
   QAction* randomizeColors = new QAction(QPixmap(rcolor), tr("Randomize Colors"), this);
   m_actions["randomizeColors"] = randomizeColors;
@@ -158,6 +166,12 @@ RoadmapOptions::CreateActions(){
 
   m_actions["editNode"]->setEnabled(false);
   m_actions["editNode"]->setStatusTip(tr("Modify a roadmap node"));
+  m_actions["editEdge"]->setEnabled(false);
+  m_actions["editEdge"]->setStatusTip(tr("Modify a roadmap edge"));
+  m_actions["addEdge"]->setEnabled(false);
+  m_actions["addEdge"]->setStatusTip(tr("Add edge between selected pair of nodes"));
+  m_actions["deleteSelected"]->setEnabled(false);
+  m_actions["deleteSelected"]->setStatusTip(tr("Delete selected nodes and/or edges"));
 
   m_actions["randomizeColors"]->setShortcut(tr("CTRL+R"));
   m_actions["randomizeColors"]->setEnabled(false);
@@ -185,6 +199,9 @@ RoadmapOptions::CreateActions(){
   connect(m_edgeThicknessDialog->GetSlider(), SIGNAL(valueChanged(int)), this, SLOT(ChangeEdgeThickness()));
 
   connect(m_actions["editNode"], SIGNAL(triggered()), this, SLOT(ShowNodeEditDialog()));
+  connect(m_actions["editEdge"], SIGNAL(triggered()), this, SLOT(ShowEdgeEditDialog()));
+  connect(m_actions["addEdge"], SIGNAL(triggered()), this, SLOT(AddEdge()));
+  connect(m_actions["deleteSelected"], SIGNAL(triggered()), this, SLOT(DeleteSelectedItems()));
 
   connect(m_actions["randomizeColors"], SIGNAL(triggered()), this, SLOT(RandomizeCCColors()));
   connect(m_actions["ccsOneColor"], SIGNAL(triggered()), this, SLOT(MakeCCsOneColor()));
@@ -217,6 +234,9 @@ RoadmapOptions::SetUpCustomSubmenu(){
   m_submenu->addAction(m_actions["edgeThickness"]);
 
   m_submenu->addAction(m_actions["editNode"]);
+  m_submenu->addAction(m_actions["editEdge"]);
+  m_submenu->addAction(m_actions["addEdge"]);
+  m_submenu->addAction(m_actions["deleteSelected"]);
 
   m_modifyCCs = new QMenu("Modify CCs", this);
   m_modifyCCs->addAction(m_actions["randomizeColors"]);
@@ -249,6 +269,7 @@ RoadmapOptions::SetUpToolbar(){
   m_toolbar->addAction(m_actions["ccsOneColor"]);
   m_toolbar->addSeparator();
   m_toolbar->addAction(m_actions["editNode"]);
+  m_toolbar->addAction(m_actions["editEdge"]);
 }
 
 void
@@ -284,6 +305,9 @@ RoadmapOptions::Reset(){
   m_actions["edgeThickness"]->setEnabled(true);
 
   m_actions["editNode"]->setEnabled(true);
+  m_actions["editEdge"]->setEnabled(true);
+  m_actions["addEdge"]->setEnabled(true);
+  m_actions["deleteSelected"]->setEnabled(true);
 
   m_modifyCCs->setEnabled(true);
   m_actions["randomizeColors"]->setEnabled(true);
@@ -319,6 +343,12 @@ RoadmapOptions::SetHelpTips(){
         " thickness of the edges."));
   m_actions["editNode"]->setWhatsThis(tr("Click this button to open the node editing"
         " widget."));
+  m_actions["editEdge"]->setWhatsThis(tr("Click this button to open the edge editing"
+        " widget."));
+  m_actions["addEdge"]->setWhatsThis(tr("Click this button to add an edge between two"
+        " selected nodes."));
+  m_actions["deleteSelected"]->setWhatsThis(tr("Click this button to delete any number"
+        " of selected nodes and/or edges"));
   m_actions["randomizeColors"]->setWhatsThis(tr("Click this button to randomize"
         " the colors of the connected components."));
   m_actions["ccsOneColor"]->setWhatsThis(tr("Click this button to set all of the"
@@ -379,8 +409,7 @@ RoadmapOptions::ClickPoint(){
 void
 RoadmapOptions::MakeSolid(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++)
+  for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(SOLID_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
@@ -388,8 +417,7 @@ RoadmapOptions::MakeSolid(){
 void
 RoadmapOptions::MakeWired(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++)
+  for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(WIRE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
@@ -397,8 +425,7 @@ RoadmapOptions::MakeWired(){
 void
 RoadmapOptions::MakeInvisible(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++)
+  for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
@@ -456,6 +483,105 @@ RoadmapOptions::ShowNodeEditDialog(){
 }
 
 void
+RoadmapOptions::ShowEdgeEditDialog(){
+
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+
+  if(sel.size() != 1){
+    QMessageBox::about(this, "", "Please select exactly one edge to modify.");
+    return;
+  }
+
+  string objName = sel[0]->Name();
+  if(objName.substr(0, 4) != "Edge"){
+    QMessageBox::about(this, "", "Please select exactly one edge to modify.");
+    return;
+  }
+
+  EdgeModel* edge = (EdgeModel*)sel[0];
+  EdgeEditDialog ed(this, edge, m_mainWindow->GetGLScene());
+  ed.exec();
+}
+
+void
+RoadmapOptions::AddEdge(){
+
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
+
+  //Must select exactly two items...
+  if(sel.size() != 2){
+    QMessageBox::about(this, "", "Please select exactly two nodes.");
+    return;
+  }
+  //...and they must be nodes
+  string obj1 = sel[0]->Name();
+  string obj2 = sel[1]->Name();
+  if((obj1.substr(0, 4) != "Node") || (obj2.substr(0, 4) != "Node")){
+    QMessageBox::about(this, "", "Please select exactly two nodes.");
+    return;
+  }
+
+  VID v0 = ((CfgModel*)sel[0])->GetIndex();
+  VID v1 = ((CfgModel*)sel[1])->GetIndex();
+  graph->add_edge(v0, v1);
+  graph->add_edge(v1, v0);
+
+  map->RefreshMap();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
+  sel.clear();
+}
+
+void
+RoadmapOptions::DeleteSelectedItems(){
+
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
+
+  bool selectionValid = false;
+  vector<VID> nodesToDelete;
+  vector<pair<VID, VID> > edgesToDelete;
+
+  //Mark selected items for removal
+  for(MIT it = sel.begin(); it != sel.end(); it++){
+    string objName = (*it)->Name();
+    if(objName.substr(0, 4) == "Node"){
+      selectionValid = true;
+      VID vid = ((CfgModel*)(*it))->GetIndex();
+      nodesToDelete.push_back(vid);
+    }
+    else if(objName.substr(0, 4) == "Edge"){
+      selectionValid = true;
+      EdgeModel* e = (EdgeModel*)(*it);
+      edgesToDelete.push_back(make_pair(e->GetStartCfg()->GetIndex(), e->GetEndCfg()->GetIndex()));
+    }
+  }
+
+  if(selectionValid == false)
+    QMessageBox::about(this, "", "Please select a group of nodes and edges to remove.");
+
+  else{
+    //Remove selected vertices
+    for(VIT it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
+      graph->delete_vertex(*it);
+    //Remove selected edges
+    for(EIT it = edgesToDelete.begin(); it != edgesToDelete.end(); it++){
+      pair<VID, VID> edge = *it;
+      graph->delete_edge(edge.first, edge.second);
+      graph->delete_edge(edge.second, edge.first);
+    }
+
+    map->RefreshMap();
+    m_mainWindow->GetModelSelectionWidget()->ResetLists();
+    m_mainWindow->GetGLScene()->updateGL();
+    sel.clear();
+  }
+}
+
+void
 RoadmapOptions::RandomizeCCColors(){
   GetVizmo().GetMap()->RandomizeCCColors();
   m_mainWindow->GetGLScene()->updateGL();
@@ -482,9 +608,8 @@ RoadmapOptions::ShowObjectContextMenu(){
   //Create submenu to set start and goal configs.
   //create it just if RobotModel.has been selected
   string str;
-  typedef vector<Model*>::iterator GIT;
 
-  for(GIT ig = GetVizmo().GetSelectedModels().begin();
+  for(MIT ig = GetVizmo().GetSelectedModels().begin();
       ig!=GetVizmo().GetSelectedModels().end(); ig++)
     str = (*ig)->Name();
 
@@ -518,7 +643,6 @@ RoadmapOptions::ChangeObjectColor(){
   else
     return;
 
-  typedef vector<Model*>::iterator MIT;
   vector<Model*>& selectedModels = GetVizmo().GetSelectedModels();
   for(MIT mit = selectedModels.begin(); mit != selectedModels.end(); ++mit) {
     Model* model = *mit;

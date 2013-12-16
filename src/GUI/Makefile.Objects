@@ -7,6 +7,7 @@ OBJECTS += \
 	   GUI/CaptureOptions.o \
 	   GUI/ChangeBoundaryDialog.o \
 	   GUI/CustomizePathDialog.o \
+	   GUI/EdgeEditDialog.o \
 	   GUI/EditRobotDialog.o \
 	   GUI/EnvironmentOptions.o \
 	   GUI/FileListDialog.o \
