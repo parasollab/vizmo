@@ -29,6 +29,8 @@ class CfgListWidget : public QListWidget {
   Q_OBJECT
 
   public:
+    typedef vector<CfgListItem*>::iterator IIT;
+
     CfgListWidget(QWidget* _parent = NULL);
     vector<CfgListItem*>& GetListItems() { return m_items; }
 
@@ -47,6 +49,8 @@ class EdgeEditDialog : public QDialog {
   Q_OBJECT
 
   public:
+    typedef vector<CfgListItem*>::iterator IIT;
+
     EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _scene);
     ~EdgeEditDialog();
 

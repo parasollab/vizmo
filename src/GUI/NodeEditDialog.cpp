@@ -82,7 +82,7 @@ NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _sce
 
   setWindowTitle("Modify Node");
 
-  m_gLScene = _scene;
+  m_glScene = _scene;
 
   m_nodeLabel = new QLabel(this);
   m_overallLayout = new QVBoxLayout();
@@ -178,7 +178,7 @@ NodeEditDialog::UpdateDOF(int _id){
     GetVizmo().GetQry()->BuildModels();
     GetVizmo().PlaceRobot();
   }
-  m_gLScene->updateGL();
+  m_glScene->updateGL();
 }
 
 void

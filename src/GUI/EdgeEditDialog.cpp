@@ -18,7 +18,6 @@ void
 CfgListWidget::SelectInMap(){ //Display intermediate cfg selection on map
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<CfgListItem*>::iterator IIT;
 
   for(IIT i = m_items.begin(); i != m_items.end(); i++){
     if((*i)->isSelected())
@@ -137,7 +136,7 @@ void
 EdgeEditDialog::EditIntermediate(){
 
   vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
-  typedef vector<CfgListItem*>::iterator IIT;
+
   for(IIT it = listItems.begin(); it != listItems.end(); it++){
     //Default list item has start cfg as m_cfg, so check against that
     if((*it)->isSelected() && (*it)->m_cfg != m_currentEdge->GetStartCfg()){
@@ -152,7 +151,6 @@ void
 EdgeEditDialog::AddIntermediate(){
 
   vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
-  typedef vector<CfgListItem*>::iterator IIT;
   int indexAhead = 1;
 
   for(IIT it = listItems.begin(); it != listItems.end(); it++){
@@ -180,7 +178,6 @@ void
 EdgeEditDialog::RemoveIntermediate(){
 
   vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
-  typedef vector<CfgListItem*>::iterator IIT;
 
   for(IIT it = listItems.begin(); it != listItems.end(); it++){
     if((*it)->isSelected()){

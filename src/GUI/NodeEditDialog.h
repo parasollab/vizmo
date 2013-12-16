@@ -93,7 +93,7 @@ class NodeEditDialog : public QDialog {
     QSignalMapper* m_sliderMapper;
     vector<NodeEditSlider*> m_sliders; //destruction??
 
-    GLWidget* m_gLScene;
+    GLWidget* m_glScene;
     CfgModel* m_currentNode;
 };
 
