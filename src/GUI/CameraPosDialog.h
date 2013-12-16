@@ -29,13 +29,9 @@ class CameraPosDialog : public QDialog {
     QDialogButtonBox* m_buttonBox;
     QLabel* m_label;
     QLabel* m_labelEye[3];
-    QLabel* m_labelCenter[3];
-    QLabel* m_labelUp[3];
-    QLabel* m_labelElev;
-    QLabel* m_labelAzim;
+    QLabel* m_labelAt[3];
     QLineEdit* m_lineEye[3];
-    QLineEdit* m_lineCenter[3];
-    QLineEdit* m_lineUp[3];
+    QLineEdit* m_lineAt[3];
 
     Camera* m_camera;
 };

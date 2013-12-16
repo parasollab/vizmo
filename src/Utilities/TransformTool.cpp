@@ -527,8 +527,6 @@ RotationTool::Draw(bool _selected) {
   glTranslatef(x, y, 0);
 
   glPushMatrix();
-  glRotated(m_currentCamera->GetCameraElev(), 1.0, 0.0, 0.0);
-  glRotated(m_currentCamera->GetCameraAzim(), 0.0, 1.0, 0.0);
 
   if(m_movementType != NON) {
     Vector3d v1, v2;

@@ -12,10 +12,10 @@ using namespace std;
 class Camera {
   public:
 
-    Camera(const string& _name, const Point3d& _pos, const Vector3d& _up);
+    Camera(const string& _name, const Point3d& _eye, const Point3d& _at);
 
     //allow user to explicitly specify camera position/orientation
-    void Set(const Vector3d& _eye, const Vector3d& _at, const Vector3d& _up);
+    void Set(const Vector3d& _eye, const Vector3d& _at);
     void Draw();
 
     //event handling
@@ -24,10 +24,9 @@ class Camera {
     bool MouseMotion(QMouseEvent* _e);
     bool KeyPressed(QKeyEvent* _e);
 
-    const string& GetCameraName() const {return m_camName;}
-    vector<Vector3d> GetCameraPos() const;
-    double GetCameraAzim() const {return m_currentAzim + m_deltaAzim;}
-    double GetCameraElev() const {return m_currentElev + m_deltaElev;}
+    const string& GetName() const {return m_name;}
+    const Vector3d& GetEye() const {return m_currEye;}
+    Vector3d GetAt() const {return m_currEye + m_currDir;}
 
     //computing window coordinateframe based on Elev and Azim
     Vector3d GetWindowX() const;
@@ -35,19 +34,15 @@ class Camera {
     Vector3d GetWindowZ() const;
 
   private:
-    void KeyRotatePressed();
+    void Rotate(Vector3d& _vec, const Vector3d& _axis, double _theta);
 
-    string m_camName;
+    string m_name;
 
-    Vector3d m_deltaDis; // displacement caused by user
-    Vector3d m_up;
-    Vector3d m_eye, m_at;
-    Vector3d m_vector;
-    QPoint m_drag;
+    const Vector3d m_up; //always y-axis
+    Point3d m_eye, m_currEye; //position of camera
+    Vector3d m_dir, m_currDir; //unit vector where camera is facing
 
-    double m_currentAzim, m_deltaAzim;
-    double m_currentElev, m_deltaElev;
-    double m_speed, m_defaultSpeed;
+    double m_speed; //speed of camera movement in relation to pixels
 
     QPoint m_pressedPt;
     bool m_mousePressed;

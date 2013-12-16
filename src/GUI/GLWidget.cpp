@@ -44,7 +44,7 @@ GLWidget::ToggleSelectionSlot(){
 void
 GLWidget::ResetCamera(){
   EnvModel* e = GetVizmo().GetEnv();
-  GetCurrentCamera()->Set(Vector3d(0,0,4*(e ? e->GetRadius() : 100)),Vector3d(0,0,0), Vector3d(0,1,0));
+  GetCurrentCamera()->Set(Point3d(0, 0, 4*(e ? e->GetRadius() : 100)), Point3d(0,0,0));
 }
 
 Camera*
@@ -423,9 +423,6 @@ GLWidget::DrawAxis() {
     glLoadIdentity();
 
     glTranslated(1.2, 1.2, 0);
-    Camera* cam = GetCurrentCamera();
-    glRotated(cam->GetCameraElev(), 1.0, 0.0, 0.0);
-    glRotated(cam->GetCameraAzim(), 0.0, 1.0, 0.0);
 
     glCallList(gid);
 
