@@ -3,41 +3,50 @@
 #include <sstream>
 using namespace std;
 
-#include <QDialogButtonBox>
-#include <QFormLayout>
-#include <QLabel>
-#include <QLineEdit>
-
 #include "Utilities/Camera.h"
 
 CameraPosDialog::CameraPosDialog(QWidget* _parent) : QDialog(_parent) {
-  resize(450, 210);
+  //initialize objects
   setWindowTitle("Camera Position");
 
   m_buttonBox = new QDialogButtonBox(this);
-  m_buttonBox->setGeometry(QRect(130, 170, 246, 32));
   m_buttonBox->setOrientation(Qt::Horizontal);
-  m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+  m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
 
   m_label = new QLabel("Enter a camera position and the point where the camera looks at:", this);
-  m_label->setGeometry(QRect(10, 30, 421, 16));
-  for(size_t i=0; i<3; i++){
-    stringstream lab;
-    lab << "eye[" << i << "]" << endl;
-    m_labelEye[i] = new QLabel(QString::fromStdString(lab.str()), this);
-    m_labelEye[i]->setGeometry(QRect(20+140*i, 70, 50, 16));
-    m_lineEye[i] = new QLineEdit(this);
-    m_lineEye[i]->setGeometry(QRect(80+140*i, 70, 70, 20));
-  }
-  for(size_t i=0; i<3; i++){
-    stringstream lab;
-    lab << "at[" << i << "]" << endl;
-    m_labelAt[i] = new QLabel(QString::fromStdString(lab.str()), this);
-    m_labelAt[i]->setGeometry(QRect(20+140*i, 100, 60, 16));
-    m_lineAt[i] = new QLineEdit(this);
-    m_lineAt[i]->setGeometry(QRect(80+140*i, 100, 70, 20));
+
+  m_labelEye[0] = new QLabel("Eye", this);
+  m_labelEye[1] = new QLabel("x", this);
+  m_labelEye[2] = new QLabel("y", this);
+  m_labelEye[3] = new QLabel("z", this);
+  m_lineEye[0] = new QLineEdit(this);
+  m_lineEye[1] = new QLineEdit(this);
+  m_lineEye[2] = new QLineEdit(this);
+  m_labelAt[0] = new QLabel("At", this);
+  m_labelAt[1] = new QLabel("x", this);
+  m_labelAt[2] = new QLabel("y", this);
+  m_labelAt[3] = new QLabel("z", this);
+  m_lineAt[0] = new QLineEdit(this);
+  m_lineAt[1] = new QLineEdit(this);
+  m_lineAt[2] = new QLineEdit(this);
+
+  //setup the layout
+  QGridLayout* layout = new QGridLayout(this);
+  setLayout(layout);
+
+  layout->addWidget(m_label, 0, 0, 1, 4);
+  layout->addWidget(m_labelEye[0], 1, 0);
+  layout->addWidget(m_labelAt[0], 1, 2);
+  for(size_t i = 0; i < 3; ++i) {
+    layout->addWidget(m_labelEye[i+1], i+2, 0);
+    layout->addWidget(m_lineEye[i], i+2, 1);
+    layout->addWidget(m_labelAt[i+1], i+2, 2);
+    layout->addWidget(m_lineAt[i], i+2, 3);
   }
 
+  layout->addWidget(m_buttonBox, 5, 0, 1, 4);
+
+  //connect signals/slots
   QObject::connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(AcceptData()));
   QObject::connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
