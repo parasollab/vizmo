@@ -72,18 +72,17 @@ Camera::MouseMotion(QMouseEvent* _e){
       double phi = degToRad(-dx);
       double theta = degToRad(dy);
 
-      Vector3d haxis(1, 0, 0);
       m_currEye = m_eye;
       m_currDir = m_dir;
 
       //rotate around Y-axis
-      haxis.rotateY(phi);
       m_currEye.rotateY(phi);
       m_currDir.rotateY(phi);
 
-      //rotate around h-axis
-      Rotate(m_currEye, haxis, theta);
-      Rotate(m_currDir, haxis, theta);
+      //rotate around left-axis
+      Vector3d left = (m_currDir % m_up).normalize();
+      Rotate(m_currEye, left, theta);
+      Rotate(m_currDir, left, theta);
       m_currDir.selfNormalize();
     }
     //ctrl+shift+right/middle

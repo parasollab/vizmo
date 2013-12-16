@@ -26,6 +26,7 @@ class Camera {
 
     const string& GetName() const {return m_name;}
     const Vector3d& GetEye() const {return m_currEye;}
+    const Vector3d& GetDir() const {return m_currDir;}
     Vector3d GetAt() const {return m_currEye + m_currDir;}
 
     //computing window coordinateframe based on Elev and Azim
