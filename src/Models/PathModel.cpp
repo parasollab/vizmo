@@ -1,14 +1,12 @@
 #include "PathModel.h"
 
-#include <fstream>
-
-#include "CfgModel.h"
 #include "RobotModel.h"
+#include "Vizmo.h"
 #include "Utilities/IO.h"
 
-PathModel::PathModel(const string& _filename, RobotModel* _robotModel) :
+PathModel::PathModel(const string& _filename) :
   LoadableModel("Path"),
-  m_glPathIndex(-1), m_robotModel(_robotModel),
+  m_glPathIndex(-1),
   m_lineWidth(1), m_displayInterval(3) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
@@ -39,33 +37,27 @@ PathModel::ParseFile() {
   getline(ifs, garbage);
   getline(ifs, garbage);
 
-  size_t pathSize=0;
+  size_t pathSize;
   ifs >> pathSize;
+  m_path.resize(pathSize);
 
   for(size_t i = 0; i < pathSize && ifs; ++i) {
-    CfgModel cfg;
-    ifs >> cfg;
-    m_path.push_back(cfg.GetData());
+    ifs >> m_path[i];
+    m_path[i].SetRenderMode(WIRE_MODE);
   }
 }
 
 void
 PathModel::BuildModels(){
-  //can't build model without robot model
-  if(!m_robotModel)
-    throw BuildException(WHERE, "RobotModel is null.");
-
-  //Build Path Model
-  m_robotModel->SetRenderMode(WIRE_MODE);
-
-  Color4 oldCol = m_robotModel->GetColor(); //old color
+  CfgModel::Shape tmp = CfgModel::GetShape();
+  CfgModel::SetShape(CfgModel::Robot);
 
   glMatrixMode(GL_MODELVIEW);
 
   m_glPathIndex = glGenLists(1);
   glNewList(m_glPathIndex, GL_COMPILE);
 
-  typedef vector<vector<double> >::iterator PIT;
+  typedef vector<CfgModel>::iterator PIT;
   typedef vector<Color4>::iterator CIT; //for the stop colors- small vector
   vector<Color4> allColors; //for the indiv. colors that give the gradation- large vector
 
@@ -89,9 +81,8 @@ PathModel::BuildModels(){
   for(CIT cit = allColors.begin(); cit!=allColors.end(); ++cit) {
     size_t i = cit-allColors.begin();
     if(i % m_displayInterval == 0){
-      m_robotModel->SetColor(*cit);
-      m_robotModel->Configure(m_path[i]);
-      m_robotModel->Draw();
+      m_path[i].SetColor(*cit);
+      m_path[i].Draw();
     }
   }
 
@@ -100,17 +91,15 @@ PathModel::BuildModels(){
   size_t remainder = m_path.size() % allColors.size();
   for(size_t j = 0; j<remainder; ++j){
     if(j%m_displayInterval==0){
-      m_robotModel->SetColor(allColors.back());
-      m_robotModel->Configure(m_path[allColors.size()+j]);
-      m_robotModel->Draw();
+      m_path[allColors.size()+j].SetColor(allColors.back());
+      m_path[allColors.size()+j].Draw();
     }
   }
 
   glEndList();
 
   //set back
-  m_robotModel->SetRenderMode(SOLID_MODE);
-  m_robotModel->SetColor(oldCol);
+  CfgModel::SetShape(tmp);
 }
 
 void PathModel::Draw() {

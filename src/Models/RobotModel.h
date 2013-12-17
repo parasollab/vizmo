@@ -18,7 +18,7 @@ class RobotModel : public Model {
     const vector<double>& CurrentCfg() {return m_currCfg;}
 
     void BackUp();
-    void Configure(vector<double>& _cfg);
+    void Configure(const vector<double>& _cfg);
     void Restore();
 
     void BuildModels();

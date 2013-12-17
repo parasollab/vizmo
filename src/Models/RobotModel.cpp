@@ -6,7 +6,7 @@
 #include "Vizmo.h"
 #include "Utilities/VizmoExceptions.h"
 
-RobotModel::RobotModel(EnvModel* _env) : Model("Robot"), m_envModel(_env) {
+RobotModel::RobotModel(EnvModel* _env) : Model("Robot"), m_envModel(_env), m_initCfg(Cfg::DOF()) {
   BuildModels();
 }
 
@@ -29,7 +29,7 @@ RobotModel::BackUp() {
 }
 
 void
-RobotModel::Configure(vector<double>& _cfg) {
+RobotModel::Configure(const vector<double>& _cfg) {
 
   m_currCfg = _cfg;
   const MultiBodyModel::Robots& robots = m_robotModel->GetRobots();

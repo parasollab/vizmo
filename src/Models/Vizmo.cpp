@@ -68,7 +68,7 @@ Vizmo::InitModels() {
 
     //Create path
     if(!m_pathFilename.empty()) {
-      m_pathModel = new PathModel(m_pathFilename, m_robotModel);
+      m_pathModel = new PathModel(m_pathFilename);
       m_loadedModels.push_back(m_pathModel);
       cout << "Load Path File : " << m_pathFilename << endl;
     }
@@ -238,10 +238,10 @@ Vizmo::PlaceRobot() {
   if(m_robotModel){
     vector<double> cfg;
     if(m_queryModel)
-      cfg = m_queryModel->GetQueryCfg()[0]->Cfg::GetData();
+      cfg = m_queryModel->GetQueryCfg()[0]->GetData();
       //cfg = m_queryModel->GetStartGoal(0);
     else if(m_pathModel)
-      cfg = m_pathModel->GetConfiguration(0);
+      cfg = m_pathModel->GetConfiguration(0).GetData();
     else
       cfg = vector<double>(CfgModel::DOF());
     if(m_debugModel || (m_mapModel && !(m_pathModel || m_queryModel)))

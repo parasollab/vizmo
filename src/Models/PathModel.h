@@ -4,18 +4,18 @@
 #include <Vector.h>
 using namespace mathtool;
 
-#include "Model.h"
+#include "CfgModel.h"
 #include "Utilities/Color.h"
 
 class RobotModel;
 
 class PathModel : public LoadableModel {
   public:
-    PathModel(const string& _filename, RobotModel* _robotModel);
+    PathModel(const string& _filename);
 
     size_t GetSize() {return m_path.size();}
     vector<Color4>& GetGradientVector() {return m_stopColors;}
-    const vector<double>& GetConfiguration(size_t _i) const {return m_path[_i];}
+    const CfgModel& GetConfiguration(size_t _i) const {return m_path[_i];}
 
     void SetLineWidth(float _width) {m_lineWidth = _width;}
     void SetDisplayInterval(int _disp) {m_displayInterval = _disp;}
@@ -30,9 +30,8 @@ class PathModel : public LoadableModel {
   private:
     Color4 Mix(Color4& _a, Color4& _b, float _percent);
 
-    vector<vector<double> > m_path; //path storage
+    vector<CfgModel> m_path; //path storage
     size_t m_glPathIndex; //Display list index
-    RobotModel * m_robotModel; //robot model
 
     //display options
     float m_lineWidth;

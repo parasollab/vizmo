@@ -277,7 +277,7 @@ void
 AnimationWidget::SliderMoved(int _newValue){
   UpdateCurValue(_newValue);
   if(m_name == "Path") {
-    vector<double> dCfg = GetVizmo().GetPath()->GetConfiguration(_newValue);
+    const vector<double>& dCfg = GetVizmo().GetPath()->GetConfiguration(_newValue).GetData();
     GetVizmo().GetRobot()->Configure(dCfg);
   }
   else if(m_name == "Debug")
