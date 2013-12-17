@@ -425,7 +425,6 @@ GLWidget::DrawAxis() {
     glTranslated(1.3, 1.3, 0);
 
     //figure out azim/elev of camera from at vector
-    Camera* cam = GetCurrentCamera();
     const Vector3d& dir = GetCurrentCamera()->GetDir();
     double azim = asind(Vector3d(1, 0, 0)*dir);
     if(dir[2] >= 0)
