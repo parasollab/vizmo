@@ -139,25 +139,54 @@ Camera::MouseMotion(QMouseEvent* _e){
 bool
 Camera::KeyPressed(QKeyEvent* _e) {
 
+  Vector3d left = (m_dir % m_up).normalize();
+
   switch(_e->key()){
     //case 'h': PrintHelp();return true;
     case '-':
-      m_speed -= 0.1;
-      if(m_speed<=0.0)
-        m_speed=0.1;
+      m_speed *= 0.5;
       return true;
     case '+':
-      m_speed += 0.1;
+      m_speed *= 2;
       return true;
-      /*case Qt::Key_Left: //look left
-        return true;
-        case Qt::Key_Right: //look right
-        return true;
-        case Qt::Key_Up: //look up
-        return true;
-        case Qt::Key_Down: //look down
-        return true;
-        */
+    case 'A': //move right
+      m_currEye = m_eye -= left * 10*m_speed;
+      return true;
+    case 'D': // move left
+      m_currEye = m_eye += left * 10*m_speed;
+      return true;
+    case 'W': //move in
+      m_currEye = m_eye += m_dir * 10*m_speed;
+      return true;
+    case 'S': // move out
+      m_currEye = m_eye -= m_dir * 10*m_speed;
+      return true;
+    case 'Q': //move up
+      m_currEye = m_eye += (left % m_dir).normalize() * 10*m_speed;
+      return true;
+    case 'E': // move down
+      m_currEye = m_eye -= (left % m_dir).normalize() * 10*m_speed;
+      return true;
+    case Qt::Key_Left: //look left
+      Rotate(m_dir, m_up, degToRad(10*m_speed));
+      m_currDir = m_dir.selfNormalize();
+      return true;
+    case Qt::Key_Right: //look right
+      Rotate(m_dir, m_up, degToRad(10*-m_speed));
+      m_currDir = m_dir.selfNormalize();
+      return true;
+    case Qt::Key_Up: //look up
+      if(acos(m_up * m_dir) - 10*m_speed > 0.001) {
+        Rotate(m_dir, left, degToRad(10*m_speed));
+        m_currDir = m_dir.selfNormalize();
+      }
+      return true;
+    case Qt::Key_Down: //look down
+      if(acos(m_up * m_dir) + 10*m_speed < PI - 0.001) {
+        Rotate(m_dir, left, degToRad(10*-m_speed));
+        m_currDir = m_dir.selfNormalize();
+      }
+      return true;
     default:
       return false;
   }
