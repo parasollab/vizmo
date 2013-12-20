@@ -1,13 +1,6 @@
 #include "ChangeBoundaryDialog.h"
 
 #include <iostream>
-#include <QDialog>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QLineEdit>
-#include <QLabel>
-#include <QCheckBox>
-#include <QValidator>
 
 #include "MainWindow.h"
 #include "Models/EnvModel.h"

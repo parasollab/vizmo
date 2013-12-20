@@ -1,11 +1,6 @@
 #include "CaptureOptions.h"
 
-#include <QAction>
-#include <QToolBar>
-#include <QPixmap>
-#include <QFileDialog>
-#include <QProgressDialog>
-#include <QApplication>
+#include <QtGui>
 
 #include "MainWindow.h"
 #include "GLWidget.h"

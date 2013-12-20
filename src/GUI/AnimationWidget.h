@@ -5,15 +5,7 @@
 
 using namespace std;
 
-#include <QToolBar>
-
-
-class QTimer;
-class QSlider;
-class QAction;
-class QLineEdit;
-class QLabel;
-class QWidget;
+#include <QtGui>
 
 class AnimationWidget : public QToolBar {
   Q_OBJECT

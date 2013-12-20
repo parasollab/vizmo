@@ -22,10 +22,10 @@ class RoadmapOptions : public OptionsBase {
   public:
     typedef MapModel<CfgModel, EdgeModel> Map;
     typedef Map::Graph Graph;
-    typedef Graph::vertex_descriptor VID;
+    typedef Map::EI EI;
+    typedef Map::VI VI;
+    typedef Map::VID VID;
     typedef vector<Model*>::iterator MIT;
-    typedef vector<VID>::iterator VIT;
-    typedef vector<pair<VID, VID> >::iterator EIT;
 
     RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow);
 

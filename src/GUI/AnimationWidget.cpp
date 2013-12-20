@@ -1,15 +1,5 @@
 #include "AnimationWidget.h"
 
-#include <QToolBar>
-#include <QPixmap>
-#include <QAction>
-#include <QSlider>
-#include <QTimer>
-#include <QLineEdit>
-#include <QLabel>
-#include <QValidator>
-#include <QString>
-
 #include "Models/DebugModel.h"
 #include "Models/PathModel.h"
 #include "Models/RobotModel.h"

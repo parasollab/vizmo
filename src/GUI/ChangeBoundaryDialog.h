@@ -1,16 +1,9 @@
 #ifndef CHANGEBOUNDARYDIALOG_H_
 #define CHANGEBOUNDARYDIALOG_H_
 
-#include <QDialog>
+#include <QtGui>
 
 using namespace std;
-
-class QPushButton;
-class QRadioButton;
-class QLineEdit;
-class QLabel;
-class QValidator;
-class QCheckBox;
 
 class ChangeBoundaryDialog : public QDialog {
 

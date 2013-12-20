@@ -565,9 +565,11 @@ RoadmapOptions::DeleteSelectedItems(){
 
   else{
     //Remove selected vertices
+    typedef vector<VID>::iterator VIT;
     for(VIT it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
       graph->delete_vertex(*it);
     //Remove selected edges
+    typedef vector<pair<VID, VID> >::iterator EIT;
     for(EIT it = edgesToDelete.begin(); it != edgesToDelete.end(); it++){
       pair<VID, VID> edge = *it;
       graph->delete_edge(edge.first, edge.second);

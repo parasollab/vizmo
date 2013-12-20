@@ -6,13 +6,7 @@
 #ifndef CUSTOMIZE_PATH_DIALOG_H
 #define CUSTOMIZE_PATH_DIALOG_H
 
-#include <QDialog>
-
-class QDialogButtonBox;
-class QLabel;
-class QLineEdit;
-class QColorDialog;
-class QFrame;
+#include <QtGui>
 
 using namespace std;
 
