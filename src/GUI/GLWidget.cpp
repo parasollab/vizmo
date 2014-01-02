@@ -28,6 +28,7 @@ GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
     setMinimumSize(271, 211); //original size: 400 x 600
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setFocusPolicy(Qt::StrongFocus);
+    setMouseTracking(true);
 
     m_takingSnapShot=false;
     m_showAxis = true;
@@ -287,15 +288,24 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
 }
 
 void
-GLWidget::mouseMoveEvent(QMouseEvent* _e){
-  //test camera motion first, then transform tool, then pick box
-  if(GetCurrentCamera()->MouseMotion(_e)) {
-    m_transformTool.CameraMotion();
+GLWidget::mouseMoveEvent(QMouseEvent* _e) {
+  if(_e->buttons() == Qt::NoButton) {
+    //handle all passive motion
+    if(m_pickBox.PassiveMouseMotion(_e)) {
+      updateGL();
+    }
   }
-  else if(!m_transformTool.MouseMotion(_e))
-    m_pickBox.MouseMotion(_e);
+  else {
+    //handle active mouse motion
+    //test camera motion first, then transform tool, then pick box
+    if(GetCurrentCamera()->MouseMotion(_e)) {
+      m_transformTool.CameraMotion();
+    }
+    else if(!m_transformTool.MouseMotion(_e))
+      m_pickBox.MouseMotion(_e);
 
-  updateGL();
+    updateGL();
+  }
 }
 
 void

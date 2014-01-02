@@ -8,7 +8,7 @@ using namespace std;
 
 //definition for a 2D box
 struct Box{
-  Box() : m_left(0), m_right(0), m_bottom(0), m_top(0) {}
+  Box() : m_left(-1), m_right(-1), m_bottom(-1), m_top(-1) {}
 
   double m_left, m_right, m_bottom, m_top; //left, right,top,bottom
 };
@@ -16,14 +16,17 @@ struct Box{
 //Handle user picking
 class PickBox {
   public:
+    enum Highlight {LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8};
 
-    PickBox() : m_leftMouseButton(false), m_w(0), m_h(0) {}
+    PickBox() : m_leftMouseButton(false), m_w(0), m_h(0),
+    m_highlightedPart(0), m_resizing(false) {}
 
     void Draw();
 
     void MousePressed(QMouseEvent* _e);
     void MouseReleased(QMouseEvent* _e);
     void MouseMotion(QMouseEvent* _e);
+    bool PassiveMouseMotion(QMouseEvent* _e);
 
     ///////////////////////////////////////////////////////////////////////////
     // Access
@@ -37,6 +40,8 @@ class PickBox {
     Box m_pickBox;
     bool m_leftMouseButton; //true:left mouse button down
     int m_w, m_h; //width and height of window
+    int m_highlightedPart;
+    bool m_resizing;
 };
 
 #endif
