@@ -144,9 +144,8 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
 //build wire frame
 void
 PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {
-  CModelGraph mg;
-  if(!mg.doInit(_points, _tris))
-    throw BuildException(WHERE, "Cannot initialize ModelGraph");
+  ModelGraph mg;
+  mg.DoInit(_points, _tris);
 
   //build model
   m_wiredID=glGenLists(1);
@@ -158,16 +157,16 @@ PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, con
 
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
-  const CModelEdge* edge = mg.getEdges();
-  while(edge != NULL){
-    int tril = edge->getLeftTri();
-    int trir = edge->getRightTri();
+  const ModelEdge* edge = mg.GetEdges();
+  while(edge != NULL) {
+    int tril = edge->GetLeftTri();
+    int trir = edge->GetRightTri();
 
     if(tril == -1 || trir == -1 || 1-fabs(_norms[tril] * _norms[trir]) > 1e-3){
-      GLint id[2]={edge->getStartPt(),edge->getEndPt()};
+      GLint id[2] = {edge->GetStartPt(), edge->GetEndPt()};
       glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, id);
     }
-    edge = edge->getNext();
+    edge = edge->GetNext();
   }
 
   glPopMatrix();

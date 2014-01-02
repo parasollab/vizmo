@@ -1,67 +1,34 @@
-// ModelNode.h: interface for the CModelNode class.
-//
-//////////////////////////////////////////////////////////////////////
+#ifndef MODELNODE_H_
+#define MODELNODE_H_
 
-#if !defined(AFX_ModelNode_H__EDFCE7A1_C33A_444C_8D15_5F5C9AE1B31A__INCLUDED_)
-#define AFX_ModelNode_H__EDFCE7A1_C33A_444C_8D15_5F5C9AE1B31A__INCLUDED_
+#include <cstdlib>
 
-#include <stdlib.h>
-
-//////////////////////////////////////////////////////////////////////
-// Include ModelGraph Headers.
 #include "ModelEdge.h"
-class CParticle;
 
-namespace modelgraph
-{
+namespace modelgraph {
 
-    class CModelNode
-    {
+  class ModelNode {
     public:
-        //////////////////////////////////////////////////////////////////////
-        // Constructor/Destructors
-        CModelNode(int Key);
+      ModelNode(int _key);
 
-        //////////////////////////////////////////////////////////////////////
-        // Access Function
-        CModelEdge * getEdge(CModelNode * nb) const
-        {
-            int Key=nb->m_key;
-            //linear search
-            mylist * e= m_edges;
-            while(e!=NULL){
-                if( e->pEdge->isEndPt(Key)==true ) return e->pEdge;
-                e=e->pNext;
-            }
-            return NULL;
-        }
+      int GetKey() const {return m_key;}
 
-        void addEdge( CModelEdge * e){
-            if(e==NULL) return;
-            mylist * listnode=new mylist();
-            if( listnode!=NULL ){
-                listnode->pEdge=e;
-                listnode->pNext=m_edges;
-                m_edges=listnode;
-            }
-        }
+      ModelEdge* GetEdge(ModelNode* _n) const;
 
-        int getKey() const { return m_key; }
+      void AddEdge(ModelEdge* _e);
 
-    //////////////////////////////////////////////////////////////////////
-    // Private Stuff
     private:
-        class mylist{
-        public:
-            mylist(){ pEdge=NULL; pNext=NULL; }
-            CModelEdge * pEdge;
-            mylist * pNext;
-        };
+      struct ListNode{
+          ListNode();
 
-        int m_key;
-        mylist * m_edges;
-    };
+          ModelEdge* m_edge;
+          ListNode* m_next;
+      };
 
-}//end of namespace modelgraph
+      int m_key;
+      ListNode* m_edges;
+  };
 
-#endif // !defined(AFX_ModelNode_H__EDFCE7A1_C33A_444C_8D15_5F5C9AE1B31A__INCLUDED_)
+}
+
+#endif
