@@ -162,7 +162,7 @@ PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, con
     int trir = (*eit).property()[1];
 
     if(tril == -1 || trir == -1 || 1-fabs(_norms[tril] * _norms[trir]) > 1e-3) {
-      GLint id[2] = {(*eit).source(), (*eit).target()};
+      GLint id[2] = {(int)(*eit).source(), (int)(*eit).target()};
       glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, id);
     }
   }
