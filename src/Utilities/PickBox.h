@@ -4,7 +4,7 @@
 #include <vector>
 using namespace std;
 
-#include <qgl.h>
+#include <QtGui>
 
 //definition for a 2D box
 struct Box{
@@ -16,10 +16,10 @@ struct Box{
 //Handle user picking
 class PickBox {
   public:
-    enum Highlight {LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8};
+    enum Highlight {NONE = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8, ALL = 16};
 
     PickBox() : m_leftMouseButton(false), m_w(0), m_h(0),
-    m_highlightedPart(0), m_resizing(false) {}
+    m_highlightedPart(0), m_resizing(false), m_translating(false) {}
 
     void Draw();
 
@@ -37,11 +37,12 @@ class PickBox {
     void SetWinSize(int _w, int _h) {m_w = _w; m_h = _h;}
 
   private:
-    Box m_pickBox;
+    Box m_pickBox, m_origBox; //current box and box used for translation
     bool m_leftMouseButton; //true:left mouse button down
     int m_w, m_h; //width and height of window
-    int m_highlightedPart;
-    bool m_resizing;
+    int m_highlightedPart; //mouse over which part of box?
+    bool m_resizing, m_translating; //currently resizing/translating the box
+    QPoint m_clicked; //point clicked for mouse
 };
 
 #endif
