@@ -7,9 +7,7 @@
 #include "ModelFactory.h"
 
 #include "BodyModel.h"
-#include "ModelGraph/ModelGraph.h"
 #include "Utilities/VizmoExceptions.h"
-using namespace modelgraph;
 
 PolyhedronModel::PolyhedronModel(BodyModel* _bodyModel)
   : Model(_bodyModel->GetFilename()), m_solidID(-1), m_wiredID(-1), m_bodyModel(_bodyModel) {
@@ -144,8 +142,9 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
 //build wire frame
 void
 PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {
-  ModelGraph mg;
-  mg.DoInit(_points, _tris);
+
+  //create model graph
+  BuildModelGraph(_points, _tris);
 
   //build model
   m_wiredID=glGenLists(1);
@@ -157,20 +156,45 @@ PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, con
 
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
-  const ModelEdge* edge = mg.GetEdges();
-  while(edge != NULL) {
-    int tril = edge->GetLeftTri();
-    int trir = edge->GetRightTri();
+  typedef ModelGraph::edge_iterator EIT;
+  for(EIT eit = m_modelGraph.edges_begin(); eit != m_modelGraph.edges_end(); ++eit) {
+    int tril = (*eit).property()[0];
+    int trir = (*eit).property()[1];
 
-    if(tril == -1 || trir == -1 || 1-fabs(_norms[tril] * _norms[trir]) > 1e-3){
-      GLint id[2] = {edge->GetStartPt(), edge->GetEndPt()};
+    if(tril == -1 || trir == -1 || 1-fabs(_norms[tril] * _norms[trir]) > 1e-3) {
+      GLint id[2] = {(*eit).source(), (*eit).target()};
       glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, id);
     }
-    edge = edge->GetNext();
   }
 
   glPopMatrix();
   glEndList();
+}
+
+//compute the model graph for wire frame
+void
+PolyhedronModel::BuildModelGraph(const PtVector& _points, const TriVector& _tris) {
+  //create nodes
+  for(size_t i = 0; i < _points.size(); ++i)
+    m_modelGraph.add_vertex(i, i);
+
+  //create edge from triangles
+  for(size_t i = 0; i < _tris.size(); ++i) {
+    for(size_t j = 0; j < 3; ++j) {
+      int a = _tris[i][j];
+      int b = _tris[i][(j+1)%3];
+      //see if edge (a, b) exists
+      ModelGraph::vertex_iterator vit;
+      ModelGraph::adj_edge_iterator eit;
+      ModelGraph::edge_descriptor eid(a, b);
+      bool found = m_modelGraph.find_edge(eid, vit, eit);
+
+      if(found) //set the right triangle
+        (*eit).property()[1] = i;
+      else //add new edge and set left triangle
+        m_modelGraph.add_edge(a, b, Vector<int, 2>(i, -1));
+    }
+  }
 }
 
 //set m_com to center of mass of _points

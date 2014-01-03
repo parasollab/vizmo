@@ -50,7 +50,6 @@ $(MP_DIR)/libobprm.a:
 OBJECTS =
 SRCMOC =
 include $(VIZMO_DIR)/Utilities/Makefile.Objects
-include $(VIZMO_DIR)/Models/ModelGraph/Makefile.Objects
 include $(VIZMO_DIR)/Models/Makefile.Objects
 include $(VIZMO_DIR)/GUI/Makefile.Objects
 VIZMO_OBJECTS = $(OBJECTS)

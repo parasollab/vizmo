@@ -1,6 +1,8 @@
 #ifndef POLYHEDRONMODEL_H_
 #define POLYHEDRONMODEL_H_
 
+#include "Graph.h"
+
 #include "Model.h"
 
 class BodyModel;
@@ -28,6 +30,7 @@ class PolyhedronModel : public Model {
     void ComputeNormals(const PtVector& _points, const TriVector& _tris, vector<Vector3d>& _norms);
     void BuildSolid(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
     void BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
+    void BuildModelGraph(const PtVector& _points, const TriVector& _tris);
 
     //set m_com to center of mass of _points
     void COM(const PtVector& _points);
@@ -42,6 +45,9 @@ class PolyhedronModel : public Model {
     Point3d m_com; //Center of Mass
 
     BodyModel* m_bodyModel;
+
+    typedef stapl::sequential::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, int, Vector<int, 2> > ModelGraph;
+    ModelGraph m_modelGraph; //model graph for wired model
 };
 
 #endif
