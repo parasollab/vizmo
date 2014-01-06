@@ -9,6 +9,7 @@ using namespace std;
 #include "Quaternion.h"
 using namespace mathtool;
 
+#include <QMouseEvent>
 #include <QKeyEvent>
 
 #include <gl.h>
@@ -48,6 +49,13 @@ class Model {
     virtual void DrawSelect() = 0;
     //output model info
     virtual void Print(ostream& _os) const = 0;
+
+    //mouse/keyboard event handling
+    virtual bool MousePressed(QMouseEvent* _e) {return false;}
+    virtual bool MouseReleased(QMouseEvent* _e) {return false;}
+    virtual bool MouseMotion(QMouseEvent* _e) {return false;}
+    virtual bool PassiveMouseMotion(QMouseEvent* _e) {return false;}
+    virtual bool KeyPressed(QKeyEvent* _e) {return false;}
 
   protected:
     string m_name;

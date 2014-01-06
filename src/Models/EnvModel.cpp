@@ -142,29 +142,38 @@ EnvModel::BuildModels(){
 void
 EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
   //unselect old one
-  if(!_index || *_index > m_multibodies.size()) //input error
+  if(!_index || *_index > m_multibodies.size() + m_regions.size()) //input error
     return;
-  else if(*_index == m_multibodies.size())
+  else if(*_index == m_multibodies.size() + m_regions.size())
     m_boundary->Select(_index+1, _sel);
+  else if(*_index < m_multibodies.size())
+    m_multibodies[*_index]->Select(_index+1, _sel);
   else
-    m_multibodies[_index[0]]->Select(_index+1, _sel);
+    m_regions[*_index]->Select(_index+1, _sel);
 }
 
 void
 EnvModel::Draw() {
   size_t numMBs = m_multibodies.size();
+  size_t numRegions = m_regions.size();
 
-  glPushName(numMBs);
+  glPushName(numMBs + numRegions);
   m_boundary->Draw();
   glPopName();
 
   glLineWidth(1);
-  for(size_t i = 0; i < numMBs; i++){
+  for(size_t i = 0; i < numMBs; ++i){
     if(!m_multibodies[i]->IsActive()){
       glPushName(i);
       m_multibodies[i]->Draw();
       glPopName();
     }
+  }
+
+  for(size_t i = 0; i < numRegions; ++i) {
+    glPushName(numMBs + i);
+    m_regions[i]->Draw();
+    glPopName();
   }
 }
 
@@ -183,11 +192,13 @@ EnvModel::ChangeColor(){
 
 void
 EnvModel::GetChildren(list<Model*>& _models){
-  typedef vector<MultiBodyModel *>::iterator MIT;
-  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); i++) {
+  typedef vector<MultiBodyModel*>::iterator MIT;
+  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
     if(!(*i)->IsActive())
       _models.push_back(*i);
-  }
+  typedef vector<RegionModel*>::iterator RIT;
+  for(RIT i = m_regions.begin(); i != m_regions.end(); ++i)
+    _models.push_back(*i);
   _models.push_back(m_boundary);
 }
 

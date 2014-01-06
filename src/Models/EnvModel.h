@@ -6,6 +6,7 @@
 #include "BoundaryModel.h"
 #include "Model.h"
 #include "MultiBodyModel.h"
+#include "RegionModel.h"
 
 class EnvModel : public LoadableModel {
 
@@ -16,12 +17,17 @@ class EnvModel : public LoadableModel {
     //Access functions
     string GetModelDataDir() {return  m_modelDataDir;}
     int GetDOF() {return m_dof;}
-    vector<MultiBodyModel*> GetMultiBodies() {return m_multibodies;}
-    BoundaryModel* GetBoundary() {return m_boundary;}
-    string GetBoundaryType() {return m_boundaryType;}
     double GetRadius() const {return m_radius;}
     const Point3d& GetCOM() const {return m_centerOfMass;}
     Environment* GetEnvironment() {return m_environment;}
+
+    vector<MultiBodyModel*> GetMultiBodies() {return m_multibodies;}
+
+    BoundaryModel* GetBoundary() {return m_boundary;}
+    string GetBoundaryType() {return m_boundaryType;}
+
+    const vector<RegionModel*>& GetRegions() const {return m_regions;}
+    void AddRegion(RegionModel* _r) {m_regions.push_back(_r);}
 
     //Load functions
     virtual void ParseFile();
@@ -59,6 +65,8 @@ class EnvModel : public LoadableModel {
     Point3d m_centerOfMass;
     BoundaryModel* m_boundary;
     string m_boundaryType;
+
+    vector<RegionModel*> m_regions;
 
     //PMPL environment
     Environment* m_environment;

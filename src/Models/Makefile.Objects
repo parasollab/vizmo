@@ -13,5 +13,7 @@ OBJECTS += \
 	   Models/PathModel.o \
 	   Models/PolyhedronModel.o \
 	   Models/QueryModel.o \
+	   Models/RegionBoxModel.o \
+	   Models/RegionSphereModel.o \
 	   Models/RobotModel.o \
 	   Models/Vizmo.o
