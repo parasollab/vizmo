@@ -15,6 +15,7 @@ using namespace std;
 #include "Utilities/TransformTool.h"
 
 class MainWindow;
+class RegionModel;
 
 class GLWidget : public QGLWidget {
 
@@ -39,6 +40,8 @@ class GLWidget : public QGLWidget {
     //Note: filename must have appropriate extension for QImage::save or no file
     //will be written
     void SaveImage(QString _filename, bool _crop);
+
+    void SetCurrentRegion(RegionModel* _r) {m_currentRegion = _r;}
 
   signals:
     void selectByRMB();
@@ -91,6 +94,8 @@ class GLWidget : public QGLWidget {
     CameraFactory m_cameraFactory;
     TransformTool m_transformTool;
     PickBox m_pickBox;
+
+    RegionModel* m_currentRegion;
 };
 
 #endif

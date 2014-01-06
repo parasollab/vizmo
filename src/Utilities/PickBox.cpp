@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 
+#include "GLUtils.h"
 #include <GL/glut.h>
 
 void
@@ -12,7 +13,7 @@ PickBox::Draw() {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0, m_w, 0, m_h);
+    gluOrtho2D(0, g_width, 0, g_height);
 
     glMatrixMode(GL_MODELVIEW);
 
@@ -75,7 +76,7 @@ PickBox::MousePressed(QMouseEvent* _e) {
     else {
       m_leftMouseButton = true;
       m_pickBox.m_right = m_pickBox.m_left = _e->pos().x();
-      m_pickBox.m_bottom = m_pickBox.m_top = m_h - _e->pos().y();
+      m_pickBox.m_bottom = m_pickBox.m_top = g_height - _e->pos().y();
     }
   }
 }
@@ -93,23 +94,23 @@ PickBox::MouseMotion(QMouseEvent* _e) {
     if(m_translating) {
       QPoint diff(_e->pos().x() - m_clicked.x(), m_clicked.y() - _e->pos().y());
       m_pickBox.m_left = max(1., m_origBox.m_left + diff.x());
-      m_pickBox.m_right = min(double(m_w), m_origBox.m_right + diff.x());
+      m_pickBox.m_right = min(double(g_width), m_origBox.m_right + diff.x());
       m_pickBox.m_top = max(1., m_origBox.m_top + diff.y());
-      m_pickBox.m_bottom = min(double(m_h), m_origBox.m_bottom + diff.y());
+      m_pickBox.m_bottom = min(double(g_height), m_origBox.m_bottom + diff.y());
     }
     else if(m_resizing) {
       if(m_highlightedPart & LEFT)
         m_pickBox.m_left = max(1, _e->pos().x());
       if(m_highlightedPart & RIGHT)
-        m_pickBox.m_right = min(m_w, _e->pos().x());
+        m_pickBox.m_right = min(g_width, _e->pos().x());
       if(m_highlightedPart & TOP)
-        m_pickBox.m_top = max(1, m_h - _e->pos().y());
+        m_pickBox.m_top = max(1, g_height - _e->pos().y());
       if(m_highlightedPart & BOTTOM)
-        m_pickBox.m_bottom = min(m_h, m_h - _e->pos().y());
+        m_pickBox.m_bottom = min(g_height, g_height - _e->pos().y());
     }
     else{
-      m_pickBox.m_right = min(m_w, _e->pos().x());
-      m_pickBox.m_top = max(1, m_h - _e->pos().y());
+      m_pickBox.m_right = min(g_width, _e->pos().x());
+      m_pickBox.m_top = max(1, g_height - _e->pos().y());
     }
 
     //ensure the top and left are the true top/left
@@ -131,7 +132,7 @@ bool
 PickBox::PassiveMouseMotion(QMouseEvent* _e) {
   if(m_leftMouseButton) {
     m_highlightedPart = NONE;
-    int x = _e->pos().x(), y = m_h - _e->pos().y();
+    int x = _e->pos().x(), y = g_height - _e->pos().y();
     int bottom = min(m_pickBox.m_bottom, m_pickBox.m_top) - 3;
     int top = max(m_pickBox.m_bottom, m_pickBox.m_top) + 3;
     int left = min(m_pickBox.m_left, m_pickBox.m_right) - 3;

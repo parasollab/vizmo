@@ -29,6 +29,9 @@ class RegionSphereModel : public RegionModel {
   private:
     Vector3d m_center;
     double m_radius;
+
+    bool m_lmb, m_firstClick;
+    QPoint m_clicked;
 };
 
 #endif

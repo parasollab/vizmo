@@ -22,7 +22,6 @@ class TransformToolBase {
 
     void ResetSelectedObj() {m_obj = NULL;}
     virtual void SetSelectedObj(TransformableModel* _obj);
-    void SetWindowSize(int _w, int _h);
     void ProjectToWindow();
 
     void Draw();
@@ -41,7 +40,6 @@ class TransformToolBase {
     static Camera* m_currentCamera;
     static Point3d m_objPosPrj; //project(m_obj.pos and 3 axis), (win coord)
     static Point3d m_xPrj, m_yPrj, m_zPrj;
-    static int m_w, m_h;          //window size
     static int m_hitX, m_hitY;    //mouse hit on m_hitX, m_hitY (win coord)
 };
 
@@ -149,9 +147,9 @@ class TransformTool {
       TransformToolBase::SetCurrentCamera(_camera);
     }
 
-    void SetWindowSize(int _w, int _h);
     void CheckSelectObject();
     void ResetSelectedObj() {m_tool->ResetSelectedObj();}
+    void ProjectToWindow() {m_translationTool.ProjectToWindow(); m_scaleTool.ProjectToWindow();}
 
     void Draw();
     bool MousePressed(QMouseEvent* _e);

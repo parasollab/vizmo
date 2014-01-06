@@ -28,6 +28,7 @@ class EnvironmentOptions : public OptionsBase {
     void DuplicateObstacles();
     void ChangeBoundaryForm();
     void EditRobot();
+    void AddRegionSphere();
 
   private:
     void CreateActions();

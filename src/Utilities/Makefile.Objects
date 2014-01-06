@@ -1,6 +1,7 @@
 OBJECTS += \
 	  Utilities/Camera.o \
 	  Utilities/Font.o \
+	  Utilities/GLUtils.o \
 	  Utilities/ImageFilters.o \
 	  Utilities/IO.o \
 	  Utilities/PickBox.o \

@@ -16,6 +16,7 @@
 #include "EditRobotDialog.h"
 #include "MainWindow.h"
 #include "Models/EnvModel.h"
+#include "Models/RegionSphereModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/RandEnv.xpm"
@@ -48,6 +49,9 @@ EnvironmentOptions::CreateActions(){
   m_actions["changeBoundary"] = changeBoundary;
   QAction* editRobot = new QAction(tr("Edit the Robot "), this);
   m_actions["editRobot"] = editRobot;
+  //TODO: make icon for add sphere region
+  QAction* addRegionSphere = new QAction(QPixmap(randEnvIcon), tr("Add Spherical Region"), this);
+  m_actions["addRegionSphere"] = addRegionSphere;
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -59,6 +63,7 @@ EnvironmentOptions::CreateActions(){
   m_actions["duplicateObstacle"]->setEnabled(false);
   m_actions["changeBoundary"]->setEnabled(false);
   m_actions["editRobot"]->setEnabled(false);
+  m_actions["addRegionSphere"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()), this, SLOT(RefreshEnv()));
@@ -69,6 +74,7 @@ EnvironmentOptions::CreateActions(){
   connect(m_actions["duplicateObstacle"], SIGNAL(triggered()), this, SLOT(DuplicateObstacles()));
   connect(m_actions["changeBoundary"], SIGNAL(triggered()), this, SLOT(ChangeBoundaryForm()));
   connect(m_actions["editRobot"], SIGNAL(triggered()), this, SLOT(EditRobot()));
+  connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
 }
 
 void
@@ -84,6 +90,7 @@ EnvironmentOptions::SetUpCustomSubmenu(){
   m_submenu->addMenu(m_obstacleMenu);
   m_submenu->addAction(m_actions["changeBoundary"]);
   m_submenu->addAction(m_actions["editRobot"]);
+  m_submenu->addAction(m_actions["addRegionSphere"]);
   m_obstacleMenu->setEnabled(false);
 }
 
@@ -91,6 +98,7 @@ void
 EnvironmentOptions::SetUpToolbar(){
   m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["randEnvColors"]);
+  m_toolbar->addAction(m_actions["addRegionSphere"]);
 }
 
 void
@@ -103,6 +111,7 @@ EnvironmentOptions::Reset(){
   m_actions["duplicateObstacle"]->setEnabled(true);
   m_actions["changeBoundary"]->setEnabled(true);
   m_actions["editRobot"]->setEnabled(true);
+  m_actions["addRegionSphere"]->setEnabled(true);
   m_obstacleMenu->setEnabled(true);
 }
 
@@ -116,6 +125,7 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["duplicateObstacle"]->setWhatsThis(tr("duplicate obstacle button"));
   m_actions["changeBoundary"]->setWhatsThis(tr("Change the form of the boundary"));
   m_actions["editRobot"]->setWhatsThis(tr("Edit the robot"));
+  m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
 }
 
 //Slots
@@ -270,7 +280,7 @@ EnvironmentOptions::AddObstacle(){
       return;
   }
   else
-    m_mainWindow->statusBar()->showMessage("Loading aborded");
+    m_mainWindow->statusBar()->showMessage("Loading aborted");
 }
 
 string
@@ -288,4 +298,14 @@ EnvironmentOptions::GetFileDir(string _modelFilename, string _filename){
   string modelFileDir = _modelFilename;
   modelFileDir.replace(modelFilenameSize-filenameSize, filenameSize, "");
   return modelFileDir;
+}
+
+void
+EnvironmentOptions::AddRegionSphere() {
+  //create new spherical region and add to environment
+  RegionSphereModel* r = new RegionSphereModel();
+  GetVizmo().GetEnv()->AddRegion(r);
+
+  //set mouse events to current region for GLWidget
+  m_mainWindow->GetGLScene()->SetCurrentRegion(r);
 }
