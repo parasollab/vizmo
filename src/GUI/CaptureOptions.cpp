@@ -1,7 +1,5 @@
 #include "CaptureOptions.h"
 
-#include <QtGui>
-
 #include "MainWindow.h"
 #include "GLWidget.h"
 #include "MovieSaveDialog.h"

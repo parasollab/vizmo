@@ -10,10 +10,7 @@
 #ifndef OPTIONSBASE_H_
 #define OPTIONSBASE_H_
 
-#include <QAction> //may be able to trim this later...
-#include <QMenu>
-#include <QToolBar>
-#include <QToolButton>
+#include <QtGui>
 
 class MainWindow;
 class MainMenu;

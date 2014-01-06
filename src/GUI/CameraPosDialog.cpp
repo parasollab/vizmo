@@ -9,23 +9,26 @@ CameraPosDialog::CameraPosDialog(QWidget* _parent) : QDialog(_parent) {
   //initialize objects
   setWindowTitle("Camera Position");
 
-  m_buttonBox = new QDialogButtonBox(this);
-  m_buttonBox->setOrientation(Qt::Horizontal);
-  m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
+  QDialogButtonBox* buttonBox = new QDialogButtonBox(this);
+  buttonBox->setOrientation(Qt::Horizontal);
+  buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
 
-  m_label = new QLabel("Enter a camera position and the point where the camera looks at:", this);
+  QLabel* mainLabel = new QLabel("Enter a camera position and the point where the camera looks at:", this);
 
-  m_labelEye[0] = new QLabel("Eye", this);
-  m_labelEye[1] = new QLabel("x", this);
-  m_labelEye[2] = new QLabel("y", this);
-  m_labelEye[3] = new QLabel("z", this);
+  QLabel* eyeLabel[4];
+  QLabel* atLabel[4];
+
+  eyeLabel[0] = new QLabel("Eye", this);
+  eyeLabel[1] = new QLabel("x", this);
+  eyeLabel[2] = new QLabel("y", this);
+  eyeLabel[3] = new QLabel("z", this);
   m_lineEye[0] = new QLineEdit(this);
   m_lineEye[1] = new QLineEdit(this);
   m_lineEye[2] = new QLineEdit(this);
-  m_labelAt[0] = new QLabel("At", this);
-  m_labelAt[1] = new QLabel("x", this);
-  m_labelAt[2] = new QLabel("y", this);
-  m_labelAt[3] = new QLabel("z", this);
+  atLabel[0] = new QLabel("At", this);
+  atLabel[1] = new QLabel("x", this);
+  atLabel[2] = new QLabel("y", this);
+  atLabel[3] = new QLabel("z", this);
   m_lineAt[0] = new QLineEdit(this);
   m_lineAt[1] = new QLineEdit(this);
   m_lineAt[2] = new QLineEdit(this);
@@ -34,21 +37,21 @@ CameraPosDialog::CameraPosDialog(QWidget* _parent) : QDialog(_parent) {
   QGridLayout* layout = new QGridLayout(this);
   setLayout(layout);
 
-  layout->addWidget(m_label, 0, 0, 1, 4);
-  layout->addWidget(m_labelEye[0], 1, 0);
-  layout->addWidget(m_labelAt[0], 1, 2);
+  layout->addWidget(mainLabel, 0, 0, 1, 4);
+  layout->addWidget(eyeLabel[0], 1, 0);
+  layout->addWidget(atLabel[0], 1, 2);
   for(size_t i = 0; i < 3; ++i) {
-    layout->addWidget(m_labelEye[i+1], i+2, 0);
+    layout->addWidget(eyeLabel[i+1], i+2, 0);
     layout->addWidget(m_lineEye[i], i+2, 1);
-    layout->addWidget(m_labelAt[i+1], i+2, 2);
+    layout->addWidget(atLabel[i+1], i+2, 2);
     layout->addWidget(m_lineAt[i], i+2, 3);
   }
 
-  layout->addWidget(m_buttonBox, 5, 0, 1, 4);
+  layout->addWidget(buttonBox, 5, 0, 1, 4);
 
   //connect signals/slots
-  QObject::connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(AcceptData()));
-  QObject::connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+  QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(AcceptData()));
+  QObject::connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
   QMetaObject::connectSlotsByName(this);
 }
