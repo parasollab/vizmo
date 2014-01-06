@@ -41,22 +41,10 @@ class AnimationWidget : public QToolBar {
     void CreateStepInput();
     void UpdateCurValue(int _value);
 
-    QAction* m_playPathAction;
-    QAction* m_pausePathAction;
-    QAction* m_firstFrame;
-    QAction* m_lastFrame;
-    QAction* m_playBackAction;
-    QAction* m_nextFrameAction;
-    QAction* m_previousFrameAction;
-
     QSlider* m_slider;
-    QLabel* m_stepLabel;
     QLineEdit* m_stepField;
-    QLabel* m_frameLabel;
     QLineEdit* m_frameField;
-    QLabel* m_slash;
     QLabel* m_totalSteps;
-    QLabel* m_framesLast;
 
     QTimer* m_timer;
 

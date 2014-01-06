@@ -78,68 +78,64 @@ AnimationWidget::CreateGUI(){
 void
 AnimationWidget::CreateFrameInput(){
 
-  m_frameLabel = new QLabel("Frame = ",this);     // need to delete it once done
   m_frameField = new QLineEdit(this);             // delete this on cleaning
   m_frameField->setText("0");
   m_frameField->setMaximumSize(55,22);
   m_frameField->setValidator(new QIntValidator(m_frameField));
   connect(m_frameField, SIGNAL(returnPressed()), SLOT(GoToFrame()));
-  m_slash = new QLabel(" / ",this);
   m_totalSteps = new QLabel("",this);
   m_totalSteps->setNum(0);
-  m_framesLast = new QLabel(" frames ",this);
 
-  this->addWidget(m_frameLabel);
+  this->addWidget(new QLabel("Frame = ", this));
   this->addWidget(m_frameField);
-  this->addWidget(m_slash);
+  this->addWidget(new QLabel(" / ", this));
   this->addWidget(m_totalSteps);
-  this->addWidget(m_framesLast);
+  this->addWidget(new QLabel(" frames ", this));
 }
 
 void
 AnimationWidget::CreateStepInput(){
 
-  m_stepLabel = new QLabel("Step = ",this);
   m_stepField = new QLineEdit(this);
   m_stepField->setText("1");
   m_stepField->setMaximumSize(55,22);
   m_stepField->setValidator(new QIntValidator(m_stepField));
   connect(m_stepField,SIGNAL(returnPressed()),SLOT(UpdateStepSize()));
 
-  this->addWidget(m_stepLabel);
+  this->addWidget(new QLabel("Step = ", this));
   this->addWidget(m_stepField);
 }
 
 bool AnimationWidget::CreateActions(){
 
-  m_playPathAction = new QAction(QIcon(QPixmap(play)), tr("Play"), this);
-  connect(m_playPathAction, SIGNAL(triggered()), SLOT(Animate()));
+  QAction* playPathAction = new QAction(QIcon(QPixmap(play)), tr("Play"), this);
+  connect(playPathAction, SIGNAL(triggered()), SLOT(Animate()));
 
-  m_playBackAction = new QAction(QPixmap(playback), "BackPlay",this);
-  connect(m_playBackAction, SIGNAL(triggered()), SLOT(BackAnimate()));
+  QAction* playBackAction = new QAction(QPixmap(playback), "BackPlay",this);
+  connect(playBackAction, SIGNAL(triggered()), SLOT(BackAnimate()));
 
-  m_pausePathAction = new QAction(QIcon(QPixmap(pauseIcon)), tr("Pause"),this);
-  connect(m_pausePathAction, SIGNAL(triggered()), SLOT(PauseAnimate()));
+  QAction* pausePathAction = new QAction(QIcon(QPixmap(pauseIcon)), tr("Pause"),this);
+  connect(pausePathAction, SIGNAL(triggered()), SLOT(PauseAnimate()));
 
-  m_nextFrameAction = new QAction(QIcon(QPixmap(next)), tr("NextFrame"),this);
-  connect(m_nextFrameAction, SIGNAL(triggered()), SLOT(NextFrame()));
+  QAction* nextFrameAction = new QAction(QIcon(QPixmap(next)), tr("NextFrame"),this);
+  connect(nextFrameAction, SIGNAL(triggered()), SLOT(NextFrame()));
 
-  m_previousFrameAction = new QAction(QIcon(QPixmap(previous)), tr("PreviousFrame"),this);
-  connect(m_previousFrameAction, SIGNAL(triggered()), SLOT(PreviousFrame()));
+  QAction* previousFrameAction = new QAction(QIcon(QPixmap(previous)), tr("PreviousFrame"),this);
+  connect(previousFrameAction, SIGNAL(triggered()), SLOT(PreviousFrame()));
 
-  m_firstFrame = new QAction(QIcon(QPixmap(first)), tr("first"),this);
-  connect(m_firstFrame, SIGNAL(triggered()), SLOT(GoToFirst()));
+  QAction* firstFrame = new QAction(QIcon(QPixmap(first)), tr("first"),this);
+  connect(firstFrame, SIGNAL(triggered()), SLOT(GoToFirst()));
 
-  m_lastFrame= new QAction(QIcon(QPixmap(last)), tr("last"),this);
-  connect(m_lastFrame, SIGNAL(triggered()), SLOT(GoToLast()));
+  QAction* lastFrame= new QAction(QIcon(QPixmap(last)), tr("last"),this);
+  connect(lastFrame, SIGNAL(triggered()), SLOT(GoToLast()));
 
-  this->addAction(m_playPathAction);
-  this->addAction(m_playBackAction);
-  this->addAction(m_pausePathAction);
-  this->addAction(m_nextFrameAction);
-  this->addAction(m_previousFrameAction);
-  this->addAction(m_firstFrame);
-  this->addAction(m_lastFrame);
+  this->addAction(playPathAction);
+  this->addAction(playBackAction);
+  this->addAction(pausePathAction);
+  this->addAction(nextFrameAction);
+  this->addAction(previousFrameAction);
+  this->addAction(firstFrame);
+  this->addAction(lastFrame);
 
   return true;
 }
