@@ -9,17 +9,7 @@
 
 #include "RoadmapOptions.h"
 
-#include <QAction>
-#include <QPushButton>
-#include <QButtonGroup>
-#include <QMenu>
-#include <QToolBar>
-#include <QPixmap>
-#include <QTranslator>
-#include <QStatusBar>
-#include <QColorDialog>
-#include <QInputDialog>
-#include <QMessageBox>
+#include <QtGui>
 
 #include "SliderDialog.h"
 #include "NodeEditDialog.h"
@@ -120,6 +110,8 @@ RoadmapOptions::CreateActions(){
   m_actions["addEdge"] = addEdge;
   QAction* deleteSelected = new QAction(tr("Delete Selected Items"), this);
   m_actions["deleteSelected"] = deleteSelected;
+  QAction* mergeNodes = new QAction(tr("Merge Nodes"), this);
+  m_actions["mergeNodes"] = mergeNodes;
 
   QAction* randomizeColors = new QAction(QPixmap(rcolor), tr("Randomize Colors"), this);
   m_actions["randomizeColors"] = randomizeColors;
@@ -172,6 +164,8 @@ RoadmapOptions::CreateActions(){
   m_actions["addEdge"]->setStatusTip(tr("Add edge between selected pair of nodes"));
   m_actions["deleteSelected"]->setEnabled(false);
   m_actions["deleteSelected"]->setStatusTip(tr("Delete selected nodes and/or edges"));
+  m_actions["mergeNodes"]->setEnabled(false);
+  m_actions["mergeNodes"]->setStatusTip(tr("Merge selected nodes into a supervertex"));
 
   m_actions["randomizeColors"]->setShortcut(tr("CTRL+R"));
   m_actions["randomizeColors"]->setEnabled(false);
@@ -202,6 +196,7 @@ RoadmapOptions::CreateActions(){
   connect(m_actions["editEdge"], SIGNAL(triggered()), this, SLOT(ShowEdgeEditDialog()));
   connect(m_actions["addEdge"], SIGNAL(triggered()), this, SLOT(AddEdge()));
   connect(m_actions["deleteSelected"], SIGNAL(triggered()), this, SLOT(DeleteSelectedItems()));
+  connect(m_actions["mergeNodes"], SIGNAL(triggered()), this, SLOT(MergeSelectedNodes()));
 
   connect(m_actions["randomizeColors"], SIGNAL(triggered()), this, SLOT(RandomizeCCColors()));
   connect(m_actions["ccsOneColor"], SIGNAL(triggered()), this, SLOT(MakeCCsOneColor()));
@@ -237,6 +232,7 @@ RoadmapOptions::SetUpCustomSubmenu(){
   m_submenu->addAction(m_actions["editEdge"]);
   m_submenu->addAction(m_actions["addEdge"]);
   m_submenu->addAction(m_actions["deleteSelected"]);
+  m_submenu->addAction(m_actions["mergeNodes"]);
 
   m_modifyCCs = new QMenu("Modify CCs", this);
   m_modifyCCs->addAction(m_actions["randomizeColors"]);
@@ -308,6 +304,7 @@ RoadmapOptions::Reset(){
   m_actions["editEdge"]->setEnabled(true);
   m_actions["addEdge"]->setEnabled(true);
   m_actions["deleteSelected"]->setEnabled(true);
+  m_actions["mergeNodes"]->setEnabled(true);
 
   m_modifyCCs->setEnabled(true);
   m_actions["randomizeColors"]->setEnabled(true);
@@ -349,10 +346,18 @@ RoadmapOptions::SetHelpTips(){
         " selected nodes."));
   m_actions["deleteSelected"]->setWhatsThis(tr("Click this button to delete any number"
         " of selected nodes and/or edges"));
+  m_actions["mergeNodes"]->setWhatsThis(tr("Click this button to merge selected nodes"
+        " into a supervertex."));
   m_actions["randomizeColors"]->setWhatsThis(tr("Click this button to randomize"
         " the colors of the connected components."));
   m_actions["ccsOneColor"]->setWhatsThis(tr("Click this button to set all of the"
         " connected components to a single color. "));
+}
+
+string
+RoadmapOptions::GetNodeShape(){
+
+  return (string)(m_nodeView->checkedButton())->text().toAscii();
 }
 
 //Slots
@@ -571,9 +576,8 @@ RoadmapOptions::DeleteSelectedItems(){
     //Remove selected edges
     typedef vector<pair<VID, VID> >::iterator EIT;
     for(EIT it = edgesToDelete.begin(); it != edgesToDelete.end(); it++){
-      pair<VID, VID> edge = *it;
-      graph->delete_edge(edge.first, edge.second);
-      graph->delete_edge(edge.second, edge.first);
+      graph->delete_edge(it->first, it->second);
+      graph->delete_edge(it->second, it->first);
     }
 
     map->RefreshMap();
@@ -581,6 +585,57 @@ RoadmapOptions::DeleteSelectedItems(){
     m_mainWindow->GetGLScene()->updateGL();
     sel.clear();
   }
+}
+
+void
+RoadmapOptions::MergeSelectedNodes(){
+
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
+
+  //Create and center the supervertex
+  CfgModel super = CfgModel();
+  size_t numSelected = sel.size();
+
+  for(MIT it = sel.begin(); it != sel.end(); it++){
+    if((*it)->Name().substr(0, 4) != "Node"){
+      QMessageBox::about(this, "", "Please select only nodes.");
+        return;
+    }
+    super += *((CfgModel*)*it);
+  }
+
+  super /= numSelected;
+  VID superID = graph->add_vertex(super);
+
+  //Mark selected vertices for removal and save ids for edge addition
+  vector<VID> toDelete;
+  vector<VID> toAdd;
+
+  for(MIT it = sel.begin(); it != sel.end(); it++){
+    VID selectedID = ((CfgModel*)*it)->GetIndex();
+    toDelete.push_back(selectedID);
+    VI vi = graph->find_vertex(selectedID);
+    for(EI ei = vi->begin(); ei != vi->end(); ++ei)
+      toAdd.push_back((*ei).target());
+  }
+
+  //Add the new edges
+  typedef vector<VID>::iterator VIT;
+  for(VIT it = toAdd.begin(); it != toAdd.end(); it++){
+    graph->add_edge(superID, *it);
+    graph->add_edge(*it, superID);
+  }
+
+  //Remove selected vertices
+  for(VIT it = toDelete.begin(); it != toDelete.end(); it++)
+    graph->delete_vertex(*it);
+
+  map->RefreshMap();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
+  sel.clear();
 }
 
 void
@@ -626,7 +681,6 @@ RoadmapOptions::ShowObjectContextMenu(){
     cm.addAction(m_actions["makeInvisible"]);
     cm.addAction(m_actions["changeObjectColor"]);
     cm.addSeparator();
-    /*LEAVE HERE*/  //cm.insertItem("Edit...", this,SLOT(objectEdit()));
   }
   if(cm.exec(QCursor::pos())!= 0) //was -1 for q3 version (index based)
     m_mainWindow->GetGLScene()->updateGL();

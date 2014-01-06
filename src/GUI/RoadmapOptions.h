@@ -5,8 +5,6 @@
 #ifndef ROADMAPOPTIONS_H_
 #define ROADMAPOPTIONS_H_
 
-#include "QButtonGroup"
-
 #include "OptionsBase.h"
 #include "Models/MapModel.h"
 #include "Models/Vizmo.h"
@@ -46,6 +44,7 @@ class RoadmapOptions : public OptionsBase {
     void ShowEdgeEditDialog();
     void AddEdge();
     void DeleteSelectedItems();
+    void MergeSelectedNodes();
     void RandomizeCCColors();
     void MakeCCsOneColor();
     void ShowObjectContextMenu();
@@ -57,6 +56,7 @@ class RoadmapOptions : public OptionsBase {
     void SetUpToolbar();       //a lot of toolbar functionalities for this class
     void Reset();
     void SetHelpTips();
+    string GetNodeShape();
 
     typedef MapModel<CfgModel, EdgeModel> MM;
     MM* GetMapModel(){
@@ -64,9 +64,6 @@ class RoadmapOptions : public OptionsBase {
         return NULL;
       else
         return GetVizmo().GetMap();
-    }
-    string GetNodeShape(){
-      return (string)(m_nodeView->checkedButton())->text().toAscii();
     }
 
     QButtonGroup* m_nodeView;   //For ease of use--includes the 3 buttons below
