@@ -28,6 +28,7 @@ class EnvModel : public LoadableModel {
 
     const vector<RegionModel*>& GetRegions() const {return m_regions;}
     void AddRegion(RegionModel* _r) {m_regions.push_back(_r);}
+    void DeleteRegion(RegionModel* _r) {m_regions.erase(find(m_regions.begin(), m_regions.end(), _r));}
 
     //Load functions
     virtual void ParseFile();

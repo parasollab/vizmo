@@ -52,6 +52,8 @@ EnvironmentOptions::CreateActions(){
   //TODO: make icon for add sphere region
   QAction* addRegionSphere = new QAction(QPixmap(randEnvIcon), tr("Add Spherical Region"), this);
   m_actions["addRegionSphere"] = addRegionSphere;
+  QAction* deleteRegion = new QAction(QPixmap(randEnvIcon), tr("Delete Region"), this);
+  m_actions["deleteRegion"] = deleteRegion;
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -64,6 +66,7 @@ EnvironmentOptions::CreateActions(){
   m_actions["changeBoundary"]->setEnabled(false);
   m_actions["editRobot"]->setEnabled(false);
   m_actions["addRegionSphere"]->setEnabled(false);
+  m_actions["deleteRegion"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()), this, SLOT(RefreshEnv()));
@@ -75,6 +78,7 @@ EnvironmentOptions::CreateActions(){
   connect(m_actions["changeBoundary"], SIGNAL(triggered()), this, SLOT(ChangeBoundaryForm()));
   connect(m_actions["editRobot"], SIGNAL(triggered()), this, SLOT(EditRobot()));
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
+  connect(m_actions["deleteRegion"], SIGNAL(triggered()), this, SLOT(DeleteRegion()));
 }
 
 void
@@ -91,6 +95,7 @@ EnvironmentOptions::SetUpCustomSubmenu(){
   m_submenu->addAction(m_actions["changeBoundary"]);
   m_submenu->addAction(m_actions["editRobot"]);
   m_submenu->addAction(m_actions["addRegionSphere"]);
+  m_submenu->addAction(m_actions["deleteRegion"]);
   m_obstacleMenu->setEnabled(false);
 }
 
@@ -99,6 +104,7 @@ EnvironmentOptions::SetUpToolbar(){
   m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["randEnvColors"]);
   m_toolbar->addAction(m_actions["addRegionSphere"]);
+  m_toolbar->addAction(m_actions["deleteRegion"]);
 }
 
 void
@@ -112,6 +118,7 @@ EnvironmentOptions::Reset(){
   m_actions["changeBoundary"]->setEnabled(true);
   m_actions["editRobot"]->setEnabled(true);
   m_actions["addRegionSphere"]->setEnabled(true);
+  m_actions["deleteRegion"]->setEnabled(true);
   m_obstacleMenu->setEnabled(true);
 }
 
@@ -126,6 +133,7 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["changeBoundary"]->setWhatsThis(tr("Change the form of the boundary"));
   m_actions["editRobot"]->setWhatsThis(tr("Edit the robot"));
   m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
+  m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
 }
 
 //Slots
@@ -312,4 +320,15 @@ EnvironmentOptions::AddRegionSphere() {
   GetVizmo().GetSelectedModels().clear();
   GetVizmo().GetSelectedModels().push_back(r);
   m_mainWindow->GetModelSelectionWidget()->Select();
+}
+
+void
+EnvironmentOptions::DeleteRegion() {
+  RegionModel* r = m_mainWindow->GetGLScene()->GetCurrentRegion();
+  if(r) {
+    GetVizmo().GetEnv()->DeleteRegion(r);
+    GetVizmo().GetSelectedModels().clear();
+    m_mainWindow->GetModelSelectionWidget()->ResetLists();
+    m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
+  }
 }

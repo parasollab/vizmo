@@ -41,6 +41,7 @@ class GLWidget : public QGLWidget {
     //will be written
     void SaveImage(QString _filename, bool _crop);
 
+    RegionModel* GetCurrentRegion() { return m_currentRegion;}
     void SetCurrentRegion(RegionModel* _r) {m_currentRegion = _r;}
 
   signals:

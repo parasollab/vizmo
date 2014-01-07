@@ -29,6 +29,7 @@ class EnvironmentOptions : public OptionsBase {
     void ChangeBoundaryForm();
     void EditRobot();
     void AddRegionSphere();
+    void DeleteRegion();
 
   private:
     void CreateActions();
@@ -54,7 +55,6 @@ class EnvironmentOptions : public OptionsBase {
     double m_xRot;
     double m_yRot;
     double m_zRot;
-
 };
 
 #endif

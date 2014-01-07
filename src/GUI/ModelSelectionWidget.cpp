@@ -67,6 +67,8 @@ ModelSelectionWidget::SelectionChanged(){
   for(IIT i = m_items.begin(); i != m_items.end(); i++){
     if((*i)->isSelected()){
       sel.push_back((*i)->m_model);
+      if((*i)->m_model->Name() == "Sphere Region" || (*i)->m_model->Name() == "Box Region")
+        m_glWidget->SetCurrentRegion((RegionModel*)(*i)->m_model);
       for(int j = 0; j < (*i)->childCount(); j++){ //Select all subcomponents as well
         ListViewItem* child = (ListViewItem*)(*i)->child(j);
           sel.push_back(child->m_model);
