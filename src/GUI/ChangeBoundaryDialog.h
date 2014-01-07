@@ -27,8 +27,6 @@ class ChangeBoundaryDialog : public QDialog {
     bool m_isBox;
     bool m_isSurface;
     //Qt Variables
-    QPushButton* m_cancelButton;
-    QPushButton* m_loadButton;
     QRadioButton* m_boxButton;
     QRadioButton* m_sphereButton;
     QLineEdit* m_lineBoxX1;
@@ -52,7 +50,6 @@ class ChangeBoundaryDialog : public QDialog {
     QLabel* m_labelSphereZ;
     QLabel* m_labelSphereR;
     QCheckBox* m_checkIsSurface;
-    QValidator* m_validator;
 };
 
 #endif

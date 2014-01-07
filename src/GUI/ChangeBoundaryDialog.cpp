@@ -10,8 +10,8 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
 
   resize(323, 196);
   setWindowTitle("Change Boundary");
-  m_cancelButton = new QPushButton("Cancel", this);
-  m_loadButton = new QPushButton("OK", this);
+  QPushButton* cancelButton = new QPushButton("Cancel", this);
+  QPushButton* loadButton = new QPushButton("OK", this);
   m_boxButton = new QRadioButton("Bounding Box", this);
   m_sphereButton = new QRadioButton("Bounding Sphere", this);
   m_lineBoxX1 = new QLineEdit("-25", this);
@@ -32,17 +32,29 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
   m_labelSphereZ = new QLabel("<b>Z<b>", this);
   m_labelSphereR = new QLabel("<b>Radius<b>", this);
   m_checkIsSurface = new QCheckBox("Surface Boundary", this);
-  m_validator = new QDoubleValidator();
+  QValidator* validator = new QDoubleValidator();
 
   m_isBox = true;
   m_isSurface = false;
 
-  connect(m_loadButton, SIGNAL(clicked()), this, SLOT(SetBoundary()));
-  connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(close()));
+  connect(loadButton, SIGNAL(clicked()), this, SLOT(SetBoundary()));
+  connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
   connect(m_sphereButton, SIGNAL(clicked()), this, SLOT(ChangeToSphereDialog()));
   connect(m_boxButton, SIGNAL(clicked()), this, SLOT(ChangeToBoxDialog()));
   connect(m_checkIsSurface, SIGNAL(clicked()), this, SLOT(ChangeToSurface()));
 
+  loadButton->setGeometry(QRect(210,150,95,31));
+  cancelButton->setGeometry(QRect(100,150,95,31));
+  m_lineBoxX1->setValidator(validator);
+  m_lineBoxX2->setValidator(validator);
+  m_lineBoxY1->setValidator(validator);
+  m_lineBoxY2->setValidator(validator);
+  m_lineBoxZ1->setValidator(validator);
+  m_lineBoxZ2->setValidator(validator);
+  m_lineSphereX->setValidator(validator);
+  m_lineSphereY->setValidator(validator);
+  m_lineSphereZ->setValidator(validator);
+  m_lineSphereR->setValidator(validator);
   SetUpLayout();
 }
 
@@ -51,20 +63,12 @@ ChangeBoundaryDialog::SetUpLayout(){
   m_boxButton->setGeometry(QRect(10,10,124,26));
   m_boxButton->setChecked(true);
   m_sphereButton->setGeometry(QRect(170,10,151,26));
-  m_loadButton->setGeometry(QRect(210,150,95,31));
-  m_cancelButton->setGeometry(QRect(100,150,95,31));
   m_lineBoxX1->setGeometry(QRect(20,100,41,31));
   m_lineBoxX2->setGeometry(QRect(70,100,41,31));
   m_lineBoxY1->setGeometry(QRect(120,100,41,31));
   m_lineBoxY2->setGeometry(QRect(170,100,41,31));
   m_lineBoxZ1->setGeometry(QRect(220,100,41,31));
   m_lineBoxZ2->setGeometry(QRect(270,100,41,31));
-  m_lineBoxX1->setValidator(m_validator);
-  m_lineBoxX2->setValidator(m_validator);
-  m_lineBoxY1->setValidator(m_validator);
-  m_lineBoxY2->setValidator(m_validator);
-  m_lineBoxZ1->setValidator(m_validator);
-  m_lineBoxZ2->setValidator(m_validator);
   m_labelBoxX->setGeometry(QRect(60,70,21,21));
   m_labelBoxY->setGeometry(QRect(160,70,21,21));
   m_labelBoxZ->setGeometry(QRect(260,70,21,21));
@@ -72,10 +76,6 @@ ChangeBoundaryDialog::SetUpLayout(){
   m_lineSphereY->setGeometry(QRect(100,100,41,31));
   m_lineSphereZ->setGeometry(QRect(180,100,41,31));
   m_lineSphereR->setGeometry(QRect(250,100,41,31));
-  m_lineSphereX->setValidator(m_validator);
-  m_lineSphereY->setValidator(m_validator);
-  m_lineSphereZ->setValidator(m_validator);
-  m_lineSphereR->setValidator(m_validator);
   m_labelSphereX->setGeometry(QRect(40,70,21,21));
   m_labelSphereY->setGeometry(QRect(110,70,21,21));
   m_labelSphereZ->setGeometry(QRect(190,70,21,21));
