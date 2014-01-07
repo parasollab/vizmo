@@ -20,6 +20,8 @@
 #include "Models/Vizmo.h"
 
 #include "Icons/RandEnv.xpm"
+#include "Icons/AddSphereRegion.xpm"
+#include "Icons/DeleteRegion.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
@@ -49,10 +51,9 @@ EnvironmentOptions::CreateActions(){
   m_actions["changeBoundary"] = changeBoundary;
   QAction* editRobot = new QAction(tr("Edit the Robot "), this);
   m_actions["editRobot"] = editRobot;
-  //TODO: make icon for add sphere region
-  QAction* addRegionSphere = new QAction(QPixmap(randEnvIcon), tr("Add Spherical Region"), this);
+  QAction* addRegionSphere = new QAction(QPixmap(addsphereregion), tr("Add Spherical Region"), this);
   m_actions["addRegionSphere"] = addRegionSphere;
-  QAction* deleteRegion = new QAction(QPixmap(randEnvIcon), tr("Delete Region"), this);
+  QAction* deleteRegion = new QAction(QPixmap(deleteregion), tr("Delete Region"), this);
   m_actions["deleteRegion"] = deleteRegion;
 
   //2. Set other specifications as necessary
