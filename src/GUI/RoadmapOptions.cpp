@@ -607,6 +607,7 @@ RoadmapOptions::MergeSelectedNodes(){
   }
 
   super /= numSelected;
+  GetVizmo().CollisionCheck(super);
   VID superID = graph->add_vertex(super);
 
   //Mark selected vertices for removal and save ids for edge addition
