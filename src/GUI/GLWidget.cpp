@@ -298,8 +298,9 @@ void
 GLWidget::mouseMoveEvent(QMouseEvent* _e) {
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion
-    if((m_currentRegion && m_currentRegion->PassiveMouseMotion(_e)) || m_pickBox.PassiveMouseMotion(_e))
-      updateGL();
+    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e)))
+      m_pickBox.PassiveMouseMotion(_e);
+    updateGL();
   }
   else {
     //handle active mouse motion

@@ -308,4 +308,8 @@ EnvironmentOptions::AddRegionSphere() {
 
   //set mouse events to current region for GLWidget
   m_mainWindow->GetGLScene()->SetCurrentRegion(r);
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  GetVizmo().GetSelectedModels().clear();
+  GetVizmo().GetSelectedModels().push_back(r);
+  m_mainWindow->GetModelSelectionWidget()->Select();
 }

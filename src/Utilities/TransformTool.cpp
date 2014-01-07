@@ -457,9 +457,9 @@ RotationTool::Draw(bool _selected) {
   //draw center
   if(!_selected) {
     glColor3f(0.9f, 0.9f, 0);
-    DrawCircle(m_radius + 5);
+    DrawCircle(m_radius + 5, false);
     glColor3f(0.6f, 0.6f, 0.6f);
-    DrawCircle(m_radius);
+    DrawCircle(m_radius, false);
   }
 
   glPopMatrix();

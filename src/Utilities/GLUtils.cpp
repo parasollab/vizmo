@@ -111,8 +111,8 @@ ProjectToWorld(double _x, double _y, const Point3d& _ref, const Vector3d& _n) {
 
 //draw with OpenGL a circle of radius r
 void
-DrawCircle(double _r) {
-  glBegin(GL_LINE_LOOP);
+DrawCircle(double _r, bool _fill) {
+  glBegin(_fill ? GL_POLYGON : GL_LINE_LOOP);
   for(double t = 0; t < TWOPI; t += 0.2)
     glVertex2f(_r*cos(t), _r*sin(t));
   glEnd();

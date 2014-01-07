@@ -5,6 +5,8 @@
 
 class RegionSphereModel : public RegionModel {
   public:
+    enum Highlight {NONE, PERIMETER, ALL};
+
     RegionSphereModel();
 
     shared_ptr<Boundary> GetBoundary() const;
@@ -27,10 +29,11 @@ class RegionSphereModel : public RegionModel {
     bool PassiveMouseMotion(QMouseEvent* _e);
 
   private:
-    Vector3d m_center;
+    Vector3d m_center, m_centerOrig;
     double m_radius;
 
     bool m_lmb, m_firstClick;
+    Highlight m_highlightedPart;
     QPoint m_clicked;
 };
 

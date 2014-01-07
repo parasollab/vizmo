@@ -30,6 +30,9 @@ EnvModel::~EnvModel() {
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
     delete *mit;
+  typedef vector<RegionModel*>::const_iterator RIT;
+  for(RIT rit = m_regions.begin(); rit!=m_regions.end(); ++rit)
+    delete *rit;
 }
 
 //////////Load Functions//////////
@@ -149,7 +152,7 @@ EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
   else if(*_index < m_multibodies.size())
     m_multibodies[*_index]->Select(_index+1, _sel);
   else
-    m_regions[*_index]->Select(_index+1, _sel);
+    m_regions[*_index - m_multibodies.size()]->Select(_index+1, _sel);
 }
 
 void

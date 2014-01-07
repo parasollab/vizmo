@@ -17,7 +17,7 @@ void ProjectToWindow(Point3d* _pts, size_t _size);
 //and the plane defined by n and ref
 Point3d ProjectToWorld(double _x, double _y, const Point3d& _ref, const Vector3d& _n);
 //draw with OpenGL a circle of radius r
-void DrawCircle(double _r);
+void DrawCircle(double _r, bool _fill);
 //Draw arc from radians s to e with radius r on plane made by v1, v2
 void DrawArc(double _r, double _s, double _e, const Vector3d& _v1, const Vector3d& _v2);
 

@@ -97,6 +97,7 @@ ModelSelectionWidget::Select(){
 
   //Find selected
   vector<ListViewItem*> selected;
+  m_glWidget->SetCurrentRegion(NULL);
   for(size_t s = 0; s < sel.size(); ++s){
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
       if(sel[s] == (*i)->m_model){
@@ -106,6 +107,8 @@ ModelSelectionWidget::Select(){
           (*i)->setSelected(false);
           m_glWidget->SetDoubleClickStatus(false);
         }
+        if(sel[s]->Name() == "Sphere Region" || sel[s]->Name() == "Box Region")
+          m_glWidget->SetCurrentRegion((RegionModel*)sel[s]);
       }
     }
   }
