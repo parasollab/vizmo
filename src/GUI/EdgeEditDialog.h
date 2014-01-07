@@ -54,8 +54,6 @@ class EdgeEditDialog : public QDialog {
     EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _scene);
     ~EdgeEditDialog();
 
-    void SetUpWidgets();
-    void SetCurrentEdge(EdgeModel* _edge);
     void ClearIntermediates();
     void ResetIntermediates();
 
@@ -65,15 +63,7 @@ class EdgeEditDialog : public QDialog {
     void RemoveIntermediate();
 
   private:
-    QHBoxLayout* m_buttonLayout;
-    QVBoxLayout* m_overallLayout;
-    QLabel* m_edgeLabel;
     CfgListWidget* m_intermediatesList;
-    QPushButton* m_editIntermediateButton;
-    QPushButton* m_addIntermediateButton;
-    QPushButton* m_removeIntermediateButton;
-    QPushButton* m_doneButton;
-
     GLWidget* m_glScene;
     EdgeModel* m_currentEdge;
 };

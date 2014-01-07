@@ -36,64 +36,56 @@ EdgeEditDialog::EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _sc
   setFixedHeight(200);
 
   m_glScene = _scene;
+  m_currentEdge = _edge;
 
-  m_overallLayout = new QVBoxLayout();
-  m_buttonLayout = new QHBoxLayout();
-  m_edgeLabel = new QLabel(this);
   m_intermediatesList = new CfgListWidget(this);
-  m_editIntermediateButton = new QPushButton(this);
-  m_addIntermediateButton = new QPushButton(this);
-  m_removeIntermediateButton = new QPushButton(this);
-  m_doneButton = new QPushButton(this);
 
-  SetUpWidgets();
-  SetCurrentEdge(_edge);
+  QPushButton* editIntermediateButton = new QPushButton(this);
+  editIntermediateButton->setFixedWidth(70);
+  editIntermediateButton->setText("Edit...");
 
+  QPushButton* addIntermediateButton = new QPushButton(this);
+  addIntermediateButton->setFixedWidth(70);
+  addIntermediateButton->setText("Add...");
+  addIntermediateButton->setToolTip("Add an intermediate configuration after the one currently selected in the list.");
+
+  QPushButton* removeIntermediateButton = new QPushButton(this);
+  removeIntermediateButton->setFixedWidth(70);
+  removeIntermediateButton->setText("Remove");
+  removeIntermediateButton->setToolTip("Remove the currently selected configuration.");
+
+  QPushButton* doneButton = new QPushButton(this);
+  doneButton->setFixedWidth(90);
+  doneButton->setText("Done");
+
+  QLabel* edgeLabel = new QLabel(this);
+  edgeLabel->setText(_edge->Name().c_str());
+
+  QHBoxLayout* buttonLayout = new QHBoxLayout();
+  buttonLayout->setAlignment(Qt::AlignLeft);
+  buttonLayout->addWidget(editIntermediateButton);
+  buttonLayout->addWidget(addIntermediateButton);
+  buttonLayout->addWidget(removeIntermediateButton);
+  buttonLayout->insertSpacing(3, 50);
+  buttonLayout->addWidget(doneButton);
+
+  QVBoxLayout* overallLayout = new QVBoxLayout();
+  overallLayout->addWidget(edgeLabel);
+  overallLayout->addWidget(m_intermediatesList);
+  overallLayout->addLayout(buttonLayout);
+
+  this->setLayout(overallLayout);
+
+  ResetIntermediates();
+
+  connect(editIntermediateButton, SIGNAL(clicked()), this, SLOT(EditIntermediate()));
+  connect(addIntermediateButton, SIGNAL(clicked()), this, SLOT(AddIntermediate()));
+  connect(removeIntermediateButton, SIGNAL(clicked()), this, SLOT(RemoveIntermediate()));
+  connect(doneButton, SIGNAL(clicked()), this, SLOT(close()));
   connect(m_intermediatesList, SIGNAL(CallUpdateGL()), m_glScene, SLOT(updateGL()));
 }
 
 EdgeEditDialog::~EdgeEditDialog(){}
-
-void
-EdgeEditDialog::SetUpWidgets(){
-
-  m_editIntermediateButton->setFixedWidth(70);
-  m_editIntermediateButton->setText("Edit...");
-  m_addIntermediateButton->setFixedWidth(70);
-  m_addIntermediateButton->setText("Add...");
-  m_addIntermediateButton->setToolTip("Add an intermediate configuration after the one currently selected in the list.");
-  m_removeIntermediateButton->setFixedWidth(70);
-  m_removeIntermediateButton->setText("Remove");
-  m_removeIntermediateButton->setToolTip("Remove the currently selected configuration.");
-  m_doneButton->setFixedWidth(90);
-  m_doneButton->setText("Done");
-
-  m_buttonLayout->setAlignment(Qt::AlignLeft);
-  m_buttonLayout->addWidget(m_editIntermediateButton);
-  m_buttonLayout->addWidget(m_addIntermediateButton);
-  m_buttonLayout->addWidget(m_removeIntermediateButton);
-  m_buttonLayout->insertSpacing(3, 50);
-  m_buttonLayout->addWidget(m_doneButton);
-
-  m_overallLayout->addWidget(m_edgeLabel);
-  m_overallLayout->addWidget(m_intermediatesList);
-  m_overallLayout->addLayout(m_buttonLayout);
-
-  this->setLayout(m_overallLayout);
-
-  connect(m_editIntermediateButton, SIGNAL(clicked()), this, SLOT(EditIntermediate()));
-  connect(m_addIntermediateButton, SIGNAL(clicked()), this, SLOT(AddIntermediate()));
-  connect(m_removeIntermediateButton, SIGNAL(clicked()), this, SLOT(RemoveIntermediate()));
-  connect(m_doneButton, SIGNAL(clicked()), this, SLOT(close()));
-}
-
-void
-EdgeEditDialog::SetCurrentEdge(EdgeModel* _edge){
-
-  m_currentEdge = _edge;
-  m_edgeLabel->setText(_edge->Name().c_str());
-  ResetIntermediates();
-}
 
 void
 EdgeEditDialog::ClearIntermediates(){
