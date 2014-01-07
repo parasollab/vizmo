@@ -108,6 +108,7 @@ FileOptions::LoadFile(){
     m_mainWindow->statusBar()->showMessage("Loading aborted");
 
   m_mainWindow->GetGLScene()->ResetTransTool();
+  m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
@@ -126,6 +127,7 @@ FileOptions::UpdateFiles(){
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->m_mainMenu->CallReset();
   m_mainWindow->GetGLScene()->ResetTransTool();
+  m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
 }
 
 void
