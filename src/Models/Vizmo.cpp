@@ -214,7 +214,7 @@ Vizmo::CollisionCheck(CfgModel& _c) {
   if(m_envModel) {
     VizmoProblem::ValidityCheckerPointer vc = m_problem->GetValidityChecker("rapid");
     bool b = vc->IsValid(_c, "Vizmo");
-    _c.SetInCollision(b);
+    _c.SetValidity(b);
     return b;
   }
   cerr << "Warning::Collision checking when there is no environment. Returning false." << endl;

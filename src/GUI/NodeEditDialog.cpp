@@ -172,7 +172,7 @@ NodeEditDialog::UpdateDOF(int _id){
   //Also assumes index alignment
   (*m_currentNode)[_id] = m_sliders[_id]->GetSlider()->value() / 100000.0;
 
-  CollisionCheck();
+  ValidityCheck();
 
   if(m_currentNode->IsQuery()){
     GetVizmo().GetQry()->BuildModels();
@@ -182,18 +182,19 @@ NodeEditDialog::UpdateDOF(int _id){
 }
 
 void
-NodeEditDialog::CollisionCheck(){
-  //Checks boundaries for now
-  //call collision stuff elsewhere!
+NodeEditDialog::ValidityCheck(){
+
   vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
   bool collFound = false; //new or existing
   for(size_t i = 0; i < dofInfo.size(); i++){
     if(((*m_currentNode)[i] <= dofInfo[i].m_minVal) ||
      ((*m_currentNode)[i] >= dofInfo[i].m_maxVal)){
-      m_currentNode->SetInCollision(true); //test
+      m_currentNode->SetValidity(false); //test
       collFound = true;
     }
   }
-  if(collFound == false)
-    m_currentNode->SetInCollision(false);
+  if(collFound == false){
+    m_currentNode->SetValidity(true);
+    GetVizmo().CollisionCheck(*m_currentNode);
+  }
 }

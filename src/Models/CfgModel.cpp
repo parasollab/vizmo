@@ -13,7 +13,7 @@ bool CfgModel::m_isRotationalRobot = false;
 
 CfgModel::CfgModel() : Model("") {
   m_index = -1;
-  m_inColl = false;
+  m_isValid = true;
   m_cc = NULL;
   m_isQuery = false;
 }
@@ -33,7 +33,7 @@ CfgModel::Print(ostream& _os) const {
   _os << "Node ID = " << m_index << endl
     << "Cfg ( " << *this << " )" << endl;
 
-  if(m_inColl)
+  if(!m_isValid)
     _os << "**** IS IN COLLISION!! ****" << endl;
 }
 
@@ -81,10 +81,10 @@ CfgModel::DrawRobot(){
   robot->BackUp();
   robot->SetRenderMode(m_renderMode);
 
-  if(m_inColl)
-    robot->SetColor(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0)); //Invert colors. Black case?
-  else
+  if(m_isValid)
     robot->SetColor(m_color);
+  else
+    robot->SetColor(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0)); //Invert colors. Black case?
 
   robot->Configure(m_v);
   robot->Draw();
@@ -114,10 +114,10 @@ CfgModel::DrawBox(){
 
   glPushMatrix();
 
-  if(m_inColl)
-    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
-  else
+  if(m_isValid)
     glColor4fv(m_color);
+  else
+    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
 
   PerformBoxTranslation();
 
@@ -135,10 +135,10 @@ CfgModel::DrawPoint(){
 
   glBegin(GL_POINTS);
 
-  if(m_inColl)
-    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
-  else
+  if(m_isValid)
     glColor4fv(GetColor());
+  else
+    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
 
   if(m_renderMode == SOLID_MODE ||
       m_renderMode == WIRE_MODE){

@@ -9,21 +9,7 @@
 #include <string>
 #include <vector>
 
-#include <QDialog>
-#include <QVariant>
-#include <QAction>
-#include <QApplication>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QWidget>
-#include <QSlider>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QGroupBox>
-#include <QScrollArea>
-#include <QSignalMapper>
-#include <QDoubleValidator>
+#include <QtGui>
 
 using namespace std;
 
@@ -82,7 +68,7 @@ class NodeEditDialog : public QDialog {
     void UpdateDOF(int _id); //Update value of DOF associated with m_sliders[_id]
 
   private:
-    void CollisionCheck();
+    void ValidityCheck();
 
     QLabel* m_nodeLabel;
     QPushButton* m_doneButton;
