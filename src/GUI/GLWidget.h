@@ -86,8 +86,6 @@ class GLWidget : public QGLWidget {
 
     bool m_takingSnapShot;
     bool m_showAxis, m_showFrameRate;
-    //Collision Detection related vars.
-    bool m_cdOn;
     bool m_doubleClick;
 
     deque<double> m_frameTimes;

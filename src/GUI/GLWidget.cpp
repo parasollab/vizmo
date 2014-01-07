@@ -35,7 +35,6 @@ GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
     m_takingSnapShot=false;
     m_showAxis = true;
     m_showFrameRate = false;
-    m_cdOn = false;
     m_doubleClick = false;
 }
 
