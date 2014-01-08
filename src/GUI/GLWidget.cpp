@@ -3,10 +3,6 @@
 #include <numeric>
 #include <ctime>
 
-#include <QMouseEvent>
-#include <QKeyEvent>
-#include <QGLWidget>
-
 #include <glut.h>
 #include <GL/glu.h>
 

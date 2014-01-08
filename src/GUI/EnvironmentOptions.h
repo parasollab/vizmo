@@ -40,9 +40,6 @@ class EnvironmentOptions : public OptionsBase {
     string GetFilename(string _modelFilename);
     string GetFileDir(string _modelFilename, string _filename);
     QMenu* m_obstacleMenu;
-    string m_modelFilename;
-    string m_modelFileDir;
-    string m_filename;
 
   public:
     ModelSelectionWidget* m_modelSelectionWidget;

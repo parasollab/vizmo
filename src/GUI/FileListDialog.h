@@ -3,12 +3,7 @@
 
 using namespace std;
 
-#include <QDialog>
-
-class QGridLayout;
-class QCheckBox;
-class QLabel;
-class QPushButton;
+#include <QtGui>
 
 class FileListDialog : public QDialog {
 
@@ -31,9 +26,7 @@ class FileListDialog : public QDialog {
     //This file locates all possible filenames related to the input file.
     //For example, *.path, *.env, *.query...etc.
     void GetAssociatedFiles(const string& _filename);
-    void SetUpLayout();
-
-    QGridLayout* m_layout;
+    void SetUpSubwidgets();
 
     //accepting check boxes on left side of window
     QCheckBox* m_envCheckBox;
@@ -42,29 +35,12 @@ class FileListDialog : public QDialog {
     QCheckBox* m_pathCheckBox;
     QCheckBox* m_debugCheckBox;
 
-    //The bold, labels for each of the check boxes
-    QLabel* m_envLabel;
-    QLabel* m_mapLabel;
-    QLabel* m_queryLabel;
-    QLabel* m_pathLabel;
-    QLabel* m_debugLabel;
-
     //The actual displayed file names/paths
     QLabel* m_envFilename;
     QLabel* m_mapFilename;
     QLabel* m_queryFilename;
     QLabel* m_pathFilename;
     QLabel* m_debugFilename;
-
-    QPushButton* m_envButton;
-    QPushButton* m_mapButton;
-    QPushButton* m_queryButton;
-    QPushButton* m_pathButton;
-    QPushButton* m_debugButton;
-
-    QPushButton* m_loadButton;
-    QPushButton* m_cancelButton;
 };
 
 #endif
-

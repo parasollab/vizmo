@@ -2,7 +2,8 @@
 #define EDITROBOTDIALOG_H_
 
 #include <iostream>
-#include <QDialog>
+
+#include <QtGui>
 
 using namespace std;
 

@@ -1,18 +1,19 @@
-#ifndef GLWIDGET_H_
-#define GLWIDGET_H_
-
-/**
+/*
  * This file defines class for the open gl scene of Vizmo.
  */
 
-#include <deque>
-using namespace std;
+#ifndef GLWIDGET_H_
+#define GLWIDGET_H_
 
-#include <QGLWidget>
+#include <deque>
+
+#include <QtGui>
 
 #include "Utilities/Camera.h"
 #include "Utilities/PickBox.h"
 #include "Utilities/TransformTool.h"
+
+using namespace std;
 
 class MainWindow;
 class RegionModel;

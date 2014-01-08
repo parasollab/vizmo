@@ -1,16 +1,6 @@
 #include "EditRobotDialog.h"
 
 #include <iostream>
-#include <QDialog>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QDoubleSpinBox>
-#include <QLabel>
-#include <QCheckBox>
-#include <QListWidget>
-#include <QValidator>
-#include <QMessageBox>
-#include <QFileDialog>
 
 #include "MainWindow.h"
 #include "GLWidget.h"

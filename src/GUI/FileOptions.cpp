@@ -1,14 +1,5 @@
 #include "FileOptions.h"
 
-#include <QApplication>
-#include <QAction>
-#include <QToolBar>
-#include <QPushButton>
-#include <QPixmap>
-#include <QFileDialog>
-#include <QTranslator>
-#include <QStatusBar>
-
 #include "MainMenu.h"
 #include "FileListDialog.h"
 #include "GLWidget.h"

@@ -2,12 +2,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <QAction>
-#include <QToolBar>
-#include <QPixmap>
-#include <QTranslator>
-#include <QFileDialog>
-#include <QStatusBar>
 
 #include "GLWidget.h"
 #include "ModelSelectionWidget.h"
@@ -267,14 +261,14 @@ EnvironmentOptions::AddObstacle(){
   QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
       QString::null, "Files  (*.g *.obj)");
   if (!fn.isEmpty()){
-    m_modelFilename = fn.toStdString();
-    m_filename = GetFilename(m_modelFilename);
-    string stringAttributes = ("Passive \n#VIZMO_COLOR 0.0 0.0 1 \n" + m_filename
+    string modelFilename = fn.toStdString();
+    string filename = GetFilename(modelFilename);
+    string stringAttributes = ("Passive \n#VIZMO_COLOR 0.0 0.0 1 \n" + filename
                                 + "  " + "0 0 0 0 0 0" + "\n");
     istringstream isStringAttributes(stringAttributes);
-    m_modelFileDir = GetFileDir(m_modelFilename,m_filename);
+    string modelFileDir = GetFileDir(modelFilename,filename);
     m_multiBodyModel = new MultiBodyModel();
-    m_multiBodyModel->ParseMultiBody(isStringAttributes,m_modelFileDir);
+    m_multiBodyModel->ParseMultiBody(isStringAttributes,modelFileDir);
     GetVizmo().GetEnv()->AddMBModel(m_multiBodyModel);
     while(GetVizmo().GetSelectedModels().size()!=0)
       GetVizmo().GetSelectedModels().pop_back();

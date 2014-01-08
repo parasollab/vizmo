@@ -26,7 +26,6 @@ class FileOptions : public OptionsBase {
     void SetUpToolbar(); //just the folder button in this case
     void Reset();
     void SetHelpTips();
-
 };
 
 #endif
