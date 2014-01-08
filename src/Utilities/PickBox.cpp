@@ -75,6 +75,8 @@ PickBox::MousePressed(QMouseEvent* _e) {
     }
     else {
       m_leftMouseButton = true;
+      m_resizing = true;
+      m_highlightedPart = TOP | RIGHT;
       m_pickBox.m_right = m_pickBox.m_left = _e->pos().x();
       m_pickBox.m_bottom = m_pickBox.m_top = g_height - _e->pos().y();
     }
@@ -86,6 +88,7 @@ PickBox::MouseReleased(QMouseEvent* _e) {
   m_leftMouseButton = false;
   m_resizing = false;
   m_translating = false;
+  QApplication::setOverrideCursor(Qt::ArrowCursor);
 }
 
 void
@@ -107,10 +110,6 @@ PickBox::MouseMotion(QMouseEvent* _e) {
         m_pickBox.m_top = max(1, g_height - _e->pos().y());
       if(m_highlightedPart & BOTTOM)
         m_pickBox.m_bottom = min(g_height, g_height - _e->pos().y());
-    }
-    else{
-      m_pickBox.m_right = min(g_width, _e->pos().x());
-      m_pickBox.m_top = max(1, g_height - _e->pos().y());
     }
 
     //ensure the top and left are the true top/left
