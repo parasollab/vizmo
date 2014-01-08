@@ -8,16 +8,16 @@ class RobotModel;
 
 class QueryModel : public LoadableModel {
   public:
-    QueryModel(const string& _filename, RobotModel* _robotModel);
+    QueryModel(const string& _filename);
     ~QueryModel();
 
     size_t GetQuerySize() {return m_cfgs.size();}
-    CfgModel* GetStartGoalCfg(size_t _i){return m_cfgs[_i];}
-    vector<CfgModel*>& GetQueryCfg(){return m_cfgs;} //vector of queries
-    void DeleteQuery(size_t _i){m_cfgs.erase(m_cfgs.begin()+_i);}
+    CfgModel& GetQueryCfg(size_t _i) {return m_cfgs[_i];}
+
     void AddCfg(int _num);
-    void SwapUp(size_t _i){swap(m_cfgs[_i], m_cfgs[_i-1]);}
-    void SwapDown(size_t _i){swap(m_cfgs[_i], m_cfgs[_i+1]);}
+    void SwapUp(size_t _i) {swap(m_cfgs[_i], m_cfgs[_i-1]);}
+    void SwapDown(size_t _i) {swap(m_cfgs[_i], m_cfgs[_i+1]);}
+    void DeleteQuery(size_t _i) {m_cfgs.erase(m_cfgs.begin()+_i);}
 
     void ParseFile();
     void BuildModels();
@@ -29,10 +29,8 @@ class QueryModel : public LoadableModel {
     void SaveQuery(const string& _filename);
 
   private:
-    vector<vector<double> > m_queries; //vector of queries
-    vector<CfgModel*> m_cfgs;
+    vector<CfgModel> m_cfgs; //query points
     size_t m_glQueryIndex; //Display list index
-    RobotModel* m_robotModel; //robot model
 };
 
 #endif

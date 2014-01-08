@@ -61,7 +61,7 @@ Vizmo::InitModels() {
 
     //Create qry
     if(!m_queryFilename.empty()) {
-      m_queryModel = new QueryModel(m_queryFilename, m_robotModel);
+      m_queryModel = new QueryModel(m_queryFilename);
       m_loadedModels.push_back(m_queryModel);
       cout << "Load Query File : " << m_queryFilename << endl;
     }
@@ -238,7 +238,7 @@ Vizmo::PlaceRobot() {
   if(m_robotModel){
     vector<double> cfg;
     if(m_queryModel)
-      cfg = m_queryModel->GetQueryCfg()[0]->GetData();
+      cfg = m_queryModel->GetQueryCfg(0).GetData();
       //cfg = m_queryModel->GetStartGoal(0);
     else if(m_pathModel)
       cfg = m_pathModel->GetConfiguration(0).GetData();

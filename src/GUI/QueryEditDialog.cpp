@@ -77,7 +77,7 @@ QueryEditDialog::Add(){
     m_listWidget->setCurrentItem(m_listWidget->item(num+1));
   }
   size_t numQuery=m_listWidget->row(m_listWidget->currentItem());
-  NodeEditDialog q(this,m_queryModel->GetStartGoalCfg(numQuery), m_mainWindow->GetGLScene());
+  NodeEditDialog q(this, &m_queryModel->GetQueryCfg(numQuery), m_mainWindow->GetGLScene());
   q.exec();
   RefreshEnv();
 }
@@ -97,7 +97,7 @@ void
 QueryEditDialog::EditQuery(){
   if(m_listWidget->currentItem()!=NULL){
     size_t numQuery=m_listWidget->row(m_listWidget->currentItem());
-    NodeEditDialog q(this,m_queryModel->GetStartGoalCfg(numQuery), m_mainWindow->GetGLScene());
+    NodeEditDialog q(this, &m_queryModel->GetQueryCfg(numQuery), m_mainWindow->GetGLScene());
     q.exec();
     RefreshEnv();
   }

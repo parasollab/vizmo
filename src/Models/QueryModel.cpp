@@ -1,16 +1,11 @@
 #include "QueryModel.h"
 
-#include <fstream>
-
-#include "CfgModel.h"
-#include "RobotModel.h"
-#include "Vizmo.h"
 #include "Utilities/Font.h"
 #include "Utilities/IO.h"
 
-QueryModel::QueryModel(const string& _filename, RobotModel* _robotModel) :
+QueryModel::QueryModel(const string& _filename) :
   LoadableModel("Query"),
-  m_glQueryIndex(-1), m_robotModel(_robotModel) {
+  m_glQueryIndex(-1) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
 
@@ -32,74 +27,43 @@ QueryModel::ParseFile() {
 
   m_cfgs.clear();
 
-  int dof  = Cfg::DOF();
   //Build  Model
-  while(ifs!=NULL){
-    vector<double> cfg;
-
-    //read in Robot Index and throw it away for now
-    double robotIndex;
-    ifs >> robotIndex;
-
-    for(int j=0; j<dof; ++j){
-      double d;
-      ifs >> d;
-      cfg.push_back(d);
-    }
-    if(ifs!=NULL){
-      CfgModel* cfgModel=new CfgModel();
-      cfgModel->SetCfg(cfg);
-      cfgModel->SetIsQuery();
-      m_cfgs.push_back(cfgModel);
-    }
+  CfgModel c;
+  while(ifs >> c) {
+    m_cfgs.push_back(c);
+    m_cfgs.back().SetIsQuery();
   }
 }
 
 void
-QueryModel::BuildModels(){
-
-  //can't build model without robot
-  if(!m_robotModel)
-    throw BuildException(WHERE, "RobotModel is null.");
+QueryModel::BuildModels() {
 
   glMatrixMode(GL_MODELVIEW);
 
-  m_robotModel->SetRenderMode(WIRE_MODE);
-
-  Color4 oldCol = m_robotModel->GetColor(); //remember old color
-  m_queries.clear();
-
   //create list
+  glDeleteLists(m_glQueryIndex, 1);
   m_glQueryIndex = glGenLists(1);
   glNewList(m_glQueryIndex, GL_COMPILE);
 
-  for(size_t i=0; i<m_cfgs.size(); i++ ){
-    vector<double> cfg = m_cfgs[i]->GetDataCfg();
-    m_robotModel->Configure(cfg);
-    m_queries.push_back(cfg);
-
-    m_robotModel->SetColor(Color4(1.0-double(i/(m_cfgs.size()-1.0)),
-                                  0,
-                                (double(i/(m_cfgs.size()-1.0)))));
-
-    m_robotModel->Draw();
+  double n = m_cfgs.size() - 1;
+  for(size_t i = 0; i < m_cfgs.size(); ++i) {
+    m_cfgs[i].SetRenderMode(WIRE_MODE);
+    m_cfgs[i].SetColor(Color4(1.0 - i/n, 0, i/n, 1));
+    m_cfgs[i].DrawRobot();
 
     //draw text for start and goal
     //TODO: Move to using Qt functions for drawing text to scene
+    Point3d pos = m_cfgs[i].GetPoint();
     glColor3d(0.1, 0.1, 0.1);
     if(i==0)
-      DrawStr(cfg[0]-0.5, cfg[1]-0.5, cfg[2],"S");
-    else{
+      DrawStr(pos[0]-0.5, pos[1]-0.5, pos[2], "S");
+    else {
       stringstream gNum;
-      gNum<<"G"<<i;
-      DrawStr(cfg[0]-0.2, cfg[1]-0.2, cfg[2],gNum.str());
+      gNum << "G" << i;
+      DrawStr(pos[0]-0.5, pos[1]-0.5, pos[2], gNum.str());
     }
   }
   glEndList();
-
-  //set back
-  m_robotModel->SetColor(oldCol);
-  m_robotModel->SetRenderMode(SOLID_MODE);
 }
 
 void QueryModel::Draw() {
@@ -113,40 +77,26 @@ void QueryModel::Draw() {
 void
 QueryModel::Print(ostream& _os) const {
   _os << Name() << ": " << GetFilename() << endl;
-  _os << "Start: ( ";
-  for(size_t j=0; j<m_cfgs.size(); j++){
-    if(j!=0)
-      _os << "G"<<j<<": ( " ;
-    for(size_t i=0; i < m_queries[j].size(); ++i){
-      _os << m_queries[j][i];
-      if(i < m_queries[j].size()-1)
-        _os << ", ";
-    }
-    _os << " )" << endl;
+  for(size_t i = 0; i < m_cfgs.size(); ++i){
+    if(i == 0)
+      _os << "Start: ( ";
+    else
+      _os << "G" << i << ": ( ";
+    _os << m_cfgs[i] << " )" << endl;
   }
 }
 
 void
 QueryModel::SaveQuery(const string& _filename) {
   ofstream ofs(_filename.c_str());
-  for(size_t i = 0; i < m_cfgs.size(); ++i) {
-    //output robot index. For now always a 0.
-    ofs << "0 ";
-    //output dofs
-    typedef vector<double>::const_iterator DIT;
-    const vector<double>& query = m_cfgs[i]->GetDataCfg();
-    for(DIT dit = query.begin(); dit != query.end(); ++dit)
-      ofs << *dit << " ";
-    ofs << endl;
-  }
+  typedef vector<CfgModel>::iterator CIT;
+  for(CIT cit = m_cfgs.begin(); cit != m_cfgs.end(); ++cit)
+    ofs << *cit << endl;
 }
 
 void
-QueryModel::AddCfg(int _num){
-  vector<double> cfg(Cfg::DOF(), 0);
-  CfgModel* cfgModel=new CfgModel();
-  cfgModel->SetCfg(cfg);
-  cfgModel->SetIsQuery();
-  m_cfgs.insert(m_cfgs.begin()+_num, cfgModel);
+QueryModel::AddCfg(int _num) {
+  m_cfgs.insert(m_cfgs.begin()+_num, CfgModel());
+  m_cfgs[_num+1].SetIsQuery();
 }
 
