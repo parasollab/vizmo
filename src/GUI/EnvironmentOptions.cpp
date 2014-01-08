@@ -237,7 +237,7 @@ EnvironmentOptions::DuplicateObstacles(){
         for(int i=0; i<6; i++)
           properties<<splittedTransform[i]<<" ";
         properties<<endl;
-        m_multiBodyModel = new MultiBodyModel();
+        m_multiBodyModel = new MultiBodyModel(GetVizmo().GetEnv());
         m_multiBodyModel->ParseMultiBody(properties,bodies.back()->GetDirectory());
         mBodiesToCopy.push_back(m_multiBodyModel);
         GetVizmo().GetEnv()->AddMBModel(m_multiBodyModel);
@@ -267,7 +267,7 @@ EnvironmentOptions::AddObstacle(){
                                 + "  " + "0 0 0 0 0 0" + "\n");
     istringstream isStringAttributes(stringAttributes);
     string modelFileDir = GetFileDir(modelFilename,filename);
-    m_multiBodyModel = new MultiBodyModel();
+    m_multiBodyModel = new MultiBodyModel(GetVizmo().GetEnv());
     m_multiBodyModel->ParseMultiBody(isStringAttributes,modelFileDir);
     GetVizmo().GetEnv()->AddMBModel(m_multiBodyModel);
     while(GetVizmo().GetSelectedModels().size()!=0)

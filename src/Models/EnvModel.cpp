@@ -67,7 +67,7 @@ EnvModel::ParseFile(){
       "Failed reading number of Multibodies.");
 
   for(size_t i = 0; i < numMultiBodies && ifs; i++) {
-    MultiBodyModel* m = new MultiBodyModel();
+    MultiBodyModel* m = new MultiBodyModel(this);
     m->ParseMultiBody(ifs, m_modelDataDir);
     m_multibodies.push_back(m);
   }

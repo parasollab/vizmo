@@ -24,7 +24,7 @@ class MultiBodyModel : public Model {
       double m_maxVal;
     };
 
-    MultiBodyModel();
+    MultiBodyModel(EnvModel* _env);
     ~MultiBodyModel();
 
     //access properties
@@ -72,6 +72,8 @@ class MultiBodyModel : public Model {
 
   private:
     void BuildRobotStructure();
+
+    EnvModel* m_envModel;
 
     int m_dof;       //number of DOF for the body
     bool m_active;   //active or passive?

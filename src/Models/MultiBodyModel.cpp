@@ -21,7 +21,8 @@ class IsConnectionGloballyFirst {
     }
 } connectionComp;
 
-MultiBodyModel::MultiBodyModel() : Model("MultiBody"), m_active(false), m_surface(false), m_radius(false) {}
+MultiBodyModel::MultiBodyModel(EnvModel* _env) : Model("MultiBody"),
+  m_envModel(_env), m_active(false), m_surface(false), m_radius(false) {}
 
 MultiBodyModel::~MultiBodyModel() {
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
@@ -206,7 +207,7 @@ MultiBodyModel::BuildRobotStructure() {
   if(!IsActive())
     return;
 
-  vector<pair<double, double> > dofRanges = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
+  vector<pair<double, double> > dofRanges = m_envModel->GetBoundary()->GetRanges();
 
   //add a node to the robot graph for each body
   for(size_t i = 0; i < m_bodies.size(); i++)
