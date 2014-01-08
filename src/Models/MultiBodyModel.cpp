@@ -206,8 +206,7 @@ MultiBodyModel::BuildRobotStructure() {
   if(!IsActive())
     return;
 
-  BoundaryModel* b = m_env->GetBoundary();
-  vector<pair<double, double> > dofRanges = b->GetRanges();
+  vector<pair<double, double> > dofRanges = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
 
   //add a node to the robot graph for each body
   for(size_t i = 0; i < m_bodies.size(); i++)

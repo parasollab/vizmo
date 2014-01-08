@@ -40,7 +40,6 @@ class MultiBodyModel : public Model {
     int GetNbBodies() {return m_bodies.size();}
     Robots GetRobots() const {return m_robots;}
 
-    void SetEnv(EnvModel* _env){ m_env = _env; }
     static vector<DOFInfo>& GetDOFInfo() { return m_dofInfo; }
     static void ClearDOFInfo() { m_dofInfo.clear(); } //Clear/reset every time a file is opened
 
@@ -87,8 +86,6 @@ class MultiBodyModel : public Model {
     typedef stapl::sequential::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
     RobotGraph m_robotGraph;
     vector<Robot> m_robots; //list of base/joint set pairs. One for each component of multibody
-
-    EnvModel* m_env;
 };
 
 #endif

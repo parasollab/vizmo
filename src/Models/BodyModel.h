@@ -23,18 +23,17 @@ class BodyModel : public TransformableModel {
     //properties
     void GetChildren(list<Model*>& _models);
     void SetRenderMode(RenderMode _mode);
-    void SetColor(const Color4& _c);
 
+    const string& GetDirectory() {return m_directory;}
     const string& GetFilename() const {return m_filename;}
     const string& GetModelFilename() const {return m_modelFilename;}
-    string GetDirectory() {return m_directory;}
+
     const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
     double GetRadius() const {return m_polyhedronModel->GetRadius();}
 
     //base properties
-    bool IsFixed() const {return m_isFixed;}
     bool IsSurface() const {return m_isSurface;}
-    bool IsBase() const {return m_isBase;}
+    bool IsBase() const {return m_baseType != JOINT;}
     bool IsBaseFixed() const {return m_baseType == FIXED;}
     bool IsBasePlanar() const {return m_baseType == PLANAR;}
     bool IsBaseVolumetric() const {return m_baseType == VOLUMETRIC;}
@@ -51,9 +50,8 @@ class BodyModel : public TransformableModel {
 
     //access to transformations
     const Transformation& GetTransform() const {return m_currentTransform;}
-    void SetTransform(const Transformation& _t) {m_currentTransform = _t;}
+    void SetTransform(const Transformation& _t);
     bool IsTransformDone() const {return m_transformDone;}
-    void SetTransformDone(bool _t) {m_transformDone = _t;}
     void SetPrevTransform(const Transformation& _t) {m_prevTransform = _t;}
     void ResetTransform() {m_currentTransform = m_prevTransform = Transformation(); m_transformDone = false;}
 
@@ -61,7 +59,6 @@ class BodyModel : public TransformableModel {
     //Compute prevtranform * TDH * dh * TBody2
     //receives the Body THIS body is connected to, the id of that connection
     void ComputeTransform(const BodyModel* _body, size_t _nextBody);
-    void UpdateModel() {m_polyhedronModel = new PolyhedronModel(this);}
 
     void BuildModels() {}
     void Select(GLuint* _index, vector<Model*>& sel) {m_polyhedronModel->Select(_index, sel);}
@@ -78,7 +75,7 @@ class BodyModel : public TransformableModel {
     string m_directory, m_filename, m_modelFilename; //dir, file, dir+'/'+file
     PolyhedronModel* m_polyhedronModel;
 
-    bool m_isFixed, m_isSurface, m_isBase;
+    bool m_isSurface;
     Base m_baseType;
     BaseMovement m_baseMovementType;
 

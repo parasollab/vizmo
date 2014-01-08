@@ -68,7 +68,6 @@ EnvModel::ParseFile(){
 
   for(size_t i = 0; i < numMultiBodies && ifs; i++) {
     MultiBodyModel* m = new MultiBodyModel();
-    m->SetEnv(this);
     m->ParseMultiBody(ifs, m_modelDataDir);
     m_multibodies.push_back(m);
   }
@@ -234,7 +233,7 @@ EnvModel::SaveFile(const char* _filename){
   int numMBs = m_multibodies.size();
   envFile<<"Multibodies\n"<<numMBs<<"\n\n";
   vector<MultiBodyModel*> saveMB = GetMultiBodies();
-  reverse(saveMB.begin(),saveMB.end());
+  reverse(saveMB.begin(), saveMB.end());
   while(!saveMB.empty()){
     if(saveMB.back()->IsActive())
       envFile<<"Active\n";

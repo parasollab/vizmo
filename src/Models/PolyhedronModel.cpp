@@ -6,13 +6,12 @@
 
 #include "ModelFactory.h"
 
-#include "BodyModel.h"
 #include "Utilities/VizmoExceptions.h"
 
-PolyhedronModel::PolyhedronModel(BodyModel* _bodyModel)
-  : Model(_bodyModel->GetFilename()), m_solidID(-1), m_wiredID(-1), m_bodyModel(_bodyModel) {
+PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
+  : Model(_filename), m_filename(_filename), m_isSurface(_isSurface),
+  m_solidID(-1), m_wiredID(-1) {
     BuildModels();
-    SetColor(m_bodyModel->GetColor());
   }
 
 PolyhedronModel::~PolyhedronModel(){
@@ -23,11 +22,10 @@ PolyhedronModel::~PolyhedronModel(){
 void
 PolyhedronModel::BuildModels() {
 
-  string file = m_bodyModel->GetModelFilename();
-  IModel* imodel = CreateModelLoader(file, false);
+  IModel* imodel = CreateModelLoader(m_filename, false);
 
   if(!imodel)
-    throw BuildException(WHERE, "File '" + file + "' does not exist.");
+    throw BuildException(WHERE, "File '" + m_filename + "' does not exist.");
 
   const PtVector& points=imodel->GetVertices();
   const TriVector& tris=imodel->GetTriP(); //GetTriangles();
@@ -52,24 +50,6 @@ PolyhedronModel::BuildModels() {
   BuildSolid(points, tris, normals);
   BuildWired(points, tris, normals);
 
-  //setup rotation and translation
-  if(m_bodyModel->IsFixed()) {
-    const Transformation& t = m_bodyModel->GetTransform();
-    const Vector3d& p = t.translation();
-    const Orientation& o = t.rotation();
-    EulerAngle e;
-    convertFromMatrix(e, o.matrix());
-    Quaternion qua;
-    convertFromMatrix(qua, o.matrix());
-
-    m_bodyModel->Translation() = p;
-
-    m_bodyModel->Rotation()[0] = e.alpha();
-    m_bodyModel->Rotation()[1] = e.beta();
-    m_bodyModel->Rotation()[2] = e.gamma();
-
-    m_bodyModel->RotationQ() = qua;
-  }
   delete imodel;
 }
 
@@ -95,7 +75,7 @@ void PolyhedronModel::DrawSelect() {
 
 void
 PolyhedronModel::Print(ostream& _os) const {
-  _os << m_bodyModel->GetModelFilename() << endl;
+  _os << m_filename << endl;
 }
 
 //build models, given points and triangles
@@ -202,7 +182,7 @@ void
 PolyhedronModel::COM(const PtVector& _points) {
   m_com = accumulate(_points.begin(), _points.end(), Point3d(0, 0, 0));
   m_com /= _points.size();
-  if(m_bodyModel->IsSurface())
+  if(m_isSurface)
     m_com[1] = 0;
 }
 

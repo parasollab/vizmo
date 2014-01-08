@@ -275,37 +275,28 @@ ObstaclePosDialog::AddCoord(string _toAdd[6]){
 
 void
 ObstaclePosDialog::RefreshPosition(){
-  if(m_sizeMB==1){//if one obstacle
+  if(m_sizeMB==1) {//if one obstacle
     istringstream coord(GetCoord());
-    Transformation transform;
-    transform = ReadField<Transformation>(coord, WHERE, "failed reading new transformation");
-    const Transformation &t=transform;
-    m_obstacle->SetTransform(t);
-    m_obstacle->UpdateModel();
+    Transformation transform = ReadField<Transformation>(coord, WHERE, "failed reading new transformation");
+    m_obstacle->SetTransform(transform);
   }
-  else{//more than one obstacle
+  else {//more than one obstacle
     typedef vector<MultiBodyModel*>::iterator SI;
     for(SI i = m_multiBody.begin(); i!= m_multiBody.end(); i++){
       ostringstream transform;
-      transform<<(*i)->GetBodies().back()->GetTransform();
-      string transformString=transform.str();
+      transform << (*i)->GetBodies().back()->GetTransform();
+      string transformString = transform.str();
       istringstream splitTransform(transformString);
-      string splittedTransform[6]={"","","","","",""};
+      string splittedTransform[6]={"", "", "", "", "", ""};
       int j=0;
-      do{
-        splitTransform>>splittedTransform[j];
+      do {
+        splitTransform >> splittedTransform[j];
         j++;
-      }while(splitTransform);
-      string temp;
-      temp=splittedTransform[3];
-      splittedTransform[3]=splittedTransform[5];
-      splittedTransform[5]=temp;
+      } while(splitTransform);
+      swap(splittedTransform[3], splittedTransform[5]);
       istringstream coord(AddCoord(splittedTransform));
-      Transformation finalTransform;
-      finalTransform = ReadField<Transformation>(coord, WHERE, "failed reading new transformation");
-      const Transformation &t=finalTransform;
-      (*i)->GetBodies().back()->SetTransform(t);
-      (*i)->GetBodies().back()->UpdateModel();
+      Transformation finalTransform = ReadField<Transformation>(coord, WHERE, "failed reading new transformation");
+      (*i)->GetBodies().back()->SetTransform(finalTransform);
     }
     for(int i=0; i<6; i++)
       m_lastValues[i]=atof(m_posLines[i]->text().toStdString().c_str());

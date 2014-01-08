@@ -32,9 +32,9 @@ BodyModel::GetMovementFromTag(const string& _tag){
 
 BodyModel::BodyModel(bool _isSurface) : TransformableModel("Body"),
   m_polyhedronModel(NULL),
-  m_isFixed(true), m_isSurface(_isSurface), m_isBase(true),
+  m_isSurface(_isSurface),
   m_baseType(PLANAR), m_baseMovementType(TRANSLATIONAL),
-  m_currentTransform(), m_transformDone(false) {
+  m_transformDone(false) {
   }
 
 BodyModel::~BodyModel() {
@@ -60,19 +60,13 @@ BodyModel::SetRenderMode(RenderMode _mode) {
 }
 
 void
-BodyModel::SetColor(const Color4& _c) {
-  Model::SetColor(_c);
-  m_polyhedronModel->SetColor(_c);
-}
-
-void
 BodyModel::ComputeTransform(const BodyModel* _body, size_t _nextBody){
   for(ConnectionIter cit = _body->Begin(); cit!=_body->End(); ++cit) {
     if((*cit)->GetNextIndex() == _nextBody) {
       Transformation dh = (*cit)->DHTransform();
       const Transformation& tdh = (*cit)->TransformToDHFrame();
       const Transformation& tbody2 = (*cit)->TransformToBody2();
-      m_currentTransform = m_prevTransform * tdh * dh * tbody2;
+      SetTransform(m_prevTransform * tdh * dh * tbody2);
       return;
     }
   }
@@ -99,7 +93,6 @@ BodyModel::DrawSelect() {
 
 void
 BodyModel::ParseActiveBody(istream& _is, const string& _modelDataDir, const Color4 _color) {
-  m_isFixed = false;
 
   m_filename = ReadFieldString(_is, WHERE,
       "Failed reading geometry filename.", false);
@@ -119,17 +112,15 @@ BodyModel::ParseActiveBody(istream& _is, const string& _modelDataDir, const Colo
   m_baseType = GetBaseFromTag(baseTag);
 
   if(m_baseType == VOLUMETRIC || m_baseType == PLANAR){
-    m_isBase = true;
     string rotationalTag = ReadFieldString(_is, WHERE,
         "Failed reading rotation tag.");
     m_baseMovementType = GetMovementFromTag(rotationalTag);
   }
   else if(m_baseType == FIXED){
-    m_isBase = true;
-    m_currentTransform = ReadField<Transformation>(_is, WHERE, "Failed reading body transformation");
+    SetTransform(ReadField<Transformation>(_is, WHERE, "Failed reading body transformation"));
   }
 
-  m_polyhedronModel = new PolyhedronModel(this);
+  m_polyhedronModel = new PolyhedronModel(m_modelFilename);
 
   //Set color information
   SetColor(_color);
@@ -137,7 +128,6 @@ BodyModel::ParseActiveBody(istream& _is, const string& _modelDataDir, const Colo
 
 void
 BodyModel::ParseOtherBody(istream& _is, const string& _modelDataDir, const Color4 _color) {
-  m_isFixed = m_isBase = true;
 
   //read and set up geometry filename data
   m_filename = ReadFieldString(_is, WHERE,
@@ -151,9 +141,9 @@ BodyModel::ParseOtherBody(istream& _is, const string& _modelDataDir, const Color
   m_modelFilename += m_filename;
 
   //read transformation
-  m_currentTransform = ReadField<Transformation>(_is, WHERE, "Failed reading body transformation");
+  SetTransform(ReadField<Transformation>(_is, WHERE, "Failed reading body transformation"));
 
-  m_polyhedronModel = new PolyhedronModel(this);
+  m_polyhedronModel = new PolyhedronModel(m_modelFilename, m_isSurface);
 
   //Set color information
   SetColor(_color);
@@ -174,4 +164,26 @@ BodyModel::DeleteConnection(ConnectionModel* _c){
     }
     index++;
   }
+}
+
+void
+BodyModel::SetTransform(const Transformation& _t) {
+  m_currentTransform = _t;
+
+  const Vector3d& p = _t.translation();
+  const Orientation& o = _t.rotation();
+  EulerAngle e;
+  convertFromMatrix(e, o.matrix());
+  Quaternion qua;
+  convertFromMatrix(qua, o.matrix());
+
+  Translation() = p;
+
+  Rotation()[0] = e.alpha();
+  Rotation()[1] = e.beta();
+  Rotation()[2] = e.gamma();
+
+  RotationQ() = qua;
+
+  m_transformDone = true;
 }

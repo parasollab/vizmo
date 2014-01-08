@@ -34,9 +34,6 @@ RobotModel::Configure(const vector<double>& _cfg) {
   m_currCfg = _cfg;
   const MultiBodyModel::Robots& robots = m_robotModel->GetRobots();
 
-  Vector3d position;
-  Orientation orientation;
-
   for(MultiBodyModel::BodyIter bit = m_robotModel->Begin();
       bit != m_robotModel->End(); ++bit)
     (*bit)->ResetTransform();
@@ -69,18 +66,10 @@ RobotModel::Configure(const vector<double>& _cfg) {
       }
     }
 
-    base->Translation()(x, y, z);
-    base->Rotation()(alpha, beta, gamma);
-
-    Transformation t(Vector3d(x, y, z),
-        Orientation(EulerAngle(gamma, beta, alpha)));
-    base->SetTransform(t);
-    base->SetTransformDone(true);
-
-    //compute rotation
-    Quaternion q;
-    convertFromMatrix(q, t.rotation().matrix());
-    base->RotationQ() = q.normalized(); //set new q
+    base->SetTransform(
+        Transformation(Vector3d(x, y, z),
+          Orientation(EulerAngle(gamma, beta, alpha)))
+        );
 
     //now for the joints of the robot
     //configuration of links after the base
@@ -104,18 +93,8 @@ RobotModel::Configure(const vector<double>& _cfg) {
       (*mit)->SetTheta(theta);
 
       if(!nextBody->IsTransformDone()) {
-
         nextBody->SetPrevTransform(currentBody->GetTransform());
         nextBody->ComputeTransform(currentBody, nextBodyIdx);
-        nextBody->SetTransformDone(true);
-
-        nextBody->Translation() = nextBody->GetTransform().translation();
-
-        //compute rotation
-        Quaternion q;
-        convertFromMatrix(q,
-            nextBody->GetTransform().rotation().matrix());
-        nextBody->RotationQ() = q.normalized(); //set new q
       }
     }
   }

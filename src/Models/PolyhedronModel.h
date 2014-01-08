@@ -5,15 +5,13 @@
 
 #include "Model.h"
 
-class BodyModel;
-
 class PolyhedronModel : public Model {
   public:
     typedef Vector<int,  3> Tri;
     typedef vector<Point3d> PtVector;
     typedef vector<Tri> TriVector;
 
-    PolyhedronModel(BodyModel* _bodyModel);
+    PolyhedronModel(const string& _filename, bool _isSurface = false);
     ~PolyhedronModel();
 
     double GetRadius() const {return m_radius;}
@@ -38,13 +36,14 @@ class PolyhedronModel : public Model {
     void Radius(const PtVector& _points);
 
   private:
+    string m_filename;
+    bool m_isSurface;
+
     GLuint m_solidID; //the compiled model id for solid model
     GLuint m_wiredID; //the compiled model id for wire frame
 
     double m_radius; //radius
     Point3d m_com; //Center of Mass
-
-    BodyModel* m_bodyModel;
 
     typedef stapl::sequential::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, int, Vector<int, 2> > ModelGraph;
     ModelGraph m_modelGraph; //model graph for wired model
