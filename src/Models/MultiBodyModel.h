@@ -3,6 +3,9 @@
 
 #include <include/Graph.h>
 
+#include <Transformation.h>
+using namespace mathtool;
+
 #include "Model.h"
 
 class BodyModel;
@@ -24,11 +27,16 @@ class MultiBodyModel : public Model {
       double m_maxVal;
     };
 
+    //constructor to be read in from file
     MultiBodyModel(EnvModel* _env);
+    //constructor for obstacles
+    MultiBodyModel(EnvModel* _env,
+        const string& _modelDataDir, const string& _filename,
+        const Transformation& _t);
+    MultiBodyModel(const MultiBodyModel& _m);
     ~MultiBodyModel();
 
     //access properties
-    virtual void GetChildren(list<Model*>& _models);
     virtual void SetRenderMode(RenderMode _mode);
     virtual void SetColor(const Color4& _c);
 
@@ -47,8 +55,8 @@ class MultiBodyModel : public Model {
     typedef vector<BodyModel*>::const_iterator BodyIter;
     BodyIter Begin() const { return m_bodies.begin(); }
     BodyIter End() const { return m_bodies.end(); }
-    vector <BodyModel*> GetBodies() {return m_bodies;}
-    vector <ConnectionModel*> GetJoints() {return m_joints;}
+    vector<BodyModel*>& GetBodies() {return m_bodies;}
+    vector<ConnectionModel*>& GetJoints() {return m_joints;}
 
     //drawing
     virtual void BuildModels();

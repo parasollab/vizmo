@@ -59,9 +59,8 @@ BoundingSphereModel::Print(ostream& _os) const {
     << "[ " << m_center << " " << m_radius << " ]" << endl;
 }
 
-string
-BoundingSphereModel::GetCoord(){
-  ostringstream coord;
-  coord<<m_center<<" "<<m_radius;
-  return coord.str();
+void
+BoundingSphereModel::Write(ostream& _os) const {
+  _os << "Sphere " << m_center << " " << m_radius;
 }
+

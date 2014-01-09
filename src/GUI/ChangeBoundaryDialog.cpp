@@ -89,8 +89,8 @@ ChangeBoundaryDialog::SetUpLayout(){
 void
 ChangeBoundaryDialog::ShowCurrentValues(){
   string type = GetVizmo().GetEnv()->GetBoundaryType();
-  string coord = GetVizmo().GetEnv()->GetBoundary()->GetCoord();
-  stringstream streamCoord(coord);
+  stringstream streamCoord;
+  streamCoord << *GetVizmo().GetEnv()->GetBoundary();
   string word;
   string values[6]={"0","0","0","0","0","0"};
   vector<string> tripleLimits;

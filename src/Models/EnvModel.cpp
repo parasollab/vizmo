@@ -228,7 +228,7 @@ EnvModel::SaveFile(const char* _filename){
     cout<<"Couldn't open the file"<<endl;
     return false;
   }
-  envFile<<"Boundary "<<m_boundaryType<<" "<<m_boundary->GetCoord();
+  envFile<<"Boundary " << *m_boundary;
   envFile<<"\n\n";
   int numMBs = m_multibodies.size();
   envFile<<"Multibodies\n"<<numMBs<<"\n\n";

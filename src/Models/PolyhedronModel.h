@@ -12,6 +12,7 @@ class PolyhedronModel : public Model {
     typedef vector<Tri> TriVector;
 
     PolyhedronModel(const string& _filename, bool _isSurface = false);
+    PolyhedronModel(const PolyhedronModel& _p);
     ~PolyhedronModel();
 
     double GetRadius() const {return m_radius;}

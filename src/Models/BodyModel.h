@@ -18,6 +18,9 @@ class BodyModel : public TransformableModel {
     static BaseMovement GetMovementFromTag(const string& _tag);
 
     BodyModel(bool _isSurface = false);
+    BodyModel(const string& _modelDataDir, const string& _filename,
+        const Transformation& _t);
+    BodyModel(const BodyModel& _b);
     ~BodyModel();
 
     //properties

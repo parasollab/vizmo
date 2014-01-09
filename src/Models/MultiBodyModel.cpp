@@ -22,17 +22,34 @@ class IsConnectionGloballyFirst {
 } connectionComp;
 
 MultiBodyModel::MultiBodyModel(EnvModel* _env) : Model("MultiBody"),
-  m_envModel(_env), m_active(false), m_surface(false), m_radius(false) {}
+  m_envModel(_env), m_active(false), m_surface(false), m_radius(0) {
+  }
+
+MultiBodyModel::MultiBodyModel(EnvModel* _env,
+    const string& _modelDataDir, const string& _filename,
+    const Transformation& _t) : Model("MultiBody"),
+  m_envModel(_env), m_active(false), m_surface(false) {
+    m_bodies.push_back(new BodyModel(_modelDataDir, _filename, _t));
+    BuildModels();
+  }
+
+MultiBodyModel::MultiBodyModel(const MultiBodyModel& _m) : Model(_m),
+  m_envModel(_m.m_envModel),
+  m_active(_m.m_active), m_surface(_m.m_surface) {
+    //copy all bodies
+    for(BodyIter bit = _m.Begin(); bit != _m.End(); ++bit)
+      m_bodies.push_back(new BodyModel(**bit));
+    //copy all connections
+    typedef vector<ConnectionModel*>::const_iterator CIT;
+    for(CIT cit = _m.m_joints.begin(); cit != _m.m_joints.end(); ++cit)
+      m_joints.push_back(new ConnectionModel(**cit));
+    //build models
+    BuildModels();
+  }
 
 MultiBodyModel::~MultiBodyModel() {
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     delete *bit;
-}
-
-void
-MultiBodyModel::GetChildren(list<Model*>& _models) {
-  for(BodyIter bit = Begin(); bit!=End(); ++bit)
-    _models.push_back(*bit);
 }
 
 void
@@ -97,10 +114,14 @@ MultiBodyModel::DrawSelect(){
 void
 MultiBodyModel::Print(ostream& _os) const {
   _os << Name() << endl;
-  if(m_active)
-    _os << "Active: "  << m_bodies.size() << endl;
-  else
-    _os << "Passive: "  << m_bodies[0]->Translation() << endl;
+  if(m_active) {
+    _os << "Active" << endl;
+    _os << m_bodies.size() << endl;
+  }
+  else {
+    _os << "Passive" << endl;
+    m_bodies[0]->Print(_os);
+  }
 }
 
 void
@@ -248,9 +269,9 @@ MultiBodyModel::BuildRobotStructure() {
     if(base->IsBasePlanar()){
       m_dof += 2;
       m_dofInfo.push_back(DOFInfo("Base X Translation ",
-        dofRanges[0].first, dofRanges[0].second));
+            dofRanges[0].first, dofRanges[0].second));
       m_dofInfo.push_back(DOFInfo("Base Y Translation ",
-        dofRanges[1].first, dofRanges[1].second));
+            dofRanges[1].first, dofRanges[1].second));
       if(base->IsBaseRotational()){
         m_dof += 1;
         m_dofInfo.push_back(DOFInfo("Base Rotation ", -1.0, 1.0));
@@ -259,11 +280,11 @@ MultiBodyModel::BuildRobotStructure() {
     else if(base->IsBaseVolumetric()){
       m_dof += 3;
       m_dofInfo.push_back(DOFInfo("Base X Translation ",
-        dofRanges[0].first, dofRanges[0].second));
+            dofRanges[0].first, dofRanges[0].second));
       m_dofInfo.push_back(DOFInfo("Base Y Translation ",
-        dofRanges[1].first, dofRanges[1].second));
+            dofRanges[1].first, dofRanges[1].second));
       m_dofInfo.push_back(DOFInfo("Base Z Translation ",
-        dofRanges[2].first, dofRanges[2].second));
+            dofRanges[2].first, dofRanges[2].second));
       if(base->IsBaseRotational()){
         m_dof += 3;
         m_dofInfo.push_back(DOFInfo("Base X Rotation ", -1.0, 1.0));

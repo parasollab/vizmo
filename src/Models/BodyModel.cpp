@@ -37,6 +37,28 @@ BodyModel::BodyModel(bool _isSurface) : TransformableModel("Body"),
   m_transformDone(false) {
   }
 
+BodyModel::BodyModel(const string& _modelDataDir, const string& _filename,
+    const Transformation& _t) : TransformableModel("Body"),
+  m_directory(_modelDataDir), m_filename(_filename),
+  m_modelFilename(m_directory + "/" + m_filename),
+  m_polyhedronModel(new PolyhedronModel(m_modelFilename)), m_isSurface(false),
+  m_baseType(VOLUMETRIC), m_baseMovementType(ROTATIONAL),
+  m_transformDone(false) {
+    SetTransform(_t);
+  }
+
+BodyModel::BodyModel(const BodyModel& _b) : TransformableModel(_b),
+  m_directory(_b.m_directory), m_filename(_b.m_filename), m_modelFilename(_b.m_modelFilename),
+  m_polyhedronModel(new PolyhedronModel(*_b.m_polyhedronModel)),
+  m_isSurface(_b.m_isSurface),
+  m_baseType(_b.m_baseType), m_baseMovementType(_b.m_baseMovementType),
+  m_currentTransform(_b.m_currentTransform), m_prevTransform(_b.m_prevTransform),
+  m_transformDone(_b.m_transformDone) {
+    //copy all connections
+    for(ConnectionIter cit = _b.Begin(); cit != _b.End(); ++cit)
+      m_connections.push_back(new ConnectionModel(**cit));
+  }
+
 BodyModel::~BodyModel() {
   delete m_polyhedronModel;
   for(ConnectionIter cit = Begin(); cit!=End(); ++cit)

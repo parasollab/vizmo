@@ -14,6 +14,11 @@ PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
     BuildModels();
   }
 
+PolyhedronModel::PolyhedronModel(const PolyhedronModel& _p) : Model(_p),
+  m_filename(_p.m_filename), m_isSurface(_p.m_isSurface) {
+    BuildModels();
+  }
+
 PolyhedronModel::~PolyhedronModel(){
   glDeleteLists(m_wiredID,1);
   glDeleteLists(m_solidID,1);

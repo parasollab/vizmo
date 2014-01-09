@@ -22,14 +22,16 @@ class EnvironmentOptions : public OptionsBase {
   private slots:
     void RefreshEnv();
     void RandomizeEnvColors();
+
     void AddObstacle();
     void DeleteObstacle();
     void MoveObstacle();
     void DuplicateObstacles();
     void ChangeBoundaryForm();
     void EditRobot();
-    void AddRegionSphere();
+
     void AddRegionBox();
+    void AddRegionSphere();
     void DeleteRegion();
 
   private:
@@ -38,21 +40,8 @@ class EnvironmentOptions : public OptionsBase {
     void SetUpToolbar(); //Just randomize colors button
     void Reset();
     void SetHelpTips();
-    string GetFilename(string _modelFilename);
-    string GetFileDir(string _modelFilename, string _filename);
+
     QMenu* m_obstacleMenu;
-
-  public:
-    ModelSelectionWidget* m_modelSelectionWidget;
-    MultiBodyModel* m_multiBodyModel;
-
-  protected:
-    double m_xPos;
-    double m_yPos;
-    double m_zPos;
-    double m_xRot;
-    double m_yRot;
-    double m_zRot;
 };
 
 #endif

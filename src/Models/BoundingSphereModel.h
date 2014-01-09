@@ -9,9 +9,11 @@ class BoundingSphereModel : public BoundaryModel {
 
     virtual vector<pair<double, double> > GetRanges();
     virtual bool Parse(istream& _is);
-    string GetCoord();
     virtual void BuildModels();
     virtual void Print(ostream& _os) const;
+
+  protected:
+    virtual void Write(ostream& _os) const;
 
   private:
     Vector3d m_center;

@@ -3,7 +3,7 @@
 
 #include "BoundingBoxModel.h"
 
-BoundingBoxModel::BoundingBoxModel() : BoundaryModel("BoundingBox") {
+BoundingBoxModel::BoundingBoxModel() : BoundaryModel("Bounding Box") {
   m_bbx.reserve(3);
   for(int i = 0; i<3; ++i){
     m_bbx[i].first = -numeric_limits<double>::max();
@@ -39,15 +39,6 @@ BoundingBoxModel::Parse(istream& _is) {
     }
   }
   return true;
-}
-
-string
-BoundingBoxModel::GetCoord(){
-
-  ostringstream coord;
-  for(int i=0; i<3; i++)
-    coord<<m_bbx[i].first<<":"<<m_bbx[i].second<<" ";
-  return coord.str();
 }
 
 void
@@ -130,5 +121,13 @@ BoundingBoxModel::Print(ostream& _os) const {
     if(m_bbx[i].second != numeric_limits<double>::max())
       _os << m_bbx[i].first << ":" << m_bbx[i].second << " ";
   _os << "]" << endl;
+}
+
+void
+BoundingBoxModel::Write(ostream& _os) const {
+  _os << "Box ";
+  for(size_t i = 0; i < 3; ++i)
+    if(m_bbx[i].second != numeric_limits<double>::max())
+      _os << m_bbx[i].first << ":" << m_bbx[i].second << " ";
 }
 

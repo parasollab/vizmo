@@ -1,20 +1,13 @@
 #ifndef OBSTACLEPOSDIALOG_H_
 #define OBSTACLEPOSDIALOG_H_
 
-#include <QDialog>
+#include <QtGui>
 
 #include "Models/BodyModel.h"
 
-using namespace std;
-
-class QPushButton;
-class QLineEdit;
-class QLabel;
-class QValidator;
-class QSlider;
 class EnvModel;
-class MultiBodyModel;
 class MainWindow;
+class MultiBodyModel;
 
 class ObstaclePosDialog : public QDialog {
 
@@ -22,48 +15,29 @@ class ObstaclePosDialog : public QDialog {
 
   public:
     ObstaclePosDialog(const vector<MultiBodyModel*>& _multiBody, MainWindow* _mainWindow,  QWidget* _parent);
-    ~ObstaclePosDialog();
 
   public slots:
-   // void AddToEnv();
     void DisplaySlidersValues(int _i);
     void ChangeSlidersValues();
 
   private:
-    //Functions
     void SetUpLayout();
     void SetSlidersInit();
-    void GetBoundingValues();
+
     void RefreshPosition();
-    void GetGravityCenter();
-    string GetCoord();
-    string AddCoord(string _toAdd[6]);
+
     //Model Variables
-    EnvModel* m_envModel;
     vector<MultiBodyModel*> m_multiBody;
-    BodyModel* m_obstacle;
-    MainWindow* m_mainWindow;
-    int m_sizeMB;
+    bool m_oneObst;
+
     //Obstacle Variables
-    string m_stringCoord;
-    pair<int, int> m_boundingValues[3];
-    double m_gravityCenter[3];
-    double m_lastValues[6];
+    Vector3d m_center;
     bool m_valueEdited;
+
     //Qt Variables
-    QPushButton* m_loadButton;
+    MainWindow* m_mainWindow;
     QLineEdit* m_posLines[6];
-    QLabel* m_xPosLabel;
-    QLabel* m_yPosLabel;
-    QLabel* m_zPosLabel;
-    QLabel* m_alphaLabel;
-    QLabel* m_betaLabel;
-    QLabel* m_gammaLabel;
-    QLabel* m_posLabel;
-    QLabel* m_coordLabel;
-    QLabel* m_rotLabel;
     QSlider* m_sliders[6];
-    QValidator* m_validator;
 };
 
 #endif

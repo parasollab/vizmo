@@ -1,22 +1,19 @@
 #include "EnvironmentOptions.h"
 
-#include <iostream>
-#include <fstream>
-
-#include "GLWidget.h"
-#include "ModelSelectionWidget.h"
-#include "ObstaclePosDialog.h"
 #include "ChangeBoundaryDialog.h"
 #include "EditRobotDialog.h"
+#include "GLWidget.h"
 #include "MainWindow.h"
+#include "ModelSelectionWidget.h"
+#include "ObstaclePosDialog.h"
 #include "Models/EnvModel.h"
 #include "Models/RegionBoxModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/Vizmo.h"
 
-#include "Icons/RandEnv.xpm"
 #include "Icons/AddSphereRegion.xpm"
 #include "Icons/DeleteRegion.xpm"
+#include "Icons/RandEnv.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
@@ -25,6 +22,207 @@ EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow
     SetUpToolbar();
     SetHelpTips();
   }
+
+void
+EnvironmentOptions::RefreshEnv(){
+  GetVizmo().GetEnv()->SetRenderMode(SOLID_MODE);
+  m_mainWindow->GetModelSelectionWidget()->reset();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
+}
+
+void
+EnvironmentOptions::RandomizeEnvColors(){
+  GetVizmo().GetEnv()->ChangeColor();
+  m_mainWindow->GetGLScene()->updateGL();
+}
+
+void
+EnvironmentOptions::AddObstacle(){
+  QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
+      QString::null, "Files  (*.g *.obj)");
+
+  if(!fn.isEmpty()) {
+    string modelFilename = fn.toStdString();
+    string directory = GetPathName(modelFilename);
+    size_t pos = modelFilename.rfind('/');
+    string filename = pos == string::npos ? modelFilename : modelFilename.substr(pos+1, string::npos);
+
+    MultiBodyModel* m = new MultiBodyModel(GetVizmo().GetEnv(), directory, filename, Transformation());
+    GetVizmo().GetEnv()->AddMBModel(m);
+
+    GetVizmo().GetSelectedModels().clear();
+    GetVizmo().GetSelectedModels().push_back(m);
+
+    RefreshEnv();
+
+    vector<MultiBodyModel*> v(1, m);
+    ObstaclePosDialog o(v, m_mainWindow, this);
+    if(o.exec() != QDialog::Accepted)
+      return;
+  }
+  else
+    m_mainWindow->statusBar()->showMessage("Loading aborted");
+}
+
+void
+EnvironmentOptions::DeleteObstacle(){
+  vector<MultiBodyModel*> toDel;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+
+  //grab the bodies from the selected vector
+  typedef vector<Model*>::iterator SIT;
+  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
+    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
+      toDel.push_back((MultiBodyModel*)*sit);
+
+  //alert that only non-active multibodies can be selected
+  if(toDel.empty() || toDel.size() != sel.size()) {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Alert");
+    msgBox.setText("Must select one or more non-active multibodies only.");
+    msgBox.setStandardButtons(QMessageBox::Close);
+    msgBox.exec();
+  }
+  //successful selection, show ObstaclePosDialog
+  else {
+    typedef vector<MultiBodyModel*>::iterator MIT;
+    for(MIT mit = toDel.begin(); mit != toDel.end(); ++mit)
+        GetVizmo().GetEnv()->DeleteMBModel(*mit);
+
+    GetVizmo().GetSelectedModels().clear();
+    RefreshEnv();
+  }
+}
+
+void
+EnvironmentOptions::MoveObstacle(){
+  vector<MultiBodyModel*> toMove;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+
+  //grab the bodies from the selected vector
+  typedef vector<Model*>::iterator SIT;
+  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
+    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
+      toMove.push_back((MultiBodyModel*)*sit);
+
+  //alert that only non-active multibodies can be selected
+  if(toMove.empty() || toMove.size() != sel.size()) {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Alert");
+    msgBox.setText("Must select one or more non-active multibodies only.");
+    msgBox.setStandardButtons(QMessageBox::Close);
+    msgBox.exec();
+  }
+  //successful selection, show ObstaclePosDialog
+  else {
+    ObstaclePosDialog o(toMove, m_mainWindow, this);
+    o.exec();
+    RefreshEnv();
+  }
+}
+
+void
+EnvironmentOptions::DuplicateObstacles() {
+  vector<MultiBodyModel*> toCopy;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  typedef vector<Model*>::iterator SIT;
+  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
+    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
+      toCopy.push_back((MultiBodyModel*)(*sit));
+
+  //alert that only non-active multibodies can be selected
+  if(toCopy.empty() || toCopy.size() != sel.size()) {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Alert");
+    msgBox.setText("Must select one or more non-active multibodies only.");
+    msgBox.setStandardButtons(QMessageBox::Close);
+    msgBox.exec();
+  }
+  //successful selection, copy and show ObstaclePosDialog
+  else {
+    vector<MultiBodyModel*> copies;
+    typedef vector<MultiBodyModel*>::iterator MIT;
+    for(MIT mit = toCopy.begin(); mit != toCopy.end(); ++mit) {
+      MultiBodyModel* m = new MultiBodyModel(**mit);
+      copies.push_back(m);
+      GetVizmo().GetEnv()->AddMBModel(m);
+    }
+    sel.clear();
+    copy(copies.begin(), copies.end(), back_inserter(sel));
+
+    ObstaclePosDialog o(copies, m_mainWindow, this);
+    o.exec();
+
+    RefreshEnv();
+  }
+}
+
+void
+EnvironmentOptions::ChangeBoundaryForm(){
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  //alert that only the boundary should be selected
+  if(sel.size() != 1 || !(sel[0]->Name() == "Bounding Box" || sel[0]->Name() == "Bounding Sphere")) {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Alert");
+    msgBox.setText("Must select only the boundary.");
+    msgBox.setStandardButtons(QMessageBox::Close);
+    msgBox.exec();
+  }
+  //successful selection, show ChangeBoundaryDialog
+  else {
+    ChangeBoundaryDialog c(this);
+    if(c.exec() != QDialog::Accepted)
+      return;
+    RefreshEnv();
+  }
+}
+
+void EnvironmentOptions::EditRobot() {
+  EditRobotDialog e(m_mainWindow, this);
+  if(e.exec() != QDialog::Accepted)
+    return;
+  RefreshEnv();
+}
+
+void
+EnvironmentOptions::AddRegionBox() {
+  //create new spherical region and add to environment
+  RegionBoxModel* r = new RegionBoxModel();
+  GetVizmo().GetEnv()->AddRegion(r);
+
+  //set mouse events to current region for GLWidget
+  m_mainWindow->GetGLScene()->SetCurrentRegion(r);
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  GetVizmo().GetSelectedModels().clear();
+  GetVizmo().GetSelectedModels().push_back(r);
+  m_mainWindow->GetModelSelectionWidget()->Select();
+}
+
+void
+EnvironmentOptions::AddRegionSphere() {
+  //create new spherical region and add to environment
+  RegionSphereModel* r = new RegionSphereModel();
+  GetVizmo().GetEnv()->AddRegion(r);
+
+  //set mouse events to current region for GLWidget
+  m_mainWindow->GetGLScene()->SetCurrentRegion(r);
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  GetVizmo().GetSelectedModels().clear();
+  GetVizmo().GetSelectedModels().push_back(r);
+  m_mainWindow->GetModelSelectionWidget()->Select();
+}
+
+void
+EnvironmentOptions::DeleteRegion() {
+  RegionModel* r = m_mainWindow->GetGLScene()->GetCurrentRegion();
+  if(r) {
+    GetVizmo().GetEnv()->DeleteRegion(r);
+    GetVizmo().GetSelectedModels().clear();
+    m_mainWindow->GetModelSelectionWidget()->ResetLists();
+    m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
+  }
+}
 
 void
 EnvironmentOptions::CreateActions(){
@@ -140,213 +338,3 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
 }
 
-//Slots
-void
-EnvironmentOptions::ChangeBoundaryForm(){
-  ChangeBoundaryDialog c(this);
-  if(c.exec() != QDialog::Accepted)
-    return;
-  while(GetVizmo().GetSelectedModels().size()!=0)
-    GetVizmo().GetSelectedModels().pop_back();
-  GetVizmo().GetSelectedModels().push_back(GetVizmo().GetEnv()->GetBoundary());
-  RefreshEnv();
-  m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
-  m_modelSelectionWidget->ResetLists();
-}
-
-void EnvironmentOptions::EditRobot(){
-  EditRobotDialog e(m_mainWindow, this);
-  if(e.exec() != QDialog::Accepted)
-    return;
-  RefreshEnv();
-}
-
-void
-EnvironmentOptions::RefreshEnv(){
-  GetVizmo().GetEnv()->SetRenderMode(SOLID_MODE);
-  m_mainWindow->GetModelSelectionWidget()->reset();
-  m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-EnvironmentOptions::RandomizeEnvColors(){
-  GetVizmo().GetEnv()->ChangeColor();
-  m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-EnvironmentOptions::DeleteObstacle(){
-  vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++){
-    for(size_t j=0;j<mBody.size();j++){
-      if(*i==mBody[j]&&!mBody[j]->IsActive())
-        GetVizmo().GetEnv()->DeleteMBModel(mBody[j]);
-    }
-  }
-  while(GetVizmo().GetSelectedModels().size()!=0)
-    GetVizmo().GetSelectedModels().pop_back();
-  RefreshEnv();
-  m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
-  m_modelSelectionWidget->ResetLists();
-}
-
-void
-EnvironmentOptions::MoveObstacle(){
-  vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
-  vector<MultiBodyModel*> mBodiesToMove;
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++){
-    for(size_t j=0;j<mBody.size();j++){
-      if(*i==mBody[j]&&!mBody[j]->IsActive()){
-        mBodiesToMove.push_back(mBody[j]);
-      }
-    }
-  }
-  ObstaclePosDialog o(mBodiesToMove, m_mainWindow, this);
-  o.exec();
-  RefreshEnv();
-  m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
-  m_modelSelectionWidget->ResetLists();
-}
-
-void
-EnvironmentOptions::DuplicateObstacles(){
-  vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
-  vector<MultiBodyModel*> mBodiesToCopy;
-  int sizeMB=mBody.size();
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SI;
-  for(SI i = sel.begin(); i!= sel.end(); i++){
-    for(int j=0;j<sizeMB;j++){
-      if(*i==mBody[j]&&!mBody[j]->IsActive()){
-        stringstream properties;
-        properties<<"Passive \n #VIZMO_COLOR ";
-        vector<BodyModel*> bodies = mBody[j]->GetBodies();
-        properties<<" "<<bodies.back()->GetColor()[0]
-                  <<" "<<bodies.back()->GetColor()[1]
-                  <<" "<<bodies.back()->GetColor()[2]<<endl;
-        properties<<bodies.back()->GetFilename()<<"  ";
-        ostringstream transform;
-        transform<<bodies.back()->GetTransform();
-        string transformString=transform.str();
-        istringstream splitTransform(transformString);
-        string splittedTransform[6]={"","","","","",""};
-        int j=0;
-        do{
-          splitTransform>>splittedTransform[j];
-          j++;
-        }while(splitTransform);
-        string temp;
-        temp=splittedTransform[3];
-        splittedTransform[3]=splittedTransform[5];
-        splittedTransform[5]=temp;
-        for(int i=0; i<6; i++)
-          properties<<splittedTransform[i]<<" ";
-        properties<<endl;
-        m_multiBodyModel = new MultiBodyModel(GetVizmo().GetEnv());
-        m_multiBodyModel->ParseMultiBody(properties,bodies.back()->GetDirectory());
-        mBodiesToCopy.push_back(m_multiBodyModel);
-        GetVizmo().GetEnv()->AddMBModel(m_multiBodyModel);
-      }
-    }
-  }
-  while(GetVizmo().GetSelectedModels().size()!=0)
-    GetVizmo().GetSelectedModels().pop_back();
-  typedef vector<MultiBodyModel*>::iterator MB;
-  for(MB i = mBodiesToCopy.begin(); i!= mBodiesToCopy.end(); i++)
-    GetVizmo().GetSelectedModels().push_back(*i);
-  ObstaclePosDialog o(mBodiesToCopy, m_mainWindow, this);
-  o.exec();
-  RefreshEnv();
-  m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
-  m_modelSelectionWidget->ResetLists();
-}
-
-void
-EnvironmentOptions::AddObstacle(){
-  QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
-      QString::null, "Files  (*.g *.obj)");
-  if (!fn.isEmpty()){
-    string modelFilename = fn.toStdString();
-    string filename = GetFilename(modelFilename);
-    string stringAttributes = ("Passive \n#VIZMO_COLOR 0.0 0.0 1 \n" + filename
-                                + "  " + "0 0 0 0 0 0" + "\n");
-    istringstream isStringAttributes(stringAttributes);
-    string modelFileDir = GetFileDir(modelFilename,filename);
-    m_multiBodyModel = new MultiBodyModel(GetVizmo().GetEnv());
-    m_multiBodyModel->ParseMultiBody(isStringAttributes,modelFileDir);
-    GetVizmo().GetEnv()->AddMBModel(m_multiBodyModel);
-    while(GetVizmo().GetSelectedModels().size()!=0)
-      GetVizmo().GetSelectedModels().pop_back();
-    GetVizmo().GetSelectedModels().push_back(m_multiBodyModel);
-    RefreshEnv();
-    m_modelSelectionWidget=m_mainWindow->GetModelSelectionWidget();
-    m_modelSelectionWidget->ResetLists();
-    vector<MultiBodyModel*> vMB;
-    vMB.push_back(m_multiBodyModel);
-    ObstaclePosDialog o(vMB, m_mainWindow, this);
-    if(o.exec() != QDialog::Accepted)
-      return;
-  }
-  else
-    m_mainWindow->statusBar()->showMessage("Loading aborted");
-}
-
-string
-EnvironmentOptions::GetFilename(string _modelFilename){
-  string filename;
-  stringstream stream(_modelFilename);
-  while(getline(stream, filename, '/')){}
-  return filename;
-}
-
-string
-EnvironmentOptions::GetFileDir(string _modelFilename, string _filename){
-  int modelFilenameSize = _modelFilename.size();
-  int filenameSize = _filename.size();
-  string modelFileDir = _modelFilename;
-  modelFileDir.replace(modelFilenameSize-filenameSize, filenameSize, "");
-  return modelFileDir;
-}
-
-void
-EnvironmentOptions::AddRegionSphere() {
-  //create new spherical region and add to environment
-  RegionSphereModel* r = new RegionSphereModel();
-  GetVizmo().GetEnv()->AddRegion(r);
-
-  //set mouse events to current region for GLWidget
-  m_mainWindow->GetGLScene()->SetCurrentRegion(r);
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  GetVizmo().GetSelectedModels().clear();
-  GetVizmo().GetSelectedModels().push_back(r);
-  m_mainWindow->GetModelSelectionWidget()->Select();
-}
-
-void
-EnvironmentOptions::AddRegionBox() {
-  //create new spherical region and add to environment
-  RegionBoxModel* r = new RegionBoxModel();
-  GetVizmo().GetEnv()->AddRegion(r);
-
-  //set mouse events to current region for GLWidget
-  m_mainWindow->GetGLScene()->SetCurrentRegion(r);
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  GetVizmo().GetSelectedModels().clear();
-  GetVizmo().GetSelectedModels().push_back(r);
-  m_mainWindow->GetModelSelectionWidget()->Select();
-}
-
-void
-EnvironmentOptions::DeleteRegion() {
-  RegionModel* r = m_mainWindow->GetGLScene()->GetCurrentRegion();
-  if(r) {
-    GetVizmo().GetEnv()->DeleteRegion(r);
-    GetVizmo().GetSelectedModels().clear();
-    m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
-  }
-}

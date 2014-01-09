@@ -1,14 +1,5 @@
 #include "ObstaclePosDialog.h"
 
-#include <iostream>
-
-#include <QDialog>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QLabel>
-#include <QValidator>
-#include <QSlider>
-
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "Transformation.h"
@@ -18,288 +9,165 @@
 #include "Utilities/IO.h"
 
 ObstaclePosDialog::ObstaclePosDialog(const vector<MultiBodyModel*>& _multiBody, MainWindow* _mainWindow,
-    QWidget* _parent) : QDialog(_parent) {
-  resize(315, 307);
-  setWindowTitle("Obstacle Position");
-  m_loadButton = new QPushButton("OK", this);
-  m_xPosLabel = new QLabel("x", this);
-  m_yPosLabel = new QLabel("y", this);
-  m_zPosLabel = new QLabel("z", this);
-  m_alphaLabel = new QLabel(QChar(0x03B1), this);
-  m_betaLabel = new QLabel(QChar(0x03B2), this);
-  m_gammaLabel = new QLabel(QChar(0x03B3), this);
-  for(int i=0; i<6; i++)
-    m_sliders[i] = new QSlider(this);
-  for(int i=0; i<6; i++)
-    m_posLines[i] = new QLineEdit("0", this);
-  m_rotLabel = new QLabel("<b>Rotation<b>", this);
-  m_coordLabel = new QLabel("<b>Coordinates<b>", this);
-  m_validator = new QDoubleValidator();
+    QWidget* _parent) : QDialog(_parent), m_multiBody(_multiBody), m_mainWindow(_mainWindow) {
 
-  connect(m_loadButton, SIGNAL(clicked()), this, SLOT(accept()));
-  for(int i=0; i<6; i++){
+  m_oneObst = m_multiBody.size() == 1;
+
+  setWindowTitle("Obstacle Position");
+
+  SetUpLayout();
+  SetSlidersInit();
+
+  //connect all sliders/posLines
+  size_t num = m_oneObst ? 6 : 3;
+  for(size_t i = 0; i < num; i++) {
     connect(m_sliders[i], SIGNAL(valueChanged(int)), this, SLOT(DisplaySlidersValues(int)));
     connect(m_posLines[i], SIGNAL(editingFinished()), this, SLOT(ChangeSlidersValues()));
   }
-  m_mainWindow=_mainWindow;
-  m_multiBody=_multiBody;
-  m_sizeMB = m_multiBody.size();
-  if(m_sizeMB==1)
-    m_obstacle=m_multiBody.back()->GetBodies().back();
-  for(int i=0; i<6; i++)
-    m_lastValues[i]=0;
-  for(int i=0; i<3; i++)
-    m_gravityCenter[i]=0;
-  m_valueEdited=false;
-  GetBoundingValues();
-  GetGravityCenter();
-  SetSlidersInit();
-  SetUpLayout();
+
+  QDialog::show();
 }
 
 void
 ObstaclePosDialog::SetUpLayout(){
-  m_loadButton->setGeometry(QRect(170,260,91,31));
-  m_loadButton->setAutoDefault(false);
-  m_xPosLabel->setGeometry(QRect(20,40,16,21));
-  m_yPosLabel->setGeometry(QRect(20,70,16,21));
-  m_zPosLabel->setGeometry(QRect(20,100,16,21));
-  m_alphaLabel->setGeometry(QRect(20,160,16,21));
-  m_betaLabel->setGeometry(QRect(20,190,16,21));
-  m_gammaLabel->setGeometry(QRect(20,220,16,21));
-  m_rotLabel->setGeometry(QRect(20,130,91,21));
-  m_coordLabel->setGeometry(QRect(20,10,91,21));
-  for(int i=0; i<6; i++)
-    m_sliders[i]->setOrientation(Qt::Horizontal);
-  for(int i=0; i<3; i++){
-    m_sliders[i]->setGeometry(QRect(40, 40+i*30, 201, 19));
-    m_sliders[i+3]->setGeometry(QRect(40, 160+i*30, 201, 19));
-    m_posLines[i]->setValidator(m_validator);
-    m_posLines[i+3]->setValidator(m_validator);
-    m_posLines[i]->setGeometry(QRect(260,40+i*30,41,21));
-    m_posLines[i+3]->setGeometry(QRect(260,160+i*30,41,21));
-  }
-  if(m_sizeMB!=1){
-    setWindowTitle("Obstacles Position");
-    resize(315, 180);
-    m_alphaLabel->setVisible(false);
-    m_betaLabel->setVisible(false);
-    m_gammaLabel->setVisible(false);
-    m_rotLabel->setVisible(false);
-    for(int i=0; i<3; i++){
-      m_sliders[i+3]->setVisible(false);
-      m_posLines[i+3]->setVisible(false);
-    }
-    m_loadButton->setGeometry(QRect(170,140,91,31));
-  }
-  QDialog::show();
-}
+  QGridLayout* layout = new QGridLayout;
+  setLayout(layout);
 
-ObstaclePosDialog::~ObstaclePosDialog(){}
+  QPushButton* loadButton = new QPushButton("OK", this);
+  connect(loadButton, SIGNAL(clicked()), this, SLOT(accept()));
+  layout->addWidget(loadButton, 8, 0, 1, 3);
+
+  layout->addWidget(new QLabel("<b>Coordinates<b>", this), 0, 0, 1, 3);
+  layout->addWidget(new QLabel("x", this), 1, 0);
+  layout->addWidget(new QLabel("y", this), 2, 0);
+  layout->addWidget(new QLabel("z", this), 3, 0);
+  if(m_oneObst) {
+    layout->addWidget(new QLabel("<b>Rotation<b>", this), 4, 0, 1, 3);
+    layout->addWidget(new QLabel(QChar(0x03B1), this), 5, 0);
+    layout->addWidget(new QLabel(QChar(0x03B2), this), 6, 0);
+    layout->addWidget(new QLabel(QChar(0x03B3), this), 7, 0);
+  }
+  size_t num = m_oneObst ? 6 : 3;
+  for(size_t i = 0; i < num; i++) {
+    m_sliders[i] = new QSlider(Qt::Horizontal, this);
+    m_sliders[i]->setFixedWidth(200);
+    layout->addWidget(m_sliders[i], i < 3 ? i+1 : i+2, 1);
+
+    m_posLines[i] = new QLineEdit("0", this);
+    layout->addWidget(m_posLines[i], i < 3 ? i+1 : i+2, 2);
+  }
+
+}
 
 void
 ObstaclePosDialog::SetSlidersInit(){
-  for(int i=0; i<3; i++){
-    m_sliders[i]->setMinimum(m_boundingValues[i].first*10);
-    m_sliders[i]->setMaximum(m_boundingValues[i].second*10);
+  //set validators for posLines
+  vector<pair<double, double> > ranges = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
+  m_posLines[0]->setValidator(new QDoubleValidator(ranges[0].first, ranges[0].second, 2, this));
+  m_posLines[1]->setValidator(new QDoubleValidator(ranges[1].first, ranges[1].second, 2, this));
+  m_posLines[2]->setValidator(new QDoubleValidator(ranges[2].first, ranges[2].second, 2, this));
+  if(m_oneObst) {
+    m_posLines[3]->setValidator(new QDoubleValidator(-180, 180, 2, this));
+    m_posLines[4]->setValidator(new QDoubleValidator(-180, 180, 2, this));
+    m_posLines[5]->setValidator(new QDoubleValidator(-180, 180, 2, this));
   }
-  for(int i=3; i<6; i++){
-    m_sliders[i]->setMinimum(-180);
-    m_sliders[i]->setMaximum(180);
+
+  //set sliders min/max and initial values
+  m_valueEdited=false;
+  for(size_t i = 0; i < 3; ++i) {
+    m_sliders[i]->setMinimum(ranges[i].first*100);
+    m_sliders[i]->setMaximum(ranges[i].second*100);
   }
-  if(m_sizeMB==1){//if one obstacle
-    ostringstream transform;
-    transform<<m_obstacle->GetTransform();
-    string transformString=transform.str();
-    istringstream splitTransform(transformString);
-    string splittedTransform[6]={"","","","","",""};
-    int j=0;
-    do{
-      splitTransform>>splittedTransform[j];
-      j++;
-    }while(splitTransform);
-    string temp;
-    temp=splittedTransform[3];
-    splittedTransform[3]=splittedTransform[5];
-    splittedTransform[5]=temp;
-    for(int i=0; i<3; i++)
-      m_sliders[i]->setValue(atof(splittedTransform[i].c_str())*10);
-    for(int i=3; i<6; i++)
-      m_sliders[i]->setValue(atoi(splittedTransform[i].c_str()));
-  }
-  else{//more than one obstacle
-    for(int i=0; i<3; i++){
-      m_lastValues[i]=m_gravityCenter[i];
-      m_sliders[i]->setValue(m_gravityCenter[i]*10);
+  if(m_oneObst) {
+    for(size_t i = 3; i < 6; ++i) {
+      m_sliders[i]->setMinimum(-180*100);
+      m_sliders[i]->setMaximum(180*100);
     }
-    for(int i=3; i<6; i++)
-      m_sliders[i]->setValue(0);
+
+    const Transformation& t = (*m_multiBody[0]->Begin())->GetTransform();
+    const Vector3d& v = t.translation();
+    EulerAngle e;
+    convertFromMatrix(e, t.rotation().matrix());
+
+    for(size_t i = 0; i < 3; ++i) {
+      m_sliders[i]->setValue(v[i]*100);
+      m_posLines[i]->setText(QString::number(v[i]));
+    }
+    double a = radToDeg(e.alpha()), b = radToDeg(e.beta()), g = radToDeg(e.gamma());
+    m_sliders[3]->setValue(a*100);
+    m_posLines[3]->setText(QString::number(a));
+    m_sliders[4]->setValue(b*100);
+    m_posLines[4]->setText(QString::number(b));
+    m_sliders[5]->setValue(g*100);
+    m_posLines[5]->setText(QString::number(g));
+  }
+  else {
+    //compute center
+    typedef vector<MultiBodyModel*>::iterator MIT;
+    for(MIT mit = m_multiBody.begin(); mit != m_multiBody.end(); mit++)
+      m_center += (*(*mit)->Begin())->GetTransform().translation();
+    m_center /= m_multiBody.size();
+
+    //set slider values
+    for(size_t i=0; i<3; i++) {
+      m_sliders[i]->setValue(m_center[i]*100);
+      m_posLines[i]->setText(QString::number(m_center[i]));
+    }
   }
 }
 
 void
-ObstaclePosDialog::DisplaySlidersValues(int _i ){
-  if(!m_valueEdited){
-    for(int i=0;i<3; i++){
-      if(m_sliders[i]->value()==_i){
-        stringstream ss;
-        ss<<double(double(_i)/10);
-        m_posLines[i]->setText(ss.str().c_str());
-        RefreshPosition();
-      }
-    }
-    for(int i=3;i<6; i++){
-      if(m_sliders[i]->value()==_i){
-        stringstream ss;
-        ss<<_i;
-        m_posLines[i]->setText(ss.str().c_str());
-        RefreshPosition();
-      }
-    }
+ObstaclePosDialog::DisplaySlidersValues(int _i) {
+  if(!m_valueEdited) {
+    size_t num = m_oneObst ? 6 : 3;
+    for(size_t i = 0; i < num; ++i)
+      if(m_sliders[i]->value() == _i)
+        m_posLines[i]->setText(QString::number(_i / 100.0));
+    RefreshPosition();
   }
 }
 
 void
 ObstaclePosDialog::ChangeSlidersValues(){
   m_valueEdited=true;
-  for(int i=0; i<3; i++){
-    double val=atof(m_posLines[i]->text().toStdString().c_str());
-    if(val!=(m_sliders[i]->value()/10))
-      m_sliders[i]->setValue(val*10);
-      RefreshPosition();
+  size_t num = m_oneObst ? 6 : 3;
+  for(size_t i = 0; i < num; i++) {
+    double val = m_posLines[i]->text().toDouble();
+    if(val != m_sliders[i]->value() / 100.)
+      m_sliders[i]->setValue(val*100);
   }
-  for(int i=3; i<6; i++){
-    double val=atof(m_posLines[i]->text().toStdString().c_str());
-    if(val!=(m_sliders[i]->value()))
-      m_sliders[i]->setValue(val);
-      RefreshPosition();
-  }
+  RefreshPosition();
   m_valueEdited=false;
 }
 
 void
-ObstaclePosDialog::GetGravityCenter(){//Get the middle point for several obstacles
-  pair<double, double> gravityBounding[3];
-  for(int i=0; i<3; i++)
-    gravityBounding[i]=make_pair(m_boundingValues[i].second,m_boundingValues[i].first);
-  typedef vector<MultiBodyModel*>::iterator SI;
-  for(SI i = m_multiBody.begin(); i!= m_multiBody.end(); i++){
-    ostringstream transform;
-    transform<<(*i)->GetBodies().back()->GetTransform();
-    string transformString=transform.str();
-    istringstream splitTransform(transformString);
-    string splittedTransform[6]={"","","","","",""};
-    int j=0;
-    do{
-      splitTransform>>splittedTransform[j];
-      j++;
-    }while(splitTransform);
-    string temp;
-    temp=splittedTransform[3];
-    splittedTransform[3]=splittedTransform[5];
-    splittedTransform[5]=temp;
-    for(int u=0; u<3; u++){
-      if(atoi(splittedTransform[u].c_str())<gravityBounding[u].first)
-        gravityBounding[u].first=atof(splittedTransform[u].c_str());
-      if(atoi(splittedTransform[u].c_str())>gravityBounding[u].second)
-        gravityBounding[u].second=atof(splittedTransform[u].c_str());
-    }
+ObstaclePosDialog::RefreshPosition() {
+  if(m_oneObst) {
+    double x = m_posLines[0]->text().toDouble();
+    double y = m_posLines[1]->text().toDouble();
+    double z = m_posLines[2]->text().toDouble();
+    double a = degToRad(m_posLines[3]->text().toDouble());
+    double b = degToRad(m_posLines[4]->text().toDouble());
+    double g = degToRad(m_posLines[5]->text().toDouble());
+    Transformation t(Vector3d(x, y, z), Orientation(EulerAngle(a, b, g)));
+    (*m_multiBody[0]->Begin())->SetTransform(t);
   }
-  for(int i=0; i<3; i++)
-    m_gravityCenter[i]=(gravityBounding[i].first+gravityBounding[i].second)/2;
-}
+  else {
+    //compute difference from center
+    Vector3d diff;
+    for(size_t i = 0; i < 3; ++i) {
+      double val = m_posLines[i]->text().toDouble();
+      diff[i] = val - m_center[i];
+      m_center[i] = val;
+    }
 
-void
-ObstaclePosDialog::GetBoundingValues(){
-  string type = GetVizmo().GetEnv()->GetBoundaryType();
-  string coord = GetVizmo().GetEnv()->GetBoundary()->GetCoord();
-  stringstream streamCoord(coord);
-  string word;
-  string values[6]={"0","0","0","0","0","0"};
-  vector<string> tripleLimits;
-  int i=0;
-  if(type=="BOX"){
-    while(getline(streamCoord, word, ' ')){
-      if(word!="")
-        tripleLimits.push_back(word);
+    //update transforms
+    typedef vector<MultiBodyModel*>::iterator MIT;
+    for(MIT mit = m_multiBody.begin(); mit != m_multiBody.end(); ++mit) {
+      Transformation t = (*(*mit)->Begin())->GetTransform();
+      t.translation() += diff;
+      (*(*mit)->Begin())->SetTransform(t);
     }
-    for(vector<string>::iterator it=tripleLimits.begin(); it!=tripleLimits.end(); it++){
-      stringstream streamLimits(*it);
-      while(getline(streamLimits, word, ':')){
-        values[i]=word;
-        i++;
-      }
-    }
-    for(int j=0; j<3; j++)
-      m_boundingValues[j]=std::make_pair(atoi(values[2*j].c_str()),atoi(values[2*j+1].c_str()));
-  }
-  else{
-    while(getline(streamCoord, word, ' ')){
-      if(word!=""){
-        values[i]=word;
-        i++;
-      }
-    }
-    for(int j=0; j<3; j++){
-      m_boundingValues[j]=std::make_pair(-atoi(values[3].c_str()),atoi(values[3].c_str()));
-    }
-  }
-}
-
-string
-ObstaclePosDialog::GetCoord(){
-  string position[6]={"0","0","0","0","0","0"};
-  string stringCoord;
-  for(int i=0; i<6; i++){
-    if(m_posLines[i]->text().toStdString() !="")
-      position[i]=m_posLines[i]->text().toStdString();
-    stringCoord+=(position[i]+" ");
-  }
-  return stringCoord;
-}
-
-string
-ObstaclePosDialog::AddCoord(string _toAdd[6]){
-  string position[6]={"0","0","0","0","0","0"};
-  string stringCoord;
-  for(int i=0; i<6; i++){
-    double pro=(atof(m_posLines[i]->text().toStdString().c_str())
-                  +atof(_toAdd[i].c_str())-m_lastValues[i]);
-    stringstream ss;
-    ss<<pro;
-    position[i]=ss.str();
-    stringCoord+=(position[i]+" ");
-  }
-  return stringCoord;
-}
-
-void
-ObstaclePosDialog::RefreshPosition(){
-  if(m_sizeMB==1) {//if one obstacle
-    istringstream coord(GetCoord());
-    Transformation transform = ReadField<Transformation>(coord, WHERE, "failed reading new transformation");
-    m_obstacle->SetTransform(transform);
-  }
-  else {//more than one obstacle
-    typedef vector<MultiBodyModel*>::iterator SI;
-    for(SI i = m_multiBody.begin(); i!= m_multiBody.end(); i++){
-      ostringstream transform;
-      transform << (*i)->GetBodies().back()->GetTransform();
-      string transformString = transform.str();
-      istringstream splitTransform(transformString);
-      string splittedTransform[6]={"", "", "", "", "", ""};
-      int j=0;
-      do {
-        splitTransform >> splittedTransform[j];
-        j++;
-      } while(splitTransform);
-      swap(splittedTransform[3], splittedTransform[5]);
-      istringstream coord(AddCoord(splittedTransform));
-      Transformation finalTransform = ReadField<Transformation>(coord, WHERE, "failed reading new transformation");
-      (*i)->GetBodies().back()->SetTransform(finalTransform);
-    }
-    for(int i=0; i<6; i++)
-      m_lastValues[i]=atof(m_posLines[i]->text().toStdString().c_str());
   }
   m_mainWindow->GetGLScene()->updateGL();
 }
