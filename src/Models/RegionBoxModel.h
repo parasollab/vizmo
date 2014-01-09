@@ -5,6 +5,8 @@
 
 class RegionBoxModel : public RegionModel {
   public:
+    enum Highlight {NONE = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8, ALL = 16};
+
     RegionBoxModel();
 
     shared_ptr<Boundary> GetBoundary() const;
@@ -27,7 +29,14 @@ class RegionBoxModel : public RegionModel {
     bool PassiveMouseMotion(QMouseEvent* _e);
 
   private:
-    double m_minx, m_maxx, m_miny, m_maxy;
+    //vertex storage
+    vector<Vector3d> m_boxVertices;
+    vector<Vector3d> m_prevPos;
+
+    //event tracking storage
+    QPoint m_clicked;
+    bool m_lmb, m_firstClick;
+    int m_highlightedPart;
 };
 
 #endif
