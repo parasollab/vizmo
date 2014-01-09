@@ -12,6 +12,7 @@
 #include "Models/Vizmo.h"
 
 #include "Icons/AddSphereRegion.xpm"
+#include "Icons/AddBoxRegion.xpm"
 #include "Icons/DeleteRegion.xpm"
 #include "Icons/RandEnv.xpm"
 
@@ -246,7 +247,7 @@ EnvironmentOptions::CreateActions(){
   m_actions["editRobot"] = editRobot;
   QAction* addRegionSphere = new QAction(QPixmap(addsphereregion), tr("Add Spherical Region"), this);
   m_actions["addRegionSphere"] = addRegionSphere;
-  QAction* addRegionBox = new QAction(QPixmap(randEnvIcon), tr("Add Box Region"), this);
+  QAction* addRegionBox = new QAction(QPixmap(addboxregion), tr("Add Box Region"), this);
   m_actions["addRegionBox"] = addRegionBox;
   QAction* deleteRegion = new QAction(QPixmap(deleteregion), tr("Delete Region"), this);
   m_actions["deleteRegion"] = deleteRegion;
