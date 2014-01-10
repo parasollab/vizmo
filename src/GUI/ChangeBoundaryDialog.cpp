@@ -32,7 +32,7 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
   m_labelSphereZ = new QLabel("<b>Z<b>", this);
   m_labelSphereR = new QLabel("<b>Radius<b>", this);
   m_checkIsSurface = new QCheckBox("Surface Boundary", this);
-  QValidator* validator = new QDoubleValidator();
+  QValidator* validator = new QDoubleValidator(this);
 
   m_isBox = true;
   m_isSurface = false;

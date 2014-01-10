@@ -36,7 +36,7 @@ EditRobotDialog::EditRobotDialog(MainWindow* _mainWindow, QWidget* _parent) : QD
   m_baseRotationalCheck = new QCheckBox("rotational", this);
   m_baseTypeLabel = new QLabel("Type:", this);
   m_baseMovementLabel = new QLabel("Movement:", this);
-  m_validator = new QDoubleValidator();
+  m_validator = new QDoubleValidator(this);
   m_messageBox = new QMessageBox(this);
   m_jointSphericalCheck = new QCheckBox("Spherical", this);
   m_jointTypeLabel = new QLabel("type:", this);
