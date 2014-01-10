@@ -54,20 +54,24 @@ class NodeEditDialog : public QDialog {
   Q_OBJECT
 
   public:
+    typedef vector<NodeEditSlider*>::iterator SIT;
+
     NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene);
     ~NodeEditDialog();
     void SetUpSliders(vector<NodeEditSlider*>& _sliders);
     void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel);
     void InitSliderValues(const vector<double>& _vals);
-    void SetNodeLabel(string _nodeID, int _ccID);
+    virtual void exec(); //override
 
   private slots:
     void UpdateDOF(int _id); //Update value of DOF associated with m_sliders[_id]
+    virtual void reject(); //override
 
   private:
     void ValidityCheck();
 
     vector<NodeEditSlider*> m_sliders; //destruction??
+    vector<int> m_oldValues;
     GLWidget* m_glScene;
     CfgModel* m_currentNode;
 };

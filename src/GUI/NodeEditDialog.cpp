@@ -97,19 +97,20 @@ NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _sce
   QGroupBox* scrollAreaBox = new QGroupBox(this);
   scrollAreaBox->setLayout(scrollAreaBoxLayout);
 
-  QPushButton* doneButton = new QPushButton(this);
-  doneButton->setFixedWidth(80);
-  doneButton->setText("Done");
-  connect(doneButton, SIGNAL(pressed()), this, SLOT(close()));
+  QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
+  okayCancel->setOrientation(Qt::Horizontal);
+  okayCancel->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
+  connect(okayCancel, SIGNAL(accepted()), this, SLOT(accept()));
+  connect(okayCancel, SIGNAL(rejected()), this, SLOT(reject()));
 
   QVBoxLayout* overallLayout = new QVBoxLayout();
   overallLayout->addWidget(nodeLabel);
   overallLayout->addWidget(scrollArea);
-  overallLayout->addWidget(doneButton);
+  overallLayout->addWidget(okayCancel);
 
   SetUpSliders(m_sliders);
-  for(int i = 0; i < m_sliders.size(); i++)
-    scrollAreaBoxLayout->addWidget(m_sliders[i]);
+  for(SIT it = m_sliders.begin(); it != m_sliders.end(); it++)
+    scrollAreaBoxLayout->addWidget(*it);
 
   scrollArea->setWidget(scrollAreaBox);
   this->setLayout(overallLayout);
@@ -171,6 +172,26 @@ NodeEditDialog::InitSliderValues(const vector<double>& _vals){
     QString qValLabel = QString::fromStdString(oss.str());
     (m_sliders[i])->GetDOFValue()->setText(qValLabel);
   }
+}
+
+void
+NodeEditDialog::exec(){
+
+  //Save current DOF values in case user presses "cancel"
+  m_oldValues.clear();
+  for(SIT it = m_sliders.begin(); it != m_sliders.end(); it++)
+    m_oldValues.push_back((*it)->GetSlider()->value());
+
+  QDialog::exec();
+}
+
+void
+NodeEditDialog::reject(){
+
+  for(size_t i = 0; i < m_sliders.size(); i++)
+    (m_sliders[i])->GetSlider()->setSliderPosition(m_oldValues[i]);
+
+  QDialog::reject();
 }
 
 void
