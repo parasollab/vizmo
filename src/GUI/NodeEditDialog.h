@@ -33,10 +33,9 @@ class NodeEditSlider : public QWidget {
   Q_OBJECT
 
   public:
-    NodeEditSlider(QWidget* _parent, string _label);
+    NodeEditSlider(QWidget* _parent, string _label, string _details);
 
     QSlider* GetSlider() { return m_slider; }
-    QLabel* GetDOFName() { return m_dofName; }
     QLineEdit* GetDOFValue() { return m_dofValue; }
 
   private slots:
@@ -46,9 +45,7 @@ class NodeEditSlider : public QWidget {
   private:
     virtual bool eventFilter(QObject* _target, QEvent* _event);
 
-    QHBoxLayout* m_layout;
     QSlider* m_slider;
-    QLabel* m_dofName;
     QLineEdit* m_dofValue;
 };
 
@@ -59,8 +56,8 @@ class NodeEditDialog : public QDialog {
   public:
     NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene);
     ~NodeEditDialog();
-    void SetUpWidgets();
-    void SetCurrentNode(CfgModel* _node);
+    void SetUpSliders(vector<NodeEditSlider*>& _sliders);
+    void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel);
     void InitSliderValues(const vector<double>& _vals);
     void SetNodeLabel(string _nodeID, int _ccID);
 
@@ -70,15 +67,7 @@ class NodeEditDialog : public QDialog {
   private:
     void ValidityCheck();
 
-    QLabel* m_nodeLabel;
-    QPushButton* m_doneButton;
-    QGroupBox* m_scrollAreaBox;
-    QVBoxLayout* m_overallLayout;
-    QVBoxLayout* m_scrollAreaBoxLayout;
-    QScrollArea* m_scrollArea;
-    QSignalMapper* m_sliderMapper;
     vector<NodeEditSlider*> m_sliders; //destruction??
-
     GLWidget* m_glScene;
     CfgModel* m_currentNode;
 };

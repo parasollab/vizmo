@@ -26,28 +26,29 @@ NodeEditValidator::validate(QString& _s, int& _i) const {
     return QValidator::Invalid;
 }
 
-NodeEditSlider::NodeEditSlider(QWidget* _parent, string _label){
+NodeEditSlider::NodeEditSlider(QWidget* _parent, string _label, string _details){
 
-  m_layout = new QHBoxLayout();
-  this->setLayout(m_layout);
+  QHBoxLayout* layout = new QHBoxLayout();
+  this->setLayout(layout);
 
-  m_dofName = new QLabel(this);
-  m_dofName->setFixedWidth(50);
-  m_dofName->setStyleSheet("font: 9pt;");
+  QLabel* dofName = new QLabel(this);
+  dofName->setFixedWidth(50);
+  dofName->setStyleSheet("font: 9pt;");
   QString label = QString::fromStdString(_label);
-  m_dofName->setText(label);
-  m_layout->addWidget(m_dofName);
+  dofName->setText(label);
+  dofName->setToolTip(QString::fromStdString(_details));
+  layout->addWidget(dofName);
 
   m_slider = new QSlider(this);
   m_slider->setFixedWidth(180);
   m_slider->setOrientation(Qt::Horizontal);
   m_slider->installEventFilter(this);
-  m_layout->addWidget(m_slider);
+  layout->addWidget(m_slider);
 
   m_dofValue = new QLineEdit(this);
   m_dofValue->setFixedSize(65, 22);
   m_dofValue->setStyleSheet("font: 9pt;");
-  m_layout->addWidget(m_dofValue);
+  layout->addWidget(m_dofValue);
 
   connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(UpdateDOFLabel(int)));
 }
@@ -80,76 +81,81 @@ NodeEditSlider::eventFilter(QObject* _target, QEvent* _event){
 NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene)
 : QDialog(_parent) {
 
-  setWindowTitle("Modify Node");
-
   m_glScene = _scene;
 
-  m_nodeLabel = new QLabel(this);
-  m_overallLayout = new QVBoxLayout();
-  m_scrollAreaBoxLayout = new QVBoxLayout();
-  m_scrollArea = new QScrollArea(this);
-  m_scrollAreaBox = new QGroupBox(this);
-  m_doneButton = new QPushButton(this);
-  m_sliderMapper = new QSignalMapper(this);
-
+  setWindowTitle("Modify Node");
   setFixedWidth(390);
   setFixedHeight(300);
 
-  m_overallLayout->addWidget(m_nodeLabel);
-  m_overallLayout->addWidget(m_scrollArea);
-  m_scrollAreaBoxLayout->setSpacing(0);
-  m_scrollAreaBoxLayout->setContentsMargins(3, 7, 3, 7); //L, T, R, B
+  QLabel* nodeLabel = new QLabel(this);
+  QScrollArea* scrollArea = new QScrollArea(this);
 
-  connect(m_doneButton, SIGNAL(pressed()), this, SLOT(close()));
+  QVBoxLayout* scrollAreaBoxLayout = new QVBoxLayout();
+  scrollAreaBoxLayout->setSpacing(0);
+  scrollAreaBoxLayout->setContentsMargins(3, 7, 3, 7); //L, T, R, B
 
-  SetUpWidgets();
-  SetCurrentNode(_node);
+  QGroupBox* scrollAreaBox = new QGroupBox(this);
+  scrollAreaBox->setLayout(scrollAreaBoxLayout);
+
+  QPushButton* doneButton = new QPushButton(this);
+  doneButton->setFixedWidth(80);
+  doneButton->setText("Done");
+  connect(doneButton, SIGNAL(pressed()), this, SLOT(close()));
+
+  QVBoxLayout* overallLayout = new QVBoxLayout();
+  overallLayout->addWidget(nodeLabel);
+  overallLayout->addWidget(scrollArea);
+  overallLayout->addWidget(doneButton);
+
+  SetUpSliders(m_sliders);
+  for(int i = 0; i < m_sliders.size(); i++)
+    scrollAreaBoxLayout->addWidget(m_sliders[i]);
+
+  scrollArea->setWidget(scrollAreaBox);
+  this->setLayout(overallLayout);
+
+  SetCurrentNode(_node, nodeLabel);
 }
 
 NodeEditDialog::~NodeEditDialog(){}
 
 void
-NodeEditDialog::SetUpWidgets(){
+NodeEditDialog::SetUpSliders(vector<NodeEditSlider*>& _sliders){
 
   vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
+  QSignalMapper* sliderMapper = new QSignalMapper(this);
+  connect(sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
+
   for(size_t i = 0; i < dofInfo.size(); i++){
     ostringstream oss;
     oss << "DOF " << i;
-    NodeEditSlider* s = new NodeEditSlider(this, oss.str());
+
+    NodeEditSlider* s = new NodeEditSlider(this, oss.str(), dofInfo[i].m_name);
+    QSlider* actualSlider = s->GetSlider();
+    QLineEdit* dofValue = s->GetDOFValue();
 
     double minVal = dofInfo[i].m_minVal;
     double maxVal = dofInfo[i].m_maxVal;
-    s->GetSlider()->setRange(100000*minVal, 100000*maxVal);
-    s->GetDOFValue()->setValidator(new NodeEditValidator(minVal, maxVal, 5, s->GetDOFValue()));
-    //Longer/more informative DOF name pops up when moused over
-    s->GetDOFName()->setToolTip(QString::fromStdString(dofInfo[i].m_name));
+    actualSlider->setRange(100000*minVal, 100000*maxVal);
+    dofValue->setValidator(new NodeEditValidator(minVal, maxVal, 5, dofValue));
 
-    connect(s->GetSlider(), SIGNAL(valueChanged(int)), m_sliderMapper, SLOT(map()));
-    connect(s->GetDOFValue(), SIGNAL(textEdited(const QString&)), s, SLOT(MoveSlider(QString)));
+    connect(actualSlider, SIGNAL(valueChanged(int)), sliderMapper, SLOT(map()));
+    connect(dofValue, SIGNAL(textEdited(const QString&)), s, SLOT(MoveSlider(QString)));
 
-    m_sliderMapper->setMapping(s->GetSlider(), i);
-    m_sliders.push_back(s);
-    m_scrollAreaBoxLayout->addWidget(s);
+    sliderMapper->setMapping(actualSlider, i);
+    _sliders.push_back(s);
   }
-
-  connect(m_sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
-
-  m_scrollAreaBox->setLayout(m_scrollAreaBoxLayout);
-  m_scrollArea->setWidget(m_scrollAreaBox);
-  m_doneButton->setFixedWidth(80);
-  m_doneButton->setText("Done");
-  m_overallLayout->addWidget(m_doneButton);
-  this->setLayout(m_overallLayout);
 }
 
 void
-NodeEditDialog::SetCurrentNode(CfgModel* _node){
+NodeEditDialog::SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel){
+
   m_currentNode = _node;
 
   if(_node->GetCC() != NULL)
-    m_nodeLabel->setText(QString::fromStdString(_node->Name()));
+    _nodeLabel->setText(QString::fromStdString(_node->Name()));
   else
-    m_nodeLabel->setText("Intermediate configuration");
+    _nodeLabel->setText("Intermediate configuration");
 
   const vector<double>& currCfg = _node->GetData();
   InitSliderValues(currCfg);
