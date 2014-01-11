@@ -29,14 +29,14 @@ class RegionBoxModel : public RegionModel {
     bool PassiveMouseMotion(QMouseEvent* _e);
 
   private:
-    //vertex storage
-    vector<Vector3d> m_boxVertices;
-    vector<Vector3d> m_prevPos;
-
     //event tracking storage
     QPoint m_clicked;
     bool m_lmb, m_firstClick;
     int m_highlightedPart;
+
+    //vertex storage
+    vector<Vector3d> m_boxVertices;
+    vector<Vector3d> m_prevPos;
 };
 
 #endif
