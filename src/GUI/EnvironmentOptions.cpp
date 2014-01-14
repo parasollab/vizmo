@@ -175,6 +175,8 @@ EnvironmentOptions::ChangeBoundaryForm(){
     ChangeBoundaryDialog c(this);
     if(c.exec() != QDialog::Accepted)
       return;
+    sel.clear();
+    sel.push_back(GetVizmo().GetEnv()->GetBoundary());
     RefreshEnv();
   }
 }
@@ -241,7 +243,7 @@ EnvironmentOptions::CreateActions(){
   m_actions["moveObstacle"] = moveObstacle;
   QAction* duplicateObstacle = new QAction(tr("Duplicate Obstacle(s)"), this);
   m_actions["duplicateObstacle"] = duplicateObstacle;
-  QAction* changeBoundary = new QAction(tr("Change Boundary Form"), this);
+  QAction* changeBoundary = new QAction(tr("Change Boundary"), this);
   m_actions["changeBoundary"] = changeBoundary;
   QAction* editRobot = new QAction(tr("Edit the Robot "), this);
   m_actions["editRobot"] = editRobot;
@@ -332,7 +334,7 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["deleteObstacle"]->setWhatsThis(tr("Delete obstacle button"));
   m_actions["moveObstacle"]->setWhatsThis(tr("Move obstacle button"));
   m_actions["duplicateObstacle"]->setWhatsThis(tr("duplicate obstacle button"));
-  m_actions["changeBoundary"]->setWhatsThis(tr("Change the form of the boundary"));
+  m_actions["changeBoundary"]->setWhatsThis(tr("Change the boundary"));
   m_actions["editRobot"]->setWhatsThis(tr("Edit the robot"));
   m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
   m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));

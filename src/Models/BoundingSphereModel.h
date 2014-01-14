@@ -7,6 +7,9 @@ class BoundingSphereModel : public BoundaryModel {
   public:
     BoundingSphereModel();
 
+    const Point3d& GetCenter() const {return m_center;}
+    double GetRadius() const {return m_radius;}
+
     virtual vector<pair<double, double> > GetRanges();
     virtual bool Parse(istream& _is);
     virtual void BuildModels();
