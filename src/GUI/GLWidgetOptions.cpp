@@ -36,7 +36,6 @@ GLWidgetOptions::CreateActions(){
   QAction* resetCamera = new QAction(QIcon(QPixmap(resetCameraIcon)), tr("Reset Camera"), this);
   m_actions["resetCamera"] = resetCamera;
   QAction* setCameraPosition = new QAction(tr("Set camera position"), this);
-  m_cameraPosInput = new CameraPosDialog(this);
   m_actions["setCameraPosition"] = setCameraPosition;
   QAction* changeBGColor = new QAction(QIcon(QPixmap(bgColor)), tr("Change background color"), this);
   m_actions["changeBGColor"] = changeBGColor;
@@ -93,8 +92,9 @@ GLWidgetOptions::ResetCamera(){
 
 void
 GLWidgetOptions::SetCameraPosition(){
-  m_cameraPosInput->SetCamera(m_mainWindow->GetGLScene()->GetCurrentCamera());
-  m_cameraPosInput->show();
+
+  CameraPosDialog cpd(this, m_mainWindow->GetGLScene()->GetCurrentCamera());
+  cpd.exec();
 }
 
 void

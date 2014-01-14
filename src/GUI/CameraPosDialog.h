@@ -15,7 +15,8 @@ class CameraPosDialog : public QDialog {
   Q_OBJECT
 
   public:
-    CameraPosDialog(QWidget* _parent);
+    CameraPosDialog(QWidget* _parent, Camera* _camera);
+    ~CameraPosDialog();
     void SetCamera(Camera* _camera);
 
   private slots:

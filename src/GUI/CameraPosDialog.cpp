@@ -5,7 +5,7 @@ using namespace std;
 
 #include "Utilities/Camera.h"
 
-CameraPosDialog::CameraPosDialog(QWidget* _parent) : QDialog(_parent) {
+CameraPosDialog::CameraPosDialog(QWidget* _parent, Camera* _camera) : QDialog(_parent) {
   //initialize objects
   setWindowTitle("Camera Position");
 
@@ -54,7 +54,10 @@ CameraPosDialog::CameraPosDialog(QWidget* _parent) : QDialog(_parent) {
   QObject::connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
   QMetaObject::connectSlotsByName(this);
+  SetCamera(_camera);
 }
+
+CameraPosDialog::~CameraPosDialog(){}
 
 void
 CameraPosDialog::SetCamera(Camera* _camera){
