@@ -113,7 +113,7 @@ struct VizmoTraits {
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
     BasicPRM<VizmoTraits>,
-    RegionStrategy<Vizmo>
+    RegionStrategy<VizmoTraits>
     > MPStrategyMethodList;
 
 };

@@ -7,7 +7,6 @@ using namespace std;
 
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
-#include "MotionPlanning/VizmoTraits.h"
 
 class Box;
 class Model;
@@ -30,7 +29,6 @@ Vizmo& GetVizmo();
 class Vizmo {
 
   public:
-    typedef VizmoTraits MPTraits;
     Vizmo();
     ~Vizmo();
 
@@ -124,9 +122,6 @@ class Vizmo {
 
     typedef vector<Model*>::iterator MIT;
     vector<Model*> m_loadedModels, m_selectedModels;
-
-    //PMPL
-    VizmoProblem* m_problem;
 };
 
 #endif
