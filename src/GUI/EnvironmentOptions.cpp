@@ -229,11 +229,14 @@ EnvironmentOptions::DeleteRegion() {
 
 void
 EnvironmentOptions::MapEnvironment() {
-  //clear any map and path currently loaded
-  //delete GetVizmo().GetMap();
-  //delete GetVizmo().GetPath();
-  //call function somewhere to spark the UG strategy
-  GetVizmo().Solve("regions");
+  QThread* thread = new QThread;
+  MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
+  mpsw->moveToThread(thread);
+  thread->start();
+  connect(thread, SIGNAL(started()), mpsw, SLOT(Solve()));
+  connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
+  connect(mpsw, SIGNAL(destroyed()), thread, SLOT(quit()));
+  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 }
 
 void
@@ -356,5 +359,15 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));
   m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
   m_actions["ugmp"]->setWhatsThis(tr("Map an environment using region strategy"));
+}
+
+void
+MapEnvironmentWorker::Solve() {
+  //clear any map and path currently loaded
+  //delete GetVizmo().GetMap();
+  //delete GetVizmo().GetPath();
+  //call function somewhere to spark the UG strategy
+  GetVizmo().Solve("regions");
+  emit Finished();
 }
 

@@ -46,4 +46,14 @@ class EnvironmentOptions : public OptionsBase {
     QMenu* m_obstacleMenu;
 };
 
+class MapEnvironmentWorker : public QObject {
+  Q_OBJECT
+
+  public slots:
+    void Solve();
+
+  signals:
+    void Finished();
+};
+
 #endif
