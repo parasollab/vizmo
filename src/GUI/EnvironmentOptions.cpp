@@ -236,6 +236,9 @@ EnvironmentOptions::MapEnvironment() {
   connect(thread, SIGNAL(started()), mpsw, SLOT(Solve()));
   connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
   connect(mpsw, SIGNAL(destroyed()), thread, SLOT(quit()));
+  connect(thread, SIGNAL(finished()), m_mainWindow->GetGLScene(), SLOT(updateGL()));
+  connect(thread, SIGNAL(finished()), m_mainWindow->GetModelSelectionWidget(), SLOT(ResetLists()));
+  connect(thread, SIGNAL(finished()), (const QObject*)m_mainWindow->m_mainMenu, SLOT(CallReset()));
   connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 }
 

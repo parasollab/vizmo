@@ -7,7 +7,11 @@
 
 double EdgeModel::m_edgeThickness = 1;
 
-EdgeModel::EdgeModel(double _weight) : Model(""), DefaultWeight<CfgModel>("", _weight), m_id(-1) {
+EdgeModel::EdgeModel(string _lpLabel, double _weight, const vector<CfgModel>& _intermediates) :
+  Model(""), DefaultWeight<CfgModel>(_lpLabel, _weight, _intermediates), m_id(-1) {
+}
+
+EdgeModel::EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""), DefaultWeight<CfgModel>(_e), m_id(-1) {
 }
 
 void

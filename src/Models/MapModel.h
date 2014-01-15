@@ -1,8 +1,9 @@
 #ifndef MAPMODEL_H_
 #define MAPMODEL_H_
 
-#include <Graph.h>
-#include <GraphAlgo.h>
+#include "boost/shared_ptr.hpp"
+using boost::shared_ptr;
+#include "MPProblem/RoadmapGraph.h"
 
 #include "CCModel.h"
 #include "Utilities/IO.h"
@@ -25,6 +26,7 @@ class MapModel : public LoadableModel {
   public:
     typedef CCModel<CFG, WEIGHT> CCM;
     typedef typename vector<CCM*>::iterator CCIT;
+    typedef RoadmapGraph<CFG, WEIGHT> RGraph;
     typedef stapl::sequential::graph<stapl::DIRECTED, stapl::NONMULTIEDGES, CFG, WEIGHT> Graph;
     typedef typename Graph::vertex_descriptor VID;
     typedef typename Graph::vertex_iterator VI;
@@ -34,12 +36,13 @@ class MapModel : public LoadableModel {
     typedef stapl::sequential::edge_property_map<Graph, EdgeAccess> EdgeMap;
 
     MapModel();
+    MapModel(RGraph* _g);
     MapModel(const string& _filename);
     ~MapModel();
 
     //Access functions
     const string& GetEnvFileName() const {return m_envFileName;}
-    Graph* GetGraph(){return m_graph;}
+    RGraph* GetGraph(){return m_graph;}
 
     VID Cfg2VID(const CFG& _target);
 
@@ -67,21 +70,29 @@ class MapModel : public LoadableModel {
     string m_envFileName;
 
     vector<CCM*> m_ccModels;
-    Graph* m_graph;
+    RGraph* m_graph;
+
+    bool m_delGraph;
 };
 
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map") {
+MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map"), m_delGraph(true) {
   m_renderMode = INVISIBLE_MODE;
-  m_graph = new Graph();
+  m_graph = new RGraph();
+}
+
+template <class CFG, class WEIGHT>
+MapModel<CFG, WEIGHT>::MapModel(RGraph* _g) : LoadableModel("Map"), m_graph(_g), m_delGraph(false) {
+  m_renderMode = SOLID_MODE;
+  BuildModels();
 }
 
 //constructor only to grab header environment name
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map") {
+MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map"), m_delGraph(true) {
   SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
-  m_graph = new Graph();
+  m_graph = new RGraph();
 
   ParseFile();
   BuildModels();
@@ -91,7 +102,8 @@ template <class CFG, class WEIGHT>
 MapModel<CFG, WEIGHT>::~MapModel() {
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
-  delete m_graph;
+  if(m_delGraph)
+    delete m_graph;
 }
 
 ///////////Load functions//////////

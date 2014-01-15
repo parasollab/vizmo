@@ -374,4 +374,12 @@ void
 Vizmo::Solve(const string& _strategy) {
   VizmoProblem::MPStrategyPointer mps = GetVizmoProblem()->GetMPStrategy(_strategy);
   mps->operator()();
+  if(IsRoadMapLoaded()) {
+    vector<Model*>::iterator mit = find(m_loadedModels.begin(), m_loadedModels.end(), m_mapModel);
+    m_loadedModels.erase(mit);
+    delete m_mapModel;
+  }
+
+  m_mapModel = new MapModel<CfgModel, EdgeModel>(GetVizmoProblem()->GetRoadmap()->GetGraph());
+  m_loadedModels.push_back(m_mapModel);
 }

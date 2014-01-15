@@ -49,9 +49,9 @@
 #include "MPProblem/MPProblem.h"
 
 struct VizmoTraits {
-  typedef Cfg CfgType;
-  typedef DefaultWeight<CfgType> WeightType;
-  typedef Cfg& CfgRef;
+  typedef CfgModel CfgType;
+  typedef EdgeModel WeightType;
+  typedef CfgModel& CfgRef;
 
   typedef MPProblem<VizmoTraits> MPProblemType;
 

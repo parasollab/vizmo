@@ -137,7 +137,7 @@ DebugModel::BuildForward() {
       vector<VID> nIdCC1; //node id in this cc
       vector<VID> nIdCC2; //node id in this cc
       vector<VID>* smallerCC;
-      EdgeModel edge(1);
+      EdgeModel edge("", 1);
 
       VID svId = m_mapModel->Cfg2VID(ae->m_source);
       VID tvId = m_mapModel->Cfg2VID(ae->m_target);
@@ -203,7 +203,7 @@ DebugModel::BuildForward() {
     else if(ins->m_name == "AddTempEdge"){
       //add temporary edge
       AddTempEdge* ate = static_cast<AddTempEdge*>(ins);
-      EdgeModel e(1);
+      EdgeModel e("", 1);
       e.Set(1, &ate->m_source, &ate->m_target);
       m_tempEdges.push_back(e);
     }
@@ -298,7 +298,7 @@ DebugModel::BuildForward() {
       if(path.size()>0){
         for(ITVID pit = path.begin()+1; pit != path.end(); pit++){
           target = m_mapModel->GetGraph()->find_vertex(*pit)->property();
-          EdgeModel e(1);
+          EdgeModel e("", 1);
           e.Set(1, &source, &target);
           m_query.push_back(e);
           source = target;
@@ -448,7 +448,7 @@ DebugModel::BuildBackward(){
     else if(ins->m_name == "RemoveEdge"){
       //undo removal of edge
       RemoveEdge* re = static_cast<RemoveEdge*>(ins);
-      EdgeModel edge(1);
+      EdgeModel edge("", 1);
       VID svId = m_mapModel->Cfg2VID(re->m_source);
       VID tvId = m_mapModel->Cfg2VID(re->m_target);
 
