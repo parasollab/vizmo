@@ -3,13 +3,21 @@
 
 #include "BoundingBoxModel.h"
 
-BoundingBoxModel::BoundingBoxModel() : BoundaryModel("Bounding Box") {
-  m_bbx.reserve(3);
-  for(int i = 0; i<3; ++i){
-    m_bbx[i].first = -numeric_limits<double>::max();
-    m_bbx[i].second = numeric_limits<double>::max();
+BoundingBoxModel::BoundingBoxModel() :
+  BoundaryModel("Bounding Box"),
+  m_bbx(3, make_pair(-numeric_limits<double>::max(), numeric_limits<double>::max())) {
   }
-}
+
+BoundingBoxModel::BoundingBoxModel(const pair<double, double>& _x,
+    const pair<double, double>& _y,
+    const pair<double, double>& _z
+    ) :
+  BoundaryModel("Bounding Box") {
+    m_bbx.push_back(_x);
+    m_bbx.push_back(_y);
+    m_bbx.push_back(_z);
+    BuildModels();
+  }
 
 bool
 BoundingBoxModel::Parse(istream& _is) {
@@ -31,7 +39,7 @@ BoundingBoxModel::Parse(istream& _is) {
         cerr << "Error::Reading bounding box range " << i << "." << endl;
         return false;
       }
-      m_bbx.push_back(make_pair(minV, maxV));
+      m_bbx[i] = make_pair(minV, maxV);
     }
     else if(i < 2) { //error. only 1 token provided.
       cerr << "Error::Reading bounding box ranges. Only one provided." << endl;

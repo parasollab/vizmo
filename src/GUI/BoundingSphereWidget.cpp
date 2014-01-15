@@ -41,28 +41,22 @@ BoundingSphereWidget::BoundingSphereWidget(QWidget* _parent) : QWidget(_parent) 
 void
 BoundingSphereWidget::SetBoundary() {
   EnvModel* env = GetVizmo().GetEnv();
-  string line="";
-  string type="";
-  string sphereCoord[4]={"0","0","0","0"};
-  if(m_lineX->text().toStdString() !="")
-    sphereCoord[0]=m_lineX->text().toStdString();
-  if(m_lineY->text().toStdString() !="")
-    sphereCoord[1]=m_lineY->text().toStdString();
-  if(m_lineZ->text().toStdString() !="")
-    sphereCoord[2]=m_lineZ->text().toStdString();
-  if(m_lineR->text().toStdString() !="")
-    sphereCoord[3]=m_lineR->text().toStdString();
-  for(int i=0;i<4;i++)
-    line += (sphereCoord[i]+" ");
-  type="SPHERE";
-  istringstream coord(line);
-  env->ChangeBoundary(type, coord);
+  delete env->GetBoundary();
+
+  Point3d center;
+  double radius = 0;
+  center[0] = m_lineX->text().toDouble();
+  center[1] = m_lineY->text().toDouble();
+  center[2] = m_lineZ->text().toDouble();
+  radius = m_lineR->text().toDouble();
+
+  env->SetBoundary(new BoundingSphereModel(center, radius));
 }
 
 void
 BoundingSphereWidget::ShowCurrentValues() {
-  string type = GetVizmo().GetEnv()->GetBoundaryType();
-  if(type == "SPHERE") {
+  const string& name = GetVizmo().GetEnv()->GetBoundary()->Name();
+  if(name == "Bounding Sphere") {
     BoundingSphereModel* bs = (BoundingSphereModel*)GetVizmo().GetEnv()->GetBoundary();
     const Point3d& c = bs->GetCenter();
     double r = bs->GetRadius();

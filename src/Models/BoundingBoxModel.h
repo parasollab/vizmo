@@ -8,6 +8,12 @@ using namespace std;
 class BoundingBoxModel : public BoundaryModel {
   public:
     BoundingBoxModel();
+    BoundingBoxModel(const pair<double, double>& _x,
+        const pair<double, double>& _y,
+        const pair<double, double>& _z = pair<double, double>(
+          -numeric_limits<double>::max(),
+          numeric_limits<double>::max())
+        );
 
     virtual vector<pair<double, double> > GetRanges() { return m_bbx; }
     virtual bool Parse(istream& _is);

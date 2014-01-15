@@ -6,6 +6,7 @@
 class BoundingSphereModel : public BoundaryModel {
   public:
     BoundingSphereModel();
+    BoundingSphereModel(const Point3d& _c, double _r);
 
     const Point3d& GetCenter() const {return m_center;}
     double GetRadius() const {return m_radius;}

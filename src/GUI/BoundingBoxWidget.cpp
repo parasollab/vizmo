@@ -57,33 +57,26 @@ BoundingBoxWidget::ChangeBoxTo2D(){
 void
 BoundingBoxWidget::SetBoundary() {
   EnvModel* env = GetVizmo().GetEnv();
-  string line="";
-  string type="";
-  string boxCoord[6]={"0","0","0","0","0","0"};
-  if(m_lineXMin->text().toStdString() !="")
-    boxCoord[0]=m_lineXMin->text().toStdString();
-  if(m_lineXMax->text().toStdString() !="")
-    boxCoord[1]=m_lineXMax->text().toStdString();
-  if(m_lineYMin->text().toStdString() !="")
-    boxCoord[2]=m_lineYMin->text().toStdString();
-  if(m_lineYMax->text().toStdString() !="")
-    boxCoord[3]=m_lineYMax->text().toStdString();
-  if(m_lineZMin->text().toStdString() !="")
-    boxCoord[4]=m_lineZMin->text().toStdString();
-  if(m_lineZMax->text().toStdString() !="")
-    boxCoord[5]=m_lineZMax->text().toStdString();
-  int size = 2+1*(!m_is2D);
-  for(int i=0;i<size;i++)
-    line += (boxCoord[2*i]+":"+boxCoord[2*i+1]+" ");
-  type="BOX";
-  istringstream coord(line);
-  env->ChangeBoundary(type, coord);
+  delete env->GetBoundary();
+
+  double maxd = numeric_limits<double>::max();
+  vector<pair<double, double> > ranges(3, make_pair(-maxd, maxd));
+  ranges[0].first = m_lineXMin->text().toDouble();
+  ranges[0].second = m_lineXMax->text().toDouble();
+  ranges[1].first = m_lineYMin->text().toDouble();
+  ranges[1].second = m_lineYMax->text().toDouble();
+  if(!m_is2D) {
+      ranges[2].first = m_lineZMin->text().toDouble();
+      ranges[2].second = m_lineZMax->text().toDouble();
+  }
+
+  env->SetBoundary(new BoundingBoxModel(ranges[0], ranges[1], ranges[2]));
 }
 
 void
 BoundingBoxWidget::ShowCurrentValues() {
-  string type = GetVizmo().GetEnv()->GetBoundaryType();
-  if(type=="BOX") {
+  const string& name = GetVizmo().GetEnv()->GetBoundary()->Name();
+  if(name == "Bounding Box") {
     BoundingBoxModel* bbx = (BoundingBoxModel*)GetVizmo().GetEnv()->GetBoundary();
     vector<pair<double, double> > ranges = bbx->GetRanges();
 

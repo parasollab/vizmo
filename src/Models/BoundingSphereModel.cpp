@@ -3,8 +3,14 @@
 #include <limits>
 #include <sstream>
 
-BoundingSphereModel::BoundingSphereModel() : BoundaryModel("Bounding Sphere"), m_radius(numeric_limits<double>::max()) {
-}
+BoundingSphereModel::BoundingSphereModel() :
+  BoundaryModel("Bounding Sphere"), m_radius(numeric_limits<double>::max()) {
+  }
+
+BoundingSphereModel::BoundingSphereModel(const Point3d& _c, double _r) :
+  BoundaryModel("Bounding Sphere"), m_center(_c), m_radius(_r) {
+    BuildModels();
+  }
 
 vector<pair<double, double> >
 BoundingSphereModel::GetRanges(){

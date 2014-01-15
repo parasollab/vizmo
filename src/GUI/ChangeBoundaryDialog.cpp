@@ -38,8 +38,8 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
   layout->addWidget(loadButton, 2, 0);
   layout->addWidget(cancelButton, 2, 1);
 
-  string type = GetVizmo().GetEnv()->GetBoundaryType();
-  if(type=="BOX")
+  const string& name = GetVizmo().GetEnv()->GetBoundary()->Name();
+  if(name == "Bounding Box")
     ChangeToBoxDialog();
   else
     ChangeToSphereDialog();

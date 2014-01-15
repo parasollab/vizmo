@@ -83,36 +83,15 @@ void
 EnvModel::ParseBoundary(ifstream& _ifs) {
   string type = ReadFieldString(_ifs, WHERE, "Failed reading Boundary type.");
 
-  if(type == "BOX"){
+  if(type == "BOX")
     m_boundary = new BoundingBoxModel();
-    m_boundaryType="BOX";
-  }
-  else if(type == "SPHERE"){
+  else if(type == "SPHERE")
     m_boundary = new BoundingSphereModel();
-    m_boundaryType="SPHERE";
-  }
   else
     throw ParseException(WHERE,
       "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
 
   m_boundary->Parse(_ifs);
-}
-
-void
-EnvModel::ChangeBoundary(string _type, istream& _coord){
-  if(_type == "SPHERE"){
-    m_boundary = new BoundingSphereModel();
-    m_boundaryType="SPHERE";
-  }
-  else if(_type == "BOX"){
-    m_boundary = new BoundingBoxModel();
-    m_boundaryType="BOX";
-  }
-  m_boundary->Parse(_coord);
-
-  if(!m_boundary)
-    throw BuildException(WHERE, "Boundary is NULL");
-  m_boundary->BuildModels();
 }
 
 void
