@@ -228,6 +228,15 @@ EnvironmentOptions::DeleteRegion() {
 }
 
 void
+EnvironmentOptions::MapEnvironment() {
+  //clear any map and path currently loaded
+  //delete GetVizmo().GetMap();
+  //delete GetVizmo().GetPath();
+  //call function somewhere to spark the UG strategy
+  GetVizmo().Solve("regions");
+}
+
+void
 EnvironmentOptions::CreateActions(){
 
   //1. Create actions and add them to the map
@@ -253,6 +262,8 @@ EnvironmentOptions::CreateActions(){
   m_actions["addRegionBox"] = addRegionBox;
   QAction* deleteRegion = new QAction(QPixmap(deleteregion), tr("Delete Region"), this);
   m_actions["deleteRegion"] = deleteRegion;
+  QAction* ugmp = new QAction(QPixmap(randEnvIcon), tr("Map Environment"), this);
+  m_actions["ugmp"] = ugmp;
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -267,6 +278,7 @@ EnvironmentOptions::CreateActions(){
   m_actions["addRegionSphere"]->setEnabled(false);
   m_actions["addRegionBox"]->setEnabled(false);
   m_actions["deleteRegion"]->setEnabled(false);
+  m_actions["ugmp"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()), this, SLOT(RefreshEnv()));
@@ -280,6 +292,7 @@ EnvironmentOptions::CreateActions(){
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
   connect(m_actions["addRegionBox"], SIGNAL(triggered()), this, SLOT(AddRegionBox()));
   connect(m_actions["deleteRegion"], SIGNAL(triggered()), this, SLOT(DeleteRegion()));
+  connect(m_actions["ugmp"], SIGNAL(triggered()), this, SLOT(MapEnvironment()));
 }
 
 void
@@ -298,6 +311,7 @@ EnvironmentOptions::SetUpCustomSubmenu(){
   m_submenu->addAction(m_actions["addRegionSphere"]);
   m_submenu->addAction(m_actions["addRegionBox"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
+  m_submenu->addAction(m_actions["ugmp"]);
   m_obstacleMenu->setEnabled(false);
 }
 
@@ -308,6 +322,7 @@ EnvironmentOptions::SetUpToolbar(){
   m_toolbar->addAction(m_actions["addRegionSphere"]);
   m_toolbar->addAction(m_actions["addRegionBox"]);
   m_toolbar->addAction(m_actions["deleteRegion"]);
+  m_toolbar->addAction(m_actions["ugmp"]);
 }
 
 void
@@ -323,6 +338,7 @@ EnvironmentOptions::Reset(){
   m_actions["addRegionSphere"]->setEnabled(true);
   m_actions["addRegionBox"]->setEnabled(true);
   m_actions["deleteRegion"]->setEnabled(true);
+  m_actions["ugmp"]->setEnabled(true);
   m_obstacleMenu->setEnabled(true);
 }
 
@@ -339,5 +355,6 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
   m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));
   m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
+  m_actions["ugmp"]->setWhatsThis(tr("Map an environment using region strategy"));
 }
 

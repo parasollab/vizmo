@@ -92,10 +92,10 @@ DebugModel::ParseFile() {
     }
     else if(name=="Comment")
       m_instructions.push_back(new Comment(iss.str().substr(8, iss.str().length())));
-    else if(name=="Query"){
+    else if(name=="QueryInstruction"){
       CfgModel s, t;
       iss >> s >> t;
-      m_instructions.push_back(new Query(s, t));
+      m_instructions.push_back(new QueryInstruction(s, t));
     }
   }
 }
@@ -277,9 +277,9 @@ DebugModel::BuildForward() {
       Comment* c = static_cast<Comment*>(ins);
       m_comments.push_back(c->m_comment);
     }
-    else if(ins->m_name == "Query"){
+    else if(ins->m_name == "QueryInstruction"){
       //perform query
-      Query* q = static_cast<Query*>(ins);
+      QueryInstruction* q = static_cast<QueryInstruction*>(ins);
       vector<VID> path;
 
       VID svId = m_mapModel->Cfg2VID(q->m_source);
@@ -461,9 +461,9 @@ DebugModel::BuildBackward(){
       //undo addition of comment
       m_comments.pop_back();
     }
-    else if(ins->m_name == "Query"){
+    else if(ins->m_name == "QueryInstruction"){
       //undo addition of query and restore the previous one if any
-      Query* q = static_cast<Query*>(ins);
+      QueryInstruction* q = static_cast<QueryInstruction*>(ins);
       m_query = q->m_query;
       q->m_query.clear();
     }

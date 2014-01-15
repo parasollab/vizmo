@@ -110,9 +110,54 @@ Vizmo::InitPMPL() {
   VizmoProblem::ValidityCheckerPointer vc(new CollisionDetectionValidity<VizmoTraits>(cd));
   m_problem->AddValidityChecker(vc, "rapid");
 
+  //add uniform sampler
+  VizmoProblem::SamplerPointer sp(new UniformRandomSampler<VizmoTraits>("rapid"));
+  m_problem->AddSampler(sp, "uniform");
+
+  //add distance metric
+  VizmoProblem::DistanceMetricPointer dm(new EuclideanDistance<VizmoTraits>());
+  m_problem->AddDistanceMetric(dm, "euclidean");
+
   //add straight line local planner
   VizmoProblem::LocalPlannerPointer lp(new StraightLine<VizmoTraits>("rapid", true));
   m_problem->AddLocalPlanner(lp, "sl");
+
+  //add neighborhood finder
+  VizmoProblem::NeighborhoodFinderPointer nfp(new BruteForceNF<VizmoTraits>("euclidean", false, 5));
+  m_problem->AddNeighborhoodFinder(nfp, "BFNF");
+
+  //add connector
+  VizmoProblem::ConnectorPointer cp(new NeighborhoodConnector<VizmoTraits>("BFNF", "sl"));
+  m_problem->AddConnector(cp, "Neighborhood Connector");
+
+  //add num nodes metric for evaluator
+  VizmoProblem::MetricPointer mp(new NumNodesMetric<VizmoTraits>());
+  m_problem->AddMetric(mp, "NumNodes");
+
+  //add evaluator: if a query file is loaded, use Query evaluator. Otherwise,
+  //use nodes eval
+  VizmoProblem::MapEvaluatorPointer pme(new PrintMapEvaluation<VizmoTraits>("debugmap"));
+  m_problem->AddMapEvaluator(pme, "PrintMap");
+  if(m_queryModel) {
+    VizmoProblem::MapEvaluatorPointer mep(new Query<VizmoTraits>(m_queryFilename, vector<string>(1, "Neighborhood Connector")));
+    mep->SetDebug(true);
+    m_problem->AddMapEvaluator(mep, "Query");
+
+    //setup debugging evaluator
+    vector<string> evals;
+    evals.push_back("PrintMap");
+    evals.push_back("Query");
+    VizmoProblem::MapEvaluatorPointer ce(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::AND, evals));
+    m_problem->AddMapEvaluator(ce, "DebugQuery");
+  }
+  else {
+    VizmoProblem::MapEvaluatorPointer mep(new ConditionalEvaluator<VizmoTraits>(ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 100));
+    m_problem->AddMapEvaluator(mep, "NodesEval");
+  }
+
+  //add region strategy
+  VizmoProblem::MPStrategyPointer rs(new RegionStrategy<Vizmo>(this));
+  m_problem->AddMPStrategy(rs, "regions");
 
   //set the MPProblem pointer and build CD structures
   m_problem->SetMPProblem();
@@ -317,3 +362,8 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
   delete [] selName;
 }
 
+void
+Vizmo::Solve(const string& _strategy) {
+  VizmoProblem::MPStrategyPointer mps = m_problem->GetMPStrategy(_strategy);
+  mps->operator()();
+}

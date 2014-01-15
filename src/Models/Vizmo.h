@@ -7,7 +7,7 @@ using namespace std;
 
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
-#include "Models/VizmoTraits.h"
+#include "MotionPlanning/VizmoTraits.h"
 
 class Box;
 class Model;
@@ -30,6 +30,7 @@ Vizmo& GetVizmo();
 class Vizmo {
 
   public:
+    typedef VizmoTraits MPTraits;
     Vizmo();
     ~Vizmo();
 
@@ -85,6 +86,9 @@ class Vizmo {
 
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
+
+    // Motion planning related functions
+    void Solve(const string& _strategy);
 
   private:
 

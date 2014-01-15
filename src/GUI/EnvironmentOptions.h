@@ -34,6 +34,8 @@ class EnvironmentOptions : public OptionsBase {
     void AddRegionSphere();
     void DeleteRegion();
 
+    void MapEnvironment();
+
   private:
     void CreateActions();
     void SetUpCustomSubmenu();

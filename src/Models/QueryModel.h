@@ -1,5 +1,5 @@
-#ifndef QUERY_H_
-#define QUERY_H_
+#ifndef QUERYMODEL_H_
+#define QUERYMODEL_H_
 
 #include "Model.h"
 #include "CfgModel.h"

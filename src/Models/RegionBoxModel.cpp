@@ -13,7 +13,9 @@ RegionBoxModel::RegionBoxModel() : RegionModel("Box Region"), m_lmb(false),
 
 shared_ptr<Boundary>
 RegionBoxModel::GetBoundary() const {
-  return shared_ptr<Boundary>(new BoundingBox());
+  return shared_ptr<Boundary>(new BoundingBox(
+        make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
+        make_pair(m_boxVertices[1][1], m_boxVertices[0][1])));
 }
 
 //initialization of gl models

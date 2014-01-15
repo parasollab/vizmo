@@ -37,10 +37,14 @@
 #include "Metrics/NumNodesMetric.h"
 
 //map evaluator includes
+#include "MapEvaluators/ComposeEvaluator.h"
+#include "MapEvaluators/ConditionalEvaluator.h"
 #include "MapEvaluators/PrintMapEvaluation.h"
+#include "MapEvaluators/Query.h"
 
 //mp strategies includes
 #include "MPStrategies/BasicPRM.h"
+#include "RegionStrategy.h"
 
 #include "MPProblem/MPProblem.h"
 
@@ -100,13 +104,18 @@ struct VizmoTraits {
 
   //types of map evaluators available in our world
   typedef boost::mpl::list<
-    PrintMapEvaluation<VizmoTraits>
+    ComposeEvaluator<VizmoTraits>,
+    ConditionalEvaluator<VizmoTraits>,
+    PrintMapEvaluation<VizmoTraits>,
+    Query<VizmoTraits>
     > MapEvaluatorMethodList;
 
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
-    BasicPRM<VizmoTraits>
+    BasicPRM<VizmoTraits>,
+    RegionStrategy<Vizmo>
     > MPStrategyMethodList;
+
 };
 
 typedef MPProblem<VizmoTraits> VizmoProblem;

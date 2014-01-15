@@ -12,7 +12,7 @@ RegionSphereModel::RegionSphereModel() : RegionModel("Sphere Region"),
 
 shared_ptr<Boundary>
 RegionSphereModel::GetBoundary() const {
-  return shared_ptr<Boundary>(new BoundingSphere());
+  return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
 }
 
 //initialization of gl models
