@@ -2,6 +2,7 @@
 #define REGIONSTRATEGY_H_
 
 #include "MPStrategies/MPStrategyMethod.h"
+
 #include "Models/RegionModel.h"
 #include "Models/Vizmo.h"
 
@@ -68,6 +69,7 @@ RegionStrategy<MPTraits>::Run() {
   else
     evalLabel.push_back("NodesEval");
 
+  size_t iter = 0;
   while(!this->EvaluateMap(evalLabel)) {
     //pick a region
     int regionIndex = SelectRegion();
@@ -82,6 +84,11 @@ RegionStrategy<MPTraits>::Run() {
 
     //connect roadmap
     Connect(vids);
+
+    if(++iter % 20 == 0) {
+      //recreate map model
+      GetVizmo().GetMap()->RefreshMap();
+    }
   }
 }
 
@@ -90,8 +97,10 @@ void
 RegionStrategy<MPTraits>::Finalize() {
   cout << "Finalizing Region Strategy." << endl;
 
-  ofstream ofs("test.map");
-  this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
+  GetVizmo().GetMap()->RefreshMap();
+
+  //ofstream ofs("test.map");
+  //this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
 }
 
 template<class MPTraits>
@@ -112,22 +121,26 @@ RegionStrategy<MPTraits>::SampleRegion(int _index, vector<CfgType>& _samples) {
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
+  GetVizmo().GetMap()->AcquireLock();
   _vids.clear();
   for(typename vector<CfgType>::iterator cit = _samples.begin();
       cit != _samples.end(); cit++) {
     _vids.push_back(this->GetMPProblem()->GetRoadmap()->GetGraph()->AddVertex(*cit));
   }
+  GetVizmo().GetMap()->ReleaseLock();
 }
 
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::Connect(vector<VID>& _vids) {
+  GetVizmo().GetMap()->AcquireLock();
   stapl::sequential::
       vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
       this->GetMPProblem()->GetConnector("Neighborhood Connector");
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
+  GetVizmo().GetMap()->ReleaseLock();
 }
 
 #endif

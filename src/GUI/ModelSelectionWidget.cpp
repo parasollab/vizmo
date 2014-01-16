@@ -43,18 +43,27 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
     item = new ListViewItem(_p);
 
   item->m_model = _model;
+  if(_model->Name() == "Map")
+    ((MapModel<CfgModel, EdgeModel>*)_model)->AcquireLock();
   QString qstr = QString::fromStdString(_model->Name());
   item->setText(0, qstr); //Set the text to column 0, which is the only column in this tree widget
   m_items.push_back(item);
 
   list<Model*> objlist;
   _model->GetChildren(objlist);
-  if(objlist.empty())
+  if(objlist.empty()) {
+    if(_model->Name() == "Map")
+      ((MapModel<CfgModel, EdgeModel>*)_model)->ReleaseLock();
     return item;
+  }
 
   typedef list<Model*>::iterator OIT;
   for(OIT i = objlist.begin(); i != objlist.end(); i++)
     CreateItem(item, *i);
+
+  if(_model->Name() == "Map")
+    ((MapModel<CfgModel, EdgeModel>*)_model)->ReleaseLock();
+
   return item;
 }
 
@@ -104,8 +113,9 @@ ModelSelectionWidget::Select(){
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
       if(sel[s] == (*i)->m_model){
         (*i)->setSelected(true);
-        if(m_glWidget->GetDoubleClickStatus() == true){
-          (*i)->parent()->setSelected(true);
+        if(m_glWidget->GetDoubleClickStatus() == true) {
+          if((*i)->parent())
+            (*i)->parent()->setSelected(true);
           (*i)->setSelected(false);
           m_glWidget->SetDoubleClickStatus(false);
         }

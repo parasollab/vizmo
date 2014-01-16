@@ -86,6 +86,7 @@ class Vizmo {
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
     // Motion planning related functions
+    void SetPMPLMap();
     void Solve(const string& _strategy);
 
   private:

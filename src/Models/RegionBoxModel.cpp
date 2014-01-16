@@ -37,7 +37,7 @@ RegionBoxModel::Draw() {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glColor4f(.85, .85, .85, .5);
-
+  glTranslatef(0, 0, -0.01);
   //create model
   glBegin(GL_QUADS);
   for(int i = 0; i < 4; i++)

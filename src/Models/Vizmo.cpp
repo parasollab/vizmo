@@ -158,7 +158,7 @@ Vizmo::InitPMPL() {
     problem->AddMapEvaluator(ce, "DebugQuery");
   }
   else {
-    VizmoProblem::MapEvaluatorPointer mep(new ConditionalEvaluator<VizmoTraits>(ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 100));
+    VizmoProblem::MapEvaluatorPointer mep(new ConditionalEvaluator<VizmoTraits>(ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 1000));
     problem->AddMapEvaluator(mep, "NodesEval");
   }
 
@@ -371,15 +371,19 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
 }
 
 void
-Vizmo::Solve(const string& _strategy) {
-  VizmoProblem::MPStrategyPointer mps = GetVizmoProblem()->GetMPStrategy(_strategy);
-  mps->operator()();
-  if(IsRoadMapLoaded()) {
+Vizmo::SetPMPLMap() {
+  if(GetVizmo().IsRoadMapLoaded()) {
     vector<Model*>::iterator mit = find(m_loadedModels.begin(), m_loadedModels.end(), m_mapModel);
     m_loadedModels.erase(mit);
     delete m_mapModel;
   }
-
   m_mapModel = new MapModel<CfgModel, EdgeModel>(GetVizmoProblem()->GetRoadmap()->GetGraph());
   m_loadedModels.push_back(m_mapModel);
+}
+
+void
+Vizmo::Solve(const string& _strategy) {
+  VizmoProblem::MPStrategyPointer mps = GetVizmoProblem()->GetMPStrategy(_strategy);
+  mps->operator()();
+  GetVizmo().GetMap()->RefreshMap();
 }

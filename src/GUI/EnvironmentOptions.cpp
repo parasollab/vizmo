@@ -3,6 +3,7 @@
 #include "ChangeBoundaryDialog.h"
 #include "EditRobotDialog.h"
 #include "GLWidget.h"
+#include "MainMenu.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 #include "ObstaclePosDialog.h"
@@ -229,6 +230,10 @@ EnvironmentOptions::DeleteRegion() {
 
 void
 EnvironmentOptions::MapEnvironment() {
+  //before thread starts make sure map model exists
+  GetVizmo().SetPMPLMap();
+  m_mainWindow->m_mainMenu->CallReset();
+
   QThread* thread = new QThread;
   MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
   mpsw->moveToThread(thread);

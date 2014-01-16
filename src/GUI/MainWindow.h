@@ -9,6 +9,7 @@ class QAction;
 class QGridLayout;
 class QHBoxLayout;
 class QVBoxLayout;
+class QTimer;
 
 class AnimationWidget;
 class VizmoScreenShotGUI;
@@ -44,6 +45,7 @@ class MainWindow : public QMainWindow {
 
   private slots:
     void UpdateScreen();  // redraw GL scene
+    void HandleTimer();
 
   private:
     string m_command;    //command line to be executed to make a new roadmap
@@ -68,6 +70,8 @@ class MainWindow : public QMainWindow {
     GLWidget* m_gl;           //the scene window which displays environment..
     AnimationWidget* m_animationWidget;
     ModelSelectionWidget* m_modelSelectionWidget;
+
+    QTimer* m_timer;
 };
 
 #endif /*_MAIN_WIN_H_*/
