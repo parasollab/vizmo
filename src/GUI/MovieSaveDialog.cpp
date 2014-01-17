@@ -17,12 +17,14 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
     int maxint = std::numeric_limits<int>::max();
 
     Vizmo& vizmo = GetVizmo();
-    if(PathModel* path = vizmo.GetPath()){
-      if(size_t size = path->GetSize())
+    if(vizmo.IsPathLoaded()){
+      size_t size = vizmo.GetPath()->GetSize();
+      if(size > 0)
         m_endFrame = size-1;
     }
-    else if(DebugModel* debug = vizmo.GetDebug()){
-      if(size_t size = debug->GetSize())
+    else if(vizmo.IsDebugLoaded()){
+      size_t size = vizmo.GetDebug()->GetSize();
+      if(size > 0)
         m_endFrame = size-1;
     }
 
