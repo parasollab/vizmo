@@ -24,7 +24,6 @@ class HelpOptions : public OptionsBase {
 
     private slots:
       void ShowAboutBox(); //Pop up the "About" window
-
 };
 
 #endif

@@ -1,8 +1,6 @@
 #include "HelpOptions.h"
 
-#include <QAction>
-#include <QMessageBox>
-#include <QWhatsThis>
+#include <QtGui>
 
 #include "OptionsBase.h"
 #include "MainWindow.h"

@@ -7,7 +7,7 @@
 #ifndef MOVIESAVEDIALOG_H
 #define MOVIESAVEDIALOG_H
 
-#include <QDialog>
+#include <QtGui>
 
 class QGridLayout;
 class QLineEdit;
@@ -31,24 +31,10 @@ class MovieSaveDialog : public QDialog {
     void ShowFileDialog();
 
   private:
-    void SetUpLayout();
-
     QLineEdit* m_startFrameEdit;
     QLineEdit* m_endFrameEdit;
     QLineEdit* m_stepSizeEdit;
-
-    QLabel* m_startFrameLabel;
-    QLabel* m_endFrameLabel;
-    QLabel* m_stepSizeLabel;
-
-    QPushButton* m_selectNameButton;
     QLabel* m_fileNameLabel;
-
-    QPushButton* m_go;
-    QPushButton* m_cancel;
-
-    QGridLayout* m_layout;
-
 };
 
 #endif
