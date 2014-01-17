@@ -229,8 +229,7 @@ RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e) {
 }
 
 double
-RegionBoxModel::Density() const {
-  double area = (m_boxVertices[3][0] - m_boxVertices[0][0]) *
+RegionBoxModel::WSpaceArea() const {
+  return (m_boxVertices[3][0] - m_boxVertices[0][0]) *
     (m_boxVertices[0][1] - m_boxVertices[1][1]);
-  return (m_numVertices + m_failedAttempts) / area;
 }

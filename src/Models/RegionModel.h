@@ -11,7 +11,9 @@ using boost::shared_ptr;
 
 class RegionModel : public Model {
   public:
-    RegionModel(const string& _name) : Model(_name), m_numVertices(0), m_failedAttempts(0) {
+    RegionModel(const string& _name) :
+      Model(_name),
+      m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0) {
       SetColor(Color4(0, 1, 0, 1));
     }
     virtual ~RegionModel() {}
@@ -30,19 +32,28 @@ class RegionModel : public Model {
     virtual void Print(ostream& _os) const = 0;
 
     //density calculation
-    virtual double Density() const = 0;
+    virtual double WSpaceArea() const = 0;
+    double FSpaceArea() const {return WSpaceArea() * m_successfulAttempts / (double)(m_successfulAttempts + m_failedAttempts);}
+    double NodeDensity() const {return (m_successfulAttempts + m_failedAttempts) / WSpaceArea();}
+    //double CCDensity() const {return WSpaceArea() / (double)m_numCCs;}
+    double CCDensity() const {return m_numCCs / WSpaceArea();}
 
-    //access for node count
-    void IncreaseNodeCount(size_t _i) { m_numVertices += _i; }
-    void ClearNodeCount() { m_numVertices = 0; }
-    size_t GetNodeCount() { return m_numVertices; }
+    //successful attempts
+    void IncreaseNodeCount(size_t _i) { m_successfulAttempts += _i; }
+    void ClearNodeCount() { m_successfulAttempts = 0; }
+    size_t GetNodeCount() { return m_successfulAttempts; }
+
+    //failed attempts
     void IncreaseFACount(size_t _i) { m_failedAttempts += _i; }
     void ClearFACount() { m_failedAttempts = 0; }
     size_t GetFACount() { return m_failedAttempts; }
 
+    //cc count
+    size_t GetCCCount() {return m_numCCs;}
+    void SetCCCount(size_t _i) { m_numCCs = _i; }
+
   protected:
-    size_t m_numVertices;
-    size_t m_failedAttempts;
+    size_t m_successfulAttempts, m_failedAttempts, m_numCCs;
 };
 
 #endif

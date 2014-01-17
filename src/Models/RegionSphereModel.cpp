@@ -128,6 +128,6 @@ RegionSphereModel::PassiveMouseMotion(QMouseEvent* _e) {
 }
 
 double
-RegionSphereModel::Density() const {
-  return (m_numVertices + m_failedAttempts) / (PI * m_radius * m_radius);
+RegionSphereModel::WSpaceArea() const {
+  return PI * sqr(m_radius);
 }

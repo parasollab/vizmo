@@ -11,6 +11,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
   public:
     typedef typename MPTraits::MPProblemType MPProblemType;
     typedef typename MPTraits::CfgType CfgType;
+    typedef typename MPTraits::WeightType WeightType;
     typedef typename MPProblemType::RoadmapType::VID VID;
 
     RegionStrategy();
@@ -26,7 +27,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     void SampleRegion(size_t _index, vector<CfgType>& _samples);
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
     void Connect(vector<VID>& _vids);
-    void UpdateRegionNodeCount();
+    void UpdateRegionStats();
     void UpdateRegionColor();
     bool EvaluateMap();
 
@@ -195,12 +196,6 @@ RegionStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _
     VID addedNode = this->GetMPProblem()->GetRoadmap()->GetGraph()->AddVertex(*cit);
     _vids.push_back(addedNode);
   }
-
-  //if this region is not the environment boundary, update count/color
-  if(m_samplingRegion != NULL) {
-    UpdateRegionNodeCount();
-    UpdateRegionColor();
-  }
 }
 
 template<class MPTraits>
@@ -213,12 +208,15 @@ RegionStrategy<MPTraits>::Connect(vector<VID>& _vids) {
       this->GetMPProblem()->GetConnector("Neighborhood Connector");
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
+
+  UpdateRegionStats();
+  UpdateRegionColor();
 }
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::UpdateRegionNodeCount() {
-  if(m_samplingRegion != NULL) {
+RegionStrategy<MPTraits>::UpdateRegionStats() {
+  if(m_samplingRegion) {
     //set up access pointers
     Environment* ep = this->GetMPProblem()->GetEnvironment();
     typename MPProblemType::GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
@@ -228,19 +226,32 @@ RegionStrategy<MPTraits>::UpdateRegionNodeCount() {
     m_samplingRegion->ClearNodeCount();
 
     //iterate through graph to find which vertices are in the modified region
+    typedef CCModel<CfgType, WeightType>* CCM;
+    typedef set<CCM> SetCCs;
+    SetCCs ccs;
     for(typename MPProblemType::GraphType::iterator git = g->begin(); git != g->end(); git++) {
-      if(ep->InBounds(g->GetVertex(git), bbx))
+      const CfgType& c = g->GetVertex(git);
+      if(ep->InBounds(c, bbx)) {
         m_samplingRegion->IncreaseNodeCount(1);
+        ccs.insert(c.GetCC());
+      }
     }
+
+    typename SetCCs::iterator cit = find(ccs.begin(), ccs.end(), (CCM)NULL);
+    if(cit != ccs.end())
+      ccs.erase(cit);
+
+    m_samplingRegion->SetCCCount(ccs.size());
   }
 }
 
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::UpdateRegionColor() {
-  if(m_samplingRegion != NULL) {
+  if(m_samplingRegion) {
     //update region color based on node density
-    double densityRatio = 1 - exp(-sqr(m_samplingRegion->Density()));
+    double densityRatio = 1 - exp(-sqr(m_samplingRegion->NodeDensity()));
+    //double densityRatio = 1 - exp(-sqr(m_samplingRegion->CCDensity()));
     m_samplingRegion->SetColor(Color4(densityRatio, 1 - densityRatio, 0., 1.));
   }
 }
