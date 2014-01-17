@@ -18,7 +18,7 @@
 #include "Icons/RandEnv.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow) {
+  : OptionsBase(_parent, _mainWindow), m_thread(NULL) {
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
@@ -234,17 +234,17 @@ EnvironmentOptions::MapEnvironment() {
   GetVizmo().SetPMPLMap();
   m_mainWindow->m_mainMenu->CallReset();
 
-  QThread* thread = new QThread;
+  m_thread = new QThread;
   MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
-  mpsw->moveToThread(thread);
-  thread->start();
-  connect(thread, SIGNAL(started()), mpsw, SLOT(Solve()));
+  mpsw->moveToThread(m_thread);
+  m_thread->start();
+  connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
   connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
-  connect(mpsw, SIGNAL(destroyed()), thread, SLOT(quit()));
-  connect(thread, SIGNAL(finished()), m_mainWindow->GetGLScene(), SLOT(updateGL()));
-  connect(thread, SIGNAL(finished()), m_mainWindow->GetModelSelectionWidget(), SLOT(ResetLists()));
-  connect(thread, SIGNAL(finished()), (const QObject*)m_mainWindow->m_mainMenu, SLOT(CallReset()));
-  connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+  connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
+  connect(m_thread, SIGNAL(finished()), m_mainWindow->GetGLScene(), SLOT(updateGL()));
+  connect(m_thread, SIGNAL(finished()), m_mainWindow->GetModelSelectionWidget(), SLOT(ResetLists()));
+  connect(m_thread, SIGNAL(finished()), (const QObject*)m_mainWindow->m_mainMenu, SLOT(CallReset()));
+  connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
 }
 
 void

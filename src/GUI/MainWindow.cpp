@@ -3,6 +3,7 @@
 #include <QtGui>
 
 #include "AnimationWidget.h"
+#include "EnvironmentOptions.h"
 #include "FileListDialog.h"
 #include "GLWidget.h"
 #include "MainMenu.h"
@@ -87,6 +88,14 @@ MainWindow::InitVizmo(){
   m_gl->updateGL();
 
   return true;
+}
+
+void
+MainWindow::closeEvent(QCloseEvent* _event) {
+  QThread* thread = ((EnvironmentOptions*)m_mainMenu->m_environmentOptions)->GetMPThread();
+  if(thread)
+    delete thread;
+  QMainWindow::closeEvent(_event);
 }
 
 bool

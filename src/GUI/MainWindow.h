@@ -43,6 +43,8 @@ class MainWindow : public QMainWindow {
 
     MainMenu* m_mainMenu;   //top menubar...owns everything
 
+    void closeEvent(QCloseEvent* _event);
+
   private slots:
     void UpdateScreen();  // redraw GL scene
     void HandleTimer();

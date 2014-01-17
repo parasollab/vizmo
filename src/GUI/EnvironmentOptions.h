@@ -19,6 +19,8 @@ class EnvironmentOptions : public OptionsBase {
   public:
     EnvironmentOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
+    QThread* GetMPThread() {return m_thread;}
+
   private slots:
     void RefreshEnv();
     void RandomizeEnvColors();
@@ -44,6 +46,7 @@ class EnvironmentOptions : public OptionsBase {
     void SetHelpTips();
 
     QMenu* m_obstacleMenu;
+    QThread* m_thread;
 };
 
 class MapEnvironmentWorker : public QObject {
