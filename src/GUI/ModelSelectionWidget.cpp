@@ -19,10 +19,14 @@ ModelSelectionWidget::ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent
 
 void
 ModelSelectionWidget::ResetLists(){
+  blockSignals(true);
   vector<Model*>& objs = GetVizmo().GetLoadedModels();
+  vector<Model*> sel = GetVizmo().GetSelectedModels();
   ClearLists();
   FillTree(objs);
   setEnabled(!objs.empty());
+  GetVizmo().GetSelectedModels() = sel;
+  Select();
 }
 
 void
@@ -99,7 +103,6 @@ ModelSelectionWidget::ClearLists(){
 void
 ModelSelectionWidget::Select(){
   //Selects in the TREE WIDGET whatever has been selected in the map
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<ListViewItem*>::iterator IIT;
 
   //Unselect everything
@@ -110,9 +113,13 @@ ModelSelectionWidget::Select(){
   //Find selected
   vector<ListViewItem*> selected;
   m_glWidget->SetCurrentRegion(NULL);
-  for(size_t s = 0; s < sel.size(); ++s){
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  typedef vector<Model*>::iterator MIT;
+  for(MIT mit = sel.begin(); mit != sel.end(); ++mit) {
+    bool found = false;
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
-      if(sel[s] == (*i)->m_model){
+      if(*mit == (*i)->m_model){
+        found = true;
         (*i)->setSelected(true);
         if(m_glWidget->GetDoubleClickStatus() == true) {
           if((*i)->parent())
@@ -120,10 +127,12 @@ ModelSelectionWidget::Select(){
           (*i)->setSelected(false);
           m_glWidget->SetDoubleClickStatus(false);
         }
-        if(sel[s]->Name() == "Sphere Region" || sel[s]->Name() == "Box Region")
-          m_glWidget->SetCurrentRegion((RegionModel*)sel[s]);
+        if((*mit)->Name() == "Sphere Region" || (*mit)->Name() == "Box Region")
+          m_glWidget->SetCurrentRegion((RegionModel*)(*mit));
       }
     }
+    if(!found)
+      mit = sel.erase(mit);
   }
   blockSignals(false);
   emit itemSelectionChanged();
