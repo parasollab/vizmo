@@ -18,7 +18,7 @@
 #include "Icons/RandEnv.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_thread(NULL) {
+  : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_threadDone(true), m_thread(NULL) {
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
@@ -247,6 +247,7 @@ EnvironmentOptions::MapEnvironment() {
   GetVizmo().SetPMPLMap();
   m_mainWindow->m_mainMenu->CallReset();
 
+  m_threadDone = false;
   m_thread = new QThread;
   MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
   mpsw->moveToThread(m_thread);
@@ -258,6 +259,7 @@ EnvironmentOptions::MapEnvironment() {
   connect(m_thread, SIGNAL(finished()), m_mainWindow->GetModelSelectionWidget(), SLOT(ResetLists()));
   connect(m_thread, SIGNAL(finished()), (const QObject*)m_mainWindow->m_mainMenu, SLOT(CallReset()));
   connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
+  connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
 }
 
 void

@@ -377,13 +377,16 @@ Vizmo::StartClock(const string& _c) {
 
 void
 Vizmo::StopClock(const string& _c) {
-  m_timers[_c].second = m_timers[_c].first.elapsed()/1000.;
+  if(m_timers.count(_c))
+    m_timers[_c].second = m_timers[_c].first.elapsed()/1000.;
+  else
+    m_timers[_c].second = 0;
   //GetVizmoProblem()->GetStatClass()->StopClock(_c);
 }
 
 void
 Vizmo::PrintClock(const string& _c, ostream& _os) {
-  _os << _c << "\t" << setw(10) << m_timers[_c].second << endl;
+  _os << _c << ": " << m_timers[_c].second << " sec" << endl;
   //GetVizmoProblem()->GetStatClass()->PrintClock(_c, _os);
 }
 

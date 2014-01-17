@@ -19,7 +19,7 @@ class EnvironmentOptions : public OptionsBase {
   public:
     EnvironmentOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
-    QThread* GetMPThread() {return m_thread;}
+    QThread* GetMPThread() {return m_threadDone ? NULL : m_thread;}
 
   private slots:
     void RefreshEnv();
@@ -38,6 +38,8 @@ class EnvironmentOptions : public OptionsBase {
 
     void MapEnvironment();
 
+    void ThreadDone() {m_threadDone = true;}
+
   private:
     void CreateActions();
     void SetUpCustomSubmenu();
@@ -45,7 +47,7 @@ class EnvironmentOptions : public OptionsBase {
     void Reset();
     void SetHelpTips();
 
-    bool m_regionsStarted;
+    bool m_regionsStarted, m_threadDone;
     QMenu* m_obstacleMenu;
     QThread* m_thread;
 };
