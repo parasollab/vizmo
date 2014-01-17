@@ -28,6 +28,8 @@ class RegionSphereModel : public RegionModel {
     bool MouseMotion(QMouseEvent* _e);
     bool PassiveMouseMotion(QMouseEvent* _e);
 
+    double Density() const;
+
   private:
     Vector3d m_center, m_centerOrig;
     double m_radius;

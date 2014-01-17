@@ -147,7 +147,6 @@ Vizmo::InitPMPL() {
   problem->AddMapEvaluator(pme, "PrintMap");
   if(m_queryModel) {
     VizmoProblem::MapEvaluatorPointer mep(new Query<VizmoTraits>(m_queryFilename, vector<string>(1, "Neighborhood Connector")));
-    mep->SetDebug(true);
     problem->AddMapEvaluator(mep, "Query");
 
     //setup debugging evaluator

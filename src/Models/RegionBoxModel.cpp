@@ -8,8 +8,7 @@
 #include "Utilities/GLUtils.h"
 
 RegionBoxModel::RegionBoxModel() : RegionModel("Box Region"), m_lmb(false),
-    m_firstClick(true), m_highlightedPart(NONE), m_boxVertices(4), m_prevPos(4)  {
-}
+  m_firstClick(true), m_highlightedPart(NONE), m_boxVertices(4), m_prevPos(4) {}
 
 shared_ptr<Boundary>
 RegionBoxModel::GetBoundary() const {
@@ -36,8 +35,8 @@ RegionBoxModel::Draw() {
   //configure gl modes
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glColor4f(.85, .85, .85, .5);
-  glTranslatef(0, 0, -0.01);
+  glColor4fv(m_color);
+  glTranslatef(0, 0, +0.01);
   //create model
   glBegin(GL_QUADS);
   for(int i = 0; i < 4; i++)
@@ -76,7 +75,7 @@ RegionBoxModel::DrawSelect() {
   //create model
   glBegin(GL_LINE_LOOP);
   for(int i = 0; i < 4; i++)
-    glVertex3d(m_boxVertices[i][0], m_boxVertices[i][1], m_boxVertices[i][2]);
+    glVertex3dv(m_boxVertices[i]);
   glEnd();
   glEndList();
 
@@ -111,6 +110,11 @@ RegionBoxModel::MouseReleased(QMouseEvent* _e) {
     m_firstClick = false;
     for(int i = 0; i < 4; i++)
       m_prevPos[i] = m_boxVertices[i];
+
+    //rebuild vertex list after moving/resizing
+    if(m_highlightedPart > NONE) {
+      //???
+    }
     return true;
   }
   return false;
@@ -224,3 +228,9 @@ RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e) {
   return m_highlightedPart;
 }
 
+double
+RegionBoxModel::Density() const {
+  double area = (m_boxVertices[3][0] - m_boxVertices[0][0]) *
+    (m_boxVertices[0][1] - m_boxVertices[1][1]);
+  return (m_numVertices + m_failedAttempts) / area;
+}

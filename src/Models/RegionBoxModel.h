@@ -28,6 +28,8 @@ class RegionBoxModel : public RegionModel {
     bool MouseMotion(QMouseEvent* _e);
     bool PassiveMouseMotion(QMouseEvent* _e);
 
+    double Density() const;
+
   private:
     //event tracking storage
     QPoint m_clicked;

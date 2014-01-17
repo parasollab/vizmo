@@ -22,14 +22,16 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
 
   protected:
     //helper functions
-    int SelectRegion();
-    void SampleRegion(int _index, vector<CfgType>& _samples);
+    size_t SelectRegion();
+    void SampleRegion(size_t _index, vector<CfgType>& _samples);
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
     void Connect(vector<VID>& _vids);
+    void UpdateRegionNodeCount();
+    void UpdateRegionColor();
     bool EvaluateMap();
 
   private:
-    vector<shared_ptr<Boundary> > m_boundaries;
+    RegionModel* m_samplingRegion;
 };
 
 template<class MPTraits>
@@ -47,14 +49,6 @@ template<class MPTraits>
 void
 RegionStrategy<MPTraits>::Initialize() {
   cout << "Initializing Region Strategy." << endl;
-
-  //parse regions into PMPL boundaries
-  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetRegions();
-  for(vector<RegionModel*>::const_iterator RIT = regions.begin();
-      RIT != regions.end(); RIT++) {
-    m_boundaries.push_back((*RIT)->GetBoundary());
-    cout << *m_boundaries.back() << endl;
-  }
 }
 
 template<class MPTraits>
@@ -65,11 +59,11 @@ RegionStrategy<MPTraits>::Run() {
   size_t iter = 0;
   while(!EvaluateMap()) {
     //pick a region
-    int regionIndex = SelectRegion();
+    size_t index = SelectRegion();
 
     //sample region
     vector<CfgType> samples;
-    SampleRegion(regionIndex, samples);
+    SampleRegion(index, samples);
 
     //add sample to map
     vector<VID> vids;
@@ -91,6 +85,7 @@ void
 RegionStrategy<MPTraits>::Finalize() {
   cout << "Finalizing Region Strategy." << endl;
 
+  //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
 
   //ofstream ofs("test.map");
@@ -98,29 +93,66 @@ RegionStrategy<MPTraits>::Finalize() {
 }
 
 template<class MPTraits>
-int
+size_t
 RegionStrategy<MPTraits>::SelectRegion() {
-  return rand() % m_boundaries.size();
+  //get regions from vizmo
+  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetRegions();
+
+  //randomly choose a region
+  return rand() % (regions.size() + 1);
 }
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::SampleRegion(int _index, vector<CfgType>& _samples) {
+RegionStrategy<MPTraits>::SampleRegion(size_t _index, vector<CfgType>& _samples) {
+  //setup access pointers
+  shared_ptr<Boundary> samplingBoundary;
+  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetRegions();
   typename MPProblemType::SamplerPointer sp = this->GetMPProblem()->GetSampler("uniform");
 
-  sp->Sample(this->GetMPProblem()->GetEnvironment(), m_boundaries[_index],
-      *this->GetMPProblem()->GetStatClass(), 1, 100, back_inserter(_samples));
+  //check if the selected region is a region or the environment boundary.  if it
+  //is the env boundary, set m_samplingRegion to null
+  if(_index == regions.size()) {
+    m_samplingRegion = NULL;
+    samplingBoundary = this->GetMPProblem()->GetEnvironment()->GetBoundary();
+  }
+  else {
+    m_samplingRegion = regions[_index];
+    samplingBoundary = m_samplingRegion->GetBoundary();
+  }
+
+  //sample the region. track failures in col for density calculation.
+  vector<CfgType> col;
+  sp->Sample(this->GetMPProblem()->GetEnvironment(), samplingBoundary,
+      *this->GetMPProblem()->GetStatClass(), 1, 100,
+      back_inserter(_samples), back_inserter(col));
+
+  //if this region is not the environment boundary, update failure count
+  if(m_samplingRegion != NULL)
+    m_samplingRegion->IncreaseFACount(col.size());
 }
 
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
+  //lock map data
   GetVizmo().GetMap()->AcquireLock();
+
+  //add nodes in _samples to graph. store VID's in _vids for connecting
   _vids.clear();
   for(typename vector<CfgType>::iterator cit = _samples.begin();
       cit != _samples.end(); cit++) {
-    _vids.push_back(this->GetMPProblem()->GetRoadmap()->GetGraph()->AddVertex(*cit));
+    VID addedNode = this->GetMPProblem()->GetRoadmap()->GetGraph()->AddVertex(*cit);
+    _vids.push_back(addedNode);
   }
+
+  //if this region is not the environment boundary, update count/color
+  if(m_samplingRegion != NULL) {
+    UpdateRegionNodeCount();
+    UpdateRegionColor();
+  }
+
+  //release map lock
   GetVizmo().GetMap()->ReleaseLock();
 }
 
@@ -135,6 +167,36 @@ RegionStrategy<MPTraits>::Connect(vector<VID>& _vids) {
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
   GetVizmo().GetMap()->ReleaseLock();
+}
+
+template<class MPTraits>
+void
+RegionStrategy<MPTraits>::UpdateRegionNodeCount() {
+  if(m_samplingRegion != NULL) {
+    //set up access pointers
+    Environment* ep = this->GetMPProblem()->GetEnvironment();
+    typename MPProblemType::GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
+    shared_ptr<Boundary> bbx = m_samplingRegion->GetBoundary();
+
+    //clear m_numVertices
+    m_samplingRegion->ClearNodeCount();
+
+    //iterate through graph to find which vertices are in the modified region
+    for(typename MPProblemType::GraphType::iterator git = g->begin(); git != g->end(); git++) {
+      if(ep->InBounds(g->GetVertex(git), bbx))
+        m_samplingRegion->IncreaseNodeCount(1);
+    }
+  }
+}
+
+template<class MPTraits>
+void
+RegionStrategy<MPTraits>::UpdateRegionColor() {
+  if(m_samplingRegion != NULL) {
+    //update region color based on node density
+    double densityRatio = 1 - exp(-sqr(m_samplingRegion->Density()));
+    m_samplingRegion->SetColor(Color4(densityRatio, 1 - densityRatio, 0., 1.));
+  }
 }
 
 template<class MPTraits>
