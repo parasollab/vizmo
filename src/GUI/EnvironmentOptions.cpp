@@ -18,7 +18,7 @@
 #include "Icons/RandEnv.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow), m_thread(NULL) {
+  : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_thread(NULL) {
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
@@ -191,6 +191,11 @@ void EnvironmentOptions::EditRobot() {
 
 void
 EnvironmentOptions::AddRegionBox() {
+  if(!m_regionsStarted) {
+    GetVizmo().StartClock("Pre-regions");
+    m_regionsStarted = true;
+  }
+
   //create new spherical region and add to environment
   RegionBoxModel* r = new RegionBoxModel();
   GetVizmo().GetEnv()->AddRegion(r);
@@ -205,6 +210,11 @@ EnvironmentOptions::AddRegionBox() {
 
 void
 EnvironmentOptions::AddRegionSphere() {
+  if(!m_regionsStarted) {
+    GetVizmo().StartClock("Pre-regions");
+    m_regionsStarted = true;
+  }
+
   //create new spherical region and add to environment
   RegionSphereModel* r = new RegionSphereModel();
   GetVizmo().GetEnv()->AddRegion(r);
@@ -230,6 +240,9 @@ EnvironmentOptions::DeleteRegion() {
 
 void
 EnvironmentOptions::MapEnvironment() {
+  //stop timer for before regions
+  GetVizmo().StopClock("Pre-regions");
+
   //before thread starts make sure map model exists
   GetVizmo().SetPMPLMap();
   m_mainWindow->m_mainMenu->CallReset();

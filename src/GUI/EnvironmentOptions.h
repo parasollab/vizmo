@@ -45,6 +45,7 @@ class EnvironmentOptions : public OptionsBase {
     void Reset();
     void SetHelpTips();
 
+    bool m_regionsStarted;
     QMenu* m_obstacleMenu;
     QThread* m_thread;
 };

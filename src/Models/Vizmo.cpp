@@ -370,6 +370,24 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
 }
 
 void
+Vizmo::StartClock(const string& _c) {
+  m_timers[_c].first.start();
+  //GetVizmoProblem()->GetStatClass()->StartClock(_c);
+}
+
+void
+Vizmo::StopClock(const string& _c) {
+  m_timers[_c].second = m_timers[_c].first.elapsed()/1000.;
+  //GetVizmoProblem()->GetStatClass()->StopClock(_c);
+}
+
+void
+Vizmo::PrintClock(const string& _c, ostream& _os) {
+  _os << _c << "\t" << setw(10) << m_timers[_c].second << endl;
+  //GetVizmoProblem()->GetStatClass()->PrintClock(_c, _os);
+}
+
+void
 Vizmo::SetPMPLMap() {
   if(GetVizmo().IsRoadMapLoaded()) {
     vector<Model*>::iterator mit = find(m_loadedModels.begin(), m_loadedModels.end(), m_mapModel);

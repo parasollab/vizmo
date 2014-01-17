@@ -56,6 +56,10 @@ void
 RegionStrategy<MPTraits>::Run() {
   cout << "Running Region Strategy." << endl;
 
+  //start clock
+  GetVizmo().StartClock("RegionStrategy");
+  //this->GetMPProblem()->GetStatClass()->StartClock("RegionStrategy");
+
   size_t iter = 0;
   while(!EvaluateMap()) {
     //pick a region
@@ -78,6 +82,10 @@ RegionStrategy<MPTraits>::Run() {
     }
     usleep(10000);
   }
+
+  //stop clock
+  GetVizmo().StopClock("RegionStrategy");
+  //this->GetMPProblem()->GetStatClass()->StopClock("RegionStrategy");
 }
 
 template<class MPTraits>
@@ -87,6 +95,21 @@ RegionStrategy<MPTraits>::Finalize() {
 
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
+
+  //print clocks + output a stat class
+  StatClass* stats = this->GetMPProblem()->GetStatClass();
+  GetVizmo().PrintClock("Pre-regions", cout);
+  GetVizmo().PrintClock("RegionStrategy", cout);
+  //stats->PrintClock("Pre-regions", cout);
+  //stats->PrintClock("RegionStrategy", cout);
+
+  ofstream ostats("test.stats");
+  ostats << "NodeGen+Connection Stats" << endl;
+  stats->PrintAllStats(ostats, this->GetMPProblem()->GetRoadmap());
+  GetVizmo().PrintClock("Pre-regions", ostats);
+  GetVizmo().PrintClock("RegionStrategy", ostats);
+  //stats->PrintClock("Pre-regions", ostats);
+  //stats->PrintClock("RegionStrategy", ostats);
 
   //ofstream ofs("test.map");
   //this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
