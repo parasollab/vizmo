@@ -1,9 +1,6 @@
 #include "QueryEditDialog.h"
 
 #include <iostream>
-#include <QDialog>
-#include <QPushButton>
-#include <QListWidget>
 
 #include "MainWindow.h"
 #include "GLWidget.h"
@@ -17,41 +14,37 @@ QueryEditDialog::QueryEditDialog(QueryModel* _queryModel, MainWindow* _mainWindo
   setWindowTitle("Edit Query");
 
   m_listWidget = new QListWidget(this);
-  m_editButton = new QPushButton("Edit",this);
-  m_addButton = new QPushButton("Add",this);
-  m_deleteButton = new QPushButton("Delete",this);
-  m_upButton = new QPushButton(QChar(0x2227),this);
-  m_downButton = new QPushButton(QChar(0x2228),this);
-  m_leaveButton = new QPushButton("Leave",this);
+  QPushButton* editButton = new QPushButton("Edit",this);
+  QPushButton* addButton = new QPushButton("Add",this);
+  QPushButton* deleteButton = new QPushButton("Delete",this);
+  QPushButton* upButton = new QPushButton(QChar(0x2227),this);
+  QPushButton* downButton = new QPushButton(QChar(0x2228),this);
+  QPushButton* leaveButton = new QPushButton("Leave",this);
 
-  connect(m_leaveButton, SIGNAL(clicked()), this, SLOT(accept()));
-  connect(m_deleteButton, SIGNAL(clicked()), this, SLOT(Delete()));
-  connect(m_addButton, SIGNAL(clicked()), this, SLOT(Add()));
-  connect(m_editButton, SIGNAL(clicked()), this, SLOT(EditQuery()));
-  connect(m_upButton, SIGNAL(clicked()), this, SLOT(SwapUp()));
-  connect(m_downButton, SIGNAL(clicked()), this, SLOT(SwapDown()));
+  connect(deleteButton, SIGNAL(clicked()), this, SLOT(Delete()));
+  connect(addButton, SIGNAL(clicked()), this, SLOT(Add()));
+  connect(editButton, SIGNAL(clicked()), this, SLOT(EditQuery()));
+  connect(upButton, SIGNAL(clicked()), this, SLOT(SwapUp()));
+  connect(downButton, SIGNAL(clicked()), this, SLOT(SwapDown()));
+  connect(leaveButton, SIGNAL(clicked()), this, SLOT(accept()));
 
   m_queryModel=_queryModel;
   m_mainWindow= _mainWindow;
 
   ShowQuery();
-  SetUpLayout();
+
+  m_listWidget->setGeometry(QRect(10, 10, 131, 231));
+  m_listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+  editButton->setGeometry(QRect(160, 10, 61, 31));
+  addButton->setGeometry(QRect(160, 50, 61, 31));
+  deleteButton->setGeometry(QRect(160, 90, 61, 31));
+  upButton->setGeometry(QRect(160, 130, 61, 31));
+  downButton->setGeometry(QRect(160, 160, 61, 31));
+  leaveButton->setGeometry(QRect(160, 210, 61, 31));
 }
 
 QueryEditDialog::~QueryEditDialog(){}
-
-void
-QueryEditDialog::SetUpLayout(){
-  m_listWidget->setGeometry(QRect(10, 10, 131, 231));
-  m_listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-  m_editButton->setGeometry(QRect(160, 10, 61, 31));
-  m_addButton->setGeometry(QRect(160, 50, 61, 31));
-  m_deleteButton->setGeometry(QRect(160, 90, 61, 31));
-  m_upButton->setGeometry(QRect(160, 130, 61, 31));
-  m_downButton->setGeometry(QRect(160, 160, 61, 31));
-  m_leaveButton->setGeometry(QRect(160, 210, 61, 31));
-  QDialog::show();
-}
 
 void
 QueryEditDialog::ShowQuery(){

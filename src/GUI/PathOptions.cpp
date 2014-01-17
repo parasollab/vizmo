@@ -1,10 +1,6 @@
 #include "PathOptions.h"
 
-#include <QAction>
-#include <QToolBar>
-#include <QPixmap>
-#include <QLineEdit>
-#include <QTranslator>
+#include <QtGui>
 
 #include "MainWindow.h"
 #include "GLWidget.h"

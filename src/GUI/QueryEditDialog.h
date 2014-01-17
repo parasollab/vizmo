@@ -1,7 +1,7 @@
 #ifndef QUERYEDITDIALOG_H_
 #define QUERYEDITDIALOG_H_
 
-#include <QDialog>
+#include <QtGui>
 
 #include "Models/QueryModel.h"
 
@@ -30,20 +30,12 @@ class QueryEditDialog : public QDialog {
   private:
     //Functions
     void RefreshEnv();
-    void SetUpLayout();
     void ShowQuery();
     //Model Variables
     QueryModel* m_queryModel;
     MainWindow* m_mainWindow;
     //Qt Variables
     QListWidget* m_listWidget;
-    QPushButton* m_editButton;
-    QPushButton* m_addButton;
-    QPushButton* m_deleteButton;
-    QPushButton* m_leaveButton;
-    QPushButton* m_upButton;
-    QPushButton* m_downButton;
 };
 
 #endif
-

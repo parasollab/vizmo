@@ -24,7 +24,6 @@ class QueryOptions : public OptionsBase {
     void SetUpToolbar();       //show/hide path and show/hide start/goal
     void Reset();
     void SetHelpTips();
-
 };
 
 #endif
