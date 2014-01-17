@@ -49,6 +49,14 @@ template<class MPTraits>
 void
 RegionStrategy<MPTraits>::Initialize() {
   cout << "Initializing Region Strategy." << endl;
+
+  //base filename
+  string dir = GetVizmo().GetEnv()->GetModelDataDir();
+  string basename = dir + "/RegionStrategy." + "seed";
+  this->SetBaseFilename(basename);
+
+  if(GetVizmo().IsQueryLoaded())
+    boost::static_pointer_cast<Query<MPTraits> >(this->GetMPProblem()->GetMapEvaluator("Query"))->SetPathFile(basename + ".path");
 }
 
 template<class MPTraits>
@@ -96,6 +104,9 @@ RegionStrategy<MPTraits>::Finalize() {
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
 
+  //base filename
+  string basename = this->GetBaseFilename();
+
   //print clocks + output a stat class
   StatClass* stats = this->GetMPProblem()->GetStatClass();
   GetVizmo().PrintClock("Pre-regions", cout);
@@ -103,7 +114,7 @@ RegionStrategy<MPTraits>::Finalize() {
   //stats->PrintClock("Pre-regions", cout);
   stats->PrintClock("RegionStrategyMP", cout);
 
-  ofstream ostats("test.stats");
+  ofstream ostats((basename + ".stats").c_str());
   ostats << "NodeGen+Connection Stats" << endl;
   stats->PrintAllStats(ostats, this->GetMPProblem()->GetRoadmap());
   GetVizmo().PrintClock("Pre-regions", ostats);
@@ -111,8 +122,9 @@ RegionStrategy<MPTraits>::Finalize() {
   //stats->PrintClock("Pre-regions", ostats);
   stats->PrintClock("RegionStrategyMP", ostats);
 
-  //ofstream ofs("test.map");
-  //this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
+  //output roadmap
+  ofstream ofs((basename + ".map").c_str());
+  this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
 }
 
 template<class MPTraits>
