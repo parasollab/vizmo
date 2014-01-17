@@ -86,6 +86,8 @@ class Vizmo {
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
     // Motion planning related functions
+    void SetSeed(long _l) {m_seed = _l;}
+    long GetSeed() {return m_seed;}
     void StartClock(const string& _c);
     void StopClock(const string& _c);
     void PrintClock(const string& _c, ostream& _os);
@@ -127,6 +129,7 @@ class Vizmo {
     typedef vector<Model*>::iterator MIT;
     vector<Model*> m_loadedModels, m_selectedModels;
 
+    long m_seed;
     map<string, pair<QTime, double> > m_timers;
 };
 

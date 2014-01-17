@@ -6,13 +6,26 @@ using namespace std;
 #include <QApplication>
 
 #include "GUI/MainWindow.h"
+#include "Models/Vizmo.h"
 
 int
 main(int _argc, char** _argv) {
-  if(_argc > 1) {
-    cerr << "Error: vizmo++ doesn't take arguments." << endl;
-    return 1;
+  //parse command line args
+  long seed = 0;
+  char arg;
+  opterr = 0;
+  while((arg = getopt(_argc, _argv, "s:")) != -1) {
+    switch(arg) {
+      case 's':
+        seed = atol(optarg);
+        break;
+      default:
+        cerr << "\nUnknown commandline argument." << endl;
+        exit(1);
+    }
   }
+
+  GetVizmo().SetSeed(seed);
 
   //initialize gui, qapp, and main window
   glutInit(&_argc, _argv);

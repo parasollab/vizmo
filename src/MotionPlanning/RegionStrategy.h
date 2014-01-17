@@ -51,8 +51,9 @@ RegionStrategy<MPTraits>::Initialize() {
   cout << "Initializing Region Strategy." << endl;
 
   //base filename
-  string dir = GetVizmo().GetEnv()->GetModelDataDir();
-  string basename = dir + "/RegionStrategy." + "seed";
+  ostringstream oss;
+  oss << GetVizmo().GetEnv()->GetModelDataDir() << "/RegionStrategy." << GetVizmo().GetSeed();
+  string basename = oss.str();
   this->SetBaseFilename(basename);
 
   if(GetVizmo().IsQueryLoaded())

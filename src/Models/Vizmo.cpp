@@ -403,6 +403,7 @@ Vizmo::SetPMPLMap() {
 
 void
 Vizmo::Solve(const string& _strategy) {
+  SRand(m_seed);
   VizmoProblem::MPStrategyPointer mps = GetVizmoProblem()->GetMPStrategy(_strategy);
   mps->operator()();
   GetVizmo().GetMap()->RefreshMap();
