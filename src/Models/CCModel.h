@@ -94,10 +94,10 @@ CCModel<CFG, WEIGHT>::BuildModels() {
     if(eit->first < eit->second)
       continue;
 
-    CFG* cfg1 = &GetCfg(eit->first);
-    CFG* cfg2 = &GetCfg(eit->second);
+    //CFG* cfg1 = &GetCfg(eit->first);
+    //CFG* cfg2 = &GetCfg(eit->second);
     EID ed(eit->first, eit->second);
-    GetEdge(ed).Set(edgeIdx++, cfg1, cfg2);
+    //GetEdge(ed).Set(edgeIdx++, cfg1, cfg2);
     m_edges.push_back(ed);
   }
 
@@ -167,6 +167,9 @@ CCModel<CFG, WEIGHT>::DrawEdges(){
   typedef typename vector<EID>::iterator EIT;
   for(EIT eit = m_edges.begin(); eit!=m_edges.end(); ++eit) {
     glPushName(eit-m_edges.begin());
+    CFG* cfg1 = &GetCfg(eit->source());
+    CFG* cfg2 = &GetCfg(eit->target());
+    GetEdge(*eit).Set(distance(m_edges.begin(), eit), cfg1, cfg2);
     GetEdge(*eit).Draw();
     glPopName();
   }

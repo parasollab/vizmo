@@ -26,6 +26,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     void SampleRegion(int _index, vector<CfgType>& _samples);
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
     void Connect(vector<VID>& _vids);
+    bool EvaluateMap();
 
   private:
     vector<shared_ptr<Boundary> > m_boundaries;
@@ -61,16 +62,8 @@ void
 RegionStrategy<MPTraits>::Run() {
   cout << "Running Region Strategy." << endl;
 
-  //set up map evaluator. Currently, NodesEval is used unless a query file is
-  //loaded.
-  vector<string> evalLabel;
-  if(GetVizmo().IsQueryLoaded())
-    evalLabel.push_back("Query");
-  else
-    evalLabel.push_back("NodesEval");
-
   size_t iter = 0;
-  while(!this->EvaluateMap(evalLabel)) {
+  while(!EvaluateMap()) {
     //pick a region
     int regionIndex = SelectRegion();
 
@@ -89,6 +82,7 @@ RegionStrategy<MPTraits>::Run() {
       //recreate map model
       GetVizmo().GetMap()->RefreshMap();
     }
+    usleep(10000);
   }
 }
 
@@ -141,6 +135,23 @@ RegionStrategy<MPTraits>::Connect(vector<VID>& _vids) {
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
   GetVizmo().GetMap()->ReleaseLock();
+}
+
+template<class MPTraits>
+bool
+RegionStrategy<MPTraits>::EvaluateMap() {
+  //set up map evaluator. Currently, NodesEval is used unless a query file is
+  //loaded.
+  vector<string> evalLabel;
+  if(GetVizmo().IsQueryLoaded())
+    evalLabel.push_back("Query");
+  else
+    evalLabel.push_back("NodesEval");
+
+  GetVizmo().GetMap()->AcquireLock();
+  bool eval = MPStrategyMethod<MPTraits>::EvaluateMap(evalLabel);
+  GetVizmo().GetMap()->ReleaseLock();
+  return eval;
 }
 
 #endif
