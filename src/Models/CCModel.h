@@ -87,7 +87,7 @@ CCModel<CFG, WEIGHT>::BuildModels() {
 
   m_colorMap.reset();
   get_cc_edges(*m_graph, m_colorMap, ccedges, m_rep);
-  int edgeIdx = 0;
+  //int edgeIdx = 0;
 
   typedef typename vector<pair<VID, VID> >::iterator EIT;
   for(EIT eit = ccedges.begin(); eit != ccedges.end(); ++eit) {

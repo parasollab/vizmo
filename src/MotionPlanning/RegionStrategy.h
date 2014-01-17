@@ -121,22 +121,36 @@ RegionStrategy<MPTraits>::SampleRegion(size_t _index, vector<CfgType>& _samples)
     samplingBoundary = m_samplingRegion->GetBoundary();
   }
 
-  //sample the region. track failures in col for density calculation.
-  vector<CfgType> col;
-  sp->Sample(this->GetMPProblem()->GetEnvironment(), samplingBoundary,
-      *this->GetMPProblem()->GetStatClass(), 1, 100,
-      back_inserter(_samples), back_inserter(col));
+  //attempt to sample the region. track failures in col for density calculation.
+  try {
+    //track failures in col for density calculation
+    vector<CfgType> col;
+    sp->Sample(this->GetMPProblem()->GetEnvironment(), samplingBoundary,
+        *this->GetMPProblem()->GetStatClass(), 1, 10,
+        back_inserter(_samples), back_inserter(col));
 
-  //if this region is not the environment boundary, update failure count
-  if(m_samplingRegion != NULL)
-    m_samplingRegion->IncreaseFACount(col.size());
+    //if this region is not the environment boundary, update failure count
+    if(m_samplingRegion != NULL)
+      m_samplingRegion->IncreaseFACount(col.size());
+  }
+  //catch Boundary too small exception
+  catch(PMPLException _e) {
+    //static size_t numE = 0;
+    //cout << _e.what() << endl << numE++ << endl;
+    return;
+  }
+  //catch all others and exit
+  catch(exception _e) {
+    cerr << _e.what() << endl;
+    exit(1);
+  }
 }
 
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
   //lock map data
-  GetVizmo().GetMap()->AcquireLock();
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
 
   //add nodes in _samples to graph. store VID's in _vids for connecting
   _vids.clear();
@@ -151,22 +165,18 @@ RegionStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _
     UpdateRegionNodeCount();
     UpdateRegionColor();
   }
-
-  //release map lock
-  GetVizmo().GetMap()->ReleaseLock();
 }
 
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::Connect(vector<VID>& _vids) {
-  GetVizmo().GetMap()->AcquireLock();
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   stapl::sequential::
       vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
       this->GetMPProblem()->GetConnector("Neighborhood Connector");
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
-  GetVizmo().GetMap()->ReleaseLock();
 }
 
 template<class MPTraits>
@@ -210,9 +220,8 @@ RegionStrategy<MPTraits>::EvaluateMap() {
   else
     evalLabel.push_back("NodesEval");
 
-  GetVizmo().GetMap()->AcquireLock();
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   bool eval = MPStrategyMethod<MPTraits>::EvaluateMap(evalLabel);
-  GetVizmo().GetMap()->ReleaseLock();
   return eval;
 }
 

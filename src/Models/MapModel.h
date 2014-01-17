@@ -69,8 +69,7 @@ class MapModel : public LoadableModel {
     void RandomizeCCColors();
     void RefreshMap();
 
-    void AcquireLock() {m_locker = new QMutexLocker(&m_lock);}
-    void ReleaseLock() {delete m_locker;}
+    QMutex& AcquireMutex() {return m_lock;}
 
   private:
     string m_envFileName;

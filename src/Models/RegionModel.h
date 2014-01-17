@@ -12,7 +12,7 @@ using boost::shared_ptr;
 class RegionModel : public Model {
   public:
     RegionModel(const string& _name) : Model(_name), m_numVertices(0), m_failedAttempts(0) {
-      SetColor(Color4(.5, .5, 0., 1.));
+      SetColor(Color4(0, 1, 0, 1));
     }
     virtual ~RegionModel() {}
 

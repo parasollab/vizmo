@@ -33,10 +33,10 @@ RegionSphereModel::Draw() {
   if(m_radius < 0)
     return;
 
-  glColor4f(0.85, 0.85, 0.85, 0.5);
+  glColor4fv(m_color);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
-  glTranslatef(0, 0, -0.01);
+  glTranslatef(0, 0, +0.01);
   DrawCircle(m_radius, true);
   glPopMatrix();
 

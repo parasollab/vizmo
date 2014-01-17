@@ -43,8 +43,9 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
     item = new ListViewItem(_p);
 
   item->m_model = _model;
+  QMutexLocker* locker = NULL;
   if(_model->Name() == "Map")
-    ((MapModel<CfgModel, EdgeModel>*)_model)->AcquireLock();
+    locker = new QMutexLocker(&((MapModel<CfgModel, EdgeModel>*)_model)->AcquireMutex());
   QString qstr = QString::fromStdString(_model->Name());
   item->setText(0, qstr); //Set the text to column 0, which is the only column in this tree widget
   m_items.push_back(item);
@@ -53,7 +54,7 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
   _model->GetChildren(objlist);
   if(objlist.empty()) {
     if(_model->Name() == "Map")
-      ((MapModel<CfgModel, EdgeModel>*)_model)->ReleaseLock();
+      delete locker;
     return item;
   }
 
@@ -62,7 +63,7 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
     CreateItem(item, *i);
 
   if(_model->Name() == "Map")
-    ((MapModel<CfgModel, EdgeModel>*)_model)->ReleaseLock();
+    delete locker;
 
   return item;
 }
