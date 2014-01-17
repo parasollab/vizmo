@@ -16,15 +16,17 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
 
     int maxint = std::numeric_limits<int>::max();
 
-    if(GetVizmo().GetPath()->GetSize() > 0){
-      m_endFrame = GetVizmo().GetPath()->GetSize()-1;
+    Vizmo& vizmo = GetVizmo();
+    if(PathModel* path = vizmo.GetPath()){
+      if(size_t size = path->GetSize())
+        m_endFrame = size-1;
     }
-    else if(GetVizmo().GetDebug()->GetSize() > 0){
-      m_endFrame = GetVizmo().GetDebug()->GetSize()-1;
+    else if(DebugModel* debug = vizmo.GetDebug()){
+      if(size_t size = debug->GetSize())
+        m_endFrame = size-1;
     }
 
     //1. Create subwidgets/members
-
     QString tmp;
     QLabel* startFrameLabel = new QLabel("Start Frame", this);
     tmp.setNum(m_startFrame);
