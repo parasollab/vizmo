@@ -130,7 +130,7 @@ Vizmo::InitPMPL() {
   problem->AddLocalPlanner(lp, "sl");
 
   //add neighborhood finder
-  VizmoProblem::NeighborhoodFinderPointer nfp(new BruteForceNF<VizmoTraits>("euclidean", false, 5));
+  VizmoProblem::NeighborhoodFinderPointer nfp(new BruteForceNF<VizmoTraits>("euclidean", false, 10));
   problem->AddNeighborhoodFinder(nfp, "BFNF");
 
   //add connector
