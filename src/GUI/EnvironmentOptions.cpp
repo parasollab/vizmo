@@ -16,6 +16,7 @@
 #include "Icons/AddBoxRegion.xpm"
 #include "Icons/DeleteRegion.xpm"
 #include "Icons/RandEnv.xpm"
+#include "Icons/MapEnv.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_threadDone(true), m_thread(NULL) {
@@ -288,7 +289,7 @@ EnvironmentOptions::CreateActions(){
   m_actions["addRegionBox"] = addRegionBox;
   QAction* deleteRegion = new QAction(QPixmap(deleteregion), tr("Delete Region"), this);
   m_actions["deleteRegion"] = deleteRegion;
-  QAction* ugmp = new QAction(QPixmap(randEnvIcon), tr("Map Environment"), this);
+  QAction* ugmp = new QAction(QPixmap(mapenv), tr("Map Environment"), this);
   m_actions["ugmp"] = ugmp;
 
   //2. Set other specifications as necessary
