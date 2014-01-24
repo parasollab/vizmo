@@ -252,7 +252,7 @@ RegionStrategy<MPTraits>::UpdateRegionColor() {
     //update region color based on node density
     double densityRatio = 1 - exp(-sqr(m_samplingRegion->NodeDensity()));
     //double densityRatio = 1 - exp(-sqr(m_samplingRegion->CCDensity()));
-    m_samplingRegion->SetColor(Color4(densityRatio, 1 - densityRatio, 0., 1.));
+    m_samplingRegion->SetColor(Color4(densityRatio, 1 - densityRatio, 0., 0.5));
   }
 }
 

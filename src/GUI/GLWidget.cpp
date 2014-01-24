@@ -58,6 +58,7 @@ GLWidget::initializeGL(){
   SetLight();
 
   glEnable(GL_DEPTH_TEST);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glClearColor(1, 1, 1, 0);
   //glEnable(GL_CULL_FACE);
