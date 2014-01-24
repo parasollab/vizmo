@@ -152,13 +152,13 @@ EnvModel::Draw() {
   }
 
   glEnable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
+  glDepthMask(GL_FALSE);
   for(size_t i = 0; i < numRegions; ++i) {
     glPushName(numMBs + i);
     m_regions[i]->Draw();
     glPopName();
   }
-  glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
 }
 
