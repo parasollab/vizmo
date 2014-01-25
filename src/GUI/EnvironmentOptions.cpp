@@ -17,6 +17,8 @@
 #include "Icons/DeleteRegion.xpm"
 #include "Icons/RandEnv.xpm"
 #include "Icons/MapEnv.xpm"
+#include "Icons/AttractRegion.xpm"
+#include "Icons/AvoidRegion.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_threadDone(true), m_thread(NULL) {
@@ -312,9 +314,9 @@ EnvironmentOptions::CreateActions(){
   m_actions["addRegionBox"] = addRegionBox;
   QAction* deleteRegion = new QAction(QPixmap(deleteregion), tr("Delete Region"), this);
   m_actions["deleteRegion"] = deleteRegion;
-  QAction* makeRegionAttract = new QAction(QPixmap(mapenv), tr("Make Attract Region"), this);
+  QAction* makeRegionAttract = new QAction(QPixmap(attractregion), tr("Make Attract Region"), this);
   m_actions["makeRegionAttract"] = makeRegionAttract;
-  QAction* makeRegionAvoid = new QAction(QPixmap(mapenv), tr("Make Avoid Region"), this);
+  QAction* makeRegionAvoid = new QAction(QPixmap(avoidregion), tr("Make Avoid Region"), this);
   m_actions["makeRegionAvoid"] = makeRegionAvoid;
   QAction* ugmp = new QAction(QPixmap(mapenv), tr("Map Environment"), this);
   m_actions["ugmp"] = ugmp;
