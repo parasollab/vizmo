@@ -61,9 +61,10 @@ Camera::MouseReleased(QMouseEvent* _e) {
 bool
 Camera::MouseMotion(QMouseEvent* _e){
   if(m_mousePressed) {
+    double speed = (m_eye - Point3d()).norm() / 200.0;
     QPoint drag = _e->pos() - m_pressedPt;
-    double dx = drag.x()*m_speed;
-    double dy = -drag.y()*m_speed;
+    double dx = drag.x()*speed;
+    double dy = -drag.y()*speed;
 
     //ctrl+shift+left
     //  Y - changes elevation of camera
