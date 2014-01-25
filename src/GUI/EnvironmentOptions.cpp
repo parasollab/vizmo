@@ -199,7 +199,7 @@ EnvironmentOptions::AddRegionBox() {
 
   //create new spherical region and add to environment
   RegionBoxModel* r = new RegionBoxModel();
-  GetVizmo().GetEnv()->AddRegion(r);
+  GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   //set mouse events to current region for GLWidget
   m_mainWindow->GetGLScene()->SetCurrentRegion(r);
@@ -218,7 +218,7 @@ EnvironmentOptions::AddRegionSphere() {
 
   //create new spherical region and add to environment
   RegionSphereModel* r = new RegionSphereModel();
-  GetVizmo().GetEnv()->AddRegion(r);
+  GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   //set mouse events to current region for GLWidget
   m_mainWindow->GetGLScene()->SetCurrentRegion(r);
@@ -236,6 +236,28 @@ EnvironmentOptions::DeleteRegion() {
     GetVizmo().GetSelectedModels().clear();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
     m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
+  }
+}
+
+void
+EnvironmentOptions::MakeRegionAttract() {
+  ChangeRegionType(true);
+}
+
+void
+EnvironmentOptions::MakeRegionAvoid() {
+  ChangeRegionType(false);
+}
+
+void
+EnvironmentOptions::ChangeRegionType(bool _attract) {
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  //alert that only the boundary should be selected
+  if(sel.size() == 1 && (sel[0]->Name() == "Box Region" || sel[0]->Name() == "Sphere Region")) {
+    RegionModel* r = (RegionModel*)sel[0];
+    if(GetVizmo().GetEnv()->IsNonCommitRegion(r)) {
+      GetVizmo().GetEnv()->ChangeRegionType(r, _attract);
+    }
   }
 }
 
@@ -289,6 +311,10 @@ EnvironmentOptions::CreateActions(){
   m_actions["addRegionBox"] = addRegionBox;
   QAction* deleteRegion = new QAction(QPixmap(deleteregion), tr("Delete Region"), this);
   m_actions["deleteRegion"] = deleteRegion;
+  QAction* makeRegionAttract = new QAction(QPixmap(mapenv), tr("Make Attract Region"), this);
+  m_actions["makeRegionAttract"] = makeRegionAttract;
+  QAction* makeRegionAvoid = new QAction(QPixmap(mapenv), tr("Make Avoid Region"), this);
+  m_actions["makeRegionAvoid"] = makeRegionAvoid;
   QAction* ugmp = new QAction(QPixmap(mapenv), tr("Map Environment"), this);
   m_actions["ugmp"] = ugmp;
 
@@ -305,6 +331,8 @@ EnvironmentOptions::CreateActions(){
   m_actions["addRegionSphere"]->setEnabled(false);
   m_actions["addRegionBox"]->setEnabled(false);
   m_actions["deleteRegion"]->setEnabled(false);
+  m_actions["makeRegionAttract"]->setEnabled(false);
+  m_actions["makeRegionAvoid"]->setEnabled(false);
   m_actions["ugmp"]->setEnabled(false);
 
   //3. Make connections
@@ -319,6 +347,8 @@ EnvironmentOptions::CreateActions(){
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
   connect(m_actions["addRegionBox"], SIGNAL(triggered()), this, SLOT(AddRegionBox()));
   connect(m_actions["deleteRegion"], SIGNAL(triggered()), this, SLOT(DeleteRegion()));
+  connect(m_actions["makeRegionAttract"], SIGNAL(triggered()), this, SLOT(MakeRegionAttract()));
+  connect(m_actions["makeRegionAvoid"], SIGNAL(triggered()), this, SLOT(MakeRegionAvoid()));
   connect(m_actions["ugmp"], SIGNAL(triggered()), this, SLOT(MapEnvironment()));
 }
 
@@ -338,6 +368,8 @@ EnvironmentOptions::SetUpCustomSubmenu(){
   m_submenu->addAction(m_actions["addRegionSphere"]);
   m_submenu->addAction(m_actions["addRegionBox"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
+  m_submenu->addAction(m_actions["makeRegionAttract"]);
+  m_submenu->addAction(m_actions["makeRegionAvoid"]);
   m_submenu->addAction(m_actions["ugmp"]);
   m_obstacleMenu->setEnabled(false);
 }
@@ -349,6 +381,8 @@ EnvironmentOptions::SetUpToolbar(){
   m_toolbar->addAction(m_actions["addRegionSphere"]);
   m_toolbar->addAction(m_actions["addRegionBox"]);
   m_toolbar->addAction(m_actions["deleteRegion"]);
+  m_toolbar->addAction(m_actions["makeRegionAttract"]);
+  m_toolbar->addAction(m_actions["makeRegionAvoid"]);
   m_toolbar->addAction(m_actions["ugmp"]);
 }
 
@@ -365,6 +399,8 @@ EnvironmentOptions::Reset(){
   m_actions["addRegionSphere"]->setEnabled(true);
   m_actions["addRegionBox"]->setEnabled(true);
   m_actions["deleteRegion"]->setEnabled(true);
+  m_actions["makeRegionAttract"]->setEnabled(true);
+  m_actions["makeRegionAvoid"]->setEnabled(true);
   m_actions["ugmp"]->setEnabled(true);
   m_obstacleMenu->setEnabled(true);
 }
@@ -382,6 +418,8 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
   m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));
   m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
+  m_actions["makeRegionAttract"]->setWhatsThis(tr("Change a region to attract"));
+  m_actions["makeRegionAvoid"]->setWhatsThis(tr("Change a region to avoid"));
   m_actions["ugmp"]->setWhatsThis(tr("Map an environment using region strategy"));
 }
 

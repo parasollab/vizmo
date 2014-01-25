@@ -35,6 +35,9 @@ class EnvironmentOptions : public OptionsBase {
     void AddRegionBox();
     void AddRegionSphere();
     void DeleteRegion();
+    void MakeRegionAttract();
+    void MakeRegionAvoid();
+    void ChangeRegionType(bool _attract);
 
     void MapEnvironment();
 

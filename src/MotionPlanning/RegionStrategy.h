@@ -133,7 +133,7 @@ template<class MPTraits>
 size_t
 RegionStrategy<MPTraits>::SelectRegion() {
   //get regions from vizmo
-  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetRegions();
+  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetAttractRegions();
 
   //randomly choose a region
   return rand() % (regions.size() + 1);
@@ -144,7 +144,7 @@ void
 RegionStrategy<MPTraits>::SampleRegion(size_t _index, vector<CfgType>& _samples) {
   //setup access pointers
   shared_ptr<Boundary> samplingBoundary;
-  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetRegions();
+  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   typename MPProblemType::SamplerPointer sp = this->GetMPProblem()->GetSampler("uniform");
 
   //check if the selected region is a region or the environment boundary.  if it
@@ -250,9 +250,9 @@ void
 RegionStrategy<MPTraits>::UpdateRegionColor() {
   if(m_samplingRegion) {
     //update region color based on node density
-    double densityRatio = 1 - exp(-sqr(m_samplingRegion->NodeDensity()));
+    double densityRatio = exp(-sqr(m_samplingRegion->NodeDensity()));
     //double densityRatio = 1 - exp(-sqr(m_samplingRegion->CCDensity()));
-    m_samplingRegion->SetColor(Color4(densityRatio, 1 - densityRatio, 0., 0.5));
+    m_samplingRegion->SetColor(Color4(1 - densityRatio, densityRatio, 0., 0.5));
   }
 }
 

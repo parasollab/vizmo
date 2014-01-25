@@ -31,8 +31,59 @@ EnvModel::~EnvModel() {
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
     delete *mit;
   typedef vector<RegionModel*>::const_iterator RIT;
-  for(RIT rit = m_regions.begin(); rit!=m_regions.end(); ++rit)
+  for(RIT rit = m_attractRegions.begin(); rit != m_attractRegions.end(); ++rit)
     delete *rit;
+  for(RIT rit = m_avoidRegions.begin(); rit!=m_avoidRegions.end(); ++rit)
+    delete *rit;
+  for(RIT rit = m_nonCommitRegions.begin(); rit!=m_nonCommitRegions.end(); ++rit)
+    delete *rit;
+}
+
+bool
+EnvModel::IsNonCommitRegion(RegionModel* _r) const {
+  return find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r)
+    != m_nonCommitRegions.end();
+}
+
+void
+EnvModel::ChangeRegionType(RegionModel* _r, bool _attract) {
+  vector<RegionModel*>::iterator rit;
+  rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
+  if(rit != m_nonCommitRegions.end()) {
+    m_nonCommitRegions.erase(rit);
+    if(_attract) {
+      _r->SetColor(Color4(0, 1, 0, 0.5));
+      m_attractRegions.push_back(_r);
+    }
+    else {
+      _r->SetColor(Color4(0, 0, 0, 0.5));
+      m_avoidRegions.push_back(_r);
+    }
+  }
+}
+
+void
+EnvModel::DeleteRegion(RegionModel* _r) {
+  vector<RegionModel*>::iterator rit;
+  rit = find(m_attractRegions.begin(), m_attractRegions.end(), _r);
+  if(rit != m_attractRegions.end()) {
+    delete *rit;
+    m_attractRegions.erase(rit);
+  }
+  else {
+    rit = find(m_avoidRegions.begin(), m_avoidRegions.end(), _r);
+    if(rit != m_avoidRegions.end()) {
+      delete *rit;
+      m_avoidRegions.erase(rit);
+    }
+    else {
+      rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
+      if(rit != m_nonCommitRegions.end()) {
+        delete *rit;
+        m_nonCommitRegions.erase(rit);
+      }
+    }
+  }
 }
 
 //////////Load Functions//////////
@@ -122,23 +173,33 @@ EnvModel::BuildModels(){
 
 void
 EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
+  size_t numMBs = m_multibodies.size();
+  size_t numAttractRegions = m_attractRegions.size();
+  size_t numAvoidRegions = m_avoidRegions.size();
+  size_t numNonCommitRegions = m_nonCommitRegions.size();
   //unselect old one
-  if(!_index || *_index > m_multibodies.size() + m_regions.size()) //input error
+  if(!_index || *_index > numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions) //input error
     return;
-  else if(*_index == m_multibodies.size() + m_regions.size())
+  else if(*_index == numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions)
     m_boundary->Select(_index+1, _sel);
-  else if(*_index < m_multibodies.size())
+  else if(*_index < numMBs)
     m_multibodies[*_index]->Select(_index+1, _sel);
+  else if(*_index < numMBs + numAttractRegions)
+    m_attractRegions[*_index - numMBs]->Select(_index+1, _sel);
+  else if(*_index < numMBs + numAttractRegions + numAvoidRegions)
+    m_avoidRegions[*_index - numMBs - numAttractRegions]->Select(_index+1, _sel);
   else
-    m_regions[*_index - m_multibodies.size()]->Select(_index+1, _sel);
+    m_nonCommitRegions[*_index - numMBs - numAttractRegions - numAvoidRegions]->Select(_index+1, _sel);
 }
 
 void
 EnvModel::Draw() {
   size_t numMBs = m_multibodies.size();
-  size_t numRegions = m_regions.size();
+  size_t numAttractRegions = m_attractRegions.size();
+  size_t numAvoidRegions = m_avoidRegions.size();
+  size_t numNonCommitRegions = m_nonCommitRegions.size();
 
-  glPushName(numMBs + numRegions);
+  glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions);
   m_boundary->Draw();
   glPopName();
 
@@ -153,9 +214,19 @@ EnvModel::Draw() {
 
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
-  for(size_t i = 0; i < numRegions; ++i) {
+  for(size_t i = 0; i < numAttractRegions; ++i) {
     glPushName(numMBs + i);
-    m_regions[i]->Draw();
+    m_attractRegions[i]->Draw();
+    glPopName();
+  }
+  for(size_t i = 0; i < numAvoidRegions; ++i) {
+    glPushName(numMBs + numAttractRegions + i);
+    m_avoidRegions[i]->Draw();
+    glPopName();
+  }
+  for(size_t i = 0; i < numNonCommitRegions; ++i) {
+    glPushName(numMBs + numAttractRegions + numAvoidRegions + i);
+    m_nonCommitRegions[i]->Draw();
     glPopName();
   }
   glDepthMask(GL_TRUE);
@@ -182,7 +253,11 @@ EnvModel::GetChildren(list<Model*>& _models){
     if(!(*i)->IsActive())
       _models.push_back(*i);
   typedef vector<RegionModel*>::iterator RIT;
-  for(RIT i = m_regions.begin(); i != m_regions.end(); ++i)
+  for(RIT i = m_attractRegions.begin(); i != m_attractRegions.end(); ++i)
+    _models.push_back(*i);
+  for(RIT i = m_avoidRegions.begin(); i != m_avoidRegions.end(); ++i)
+    _models.push_back(*i);
+  for(RIT i = m_nonCommitRegions.begin(); i != m_nonCommitRegions.end(); ++i)
     _models.push_back(*i);
   _models.push_back(m_boundary);
 }

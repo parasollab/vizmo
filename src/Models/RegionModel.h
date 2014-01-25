@@ -14,7 +14,7 @@ class RegionModel : public Model {
     RegionModel(const string& _name) :
       Model(_name),
       m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0) {
-      SetColor(Color4(0, 1, 0, 0.5));
+      SetColor(Color4(0, 0, 1, 0.5));
     }
     virtual ~RegionModel() {}
 

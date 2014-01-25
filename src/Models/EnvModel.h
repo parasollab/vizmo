@@ -23,12 +23,20 @@ class EnvModel : public LoadableModel {
 
     vector<MultiBodyModel*> GetMultiBodies() {return m_multibodies;}
 
+    //Boundary
     BoundaryModel* GetBoundary() {return m_boundary;}
     void SetBoundary(BoundaryModel* _b) {m_boundary = _b;}
 
-    const vector<RegionModel*>& GetRegions() const {return m_regions;}
-    void AddRegion(RegionModel* _r) {m_regions.push_back(_r);}
-    void DeleteRegion(RegionModel* _r) {m_regions.erase(find(m_regions.begin(), m_regions.end(), _r));}
+    //Regions
+    bool IsNonCommitRegion(RegionModel* _r) const;
+    const vector<RegionModel*>& GetAttractRegions() const {return m_attractRegions;}
+    const vector<RegionModel*>& GetAvoidRegions() const {return m_avoidRegions;}
+    const vector<RegionModel*>& GetNonCommitRegions() const {return m_nonCommitRegions;}
+    void AddAttractRegion(RegionModel* _r) {m_attractRegions.push_back(_r);}
+    void AddAvoidRegion(RegionModel* _r) {m_avoidRegions.push_back(_r);}
+    void AddNonCommitRegion(RegionModel* _r) {m_nonCommitRegions.push_back(_r);}
+    void ChangeRegionType(RegionModel* _r, bool _attract);
+    void DeleteRegion(RegionModel* _r);
 
     //Load functions
     virtual void ParseFile();
@@ -66,7 +74,7 @@ class EnvModel : public LoadableModel {
 
     BoundaryModel* m_boundary;
 
-    vector<RegionModel*> m_regions;
+    vector<RegionModel*> m_attractRegions, m_avoidRegions, m_nonCommitRegions;
 
     //PMPL environment
     Environment* m_environment;
