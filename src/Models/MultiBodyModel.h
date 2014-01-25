@@ -60,6 +60,7 @@ class MultiBodyModel : public Model {
 
     //drawing
     virtual void BuildModels();
+    virtual void SetSelectable(bool _s);
     virtual void Select(GLuint* _index, vector<Model*>& sel);
     virtual void Draw();
     virtual void DrawSelect();

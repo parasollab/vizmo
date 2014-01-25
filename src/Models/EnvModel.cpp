@@ -263,6 +263,15 @@ EnvModel::GetChildren(list<Model*>& _models){
 }
 
 void
+EnvModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  typedef vector<MultiBodyModel*>::iterator MIT;
+  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
+    (*i)->SetSelectable(_s);
+  m_boundary->SetSelectable(_s);
+}
+
+void
 EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
   vector<MultiBodyModel*>::iterator mbit;
   for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){

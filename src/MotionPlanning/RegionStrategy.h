@@ -59,6 +59,11 @@ RegionStrategy<MPTraits>::Initialize() {
 
   if(GetVizmo().IsQueryLoaded())
     boost::static_pointer_cast<Query<MPTraits> >(this->GetMPProblem()->GetMapEvaluator("Query"))->SetPathFile(basename + ".path");
+
+  //Make non-region objects non-selectable
+  GetVizmo().GetMap()->SetSelectable(false);
+  GetVizmo().GetEnv()->SetSelectable(false);
+  GetVizmo().GetRobot()->SetSelectable(false);
 }
 
 template<class MPTraits>
@@ -127,6 +132,11 @@ RegionStrategy<MPTraits>::Finalize() {
   //output roadmap
   ofstream ofs((basename + ".map").c_str());
   this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
+
+  //Make things selectable again
+  GetVizmo().GetMap()->SetSelectable(true);
+  GetVizmo().GetEnv()->SetSelectable(true);
+  GetVizmo().GetRobot()->SetSelectable(true);
 }
 
 template<class MPTraits>

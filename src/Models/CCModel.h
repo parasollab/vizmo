@@ -206,7 +206,7 @@ CCModel<CFG, WEIGHT>::DrawSelect(){
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
-  if(_index == NULL)
+  if(!m_selectable || _index == NULL)
     return;
 
   if(_index[0] == 1)

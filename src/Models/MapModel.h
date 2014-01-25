@@ -221,7 +221,7 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
   QMutexLocker lock(&m_lock);
-  if(_index == NULL)
+  if(!m_selectable || _index == NULL)
     return;
   m_ccModels[_index[0]]->Select(&_index[1], _sel);
 }

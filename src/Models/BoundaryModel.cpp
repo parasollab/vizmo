@@ -10,7 +10,7 @@ BoundaryModel::~BoundaryModel() {
 
 void
 BoundaryModel::Select(GLuint* _index, vector<Model*>& _sel) {
-  if(_index)
+  if(m_selectable && _index)
     _sel.push_back(this);
 }
 

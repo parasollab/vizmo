@@ -86,8 +86,15 @@ MultiBodyModel::BuildModels() {
 
 void
 MultiBodyModel::Select(unsigned int* _index, vector<Model*>& sel){
-  if(_index)
+  if(m_selectable && _index)
     sel.push_back(this);
+}
+
+void
+MultiBodyModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  for(BodyIter bit = Begin(); bit != End(); bit++)
+    (*bit)->SetSelectable(_s);
 }
 
 void

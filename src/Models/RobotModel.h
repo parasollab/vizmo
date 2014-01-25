@@ -22,6 +22,7 @@ class RobotModel : public Model {
     void Restore();
 
     void BuildModels();
+    virtual void SetSelectable(bool _s); //propagate selectability to children
     void Select(GLuint* _index, vector<Model*>& _sel);
     void Draw();
     void DrawSelect();

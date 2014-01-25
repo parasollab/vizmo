@@ -47,6 +47,9 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
     item = new ListViewItem(_p);
 
   item->m_model = _model;
+  if(_model->IsSelectable() == false)
+    item->setDisabled(true);
+
   QMutexLocker* locker = NULL;
   if(_model->Name() == "Map")
     locker = new QMutexLocker(&((MapModel<CfgModel, EdgeModel>*)_model)->AcquireMutex());
