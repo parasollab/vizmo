@@ -11,13 +11,18 @@ using boost::shared_ptr;
 
 class RegionModel : public Model {
   public:
+
+    enum Type {ATTRACT, AVOID, NONCOMMIT};
+
     RegionModel(const string& _name) :
       Model(_name),
-      m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0) {
+      m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0), m_type(NONCOMMIT) {
       SetColor(Color4(0, 0, 1, 0.5));
     }
     virtual ~RegionModel() {}
 
+    Type GetType() const {return m_type;}
+    void SetType(Type _t) {m_type = _t;}
     virtual shared_ptr<Boundary> GetBoundary() const = 0;
 
     //initialization of gl models
@@ -36,7 +41,7 @@ class RegionModel : public Model {
     double FSpaceArea() const {return WSpaceArea() * m_successfulAttempts / (double)(m_successfulAttempts + m_failedAttempts);}
     double NodeDensity() const {return (m_successfulAttempts + m_failedAttempts) / WSpaceArea();}
     //double CCDensity() const {return WSpaceArea() / (double)m_numCCs;}
-    double CCDensity() const {return m_numCCs / WSpaceArea();}
+    //double CCDensity() const {return m_numCCs / WSpaceArea();}
 
     //successful attempts
     void IncreaseNodeCount(size_t _i) { m_successfulAttempts += _i; }
@@ -49,11 +54,13 @@ class RegionModel : public Model {
     size_t GetFACount() { return m_failedAttempts; }
 
     //cc count
-    size_t GetCCCount() {return m_numCCs;}
-    void SetCCCount(size_t _i) { m_numCCs = _i; }
+    //size_t GetCCCount() {return m_numCCs;}
+    //void SetCCCount(size_t _i) { m_numCCs = _i; }
 
   protected:
     size_t m_successfulAttempts, m_failedAttempts, m_numCCs;
+
+    Type m_type;
 };
 
 #endif

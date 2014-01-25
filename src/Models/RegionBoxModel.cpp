@@ -95,6 +95,9 @@ RegionBoxModel::Print(ostream& _os) const {
 
 bool
 RegionBoxModel::MousePressed(QMouseEvent* _e) {
+  if(m_type == AVOID)
+    return false;
+
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_lmb = true;
@@ -105,6 +108,9 @@ RegionBoxModel::MousePressed(QMouseEvent* _e) {
 
 bool
 RegionBoxModel::MouseReleased(QMouseEvent* _e) {
+  if(m_type == AVOID)
+    return false;
+
   if(m_lmb) {
     m_lmb = false;
     m_firstClick = false;
@@ -122,6 +128,9 @@ RegionBoxModel::MouseReleased(QMouseEvent* _e) {
 
 bool
 RegionBoxModel::MouseMotion(QMouseEvent* _e) {
+  if(m_type == AVOID)
+    return false;
+
   if(m_lmb) {
     //get mouse position
     QPoint mousePos = QPoint(_e->pos().x(), g_height - _e->pos().y());
@@ -184,6 +193,10 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e) {
       for(int i = 0; i < 4; i++)
         m_boxVertices[i] = m_prevPos[i] + delta;
     }
+
+    ClearNodeCount();
+    ClearFACount();
+
     return true;
   }
   return false;
@@ -191,6 +204,9 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e) {
 
 bool
 RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e) {
+  if(m_type == AVOID)
+    return false;
+
   //clear highlighted part
   m_highlightedPart = NONE;
 

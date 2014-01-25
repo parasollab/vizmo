@@ -256,6 +256,7 @@ EnvironmentOptions::ChangeRegionType(bool _attract) {
   if(sel.size() == 1 && (sel[0]->Name() == "Box Region" || sel[0]->Name() == "Sphere Region")) {
     RegionModel* r = (RegionModel*)sel[0];
     if(GetVizmo().GetEnv()->IsNonCommitRegion(r)) {
+      r->SetType(_attract ? RegionModel::ATTRACT : RegionModel::AVOID);
       GetVizmo().GetEnv()->ChangeRegionType(r, _attract);
     }
   }

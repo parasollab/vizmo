@@ -226,22 +226,22 @@ RegionStrategy<MPTraits>::UpdateRegionStats() {
     m_samplingRegion->ClearNodeCount();
 
     //iterate through graph to find which vertices are in the modified region
-    typedef CCModel<CfgType, WeightType>* CCM;
-    typedef set<CCM> SetCCs;
-    SetCCs ccs;
+    //typedef CCModel<CfgType, WeightType>* CCM;
+    //typedef set<CCM> SetCCs;
+    //SetCCs ccs;
     for(typename MPProblemType::GraphType::iterator git = g->begin(); git != g->end(); git++) {
       const CfgType& c = g->GetVertex(git);
       if(ep->InBounds(c, bbx)) {
         m_samplingRegion->IncreaseNodeCount(1);
-        ccs.insert(c.GetCC());
+        //ccs.insert(c.GetCC());
       }
     }
 
-    typename SetCCs::iterator cit = find(ccs.begin(), ccs.end(), (CCM)NULL);
-    if(cit != ccs.end())
-      ccs.erase(cit);
+    //typename SetCCs::iterator cit = find(ccs.begin(), ccs.end(), (CCM)NULL);
+    //if(cit != ccs.end())
+    //  ccs.erase(cit);
 
-    m_samplingRegion->SetCCCount(ccs.size());
+    //m_samplingRegion->SetCCCount(ccs.size());
   }
 }
 

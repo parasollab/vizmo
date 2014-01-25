@@ -71,6 +71,9 @@ RegionSphereModel::Print(ostream& _os) const {
 
 bool
 RegionSphereModel::MousePressed(QMouseEvent* _e) {
+  if(m_type == AVOID)
+    return false;
+
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_lmb = true;
@@ -86,6 +89,9 @@ RegionSphereModel::MousePressed(QMouseEvent* _e) {
 
 bool
 RegionSphereModel::MouseReleased(QMouseEvent* _e) {
+  if(m_type == AVOID)
+    return false;
+
   if(m_lmb) {
     m_lmb = false;
     m_firstClick = false;
@@ -97,6 +103,9 @@ RegionSphereModel::MouseReleased(QMouseEvent* _e) {
 
 bool
 RegionSphereModel::MouseMotion(QMouseEvent* _e) {
+  if(m_type == AVOID)
+    return false;
+
   if(m_lmb) {
     Point3d prj = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(), Point3d(0, 0, 0), Vector3d(0, 0, 1));
     if(m_firstClick || m_highlightedPart == PERIMETER)
@@ -106,6 +115,10 @@ RegionSphereModel::MouseMotion(QMouseEvent* _e) {
       Vector3d diff = prj - prjClicked;
       m_center = m_centerOrig + diff;
     }
+
+    ClearNodeCount();
+    ClearFACount();
+
     return true;
   }
   return false;
@@ -113,6 +126,9 @@ RegionSphereModel::MouseMotion(QMouseEvent* _e) {
 
 bool
 RegionSphereModel::PassiveMouseMotion(QMouseEvent* _e) {
+  if(m_type == AVOID)
+    return false;
+
   m_highlightedPart = NONE;
   Point3d prj = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(), Point3d(0, 0, 0), Vector3d(0, 0, 1));
   double v = sqrt(sqr(prj[0] - m_center[0]) + sqr(prj[1] - m_center[1]) + sqr(prj[2] - m_center[2]));
