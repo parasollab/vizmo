@@ -14,6 +14,7 @@ using namespace mathtool;
 
 #include <gl.h>
 #include "Utilities/Color.h"
+#include "Utilities/Camera.h"
 
 enum RenderMode {INVISIBLE_MODE, WIRE_MODE, SOLID_MODE};
 
@@ -53,10 +54,10 @@ class Model {
     virtual void Print(ostream& _os) const = 0;
 
     //mouse/keyboard event handling
-    virtual bool MousePressed(QMouseEvent* _e) {return false;}
-    virtual bool MouseReleased(QMouseEvent* _e) {return false;}
-    virtual bool MouseMotion(QMouseEvent* _e) {return false;}
-    virtual bool PassiveMouseMotion(QMouseEvent* _e) {return false;}
+    virtual bool MousePressed(QMouseEvent* _e, Camera* _c = NULL) {return false;}
+    virtual bool MouseReleased(QMouseEvent* _e, Camera* _c = NULL) {return false;}
+    virtual bool MouseMotion(QMouseEvent* _e, Camera* _c = NULL) {return false;}
+    virtual bool PassiveMouseMotion(QMouseEvent* _e, Camera* _c = NULL) {return false;}
     virtual bool KeyPressed(QKeyEvent* _e) {return false;}
 
   protected:

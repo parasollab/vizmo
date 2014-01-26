@@ -3,6 +3,8 @@
 
 #include "RegionModel.h"
 
+class Camera;
+
 class RegionSphereModel : public RegionModel {
   public:
     enum Highlight {NONE, PERIMETER, ALL};
@@ -23,10 +25,10 @@ class RegionSphereModel : public RegionModel {
     void Print(ostream& _os) const;
 
     //mouse events for selecting and resizing
-    bool MousePressed(QMouseEvent* _e);
-    bool MouseReleased(QMouseEvent* _e);
-    bool MouseMotion(QMouseEvent* _e);
-    bool PassiveMouseMotion(QMouseEvent* _e);
+    bool MousePressed(QMouseEvent* _e, Camera* _c);
+    bool MouseReleased(QMouseEvent* _e, Camera* _c);
+    bool MouseMotion(QMouseEvent* _e, Camera* _c);
+    bool PassiveMouseMotion(QMouseEvent* _e, Camera* _c);
 
     double WSpaceArea() const;
 
@@ -34,7 +36,7 @@ class RegionSphereModel : public RegionModel {
     Vector3d m_center, m_centerOrig;
     double m_radius;
 
-    bool m_lmb, m_firstClick;
+    bool m_lmb, m_rmb, m_firstClick;
     Highlight m_highlightedPart;
     QPoint m_clicked;
 };
