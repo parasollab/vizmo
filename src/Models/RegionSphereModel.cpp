@@ -8,8 +8,10 @@
 #include "MPProblem/BoundingSphere.h"
 #include "Utilities/GLUtils.h"
 
-RegionSphereModel::RegionSphereModel() : RegionModel("Sphere Region"),
-  m_radius(-1), m_lmb(false), m_rmb(false), m_firstClick(true), m_highlightedPart(NONE) {}
+RegionSphereModel::RegionSphereModel(const Point3d& _center, double _radius, bool _firstClick) :
+  RegionModel("Sphere Region"),
+  m_center(_center), m_centerOrig(_center), m_radius(_radius),
+  m_lmb(false), m_rmb(false), m_firstClick(_firstClick), m_highlightedPart(NONE) {}
 
 shared_ptr<Boundary>
 RegionSphereModel::GetBoundary() const {

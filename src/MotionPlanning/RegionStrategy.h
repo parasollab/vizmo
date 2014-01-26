@@ -4,6 +4,7 @@
 #include "MPStrategies/MPStrategyMethod.h"
 
 #include "Models/RegionModel.h"
+#include "Models/RegionSphereModel.h"
 #include "Models/Vizmo.h"
 
 template<class MPTraits>
@@ -28,6 +29,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     void RejectSamples(vector<CfgType>& _samples);
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
     void Connect(vector<VID>& _vids);
+    void RecommendRegions(vector<VID>& _vids);
     void UpdateRegionStats();
     void UpdateRegionColor();
     bool EvaluateMap();
@@ -95,6 +97,11 @@ RegionStrategy<MPTraits>::Run() {
 
     //connect roadmap
     Connect(vids);
+
+    if(iter > 200) {
+      //recommend regions based upon vids
+      RecommendRegions(vids);
+    }
 
     if(++iter % 20 == 0) {
       //handle deletion of vertices
@@ -275,6 +282,27 @@ RegionStrategy<MPTraits>::Connect(vector<VID>& _vids) {
 
   UpdateRegionStats();
   UpdateRegionColor();
+}
+
+template<class MPTraits>
+void
+RegionStrategy<MPTraits>::RecommendRegions(vector<VID>& _vids) {
+  if(!m_samplingRegion) {
+    typedef typename MPProblemType::RoadmapType::GraphType GraphType;
+    GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
+    typedef typename vector<VID>::iterator VIT;
+    for(VIT vit = _vids.begin(); vit != _vids.end(); ++vit) {
+      if(g->get_degree(*vit) < 1) {
+        //node is not connected to anything
+        //recommend a region
+        RegionSphereModel* r = new RegionSphereModel(
+            g->find_vertex(*vit)->property().GetPoint(),
+            this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100,
+            false);
+        GetVizmo().GetEnv()->AddNonCommitRegion(r);
+      }
+    }
+  }
 }
 
 template<class MPTraits>

@@ -9,7 +9,7 @@ class RegionSphereModel : public RegionModel {
   public:
     enum Highlight {NONE, PERIMETER, ALL};
 
-    RegionSphereModel();
+    RegionSphereModel(const Point3d& _center = Point3d(), double _radius = -1, bool _firstClick = true);
 
     shared_ptr<Boundary> GetBoundary() const;
 
