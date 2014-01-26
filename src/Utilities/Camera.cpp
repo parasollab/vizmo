@@ -61,17 +61,18 @@ Camera::MouseReleased(QMouseEvent* _e) {
 bool
 Camera::MouseMotion(QMouseEvent* _e){
   if(m_mousePressed) {
-    double speed = (m_eye - Point3d()).norm() / 200.0;
+    double trSpeed = (m_eye - Point3d()).norm() / 200.0;
+    double rotSpeed = 0.5;
     QPoint drag = _e->pos() - m_pressedPt;
-    double dx = drag.x()*speed;
-    double dy = -drag.y()*speed;
+    double dx = drag.x();
+    double dy = -drag.y();
 
     //ctrl+shift+left
     //  Y - changes elevation of camera
     //  X - changes azimuth of camera
     if(_e->modifiers() & Qt::ShiftModifier && _e->buttons() == Qt::LeftButton) {
-      double phi = degToRad(-dx);
-      double theta = degToRad(dy);
+      double phi = degToRad(-dx * rotSpeed);
+      double theta = degToRad(dy * rotSpeed);
 
       m_currEye = m_eye;
       m_currDir = m_dir;
@@ -96,8 +97,8 @@ Camera::MouseMotion(QMouseEvent* _e){
     //  X - rotates at vector right/left
     else if(_e->buttons() == Qt::LeftButton) {
 
-      double phi = degToRad(-dx);
-      double theta = degToRad(dy);
+      double phi = degToRad(-dx * rotSpeed);
+      double theta = degToRad(dy * rotSpeed);
       double beta = acos(m_up * m_dir);
 
       Vector3d left = (m_dir % m_up).normalize();
@@ -116,7 +117,7 @@ Camera::MouseMotion(QMouseEvent* _e){
     //ctrl+right
     //  Y - moves camera in/out of at direction
     else if(_e->buttons() == Qt::RightButton) {
-      m_currEye = m_eye + m_dir*dy;
+      m_currEye = m_eye + m_dir*dy * trSpeed;
     }
     //ctrl+middle
     //  Y - moves camera up/down of at direction
@@ -124,7 +125,7 @@ Camera::MouseMotion(QMouseEvent* _e){
     else if(_e->buttons() == Qt::MidButton) {
       Vector3d left = (m_dir % m_up).normalize();
       Vector3d trueUp = (left % m_dir).normalize();
-      m_currEye = m_eye + left*dx + trueUp*dy;
+      m_currEye = m_eye + left*dx*trSpeed + trueUp*dy*trSpeed;
     }
     //not handled by camera
     else
