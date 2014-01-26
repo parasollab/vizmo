@@ -160,7 +160,7 @@ RegionBoxModel::DrawSelect() {
 void
 RegionBoxModel::Print(ostream& _os) const {
   _os << Name() << " ";
-  for(int i = 0; i < m_boxVertices.size(); i++)
+  for(size_t i = 0; i < m_boxVertices.size(); i++)
     _os << "(" << m_boxVertices[i] << ")";
   _os << endl;
 }
@@ -282,18 +282,18 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
       }
 
       //if a mouse axis is unused, assign it to the appropriate box axis
-      if((m_highlightedPart & TOP + BOTTOM) &&
-          (m_highlightedPart & RIGHT +LEFT) && deltaZ) {
+      if((m_highlightedPart & (TOP + BOTTOM)) &&
+          (m_highlightedPart & (RIGHT + LEFT)) && deltaZ) {
         if(!deltaX) deltaX = deltaZ;
         if(!deltaY) deltaY = deltaZ;
       }
-      if((m_highlightedPart & TOP + BOTTOM) &&
-          (m_highlightedPart & FRONT + BACK) && deltaX) {
+      if((m_highlightedPart & (TOP + BOTTOM)) &&
+          (m_highlightedPart & (FRONT + BACK)) && deltaX) {
         if(!deltaZ) deltaZ = -deltaX;
         if(!deltaY) deltaY = deltaX;
       }
-      if((m_highlightedPart & RIGHT + LEFT) &&
-          (m_highlightedPart & FRONT + BACK) && deltaY) {
+      if((m_highlightedPart & (RIGHT + LEFT)) &&
+          (m_highlightedPart & (FRONT + BACK)) && deltaY) {
         if(!deltaZ) {
           deltaZ = -deltaY;
           if(m_cameraZ * zHat < 0) deltaZ = deltaY;
@@ -372,7 +372,7 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
       Point3d oldPos = ProjectToWorld(m_clicked.x(), m_clicked.y(),
           m_center, -_c->GetDir());
       Vector3d delta = worldPrj - oldPos;
-      for(int i = 0; i < m_boxVertices.size(); ++i)
+      for(size_t i = 0; i < m_boxVertices.size(); ++i)
         m_boxVertices[i] = m_prevPos[i] + delta;
     }
 
@@ -388,7 +388,7 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
     QPoint mousePos = QPoint(_e->pos().x(), g_height - _e->pos().y());
     Vector3d delta = (m_center - _c->GetEye()).normalize() *
       (mousePos.y() - m_clicked.y());
-    for(int i = 0; i < m_boxVertices.size(); ++i)
+    for(size_t i = 0; i < m_boxVertices.size(); ++i)
       m_boxVertices[i] = m_prevPos[i] + delta;
     return true;
   }
@@ -408,7 +408,7 @@ RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   Vector2d m(_e->pos().x(), g_height - _e->pos().y());
 
   //Project vertices to viewscreen
-  for(int i = 0; i < m_winVertices.size(); ++i) {
+  for(size_t i = 0; i < m_winVertices.size(); ++i) {
     Point3d p = ProjectToWindow(m_boxVertices[i]);
     m_winVertices[i][0] = p[0];
     m_winVertices[i][1] = p[1];
