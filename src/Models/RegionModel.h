@@ -16,13 +16,16 @@ class RegionModel : public Model {
 
     RegionModel(const string& _name) :
       Model(_name),
-      m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0), m_type(NONCOMMIT) {
+      m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0),
+      m_type(NONCOMMIT), m_processed(false) {
       SetColor(Color4(0, 0, 1, 0.5));
     }
     virtual ~RegionModel() {}
 
     Type GetType() const {return m_type;}
     void SetType(Type _t) {m_type = _t;}
+    bool IsProcessed() const {return m_processed;}
+    void Processed() {m_processed = true;}
     virtual shared_ptr<Boundary> GetBoundary() const = 0;
 
     //initialization of gl models
@@ -61,6 +64,7 @@ class RegionModel : public Model {
     size_t m_successfulAttempts, m_failedAttempts, m_numCCs;
 
     Type m_type;
+    bool m_processed; //check if rejection region has been processed or not
 };
 
 #endif

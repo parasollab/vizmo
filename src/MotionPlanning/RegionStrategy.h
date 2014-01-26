@@ -25,6 +25,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     //helper functions
     size_t SelectRegion();
     void SampleRegion(size_t _index, vector<CfgType>& _samples);
+    void RejectSamples(vector<CfgType>& _samples);
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
     void Connect(vector<VID>& _vids);
     void UpdateRegionStats();
@@ -33,6 +34,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
 
   private:
     RegionModel* m_samplingRegion;
+    vector<VID> m_toDel;
 };
 
 template<class MPTraits>
@@ -84,6 +86,9 @@ RegionStrategy<MPTraits>::Run() {
     vector<CfgType> samples;
     SampleRegion(index, samples);
 
+    //reject samples
+    RejectSamples(samples);
+
     //add sample to map
     vector<VID> vids;
     AddToRoadmap(samples, vids);
@@ -92,6 +97,16 @@ RegionStrategy<MPTraits>::Run() {
     Connect(vids);
 
     if(++iter % 20 == 0) {
+      //handle deletion of vertices
+      {
+        QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+        typedef typename MPProblemType::RoadmapType::GraphType GraphType;
+        GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
+        typedef typename vector<VID>::iterator VIT;
+        for(VIT vit = m_toDel.begin(); vit != m_toDel.end(); ++vit)
+          g->delete_vertex(*vit);
+        m_toDel.clear();
+      }
       //recreate map model
       GetVizmo().GetMap()->RefreshMap();
     }
@@ -190,6 +205,45 @@ RegionStrategy<MPTraits>::SampleRegion(size_t _index, vector<CfgType>& _samples)
   catch(exception _e) {
     cerr << _e.what() << endl;
     exit(1);
+  }
+}
+
+template<class MPTraits>
+void
+RegionStrategy<MPTraits>::RejectSamples(vector<CfgType>& _samples) {
+  Environment* env = this->GetMPProblem()->GetEnvironment();
+
+  //first test to make sure all regions are processed
+  typedef vector<RegionModel*>::const_iterator RIT;
+  const vector<RegionModel*>& avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+  for(RIT rit = avoidRegions.begin(); rit != avoidRegions.end(); ++rit) {
+    if(!(*rit)->IsProcessed()) {
+      //loop over the graph testing vertices for deletion
+      typedef typename MPProblemType::RoadmapType::GraphType GraphType;
+      typedef typename GraphType::VI VI;
+      GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
+      for(VI vi = g->begin(); vi != g->end(); ++vi)
+        if(env->InBounds(vi->property(), (*rit)->GetBoundary()))
+          m_toDel.push_back(vi->descriptor());
+      (*rit)->Processed();
+    }
+  }
+
+  //check is any samples lies within any avoid region
+  //if so, erase Cfg from _samples vector
+  typedef typename vector<CfgType>::iterator CIT;
+  for(CIT cit = _samples.begin(); cit != _samples.end();) {
+    bool erase = false;
+    for(RIT rit = avoidRegions.begin(); rit != avoidRegions.end(); ++rit) {
+      if(env->InBounds(*cit, (*rit)->GetBoundary())) {
+        erase = true;
+        break;
+      }
+    }
+    if(erase)
+      cit = _samples.erase(cit);
+    else
+      ++cit;
   }
 }
 
