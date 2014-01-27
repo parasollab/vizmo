@@ -112,13 +112,13 @@ Vizmo::InitPMPL() {
   problem = new VizmoProblem();
   problem->SetEnvironment(m_envModel->GetEnvironment());
 
-  //add rapid collision detection validity
-  CollisionDetectionMethod* cd = new Rapid();
+  //add PQP_SOLID collision detection validity
+  CollisionDetectionMethod* cd = new PQPSolid();
   VizmoProblem::ValidityCheckerPointer vc(new CollisionDetectionValidity<VizmoTraits>(cd));
-  problem->AddValidityChecker(vc, "rapid");
+  problem->AddValidityChecker(vc, "PQP_SOLID");
 
   //add uniform sampler
-  VizmoProblem::SamplerPointer sp(new UniformRandomSampler<VizmoTraits>("rapid"));
+  VizmoProblem::SamplerPointer sp(new UniformRandomSampler<VizmoTraits>("PQP_SOLID"));
   problem->AddSampler(sp, "uniform");
 
   //add distance metric
@@ -126,7 +126,7 @@ Vizmo::InitPMPL() {
   problem->AddDistanceMetric(dm, "euclidean");
 
   //add straight line local planner
-  VizmoProblem::LocalPlannerPointer lp(new StraightLine<VizmoTraits>("rapid", true));
+  VizmoProblem::LocalPlannerPointer lp(new StraightLine<VizmoTraits>("PQP_SOLID", true));
   problem->AddLocalPlanner(lp, "sl");
 
   //add neighborhood finder
@@ -145,6 +145,12 @@ Vizmo::InitPMPL() {
   //use nodes eval
   VizmoProblem::MapEvaluatorPointer pme(new PrintMapEvaluation<VizmoTraits>("debugmap"));
   problem->AddMapEvaluator(pme, "PrintMap");
+
+  //add NumNodes eval
+  VizmoProblem::MapEvaluatorPointer mep(new ConditionalEvaluator<VizmoTraits>(ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 10000));
+  problem->AddMapEvaluator(mep, "NodesEval");
+
+  //set up query evaluators
   if(m_queryModel) {
     VizmoProblem::MapEvaluatorPointer mep(new Query<VizmoTraits>(m_queryFilename, vector<string>(1, "Neighborhood Connector")));
     problem->AddMapEvaluator(mep, "Query");
@@ -155,10 +161,13 @@ Vizmo::InitPMPL() {
     evals.push_back("Query");
     VizmoProblem::MapEvaluatorPointer ce(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::AND, evals));
     problem->AddMapEvaluator(ce, "DebugQuery");
-  }
-  else {
-    VizmoProblem::MapEvaluatorPointer mep(new ConditionalEvaluator<VizmoTraits>(ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 1000));
-    problem->AddMapEvaluator(mep, "NodesEval");
+
+    //set up bounded query evaluator
+    evals.clear();
+    evals.push_back("NodesEval");
+    evals.push_back("Query");
+    VizmoProblem::MapEvaluatorPointer bqe(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
+    problem->AddMapEvaluator(bqe, "BoundedQuery");
   }
 
   //add region strategy
@@ -264,7 +273,7 @@ Vizmo::Select(const Box& _box) {
 bool
 Vizmo::CollisionCheck(CfgModel& _c) {
   if(m_envModel) {
-    VizmoProblem::ValidityCheckerPointer vc = GetVizmoProblem()->GetValidityChecker("rapid");
+    VizmoProblem::ValidityCheckerPointer vc = GetVizmoProblem()->GetValidityChecker("PQP_SOLID");
     bool b = vc->IsValid(_c, "Vizmo");
     _c.SetValidity(b);
     return b;

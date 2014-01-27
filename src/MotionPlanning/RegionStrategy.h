@@ -367,7 +367,7 @@ RegionStrategy<MPTraits>::EvaluateMap() {
   //loaded.
   vector<string> evalLabel;
   if(GetVizmo().IsQueryLoaded())
-    evalLabel.push_back("Query");
+    evalLabel.push_back("BoundedQuery");
   else
     evalLabel.push_back("NodesEval");
 
