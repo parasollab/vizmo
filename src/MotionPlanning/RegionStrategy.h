@@ -28,10 +28,10 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     void SampleRegion(size_t _index, vector<CfgType>& _samples);
     void RejectSamples(vector<CfgType>& _samples);
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
-    void Connect(vector<VID>& _vids);
-    void RecommendRegions(vector<VID>& _vids);
+    void Connect(vector<VID>& _vids, size_t _i);
+    void RecommendRegions(vector<VID>& _vids, size_t _i);
     void UpdateRegionStats();
-    void UpdateRegionColor();
+    void UpdateRegionColor(size_t _i);
     bool EvaluateMap();
 
   private:
@@ -96,11 +96,11 @@ RegionStrategy<MPTraits>::Run() {
     AddToRoadmap(samples, vids);
 
     //connect roadmap
-    Connect(vids);
+    Connect(vids, iter);
 
     if(iter > 200) {
       //recommend regions based upon vids
-      RecommendRegions(vids);
+      RecommendRegions(vids, iter);
     }
 
     if(++iter % 20 == 0) {
@@ -271,7 +271,7 @@ RegionStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::Connect(vector<VID>& _vids) {
+RegionStrategy<MPTraits>::Connect(vector<VID>& _vids, size_t _i) {
   QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   stapl::sequential::
       vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
@@ -281,12 +281,12 @@ RegionStrategy<MPTraits>::Connect(vector<VID>& _vids) {
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
 
   UpdateRegionStats();
-  UpdateRegionColor();
+  UpdateRegionColor(_i);
 }
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::RecommendRegions(vector<VID>& _vids) {
+RegionStrategy<MPTraits>::RecommendRegions(vector<VID>& _vids, size_t _i) {
   if(!m_samplingRegion) {
     typedef typename MPProblemType::RoadmapType::GraphType GraphType;
     GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
@@ -299,6 +299,7 @@ RegionStrategy<MPTraits>::RecommendRegions(vector<VID>& _vids) {
             g->find_vertex(*vit)->property().GetPoint(),
             this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100,
             false);
+        r->SetCreationIter(_i);
         GetVizmo().GetEnv()->AddNonCommitRegion(r);
       }
     }
@@ -339,12 +340,23 @@ RegionStrategy<MPTraits>::UpdateRegionStats() {
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::UpdateRegionColor() {
+RegionStrategy<MPTraits>::UpdateRegionColor(size_t _i) {
   if(m_samplingRegion) {
     //update region color based on node density
     double densityRatio = exp(-sqr(m_samplingRegion->NodeDensity()));
     //double densityRatio = 1 - exp(-sqr(m_samplingRegion->CCDensity()));
     m_samplingRegion->SetColor(Color4(1 - densityRatio, densityRatio, 0., 0.5));
+  }
+  typedef vector<RegionModel*>::const_iterator RIT;
+  vector<RegionModel*> nonCommit = GetVizmo().GetEnv()->GetNonCommitRegions();
+  for(RIT rit = nonCommit.begin(); rit != nonCommit.end(); ++rit) {
+    if((*rit)->GetCreationIter() != size_t(-1)) {
+      double iterCount = 1000 - _i + (*rit)->GetCreationIter();
+      if(iterCount <= 0)
+        GetVizmo().GetEnv()->DeleteRegion(*rit);
+      else
+        (*rit)->SetColor(Color4(0, 0, 1, iterCount/1250.));
+    }
   }
 }
 

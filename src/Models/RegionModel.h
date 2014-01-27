@@ -17,8 +17,8 @@ class RegionModel : public Model {
     RegionModel(const string& _name) :
       Model(_name),
       m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0),
-      m_type(NONCOMMIT), m_processed(false) {
-      SetColor(Color4(0, 0, 1, 0.5));
+      m_type(NONCOMMIT), m_processed(false), m_created(-1) {
+      SetColor(Color4(0, 0, 1, 0.8));
     }
     virtual ~RegionModel() {}
 
@@ -60,11 +60,16 @@ class RegionModel : public Model {
     //size_t GetCCCount() {return m_numCCs;}
     //void SetCCCount(size_t _i) { m_numCCs = _i; }
 
+    size_t GetCreationIter() {return m_created;}
+    void SetCreationIter(size_t _i) {m_created = _i;}
+
   protected:
     size_t m_successfulAttempts, m_failedAttempts, m_numCCs;
 
     Type m_type;
     bool m_processed; //check if rejection region has been processed or not
+
+    size_t m_created;
 };
 
 #endif
