@@ -42,6 +42,7 @@ class RoadmapOptions : public OptionsBase {
     void ChangeEdgeThickness();
     void ShowNodeEditDialog();
     void ShowEdgeEditDialog();
+    void AddNode();
     void AddEdge();
     void DeleteSelectedItems();
     void MergeSelectedNodes();

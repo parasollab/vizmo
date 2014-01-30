@@ -78,7 +78,7 @@ NodeEditSlider::eventFilter(QObject* _target, QEvent* _event){
   return false;
 }
 
-NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene)
+NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene, string _title)
 : QDialog(_parent) {
 
   m_glScene = _scene;
@@ -115,7 +115,7 @@ NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _sce
   scrollArea->setWidget(scrollAreaBox);
   this->setLayout(overallLayout);
 
-  SetCurrentNode(_node, nodeLabel);
+  SetCurrentNode(_node, nodeLabel, _title);
 }
 
 NodeEditDialog::~NodeEditDialog(){}
@@ -149,14 +149,10 @@ NodeEditDialog::SetUpSliders(vector<NodeEditSlider*>& _sliders){
 }
 
 void
-NodeEditDialog::SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel){
+NodeEditDialog::SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _title){
 
   m_currentNode = _node;
-
-  if(_node->GetCC() != NULL)
-    _nodeLabel->setText(QString::fromStdString(_node->Name()));
-  else
-    _nodeLabel->setText("Intermediate configuration");
+  _nodeLabel->setText(QString::fromStdString(_title));
 
   const vector<double>& currCfg = _node->GetData();
   InitSliderValues(currCfg);

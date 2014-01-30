@@ -106,6 +106,8 @@ RoadmapOptions::CreateActions(){
   m_actions["editNode"] = editNode;
   QAction* editEdge = new QAction(QPixmap(editedge), tr("Edit Edge"), this);
   m_actions["editEdge"] = editEdge;
+  QAction* addNode = new QAction(tr("Add Node"), this);
+  m_actions["addNode"] = addNode;
   QAction* addEdge = new QAction(tr("Add Edge"), this);
   m_actions["addEdge"] = addEdge;
   QAction* deleteSelected = new QAction(tr("Delete Selected Items"), this);
@@ -160,6 +162,8 @@ RoadmapOptions::CreateActions(){
   m_actions["editNode"]->setStatusTip(tr("Modify a roadmap node"));
   m_actions["editEdge"]->setEnabled(false);
   m_actions["editEdge"]->setStatusTip(tr("Modify a roadmap edge"));
+  m_actions["addNode"]->setEnabled(false);
+  m_actions["addNode"]->setStatusTip(tr("Add a new node the the roadmap"));
   m_actions["addEdge"]->setEnabled(false);
   m_actions["addEdge"]->setStatusTip(tr("Add edge between selected pair of nodes"));
   m_actions["deleteSelected"]->setEnabled(false);
@@ -194,6 +198,7 @@ RoadmapOptions::CreateActions(){
 
   connect(m_actions["editNode"], SIGNAL(triggered()), this, SLOT(ShowNodeEditDialog()));
   connect(m_actions["editEdge"], SIGNAL(triggered()), this, SLOT(ShowEdgeEditDialog()));
+  connect(m_actions["addNode"], SIGNAL(triggered()), this, SLOT(AddNode()));
   connect(m_actions["addEdge"], SIGNAL(triggered()), this, SLOT(AddEdge()));
   connect(m_actions["deleteSelected"], SIGNAL(triggered()), this, SLOT(DeleteSelectedItems()));
   connect(m_actions["mergeNodes"], SIGNAL(triggered()), this, SLOT(MergeSelectedNodes()));
@@ -230,6 +235,7 @@ RoadmapOptions::SetUpCustomSubmenu(){
 
   m_submenu->addAction(m_actions["editNode"]);
   m_submenu->addAction(m_actions["editEdge"]);
+  m_submenu->addAction(m_actions["addNode"]);
   m_submenu->addAction(m_actions["addEdge"]);
   m_submenu->addAction(m_actions["deleteSelected"]);
   m_submenu->addAction(m_actions["mergeNodes"]);
@@ -302,6 +308,7 @@ RoadmapOptions::Reset(){
 
   m_actions["editNode"]->setEnabled(true);
   m_actions["editEdge"]->setEnabled(true);
+  m_actions["addNode"]->setEnabled(true);
   m_actions["addEdge"]->setEnabled(true);
   m_actions["deleteSelected"]->setEnabled(true);
   m_actions["mergeNodes"]->setEnabled(true);
@@ -342,6 +349,8 @@ RoadmapOptions::SetHelpTips(){
         " widget."));
   m_actions["editEdge"]->setWhatsThis(tr("Click this button to open the edge editing"
         " widget."));
+  m_actions["addNode"]->setWhatsThis(tr("Click this button to add a new node to the"
+        " roadmap."));
   m_actions["addEdge"]->setWhatsThis(tr("Click this button to add an edge between two"
         " selected nodes."));
   m_actions["deleteSelected"]->setWhatsThis(tr("Click this button to delete any number"
@@ -483,7 +492,7 @@ RoadmapOptions::ShowNodeEditDialog(){
   }
 
   CfgModel* node = (CfgModel*)sel[0];
-  NodeEditDialog n(this, node, m_mainWindow->GetGLScene());
+  NodeEditDialog n(this, node, m_mainWindow->GetGLScene(), node->Name());
   n.exec();
 }
 
@@ -506,6 +515,28 @@ RoadmapOptions::ShowEdgeEditDialog(){
   EdgeModel* edge = (EdgeModel*)sel[0];
   EdgeEditDialog ed(this, edge, m_mainWindow->GetGLScene());
   ed.exec();
+}
+
+void
+RoadmapOptions::AddNode(){
+
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
+
+  CfgModel newNode = CfgModel();
+
+  //Preview/move the new node
+  newNode.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
+  map->GetTempCfgs().push_back(&newNode);
+  m_mainWindow->GetGLScene()->updateGL();
+  NodeEditDialog n(this, &newNode, m_mainWindow->GetGLScene(), "New Node");
+  n.exec();
+
+  graph->add_vertex(newNode);
+  map->RefreshMap();
+  map->ClearTempCfgs();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -607,8 +638,6 @@ RoadmapOptions::MergeSelectedNodes(){
   }
 
   super /= numSelected;
-  GetVizmo().CollisionCheck(super);
-  VID superID = graph->add_vertex(super);
 
   //Mark selected vertices for removal and save ids for edge addition
   vector<VID> toDelete;
@@ -621,6 +650,16 @@ RoadmapOptions::MergeSelectedNodes(){
     for(EI ei = vi->begin(); ei != vi->end(); ++ei)
       toAdd.push_back((*ei).target());
   }
+
+  //Preview the changes
+  super.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
+  map->GetTempCfgs().push_back(&super);
+  m_mainWindow->GetGLScene()->updateGL();
+  NodeEditDialog n(this, &super, m_mainWindow->GetGLScene(), "New Supervertex");
+  n.exec();
+
+  //Won't compile with just "VID"
+  Map::VID superID = graph->add_vertex(super);
 
   //Add the new edges
   typedef vector<VID>::iterator VIT;
@@ -635,6 +674,8 @@ RoadmapOptions::MergeSelectedNodes(){
 
   map->RefreshMap();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  map->ClearTempCfgs();
+
   m_mainWindow->GetGLScene()->updateGL();
   sel.clear();
 }

@@ -40,6 +40,7 @@ class MapModel : public LoadableModel {
     //Access functions
     const string& GetEnvFileName() const {return m_envFileName;}
     Graph* GetGraph(){return m_graph;}
+    vector<CFG*>& GetTempCfgs() {return m_tempCfgs;}
 
     VID Cfg2VID(const CFG& _target);
 
@@ -62,11 +63,15 @@ class MapModel : public LoadableModel {
     //Modification functions
     void RandomizeCCColors();
     void RefreshMap();
+    void ClearTempCfgs();
 
   private:
     string m_envFileName;
 
     vector<CCM*> m_ccModels;
+    //Currently for preview in MergeNodes
+    vector<CFG*> m_tempCfgs;
+
     Graph* m_graph;
 };
 
@@ -167,6 +172,10 @@ MapModel<CFG, WEIGHT>::Draw(){
     (*ic)->Draw();
     glPopName();
   }
+
+  typedef typename vector<CFG*>::iterator NIT;
+  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
+    (*nit)->Draw();
 }
 
 template <class CFG, class WEIGHT>
@@ -220,6 +229,13 @@ MapModel<CFG, WEIGHT>::RefreshMap(){
   BuildModels();
   for(size_t i = 0; i < m_ccModels.size(); i++)
     m_ccModels[i]->SetRenderMode(m_renderMode);
+}
+
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::ClearTempCfgs(){
+
+  m_tempCfgs.clear();
 }
 
 #endif
