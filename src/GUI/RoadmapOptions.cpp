@@ -622,19 +622,28 @@ void
 RoadmapOptions::MergeSelectedNodes(){
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  vector<CfgModel*> selNodes;
   Map* map = GetVizmo().GetMap();
   Graph* graph = map->GetGraph();
 
   //Create and center the supervertex
   CfgModel super = CfgModel();
-  size_t numSelected = sel.size();
+  bool nodesSelected = false;
+  int numSelected = 0;
 
+  //Filter only nodes from mass selection
   for(MIT it = sel.begin(); it != sel.end(); it++){
-    if((*it)->Name().substr(0, 4) != "Node"){
-      QMessageBox::about(this, "", "Please select only nodes.");
-        return;
+    if((*it)->Name().substr(0, 4) == "Node"){
+      CfgModel* cfg = (CfgModel*)*it;
+      super += *cfg;
+      selNodes.push_back(cfg);
+      numSelected++;
+      nodesSelected = true;
     }
-    super += *((CfgModel*)*it);
+  }
+  if(nodesSelected == false){
+    QMessageBox::about(this, "", "Please select a group of nodes.");
+      return;
   }
 
   super /= numSelected;
@@ -643,8 +652,9 @@ RoadmapOptions::MergeSelectedNodes(){
   vector<VID> toDelete;
   vector<VID> toAdd;
 
-  for(MIT it = sel.begin(); it != sel.end(); it++){
-    VID selectedID = ((CfgModel*)*it)->GetIndex();
+  typedef vector<CfgModel*>::iterator NIT;
+  for(NIT it = selNodes.begin(); it != selNodes.end(); it++){
+    VID selectedID = (*it)->GetIndex();
     toDelete.push_back(selectedID);
     VI vi = graph->find_vertex(selectedID);
     for(EI ei = vi->begin(); ei != vi->end(); ++ei)
@@ -673,11 +683,10 @@ RoadmapOptions::MergeSelectedNodes(){
     graph->delete_vertex(*it);
 
   map->RefreshMap();
+  sel.clear();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   map->ClearTempCfgs();
-
   m_mainWindow->GetGLScene()->updateGL();
-  sel.clear();
 }
 
 void
