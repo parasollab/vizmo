@@ -39,9 +39,9 @@ class EnvironmentOptions : public OptionsBase {
     void MakeRegionAvoid();
     void ChangeRegionType(bool _attract);
 
+    void HandleTimer();
     void MapEnvironment();
-
-    void ThreadDone() {m_threadDone = true;}
+    void ThreadDone();
 
   private:
     void CreateActions();
@@ -53,6 +53,7 @@ class EnvironmentOptions : public OptionsBase {
     bool m_regionsStarted, m_threadDone;
     QMenu* m_obstacleMenu;
     QThread* m_thread;
+    QTimer* m_timer;
 };
 
 class MapEnvironmentWorker : public QObject {

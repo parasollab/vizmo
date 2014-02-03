@@ -51,10 +51,6 @@ MainWindow::Init(){
   SetUpLayout();
   statusBar()->showMessage("Ready");
 
-  m_timer = new QTimer(this);
-  connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
-  m_timer->start(200);
-
   return true;
 }
 
@@ -172,20 +168,14 @@ MainWindow::SetUpLayout(){
 }
 
 void
-MainWindow::keyPressEvent (QKeyEvent* _e){
+MainWindow::keyPressEvent(QKeyEvent* _e) {
   switch(_e->key()){
     case Qt::Key_Escape: qApp->quit();
   }
 }
 
 void
-MainWindow::UpdateScreen(){
-    m_gl->updateGL();
-}
-
-void
-MainWindow::HandleTimer() {
-  GetGLScene()->updateGL();
-  GetModelSelectionWidget()->ResetLists();
+MainWindow::UpdateScreen() {
+  m_gl->updateGL();
 }
 

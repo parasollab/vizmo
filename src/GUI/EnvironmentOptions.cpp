@@ -265,6 +265,27 @@ EnvironmentOptions::ChangeRegionType(bool _attract) {
 }
 
 void
+EnvironmentOptions::HandleTimer() {
+  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+}
+
+void
+EnvironmentOptions::ThreadDone() {
+  m_threadDone = true;
+
+  //disconnect and delete timer
+  disconnect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
+  delete m_timer;
+
+  //refresh scene + gui one last time
+  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->m_mainMenu->CallReset();
+
+}
+
+void
 EnvironmentOptions::MapEnvironment() {
   //stop timer for before regions
   GetVizmo().StopClock("Pre-regions");
@@ -273,6 +294,12 @@ EnvironmentOptions::MapEnvironment() {
   GetVizmo().SetPMPLMap();
   m_mainWindow->m_mainMenu->CallReset();
 
+  //set up timer to redraw and refresh gui
+  m_timer = new QTimer(this);
+  connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
+  m_timer->start(200);
+
+  //set up thread for mapping the environment
   m_threadDone = false;
   m_thread = new QThread;
   MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
@@ -281,9 +308,6 @@ EnvironmentOptions::MapEnvironment() {
   connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
   connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
   connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
-  connect(m_thread, SIGNAL(finished()), m_mainWindow->GetGLScene(), SLOT(updateGL()));
-  connect(m_thread, SIGNAL(finished()), m_mainWindow->GetModelSelectionWidget(), SLOT(ResetLists()));
-  connect(m_thread, SIGNAL(finished()), (const QObject*)m_mainWindow->m_mainMenu, SLOT(CallReset()));
   connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
   connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
 }
@@ -431,6 +455,7 @@ MapEnvironmentWorker::Solve() {
   //clear any map and path currently loaded
   //delete GetVizmo().GetMap();
   //delete GetVizmo().GetPath();
+
   //call function somewhere to spark the UG strategy
   GetVizmo().Solve("regions");
   emit Finished();
