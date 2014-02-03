@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#include <QTreeWidget>
+#include <QtGui>
 
 class Model;
 class GLWidget;

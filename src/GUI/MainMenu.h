@@ -6,7 +6,7 @@
 #ifndef MAINMENU_H_
 #define MAINMENU_H_
 
-#include <QWidget>
+#include <QtGui>
 
 class MainWindow;
 class OptionsBase;

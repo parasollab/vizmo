@@ -132,7 +132,7 @@ EdgeEditDialog::EditIntermediate(){
   for(IIT it = listItems.begin(); it != listItems.end(); it++){
     //Default list item has start cfg as m_cfg, so check against that
     if((*it)->isSelected() && (*it)->m_cfg != m_currentEdge->GetStartCfg()){
-      NodeEditDialog n(this, (*it)->m_cfg, m_glScene);
+      NodeEditDialog n(this, (*it)->m_cfg, m_glScene, "Intermediate Configuration");
       n.exec();
       break;
     }

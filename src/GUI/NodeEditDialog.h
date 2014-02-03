@@ -56,10 +56,10 @@ class NodeEditDialog : public QDialog {
   public:
     typedef vector<NodeEditSlider*>::iterator SIT;
 
-    NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene);
+    NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene, string _title);
     ~NodeEditDialog();
     void SetUpSliders(vector<NodeEditSlider*>& _sliders);
-    void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel);
+    void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _title);
     void InitSliderValues(const vector<double>& _vals);
     virtual void exec(); //override
 

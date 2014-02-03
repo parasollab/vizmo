@@ -13,7 +13,6 @@
 #include "HelpOptions.h"
 
 #include <iostream>
-#include <QMenuBar>
 
 using namespace std;
 

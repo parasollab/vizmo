@@ -1,10 +1,6 @@
 #include "PathOptions.h"
 
-#include <QAction>
-#include <QToolBar>
-#include <QPixmap>
-#include <QLineEdit>
-#include <QTranslator>
+#include <QtGui>
 
 #include "MainWindow.h"
 #include "GLWidget.h"
@@ -13,7 +9,7 @@
 #include "Models/PathModel.h"
 #include "Models/Vizmo.h"
 
-#include "Icons/Pen.xpm"
+#include "Icons/Path.xpm"
 
 PathOptions::PathOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
@@ -27,7 +23,7 @@ void
 PathOptions::CreateActions(){
 
   //1. Create actions and add them to map
-  QAction* showHidePath = new QAction(QPixmap(pen), tr("Show/Hide Path"), this);
+  QAction* showHidePath = new QAction(QPixmap(path), tr("Show/Hide Path"), this);
   m_actions["showHidePath"] = showHidePath;
   QAction* pathOptions = new QAction(tr("Path Display Options"), this);
   m_actions["pathOptions"] = pathOptions;

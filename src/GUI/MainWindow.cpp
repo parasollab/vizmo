@@ -1,7 +1,5 @@
 #include "MainWindow.h"
 
-#include <QtGui>
-
 #include "AnimationWidget.h"
 #include "EnvironmentOptions.h"
 #include "FileListDialog.h"
@@ -26,7 +24,7 @@ MainWindow::MainWindow(QWidget* _parent)
   m_setQG = false;
   m_command = "";
   m_mainMenu = NULL;
-  m_outbox = NULL;
+  m_textWidget = NULL;
   m_layout = NULL;
   m_allTogether = NULL;
   m_objTextLayout = NULL;
@@ -104,16 +102,13 @@ MainWindow::CreateGUI(){
 
   m_mainMenu = new MainMenu(this);  //also creates the toolbars
 
-  m_outbox = new TextWidget(this);
+  m_textWidget = new TextWidget(this);
 
-  connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()), m_outbox, SLOT(SetText()));
+  connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()), m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_modelSelectionWidget, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_modelSelectionWidget, SLOT(Select()));
-  //HandleSelect now in Plum/MapObj/MapModel.cpp and temporarily disabled
-  // connect(m_gl, SIGNAL(selectByLMB()), m_roadmapGUI, SLOT(handleSelect()));
-  connect(m_gl, SIGNAL(clickByLMB()), m_outbox, SLOT(SetText()));
-  connect(m_gl, SIGNAL(selectByLMB()), m_outbox, SLOT(SetText()));
-  // connect(m_gl, SIGNAL(MRbyGLI()), m_roadmapGUI, SLOT(printRobCfg()));
+  connect(m_gl, SIGNAL(clickByLMB()), m_textWidget, SLOT(SetText()));
+  connect(m_gl, SIGNAL(selectByLMB()), m_textWidget, SLOT(SetText()));
 
   return true;
 }
@@ -140,7 +135,7 @@ MainWindow::SetUpLayout(){
 
   m_objTextLayout = new QVBoxLayout();
   m_objTextLayout->addWidget(m_modelSelectionWidget); //The Environment Objects list
-  m_objTextLayout->addWidget(m_outbox);          //The TextWidget
+  m_objTextLayout->addWidget(m_textWidget);          //The TextWidget
   m_objTextLayout->setStretchFactor(m_modelSelectionWidget, 1);
 
   m_layout->addLayout(m_objTextLayout, 2, 1, 4, 5);

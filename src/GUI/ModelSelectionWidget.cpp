@@ -1,7 +1,5 @@
 #include "ModelSelectionWidget.h"
 
-#include <QString>
-
 #include "GLWidget.h"
 #include "Models/CCModel.h"
 #include "Models/Vizmo.h"

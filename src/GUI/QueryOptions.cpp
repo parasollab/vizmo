@@ -1,9 +1,6 @@
 #include "QueryOptions.h"
 
-#include <QAction>
-#include <QToolBar>
-#include <QPixmap>
-#include <QTranslator>
+#include <QtGui>
 
 #include "MainWindow.h"
 #include "GLWidget.h"

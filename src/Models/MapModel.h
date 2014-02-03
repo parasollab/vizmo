@@ -46,6 +46,7 @@ class MapModel : public LoadableModel {
     //Access functions
     const string& GetEnvFileName() const {return m_envFileName;}
     RGraph* GetGraph() {return m_graph;}
+    vector<CFG*>& GetTempCfgs() {return m_tempCfgs;}
 
     VID Cfg2VID(const CFG& _target);
 
@@ -68,6 +69,7 @@ class MapModel : public LoadableModel {
     //Modification functions
     void RandomizeCCColors();
     void RefreshMap();
+    void ClearTempCfgs();
 
     QMutex& AcquireMutex() {return m_lock;}
 
@@ -81,6 +83,9 @@ class MapModel : public LoadableModel {
 
     mutable QMutex m_lock;
     QMutexLocker* m_locker; //for acquire/release around get children
+
+    //Currently for preview in MergeNodes
+    vector<CFG*> m_tempCfgs;
 };
 
 template <class CFG, class WEIGHT>
@@ -191,6 +196,10 @@ MapModel<CFG, WEIGHT>::Draw(){
     (*ic)->Draw();
     glPopName();
   }
+
+  typedef typename vector<CFG*>::iterator NIT;
+  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
+    (*nit)->Draw();
 }
 
 template <class CFG, class WEIGHT>
@@ -248,6 +257,13 @@ void
 MapModel<CFG, WEIGHT>::RefreshMap(){
   BuildModels();
   SetRenderMode(m_renderMode);
+}
+
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::ClearTempCfgs(){
+
+  m_tempCfgs.clear();
 }
 
 #endif
