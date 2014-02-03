@@ -7,7 +7,6 @@ using namespace std;
 
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
-#include "Models/VizmoTraits.h"
 
 class Box;
 class Model;
@@ -86,6 +85,15 @@ class Vizmo {
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
+    // Motion planning related functions
+    void SetSeed(long _l) {m_seed = _l;}
+    long GetSeed() {return m_seed;}
+    void StartClock(const string& _c);
+    void StopClock(const string& _c);
+    void PrintClock(const string& _c, ostream& _os);
+    void SetPMPLMap();
+    void Solve(const string& _strategy);
+
   private:
 
     //Parse the Hit Buffer. Store selected obj into m_selectedModels.
@@ -121,8 +129,8 @@ class Vizmo {
     typedef vector<Model*>::iterator MIT;
     vector<Model*> m_loadedModels, m_selectedModels;
 
-    //PMPL
-    VizmoProblem* m_problem;
+    long m_seed;
+    map<string, pair<QTime, double> > m_timers;
 };
 
 #endif

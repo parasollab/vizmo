@@ -1,6 +1,7 @@
 #include "GLUtils.h"
 
 #include "glut.h"
+#include "VizmoExceptions.h"
 
 int g_width = 0, g_height = 0; //global m_width/m_height variables
 
@@ -66,47 +67,13 @@ ProjectToWorld(double _x, double _y, const Point3d& _ref, const Vector3d& _n) {
       modelViewM, projM, viewPort,
       &e[0], &e[1], &e[2]);
 
-  double t=0;
-  double base = (e-s)*_n;
-
-  if(fabs(base)/(s-e).norm() < 1e-2) {
-    Vector3d se = (s-e).normalize();
-    Vector3d v = _n%se;
-    Point3d proj = ProjectToWindow(_ref);
-
-    //find d1 and d2
-    double d1 = sqrt((proj[0]-_x)*(proj[0]-_x)+(proj[1]-_y)*(proj[1]-_y));
-    Vector3d g = _ref + 0.1*v;
-    Point3d projg = ProjectToWindow(g);
-    Point3d xy(_x, _y, 0);
-
-    if((projg - proj) * (xy - proj) < 0)
-      d1 = -d1;
-
-    d1 = fmod(d1, 200);
-    if(d1 > 100)
-      d1 = d1 - 200;
-    else if(d1 < -100)
-      d1 = 200 + d1;
-
-    double d2;
-    if(d1 > 50) {
-      d1 = 100 - d1;
-      d2 = -sqrt(2500 - d1*d1);
-    }
-    else if(d1<-50 ) {
-      d1 = -100 - d1;
-      d2 = -sqrt(2500 - d1*d1);
-    }
-    else
-      d2 = sqrt(2500 - d1*d1);
-
-    return _ref + d1*v + d2*se;
-  }
-  else {
-    t = (_ref*_n - s*_n)/base;
-    return (1-t)*s + t*e;
-  }
+  Vector3d ray = (e - s).normalize();
+  Vector3d norm = _n.normalize();
+  if(fabs(ray * norm) < numeric_limits<double>::epsilon() )
+    throw DrawException(WHERE,
+        "\nCannot unproject: the plane is perpendicular to the ray.\n");
+  double rayFactor = (_ref - s) * norm / (ray * norm);
+  return rayFactor * ray + s;
 }
 
 //draw with OpenGL a circle of radius r

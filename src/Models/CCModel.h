@@ -87,17 +87,17 @@ CCModel<CFG, WEIGHT>::BuildModels() {
 
   m_colorMap.reset();
   get_cc_edges(*m_graph, m_colorMap, ccedges, m_rep);
-  int edgeIdx = 0;
+  //int edgeIdx = 0;
 
   typedef typename vector<pair<VID, VID> >::iterator EIT;
   for(EIT eit = ccedges.begin(); eit != ccedges.end(); ++eit) {
     if(eit->first < eit->second)
       continue;
 
-    CFG* cfg1 = &GetCfg(eit->first);
-    CFG* cfg2 = &GetCfg(eit->second);
+    //CFG* cfg1 = &GetCfg(eit->first);
+    //CFG* cfg2 = &GetCfg(eit->second);
     EID ed(eit->first, eit->second);
-    GetEdge(ed).Set(edgeIdx++, cfg1, cfg2);
+    //GetEdge(ed).Set(edgeIdx++, cfg1, cfg2);
     m_edges.push_back(ed);
   }
 
@@ -167,6 +167,9 @@ CCModel<CFG, WEIGHT>::DrawEdges(){
   typedef typename vector<EID>::iterator EIT;
   for(EIT eit = m_edges.begin(); eit!=m_edges.end(); ++eit) {
     glPushName(eit-m_edges.begin());
+    CFG* cfg1 = &GetCfg(eit->source());
+    CFG* cfg2 = &GetCfg(eit->target());
+    GetEdge(*eit).Set(distance(m_edges.begin(), eit), cfg1, cfg2);
     GetEdge(*eit).Draw();
     glPopName();
   }
@@ -203,7 +206,7 @@ CCModel<CFG, WEIGHT>::DrawSelect(){
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
-  if(_index == NULL)
+  if(!m_selectable || _index == NULL)
     return;
 
   if(_index[0] == 1)

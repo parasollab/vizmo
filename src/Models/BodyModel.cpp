@@ -96,6 +96,18 @@ BodyModel::ComputeTransform(const BodyModel* _body, size_t _nextBody){
 }
 
 void
+BodyModel::Select(GLuint* _index, vector<Model*>& sel){
+  if(m_selectable)
+    m_polyhedronModel->Select(_index, sel);
+}
+
+void
+BodyModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  m_polyhedronModel->SetSelectable(_s);
+}
+
+void
 BodyModel::Draw() {
   glColor4fv(GetColor());
   glPushMatrix();

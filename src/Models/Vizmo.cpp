@@ -10,13 +10,20 @@ using namespace std;
 #include "PathModel.h"
 #include "QueryModel.h"
 #include "RobotModel.h"
+#include "MotionPlanning/VizmoTraits.h"
 #include "Utilities/PickBox.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //Define Vizmo singleton
 ////////////////////////////////////////////////////////////////////////////////
 Vizmo vizmo;
-Vizmo& GetVizmo(){return vizmo;}
+Vizmo& GetVizmo() {return vizmo;}
+
+////////////////////////////////////////////////////////////////////////////////
+//Define Motion Planning singleton - eventually move to MP directory
+////////////////////////////////////////////////////////////////////////////////
+VizmoProblem* vizmoProblem;
+VizmoProblem*& GetVizmoProblem() {return vizmoProblem;}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Vizmo
@@ -27,8 +34,7 @@ Vizmo::Vizmo() :
   m_mapModel(NULL),
   m_queryModel(NULL),
   m_pathModel(NULL),
-  m_debugModel(NULL),
-  m_problem(NULL) {
+  m_debugModel(NULL) {
   }
 
 Vizmo::~Vizmo() {
@@ -102,21 +108,75 @@ Vizmo::InitModels() {
 void
 Vizmo::InitPMPL() {
   //initialize PMPL structures for collision detection
-  m_problem = new VizmoProblem();
-  m_problem->SetEnvironment(m_envModel->GetEnvironment());
+  VizmoProblem*& problem = GetVizmoProblem();
+  problem = new VizmoProblem();
+  problem->SetEnvironment(m_envModel->GetEnvironment());
 
-  //add rapid collision detection validity
-  CollisionDetectionMethod* cd = new Rapid();
+  //add PQP_SOLID collision detection validity
+  CollisionDetectionMethod* cd = new PQPSolid();
   VizmoProblem::ValidityCheckerPointer vc(new CollisionDetectionValidity<VizmoTraits>(cd));
-  m_problem->AddValidityChecker(vc, "rapid");
+  problem->AddValidityChecker(vc, "PQP_SOLID");
+
+  //add uniform sampler
+  VizmoProblem::SamplerPointer sp(new UniformRandomSampler<VizmoTraits>("PQP_SOLID"));
+  problem->AddSampler(sp, "uniform");
+
+  //add distance metric
+  VizmoProblem::DistanceMetricPointer dm(new EuclideanDistance<VizmoTraits>());
+  problem->AddDistanceMetric(dm, "euclidean");
 
   //add straight line local planner
-  VizmoProblem::LocalPlannerPointer lp(new StraightLine<VizmoTraits>("rapid", true));
-  m_problem->AddLocalPlanner(lp, "sl");
+  VizmoProblem::LocalPlannerPointer lp(new StraightLine<VizmoTraits>("PQP_SOLID", true));
+  problem->AddLocalPlanner(lp, "sl");
+
+  //add neighborhood finder
+  VizmoProblem::NeighborhoodFinderPointer nfp(new BruteForceNF<VizmoTraits>("euclidean", false, 10));
+  problem->AddNeighborhoodFinder(nfp, "BFNF");
+
+  //add connector
+  VizmoProblem::ConnectorPointer cp(new NeighborhoodConnector<VizmoTraits>("BFNF", "sl"));
+  problem->AddConnector(cp, "Neighborhood Connector");
+
+  //add num nodes metric for evaluator
+  VizmoProblem::MetricPointer mp(new NumNodesMetric<VizmoTraits>());
+  problem->AddMetric(mp, "NumNodes");
+
+  //add evaluator: if a query file is loaded, use Query evaluator. Otherwise,
+  //use nodes eval
+  VizmoProblem::MapEvaluatorPointer pme(new PrintMapEvaluation<VizmoTraits>("debugmap"));
+  problem->AddMapEvaluator(pme, "PrintMap");
+
+  //add NumNodes eval
+  VizmoProblem::MapEvaluatorPointer mep(new ConditionalEvaluator<VizmoTraits>(ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 10000));
+  problem->AddMapEvaluator(mep, "NodesEval");
+
+  //set up query evaluators
+  if(m_queryModel) {
+    VizmoProblem::MapEvaluatorPointer mep(new Query<VizmoTraits>(m_queryFilename, vector<string>(1, "Neighborhood Connector")));
+    problem->AddMapEvaluator(mep, "Query");
+
+    //setup debugging evaluator
+    vector<string> evals;
+    evals.push_back("PrintMap");
+    evals.push_back("Query");
+    VizmoProblem::MapEvaluatorPointer ce(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::AND, evals));
+    problem->AddMapEvaluator(ce, "DebugQuery");
+
+    //set up bounded query evaluator
+    evals.clear();
+    evals.push_back("NodesEval");
+    evals.push_back("Query");
+    VizmoProblem::MapEvaluatorPointer bqe(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
+    problem->AddMapEvaluator(bqe, "BoundedQuery");
+  }
+
+  //add region strategy
+  VizmoProblem::MPStrategyPointer rs(new RegionStrategy<VizmoTraits>());
+  problem->AddMPStrategy(rs, "regions");
 
   //set the MPProblem pointer and build CD structures
-  m_problem->SetMPProblem();
-  m_problem->BuildCDStructures();
+  problem->SetMPProblem();
+  problem->BuildCDStructures();
 }
 
 void
@@ -127,17 +187,18 @@ Vizmo::Clean() {
   delete m_queryModel;
   delete m_pathModel;
   delete m_debugModel;
-  delete m_problem;
   m_envModel = NULL;
   m_robotModel = NULL;
   m_mapModel = NULL;
   m_queryModel = NULL;
   m_pathModel = NULL;
   m_debugModel = NULL;
-  m_problem = NULL;
 
   m_loadedModels.clear();
   m_selectedModels.clear();
+
+  delete GetVizmoProblem();
+  GetVizmoProblem() = NULL;
 }
 
 //Display OpenGL Scene
@@ -212,7 +273,7 @@ Vizmo::Select(const Box& _box) {
 bool
 Vizmo::CollisionCheck(CfgModel& _c) {
   if(m_envModel) {
-    VizmoProblem::ValidityCheckerPointer vc = m_problem->GetValidityChecker("rapid");
+    VizmoProblem::ValidityCheckerPointer vc = GetVizmoProblem()->GetValidityChecker("PQP_SOLID");
     bool b = vc->IsValid(_c, "Vizmo");
     _c.SetValidity(b);
     return b;
@@ -224,8 +285,8 @@ Vizmo::CollisionCheck(CfgModel& _c) {
 bool
 Vizmo::VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
   if(m_envModel) {
-    Environment* env = m_problem->GetEnvironment();
-    VizmoProblem::LocalPlannerPointer lp = m_problem->GetLocalPlanner("sl");
+    Environment* env = GetVizmoProblem()->GetEnvironment();
+    VizmoProblem::LocalPlannerPointer lp = GetVizmoProblem()->GetLocalPlanner("sl");
     LPOutput<VizmoTraits> lpout;
     return lp->IsConnected(_c1, _c2, &lpout, env->GetPositionRes(), env->GetOrientationRes());
   }
@@ -239,7 +300,7 @@ Vizmo::PlaceRobot() {
     vector<double> cfg;
     if(m_queryModel)
       cfg = m_queryModel->GetQueryCfg(0).GetData();
-      //cfg = m_queryModel->GetStartGoal(0);
+    //cfg = m_queryModel->GetStartGoal(0);
     else if(m_pathModel)
       cfg = m_pathModel->GetConfiguration(0).GetData();
     else
@@ -317,3 +378,42 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
   delete [] selName;
 }
 
+void
+Vizmo::StartClock(const string& _c) {
+  m_timers[_c].first.start();
+  //GetVizmoProblem()->GetStatClass()->StartClock(_c);
+}
+
+void
+Vizmo::StopClock(const string& _c) {
+  if(m_timers.count(_c))
+    m_timers[_c].second = m_timers[_c].first.elapsed()/1000.;
+  else
+    m_timers[_c].second = 0;
+  //GetVizmoProblem()->GetStatClass()->StopClock(_c);
+}
+
+void
+Vizmo::PrintClock(const string& _c, ostream& _os) {
+  _os << _c << ": " << m_timers[_c].second << " sec" << endl;
+  //GetVizmoProblem()->GetStatClass()->PrintClock(_c, _os);
+}
+
+void
+Vizmo::SetPMPLMap() {
+  if(GetVizmo().IsRoadMapLoaded()) {
+    vector<Model*>::iterator mit = find(m_loadedModels.begin(), m_loadedModels.end(), m_mapModel);
+    m_loadedModels.erase(mit);
+    delete m_mapModel;
+  }
+  m_mapModel = new MapModel<CfgModel, EdgeModel>(GetVizmoProblem()->GetRoadmap()->GetGraph());
+  m_loadedModels.push_back(m_mapModel);
+}
+
+void
+Vizmo::Solve(const string& _strategy) {
+  SRand(m_seed);
+  VizmoProblem::MPStrategyPointer mps = GetVizmoProblem()->GetMPStrategy(_strategy);
+  mps->operator()();
+  GetVizmo().GetMap()->RefreshMap();
+}

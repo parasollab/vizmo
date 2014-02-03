@@ -92,10 +92,10 @@ DebugModel::ParseFile() {
     }
     else if(name=="Comment")
       m_instructions.push_back(new Comment(iss.str().substr(8, iss.str().length())));
-    else if(name=="Query"){
+    else if(name=="QueryInstruction"){
       CfgModel s, t;
       iss >> s >> t;
-      m_instructions.push_back(new Query(s, t));
+      m_instructions.push_back(new QueryInstruction(s, t));
     }
   }
 }
@@ -137,7 +137,7 @@ DebugModel::BuildForward() {
       vector<VID> nIdCC1; //node id in this cc
       vector<VID> nIdCC2; //node id in this cc
       vector<VID>* smallerCC;
-      EdgeModel edge(1);
+      EdgeModel edge("", 1);
 
       VID svId = m_mapModel->Cfg2VID(ae->m_source);
       VID tvId = m_mapModel->Cfg2VID(ae->m_target);
@@ -203,7 +203,7 @@ DebugModel::BuildForward() {
     else if(ins->m_name == "AddTempEdge"){
       //add temporary edge
       AddTempEdge* ate = static_cast<AddTempEdge*>(ins);
-      EdgeModel e(1);
+      EdgeModel e("", 1);
       e.Set(1, &ate->m_source, &ate->m_target);
       m_tempEdges.push_back(e);
     }
@@ -277,9 +277,9 @@ DebugModel::BuildForward() {
       Comment* c = static_cast<Comment*>(ins);
       m_comments.push_back(c->m_comment);
     }
-    else if(ins->m_name == "Query"){
+    else if(ins->m_name == "QueryInstruction"){
       //perform query
-      Query* q = static_cast<Query*>(ins);
+      QueryInstruction* q = static_cast<QueryInstruction*>(ins);
       vector<VID> path;
 
       VID svId = m_mapModel->Cfg2VID(q->m_source);
@@ -298,7 +298,7 @@ DebugModel::BuildForward() {
       if(path.size()>0){
         for(ITVID pit = path.begin()+1; pit != path.end(); pit++){
           target = m_mapModel->GetGraph()->find_vertex(*pit)->property();
-          EdgeModel e(1);
+          EdgeModel e("", 1);
           e.Set(1, &source, &target);
           m_query.push_back(e);
           source = target;
@@ -448,7 +448,7 @@ DebugModel::BuildBackward(){
     else if(ins->m_name == "RemoveEdge"){
       //undo removal of edge
       RemoveEdge* re = static_cast<RemoveEdge*>(ins);
-      EdgeModel edge(1);
+      EdgeModel edge("", 1);
       VID svId = m_mapModel->Cfg2VID(re->m_source);
       VID tvId = m_mapModel->Cfg2VID(re->m_target);
 
@@ -461,9 +461,9 @@ DebugModel::BuildBackward(){
       //undo addition of comment
       m_comments.pop_back();
     }
-    else if(ins->m_name == "Query"){
+    else if(ins->m_name == "QueryInstruction"){
       //undo addition of query and restore the previous one if any
-      Query* q = static_cast<Query*>(ins);
+      QueryInstruction* q = static_cast<QueryInstruction*>(ins);
       m_query = q->m_query;
       q->m_query.clear();
     }

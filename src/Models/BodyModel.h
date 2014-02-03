@@ -64,7 +64,8 @@ class BodyModel : public TransformableModel {
     void ComputeTransform(const BodyModel* _body, size_t _nextBody);
 
     void BuildModels() {}
-    void Select(GLuint* _index, vector<Model*>& sel) {m_polyhedronModel->Select(_index, sel);}
+    virtual void SetSelectable(bool _s);
+    void Select(GLuint* _index, vector<Model*>& sel);
     void Draw();
     void DrawSelect();
     void Print(ostream& _os) const;

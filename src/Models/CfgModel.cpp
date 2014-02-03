@@ -18,6 +18,13 @@ CfgModel::CfgModel() : Model("") {
   m_isQuery = false;
 }
 
+CfgModel::CfgModel(const Cfg& _c) : Model(""), Cfg(_c) {
+  m_index = -1;
+  m_isValid = true;
+  m_cc = NULL;
+  m_isQuery = false;
+}
+
 void
 CfgModel::SetName() {
   ostringstream temp;

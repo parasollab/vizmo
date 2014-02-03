@@ -19,7 +19,8 @@ class CfgModel;
 class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
   public:
-    EdgeModel(double _weight = LONG_MAX);
+    EdgeModel(string _lpLabel = "", double _weight = LONG_MAX, const vector<CfgModel>& _intermediates = vector<CfgModel>());
+    EdgeModel(const DefaultWeight<CfgModel>& _e);
 
     void SetName();
     size_t GetID() { return m_id; }

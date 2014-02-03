@@ -1,8 +1,12 @@
 #ifndef MAPMODEL_H_
 #define MAPMODEL_H_
 
-#include <Graph.h>
-#include <GraphAlgo.h>
+#include "boost/shared_ptr.hpp"
+using boost::shared_ptr;
+#include "MPProblem/RoadmapGraph.h"
+
+#include <QMutex>
+#include <QMutexLocker>
 
 #include "CCModel.h"
 #include "Utilities/IO.h"
@@ -25,6 +29,7 @@ class MapModel : public LoadableModel {
   public:
     typedef CCModel<CFG, WEIGHT> CCM;
     typedef typename vector<CCM*>::iterator CCIT;
+    typedef RoadmapGraph<CFG, WEIGHT> RGraph;
     typedef stapl::sequential::graph<stapl::DIRECTED, stapl::NONMULTIEDGES, CFG, WEIGHT> Graph;
     typedef typename Graph::vertex_descriptor VID;
     typedef typename Graph::vertex_iterator VI;
@@ -34,12 +39,13 @@ class MapModel : public LoadableModel {
     typedef stapl::sequential::edge_property_map<Graph, EdgeAccess> EdgeMap;
 
     MapModel();
+    MapModel(RGraph* _g);
     MapModel(const string& _filename);
     ~MapModel();
 
     //Access functions
     const string& GetEnvFileName() const {return m_envFileName;}
-    Graph* GetGraph(){return m_graph;}
+    RGraph* GetGraph() {return m_graph;}
     vector<CFG*>& GetTempCfgs() {return m_tempCfgs;}
 
     VID Cfg2VID(const CFG& _target);
@@ -65,28 +71,41 @@ class MapModel : public LoadableModel {
     void RefreshMap();
     void ClearTempCfgs();
 
+    QMutex& AcquireMutex() {return m_lock;}
+
   private:
     string m_envFileName;
 
     vector<CCM*> m_ccModels;
+    RGraph* m_graph;
+
+    bool m_delGraph;
+
+    mutable QMutex m_lock;
+    QMutexLocker* m_locker; //for acquire/release around get children
+
     //Currently for preview in MergeNodes
     vector<CFG*> m_tempCfgs;
-
-    Graph* m_graph;
 };
 
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map") {
+MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map"), m_delGraph(true) {
   m_renderMode = INVISIBLE_MODE;
-  m_graph = new Graph();
+  m_graph = new RGraph();
+}
+
+template <class CFG, class WEIGHT>
+MapModel<CFG, WEIGHT>::MapModel(RGraph* _g) : LoadableModel("Map"), m_graph(_g), m_delGraph(false) {
+  m_renderMode = SOLID_MODE;
+  BuildModels();
 }
 
 //constructor only to grab header environment name
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map") {
+MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map"), m_delGraph(true) {
   SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
-  m_graph = new Graph();
+  m_graph = new RGraph();
 
   ParseFile();
   BuildModels();
@@ -96,7 +115,8 @@ template <class CFG, class WEIGHT>
 MapModel<CFG, WEIGHT>::~MapModel() {
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
-  delete m_graph;
+  if(m_delGraph)
+    delete m_graph;
 }
 
 ///////////Load functions//////////
@@ -122,6 +142,7 @@ MapModel<CFG,WEIGHT>::ParseFile(){
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::Write(const string& _filename){
+  QMutexLocker lock(&m_lock);
   ofstream outfile(_filename.c_str());
 
   outfile << "#####ENVFILESTART##### \n";
@@ -134,6 +155,7 @@ MapModel<CFG, WEIGHT>::Write(const string& _filename){
 template <class CFG, class WEIGHT>
 typename MapModel<CFG, WEIGHT>::VID
 MapModel<CFG, WEIGHT>::Cfg2VID(const CFG& _target){
+  QMutexLocker lock(&m_lock);
   for(VI vi = m_graph->begin(); vi != m_graph->end(); vi++)
     if(_target == vi->property())
       return vi->descriptor();
@@ -145,6 +167,7 @@ MapModel<CFG, WEIGHT>::Cfg2VID(const CFG& _target){
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::BuildModels() {
+  QMutexLocker lock(&m_lock);
 
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
@@ -163,6 +186,7 @@ MapModel<CFG, WEIGHT>::BuildModels() {
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::Draw(){
+  QMutexLocker lock(&m_lock);
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
@@ -181,6 +205,7 @@ MapModel<CFG, WEIGHT>::Draw(){
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::SetRenderMode(RenderMode _mode){
+  QMutexLocker lock(&m_lock);
   m_renderMode = _mode;
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     (*ic)->SetRenderMode(_mode);
@@ -188,7 +213,8 @@ MapModel<CFG, WEIGHT>::SetRenderMode(RenderMode _mode){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
+MapModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models) {
+  //QMutexLocker lock(&m_lock);
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     _models.push_back(*ic);
 }
@@ -203,7 +229,8 @@ MapModel<CFG, WEIGHT>::Print(ostream& _os) const {
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
-  if(_index == NULL)
+  QMutexLocker lock(&m_lock);
+  if(!m_selectable || _index == NULL)
     return;
   m_ccModels[_index[0]]->Select(&_index[1], _sel);
 }
@@ -211,6 +238,7 @@ MapModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::SetColor(const Color4& _c) {
+  QMutexLocker lock(&m_lock);
   Model::SetColor(_c);
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
     (*ic)->SetColor(_c);
@@ -219,6 +247,7 @@ MapModel<CFG, WEIGHT>::SetColor(const Color4& _c) {
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::RandomizeCCColors() {
+  QMutexLocker lock(&m_lock);
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
     (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }
@@ -227,8 +256,7 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::RefreshMap(){
   BuildModels();
-  for(size_t i = 0; i < m_ccModels.size(); i++)
-    m_ccModels[i]->SetRenderMode(m_renderMode);
+  SetRenderMode(m_renderMode);
 }
 
 template <class CFG, class WEIGHT>

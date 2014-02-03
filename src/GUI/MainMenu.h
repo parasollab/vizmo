@@ -32,6 +32,7 @@ class MainMenu : public QWidget {
 
     QMenuBar* m_menuBar;
 
+  public slots:
     void CallReset();
 
   private slots:

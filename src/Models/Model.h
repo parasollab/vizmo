@@ -14,12 +14,13 @@ using namespace mathtool;
 
 #include <gl.h>
 #include "Utilities/Color.h"
+#include "Utilities/Camera.h"
 
 enum RenderMode {INVISIBLE_MODE, WIRE_MODE, SOLID_MODE};
 
 class Model {
   public:
-    Model(const string& _name) : m_name(_name), m_renderMode(SOLID_MODE) {}
+    Model(const string& _name) : m_name(_name), m_renderMode(SOLID_MODE), m_selectable(true) {}
     virtual ~Model() {
       for(vector<Model*>::iterator cit = m_allChildren.begin();
           cit != m_allChildren.end(); ++cit)
@@ -41,6 +42,8 @@ class Model {
 
     //initialization of gl models
     virtual void BuildModels() = 0;
+    bool IsSelectable() {return m_selectable;}
+    virtual void SetSelectable(bool _s) {m_selectable = _s;}
     //determing if _index is this GL model
     virtual void Select(GLuint* _index, vector<Model*>& _sel) = 0;
     //draw is called for the scene.
@@ -51,10 +54,10 @@ class Model {
     virtual void Print(ostream& _os) const = 0;
 
     //mouse/keyboard event handling
-    virtual bool MousePressed(QMouseEvent* _e) {return false;}
-    virtual bool MouseReleased(QMouseEvent* _e) {return false;}
-    virtual bool MouseMotion(QMouseEvent* _e) {return false;}
-    virtual bool PassiveMouseMotion(QMouseEvent* _e) {return false;}
+    virtual bool MousePressed(QMouseEvent* _e, Camera* _c = NULL) {return false;}
+    virtual bool MouseReleased(QMouseEvent* _e, Camera* _c = NULL) {return false;}
+    virtual bool MouseMotion(QMouseEvent* _e, Camera* _c = NULL) {return false;}
+    virtual bool PassiveMouseMotion(QMouseEvent* _e, Camera* _c = NULL) {return false;}
     virtual bool KeyPressed(QKeyEvent* _e) {return false;}
 
   protected:
@@ -62,6 +65,7 @@ class Model {
     RenderMode m_renderMode;
     Color4 m_color;
     vector<Model*> m_selectableChildren, m_allChildren;
+    bool m_selectable;
 };
 
 class LoadableModel : public Model {

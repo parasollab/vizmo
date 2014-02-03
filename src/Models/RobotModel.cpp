@@ -125,8 +125,15 @@ RobotModel::BuildModels() {
 }
 
 void
+RobotModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  m_robotModel->SetSelectable(_s);
+}
+
+void
 RobotModel::Select(unsigned int* _index, vector<Model*>& _sel) {
-  if(!_index) return;
+  if(!m_selectable || !_index)
+    return;
   m_robotModel->Select(_index+1, _sel);
 }
 

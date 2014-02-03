@@ -21,13 +21,13 @@ class ModelSelectionWidget : public QTreeWidget {
       Model* m_model;
     };
     ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent = NULL);
-    void ResetLists();
 
   signals:
     void CallUpdate();
     void UpdateTextWidget();
 
   public slots:
+    void ResetLists();
     void Select();
     void SelectionChanged();
 

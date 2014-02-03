@@ -22,6 +22,7 @@ class CfgModel : public Model, public Cfg {
     enum Shape { Robot, Box, Point }; //Node representation
 
     CfgModel();
+    CfgModel(const Cfg& _c);
 
     void SetName();
     size_t GetIndex() const { return m_index; }

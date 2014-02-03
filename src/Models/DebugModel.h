@@ -20,7 +20,7 @@
 // RemoveNode - Removes a node from the debug map model
 // RemoveEdge - Removes an edge from the debug map model
 // Comment - Adds a string comment to the text box in the window
-// Query - If a path can be found, it highlights a path in the scene
+// QueryInstruction - If a path can be found, it highlights a path in the scene
 ////////////////////////////////////////////////////////////////////////////////
 struct Instruction{
   Instruction(const string& _name = "default") : m_name(_name) {}
@@ -91,8 +91,8 @@ struct Comment : public Instruction {
   string m_comment;
 };
 
-struct Query : public Instruction {
-  Query(const CfgModel& _s, const CfgModel& _t) : Instruction("Query"), m_source(_s), m_target(_t) {}
+struct QueryInstruction : public Instruction {
+  QueryInstruction(const CfgModel& _s, const CfgModel& _t) : Instruction("QueryInstruction"), m_source(_s), m_target(_t) {}
   CfgModel m_source, m_target;
   vector<EdgeModel> m_query;
 };

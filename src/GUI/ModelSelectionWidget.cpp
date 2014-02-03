@@ -17,10 +17,14 @@ ModelSelectionWidget::ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent
 
 void
 ModelSelectionWidget::ResetLists(){
+  blockSignals(true);
   vector<Model*>& objs = GetVizmo().GetLoadedModels();
+  vector<Model*> sel = GetVizmo().GetSelectedModels();
   ClearLists();
   FillTree(objs);
   setEnabled(!objs.empty());
+  GetVizmo().GetSelectedModels() = sel;
+  Select();
 }
 
 void
@@ -41,18 +45,31 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
     item = new ListViewItem(_p);
 
   item->m_model = _model;
+  if(_model->IsSelectable() == false)
+    item->setDisabled(true);
+
+  QMutexLocker* locker = NULL;
+  if(_model->Name() == "Map")
+    locker = new QMutexLocker(&((MapModel<CfgModel, EdgeModel>*)_model)->AcquireMutex());
   QString qstr = QString::fromStdString(_model->Name());
   item->setText(0, qstr); //Set the text to column 0, which is the only column in this tree widget
   m_items.push_back(item);
 
   list<Model*> objlist;
   _model->GetChildren(objlist);
-  if(objlist.empty())
+  if(objlist.empty()) {
+    if(_model->Name() == "Map")
+      delete locker;
     return item;
+  }
 
   typedef list<Model*>::iterator OIT;
   for(OIT i = objlist.begin(); i != objlist.end(); i++)
     CreateItem(item, *i);
+
+  if(_model->Name() == "Map")
+    delete locker;
+
   return item;
 }
 
@@ -87,7 +104,6 @@ ModelSelectionWidget::ClearLists(){
 void
 ModelSelectionWidget::Select(){
   //Selects in the TREE WIDGET whatever has been selected in the map
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<ListViewItem*>::iterator IIT;
 
   //Unselect everything
@@ -98,19 +114,26 @@ ModelSelectionWidget::Select(){
   //Find selected
   vector<ListViewItem*> selected;
   m_glWidget->SetCurrentRegion(NULL);
-  for(size_t s = 0; s < sel.size(); ++s){
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  typedef vector<Model*>::iterator MIT;
+  for(MIT mit = sel.begin(); mit != sel.end(); ++mit) {
+    bool found = false;
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
-      if(sel[s] == (*i)->m_model){
+      if(*mit == (*i)->m_model){
+        found = true;
         (*i)->setSelected(true);
-        if(m_glWidget->GetDoubleClickStatus() == true){
-          (*i)->parent()->setSelected(true);
+        if(m_glWidget->GetDoubleClickStatus() == true) {
+          if((*i)->parent())
+            (*i)->parent()->setSelected(true);
           (*i)->setSelected(false);
           m_glWidget->SetDoubleClickStatus(false);
         }
-        if(sel[s]->Name() == "Sphere Region" || sel[s]->Name() == "Box Region")
-          m_glWidget->SetCurrentRegion((RegionModel*)sel[s]);
+        if((*mit)->Name() == "Sphere Region" || (*mit)->Name() == "Box Region")
+          m_glWidget->SetCurrentRegion((RegionModel*)(*mit));
       }
     }
+    if(!found)
+      mit = sel.erase(mit);
   }
   blockSignals(false);
   emit itemSelectionChanged();

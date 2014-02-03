@@ -19,6 +19,8 @@ class EnvironmentOptions : public OptionsBase {
   public:
     EnvironmentOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
+    QThread* GetMPThread() {return m_threadDone ? NULL : m_thread;}
+
   private slots:
     void RefreshEnv();
     void RandomizeEnvColors();
@@ -33,6 +35,13 @@ class EnvironmentOptions : public OptionsBase {
     void AddRegionBox();
     void AddRegionSphere();
     void DeleteRegion();
+    void MakeRegionAttract();
+    void MakeRegionAvoid();
+    void ChangeRegionType(bool _attract);
+
+    void HandleTimer();
+    void MapEnvironment();
+    void ThreadDone();
 
   private:
     void CreateActions();
@@ -41,7 +50,20 @@ class EnvironmentOptions : public OptionsBase {
     void Reset();
     void SetHelpTips();
 
+    bool m_regionsStarted, m_threadDone;
     QMenu* m_obstacleMenu;
+    QThread* m_thread;
+    QTimer* m_timer;
+};
+
+class MapEnvironmentWorker : public QObject {
+  Q_OBJECT
+
+  public slots:
+    void Solve();
+
+  signals:
+    void Finished();
 };
 
 #endif

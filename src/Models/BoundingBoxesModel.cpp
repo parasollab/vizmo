@@ -37,7 +37,7 @@ BoundingBoxesModel::BuildModels() {
 
 void
 BoundingBoxesModel::Select(GLuint* _index, vector<Model*>& _sel) {
-  if(!_index || *_index >= m_bbxModels.size())
+  if(!m_selectable || !_index || *_index >= m_bbxModels.size())
     return;
   m_bbxModels[*_index]->Select(_index+1, _sel);
 }

@@ -58,6 +58,8 @@ GLWidget::initializeGL(){
   SetLight();
 
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glClearColor(1, 1, 1, 0);
   //glEnable(GL_CULL_FACE);
@@ -154,7 +156,8 @@ GLWidget::mousePressEvent(QMouseEvent* _e){
     m_transformTool.CameraMotion();
   }
   else if(!m_transformTool.MousePressed(_e)) {
-    if((m_currentRegion && !m_currentRegion->MousePressed(_e)) || !m_currentRegion)
+    if((m_currentRegion && !m_currentRegion->MousePressed(_e, GetCurrentCamera()))
+        || !m_currentRegion)
       m_pickBox.MousePressed(_e);
   }
 
@@ -185,7 +188,7 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
   else if(m_transformTool.MouseReleased(_e))
     handled = true;
   else if(m_currentRegion)
-    handled = m_currentRegion->MouseReleased(_e);
+    handled = m_currentRegion->MouseReleased(_e, GetCurrentCamera());
 
   if(handled){ //handled by gli
     updateGL();
@@ -295,7 +298,7 @@ void
 GLWidget::mouseMoveEvent(QMouseEvent* _e) {
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion
-    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e)))
+    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e, GetCurrentCamera())))
       m_pickBox.PassiveMouseMotion(_e);
     updateGL();
   }
@@ -306,7 +309,8 @@ GLWidget::mouseMoveEvent(QMouseEvent* _e) {
       m_transformTool.CameraMotion();
     }
     else if(!m_transformTool.MouseMotion(_e)) {
-      if((m_currentRegion && !m_currentRegion->MouseMotion(_e)) || !m_currentRegion)
+      if((m_currentRegion && !m_currentRegion->MouseMotion(_e, GetCurrentCamera()))
+          || !m_currentRegion)
         m_pickBox.MouseMotion(_e);
     }
 

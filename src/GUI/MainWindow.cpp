@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 
 #include "AnimationWidget.h"
+#include "EnvironmentOptions.h"
 #include "FileListDialog.h"
 #include "GLWidget.h"
 #include "MainMenu.h"
@@ -47,6 +48,7 @@ MainWindow::Init(){
 
   SetUpLayout();
   statusBar()->showMessage("Ready");
+
   return true;
 }
 
@@ -80,6 +82,14 @@ MainWindow::InitVizmo(){
   m_gl->updateGL();
 
   return true;
+}
+
+void
+MainWindow::closeEvent(QCloseEvent* _event) {
+  QThread* thread = ((EnvironmentOptions*)m_mainMenu->m_environmentOptions)->GetMPThread();
+  if(thread)
+    delete thread;
+  QMainWindow::closeEvent(_event);
 }
 
 bool
@@ -153,14 +163,14 @@ MainWindow::SetUpLayout(){
 }
 
 void
-MainWindow::keyPressEvent (QKeyEvent* _e){
+MainWindow::keyPressEvent(QKeyEvent* _e) {
   switch(_e->key()){
     case Qt::Key_Escape: qApp->quit();
   }
 }
 
 void
-MainWindow::UpdateScreen(){
-    m_gl->updateGL();
+MainWindow::UpdateScreen() {
+  m_gl->updateGL();
 }
 

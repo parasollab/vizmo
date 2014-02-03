@@ -9,6 +9,7 @@ class QAction;
 class QGridLayout;
 class QHBoxLayout;
 class QVBoxLayout;
+class QTimer;
 
 class AnimationWidget;
 class VizmoScreenShotGUI;
@@ -41,6 +42,8 @@ class MainWindow : public QMainWindow {
     ModelSelectionWidget* GetModelSelectionWidget() { return m_modelSelectionWidget; }
 
     MainMenu* m_mainMenu;   //top menubar...owns everything
+
+    void closeEvent(QCloseEvent* _event);
 
   private slots:
     void UpdateScreen();  // redraw GL scene

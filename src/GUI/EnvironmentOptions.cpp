@@ -3,6 +3,7 @@
 #include "ChangeBoundaryDialog.h"
 #include "EditRobotDialog.h"
 #include "GLWidget.h"
+#include "MainMenu.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 #include "ObstaclePosDialog.h"
@@ -15,9 +16,12 @@
 #include "Icons/AddBoxRegion.xpm"
 #include "Icons/DeleteRegion.xpm"
 #include "Icons/RandEnv.xpm"
+#include "Icons/MapEnv.xpm"
+#include "Icons/AttractRegion.xpm"
+#include "Icons/AvoidRegion.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow) {
+  : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_threadDone(true), m_thread(NULL) {
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
@@ -190,9 +194,14 @@ void EnvironmentOptions::EditRobot() {
 
 void
 EnvironmentOptions::AddRegionBox() {
+  if(!m_regionsStarted) {
+    GetVizmo().StartClock("Pre-regions");
+    m_regionsStarted = true;
+  }
+
   //create new spherical region and add to environment
   RegionBoxModel* r = new RegionBoxModel();
-  GetVizmo().GetEnv()->AddRegion(r);
+  GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   //set mouse events to current region for GLWidget
   m_mainWindow->GetGLScene()->SetCurrentRegion(r);
@@ -204,9 +213,14 @@ EnvironmentOptions::AddRegionBox() {
 
 void
 EnvironmentOptions::AddRegionSphere() {
+  if(!m_regionsStarted) {
+    GetVizmo().StartClock("Pre-regions");
+    m_regionsStarted = true;
+  }
+
   //create new spherical region and add to environment
   RegionSphereModel* r = new RegionSphereModel();
-  GetVizmo().GetEnv()->AddRegion(r);
+  GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   //set mouse events to current region for GLWidget
   m_mainWindow->GetGLScene()->SetCurrentRegion(r);
@@ -225,6 +239,77 @@ EnvironmentOptions::DeleteRegion() {
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
     m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
   }
+}
+
+void
+EnvironmentOptions::MakeRegionAttract() {
+  ChangeRegionType(true);
+}
+
+void
+EnvironmentOptions::MakeRegionAvoid() {
+  ChangeRegionType(false);
+}
+
+void
+EnvironmentOptions::ChangeRegionType(bool _attract) {
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  //alert that only the boundary should be selected
+  if(sel.size() == 1 && (sel[0]->Name() == "Box Region" || sel[0]->Name() == "Sphere Region")) {
+    RegionModel* r = (RegionModel*)sel[0];
+    if(GetVizmo().GetEnv()->IsNonCommitRegion(r)) {
+      r->SetType(_attract ? RegionModel::ATTRACT : RegionModel::AVOID);
+      GetVizmo().GetEnv()->ChangeRegionType(r, _attract);
+    }
+  }
+}
+
+void
+EnvironmentOptions::HandleTimer() {
+  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+}
+
+void
+EnvironmentOptions::ThreadDone() {
+  m_threadDone = true;
+
+  //disconnect and delete timer
+  disconnect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
+  delete m_timer;
+
+  //refresh scene + gui one last time
+  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->m_mainMenu->CallReset();
+
+}
+
+void
+EnvironmentOptions::MapEnvironment() {
+  //stop timer for before regions
+  GetVizmo().StopClock("Pre-regions");
+
+  //before thread starts make sure map model exists
+  GetVizmo().SetPMPLMap();
+  m_mainWindow->m_mainMenu->CallReset();
+
+  //set up timer to redraw and refresh gui
+  m_timer = new QTimer(this);
+  connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
+  m_timer->start(200);
+
+  //set up thread for mapping the environment
+  m_threadDone = false;
+  m_thread = new QThread;
+  MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
+  mpsw->moveToThread(m_thread);
+  m_thread->start();
+  connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
+  connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
+  connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
+  connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
+  connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
 }
 
 void
@@ -253,6 +338,12 @@ EnvironmentOptions::CreateActions(){
   m_actions["addRegionBox"] = addRegionBox;
   QAction* deleteRegion = new QAction(QPixmap(deleteregion), tr("Delete Region"), this);
   m_actions["deleteRegion"] = deleteRegion;
+  QAction* makeRegionAttract = new QAction(QPixmap(attractregion), tr("Make Attract Region"), this);
+  m_actions["makeRegionAttract"] = makeRegionAttract;
+  QAction* makeRegionAvoid = new QAction(QPixmap(avoidregion), tr("Make Avoid Region"), this);
+  m_actions["makeRegionAvoid"] = makeRegionAvoid;
+  QAction* ugmp = new QAction(QPixmap(mapenv), tr("Map Environment"), this);
+  m_actions["ugmp"] = ugmp;
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -267,6 +358,9 @@ EnvironmentOptions::CreateActions(){
   m_actions["addRegionSphere"]->setEnabled(false);
   m_actions["addRegionBox"]->setEnabled(false);
   m_actions["deleteRegion"]->setEnabled(false);
+  m_actions["makeRegionAttract"]->setEnabled(false);
+  m_actions["makeRegionAvoid"]->setEnabled(false);
+  m_actions["ugmp"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()), this, SLOT(RefreshEnv()));
@@ -280,6 +374,9 @@ EnvironmentOptions::CreateActions(){
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
   connect(m_actions["addRegionBox"], SIGNAL(triggered()), this, SLOT(AddRegionBox()));
   connect(m_actions["deleteRegion"], SIGNAL(triggered()), this, SLOT(DeleteRegion()));
+  connect(m_actions["makeRegionAttract"], SIGNAL(triggered()), this, SLOT(MakeRegionAttract()));
+  connect(m_actions["makeRegionAvoid"], SIGNAL(triggered()), this, SLOT(MakeRegionAvoid()));
+  connect(m_actions["ugmp"], SIGNAL(triggered()), this, SLOT(MapEnvironment()));
 }
 
 void
@@ -298,6 +395,9 @@ EnvironmentOptions::SetUpCustomSubmenu(){
   m_submenu->addAction(m_actions["addRegionSphere"]);
   m_submenu->addAction(m_actions["addRegionBox"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
+  m_submenu->addAction(m_actions["makeRegionAttract"]);
+  m_submenu->addAction(m_actions["makeRegionAvoid"]);
+  m_submenu->addAction(m_actions["ugmp"]);
   m_obstacleMenu->setEnabled(false);
 }
 
@@ -308,6 +408,9 @@ EnvironmentOptions::SetUpToolbar(){
   m_toolbar->addAction(m_actions["addRegionSphere"]);
   m_toolbar->addAction(m_actions["addRegionBox"]);
   m_toolbar->addAction(m_actions["deleteRegion"]);
+  m_toolbar->addAction(m_actions["makeRegionAttract"]);
+  m_toolbar->addAction(m_actions["makeRegionAvoid"]);
+  m_toolbar->addAction(m_actions["ugmp"]);
 }
 
 void
@@ -323,6 +426,9 @@ EnvironmentOptions::Reset(){
   m_actions["addRegionSphere"]->setEnabled(true);
   m_actions["addRegionBox"]->setEnabled(true);
   m_actions["deleteRegion"]->setEnabled(true);
+  m_actions["makeRegionAttract"]->setEnabled(true);
+  m_actions["makeRegionAvoid"]->setEnabled(true);
+  m_actions["ugmp"]->setEnabled(true);
   m_obstacleMenu->setEnabled(true);
 }
 
@@ -339,5 +445,19 @@ EnvironmentOptions::SetHelpTips(){
   m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
   m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));
   m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
+  m_actions["makeRegionAttract"]->setWhatsThis(tr("Change a region to attract"));
+  m_actions["makeRegionAvoid"]->setWhatsThis(tr("Change a region to avoid"));
+  m_actions["ugmp"]->setWhatsThis(tr("Map an environment using region strategy"));
+}
+
+void
+MapEnvironmentWorker::Solve() {
+  //clear any map and path currently loaded
+  //delete GetVizmo().GetMap();
+  //delete GetVizmo().GetPath();
+
+  //call function somewhere to spark the UG strategy
+  GetVizmo().Solve("regions");
+  emit Finished();
 }
 
