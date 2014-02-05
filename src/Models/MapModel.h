@@ -59,10 +59,11 @@ class MapModel : public LoadableModel {
     virtual void SetRenderMode(RenderMode _mode); //Wire, solid, or invisible
     virtual void GetChildren(list<Model*>& _models);
 
-    void BuildModels();
+    void Build();
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw();
-    void DrawSelect() {}
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected() {}
     void Print(ostream& _os) const;
     void SetColor(const Color4& _c);
 
@@ -97,7 +98,7 @@ MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map"), m_delGraph(true) {
 template <class CFG, class WEIGHT>
 MapModel<CFG, WEIGHT>::MapModel(RGraph* _g) : LoadableModel("Map"), m_graph(_g), m_delGraph(false) {
   m_renderMode = SOLID_MODE;
-  BuildModels();
+  Build();
 }
 
 //constructor only to grab header environment name
@@ -108,7 +109,7 @@ MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map"),
   m_graph = new RGraph();
 
   ParseFile();
-  BuildModels();
+  Build();
 }
 
 template <class CFG, class WEIGHT>
@@ -166,7 +167,7 @@ MapModel<CFG, WEIGHT>::Cfg2VID(const CFG& _target){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::BuildModels() {
+MapModel<CFG, WEIGHT>::Build() {
   QMutexLocker lock(&m_lock);
 
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
@@ -185,7 +186,23 @@ MapModel<CFG, WEIGHT>::BuildModels() {
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::Draw(){
+MapModel<CFG, WEIGHT>::DrawRender(){
+  QMutexLocker lock(&m_lock);
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
+  //Draw each CC
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
+    (*ic)->DrawRender();
+
+  typedef typename vector<CFG*>::iterator NIT;
+  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
+    (*nit)->DrawRender();
+}
+
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::DrawSelect(){
   QMutexLocker lock(&m_lock);
   if(m_renderMode == INVISIBLE_MODE)
     return;
@@ -193,13 +210,13 @@ MapModel<CFG, WEIGHT>::Draw(){
   //Draw each CC
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++){
     glPushName((*ic)->GetID());
-    (*ic)->Draw();
+    (*ic)->DrawSelect();
     glPopName();
   }
 
   typedef typename vector<CFG*>::iterator NIT;
   for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
-    (*nit)->Draw();
+    (*nit)->DrawSelect();
 }
 
 template <class CFG, class WEIGHT>
@@ -255,14 +272,13 @@ MapModel<CFG, WEIGHT>::RandomizeCCColors() {
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::RefreshMap(){
-  BuildModels();
+  Build();
   SetRenderMode(m_renderMode);
 }
 
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::ClearTempCfgs(){
-
   m_tempCfgs.clear();
 }
 

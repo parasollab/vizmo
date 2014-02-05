@@ -29,13 +29,12 @@ class CCModel : public Model {
     void SetName();
     size_t GetID() const {return m_id;}
 
-    void BuildModels();
+    void Build();
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw();
+    void DrawRender();
     void DrawSelect();
+    void DrawSelected();
     void Print(ostream& _os) const;
-    void DrawNodes();
-    void DrawEdges();
     void SetColor(const Color4& _c);
     virtual void GetChildren(list<Model*>& _models);
 
@@ -62,12 +61,12 @@ CCModel<CFG, WEIGHT>::CCModel(size_t _id, VID _rep, Graph* _graph) :
     SetName();
     m_renderMode = INVISIBLE_MODE;
 
-    BuildModels();
+    Build();
   }
 
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::BuildModels() {
+CCModel<CFG, WEIGHT>::Build() {
 
   //Set up CC nodes
   m_nodes.clear();
@@ -109,30 +108,6 @@ CCModel<CFG, WEIGHT>::BuildModels() {
 
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::DrawNodes(){
-  switch(CFG::GetShape()){
-    case CFG::Robot:
-    case CFG::Box:
-      glEnable(GL_LIGHTING);
-      glLineWidth(1);
-      break;
-
-    case CFG::Point:
-      glDisable(GL_LIGHTING);
-      glPointSize(CFG::GetPointSize());
-      break;
-  }
-
-  typedef typename vector<VID>::iterator VIT;
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit){
-    glPushName(*vit);
-    GetCfg(*vit).Draw();
-    glPopName();
-  }
-}
-
-template <class CFG, class WEIGHT>
-void
 CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
   Model::SetColor(_c);
   m_colorIndex[m_rep] = _c;
@@ -159,41 +134,94 @@ CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
 }
 
 template <class CFG, class WEIGHT>
-void
-CCModel<CFG, WEIGHT>::DrawEdges(){
+void CCModel<CFG, WEIGHT>::DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
+  glColor4fv(GetColor());
+
+  switch(CFG::GetShape()){
+    case CFG::Robot:
+    case CFG::Box:
+      glEnable(GL_LIGHTING);
+      glLineWidth(1);
+      break;
+
+    case CFG::Point:
+      glDisable(GL_LIGHTING);
+      glPointSize(CFG::GetPointSize());
+      break;
+  }
+
+  glBegin(GL_POINTS);
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+    glVertex3dv(GetCfg(*vit).GetPoint());
+  glEnd();
+
+  //draw edges
   glDisable(GL_LIGHTING);
   glLineWidth(WEIGHT::m_edgeThickness);
 
+  glBegin(GL_LINES);
+  typedef typename vector<EID>::iterator EIT;
+  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); ++eit) {
+    CFG* cfg1 = &GetCfg(eit->source());
+    CFG* cfg2 = &GetCfg(eit->target());
+    WEIGHT& edge = GetEdge(*eit);
+    edge.Set(distance(m_edges.begin(), eit), cfg1, cfg2);
+    edge.DrawRenderInCC();
+  }
+  glEnd();
+}
+
+template <class CFG, class WEIGHT>
+void CCModel<CFG, WEIGHT>::DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
+  //Names: 1 = Nodes, 2 = Edges
+
+  //draw nodes
+  glPushName(1);
+  switch(CFG::GetShape()){
+    case CFG::Robot:
+    case CFG::Box:
+      glLineWidth(1);
+      break;
+
+    case CFG::Point:
+      glPointSize(CFG::GetPointSize());
+      break;
+  }
+
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    glPushName(*vit);
+    GetCfg(*vit).DrawSelect();
+    glPopName();
+  }
+  glPopName();
+
+  //draw edges
+  glPushName(2);
+  glLineWidth(WEIGHT::m_edgeThickness);
   typedef typename vector<EID>::iterator EIT;
   for(EIT eit = m_edges.begin(); eit!=m_edges.end(); ++eit) {
     glPushName(eit-m_edges.begin());
     CFG* cfg1 = &GetCfg(eit->source());
     CFG* cfg2 = &GetCfg(eit->target());
-    GetEdge(*eit).Set(distance(m_edges.begin(), eit), cfg1, cfg2);
-    GetEdge(*eit).Draw();
+    WEIGHT& edge = GetEdge(*eit);
+    edge.Set(distance(m_edges.begin(), eit), cfg1, cfg2);
+    edge.DrawSelect();
     glPopName();
   }
-}
-
-template <class CFG, class WEIGHT>
-void CCModel<CFG, WEIGHT>::Draw() {
-  if(m_renderMode == INVISIBLE_MODE)
-    return;
-
-  //Names: 1 = Nodes, 2 = Edges
-  glPushName(1);
-  DrawNodes();
-  glPopName();
-
-  glPushName(2);
-  DrawEdges();
   glPopName();
 }
 
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::DrawSelect(){
-
+CCModel<CFG, WEIGHT>::DrawSelected(){
   /*Disabled for now; later modifications likely*/
   //if(m_edgeID == -1)
   //  DrawEdges();

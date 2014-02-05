@@ -12,6 +12,7 @@ class RobotModel : public Model {
 
     void GetChildren(list<Model*>& _models) {_models.push_back(m_robotModel);}
     void SetRenderMode(RenderMode _mode);
+    void SetSelectable(bool _s); //propagate selectability to children
     void SetColor(const Color4& _c);
 
     void SetInitialCfg(vector<double>& _cfg) {m_initCfg = _cfg;}
@@ -21,11 +22,11 @@ class RobotModel : public Model {
     void Configure(const vector<double>& _cfg);
     void Restore();
 
-    void BuildModels();
-    virtual void SetSelectable(bool _s); //propagate selectability to children
+    void Build();
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw();
+    void DrawRender();
     void DrawSelect();
+    void DrawSelected();
     void Print(ostream& _os) const;
 
   private:

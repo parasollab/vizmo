@@ -18,7 +18,7 @@ PathModel::PathModel(const string& _filename) :
     m_stopColors.push_back(yellow);
 
     ParseFile();
-    BuildModels();
+    Build();
   }
 
 void
@@ -48,7 +48,7 @@ PathModel::ParseFile() {
 }
 
 void
-PathModel::BuildModels(){
+PathModel::Build() {
   CfgModel::Shape tmp = CfgModel::GetShape();
   CfgModel::SetShape(CfgModel::Robot);
 
@@ -82,7 +82,7 @@ PathModel::BuildModels(){
     size_t i = cit-allColors.begin();
     if(i % m_displayInterval == 0){
       m_path[i].SetColor(*cit);
-      m_path[i].Draw();
+      m_path[i].DrawRender();
     }
   }
 
@@ -92,7 +92,7 @@ PathModel::BuildModels(){
   for(size_t j = 0; j<remainder; ++j){
     if(j%m_displayInterval==0){
       m_path[allColors.size()+j].SetColor(allColors.back());
-      m_path[allColors.size()+j].Draw();
+      m_path[allColors.size()+j].DrawRender();
     }
   }
 
@@ -102,7 +102,16 @@ PathModel::BuildModels(){
   CfgModel::SetShape(tmp);
 }
 
-void PathModel::Draw() {
+void PathModel::DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return; //not draw any thing
+
+  //set to line represnet
+  glLineWidth(m_lineWidth);
+  glCallList(m_glPathIndex);
+}
+
+void PathModel::DrawSelect() {
   if(m_renderMode == INVISIBLE_MODE)
     return; //not draw any thing
 

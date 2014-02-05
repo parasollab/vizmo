@@ -120,7 +120,7 @@ QueryEditDialog::SwapDown(){
 
 void
 QueryEditDialog::RefreshEnv(){
-  m_queryModel->BuildModels();
+  m_queryModel->Build();
   GetVizmo().PlaceRobot();
   m_mainWindow->GetGLScene()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();

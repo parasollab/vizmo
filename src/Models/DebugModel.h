@@ -115,10 +115,11 @@ class DebugModel : public LoadableModel {
     MM* GetMapModel() {return m_mapModel;}
 
     void ParseFile();
-    void BuildModels();
+    void Build();
     void Select(GLuint* _index, vector<Model*>& _sel) {}
-    void Draw();
+    void DrawRender();
     void DrawSelect() {}
+    void DrawSelected() {}
     void Print(ostream& _os) const;
 
     void ConfigureFrame(int _frame);

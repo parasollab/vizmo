@@ -32,6 +32,9 @@ class Model {
     RenderMode GetRenderMode() const {return m_renderMode;}
     virtual void SetRenderMode(RenderMode _mode) {m_renderMode = _mode;}
 
+    bool IsSelectable() {return m_selectable;}
+    virtual void SetSelectable(bool _s) {m_selectable = _s;}
+
     const Color4& GetColor() const {return m_color;}
     virtual void SetColor(const Color4& _c) {m_color = _c;}
 
@@ -40,16 +43,16 @@ class Model {
     const vector<Model*>& SelectableChildren() const {return m_selectableChildren;}
     const vector<Model*>& AllChildren() const {return m_allChildren;}
 
-    //initialization of gl models
-    virtual void BuildModels() = 0;
-    bool IsSelectable() {return m_selectable;}
-    virtual void SetSelectable(bool _s) {m_selectable = _s;}
+    //initialization of model
+    virtual void Build() = 0;
     //determing if _index is this GL model
     virtual void Select(GLuint* _index, vector<Model*>& _sel) = 0;
-    //draw is called for the scene.
-    virtual void Draw() = 0;
-    //DrawSelect is only called if item is selected
+    //draw under GL_RENDER mode
+    virtual void DrawRender() = 0;
+    //draw under GL_SELECT mode
     virtual void DrawSelect() = 0;
+    //DrawSelected is only called when model is selected
+    virtual void DrawSelected() = 0;
     //output model info
     virtual void Print(ostream& _os) const = 0;
 

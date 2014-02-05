@@ -21,7 +21,7 @@ RegionBoxModel::GetBoundary() const {
 
 //initialization of gl models
 void
-RegionBoxModel::BuildModels() {
+RegionBoxModel::Build() {
 }
 
 //determing if _index is this GL model
@@ -33,7 +33,7 @@ RegionBoxModel::Select(GLuint* _index, vector<Model*>& _sel) {
 
 //draw is called for the scene.
 void
-RegionBoxModel::Draw() {
+RegionBoxModel::DrawRender() {
   //configure gl modes
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -118,9 +118,79 @@ RegionBoxModel::Draw() {
     QApplication::setOverrideCursor(Qt::ArrowCursor);
 }
 
-//DrawSelect is only called if item is selected
 void
 RegionBoxModel::DrawSelect() {
+  //configure gl modes
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+
+  //create model
+  glBegin(GL_QUADS);
+
+  //front face
+  for(int i = 0; i < 4; ++i)
+    glVertex3dv(m_boxVertices[i]);
+
+  //back face
+  for(int i = 7; i > 3; --i)
+    glVertex3dv(m_boxVertices[i]);
+
+  //bottom
+  glVertex3dv(m_boxVertices[1]);
+  glVertex3dv(m_boxVertices[5]);
+  glVertex3dv(m_boxVertices[6]);
+  glVertex3dv(m_boxVertices[2]);
+
+  //right
+  glVertex3dv(m_boxVertices[2]);
+  glVertex3dv(m_boxVertices[6]);
+  glVertex3dv(m_boxVertices[7]);
+  glVertex3dv(m_boxVertices[3]);
+
+  //top
+  glVertex3dv(m_boxVertices[3]);
+  glVertex3dv(m_boxVertices[7]);
+  glVertex3dv(m_boxVertices[4]);
+  glVertex3dv(m_boxVertices[0]);
+
+  //left
+  glVertex3dv(m_boxVertices[0]);
+  glVertex3dv(m_boxVertices[4]);
+  glVertex3dv(m_boxVertices[5]);
+  glVertex3dv(m_boxVertices[1]);
+  glEnd();
+
+  //create outline
+  glLineWidth(2);
+  glBegin(GL_LINE_LOOP);
+  for(int i = 0; i < 4; ++i)
+    glVertex3dv(m_boxVertices[i]);
+  glEnd();
+  glBegin(GL_LINE_LOOP);
+  for(int i = 7; i > 3; --i)
+    glVertex3dv(m_boxVertices[i]);
+  glEnd();
+  glBegin(GL_LINES);
+    glVertex3dv(m_boxVertices[0]);
+    glVertex3dv(m_boxVertices[4]);
+
+    glVertex3dv(m_boxVertices[1]);
+    glVertex3dv(m_boxVertices[5]);
+
+    glVertex3dv(m_boxVertices[2]);
+    glVertex3dv(m_boxVertices[6]);
+
+    glVertex3dv(m_boxVertices[3]);
+    glVertex3dv(m_boxVertices[7]);
+  glEnd();
+
+  //reset gl modes to previous configuration
+  glPopMatrix();
+}
+
+//DrawSelect is only called if item is selected
+void
+RegionBoxModel::DrawSelected() {
   //configure gl modes
   glDisable(GL_LIGHTING);
   glMatrixMode(GL_MODELVIEW);

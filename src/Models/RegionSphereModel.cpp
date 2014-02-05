@@ -20,7 +20,7 @@ RegionSphereModel::GetBoundary() const {
 
 //initialization of gl models
 void
-RegionSphereModel::BuildModels() {
+RegionSphereModel::Build() {
 }
 
 //determing if _index is this GL model
@@ -32,7 +32,7 @@ RegionSphereModel::Select(GLuint* _index, vector<Model*>& _sel) {
 
 //draw is called for the scene.
 void
-RegionSphereModel::Draw() {
+RegionSphereModel::DrawRender() {
   if(m_radius < 0)
     return;
 
@@ -49,9 +49,20 @@ RegionSphereModel::Draw() {
     QApplication::setOverrideCursor(Qt::SizeHorCursor);
 }
 
-//DrawSelect is only called if item is selected
 void
 RegionSphereModel::DrawSelect() {
+  if(m_radius < 0)
+    return;
+
+  glPushMatrix();
+  glTranslatef(m_center[0], m_center[1], m_center[2]);
+  glutSolidSphere(m_radius, 20, 20);
+  glPopMatrix();
+}
+
+//DrawSelect is only called if item is selected
+void
+RegionSphereModel::DrawSelected() {
   if(m_radius < 0)
     return;
 

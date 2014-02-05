@@ -82,6 +82,12 @@ BodyModel::SetRenderMode(RenderMode _mode) {
 }
 
 void
+BodyModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  m_polyhedronModel->SetSelectable(_s);
+}
+
+void
 BodyModel::ComputeTransform(const BodyModel* _body, size_t _nextBody){
   for(ConnectionIter cit = _body->Begin(); cit!=_body->End(); ++cit) {
     if((*cit)->GetNextIndex() == _nextBody) {
@@ -102,26 +108,28 @@ BodyModel::Select(GLuint* _index, vector<Model*>& sel){
 }
 
 void
-BodyModel::SetSelectable(bool _s){
-  m_selectable = _s;
-  m_polyhedronModel->SetSelectable(_s);
-}
-
-void
-BodyModel::Draw() {
+BodyModel::DrawRender() {
   glColor4fv(GetColor());
   glPushMatrix();
   Transform();
-  m_polyhedronModel->Draw();
+  m_polyhedronModel->DrawRender();
   glPopMatrix();
 }
 
 void
 BodyModel::DrawSelect() {
-  glLineWidth(2);
   glPushMatrix();
   Transform();
   m_polyhedronModel->DrawSelect();
+  glPopMatrix();
+}
+
+void
+BodyModel::DrawSelected() {
+  glLineWidth(2);
+  glPushMatrix();
+  Transform();
+  m_polyhedronModel->DrawSelected();
   glPopMatrix();
 }
 

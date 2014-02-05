@@ -64,38 +64,83 @@ CfgModel::Scale(float _scale){
 }
 
 void
-CfgModel::Draw(){
-  glPushName(m_index);
+CfgModel::DrawRender(){
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
+  RobotModel* robot = GetVizmo().GetRobot();
+  if(m_isValid) {
+    glColor4fv(m_color);
+    robot->SetColor(m_color);
+  }
+  else {
+    Color4 ic(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0);
+    glColor4fv(ic);
+    robot->SetColor(ic); //Invert colors. Black case?
+  }
+
   switch(m_shape){
     case Robot:
-      DrawRobot();
+      robot->BackUp();
+      robot->SetRenderMode(m_renderMode);
+      robot->Configure(m_v);
+      robot->DrawRender();
+      robot->Restore();
       break;
 
     case Box:
-      DrawBox();
+      glPushMatrix();
+      PerformBoxTranslation();
+      glEnable(GL_NORMALIZE);
+      if(m_renderMode == SOLID_MODE)
+        glutSolidCube(m_boxScale);
+      if(m_renderMode == WIRE_MODE)
+        glutWireCube(m_boxScale);
+      glDisable(GL_NORMALIZE);
+      glPopMatrix();
       break;
 
     case Point:
-      DrawPoint();
+      glBegin(GL_POINTS);
+      glVertex3dv(GetPoint());
+      glEnd();
       break;
   }
-  glPopName();
 }
 
 void
-CfgModel::DrawRobot(){
-  RobotModel* robot = GetVizmo().GetRobot();
-  robot->BackUp();
-  robot->SetRenderMode(m_renderMode);
+CfgModel::DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
 
-  if(m_isValid)
-    robot->SetColor(m_color);
-  else
-    robot->SetColor(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0)); //Invert colors. Black case?
+  switch(m_shape){
+    case Robot:
+      {
+        RobotModel* robot = GetVizmo().GetRobot();
+        robot->BackUp();
+        robot->SetRenderMode(m_renderMode);
+        robot->Configure(m_v);
+        robot->DrawSelect();
+        robot->Restore();
+      }
+      break;
 
-  robot->Configure(m_v);
-  robot->Draw();
-  robot->Restore();
+    case Box:
+      glPushMatrix();
+      PerformBoxTranslation();
+      if(m_renderMode == SOLID_MODE)
+        glutSolidCube(m_boxScale);
+      if(m_renderMode == WIRE_MODE)
+        glutWireCube(m_boxScale);
+      glPopMatrix();
+      break;
+
+    case Point:
+      glBegin(GL_POINTS);
+      glVertex3dv(GetPoint());
+      glEnd();
+      break;
+  }
 }
 
 void
@@ -117,49 +162,7 @@ CfgModel::PerformBoxTranslation(){
 }
 
 void
-CfgModel::DrawBox(){
-
-  glPushMatrix();
-
-  if(m_isValid)
-    glColor4fv(m_color);
-  else
-    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
-
-  PerformBoxTranslation();
-
-  glEnable(GL_NORMALIZE);
-  if(m_renderMode == SOLID_MODE)
-    glutSolidCube(m_boxScale);
-  if(m_renderMode == WIRE_MODE)
-    glutWireCube(m_boxScale);
-  glDisable(GL_NORMALIZE);
-  glPopMatrix();
-}
-
-void
-CfgModel::DrawPoint(){
-
-  glBegin(GL_POINTS);
-
-  if(m_isValid)
-    glColor4fv(GetColor());
-  else
-    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
-
-  if(m_renderMode == SOLID_MODE ||
-      m_renderMode == WIRE_MODE){
-    if(m_isPlanarRobot)
-      glVertex3d(m_v[0], m_v[1], 0);
-    if(m_isVolumetricRobot)
-      glVertex3d(m_v[0], m_v[1], m_v[2]);
-  }
-  glEnd();
-}
-
-void
-CfgModel::DrawSelect(){
-
+CfgModel::DrawSelected(){
   glDisable(GL_LIGHTING);
   switch(m_shape){
     case Robot:

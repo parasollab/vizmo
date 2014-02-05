@@ -32,11 +32,14 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
     void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
 
-    void BuildModels() {}
+    void Build() {}
     void Select(GLuint* _index, vector<Model*>& _sel) {};
-    void Draw();
+    void DrawRender();
     void DrawSelect();
+    void DrawSelected();
     void Print(ostream& _os) const;
+
+    void DrawRenderInCC();
 
     static double m_edgeThickness;
 

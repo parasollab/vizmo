@@ -77,7 +77,7 @@ CustomizePathDialog::AcceptData(){
     path->GetGradientVector().push_back(Color4(qit->redF(), qit->greenF(), qit->blueF(), 1.0));
   }
 
-  path->BuildModels();
+  path->Build();
   accept();
 }
 

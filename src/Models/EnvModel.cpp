@@ -18,7 +18,7 @@ EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
     SetModelDataDir(_filename.substr(0, sl == string::npos ? 0 : sl));
 
     ParseFile();
-    BuildModels();
+    Build();
 
     m_environment = new Environment();
     m_environment->Read(_filename);
@@ -146,17 +146,17 @@ EnvModel::ParseBoundary(ifstream& _ifs) {
 }
 
 void
-EnvModel::BuildModels(){
+EnvModel::Build(){
   //Build boundary model
   if(!m_boundary)
     throw BuildException(WHERE, "Boundary is NULL");
-  m_boundary->BuildModels();
+  m_boundary->Build();
 
   //Build each
   MultiBodyModel::ClearDOFInfo();
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit) {
-    (*mit)->BuildModels();
+    (*mit)->Build();
     m_dof += (*mit)->GetDOF();
     m_centerOfMass += (*mit)->GetCOM();
   }
@@ -193,21 +193,47 @@ EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
 }
 
 void
-EnvModel::Draw() {
+EnvModel::DrawRender() {
+  size_t numMBs = m_multibodies.size();
+  size_t numAttractRegions = m_attractRegions.size();
+  size_t numAvoidRegions = m_avoidRegions.size();
+  size_t numNonCommitRegions = m_nonCommitRegions.size();
+
+  m_boundary->DrawRender();
+
+  glLineWidth(1);
+  for(size_t i = 0; i < numMBs; ++i)
+    if(!m_multibodies[i]->IsActive())
+      m_multibodies[i]->DrawRender();
+
+  glEnable(GL_BLEND);
+  glDepthMask(GL_FALSE);
+  for(size_t i = 0; i < numAttractRegions; ++i)
+    m_attractRegions[i]->DrawRender();
+  for(size_t i = 0; i < numAvoidRegions; ++i)
+    m_avoidRegions[i]->DrawRender();
+  for(size_t i = 0; i < numNonCommitRegions; ++i)
+    m_nonCommitRegions[i]->DrawRender();
+  glDepthMask(GL_TRUE);
+  glDisable(GL_BLEND);
+}
+
+void
+EnvModel::DrawSelect() {
   size_t numMBs = m_multibodies.size();
   size_t numAttractRegions = m_attractRegions.size();
   size_t numAvoidRegions = m_avoidRegions.size();
   size_t numNonCommitRegions = m_nonCommitRegions.size();
 
   glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions);
-  m_boundary->Draw();
+  m_boundary->DrawSelect();
   glPopName();
 
   glLineWidth(1);
   for(size_t i = 0; i < numMBs; ++i){
     if(!m_multibodies[i]->IsActive()){
       glPushName(i);
-      m_multibodies[i]->Draw();
+      m_multibodies[i]->DrawSelect();
       glPopName();
     }
   }
@@ -216,17 +242,17 @@ EnvModel::Draw() {
   glDepthMask(GL_FALSE);
   for(size_t i = 0; i < numAttractRegions; ++i) {
     glPushName(numMBs + i);
-    m_attractRegions[i]->Draw();
+    m_attractRegions[i]->DrawSelect();
     glPopName();
   }
   for(size_t i = 0; i < numAvoidRegions; ++i) {
     glPushName(numMBs + numAttractRegions + i);
-    m_avoidRegions[i]->Draw();
+    m_avoidRegions[i]->DrawSelect();
     glPopName();
   }
   for(size_t i = 0; i < numNonCommitRegions; ++i) {
     glPushName(numMBs + numAttractRegions + numAvoidRegions + i);
-    m_nonCommitRegions[i]->Draw();
+    m_nonCommitRegions[i]->DrawSelect();
     glPopName();
   }
   glDepthMask(GL_TRUE);
@@ -247,6 +273,15 @@ EnvModel::ChangeColor(){
 }
 
 void
+EnvModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  typedef vector<MultiBodyModel*>::iterator MIT;
+  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
+    (*i)->SetSelectable(_s);
+  m_boundary->SetSelectable(_s);
+}
+
+void
 EnvModel::GetChildren(list<Model*>& _models){
   typedef vector<MultiBodyModel*>::iterator MIT;
   for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
@@ -263,15 +298,6 @@ EnvModel::GetChildren(list<Model*>& _models){
 }
 
 void
-EnvModel::SetSelectable(bool _s){
-  m_selectable = _s;
-  typedef vector<MultiBodyModel*>::iterator MIT;
-  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
-    (*i)->SetSelectable(_s);
-  m_boundary->SetSelectable(_s);
-}
-
-void
 EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
   vector<MultiBodyModel*>::iterator mbit;
   for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){
@@ -284,7 +310,7 @@ EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
 
 void
 EnvModel::AddMBModel(MultiBodyModel* _m){
-  _m->BuildModels();
+  _m->Build();
   m_multibodies.push_back(_m);
 }
 

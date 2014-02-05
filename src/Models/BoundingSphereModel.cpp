@@ -9,7 +9,7 @@ BoundingSphereModel::BoundingSphereModel() :
 
 BoundingSphereModel::BoundingSphereModel(const Point3d& _c, double _r) :
   BoundaryModel("Bounding Sphere"), m_center(_c), m_radius(_r) {
-    BuildModels();
+    Build();
   }
 
 vector<pair<double, double> >
@@ -31,7 +31,7 @@ BoundingSphereModel::Parse(istream& _is) {
 }
 
 void
-BoundingSphereModel::BuildModels() {
+BoundingSphereModel::Build() {
   GLUquadricObj* quad =gluNewQuadric();
 
   m_displayID = glGenLists(1);

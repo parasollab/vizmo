@@ -11,10 +11,11 @@ class BoundaryModel : public Model {
 
     virtual vector<pair<double, double> > GetRanges() = 0;
     virtual bool Parse(istream& _is) = 0;
-    virtual void BuildModels() = 0;
+    virtual void Build() = 0;
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw();
+    void DrawRender();
     void DrawSelect();
+    void DrawSelected();
     virtual void Print(ostream& _os) const = 0;
 
     friend ostream& operator<<(ostream& _os, const BoundaryModel& _b) {_b.Write(_os); return _os;}

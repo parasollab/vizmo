@@ -38,6 +38,7 @@ class MultiBodyModel : public Model {
 
     //access properties
     virtual void SetRenderMode(RenderMode _mode);
+    virtual void SetSelectable(bool _s);
     virtual void SetColor(const Color4& _c);
 
     bool IsActive() const{return m_active;}
@@ -59,11 +60,11 @@ class MultiBodyModel : public Model {
     vector<ConnectionModel*>& GetJoints() {return m_joints;}
 
     //drawing
-    virtual void BuildModels();
-    virtual void SetSelectable(bool _s);
+    virtual void Build();
     virtual void Select(GLuint* _index, vector<Model*>& sel);
-    virtual void Draw();
+    virtual void DrawRender();
     virtual void DrawSelect();
+    virtual void DrawSelected();
     virtual void Print(ostream& _os) const;
 
     //IO

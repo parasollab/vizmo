@@ -198,7 +198,7 @@ NodeEditDialog::UpdateDOF(int _id){
   ValidityCheck();
 
   if(m_currentNode->IsQuery()){
-    GetVizmo().GetQry()->BuildModels();
+    GetVizmo().GetQry()->Build();
     GetVizmo().PlaceRobot();
   }
   m_glScene->updateGL();

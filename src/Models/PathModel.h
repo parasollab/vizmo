@@ -20,11 +20,12 @@ class PathModel : public LoadableModel {
     void SetLineWidth(float _width) {m_lineWidth = _width;}
     void SetDisplayInterval(int _disp) {m_displayInterval = _disp;}
 
-    virtual void ParseFile();
-    virtual void BuildModels();
+    void ParseFile();
+    void Build();
     void Select(GLuint* _index, vector<Model*>& _sel) {}
-    virtual void Draw();
-    void DrawSelect() {}
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected() {}
     void Print(ostream& _os) const;
 
   private:

@@ -11,12 +11,12 @@
 PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
   : Model(_filename), m_filename(_filename), m_isSurface(_isSurface),
   m_solidID(-1), m_wiredID(-1) {
-    BuildModels();
+    Build();
   }
 
 PolyhedronModel::PolyhedronModel(const PolyhedronModel& _p) : Model(_p),
   m_filename(_p.m_filename), m_isSurface(_p.m_isSurface) {
-    BuildModels();
+    Build();
   }
 
 PolyhedronModel::~PolyhedronModel(){
@@ -25,7 +25,7 @@ PolyhedronModel::~PolyhedronModel(){
 }
 
 void
-PolyhedronModel::BuildModels() {
+PolyhedronModel::Build() {
 
   IModel* imodel = CreateModelLoader(m_filename, false);
 
@@ -58,7 +58,7 @@ PolyhedronModel::BuildModels() {
   delete imodel;
 }
 
-void PolyhedronModel::Draw() {
+void PolyhedronModel::DrawRender() {
   if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
     return;
 
@@ -75,6 +75,13 @@ void PolyhedronModel::Draw() {
 }
 
 void PolyhedronModel::DrawSelect() {
+  if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
+    return;
+
+  glCallList(m_solidID);
+}
+
+void PolyhedronModel::DrawSelected() {
   glCallList(m_wiredID);
 }
 

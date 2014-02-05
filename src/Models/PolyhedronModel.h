@@ -18,10 +18,11 @@ class PolyhedronModel : public Model {
     double GetRadius() const {return m_radius;}
     const Point3d& GetCOM() const {return m_com;}
 
-    void BuildModels();
+    void Build();
     void Select(GLuint* _index, vector<Model*>& sel) {}
-    void Draw();
+    void DrawRender();
     void DrawSelect();
+    void DrawSelected();
     void Print(ostream& _os) const;
 
   protected:

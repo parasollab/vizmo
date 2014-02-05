@@ -52,13 +52,14 @@ class EnvModel : public LoadableModel {
     // TESTING to save Env. file
     bool SaveFile(const char* _filename);
 
+    virtual void SetSelectable(bool _s); //propagate selectability to children
     virtual void GetChildren(list<Model*>& _models);
 
-    void BuildModels();
-    virtual void SetSelectable(bool _s); //propagate selectability to children
+    void Build();
     void Select(GLuint* _index, vector<Model*>& _sel);
-    void Draw();
-    void DrawSelect() {}
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected() {}
     void Print(ostream& _os) const;
 
   private:

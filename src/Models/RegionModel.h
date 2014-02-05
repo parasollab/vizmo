@@ -29,13 +29,15 @@ class RegionModel : public Model {
     virtual shared_ptr<Boundary> GetBoundary() const = 0;
 
     //initialization of gl models
-    virtual void BuildModels() = 0;
+    virtual void Build() = 0;
     //determing if _index is this GL model
     virtual void Select(GLuint* _index, vector<Model*>& _sel) = 0;
     //draw is called for the scene.
-    virtual void Draw() = 0;
-    //DrawSelect is only called if item is selected
+    virtual void DrawRender() = 0;
+    //draw is called for the scene.
     virtual void DrawSelect() = 0;
+    //DrawSelect is only called if item is selected
+    virtual void DrawSelected() = 0;
     //output model info
     virtual void Print(ostream& _os) const = 0;
 

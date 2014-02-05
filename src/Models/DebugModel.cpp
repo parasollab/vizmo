@@ -8,7 +8,7 @@ DebugModel::DebugModel(const string& _filename) :
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
     ParseFile();
-    BuildModels();
+    Build();
   }
 
 DebugModel::~DebugModel() {
@@ -101,13 +101,13 @@ DebugModel::ParseFile() {
 }
 
 void
-DebugModel::BuildModels(){
+DebugModel::Build(){
   m_prevIndex = 0;
   m_index = 0;
   m_edgeNum = 0;
   m_tempRay = NULL;
 
-  m_mapModel->BuildModels();
+  m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
 
@@ -309,7 +309,7 @@ DebugModel::BuildForward() {
   }
 
   //rebuild map model since graph may have changed
-  m_mapModel->BuildModels();
+  m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
 
@@ -470,12 +470,12 @@ DebugModel::BuildBackward(){
   }
 
   //rebuild map model since graph may have changed
-  m_mapModel->BuildModels();
+  m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
 
 void
-DebugModel::Draw(){
+DebugModel::DrawRender(){
 
   typedef vector<CfgModel>::iterator CIT;
   typedef vector<EdgeModel>::iterator EIT;
@@ -492,15 +492,15 @@ DebugModel::Draw(){
   m_prevIndex = m_index;
 
   if(m_index){
-    m_mapModel->Draw();
+    m_mapModel->DrawRender();
     for(CIT cit = m_tempCfgs.begin(); cit!=m_tempCfgs.end(); cit++)
-      cit->Draw();
+      cit->DrawRender();
     for(EIT eit = m_tempEdges.begin(); eit!=m_tempEdges.end(); eit++)
-      eit->Draw();
+      eit->DrawRender();
     for(EIT eit = m_query.begin(); eit!=m_query.end(); eit++) {
       glLineWidth(32);
       eit->SetColor(Color4(1, 1, 0, 1));
-      eit->Draw();
+      eit->DrawRender();
     }
     if(m_tempRay != NULL && m_tempCfgs.size() > 0) {
       EdgeModel edge;
@@ -511,7 +511,7 @@ DebugModel::Draw(){
       edge.Set(0, tmp, &ray);
       edge.SetColor(Color4(1, 1, 0, 1));
       glLineWidth(8);
-      edge.Draw();
+      edge.DrawRender();
     }
   }
 }

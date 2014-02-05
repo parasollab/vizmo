@@ -17,7 +17,7 @@ class BoundingBoxModel : public BoundaryModel {
 
     virtual vector<pair<double, double> > GetRanges() { return m_bbx; }
     virtual bool Parse(istream& _is);
-    virtual void BuildModels();
+    virtual void Build();
     virtual void Print(ostream& _os) const;
 
   protected:

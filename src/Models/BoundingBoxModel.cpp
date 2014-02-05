@@ -16,7 +16,7 @@ BoundingBoxModel::BoundingBoxModel(const pair<double, double>& _x,
     m_bbx.push_back(_x);
     m_bbx.push_back(_y);
     m_bbx.push_back(_z);
-    BuildModels();
+    Build();
   }
 
 bool
@@ -50,7 +50,7 @@ BoundingBoxModel::Parse(istream& _is) {
 }
 
 void
-BoundingBoxModel::BuildModels() {
+BoundingBoxModel::Build() {
   double zmin = m_bbx[2].second == numeric_limits<double>::max() ? -1 : m_bbx[2].first;
   double zmax = m_bbx[2].second == numeric_limits<double>::max() ? 1 : m_bbx[2].second;
 

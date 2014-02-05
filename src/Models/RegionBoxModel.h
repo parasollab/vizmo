@@ -15,13 +15,14 @@ class RegionBoxModel : public RegionModel {
     shared_ptr<Boundary> GetBoundary() const;
 
     //initialization of gl models
-    void BuildModels();
+    void Build();
     //determing if _index is this GL model
     void Select(GLuint* _index, vector<Model*>& _sel);
     //draw is called for the scene.
-    void Draw();
-    //DrawSelect is only called if item is selected
+    void DrawRender();
     void DrawSelect();
+    //DrawSelect is only called if item is selected
+    void DrawSelected();
     //output model info
     void Print(ostream& _os) const;
 

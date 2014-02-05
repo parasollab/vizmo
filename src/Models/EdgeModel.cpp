@@ -44,35 +44,52 @@ EdgeModel::Set(size_t _id, CfgModel* _c1, CfgModel* _c2){
 }
 
 void
-EdgeModel::Draw() {
+EdgeModel::DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
 
   typedef vector<CfgModel>::iterator CFGIT;
+  glColor4fv(GetColor());
+  glBegin(GL_LINE_STRIP);
+  glVertex3dv(m_startCfg->GetPoint());
+  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
+    glVertex3dv(c->GetPoint()); //starting point of next line
+  glVertex3dv(m_endCfg->GetPoint());
+  glEnd();
 
-  if(m_renderMode == SOLID_MODE || m_renderMode == WIRE_MODE){
-
-    glColor4fv(GetColor());
-    glBegin(GL_LINE_STRIP);
-    glVertex3dv(m_startCfg->GetPoint());
-    for(CFGIT c = m_intermediates.begin();
-        c != m_intermediates.end(); c++)
-      glVertex3dv(c->GetPoint()); //starting point of next line
-    glVertex3dv(m_endCfg->GetPoint());
-    glEnd();
-
-    //draw intermediate configurations
-    if(CfgModel::GetShape() == CfgModel::Box || CfgModel::GetShape() == CfgModel::Robot){
-      for(CFGIT c = m_intermediates.begin();
-          c != m_intermediates.end(); c++){
-          c->SetRenderMode(WIRE_MODE);
-          c->Draw();
-      }
+  //draw intermediate configurations
+  if(CfgModel::GetShape() == CfgModel::Box || CfgModel::GetShape() == CfgModel::Robot) {
+    for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
+      c->SetRenderMode(WIRE_MODE);
+      c->DrawRender();
     }
   }
 }
 
 void
-EdgeModel::DrawSelect(){
+EdgeModel::DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
 
+  typedef vector<CfgModel>::iterator CFGIT;
+  glBegin(GL_LINE_STRIP);
+  glVertex3dv(m_startCfg->GetPoint());
+  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
+    glVertex3dv(c->GetPoint()); //starting point of next line
+  glVertex3dv(m_endCfg->GetPoint());
+  glEnd();
+
+  //draw intermediate configurations
+  if(CfgModel::GetShape() == CfgModel::Box || CfgModel::GetShape() == CfgModel::Robot) {
+    for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
+      c->SetRenderMode(WIRE_MODE);
+      c->DrawSelect();
+    }
+  }
+}
+
+void
+EdgeModel::DrawSelected(){
   typedef vector<CfgModel>::iterator CFGIT;
   glLineWidth(m_edgeThickness + 4);
 
@@ -83,5 +100,16 @@ EdgeModel::DrawSelect(){
       glVertex3dv(c->GetPoint()); //starting point of next line
     glVertex3dv(m_endCfg->GetPoint());
   glEnd();
+}
+
+void
+EdgeModel::DrawRenderInCC() {
+  typedef vector<CfgModel>::iterator CFGIT;
+  glVertex3dv(m_startCfg->GetPoint());
+  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
+    glVertex3dv(c->GetPoint()); //starting point of next line
+    glVertex3dv(c->GetPoint()); //starting point of next line
+  }
+  glVertex3dv(m_endCfg->GetPoint());
 }
 

@@ -25,10 +25,10 @@ BoundingBoxesModel::GetChildren(list<Model*>& _models) {
 }
 
 void
-BoundingBoxesModel::BuildModels() {
+BoundingBoxesModel::Build() {
   typedef vector<BoundingBoxModel*>::iterator BIT;
   for(BIT bit = m_bbxModels.begin(); bit != m_bbxModels.end(); ++bit)
-    (*bit)->BuildModels();
+    (*bit)->Build();
 
   for(BIT bit1 = m_bbxModels.begin(); bit1 != m_bbxModels.end(); ++bit1)
     for(BIT bit2 = bit1+1; bit2 != m_bbxModels.end(); ++bit2)
@@ -43,16 +43,29 @@ BoundingBoxesModel::Select(GLuint* _index, vector<Model*>& _sel) {
 }
 
 void
-BoundingBoxesModel::Draw() {
+BoundingBoxesModel::DrawRender() {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
   typedef vector<BoundingBoxModel*>::iterator BIT;
   for(BIT bit = m_bbxModels.begin(); bit != m_bbxModels.end(); ++bit)
-    (*bit)->Draw();
+    (*bit)->DrawRender();
   glDisable(GL_CULL_FACE);
 
   for(BIT bit = m_bbxOverlaps.begin(); bit != m_bbxOverlaps.end(); ++bit)
     (*bit)->DrawSelect();
+}
+
+void
+BoundingBoxesModel::DrawSelect() {
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  typedef vector<BoundingBoxModel*>::iterator BIT;
+  for(BIT bit = m_bbxModels.begin(); bit != m_bbxModels.end(); ++bit)
+    (*bit)->DrawRender();
+  glDisable(GL_CULL_FACE);
+
+  for(BIT bit = m_bbxOverlaps.begin(); bit != m_bbxOverlaps.end(); ++bit)
+    (*bit)->DrawSelected();
 }
 
 void
@@ -74,7 +87,7 @@ BoundingBoxesModel::BuildOverlapModel(BoundingBoxModel* _a, BoundingBoxModel* _b
     cbbm->m_bbx[i].first = ov[2*i];
     cbbm->m_bbx[i].second = ov[2*i+1];
     }
-    cbbm->BuildModels();
+    cbbm->Build();
     m_bbxOverlaps.push_back(cbbm);
   }
 }

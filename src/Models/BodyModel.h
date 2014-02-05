@@ -26,6 +26,7 @@ class BodyModel : public TransformableModel {
     //properties
     void GetChildren(list<Model*>& _models);
     void SetRenderMode(RenderMode _mode);
+    void SetSelectable(bool _s);
 
     const string& GetDirectory() {return m_directory;}
     const string& GetFilename() const {return m_filename;}
@@ -63,11 +64,11 @@ class BodyModel : public TransformableModel {
     //receives the Body THIS body is connected to, the id of that connection
     void ComputeTransform(const BodyModel* _body, size_t _nextBody);
 
-    void BuildModels() {}
-    virtual void SetSelectable(bool _s);
+    void Build() {}
     void Select(GLuint* _index, vector<Model*>& sel);
-    void Draw();
+    void DrawRender();
     void DrawSelect();
+    void DrawSelected();
     void Print(ostream& _os) const;
 
     //file IO

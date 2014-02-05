@@ -30,7 +30,7 @@ MultiBodyModel::MultiBodyModel(EnvModel* _env,
     const Transformation& _t) : Model("MultiBody"),
   m_envModel(_env), m_active(false), m_surface(false) {
     m_bodies.push_back(new BodyModel(_modelDataDir, _filename, _t));
-    BuildModels();
+    Build();
   }
 
 MultiBodyModel::MultiBodyModel(const MultiBodyModel& _m) : Model(_m),
@@ -44,7 +44,7 @@ MultiBodyModel::MultiBodyModel(const MultiBodyModel& _m) : Model(_m),
     for(CIT cit = _m.m_joints.begin(); cit != _m.m_joints.end(); ++cit)
       m_joints.push_back(new ConnectionModel(**cit));
     //build models
-    BuildModels();
+    Build();
   }
 
 MultiBodyModel::~MultiBodyModel() {
@@ -60,6 +60,13 @@ MultiBodyModel::SetRenderMode(RenderMode _mode){
 }
 
 void
+MultiBodyModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  for(BodyIter bit = Begin(); bit != End(); bit++)
+    (*bit)->SetSelectable(_s);
+}
+
+void
 MultiBodyModel::SetColor(const Color4& _c) {
   Model::SetColor(_c);
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
@@ -67,7 +74,7 @@ MultiBodyModel::SetColor(const Color4& _c) {
 }
 
 void
-MultiBodyModel::BuildModels() {
+MultiBodyModel::Build() {
   //build for each body and compute com
   m_com(0, 0, 0);
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
@@ -91,31 +98,22 @@ MultiBodyModel::Select(unsigned int* _index, vector<Model*>& sel){
 }
 
 void
-MultiBodyModel::SetSelectable(bool _s){
-  m_selectable = _s;
-  for(BodyIter bit = Begin(); bit != End(); bit++)
-    (*bit)->SetSelectable(_s);
-}
-
-void
-MultiBodyModel::Draw() {
+MultiBodyModel::DrawRender() {
   glColor4fv(GetColor());
-  glPushMatrix();
-
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
-    (*bit)->Draw();
-
-  glPopMatrix();
+    (*bit)->DrawRender();
 }
 
 void
-MultiBodyModel::DrawSelect(){
-  glPushMatrix();
-
+MultiBodyModel::DrawSelect() {
   for(BodyIter bit = Begin(); bit!=End(); ++bit)
     (*bit)->DrawSelect();
+}
 
-  glPopMatrix();
+void
+MultiBodyModel::DrawSelected(){
+  for(BodyIter bit = Begin(); bit!=End(); ++bit)
+    (*bit)->DrawSelected();
 }
 
 void

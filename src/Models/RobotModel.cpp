@@ -7,13 +7,19 @@
 #include "Utilities/VizmoExceptions.h"
 
 RobotModel::RobotModel(EnvModel* _env) : Model("Robot"), m_envModel(_env), m_initCfg(Cfg::DOF()) {
-  BuildModels();
+  Build();
 }
 
 void
 RobotModel::SetRenderMode(RenderMode _mode) {
   Model::SetRenderMode(_mode);
   m_robotModel->SetRenderMode(_mode);
+}
+
+void
+RobotModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  m_robotModel->SetSelectable(_s);
 }
 
 void
@@ -108,7 +114,7 @@ RobotModel::Restore() {
 }
 
 void
-RobotModel::BuildModels() {
+RobotModel::Build() {
   //find robot
   const vector<MultiBodyModel*>& multibodies = m_envModel->GetMultiBodies();
   typedef vector<MultiBodyModel*>::const_iterator MIT;
@@ -125,12 +131,6 @@ RobotModel::BuildModels() {
 }
 
 void
-RobotModel::SetSelectable(bool _s){
-  m_selectable = _s;
-  m_robotModel->SetSelectable(_s);
-}
-
-void
 RobotModel::Select(unsigned int* _index, vector<Model*>& _sel) {
   if(!m_selectable || !_index)
     return;
@@ -138,17 +138,18 @@ RobotModel::Select(unsigned int* _index, vector<Model*>& _sel) {
 }
 
 void
-RobotModel::Draw() {
-  glPushMatrix();
-  m_robotModel->Draw();
-  glPopMatrix();
+RobotModel::DrawRender() {
+  m_robotModel->DrawRender();
 }
 
 void
 RobotModel::DrawSelect() {
-  glPushMatrix();
   m_robotModel->DrawSelect();
-  glPopMatrix();
+}
+
+void
+RobotModel::DrawSelected() {
+  m_robotModel->DrawSelected();
 }
 
 void

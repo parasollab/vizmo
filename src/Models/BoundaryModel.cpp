@@ -15,7 +15,7 @@ BoundaryModel::Select(GLuint* _index, vector<Model*>& _sel) {
 }
 
 void
-BoundaryModel::Draw() {
+BoundaryModel::DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
@@ -25,7 +25,15 @@ BoundaryModel::Draw() {
 }
 
 void
-BoundaryModel::DrawSelect(){
+BoundaryModel::DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
+  glCallList(m_displayID);
+}
+
+void
+BoundaryModel::DrawSelected(){
   glDisable(GL_LIGHTING);
   glLineWidth(2);
   glCallList(m_linesID);

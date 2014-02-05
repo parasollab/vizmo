@@ -20,10 +20,11 @@ class QueryModel : public LoadableModel {
     void DeleteQuery(size_t _i) {m_cfgs.erase(m_cfgs.begin()+_i);}
 
     void ParseFile();
-    void BuildModels();
+    void Build();
     void Select(GLuint* _index, vector<Model*>& _sel) {}
-    void Draw();
-    void DrawSelect() {}
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected() {}
     void Print(ostream& _os) const;
 
     void SaveQuery(const string& _filename);

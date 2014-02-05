@@ -10,7 +10,7 @@ QueryModel::QueryModel(const string& _filename) :
     m_renderMode = INVISIBLE_MODE;
 
     ParseFile();
-    BuildModels();
+    Build();
   }
 
 QueryModel::~QueryModel() {
@@ -36,7 +36,7 @@ QueryModel::ParseFile() {
 }
 
 void
-QueryModel::BuildModels() {
+QueryModel::Build() {
 
   glMatrixMode(GL_MODELVIEW);
 
@@ -49,7 +49,7 @@ QueryModel::BuildModels() {
   for(size_t i = 0; i < m_cfgs.size(); ++i) {
     m_cfgs[i].SetRenderMode(WIRE_MODE);
     m_cfgs[i].SetColor(Color4(1.0 - i/n, 0, i/n, 1));
-    m_cfgs[i].DrawRobot();
+    m_cfgs[i].DrawRender();
 
     //draw text for start and goal
     //TODO: Move to using Qt functions for drawing text to scene
@@ -66,7 +66,17 @@ QueryModel::BuildModels() {
   glEndList();
 }
 
-void QueryModel::Draw() {
+void
+QueryModel::DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return; //not draw anything
+
+  glLineWidth(2.0);
+  glCallList(m_glQueryIndex);
+}
+
+void
+QueryModel::DrawSelect() {
   if(m_renderMode == INVISIBLE_MODE)
     return; //not draw anything
 

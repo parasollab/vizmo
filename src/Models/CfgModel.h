@@ -51,13 +51,11 @@ class CfgModel : public Model, public Cfg {
     void Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc);
     static void Scale(float _scale);
 
-    void BuildModels() {}
+    void Build() {}
     void Select(GLuint* _index, vector<Model*>& _sel) {};
-    void Draw();
-    void DrawRobot();
-    void DrawBox();
-    void DrawPoint();
+    void DrawRender();
     void DrawSelect();
+    void DrawSelected();
     void Print(ostream& _os) const;
 
   private:

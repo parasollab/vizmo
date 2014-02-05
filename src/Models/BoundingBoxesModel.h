@@ -12,10 +12,11 @@ class BoundingBoxesModel : public Model {
 
     virtual void GetChildren(list<Model*>& _models);
 
-    virtual void BuildModels();
+    virtual void Build();
     virtual void Select(GLuint* _index, vector<Model*>& _sel);
-    virtual void Draw();
-    virtual void DrawSelect() {}
+    virtual void DrawRender();
+    virtual void DrawSelect();
+    virtual void DrawSelected() {}
     virtual void Print(ostream& _os) const;
 
   private:
