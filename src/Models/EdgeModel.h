@@ -27,10 +27,9 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
     CfgModel* GetStartCfg() { return m_startCfg; }
     CfgModel* GetEndCfg() { return m_endCfg; }
-    void SetStartCfg(CfgModel* _s) { m_startCfg = _s; }
-    void SetEndCfg(CfgModel* _e) { m_endCfg = _e; }
 
     void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
+    void Set(CfgModel* _c1, CfgModel* _c2);
 
     void Build() {}
     void Select(GLuint* _index, vector<Model*>& _sel) {};

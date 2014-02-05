@@ -44,6 +44,12 @@ EdgeModel::Set(size_t _id, CfgModel* _c1, CfgModel* _c2){
 }
 
 void
+EdgeModel::Set(CfgModel* _c1, CfgModel* _c2){
+  m_startCfg = _c1;
+  m_endCfg = _c2;
+}
+
+void
 EdgeModel::DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return;

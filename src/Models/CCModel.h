@@ -40,14 +40,12 @@ class CCModel : public Model {
 
   private:
     CFG& GetCfg(VID _v);
-    WEIGHT& GetEdge(EID _e);
 
     size_t m_id;
     VID m_rep;
     Graph* m_graph;
     ColorMap m_colorMap;
     vector<VID> m_nodes;
-    vector<EID> m_edges;
 
     static map<VID, Color4> m_colorIndex;
 };
@@ -70,34 +68,25 @@ CCModel<CFG, WEIGHT>::Build() {
 
   //Set up CC nodes
   m_nodes.clear();
-  m_edges.clear();
   m_colorMap.reset();
   get_cc(*m_graph, m_colorMap, m_rep, m_nodes);
-
-  VI vi;
-  EI ei;
 
   typedef typename vector<VID>::iterator VIT;
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
     GetCfg(*vit).Set(*vit, this);
 
   //Set up edges
-  vector<pair<VID, VID> > ccedges;
-
-  m_colorMap.reset();
-  get_cc_edges(*m_graph, m_colorMap, ccedges, m_rep);
   int edgeIdx = 0;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
 
-  typedef typename vector<pair<VID, VID> >::iterator EIT;
-  for(EIT eit = ccedges.begin(); eit != ccedges.end(); ++eit) {
-    if(eit->first < eit->second)
-      continue;
-
-    CFG* cfg1 = &GetCfg(eit->first);
-    CFG* cfg2 = &GetCfg(eit->second);
-    EID ed(eit->first, eit->second);
-    GetEdge(ed).Set(edgeIdx++, cfg1, cfg2);
-    m_edges.push_back(ed);
+      CFG* cfg2 = &GetCfg((*ei).target());
+      WEIGHT& edge = (*ei).property();
+      edge.Set(edgeIdx++, &v->property(), cfg2);
+    }
   }
 
   //If user changes a CC's color, color at associated index is changed
@@ -116,9 +105,14 @@ CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
     GetCfg(*vit).SetColor(_c);
 
-  typedef typename vector<EID>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit != m_edges.end(); ++eit)
-    GetEdge(*eit).SetColor(_c);
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
+      (*ei).property().SetColor(_c);
+    }
+  }
 }
 
 template <class CFG, class WEIGHT>
@@ -128,9 +122,14 @@ CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
     _models.push_back(&GetCfg(*vit));
 
-  typedef typename vector<EID>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit != m_edges.end(); ++eit)
-    _models.push_back(&GetEdge(*eit));
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
+      _models.push_back(&(*ei).property());
+    }
+  }
 }
 
 template <class CFG, class WEIGHT>
@@ -166,13 +165,18 @@ void CCModel<CFG, WEIGHT>::DrawRender() {
   glLineWidth(WEIGHT::m_edgeThickness);
 
   glBegin(GL_LINES);
-  typedef typename vector<EID>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); ++eit) {
-    CFG* cfg1 = &GetCfg(eit->source());
-    CFG* cfg2 = &GetCfg(eit->target());
-    WEIGHT& edge = GetEdge(*eit);
-    edge.Set(distance(m_edges.begin(), eit), cfg1, cfg2);
-    edge.DrawRenderInCC();
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
+
+      CFG* cfg2 = &GetCfg((*ei).target());
+      WEIGHT& edge = (*ei).property();
+      edge.Set(&v->property(), cfg2);
+      edge.DrawRenderInCC();
+    }
   }
   glEnd();
 }
@@ -208,14 +212,19 @@ void CCModel<CFG, WEIGHT>::DrawSelect() {
   //draw edges
   glPushName(2);
   glLineWidth(WEIGHT::m_edgeThickness);
-  typedef typename vector<EID>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); ++eit) {
-    glPushName(eit-m_edges.begin());
-    CFG* cfg1 = &GetCfg(eit->source());
-    CFG* cfg2 = &GetCfg(eit->target());
-    WEIGHT& edge = GetEdge(*eit);
-    edge.Set(distance(m_edges.begin(), eit), cfg1, cfg2);
-    edge.DrawSelect();
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    glPushName(*vit);
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
+      glPushName((*ei).target());
+      CFG* cfg2 = &GetCfg((*ei).target());
+      WEIGHT& edge = (*ei).property();
+      edge.Set(&v->property(), cfg2);
+      edge.DrawSelect();
+      glPopName();
+    }
     glPopName();
   }
   glPopName();
@@ -241,8 +250,12 @@ CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
 
   if(_index[0] == 1)
     _sel.push_back(&GetCfg(_index[1]));
-  else
-    _sel.push_back(&GetEdge(m_edges[_index[1]]));
+  else {
+    VI vi;
+    EI ei;
+    m_graph->find_edge(EID(_index[1], _index[2]), vi, ei);
+    _sel.push_back(&(*ei).property());
+  }
 }
 
 template <class CFG, class WEIGHT>
@@ -256,24 +269,15 @@ CCModel<CFG, WEIGHT>::SetName() {
 template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::Print(ostream& _os) const {
+  //TODO Add in num edges again
   _os << Name() << endl
-    << m_nodes.size() << " nodes" << endl
-    << m_edges.size() << " edges" << endl;
+    << m_nodes.size() << " nodes" << endl;
 }
 
 template<class CFG, class WEIGHT>
 CFG&
 CCModel<CFG, WEIGHT>::GetCfg(VID _v) {
   return m_graph->find_vertex(_v)->property();
-}
-
-template<class CFG, class WEIGHT>
-WEIGHT&
-CCModel<CFG, WEIGHT>::GetEdge(EID _e) {
-  VI vi;
-  EI ei;
-  m_graph->find_edge(_e, vi, ei);
-  return (*ei).property();
 }
 
 #endif
