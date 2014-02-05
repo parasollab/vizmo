@@ -169,9 +169,9 @@ CfgModel::DrawSelected(){
       {
         RobotModel* robot = GetVizmo().GetRobot();
         robot->BackUp();
-        robot->SetColor(GetColor());
+        robot->SetRenderMode(WIRE_MODE);
         robot->Configure(m_v);
-        robot->DrawSelect();
+        robot->DrawSelected();
         robot->Restore();
       }
       break;
