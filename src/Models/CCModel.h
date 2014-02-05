@@ -145,19 +145,21 @@ void CCModel<CFG, WEIGHT>::DrawRender() {
     case CFG::Box:
       glEnable(GL_LIGHTING);
       glLineWidth(1);
+      typedef typename vector<VID>::iterator VIT;
+      for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+        GetCfg(*vit).DrawRender();
       break;
 
     case CFG::Point:
       glDisable(GL_LIGHTING);
       glPointSize(CFG::GetPointSize());
+      glBegin(GL_POINTS);
+      typedef typename vector<VID>::iterator VIT;
+      for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+        glVertex3dv(GetCfg(*vit).GetPoint());
+      glEnd();
       break;
   }
-
-  glBegin(GL_POINTS);
-  typedef typename vector<VID>::iterator VIT;
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
-    glVertex3dv(GetCfg(*vit).GetPoint());
-  glEnd();
 
   //draw edges
   glDisable(GL_LIGHTING);
