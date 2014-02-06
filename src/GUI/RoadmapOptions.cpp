@@ -523,20 +523,20 @@ RoadmapOptions::AddNode(){
   Map* map = GetVizmo().GetMap();
   Graph* graph = map->GetGraph();
 
-  CfgModel newNode = CfgModel();
-
-  //Preview/move the new node
-  newNode.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
-  map->GetTempCfgs().push_back(&newNode);
+  CfgModel previewNode = CfgModel();
+  previewNode.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
+  map->GetTempCfgs().push_back(&previewNode);
   m_mainWindow->GetGLScene()->updateGL();
-  NodeEditDialog n(this, &newNode, m_mainWindow->GetGLScene(), "New Node");
-  n.exec();
+  NodeEditDialog n(this, &previewNode, m_mainWindow->GetGLScene(), "New Node");
 
-  graph->add_vertex(newNode);
-  map->RefreshMap();
+  if(n.exec() == QDialog::Accepted){
+    CfgModel newNode = previewNode;
+    graph->add_vertex(newNode);
+    map->RefreshMap();
+    m_mainWindow->GetModelSelectionWidget()->ResetLists();
+    m_mainWindow->GetGLScene()->updateGL();
+  }
   map->ClearTempCfgs();
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -626,8 +626,8 @@ RoadmapOptions::MergeSelectedNodes(){
   Map* map = GetVizmo().GetMap();
   Graph* graph = map->GetGraph();
 
-  //Create and center the supervertex
-  CfgModel super = CfgModel();
+  //Create and center the supervertex preview
+  CfgModel superPreview = CfgModel();
   bool nodesSelected = false;
   int numSelected = 0;
 
@@ -635,7 +635,7 @@ RoadmapOptions::MergeSelectedNodes(){
   for(MIT it = sel.begin(); it != sel.end(); it++){
     if((*it)->Name().substr(0, 4) == "Node"){
       CfgModel* cfg = (CfgModel*)*it;
-      super += *cfg;
+      superPreview += *cfg;
       selNodes.push_back(cfg);
       numSelected++;
       nodesSelected = true;
@@ -646,7 +646,7 @@ RoadmapOptions::MergeSelectedNodes(){
       return;
   }
 
-  super /= numSelected;
+  superPreview /= numSelected;
 
   //Mark selected vertices for removal and save ids for edge addition
   vector<VID> toDelete;
@@ -661,28 +661,30 @@ RoadmapOptions::MergeSelectedNodes(){
       toAdd.push_back((*ei).target());
   }
 
-  //Preview the changes
-  super.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
-  map->GetTempCfgs().push_back(&super);
+  superPreview.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
+  map->GetTempCfgs().push_back(&superPreview);
   m_mainWindow->GetGLScene()->updateGL();
-  NodeEditDialog n(this, &super, m_mainWindow->GetGLScene(), "New Supervertex");
-  n.exec();
 
-  //Won't compile with just "VID"
-  Map::VID superID = graph->add_vertex(super);
+  NodeEditDialog n(this, &superPreview, m_mainWindow->GetGLScene(), "New Supervertex");
+  if(n.exec() == QDialog::Accepted){
+    CfgModel super = superPreview;
+    //Won't compile with just "VID"
+    Map::VID superID = graph->add_vertex(super);
 
-  //Add the new edges
-  typedef vector<VID>::iterator VIT;
-  for(VIT it = toAdd.begin(); it != toAdd.end(); it++){
-    graph->add_edge(superID, *it);
-    graph->add_edge(*it, superID);
+    //Add the new edges
+    typedef vector<VID>::iterator VIT;
+    for(VIT it = toAdd.begin(); it != toAdd.end(); it++){
+      graph->add_edge(superID, *it);
+      graph->add_edge(*it, superID);
+    }
+
+    //Remove selected vertices
+    for(VIT it = toDelete.begin(); it != toDelete.end(); it++)
+      graph->delete_vertex(*it);
+
+    map->RefreshMap();
   }
 
-  //Remove selected vertices
-  for(VIT it = toDelete.begin(); it != toDelete.end(); it++)
-    graph->delete_vertex(*it);
-
-  map->RefreshMap();
   sel.clear();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   map->ClearTempCfgs();

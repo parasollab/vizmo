@@ -170,7 +170,7 @@ NodeEditDialog::InitSliderValues(const vector<double>& _vals){
   }
 }
 
-void
+int
 NodeEditDialog::exec(){
 
   //Save current DOF values in case user presses "cancel"
@@ -178,7 +178,7 @@ NodeEditDialog::exec(){
   for(SIT it = m_sliders.begin(); it != m_sliders.end(); it++)
     m_oldValues.push_back((*it)->GetSlider()->value());
 
-  QDialog::exec();
+  return QDialog::exec();
 }
 
 void

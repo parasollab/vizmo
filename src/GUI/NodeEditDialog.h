@@ -61,7 +61,7 @@ class NodeEditDialog : public QDialog {
     void SetUpSliders(vector<NodeEditSlider*>& _sliders);
     void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _title);
     void InitSliderValues(const vector<double>& _vals);
-    virtual void exec(); //override
+    virtual int exec(); //override
 
   private slots:
     void UpdateDOF(int _id); //Update value of DOF associated with m_sliders[_id]
