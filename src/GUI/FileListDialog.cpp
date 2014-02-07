@@ -6,12 +6,12 @@
 #include "Models/MapModel.h"
 
 #include "Icons/Folder.xpm"
-#include "Icons/Eye.xpm"
+#include "Icons/Vizmo.xpm"
 
 FileListDialog::FileListDialog(const string& _filename,
     QWidget* _parent, Qt::WFlags _f) : QDialog(_parent, _f) {
 
-  setWindowIcon(QPixmap(eye));
+  setWindowIcon(QPixmap(vizmoIcon));
   SetUpSubwidgets();
   GetAssociatedFiles(_filename);
 }

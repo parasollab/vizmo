@@ -10,7 +10,7 @@
 #include "TextWidget.h"
 #include "Models/Vizmo.h"
 
-#include "Icons/Eye.xpm"
+#include "Icons/Vizmo.xpm"
 
 MainWindow::MainWindow(QWidget* _parent)
   : QMainWindow(_parent), m_vizmoInit(false){
@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget* _parent)
 
 bool
 MainWindow::Init(){
-  this->setWindowIcon(QPixmap(eye));
+  this->setWindowIcon(QPixmap(vizmoIcon));
   m_layoutWidget = new QWidget(this);
 
   //Create Model
