@@ -79,7 +79,7 @@ NodeEditSlider::eventFilter(QObject* _target, QEvent* _event){
 }
 
 NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene, string _title)
-: QDialog(_parent) {
+: QDialog(_parent), m_currentEdges(NULL) {
 
   m_glScene = _scene;
 
@@ -178,6 +178,7 @@ NodeEditDialog::exec(){
   for(SIT it = m_sliders.begin(); it != m_sliders.end(); it++)
     m_oldValues.push_back((*it)->GetSlider()->value());
 
+  ValidityCheck();
   return QDialog::exec();
 }
 
@@ -212,12 +213,22 @@ NodeEditDialog::ValidityCheck(){
   for(size_t i = 0; i < dofInfo.size(); i++){
     if(((*m_currentNode)[i] <= dofInfo[i].m_minVal) ||
      ((*m_currentNode)[i] >= dofInfo[i].m_maxVal)){
-      m_currentNode->SetValidity(false); //test
+      m_currentNode->SetValidity(false);
       collFound = true;
     }
   }
   if(collFound == false){
     m_currentNode->SetValidity(true);
     GetVizmo().CollisionCheck(*m_currentNode);
+  }
+
+  if(m_currentEdges != NULL){
+    typedef vector<EdgeModel*>::iterator EIT;
+    for(EIT eit = m_currentEdges->begin(); eit != m_currentEdges->end(); eit++){
+      if(GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), *(*eit)->GetEndCfg()) == false)
+        (*eit)->SetValidity(false);
+      else
+        (*eit)->SetValidity(true);
+    }
   }
 }

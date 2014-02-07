@@ -24,11 +24,13 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
     void SetName();
     size_t GetID() { return m_id; }
+    bool IsValid() { return m_isValid; }
 
     CfgModel* GetStartCfg() { return m_startCfg; }
     CfgModel* GetEndCfg() { return m_endCfg; }
 
     void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
+    void SetValidity(bool _validity) { m_isValid = _validity; }
     void Set(CfgModel* _c1, CfgModel* _c2);
 
     void Build() {}
@@ -45,6 +47,7 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
   private:
     CfgModel* m_startCfg, * m_endCfg;
     size_t m_id;
+    bool m_isValid;
 };
 
 #endif

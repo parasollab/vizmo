@@ -479,6 +479,7 @@ void
 RoadmapOptions::ShowNodeEditDialog(){
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  Graph* graph = GetVizmo().GetMap()->GetGraph();
 
   if(sel.size() != 1){
     QMessageBox::about(this, "", "Please select exactly one node to modify.");
@@ -492,7 +493,24 @@ RoadmapOptions::ShowNodeEditDialog(){
   }
 
   CfgModel* node = (CfgModel*)sel[0];
+
+  //Prepare edges to pass to NodeEditDialog for validity checks
+  vector<EdgeModel*> edges;
+  VID nodeID = node->GetIndex();
+  VI vi = graph->find_vertex(nodeID);
+  for(EI ei = vi->begin(); ei != vi->end(); ++ei){
+    EID eid;
+    if((*ei).source() > (*ei).target())
+      eid =  EID((*ei).source(), (*ei).target());
+    else
+      eid = EID((*ei).target(), (*ei).source());
+    VI viTemp;
+    EI eiTemp;
+    graph->find_edge(eid, viTemp, eiTemp);
+    edges.push_back(&(*eiTemp).property());
+  }
   NodeEditDialog n(this, node, m_mainWindow->GetGLScene(), node->Name());
+  n.SetCurrentEdges(&edges);
   n.exec();
 }
 
@@ -536,7 +554,7 @@ RoadmapOptions::AddNode(){
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
     m_mainWindow->GetGLScene()->updateGL();
   }
-  map->ClearTempCfgs();
+  map->ClearTempItems();
 }
 
 void
@@ -657,15 +675,38 @@ RoadmapOptions::MergeSelectedNodes(){
     VID selectedID = (*it)->GetIndex();
     toDelete.push_back(selectedID);
     VI vi = graph->find_vertex(selectedID);
-    for(EI ei = vi->begin(); ei != vi->end(); ++ei)
-      toAdd.push_back((*ei).target());
+    for(EI ei = vi->begin(); ei != vi->end(); ++ei){
+      //Avoid saving selected node ids..better way to do this?!
+      bool newEdge = true;
+      for(NIT it2 = selNodes.begin(); it2 != selNodes.end(); it2++){
+        if(**it2 == graph->find_vertex((*ei).target())->property()){
+          newEdge = false;
+          break;
+        }
+      }
+      if(newEdge)
+        toAdd.push_back((*ei).target());
+    }
   }
 
   superPreview.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
   map->GetTempCfgs().push_back(&superPreview);
+
+  typedef vector<VID>::iterator VIT;
+  vector<EdgeModel*>& tempEdges = map->GetTempEdges();
+  for(VIT it = toAdd.begin(); it != toAdd.end(); it++){
+    EdgeModel* edgePreview = new EdgeModel();
+    CfgModel& c = graph->find_vertex(*it)->property();
+    edgePreview->Set(&superPreview, &c);
+    edgePreview->SetColor(Color4(0.0, 1.0, 1.0, 1.0));
+    tempEdges.push_back(edgePreview);
+  }
+
   m_mainWindow->GetGLScene()->updateGL();
 
   NodeEditDialog n(this, &superPreview, m_mainWindow->GetGLScene(), "New Supervertex");
+  n.SetCurrentEdges(&tempEdges);
+
   if(n.exec() == QDialog::Accepted){
     CfgModel super = superPreview;
     //Won't compile with just "VID"
@@ -686,8 +727,8 @@ RoadmapOptions::MergeSelectedNodes(){
   }
 
   sel.clear();
+  map->ClearTempItems();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  map->ClearTempCfgs();
   m_mainWindow->GetGLScene()->updateGL();
 }
 

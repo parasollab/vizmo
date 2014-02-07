@@ -47,6 +47,7 @@ class MapModel : public LoadableModel {
     const string& GetEnvFileName() const {return m_envFileName;}
     RGraph* GetGraph() {return m_graph;}
     vector<CFG*>& GetTempCfgs() {return m_tempCfgs;}
+    vector<WEIGHT*>& GetTempEdges() {return m_tempEdges;}
 
     VID Cfg2VID(const CFG& _target);
 
@@ -70,7 +71,7 @@ class MapModel : public LoadableModel {
     //Modification functions
     void RandomizeCCColors();
     void RefreshMap();
-    void ClearTempCfgs();
+    void ClearTempItems();
 
     QMutex& AcquireMutex() {return m_lock;}
 
@@ -87,6 +88,7 @@ class MapModel : public LoadableModel {
 
     //Currently for preview in MergeNodes
     vector<CFG*> m_tempCfgs;
+    vector<WEIGHT*> m_tempEdges;
 };
 
 template <class CFG, class WEIGHT>
@@ -198,6 +200,10 @@ MapModel<CFG, WEIGHT>::DrawRender(){
   typedef typename vector<CFG*>::iterator NIT;
   for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
     (*nit)->DrawRender();
+
+  typedef typename vector<WEIGHT*>::iterator WIT;
+  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
+    (*wit)->DrawRender();
 }
 
 template <class CFG, class WEIGHT>
@@ -217,6 +223,10 @@ MapModel<CFG, WEIGHT>::DrawSelect(){
   typedef typename vector<CFG*>::iterator NIT;
   for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
     (*nit)->DrawSelect();
+
+  typedef typename vector<WEIGHT*>::iterator WIT;
+  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
+    (*wit)->DrawSelect();
 }
 
 template <class CFG, class WEIGHT>
@@ -278,8 +288,12 @@ MapModel<CFG, WEIGHT>::RefreshMap(){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::ClearTempCfgs(){
+MapModel<CFG, WEIGHT>::ClearTempItems(){
   m_tempCfgs.clear();
+  typedef typename vector<WEIGHT*>::iterator WIT;
+  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
+    delete *wit;
+  m_tempEdges.clear();
 }
 
 #endif

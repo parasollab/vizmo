@@ -11,7 +11,7 @@ bool CfgModel::m_isPlanarRobot = false;
 bool CfgModel::m_isVolumetricRobot = false;
 bool CfgModel::m_isRotationalRobot = false;
 
-CfgModel::CfgModel() : Model("") {
+CfgModel::CfgModel() : Model(""), Cfg() {
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;

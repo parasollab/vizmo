@@ -15,6 +15,7 @@ using namespace std;
 
 class GLWidget;
 class CfgModel;
+class EdgeModel;
 
 class NodeEditValidator : public QDoubleValidator{
 
@@ -60,6 +61,7 @@ class NodeEditDialog : public QDialog {
     ~NodeEditDialog();
     void SetUpSliders(vector<NodeEditSlider*>& _sliders);
     void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _title);
+    void SetCurrentEdges(vector<EdgeModel*>* _edges) {m_currentEdges = _edges;}
     void InitSliderValues(const vector<double>& _vals);
     virtual int exec(); //override
 
@@ -74,6 +76,7 @@ class NodeEditDialog : public QDialog {
     vector<int> m_oldValues;
     GLWidget* m_glScene;
     CfgModel* m_currentNode;
+    vector<EdgeModel*>* m_currentEdges;
 };
 
 #endif

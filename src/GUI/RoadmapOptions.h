@@ -23,6 +23,7 @@ class RoadmapOptions : public OptionsBase {
     typedef Map::EI EI;
     typedef Map::VI VI;
     typedef Map::VID VID;
+    typedef Map::EID EID;
     typedef vector<Model*>::iterator MIT;
 
     RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow);

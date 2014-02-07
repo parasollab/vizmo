@@ -8,10 +8,10 @@
 double EdgeModel::m_edgeThickness = 1;
 
 EdgeModel::EdgeModel(string _lpLabel, double _weight, const vector<CfgModel>& _intermediates) :
-  Model(""), DefaultWeight<CfgModel>(_lpLabel, _weight, _intermediates), m_id(-1) {
+  Model(""), DefaultWeight<CfgModel>(_lpLabel, _weight, _intermediates), m_id(-1), m_isValid(true) {
 }
 
-EdgeModel::EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""), DefaultWeight<CfgModel>(_e), m_id(-1) {
+EdgeModel::EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""), DefaultWeight<CfgModel>(_e), m_id(-1), m_isValid(true) {
 }
 
 void
@@ -55,7 +55,12 @@ EdgeModel::DrawRender() {
     return;
 
   typedef vector<CfgModel>::iterator CFGIT;
-  glColor4fv(GetColor());
+
+  if(m_isValid)
+    glColor4fv(m_color);
+  else
+    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
+
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
   for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
