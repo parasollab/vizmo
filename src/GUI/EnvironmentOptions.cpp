@@ -19,6 +19,13 @@
 #include "Icons/MapEnv.xpm"
 #include "Icons/AttractRegion.xpm"
 #include "Icons/AvoidRegion.xpm"
+#include "Icons/AddObstacle.xpm"
+#include "Icons/DeleteObstacle.xpm"
+#include "Icons/MoveObstacle.xpm"
+#include "Icons/DuplicateObstacle.xpm"
+#include "Icons/ChangeBoundary.xpm"
+#include "Icons/EditRobot.xpm"
+#include "Icons/RefreshEnv.xpm"
 
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_threadDone(true), m_thread(NULL) {
@@ -316,21 +323,21 @@ void
 EnvironmentOptions::CreateActions(){
 
   //1. Create actions and add them to the map
-  QAction* refreshEnv = new QAction(tr("Refresh"), this);
+  QAction* refreshEnv = new QAction(QPixmap(refreshenv), tr("Refresh"), this);
   m_actions["refreshEnv"] = refreshEnv;
   QAction* randEnvColors = new QAction(QPixmap(randEnvIcon), tr("Randomize Environment Colors"), this);
   m_actions["randEnvColors"] = randEnvColors;
-  QAction* addObstacle = new QAction(tr("Add Obstacle"), this);
+  QAction* addObstacle = new QAction(QPixmap(addobstacle), tr("Add Obstacle"), this);
   m_actions["addObstacle"] = addObstacle;
-  QAction* deleteObstacle = new QAction(tr("Delete Obstacle(s)"), this);
+  QAction* deleteObstacle = new QAction(QPixmap(deleteobstacle), tr("Delete Obstacle(s)"), this);
   m_actions["deleteObstacle"] = deleteObstacle;
-  QAction* moveObstacle = new QAction(tr("Move Obstacle(s)"), this);
+  QAction* moveObstacle = new QAction(QPixmap(moveobstacle), tr("Move Obstacle(s)"), this);
   m_actions["moveObstacle"] = moveObstacle;
-  QAction* duplicateObstacle = new QAction(tr("Duplicate Obstacle(s)"), this);
+  QAction* duplicateObstacle = new QAction(QPixmap(duplicateobstacle), tr("Duplicate Obstacle(s)"), this);
   m_actions["duplicateObstacle"] = duplicateObstacle;
-  QAction* changeBoundary = new QAction(tr("Change Boundary"), this);
+  QAction* changeBoundary = new QAction(QPixmap(changeboundary), tr("Change Boundary"), this);
   m_actions["changeBoundary"] = changeBoundary;
-  QAction* editRobot = new QAction(tr("Edit the Robot "), this);
+  QAction* editRobot = new QAction(QPixmap(editrobot), tr("Edit the Robot "), this);
   m_actions["editRobot"] = editRobot;
   QAction* addRegionSphere = new QAction(QPixmap(addsphereregion), tr("Add Spherical Region"), this);
   m_actions["addRegionSphere"] = addRegionSphere;
