@@ -33,6 +33,13 @@
 #include "Icons/Navigate.xpm"
 #include "Icons/EditNode.xpm"
 #include "Icons/EditEdge.xpm"
+#include "Icons/AddNode.xpm"
+#include "Icons/AddEdge.xpm"
+#include "Icons/MergeNodes.xpm"
+#include "Icons/RobotMode.xpm"
+#include "Icons/BoxMode.xpm"
+#include "Icons/PointMode.xpm"
+#include "Icons/DeleteSelected.xpm"
 
 RoadmapOptions::RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow){
@@ -53,7 +60,7 @@ RoadmapOptions::CreateActions(){
 
   m_nodeView = new QButtonGroup(this);
 
-  QAction* robotView = new QAction(tr("Robot"), this);
+  QAction* robotView = new QAction(QPixmap(robotmode), tr("Robot"), this);
   m_actions["robotView"] = robotView;
   //Actually make a push button for Robot (looks better on toolbar)
   m_robotButton = new QPushButton(tr("Robot"), this);
@@ -63,7 +70,7 @@ RoadmapOptions::CreateActions(){
   m_robotButton->setStatusTip("Display nodes in robot mode");
   m_nodeView->addButton(m_robotButton);
 
-  QAction* boxView = new QAction(tr("Box"), this);
+  QAction* boxView = new QAction(QPixmap(boxmode), tr("Box"), this);
   m_actions["boxView"] = boxView;
   //Push button for Box
   m_boxButton = new QPushButton(tr("Box"), this);
@@ -73,7 +80,7 @@ RoadmapOptions::CreateActions(){
   m_boxButton->setStatusTip("Display nodes in box mode");
   m_nodeView->addButton(m_boxButton);
 
-  QAction* pointView = new QAction(tr("Point"), this);
+  QAction* pointView = new QAction(QPixmap(pointmode), tr("Point"), this);
   m_actions["pointView"] = pointView;
   //Push button for Point
   m_pointButton = new QPushButton(tr("Point"), this);
@@ -106,13 +113,13 @@ RoadmapOptions::CreateActions(){
   m_actions["editNode"] = editNode;
   QAction* editEdge = new QAction(QPixmap(editedge), tr("Edit Edge"), this);
   m_actions["editEdge"] = editEdge;
-  QAction* addNode = new QAction(tr("Add Node"), this);
+  QAction* addNode = new QAction(QPixmap(addnode), tr("Add Node"), this);
   m_actions["addNode"] = addNode;
-  QAction* addEdge = new QAction(tr("Add Edge"), this);
+  QAction* addEdge = new QAction(QPixmap(addedge), tr("Add Edge"), this);
   m_actions["addEdge"] = addEdge;
-  QAction* deleteSelected = new QAction(tr("Delete Selected Items"), this);
+  QAction* deleteSelected = new QAction(QPixmap(deleteselected), tr("Delete Selected Items"), this);
   m_actions["deleteSelected"] = deleteSelected;
-  QAction* mergeNodes = new QAction(tr("Merge Nodes"), this);
+  QAction* mergeNodes = new QAction(QPixmap(mergenodes), tr("Merge Nodes"), this);
   m_actions["mergeNodes"] = mergeNodes;
 
   QAction* randomizeColors = new QAction(QPixmap(rcolor), tr("Randomize Colors"), this);

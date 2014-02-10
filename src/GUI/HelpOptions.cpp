@@ -5,6 +5,8 @@
 #include "OptionsBase.h"
 #include "MainWindow.h"
 
+#include "Icons/About.xpm"
+
 HelpOptions::HelpOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
     CreateActions();
@@ -18,7 +20,7 @@ HelpOptions::CreateActions(){
   //1. Create actions and add them to the map
   QAction* whatsThis = QWhatsThis::createAction(this);
   m_actions["whatsThis"] = whatsThis;
-  QAction* about = new QAction(tr("&About"), this);
+  QAction* about = new QAction(QPixmap(abouticon), tr("&About"), this);
   m_actions["about"] = about;
 
   //2. Set other specifications as necessary

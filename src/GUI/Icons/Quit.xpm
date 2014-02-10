@@ -1,5 +1,5 @@
 /* XPM */
-static const char* quit[] = {
+static const char* quiticon[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"288 288 183 2 ",
 (char*)"   c black",

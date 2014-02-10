@@ -12,6 +12,7 @@
 #include "Models/QueryModel.h"
 
 #include "Icons/Flag.xpm"
+#include "Icons/EditQuery.xpm"
 
 QueryOptions::QueryOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
@@ -27,7 +28,7 @@ QueryOptions::CreateActions(){
   //1. Create actions and add them to map
   QAction* showHideQuery = new QAction(QPixmap(flag), tr("Show/Hide Query"), this);
   m_actions["showHideQuery"] = showHideQuery;
-  QAction* editQuery = new QAction(tr("Edit Query"), this);
+  QAction* editQuery = new QAction(QPixmap(editquery), tr("Edit Query"), this);
   m_actions["editQuery"] = editQuery;
 
   //2. Set other specifications as necessary

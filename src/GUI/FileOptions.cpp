@@ -14,6 +14,10 @@
 
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
+#include "Icons/SaveEnv.xpm"
+#include "Icons/SaveMap.xpm"
+#include "Icons/SaveQuery.xpm"
+#include "Icons/Quit.xpm"
 
 FileOptions::FileOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
@@ -29,15 +33,15 @@ FileOptions::CreateActions(){
   //1. Create actions and add them to map
   QAction* openFile = new QAction(QPixmap(folder), tr("&Open"), this);
   m_actions["openFile"] = openFile;
-  QAction* updateFile = new QAction(QPixmap(updateIcon), tr("Update File"), this);
+  QAction* updateFile = new QAction(QPixmap(updateicon), tr("Update File"), this);
   m_actions["updateFile"] = updateFile;
-  QAction* saveFile = new QAction(tr("Save Environment"), this);
+  QAction* saveFile = new QAction(QPixmap(saveenv), tr("Save Environment"), this);
   m_actions["saveFile"] = saveFile;
-  QAction* saveQuery = new QAction(tr("Save Query"), this);
+  QAction* saveQuery = new QAction(QPixmap(savequery), tr("Save Query"), this);
   m_actions["saveQuery"] = saveQuery;
-  QAction* saveRoadmap = new QAction(tr("Save Roadmap"), this);
+  QAction* saveRoadmap = new QAction(QPixmap(savemap), tr("Save Roadmap"), this);
   m_actions["saveRoadmap"] = saveRoadmap;
-  QAction* quit = new QAction(tr("Quit"), this);
+  QAction* quit = new QAction(QPixmap(quiticon), tr("Quit"), this);
   m_actions["quit"] = quit;
 
   //2. Set other specifications as necessary

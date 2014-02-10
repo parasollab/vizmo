@@ -10,6 +10,7 @@
 #include "Models/Vizmo.h"
 
 #include "Icons/Path.xpm"
+#include "Icons/PathOptions.xpm"
 
 PathOptions::PathOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
@@ -25,7 +26,7 @@ PathOptions::CreateActions(){
   //1. Create actions and add them to map
   QAction* showHidePath = new QAction(QPixmap(path), tr("Show/Hide Path"), this);
   m_actions["showHidePath"] = showHidePath;
-  QAction* pathOptions = new QAction(tr("Path Display Options"), this);
+  QAction* pathOptions = new QAction(QPixmap(pathoptions), tr("Path Display Options"), this);
   m_actions["pathOptions"] = pathOptions;
   m_pathOptionsInput = new CustomizePathDialog(this);          //pop-up window
 

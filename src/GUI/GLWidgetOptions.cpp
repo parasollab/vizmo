@@ -18,6 +18,9 @@
 
 #include "Icons/ResetCamera.xpm"
 #include "Icons/BgColor.xpm"
+#include "Icons/SetCameraPosition.xpm"
+#include "Icons/FrameRate.xpm"
+#include "Icons/Axis.xpm"
 
 GLWidgetOptions::GLWidgetOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
@@ -31,13 +34,13 @@ void
 GLWidgetOptions::CreateActions(){
 
   //1. Create actions and add them to the map
-  m_actions["showAxis"] = new QAction(tr("Axis"), this);
-  m_actions["showFrameRate"] = new QAction(tr("Theoretical Frame Rate"), this);
-  QAction* resetCamera = new QAction(QIcon(QPixmap(resetCameraIcon)), tr("Reset Camera"), this);
+  m_actions["showAxis"] = new QAction(QPixmap(axisicon), tr("Axis"), this);
+  m_actions["showFrameRate"] = new QAction(QPixmap(framerate), tr("Theoretical Frame Rate"), this);
+  QAction* resetCamera = new QAction(QPixmap(resetcamera), tr("Reset Camera"), this);
   m_actions["resetCamera"] = resetCamera;
-  QAction* setCameraPosition = new QAction(tr("Set camera position"), this);
+  QAction* setCameraPosition = new QAction(QPixmap(setcameraposition), tr("Set camera position"), this);
   m_actions["setCameraPosition"] = setCameraPosition;
-  QAction* changeBGColor = new QAction(QIcon(QPixmap(bgColor)), tr("Change background color"), this);
+  QAction* changeBGColor = new QAction(QPixmap(bgColor), tr("Change background color"), this);
   m_actions["changeBGColor"] = changeBGColor;
 
   //2. Set other specifications as necessary

@@ -7,6 +7,9 @@
 #include "GLWidget.h"
 #include "Models/Vizmo.h"
 
+#include "Icons/ResetRobotPos.xpm"
+#include "Icons/ShowRobotCfg.xpm"
+
 RobotOptions::RobotOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
     CreateActions();
@@ -19,9 +22,9 @@ void
 RobotOptions::CreateActions(){
 
   //1. Create actions and add them to the map
-  QAction* resetRobotPos = new QAction(tr("Reset position"), this);
+  QAction* resetRobotPos = new QAction(QPixmap(resetrobotpos), tr("Reset position"), this);
   m_actions["resetRobotPos"] = resetRobotPos;
-  QAction* showRobotCfg = new QAction(tr("Show configuration"), this);
+  QAction* showRobotCfg = new QAction(QPixmap(showrobotcfg), tr("Show configuration"), this);
   m_actions["showRobotCfg"] = showRobotCfg;
 
   //2. Set other specifications as necessary
