@@ -294,29 +294,31 @@ EnvironmentOptions::ThreadDone() {
 
 void
 EnvironmentOptions::MapEnvironment() {
-  //stop timer for before regions
-  GetVizmo().StopClock("Pre-regions");
+  if(m_threadDone) {
+    //stop timer for before regions
+    GetVizmo().StopClock("Pre-regions");
 
-  //before thread starts make sure map model exists
-  GetVizmo().SetPMPLMap();
-  m_mainWindow->m_mainMenu->CallReset();
+    //before thread starts make sure map model exists
+    GetVizmo().SetPMPLMap();
+    m_mainWindow->m_mainMenu->CallReset();
 
-  //set up timer to redraw and refresh gui
-  m_timer = new QTimer(this);
-  connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
-  m_timer->start(200);
+    //set up timer to redraw and refresh gui
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
+    m_timer->start(200);
 
-  //set up thread for mapping the environment
-  m_threadDone = false;
-  m_thread = new QThread;
-  MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
-  mpsw->moveToThread(m_thread);
-  m_thread->start();
-  connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
-  connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
-  connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
-  connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
-  connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
+    //set up thread for mapping the environment
+    m_threadDone = false;
+    m_thread = new QThread;
+    MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
+    mpsw->moveToThread(m_thread);
+    m_thread->start();
+    connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
+    connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
+    connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
+    connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
+    connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
+  }
 }
 
 void
