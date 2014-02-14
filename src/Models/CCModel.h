@@ -141,7 +141,6 @@ void CCModel<CFG, WEIGHT>::DrawRender() {
 
   switch(CFG::GetShape()){
     case CFG::Robot:
-    case CFG::Box:
       glEnable(GL_LIGHTING);
       glLineWidth(1);
       typedef typename vector<VID>::iterator VIT;
@@ -192,7 +191,6 @@ void CCModel<CFG, WEIGHT>::DrawSelect() {
   glPushName(1);
   switch(CFG::GetShape()){
     case CFG::Robot:
-    case CFG::Box:
       glLineWidth(1);
       break;
 

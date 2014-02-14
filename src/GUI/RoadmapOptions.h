@@ -30,9 +30,7 @@ class RoadmapOptions : public OptionsBase {
 
   private slots:
     void ShowRoadmap();
-    void ChangeNodeShape();
     void ClickRobot(); //trim down these functions eventually
-    void ClickBox();
     void ClickPoint();
     void MakeSolid();
     void MakeWired();
@@ -58,20 +56,7 @@ class RoadmapOptions : public OptionsBase {
     void SetUpToolbar();       //a lot of toolbar functionalities for this class
     void Reset();
     void SetHelpTips();
-    string GetNodeShape();
 
-    typedef MapModel<CfgModel, EdgeModel> MM;
-    MM* GetMapModel(){
-      if(!GetVizmo().GetMap())
-        return NULL;
-      else
-        return GetVizmo().GetMap();
-    }
-
-    QButtonGroup* m_nodeView;   //For ease of use--includes the 3 buttons below
-    QPushButton* m_robotButton; //These 3 particular menu items have text only and thus look better as buttons
-    QPushButton* m_boxButton;
-    QPushButton* m_pointButton;
     QMenu* m_nodeShape;       //More submenus within the robot submenu
     QMenu* m_modifySelected;
     QMenu* m_modifyCCs;

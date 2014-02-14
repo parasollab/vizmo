@@ -37,18 +37,15 @@
 #include "Icons/AddEdge.xpm"
 #include "Icons/MergeNodes.xpm"
 #include "Icons/RobotMode.xpm"
-#include "Icons/BoxMode.xpm"
 #include "Icons/PointMode.xpm"
 #include "Icons/DeleteSelected.xpm"
 
 RoadmapOptions::RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow){
+  : OptionsBase(_parent, _mainWindow) {
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolbar();
     SetHelpTips();
-
-    m_robotButton->click();
   }
 
 void
@@ -58,37 +55,10 @@ RoadmapOptions::CreateActions(){
   QAction* showHideRoadmap = new QAction(QPixmap(navigate), tr("Show Roadmap"), this);
   m_actions["showHideRoadmap"] = showHideRoadmap;
 
-  m_nodeView = new QButtonGroup(this);
-
   QAction* robotView = new QAction(QPixmap(robotmode), tr("Robot"), this);
   m_actions["robotView"] = robotView;
-  //Actually make a push button for Robot (looks better on toolbar)
-  m_robotButton = new QPushButton(tr("Robot"), this);
-  m_robotButton->setFixedWidth(48);
-  m_robotButton->setEnabled(false);
-  m_robotButton->setCheckable(true);
-  m_robotButton->setStatusTip("Display nodes in robot mode");
-  m_nodeView->addButton(m_robotButton);
-
-  QAction* boxView = new QAction(QPixmap(boxmode), tr("Box"), this);
-  m_actions["boxView"] = boxView;
-  //Push button for Box
-  m_boxButton = new QPushButton(tr("Box"), this);
-  m_boxButton->setFixedWidth(48);
-  m_boxButton->setEnabled(false);
-  m_boxButton->setCheckable(true);
-  m_boxButton->setStatusTip("Display nodes in box mode");
-  m_nodeView->addButton(m_boxButton);
-
   QAction* pointView = new QAction(QPixmap(pointmode), tr("Point"), this);
   m_actions["pointView"] = pointView;
-  //Push button for Point
-  m_pointButton = new QPushButton(tr("Point"), this);
-  m_pointButton->setFixedWidth(48);
-  m_pointButton->setEnabled(false);
-  m_pointButton->setCheckable(true);
-  m_pointButton->setStatusTip("Display nodes in point mode");
-  m_nodeView->addButton(m_pointButton);
 
   QAction* makeSolid = new QAction(QPixmap(makeSolidIcon), tr("Make Solid"), this);
   m_actions["makeSolid"] = makeSolid;
@@ -140,8 +110,6 @@ RoadmapOptions::CreateActions(){
   m_actions["showHideRoadmap"]->setToolTip("Show/Hide Roadmap");
   m_actions["robotView"]->setEnabled(false);
   m_actions["robotView"]->setStatusTip(tr("Display nodes in robot mode"));
-  m_actions["boxView"]->setEnabled(false);
-  m_actions["boxView"]->setStatusTip(tr("Display nodes in box mode"));
   m_actions["pointView"]->setEnabled(false);
   m_actions["pointView"]->setStatusTip(tr("Display nodes in point mode"));
 
@@ -187,9 +155,7 @@ RoadmapOptions::CreateActions(){
   //3. Make connections
   connect(m_actions["showHideRoadmap"], SIGNAL(triggered()), this, SLOT(ShowRoadmap()));
 
-  connect(m_nodeView, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(ChangeNodeShape()));
   connect(m_actions["robotView"], SIGNAL(triggered()), this, SLOT(ClickRobot())); //would be better as single function
-  connect(m_actions["boxView"], SIGNAL(triggered()), this, SLOT(ClickBox()));
   connect(m_actions["pointView"], SIGNAL(triggered()), this, SLOT(ClickPoint()));
 
   connect(m_actions["makeSolid"], SIGNAL(triggered()), this, SLOT(MakeSolid()));
@@ -225,7 +191,6 @@ RoadmapOptions::SetUpCustomSubmenu(){
 
   m_nodeShape = new QMenu("Change Node Shape", this);
   m_nodeShape->addAction(m_actions["robotView"]);
-  m_nodeShape->addAction(m_actions["boxView"]);
   m_nodeShape->addAction(m_actions["pointView"]);
   m_submenu->addMenu(m_nodeShape);
 
@@ -264,9 +229,8 @@ RoadmapOptions::SetUpToolbar(){
   m_toolbar = new QToolBar(m_mainWindow);
 
   m_toolbar->addAction(m_actions["showHideRoadmap"]);
-  m_toolbar->addWidget(m_robotButton);
-  m_toolbar->addWidget(m_boxButton);
-  m_toolbar->addWidget(m_pointButton);
+  m_toolbar->addAction(m_actions["robotView"]);
+  m_toolbar->addAction(m_actions["pointView"]);
   m_toolbar->addSeparator();
   m_toolbar->addAction(m_actions["makeSolid"]);
   m_toolbar->addAction(m_actions["makeWired"]);
@@ -292,16 +256,9 @@ RoadmapOptions::Reset(){
   //Enable m_nodeShape AND its items
   m_nodeShape->setEnabled(true);
   m_actions["robotView"]->setEnabled(true);
-  m_actions["boxView"]->setEnabled(true);
   m_actions["pointView"]->setEnabled(true);
-  //Buttons must be enabled also
-  m_robotButton->setEnabled(true);
-  m_boxButton->setEnabled(true);
-  m_pointButton->setEnabled(true);
 
-  ClickPoint(); //Make sure a button is actually selected by default!
-
-  ChangeNodeShape();
+  ClickPoint();
 
   m_modifySelected->setEnabled(true);
   m_actions["makeSolid"]->setEnabled(true);
@@ -334,11 +291,9 @@ RoadmapOptions::SetHelpTips(){
   m_actions["showHideRoadmap"]->setWhatsThis(tr("Click this button"
         " to visualize the <b>Roadmap</b>. You can also select the"
         " <b>Show/Hide Roadmap</b> option from the <b>Roadmap</b> menu."));
-  m_robotButton->setWhatsThis(tr("Click this button to visualize"
+  m_actions["robotView"]->setWhatsThis(tr("Click this button to visualize"
         " the nodes in <b>Robot</b> mode."));
-  m_boxButton->setWhatsThis(tr("Click this button to visualize"
-        " the nodes in <b>Box</b> mode."));
-  m_pointButton->setWhatsThis(tr("Click this button to visualize"
+  m_actions["pointView"]->setWhatsThis(tr("Click this button to visualize"
         " the nodes in <b>Point</b> mode."));
   m_actions["makeSolid"]->setWhatsThis(tr("Click this button to display a"
         " selected item in <b>Solid</b> mode."));
@@ -370,12 +325,6 @@ RoadmapOptions::SetHelpTips(){
         " connected components to a single color. "));
 }
 
-string
-RoadmapOptions::GetNodeShape(){
-
-  return (string)(m_nodeView->checkedButton())->text().toAscii();
-}
-
 //Slots
 
 void
@@ -385,46 +334,15 @@ RoadmapOptions::ShowRoadmap(){
 }
 
 void
-RoadmapOptions::ChangeNodeShape(){
-
-  if(GetVizmo().GetRobot() == NULL)
-    return;
-
-  if(GetVizmo().GetMap() != NULL || GetVizmo().GetDebug() != NULL){
-    if(m_nodeView->checkedButton() != 0){
-
-      string s = (string)(m_nodeView->checkedButton())->text().toAscii();  //prev checked action
-
-      if(s == "Robot")
-        CfgModel::SetShape(CfgModel::Robot);
-      else if(s == "Box")
-        CfgModel::SetShape(CfgModel::Box);
-      else
-        CfgModel::SetShape(CfgModel::Point);
-
-      m_mainWindow->GetGLScene()->updateGL();
-    }
-  }
-}
-
-//Click functions are called when user selects drop-down menu option for Robot,
-//Box, Point
-void
-RoadmapOptions::ClickRobot(){
-
-  m_robotButton->click();
+RoadmapOptions::ClickRobot() {
+  CfgModel::SetShape(CfgModel::Robot);
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-RoadmapOptions::ClickBox(){
-
-  m_boxButton->click();
-}
-
-void
-RoadmapOptions::ClickPoint(){
-
-  m_pointButton->click();
+RoadmapOptions::ClickPoint() {
+  CfgModel::SetShape(CfgModel::Point);
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -454,13 +372,12 @@ RoadmapOptions::MakeInvisible(){
 void
 RoadmapOptions::ShowNodeSizeDialog(){
 
-  //For now, resizing only enabled for point and box abstractions. For robot,
+  //For now, resizing only enabled for point abstraction. For robot,
   //would require extensive local coordinate system aspects
-  if(GetNodeShape() != "Robot")
+  if(CfgModel::GetShape() != CfgModel::Robot)
     m_nodeSizeDialog->show();
   else
-    //Not a true "about" box, but does exactly what is needed.
-    QMessageBox::about(this, "Sorry!", "You can only resize the nodes in <b>Point</b> or <b>Box</b> mode.");
+    QMessageBox::about(this, "Sorry!", "You can only resize the nodes in <b>Point</b> mode.");
 }
 
 void

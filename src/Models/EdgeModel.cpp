@@ -69,7 +69,7 @@ EdgeModel::DrawRender() {
   glEnd();
 
   //draw intermediate configurations
-  if(CfgModel::GetShape() == CfgModel::Box || CfgModel::GetShape() == CfgModel::Robot) {
+  if(CfgModel::GetShape() == CfgModel::Robot) {
     for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
       c->SetRenderMode(WIRE_MODE);
       c->DrawRender();
@@ -91,7 +91,7 @@ EdgeModel::DrawSelect() {
   glEnd();
 
   //draw intermediate configurations
-  if(CfgModel::GetShape() == CfgModel::Box || CfgModel::GetShape() == CfgModel::Robot) {
+  if(CfgModel::GetShape() == CfgModel::Robot) {
     for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
       c->SetRenderMode(WIRE_MODE);
       c->DrawSelect();

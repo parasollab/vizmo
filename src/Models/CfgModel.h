@@ -19,7 +19,7 @@ class EdgeModel;
 class CfgModel : public Model, public Cfg {
 
   public:
-    enum Shape { Robot, Box, Point }; //Node representation
+    enum Shape { Robot, Point }; //Node representation
 
     CfgModel();
     CfgModel(const Cfg& _c);
@@ -59,13 +59,11 @@ class CfgModel : public Model, public Cfg {
     void Print(ostream& _os) const;
 
   private:
-    void PerformBoxTranslation();
     static double m_defaultDOF;
     static bool m_isPlanarRobot;
     static bool m_isVolumetricRobot;
     static bool m_isRotationalRobot;
     static Shape m_shape;
-    static float m_boxScale;
     static float m_pointScale;
 
     bool m_isValid; //For collision detection

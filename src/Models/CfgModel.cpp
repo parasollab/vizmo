@@ -6,7 +6,6 @@
 double CfgModel::m_defaultDOF = 0;
 CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
-float CfgModel::m_boxScale = 1;
 bool CfgModel::m_isPlanarRobot = false;
 bool CfgModel::m_isVolumetricRobot = false;
 bool CfgModel::m_isRotationalRobot = false;
@@ -58,9 +57,7 @@ CfgModel::Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc){
 
 void
 CfgModel::Scale(float _scale){
-
   m_pointScale = _scale*10;
-  m_boxScale = _scale;
 }
 
 void
@@ -88,18 +85,6 @@ CfgModel::DrawRender(){
       robot->Restore();
       break;
 
-    case Box:
-      glPushMatrix();
-      PerformBoxTranslation();
-      glEnable(GL_NORMALIZE);
-      if(m_renderMode == SOLID_MODE)
-        glutSolidCube(m_boxScale);
-      if(m_renderMode == WIRE_MODE)
-        glutWireCube(m_boxScale);
-      glDisable(GL_NORMALIZE);
-      glPopMatrix();
-      break;
-
     case Point:
       glBegin(GL_POINTS);
       glVertex3dv(GetPoint());
@@ -125,39 +110,11 @@ CfgModel::DrawSelect() {
       }
       break;
 
-    case Box:
-      glPushMatrix();
-      PerformBoxTranslation();
-      if(m_renderMode == SOLID_MODE)
-        glutSolidCube(m_boxScale);
-      if(m_renderMode == WIRE_MODE)
-        glutWireCube(m_boxScale);
-      glPopMatrix();
-      break;
-
     case Point:
       glBegin(GL_POINTS);
       glVertex3dv(GetPoint());
       glEnd();
       break;
-  }
-}
-
-void
-CfgModel::PerformBoxTranslation(){
-  if(m_isPlanarRobot){
-    glTranslated(m_v[0], m_v[1], 0);
-    if(m_isRotationalRobot){
-      glRotated(m_v[2]*360, 0, 0, 1);
-    }
-  }
-  else if(m_isVolumetricRobot){
-    glTranslated(m_v[0], m_v[1], m_v[2]);
-    if(m_isRotationalRobot){
-      glRotated(m_v[5]*360, 0, 0, 1);
-      glRotated(m_v[4]*360, 0, 1, 0);
-      glRotated(m_v[3]*360, 1, 0, 0);
-    }
   }
 }
 
@@ -174,14 +131,6 @@ CfgModel::DrawSelected(){
         robot->DrawSelected();
         robot->Restore();
       }
-      break;
-
-    case Box:
-      glLineWidth(2);
-      glPushMatrix();
-      PerformBoxTranslation();
-      glutWireCube(m_boxScale+0.1); //may need adjustment
-      glPopMatrix();
       break;
 
     case Point:
