@@ -63,17 +63,14 @@ class NodeEditDialog : public QDialog {
     void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _title);
     void SetCurrentEdges(vector<EdgeModel*>* _edges) {m_currentEdges = _edges;}
     void InitSliderValues(const vector<double>& _vals);
-    virtual int exec(); //override
 
   private slots:
     void UpdateDOF(int _id); //Update value of DOF associated with m_sliders[_id]
-    virtual void reject(); //override
 
   private:
     void ValidityCheck();
 
     vector<NodeEditSlider*> m_sliders; //destruction??
-    vector<int> m_oldValues;
     GLWidget* m_glScene;
     CfgModel* m_currentNode;
     vector<EdgeModel*>* m_currentEdges;

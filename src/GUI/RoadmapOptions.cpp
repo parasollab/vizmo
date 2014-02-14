@@ -85,7 +85,7 @@ RoadmapOptions::CreateActions(){
   m_actions["editEdge"] = editEdge;
   QAction* addNode = new QAction(QPixmap(addnode), tr("Add Node"), this);
   m_actions["addNode"] = addNode;
-  QAction* addEdge = new QAction(QPixmap(addedge), tr("Add Edge"), this);
+  QAction* addEdge = new QAction(QPixmap(addedge), tr("Add Straight Line Edge"), this);
   m_actions["addEdge"] = addEdge;
   QAction* deleteSelected = new QAction(QPixmap(deleteselected), tr("Delete Selected Items"), this);
   m_actions["deleteSelected"] = deleteSelected;
@@ -172,7 +172,7 @@ RoadmapOptions::CreateActions(){
   connect(m_actions["editNode"], SIGNAL(triggered()), this, SLOT(ShowNodeEditDialog()));
   connect(m_actions["editEdge"], SIGNAL(triggered()), this, SLOT(ShowEdgeEditDialog()));
   connect(m_actions["addNode"], SIGNAL(triggered()), this, SLOT(AddNode()));
-  connect(m_actions["addEdge"], SIGNAL(triggered()), this, SLOT(AddEdge()));
+  connect(m_actions["addEdge"], SIGNAL(triggered()), this, SLOT(AddStraightLineEdge()));
   connect(m_actions["deleteSelected"], SIGNAL(triggered()), this, SLOT(DeleteSelectedItems()));
   connect(m_actions["mergeNodes"], SIGNAL(triggered()), this, SLOT(MergeSelectedNodes()));
 
@@ -403,7 +403,8 @@ void
 RoadmapOptions::ShowNodeEditDialog(){
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  Graph* graph = GetVizmo().GetMap()->GetGraph();
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
 
   if(sel.size() != 1){
     QMessageBox::about(this, "", "Please select exactly one node to modify.");
@@ -416,32 +417,64 @@ RoadmapOptions::ShowNodeEditDialog(){
     return;
   }
 
-  CfgModel* node = (CfgModel*)sel[0];
+  CfgModel* actualNode = (CfgModel*)sel[0];
+  CfgModel* nodePreview = new CfgModel(*actualNode);
+  map->GetTempCfgs().push_back(nodePreview);
 
-  //Prepare edges to pass to NodeEditDialog for validity checks
-  vector<EdgeModel*> edges;
-  VID nodeID = node->GetIndex();
+  vector<EdgeModel*>& tempEdges = map->GetTempEdges();
+  vector<EID> eids; //Save for edge removals if needed later
+  VID nodeID = nodePreview->GetIndex();
   VI vi = graph->find_vertex(nodeID);
+
   for(EI ei = vi->begin(); ei != vi->end(); ++ei){
-    EID eid;
-    if((*ei).source() > (*ei).target())
-      eid =  EID((*ei).source(), (*ei).target());
-    else
-      eid = EID((*ei).target(), (*ei).source());
+    VID startID = min((*ei).source(), (*ei).target());
+    VID endID = max((*ei).source(), (*ei).target());
+    EID eid(startID, endID);
+    eids.push_back(eid);
+
     VI viTemp;
     EI eiTemp;
     graph->find_edge(eid, viTemp, eiTemp);
-    edges.push_back(&(*eiTemp).property());
+    EdgeModel* edgePreview = new EdgeModel((*eiTemp).property());
+
+    if(nodeID == startID)
+      edgePreview->Set(nodePreview, &(graph->find_vertex(endID)->property()));
+    else
+      edgePreview->Set(&(graph->find_vertex(startID)->property()), nodePreview);
+
+    tempEdges.push_back(edgePreview);
   }
-  NodeEditDialog n(this, node, m_mainWindow->GetGLScene(), node->Name());
-  n.SetCurrentEdges(&edges);
-  n.exec();
+
+  NodeEditDialog n(this, nodePreview, m_mainWindow->GetGLScene(), nodePreview->Name());
+  n.SetCurrentEdges(&tempEdges);
+
+  if(n.exec() == QDialog::Accepted){
+    if(nodePreview->IsValid()){
+      actualNode->SetCfg(nodePreview->GetDataCfg());
+
+      for(size_t i = 0; i < tempEdges.size(); i++){
+        if(tempEdges[i]->IsValid() == false){
+          graph->delete_edge(eids[i]);
+          graph->delete_edge(eids[i].target(), eids[i].source());
+        }
+      }
+    }
+    else
+      QMessageBox::about(this, "", "Invalid configuration!");
+
+  map->RefreshMap();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
+  }
+  map->ClearTempItems();
 }
 
 void
 RoadmapOptions::ShowEdgeEditDialog(){
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  Map* map = GetVizmo().GetMap();
+  vector<EdgeModel*>& tempEdges = map->GetTempEdges();
 
   if(sel.size() != 1){
     QMessageBox::about(this, "", "Please select exactly one edge to modify.");
@@ -454,9 +487,26 @@ RoadmapOptions::ShowEdgeEditDialog(){
     return;
   }
 
-  EdgeModel* edge = (EdgeModel*)sel[0];
-  EdgeEditDialog ed(this, edge, m_mainWindow->GetGLScene());
-  ed.exec();
+  EdgeModel* actualEdge = (EdgeModel*)sel[0];
+  EdgeModel* edgePreview = new EdgeModel(*actualEdge);
+  edgePreview->Set(actualEdge->GetStartCfg(), actualEdge->GetEndCfg());
+  tempEdges.push_back(edgePreview);
+
+  EdgeEditDialog ed(this, edgePreview, m_mainWindow->GetGLScene());
+
+  if(ed.exec() == QDialog::Accepted){
+    if(edgePreview->IsValid())
+      actualEdge->SetIntermediates(edgePreview->GetIntermediates());
+    else
+      //For now, user must start all over again in this case
+      QMessageBox::about(this, "", "Invalid edge!");
+    sel.clear();
+    map->RefreshMap();
+    m_mainWindow->GetModelSelectionWidget()->ResetLists();
+    m_mainWindow->GetGLScene()->updateGL();
+  }
+  sel.clear();
+  map->ClearTempItems();
 }
 
 void
@@ -465,24 +515,28 @@ RoadmapOptions::AddNode(){
   Map* map = GetVizmo().GetMap();
   Graph* graph = map->GetGraph();
 
-  CfgModel previewNode = CfgModel();
-  previewNode.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
-  map->GetTempCfgs().push_back(&previewNode);
-  m_mainWindow->GetGLScene()->updateGL();
-  NodeEditDialog n(this, &previewNode, m_mainWindow->GetGLScene(), "New Node");
+  CfgModel* previewNode = new CfgModel();
+  map->GetTempCfgs().push_back(previewNode);
+  NodeEditDialog n(this, previewNode, m_mainWindow->GetGLScene(), "New Node");
 
   if(n.exec() == QDialog::Accepted){
-    CfgModel newNode = previewNode;
-    graph->add_vertex(newNode);
-    map->RefreshMap();
-    m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLScene()->updateGL();
+    if(previewNode->IsValid()){
+      CfgModel newNode = *previewNode;
+      newNode.SetRenderMode(SOLID_MODE);
+      graph->add_vertex(newNode);
+      map->RefreshMap();
+      m_mainWindow->GetModelSelectionWidget()->ResetLists();
+      m_mainWindow->GetGLScene()->updateGL();
+    }
+    else
+      QMessageBox::about(this, "", "Cannot add invalid node!");
   }
   map->ClearTempItems();
 }
 
 void
-RoadmapOptions::AddEdge(){
+RoadmapOptions::AddStraightLineEdge(){
+//By default, just attempts straight line and does not pop up EdgeEditDialog
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   Map* map = GetVizmo().GetMap();
@@ -501,15 +555,24 @@ RoadmapOptions::AddEdge(){
     return;
   }
 
-  VID v0 = ((CfgModel*)sel[0])->GetIndex();
-  VID v1 = ((CfgModel*)sel[1])->GetIndex();
-  graph->add_edge(v0, v1);
-  graph->add_edge(v1, v0);
+  CfgModel* cfg0 = (CfgModel*)sel[0];
+  CfgModel* cfg1 = (CfgModel*)sel[1];
 
-  map->RefreshMap();
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLScene()->updateGL();
+  if(GetVizmo().VisibilityCheck(*cfg0, *cfg1)){
+    VID v0 = cfg0->GetIndex();
+    VID v1 = cfg1->GetIndex();
+    graph->add_edge(v0, v1);
+    graph->add_edge(v1, v0);
+
+    map->RefreshMap();
+    m_mainWindow->GetModelSelectionWidget()->ResetLists();
+    m_mainWindow->GetGLScene()->updateGL();
+  }
+  else
+    QMessageBox::about(this, "", "Cannot add invalid edge!");
+
   sel.clear();
+  map->ClearTempItems();
 }
 
 void
@@ -558,6 +621,7 @@ RoadmapOptions::DeleteSelectedItems(){
     m_mainWindow->GetGLScene()->updateGL();
     sel.clear();
   }
+  map->ClearTempItems();
 }
 
 void
@@ -569,7 +633,7 @@ RoadmapOptions::MergeSelectedNodes(){
   Graph* graph = map->GetGraph();
 
   //Create and center the supervertex preview
-  CfgModel superPreview = CfgModel();
+  CfgModel* superPreview = new CfgModel();
   bool nodesSelected = false;
   int numSelected = 0;
 
@@ -577,7 +641,7 @@ RoadmapOptions::MergeSelectedNodes(){
   for(MIT it = sel.begin(); it != sel.end(); it++){
     if((*it)->Name().substr(0, 4) == "Node"){
       CfgModel* cfg = (CfgModel*)*it;
-      superPreview += *cfg;
+      *superPreview += *cfg;
       selNodes.push_back(cfg);
       numSelected++;
       nodesSelected = true;
@@ -588,7 +652,7 @@ RoadmapOptions::MergeSelectedNodes(){
       return;
   }
 
-  superPreview /= numSelected;
+  *superPreview /= numSelected;
 
   //Mark selected vertices for removal and save ids for edge addition
   vector<VID> toDelete;
@@ -613,41 +677,43 @@ RoadmapOptions::MergeSelectedNodes(){
     }
   }
 
-  superPreview.SetColor(Color4(0.0, 1.0, 1.0, 1.0));
-  map->GetTempCfgs().push_back(&superPreview);
+  map->GetTempCfgs().push_back(superPreview);
 
   typedef vector<VID>::iterator VIT;
   vector<EdgeModel*>& tempEdges = map->GetTempEdges();
   for(VIT it = toAdd.begin(); it != toAdd.end(); it++){
     EdgeModel* edgePreview = new EdgeModel();
     CfgModel& c = graph->find_vertex(*it)->property();
-    edgePreview->Set(&superPreview, &c);
-    edgePreview->SetColor(Color4(0.0, 1.0, 1.0, 1.0));
+    edgePreview->Set(superPreview, &c);
     tempEdges.push_back(edgePreview);
   }
 
   m_mainWindow->GetGLScene()->updateGL();
 
-  NodeEditDialog n(this, &superPreview, m_mainWindow->GetGLScene(), "New Supervertex");
+  NodeEditDialog n(this, superPreview, m_mainWindow->GetGLScene(), "New Supervertex");
   n.SetCurrentEdges(&tempEdges);
 
   if(n.exec() == QDialog::Accepted){
-    CfgModel super = superPreview;
-    //Won't compile with just "VID"
-    Map::VID superID = graph->add_vertex(super);
+    if(superPreview->IsValid()){
+      CfgModel super = *superPreview;
+      super.SetRenderMode(SOLID_MODE);
+      Map::VID superID = graph->add_vertex(super);
 
-    //Add the new edges
-    typedef vector<VID>::iterator VIT;
-    for(VIT it = toAdd.begin(); it != toAdd.end(); it++){
-      graph->add_edge(superID, *it);
-      graph->add_edge(*it, superID);
+      //Add the valid new edges
+      for(size_t i = 0; i < tempEdges.size(); i++){
+        if(tempEdges[i]->IsValid()){
+          graph->add_edge(superID, toAdd[i]);
+          graph->add_edge(toAdd[i], superID);
+        }
+      }
+      //Remove selected vertices
+      for(VIT it = toDelete.begin(); it != toDelete.end(); it++)
+        graph->delete_vertex(*it);
+
+      map->RefreshMap();
     }
-
-    //Remove selected vertices
-    for(VIT it = toDelete.begin(); it != toDelete.end(); it++)
-      graph->delete_vertex(*it);
-
-    map->RefreshMap();
+    else
+      QMessageBox::about(this, "", "Invalid merge!");
   }
 
   sel.clear();

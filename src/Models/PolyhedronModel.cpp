@@ -74,14 +74,16 @@ void PolyhedronModel::DrawRender() {
     glCallList(m_wiredID);
 }
 
-void PolyhedronModel::DrawSelect() {
+void
+PolyhedronModel::DrawSelect() {
   if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
     return;
 
   glCallList(m_solidID);
 }
 
-void PolyhedronModel::DrawSelected() {
+void
+PolyhedronModel::DrawSelected() {
   glCallList(m_wiredID);
 }
 

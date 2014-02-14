@@ -170,27 +170,6 @@ NodeEditDialog::InitSliderValues(const vector<double>& _vals){
   }
 }
 
-int
-NodeEditDialog::exec(){
-
-  //Save current DOF values in case user presses "cancel"
-  m_oldValues.clear();
-  for(SIT it = m_sliders.begin(); it != m_sliders.end(); it++)
-    m_oldValues.push_back((*it)->GetSlider()->value());
-
-  ValidityCheck();
-  return QDialog::exec();
-}
-
-void
-NodeEditDialog::reject(){
-
-  for(size_t i = 0; i < m_sliders.size(); i++)
-    (m_sliders[i])->GetSlider()->setSliderPosition(m_oldValues[i]);
-
-  QDialog::reject();
-}
-
 void
 NodeEditDialog::UpdateDOF(int _id){
   //Also assumes index alignment
@@ -224,11 +203,22 @@ NodeEditDialog::ValidityCheck(){
 
   if(m_currentEdges != NULL){
     typedef vector<EdgeModel*>::iterator EIT;
+    typedef vector<CfgModel>::iterator IIT;
+
     for(EIT eit = m_currentEdges->begin(); eit != m_currentEdges->end(); eit++){
-      if(GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), *(*eit)->GetEndCfg()) == false)
-        (*eit)->SetValidity(false);
-      else
-        (*eit)->SetValidity(true);
-    }
+      //Check actual start and end
+      (*eit)->SetValidity(GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), *(*eit)->GetEndCfg()));
+
+      vector<CfgModel>& intermediates = (*eit)->GetIntermediates();
+      if(intermediates.empty() == false){
+        //Check boundary intermediates
+        (*eit)->SetValidity(GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), intermediates[0]));
+        (*eit)->SetValidity(GetVizmo().VisibilityCheck(intermediates[intermediates.size() - 1], *(*eit)->GetEndCfg()));
+
+        //Check intermediates in between
+        for(IIT it = intermediates.begin(), it2 = it+1; it2 != intermediates.end(); it++, it2++)
+          (*eit)->SetValidity(GetVizmo().VisibilityCheck(*it, *it2));
+      }
+    } //end for all current edges
   }
 }

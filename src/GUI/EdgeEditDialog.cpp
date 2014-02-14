@@ -32,7 +32,7 @@ EdgeEditDialog::EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _sc
 : QDialog(_parent) {
 
   setWindowTitle("Modify Edge");
-  setFixedWidth(390);
+  setFixedWidth(480);
   setFixedHeight(200);
 
   m_glScene = _scene;
@@ -58,6 +58,10 @@ EdgeEditDialog::EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _sc
   doneButton->setFixedWidth(90);
   doneButton->setText("Done");
 
+  QPushButton* cancelButton = new QPushButton(this);
+  cancelButton->setFixedWidth(90);
+  cancelButton->setText("Cancel");
+
   QLabel* edgeLabel = new QLabel(this);
   edgeLabel->setText(_edge->Name().c_str());
 
@@ -68,6 +72,7 @@ EdgeEditDialog::EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _sc
   buttonLayout->addWidget(removeIntermediateButton);
   buttonLayout->insertSpacing(3, 50);
   buttonLayout->addWidget(doneButton);
+  buttonLayout->addWidget(cancelButton);
 
   QVBoxLayout* overallLayout = new QVBoxLayout();
   overallLayout->addWidget(edgeLabel);
@@ -81,7 +86,8 @@ EdgeEditDialog::EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _sc
   connect(editIntermediateButton, SIGNAL(clicked()), this, SLOT(EditIntermediate()));
   connect(addIntermediateButton, SIGNAL(clicked()), this, SLOT(AddIntermediate()));
   connect(removeIntermediateButton, SIGNAL(clicked()), this, SLOT(RemoveIntermediate()));
-  connect(doneButton, SIGNAL(clicked()), this, SLOT(close()));
+  connect(doneButton, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
   connect(m_intermediatesList, SIGNAL(CallUpdateGL()), m_glScene, SLOT(updateGL()));
 }
 
@@ -128,11 +134,15 @@ void
 EdgeEditDialog::EditIntermediate(){
 
   vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
+  vector<EdgeModel*> currentEdge; //For NodeEditDialog's validity checks
 
   for(IIT it = listItems.begin(); it != listItems.end(); it++){
+    currentEdge.clear();
     //Default list item has start cfg as m_cfg, so check against that
     if((*it)->isSelected() && (*it)->m_cfg != m_currentEdge->GetStartCfg()){
+      currentEdge.push_back(m_currentEdge);
       NodeEditDialog n(this, (*it)->m_cfg, m_glScene, "Intermediate Configuration");
+      n.SetCurrentEdges(&currentEdge);
       n.exec();
       break;
     }

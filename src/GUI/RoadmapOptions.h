@@ -42,7 +42,7 @@ class RoadmapOptions : public OptionsBase {
     void ShowNodeEditDialog();
     void ShowEdgeEditDialog();
     void AddNode();
-    void AddEdge();
+    void AddStraightLineEdge();
     void DeleteSelectedItems();
     void MergeSelectedNodes();
     void RandomizeCCColors();

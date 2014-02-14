@@ -197,13 +197,20 @@ MapModel<CFG, WEIGHT>::DrawRender(){
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     (*ic)->DrawRender();
 
+  glLineWidth(2);
   typedef typename vector<CFG*>::iterator NIT;
-  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
+  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++){
+    (*nit)->SetColor(Color4(0.0, 1.0, 0.0, 1.0));
+    (*nit)->SetRenderMode(WIRE_MODE);
     (*nit)->DrawRender();
+  }
 
   typedef typename vector<WEIGHT*>::iterator WIT;
-  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
+  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++){
+    (*wit)->SetColor(Color4(0.0, 1.0, 0.0, 1.0));
+    (*wit)->SetRenderMode(WIRE_MODE);
     (*wit)->DrawRender();
+  }
 }
 
 template <class CFG, class WEIGHT>
@@ -289,7 +296,11 @@ MapModel<CFG, WEIGHT>::RefreshMap(){
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::ClearTempItems(){
+  typedef typename vector<CFG*>::iterator CIT;
+  for(CIT cit = m_tempCfgs.begin(); cit != m_tempCfgs.end(); cit++)
+    delete *cit;
   m_tempCfgs.clear();
+
   typedef typename vector<WEIGHT*>::iterator WIT;
   for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
     delete *wit;

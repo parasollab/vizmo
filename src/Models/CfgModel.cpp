@@ -144,5 +144,4 @@ CfgModel::DrawSelected(){
       glEnd();
       break;
   }
-} //end DrawSelect
-
+} //end DrawSelected

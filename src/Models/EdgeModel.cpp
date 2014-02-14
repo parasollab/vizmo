@@ -32,6 +32,9 @@ EdgeModel::Print(ostream& _os) const {
     _os << *c << " | ";
 
   _os << endl;
+
+  if(!m_isValid)
+    _os << "**** IS IN COLLISION!! ****" << endl;
 }
 
 void
