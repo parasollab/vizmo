@@ -116,7 +116,7 @@ ModelSelectionWidget::Select(){
   m_glWidget->SetCurrentRegion(NULL);
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator MIT;
-  for(MIT mit = sel.begin(); mit != sel.end(); ++mit) {
+  for(MIT mit = sel.begin(); mit != sel.end();/* increments conditionally below */) {
     bool found = false;
     for(IIT i = m_items.begin(); i != m_items.end(); i++){
       if(*mit == (*i)->m_model){
@@ -134,6 +134,8 @@ ModelSelectionWidget::Select(){
     }
     if(!found)
       mit = sel.erase(mit);
+    else
+      ++mit;
   }
   blockSignals(false);
   emit itemSelectionChanged();
