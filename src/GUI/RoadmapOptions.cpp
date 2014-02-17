@@ -406,18 +406,21 @@ RoadmapOptions::ShowNodeEditDialog(){
   Map* map = GetVizmo().GetMap();
   Graph* graph = map->GetGraph();
 
-  if(sel.size() != 1){
-    QMessageBox::about(this, "", "Please select exactly one node to modify.");
+  //Filter out incident edges and just use one node if multiple selected
+  bool nodeSelected = false;
+  CfgModel* actualNode;
+  for(MIT it = sel.begin(); it != sel.end(); it++){
+    if((*it)->Name().substr(0, 4) == "Node"){
+      actualNode = (CfgModel*)*it;
+      nodeSelected = true;
+      break;
+    }
+  }
+  if(nodeSelected == false){
+    QMessageBox::about(this, "", "Please select a node to modify.");
     return;
   }
 
-  string objName = sel[0]->Name();
-  if(objName.substr(0, 4) != "Node"){
-    QMessageBox::about(this, "", "Please select exactly one node to modify.");
-    return;
-  }
-
-  CfgModel* actualNode = (CfgModel*)sel[0];
   CfgModel* nodePreview = new CfgModel(*actualNode);
   map->GetTempCfgs().push_back(nodePreview);
 
@@ -466,6 +469,7 @@ RoadmapOptions::ShowNodeEditDialog(){
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->GetGLScene()->updateGL();
   }
+  sel.clear();
   map->ClearTempItems();
 }
 
@@ -476,18 +480,20 @@ RoadmapOptions::ShowEdgeEditDialog(){
   Map* map = GetVizmo().GetMap();
   vector<EdgeModel*>& tempEdges = map->GetTempEdges();
 
-  if(sel.size() != 1){
-    QMessageBox::about(this, "", "Please select exactly one edge to modify.");
+  bool edgeSelected = false;
+  EdgeModel* actualEdge;
+  for(MIT it = sel.begin(); it != sel.end(); it++){
+    if((*it)->Name().substr(0, 4) == "Edge"){
+      actualEdge = (EdgeModel*)*it;
+      edgeSelected = true;
+      break;
+    }
+  }
+  if(edgeSelected == false){
+    QMessageBox::about(this, "", "Please select an edge to modify.");
     return;
   }
 
-  string objName = sel[0]->Name();
-  if(objName.substr(0, 4) != "Edge"){
-    QMessageBox::about(this, "", "Please select exactly one edge to modify.");
-    return;
-  }
-
-  EdgeModel* actualEdge = (EdgeModel*)sel[0];
   EdgeModel* edgePreview = new EdgeModel(*actualEdge);
   edgePreview->Set(actualEdge->GetStartCfg(), actualEdge->GetEndCfg());
   tempEdges.push_back(edgePreview);
@@ -539,28 +545,23 @@ RoadmapOptions::AddStraightLineEdge(){
 //By default, just attempts straight line and does not pop up EdgeEditDialog
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  vector<CfgModel*> selNodes;
   Map* map = GetVizmo().GetMap();
   Graph* graph = map->GetGraph();
 
-  //Must select exactly two items...
-  if(sel.size() != 2){
-    QMessageBox::about(this, "", "Please select exactly two nodes.");
-    return;
-  }
-  //...and they must be nodes
-  string obj1 = sel[0]->Name();
-  string obj2 = sel[1]->Name();
-  if((obj1.substr(0, 4) != "Node") || (obj2.substr(0, 4) != "Node")){
+  //Filter away selected edges, but still enforce two nodes
+  for(MIT it = sel.begin(); it != sel.end(); it++)
+    if((*it)->Name().substr(0, 4) == "Node")
+      selNodes.push_back((CfgModel*)*it);
+
+  if(selNodes.size() != 2){
     QMessageBox::about(this, "", "Please select exactly two nodes.");
     return;
   }
 
-  CfgModel* cfg0 = (CfgModel*)sel[0];
-  CfgModel* cfg1 = (CfgModel*)sel[1];
-
-  if(GetVizmo().VisibilityCheck(*cfg0, *cfg1)){
-    VID v0 = cfg0->GetIndex();
-    VID v1 = cfg1->GetIndex();
+  if(GetVizmo().VisibilityCheck(*selNodes[0], *selNodes[1])){
+    VID v0 = selNodes[0]->GetIndex();
+    VID v1 = selNodes[1]->GetIndex();
     graph->add_edge(v0, v1);
     graph->add_edge(v1, v0);
 
