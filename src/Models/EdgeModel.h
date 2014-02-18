@@ -1,59 +1,53 @@
-#ifndef EDGE_MODEL_H_
-#define EDGE_MODEL_H_
+#ifndef EDGEMODEL_H_
+#define EDGEMODEL_H_
 
 #include <iostream>
 #include <string>
+#include <vector>
+using namespace std;
 
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#include "CfgModel.h"
-#include "EnvObj/RobotModel.h"
+#include "MPProblem/Weight.h"
 
-using namespace std;
+#include "CfgModel.h"
+#include "Model.h"
 
 class CfgModel;
 
-class EdgeModel : public GLModel {
-
-  friend ostream& operator<<(ostream& _out, const EdgeModel& _edge);
-  friend istream& operator>>(istream& _in, EdgeModel& _edge);
+class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
   public:
-    EdgeModel();
-    EdgeModel(double _weight);
-    ~EdgeModel();
+    EdgeModel(string _lpLabel = "", double _weight = LONG_MAX, const vector<CfgModel>& _intermediates = vector<CfgModel>());
+    EdgeModel(const DefaultWeight<CfgModel>& _e);
 
-    const string GetName() const;
-    vector<string> GetInfo() const;
-    vector<int> GetEdgeNodes();
-    int& GetLP(){ return m_lp; }
-    double& GetWeight(){ return m_weight; }
-    double& Weight(){ return m_weight; }
-    int GetID() { return m_id; }
-    const CfgModel& GetStartCfg() { return m_startCfg; }
-    void SetCfgShape(CfgModel::Shape _s) { m_cfgShape = _s; }
-    //Want m_edgeThickness to be private, but cannot figure out how to compile
-    //with this declaration
-    //template<class CfgModel, class EdgeModel> friend void MapModel<CfgModel, EdgeModel>::SetEdgeThickness(double _thickness);
+    void SetName();
+    size_t GetID() { return m_id; }
+    bool IsValid() { return m_isValid; }
 
-    bool operator==(const EdgeModel& _other);
-    void Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot = NULL);
-    void Draw(GLenum _mode);
+    CfgModel* GetStartCfg() { return m_startCfg; }
+    CfgModel* GetEndCfg() { return m_endCfg; }
+
+    void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
+    void SetValidity(bool _validity) { m_isValid = _validity; }
+    void Set(CfgModel* _c1, CfgModel* _c2);
+
+    void Build() {}
+    void Select(GLuint* _index, vector<Model*>& _sel) {};
+    void DrawRender();
     void DrawSelect();
+    void DrawSelected();
+    void Print(ostream& _os) const;
+
+    void DrawRenderInCC();
 
     static double m_edgeThickness;
 
   private:
-    CfgModel m_startCfg, m_endCfg;
-    int m_lp;
-    double m_weight;
-    //static double m_edgeThickness;
-    int m_id;
-    CfgModel::Shape m_cfgShape;
-    vector <CfgModel> m_intermediateCfgs;
-
-    friend class CfgModel;
+    CfgModel* m_startCfg, * m_endCfg;
+    size_t m_id;
+    bool m_isValid;
 };
 
 #endif

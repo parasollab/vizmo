@@ -4,318 +4,233 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <string>
 using namespace std;
 
-#include <graph.h>
-#include <algorithms/connected_components.h>
-using namespace stapl;
-
-#include "Plum/GLModel.h"
-#include "CfgModel.h"
-#include "EdgeModel.h"
+#include "Model.h"
 #include "MapModel.h"
-#include "EnvObj/RobotModel.h"
-#include "Utilities/Exceptions.h"
 
 template<typename, typename>
 class MapModel;
 
-class CfgModel;
-
-template <class CfgModel, class WEIGHT>
-class CCModel : public GLModel{
+template <class CFG, class WEIGHT>
+class CCModel : public Model {
 
   public:
-    typedef typename MapModel<CfgModel, WEIGHT>::Wg WG;
-    typedef typename WG::vertex_descriptor VID;
-    typedef typename WG::edge_descriptor EID;
-    typedef vector_property_map<WG, size_t> ColorMap;
+    typedef MapModel<CFG, WEIGHT> MM;
+    typedef typename MM::Graph Graph;
+    typedef typename MM::VID VID;
+    typedef typename MM::VI VI;
+    typedef typename MM::EID EID;
+    typedef typename MM::EI EI;
+    typedef typename MM::ColorMap ColorMap;
 
-    CCModel(unsigned int _id);
-    ~CCModel();
+    CCModel(size_t _id, VID _rep, Graph* _graph);
 
-    const string GetName() const;
-    int GetID() const {return m_id;}
-    int GetNumNodes(){ return m_nodes.size(); }
-    int GetNumEdges(){ return m_edges.size(); }
-    double GetNodeData() { return m_nodes[0]->tx(); }
-    // Functions to be accessed to get nodes and edges info.
-    //to write a new *.map file (this functions are
-    //currently accessed from vizmo2.ccp: vizmo::GetNodeInfo()
-    map<VID, CfgModel>& GetNodesInfo() { return m_nodes; }
-    vector<WEIGHT>& GetEdgesInfo() { return m_edges; }
-    WG* GetGraph(){ return m_graph; }
-    void SetRobotModel(RobotModel* _robot){ m_robot = _robot; }
-    void SetColorChanged(bool _isNew) { m_newColor = _isNew; }
+    void SetName();
+    size_t GetID() const {return m_id;}
 
-    void BuildModels(); //not used, should not call this
-    void Draw(GLenum _mode);
+    void Build();
+    void Select(GLuint* _index, vector<Model*>& _sel);
+    void DrawRender();
     void DrawSelect();
-    void Select(unsigned int* _index, vector<GLModel*>& _sel);
-    void BuildModels(VID _id, WG* _g); //call this instead
-    virtual vector<string> GetInfo() const;
-
-    void BuildNodeModels(GLenum _mode);
-    void DrawRobotNodes(GLenum _mode);
-    void DrawBoxNodes(GLenum _mode);
-    void DrawPointNodes(GLenum _mode);
-    void DrawEdges();
+    void DrawSelected();
+    void Print(ostream& _os) const;
     void SetColor(const Color4& _c);
-    void AddEdge(CfgModel* _c1, CfgModel* _c2);
-    //void ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew);
-    virtual void GetChildren(list<GLModel*>& _models);
+    virtual void GetChildren(list<Model*>& _models);
 
   private:
-    int m_id; //CC ID
-    bool m_newColor; //Have CC colors been changed?
-    RobotModel* m_robot;
-    WG* m_graph;
+    CFG& GetCfg(VID _v);
+
+    size_t m_id;
+    VID m_rep;
+    Graph* m_graph;
     ColorMap m_colorMap;
-    map<VID, CfgModel> m_nodes;
-    vector<WEIGHT> m_edges;
+    vector<VID> m_nodes;
+
+    static map<VID, Color4> m_colorIndex;
 };
 
-template <class CfgModel, class WEIGHT>
-CCModel<CfgModel, WEIGHT>::CCModel(unsigned int _id){
+template <class CFG, class WEIGHT>
+map<typename CCModel<CFG, WEIGHT>::VID, Color4> CCModel<CFG, WEIGHT>::m_colorIndex = map<VID, Color4>();
 
-  m_id = _id;
-  m_renderMode = INVISIBLE_MODE;
-  //Set random Color
-  GLModel::SetColor(Color4(drand48(), drand48(), drand48(), 1));
-  m_newColor = false;
-  m_graph = NULL;
-}
+template <class CFG, class WEIGHT>
+CCModel<CFG, WEIGHT>::CCModel(size_t _id, VID _rep, Graph* _graph) :
+  Model(""), m_id(_id), m_rep(_rep), m_graph(_graph) {
+    SetName();
+    m_renderMode = INVISIBLE_MODE;
 
-template <class CfgModel, class WEIGHT>
-CCModel<CfgModel, WEIGHT>::~CCModel(){}
+    Build();
+  }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::BuildModels() {
-  throw BuildException(WHERE, "Calling wrong build models function.");
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::BuildModels(VID _id, WG* _g){
-
-  if(!_g)
-    throw BuildException(WHERE, "Passed in null graph");
-
-  m_graph = _g;
+CCModel<CFG, WEIGHT>::Build() {
 
   //Set up CC nodes
-  vector<VID> cc;
-  m_colorMap.reset();
-  get_cc(*_g, m_colorMap, _id, cc);
-
-  int nSize = cc.size();
-  typename WG::vertex_iterator cvi, cvi2, vi;
-  typename WG::adj_edge_iterator ei;
   m_nodes.clear();
-  for(int i = 0; i < nSize; i++){
-    VID nid=cc[i];
-    CfgModel cfg = (_g->find_vertex(nid))->property();
-    cfg.Set(nid, m_robot,this);
-    m_nodes[nid] = cfg;
-  }
+  m_colorMap.reset();
+  get_cc(*m_graph, m_colorMap, m_rep, m_nodes);
+
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+    GetCfg(*vit).Set(*vit, this);
 
   //Set up edges
-  vector< pair<VID,VID> > ccedges;
+  int edgeIdx = 0;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
 
-  m_colorMap.reset();
-  get_cc_edges(*_g, m_colorMap, ccedges, _id);
-  int eSize=ccedges.size(), edgeIdx = 0;
+      CFG* cfg2 = &GetCfg((*ei).target());
+      WEIGHT& edge = (*ei).property();
+      edge.Set(edgeIdx++, &v->property(), cfg2);
+    }
+  }
 
-  m_edges.clear();
-  for(int iE=0; iE<eSize; iE++){
-    if(ccedges[iE].first<ccedges[iE].second)
-      continue;
+  //If user changes a CC's color, color at associated index is changed
+  if(m_colorIndex.find(m_rep) == m_colorIndex.end())
+    m_colorIndex[m_rep] = Color4(drand48(), drand48(), drand48(), 1);
+  SetColor(m_colorIndex[m_rep]);
+}
 
-    CfgModel* cfg1 = &((_g->find_vertex(ccedges[iE].first))->property());
-    cfg1->SetIndex(ccedges[iE].first);
-    CfgModel* cfg2 = &((_g->find_vertex(ccedges[iE].second))->property());
-    cfg2->SetIndex(ccedges[iE].second);
-    EID ed(ccedges[iE].first,ccedges[iE].second);
-    _g->find_edge(ed, vi, ei);
-    WEIGHT w  = (*ei).property();
-    w.Set(edgeIdx++,cfg1,cfg2, m_robot);
-    m_edges.push_back(w);
+template <class CFG, class WEIGHT>
+void
+CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
+  Model::SetColor(_c);
+  m_colorIndex[m_rep] = _c;
+
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+    GetCfg(*vit).SetColor(_c);
+
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
+      (*ei).property().SetColor(_c);
+    }
   }
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::DrawRobotNodes(GLenum _mode){
-  if(m_robot == NULL)
-    return;
+CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+    _models.push_back(&GetCfg(*vit));
 
-  glLineWidth(1);
-
-  Color4 origColor = m_robot->GetColor();
-  m_robot->BackUp();
-
-  if(_mode == GL_RENDER)
-    glEnable(GL_LIGHTING);
-
-  typedef typename map<VID, CfgModel>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
-    glPushName(cit->first);
-    m_robot->SetColor(GetColor());
-    cit->second.Draw(_mode);
-    glPopName();
-  }
-
-  m_robot->Restore();
-  m_robot->SetColor(origColor);
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::DrawBoxNodes(GLenum _mode){
-
-  glEnable(GL_LIGHTING);
-  glLineWidth(1);
-  typedef typename map<VID, CfgModel>::iterator CIT;
-
-  for(CIT cit = m_nodes.begin(); cit!=m_nodes.end(); cit++){
-    glPushName(cit->first);
-    cit->second.Draw(_mode);
-    glPopName();
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
+      _models.push_back(&(*ei).property());
+    }
   }
 }
 
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::DrawPointNodes(GLenum _mode){
-
-  glDisable(GL_LIGHTING);
-  typedef typename map<VID, CfgModel>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++){
-    glPushName(cit->first);
-    cit->second.Draw(_mode);
-    glPopName();
-  }
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::SetColor(const Color4& _c){
-
-  GLModel::SetColor(_c);
-
-  typedef typename map<VID, CfgModel>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
-    cit->second.SetColor(_c);
-
-  typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++)
-    eit->SetColor(_c);
-}
-
-//add a new Edge (from the 'add edge' option)
-//June 16-05
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::AddEdge(CfgModel* _c1, CfgModel* _c2){
-
-  typename WG::vertex_iterator vi;
-  typename WG::adj_edge_iterator ei;
-  EID ed(_c1->GetIndex(),_c2->GetIndex());
-  m_graph->find_edge(ed, vi, ei);
-
-  WEIGHT w  = (*ei).property();
-  w.Set(m_edges.size(),_c1,_c2);
-  m_edges.push_back(w);
-}
-
-//Doesn't seem to be used anywhere...
-/*template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::ChangeProperties(Shape _s, float _size, vector<float> _color, bool _isNew){
-
-  m_renderMode = SOLID_MODE;
-  m_cfgShape = _s;
-
-  if(_s == CfgModel::Point)
-    m_pointScale = _size;
-  else
-    m_boxScale = _size;
-
-  if(_isNew)
-    SetColor(_color[0], _color[1], _color[2], 1);
-}
-*/
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
-
-  typedef typename map<VID, CfgModel>::iterator CIT;
-  for(CIT cit = m_nodes.begin(); cit != m_nodes.end(); cit++)
-    _models.push_back(&cit->second);
-
-  typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit != m_edges.end(); eit++)
-    _models.push_back(&*eit);
-}
-
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::DrawEdges(){
-
-  glDisable(GL_LIGHTING);
-  //Worth performance cost to antialias and prevent automatic
-  //conversion to integer?
-  glLineWidth(EdgeModel::m_edgeThickness);
-
-  typedef typename vector<WEIGHT>::iterator EIT;
-  for(EIT eit = m_edges.begin(); eit!=m_edges.end(); eit++){
-    eit->SetCfgShape(CfgModel::GetShape());
-    eit->Draw(m_renderMode);
-  }
-}
-
-template <class CfgModel, class WEIGHT>
-void CCModel<CfgModel, WEIGHT>::Draw(GLenum _mode) {
-
+template <class CFG, class WEIGHT>
+void CCModel<CFG, WEIGHT>::DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
-  if(_mode == GL_SELECT)
-    glPushName(1); //1 means nodes
+  glColor4fv(GetColor());
 
-  switch(CfgModel::GetShape()){
-    case CfgModel::Robot:
-      DrawRobotNodes(_mode);
-    break;
+  switch(CFG::GetShape()){
+    case CFG::Robot:
+      glEnable(GL_LIGHTING);
+      glLineWidth(1);
+      typedef typename vector<VID>::iterator VIT;
+      for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+        GetCfg(*vit).DrawRender();
+      break;
 
-    case CfgModel::Box:
-      DrawBoxNodes(_mode);
-    break;
-
-    case CfgModel::Point:
-      DrawPointNodes(_mode);
-    break;
+    case CFG::Point:
+      glDisable(GL_LIGHTING);
+      glPointSize(CFG::GetPointSize());
+      glBegin(GL_POINTS);
+      typedef typename vector<VID>::iterator VIT;
+      for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
+        glVertex3dv(GetCfg(*vit).GetPoint());
+      glEnd();
+      break;
   }
 
-  if(_mode == GL_SELECT)
-    glPopName();
+  //draw edges
+  glDisable(GL_LIGHTING);
+  glLineWidth(WEIGHT::m_edgeThickness);
 
-  if(_mode == GL_SELECT)
-    glPushName(2); //2 means edge
+  glBegin(GL_LINES);
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
 
-  DrawEdges();
-
-  if(_mode == GL_SELECT)
-    glPopName();
+      CFG* cfg2 = &GetCfg((*ei).target());
+      WEIGHT& edge = (*ei).property();
+      edge.Set(&v->property(), cfg2);
+      edge.DrawRenderInCC();
+    }
+  }
+  glEnd();
 }
 
-template <class CfgModel, class WEIGHT>
-void
-CCModel<CfgModel, WEIGHT>::DrawSelect(){
+template <class CFG, class WEIGHT>
+void CCModel<CFG, WEIGHT>::DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
 
+  //Names: 1 = Nodes, 2 = Edges
+
+  //draw nodes
+  glPushName(1);
+  switch(CFG::GetShape()){
+    case CFG::Robot:
+      glLineWidth(1);
+      break;
+
+    case CFG::Point:
+      glPointSize(CFG::GetPointSize());
+      break;
+  }
+
+  typedef typename vector<VID>::iterator VIT;
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    glPushName(*vit);
+    GetCfg(*vit).DrawSelect();
+    glPopName();
+  }
+  glPopName();
+
+  //draw edges
+  glPushName(2);
+  glLineWidth(WEIGHT::m_edgeThickness);
+  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+    glPushName(*vit);
+    VI v = m_graph->find_vertex(*vit);
+    for(EI ei = v->begin(); ei != v->end(); ++ei) {
+      if((*ei).source() > (*ei).target())
+        continue;
+      glPushName((*ei).target());
+      CFG* cfg2 = &GetCfg((*ei).target());
+      WEIGHT& edge = (*ei).property();
+      edge.Set(&v->property(), cfg2);
+      edge.DrawSelect();
+      glPopName();
+    }
+    glPopName();
+  }
+  glPopName();
+}
+
+template <class CFG, class WEIGHT>
+void
+CCModel<CFG, WEIGHT>::DrawSelected(){
   /*Disabled for now; later modifications likely*/
   //if(m_edgeID == -1)
   //  DrawEdges();
@@ -325,42 +240,42 @@ CCModel<CfgModel, WEIGHT>::DrawSelect(){
   //glLineWidth(1);
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-CCModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel){
-
-  typename WG::vertex_iterator cvi;
-  if(_index == NULL || m_graph == NULL)
+CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
+  if(!m_selectable || _index == NULL)
     return;
 
   if(_index[0] == 1)
-    _sel.push_back(&m_nodes[(VID)_index[1]]);
-  else
-    _sel.push_back(&m_edges[_index[1]]);
+    _sel.push_back(&GetCfg(_index[1]));
+  else {
+    VI vi;
+    EI ei;
+    m_graph->find_edge(EID(_index[1], _index[2]), vi, ei);
+    _sel.push_back(&(*ei).property());
+  }
 }
 
-template <class CfgModel, class WEIGHT>
-const string
-CCModel<CfgModel, WEIGHT>::GetName() const{
-
+template <class CFG, class WEIGHT>
+void
+CCModel<CFG, WEIGHT>::SetName() {
   ostringstream temp;
-  temp << "CC" << m_id;
-  return temp.str();
+  temp << "CC " << m_id;
+  m_name = temp.str();
 }
 
-template <class CfgModel, class WEIGHT>
-vector<string>
-CCModel<CfgModel, WEIGHT>::GetInfo() const{
-
-  vector<string> info;
-  ostringstream temp, temp2;
-  temp << "There are " << m_nodes.size() << " nodes";
-  info.push_back(temp.str());
-  temp2 << "There are " << m_edges.size() << " edges";
-  info.push_back(temp2.str());
-  return info;
+template <class CFG, class WEIGHT>
+void
+CCModel<CFG, WEIGHT>::Print(ostream& _os) const {
+  //TODO Add in num edges again
+  _os << Name() << endl
+    << m_nodes.size() << " nodes" << endl;
 }
 
-#endif //CCMODEL_H_
+template<class CFG, class WEIGHT>
+CFG&
+CCModel<CFG, WEIGHT>::GetCfg(VID _v) {
+  return m_graph->find_vertex(_v)->property();
+}
 
-
+#endif

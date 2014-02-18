@@ -1,29 +1,14 @@
 #include "DebugModel.h"
 
-#include <algorithms/dijkstra.h>
-using namespace stapl;
-
-#include "EnvObj/RobotModel.h"
-#include "GUI/SceneWin.h" //to call new drawText
-
-struct EdgeAccess{
-  typedef double value_type;
-  template<typename Property>
-  value_type get(Property p) {return p.GetWeight();}
-
-  template<typename Property>
-  void put(Property p, value_type _v) {p.GetWeight()=_v;}
-};
-
-DebugModel::DebugModel(const string& _filename, RobotModel* _robotModel) :
-  m_robotModel(_robotModel), m_index(-1),
-  m_mapModel(new MapModel<CfgModel, EdgeModel>(_robotModel)),
+DebugModel::DebugModel(const string& _filename) :
+  LoadableModel("Debug"),
+  m_index(-1),
+  m_mapModel(new MapModel<CfgModel, EdgeModel>()),
   m_edgeNum(-1) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
-    m_mapModel->InitGraph();
     ParseFile();
-    BuildModels();
+    Build();
   }
 
 DebugModel::~DebugModel() {
@@ -31,16 +16,6 @@ DebugModel::~DebugModel() {
   typedef vector<Instruction*>::iterator IIT;
   for(IIT iit = m_instructions.begin(); iit != m_instructions.end(); ++iit)
     delete *iit;
-}
-
-vector<string>
-DebugModel::GetInfo() const {
-  vector<string> info;
-  info.push_back(GetFilename());
-  ostringstream temp;
-  temp << "There are " << m_instructions.size() << " debug frames";
-  info.push_back(temp.str());
-  return info;
 }
 
 vector<string>
@@ -99,15 +74,12 @@ DebugModel::ParseFile() {
       iss >> s >> t;
       m_instructions.push_back(new AddTempEdge(s, t));
     }
-    else if(name=="ClearAll"){
+    else if(name=="ClearAll")
       m_instructions.push_back(new ClearAll());
-    }
-    else if(name=="ClearLastTemp"){
+    else if(name=="ClearLastTemp")
       m_instructions.push_back(new ClearLastTemp());
-    }
-    else if(name=="ClearComments"){
+    else if(name=="ClearComments")
       m_instructions.push_back(new ClearComments());
-    }
     else if(name=="RemoveNode"){
       CfgModel c;
       iss >> c;
@@ -118,42 +90,37 @@ DebugModel::ParseFile() {
       iss >> s >> t;
       m_instructions.push_back(new RemoveEdge(s, t));
     }
-    else if(name=="Comment"){
+    else if(name=="Comment")
       m_instructions.push_back(new Comment(iss.str().substr(8, iss.str().length())));
-    }
-    else if(name=="Query"){
+    else if(name=="QueryInstruction"){
       CfgModel s, t;
       iss >> s >> t;
-      m_instructions.push_back(new Query(s, t));
+      m_instructions.push_back(new QueryInstruction(s, t));
     }
   }
 }
 
 void
-DebugModel::BuildModels(){
-  //can't build model without robot
-  if(!m_robotModel)
-    throw BuildException(WHERE, "RobotModel is null.");
-
+DebugModel::Build(){
   m_prevIndex = 0;
   m_index = 0;
   m_edgeNum = 0;
   m_tempRay = NULL;
 
-  m_mapModel->BuildModels();
+  m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
 
 void
 DebugModel::BuildForward() {
-  typedef graph<DIRECTED,MULTIEDGES,CfgModel,EdgeModel> WG;
-  typedef WG::vertex_iterator VI;
-  typedef WG::vertex_descriptor VID;
-  typedef WG::adj_edge_iterator EI;
-  typedef WG::edge_descriptor EID;
+  typedef MapModel<CfgModel, EdgeModel> MM;
+  typedef MM::VID VID;
+  typedef MM::VI VI;
+  typedef MM::EID EID;
+  typedef MM::EI EI;
   typedef vector<VID>::iterator ITVID;
-  typedef vector_property_map<WG, size_t> ColorMap;
-  typedef edge_property_map<WG, EdgeAccess> EdgeMap;
+  typedef MM::ColorMap ColorMap;
+  typedef MM::EdgeMap EdgeMap;
 
   for(int i = m_prevIndex; i < m_index; i++){
     Instruction* ins = m_instructions[i];
@@ -167,33 +134,33 @@ DebugModel::BuildForward() {
       //add edge to the graph
 
       Color4 color;
-      vector<VID> ccnid1; //node id in this cc
-      vector<VID> ccnid2; //node id in this cc
+      vector<VID> nIdCC1; //node id in this cc
+      vector<VID> nIdCC2; //node id in this cc
       vector<VID>* smallerCC;
-      EdgeModel edge(1);
+      EdgeModel edge("", 1);
 
-      VID svid = m_mapModel->Cfg2VID(ae->m_source);
-      VID tvid = m_mapModel->Cfg2VID(ae->m_target);
-      CfgModel& source = m_mapModel->GetGraph()->find_vertex(svid)->property();
-      CfgModel& target = m_mapModel->GetGraph()->find_vertex(tvid)->property();
+      VID svId = m_mapModel->Cfg2VID(ae->m_source);
+      VID tvId = m_mapModel->Cfg2VID(ae->m_target);
+      CfgModel& source = m_mapModel->GetGraph()->find_vertex(svId)->property();
+      CfgModel& target = m_mapModel->GetGraph()->find_vertex(tvId)->property();
 
       //set properties of edge and increase the edge count
       edge.Set(m_edgeNum++, &source, &target);
 
-      ColorMap cmap;
-      cmap.reset();
-      get_cc(*(m_mapModel->GetGraph()), cmap, tvid, ccnid1);
-      cmap.reset();
-      get_cc(*(m_mapModel->GetGraph()), cmap, svid, ccnid2);
+      ColorMap cMap;
+      cMap.reset();
+      get_cc(*(m_mapModel->GetGraph()), cMap, tvId, nIdCC1);
+      cMap.reset();
+      get_cc(*(m_mapModel->GetGraph()), cMap, svId, nIdCC2);
 
       //store color of larger CC; will later color the smaller CC with this
-      if(ccnid1.size() > ccnid2.size()){
+      if(nIdCC1.size() > nIdCC2.size()){
         color = target.GetColor();
-        smallerCC = &ccnid2;
+        smallerCC = &nIdCC2;
       }
       else{
         color = source.GetColor();
-        smallerCC = &ccnid1;
+        smallerCC = &nIdCC1;
       }
 
       //store source and target colors in instruction;
@@ -204,8 +171,8 @@ DebugModel::BuildForward() {
       //change color of smaller CC to that of larger CC
       for(ITVID it = smallerCC->begin(); it != smallerCC->end(); ++it) {
         VI vi = m_mapModel->GetGraph()->find_vertex(*it);
-        CfgModel* cfgcc = &(vi->property());
-        cfgcc->SetColor(color);
+        CfgModel* cfgCC = &(vi->property());
+        cfgCC->SetColor(color);
 
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
           (*ei).property().SetColor(color) ;
@@ -216,14 +183,14 @@ DebugModel::BuildForward() {
       edge.SetColor(color);
 
       //add edge
-      m_mapModel->GetGraph()->add_edge(svid, tvid, edge);
-      m_mapModel->GetGraph()->add_edge(tvid, svid, edge);
+      m_mapModel->GetGraph()->add_edge(svId, tvId, edge);
+      m_mapModel->GetGraph()->add_edge(tvId, svId, edge);
     }
     else if(ins->m_name == "AddTempCfg"){
       //add temporary cfg
       AddTempCfg* atc = static_cast<AddTempCfg*>(ins);
       m_tempCfgs.push_back(atc->m_cfg);
-      m_tempCfgs.back().Set(0, m_robotModel, NULL);
+      m_tempCfgs.back().Set(0, NULL);
       m_tempCfgs.back().SetShape(CfgModel::Robot);
       if(!atc->m_valid)
         m_tempCfgs.back().SetColor(Color4(1, 0, 0, 1));
@@ -236,7 +203,7 @@ DebugModel::BuildForward() {
     else if(ins->m_name == "AddTempEdge"){
       //add temporary edge
       AddTempEdge* ate = static_cast<AddTempEdge*>(ins);
-      EdgeModel e(1);
+      EdgeModel e("", 1);
       e.Set(1, &ate->m_source, &ate->m_target);
       m_tempEdges.push_back(e);
     }
@@ -285,45 +252,45 @@ DebugModel::BuildForward() {
     else if(ins->m_name == "RemoveNode"){
       //remove an existing node
       RemoveNode* rn = static_cast<RemoveNode*>(ins);
-      VID xvid = m_mapModel->Cfg2VID(rn->m_cfg);
-      m_mapModel->GetGraph()->delete_vertex(xvid);
+      VID xvId = m_mapModel->Cfg2VID(rn->m_cfg);
+      m_mapModel->GetGraph()->delete_vertex(xvId);
     }
     else if(ins->m_name == "RemoveEdge"){
       //remove an existing edge
       RemoveEdge* re = static_cast<RemoveEdge*>(ins);
-      VID svid = m_mapModel->Cfg2VID(re->m_source);
-      VID tvid = m_mapModel->Cfg2VID(re->m_target);
+      VID svId = m_mapModel->Cfg2VID(re->m_source);
+      VID tvId = m_mapModel->Cfg2VID(re->m_target);
 
       //store ID of edge being removed
       //to be restored in BuildBackward
-      EID eid(svid, tvid);
+      EID eid(svId, tvId);
       VI vi;
       EI ei;
       m_mapModel->GetGraph()->find_edge(eid,vi,ei);
       re->m_edgeNum = (*ei).property().GetID();
 
-      m_mapModel->GetGraph()->delete_edge(svid, tvid);
-      m_mapModel->GetGraph()->delete_edge(tvid, svid);
+      m_mapModel->GetGraph()->delete_edge(svId, tvId);
+      m_mapModel->GetGraph()->delete_edge(tvId, svId);
     }
     else if(ins->m_name == "Comment"){
       //add comment
       Comment* c = static_cast<Comment*>(ins);
       m_comments.push_back(c->m_comment);
     }
-    else if(ins->m_name == "Query"){
+    else if(ins->m_name == "QueryInstruction"){
       //perform query
-      Query* q = static_cast<Query*>(ins);
+      QueryInstruction* q = static_cast<QueryInstruction*>(ins);
       vector<VID> path;
 
-      VID svid = m_mapModel->Cfg2VID(q->m_source);
-      VID tvid = m_mapModel->Cfg2VID(q->m_target);
+      VID svId = m_mapModel->Cfg2VID(q->m_source);
+      VID tvId = m_mapModel->Cfg2VID(q->m_target);
 
       //clear existing query
       m_query.clear();
 
       //perform query using dijkstra's algorithm
       EdgeMap edgeMap(*(m_mapModel->GetGraph()));
-      find_path_dijkstra(*(m_mapModel->GetGraph()), edgeMap, svid, tvid, path);
+      find_path_dijkstra(*(m_mapModel->GetGraph()), edgeMap, svId, tvId, path);
 
       //store edges of query
       CfgModel source = q->m_source;
@@ -331,7 +298,7 @@ DebugModel::BuildForward() {
       if(path.size()>0){
         for(ITVID pit = path.begin()+1; pit != path.end(); pit++){
           target = m_mapModel->GetGraph()->find_vertex(*pit)->property();
-          EdgeModel e(1);
+          EdgeModel e("", 1);
           e.Set(1, &source, &target);
           m_query.push_back(e);
           source = target;
@@ -342,18 +309,18 @@ DebugModel::BuildForward() {
   }
 
   //rebuild map model since graph may have changed
-  m_mapModel->BuildModels();
+  m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
 
 void
 DebugModel::BuildBackward(){
-  typedef graph<DIRECTED,MULTIEDGES,CfgModel,EdgeModel> WG;
-  typedef WG::vertex_iterator VI;
-  typedef WG::vertex_descriptor VID;
-  typedef WG::edge_descriptor EID;
-  typedef WG::adj_edge_iterator EI;
-  typedef vector_property_map<WG, size_t> ColorMap;
+  typedef MapModel<CfgModel, EdgeModel> MM;
+  typedef MM::VID VID;
+  typedef MM::VI VI;
+  typedef MM::EID EID;
+  typedef MM::EI EI;
+  typedef MM::ColorMap ColorMap;
   typedef vector<VID>::iterator ITVID;
 
   //traverse list of instructions BACKWARDS
@@ -364,37 +331,37 @@ DebugModel::BuildBackward(){
     if(ins->m_name == "AddNode"){
       //undo addition of specified node
       AddNode* an = static_cast<AddNode*>(ins);
-      VID xvid = m_mapModel->Cfg2VID(an->m_cfg);
-      m_mapModel->GetGraph()->delete_vertex(xvid);
+      VID xvId = m_mapModel->Cfg2VID(an->m_cfg);
+      m_mapModel->GetGraph()->delete_vertex(xvId);
     }
     else if(ins->m_name == "AddEdge"){
       //undo addition of edge and restore original colors of CCs
       AddEdge* ae = static_cast<AddEdge*>(ins);
-      VID svid = m_mapModel->Cfg2VID(ae->m_source);
-      VID tvid = m_mapModel->Cfg2VID(ae->m_target);
+      VID svId = m_mapModel->Cfg2VID(ae->m_source);
+      VID tvId = m_mapModel->Cfg2VID(ae->m_target);
       Color4 color;
 
       //remove both the forward and reverse edge
-      m_mapModel->GetGraph()->delete_edge(svid, tvid);
-      m_mapModel->GetGraph()->delete_edge(tvid, svid);
+      m_mapModel->GetGraph()->delete_edge(svId, tvId);
+      m_mapModel->GetGraph()->delete_edge(tvId, svId);
 
-      vector<VID> ccnid1; //node id in this cc
-      vector<VID> ccnid2; //node id in this cc
-      ColorMap cmap;
-      cmap.reset();
-      get_cc(*(m_mapModel->GetGraph()), cmap, svid, ccnid2);
-      cmap.reset();
-      get_cc(*(m_mapModel->GetGraph()), cmap, tvid, ccnid1);
+      vector<VID> nIdCC1; //node id in this cc
+      vector<VID> nIdCC2; //node id in this cc
+      ColorMap cMap;
+      cMap.reset();
+      get_cc(*(m_mapModel->GetGraph()), cMap, svId, nIdCC2);
+      cMap.reset();
+      get_cc(*(m_mapModel->GetGraph()), cMap, tvId, nIdCC1);
 
       //get color of the target cfg's CC
       //which was stored in the instruction
       color = ae->m_targetColor;
 
       //restore color of target's CC
-      for(ITVID it = ccnid1.begin(); it != ccnid1.end(); ++it){
+      for(ITVID it = nIdCC1.begin(); it != nIdCC1.end(); ++it){
         VI vi = m_mapModel->GetGraph()->find_vertex(*it);
-        CfgModel* cfgcc = &(vi->property());
-        cfgcc->SetColor(color);
+        CfgModel* cfgCC = &(vi->property());
+        cfgCC->SetColor(color);
 
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
           (*ei).property().SetColor(color) ;
@@ -406,10 +373,10 @@ DebugModel::BuildBackward(){
       color = ae->m_sourceColor;
 
       //restore color of source's CC
-      for(ITVID it = ccnid2.begin(); it != ccnid2.end(); ++it){
+      for(ITVID it = nIdCC2.begin(); it != nIdCC2.end(); ++it){
         VI vi = m_mapModel->GetGraph()->find_vertex(*it);
-        CfgModel* cfgcc = &(vi->property());
-        cfgcc->SetColor(color);
+        CfgModel* cfgCC = &(vi->property());
+        cfgCC->SetColor(color);
 
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
           (*ei).property().SetColor(color) ;
@@ -481,34 +448,34 @@ DebugModel::BuildBackward(){
     else if(ins->m_name == "RemoveEdge"){
       //undo removal of edge
       RemoveEdge* re = static_cast<RemoveEdge*>(ins);
-      EdgeModel edge(1);
-      VID svid = m_mapModel->Cfg2VID(re->m_source);
-      VID tvid = m_mapModel->Cfg2VID(re->m_target);
+      EdgeModel edge("", 1);
+      VID svId = m_mapModel->Cfg2VID(re->m_source);
+      VID tvId = m_mapModel->Cfg2VID(re->m_target);
 
       //restore edge number of edge
       edge.Set(re->m_edgeNum, &re->m_source, &re->m_target);
-      m_mapModel->GetGraph()->add_edge(svid, tvid, edge);
-      m_mapModel->GetGraph()->add_edge(tvid, svid, edge);
+      m_mapModel->GetGraph()->add_edge(svId, tvId, edge);
+      m_mapModel->GetGraph()->add_edge(tvId, svId, edge);
     }
     else if(ins->m_name == "Comment"){
       //undo addition of comment
       m_comments.pop_back();
     }
-    else if(ins->m_name == "Query"){
+    else if(ins->m_name == "QueryInstruction"){
       //undo addition of query and restore the previous one if any
-      Query* q = static_cast<Query*>(ins);
+      QueryInstruction* q = static_cast<QueryInstruction*>(ins);
       m_query = q->m_query;
       q->m_query.clear();
     }
   }
 
   //rebuild map model since graph may have changed
-  m_mapModel->BuildModels();
+  m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
 
 void
-DebugModel::Draw(GLenum _mode){
+DebugModel::DrawRender(){
 
   typedef vector<CfgModel>::iterator CIT;
   typedef vector<EdgeModel>::iterator EIT;
@@ -525,31 +492,34 @@ DebugModel::Draw(GLenum _mode){
   m_prevIndex = m_index;
 
   if(m_index){
-    m_mapModel->Draw(_mode);
+    m_mapModel->DrawRender();
     for(CIT cit = m_tempCfgs.begin(); cit!=m_tempCfgs.end(); cit++)
-      cit->Draw(_mode);
+      cit->DrawRender();
     for(EIT eit = m_tempEdges.begin(); eit!=m_tempEdges.end(); eit++)
-      eit->Draw(_mode);
+      eit->DrawRender();
     for(EIT eit = m_query.begin(); eit!=m_query.end(); eit++) {
       glLineWidth(32);
       eit->SetColor(Color4(1, 1, 0, 1));
-      eit->Draw(_mode);
+      eit->DrawRender();
     }
     if(m_tempRay != NULL && m_tempCfgs.size() > 0) {
       EdgeModel edge;
       CfgModel ray = *m_tempRay;
-      vector<double> cfg = ray.GetDataCfg();
       CfgModel* tmp = &(m_tempCfgs.back());
-      cfg[0]+=tmp->tx();
-      cfg[1]+=tmp->ty();
-      cfg[2]+=tmp->tz();
-      ray.SetCfg(cfg);
+      for(int i=0; i<3; i++)
+        ray[i]+= (*tmp)[i];
       edge.Set(0, tmp, &ray);
       edge.SetColor(Color4(1, 1, 0, 1));
       glLineWidth(8);
-      edge.Draw(_mode);
+      edge.DrawRender();
     }
   }
+}
+
+void
+DebugModel::Print(ostream& _os) const {
+  _os << Name() << ": " << GetFilename() << endl
+    << m_instructions.size() << " debug frames" << endl;
 }
 
 void

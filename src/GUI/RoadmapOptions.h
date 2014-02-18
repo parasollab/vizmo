@@ -2,47 +2,35 @@
  * Class for the "Roadmap" submenu and associated toolbars
  * *************************************************************/
 
-#ifndef ROADMAP_OPTIONS_H
-#define ROADMAP_OPTIONS_H
-
-#include <string>
-
-#include "QButtonGroup"
+#ifndef ROADMAPOPTIONS_H_
+#define ROADMAPOPTIONS_H_
 
 #include "OptionsBase.h"
 #include "Models/MapModel.h"
-#include "Models/DebugModel.h"
 #include "Models/Vizmo.h"
 
 class QPushButton;
 class SliderDialog;
+class NodeEditDialog;
 
-class RoadmapOptions : public OptionsBase{
+class RoadmapOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    RoadmapOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
-    void CreateActions();
-    void SetUpCustomSubmenu(); //submenu has its own submenus and cannot be set up with simple loop through m_actions
-    void SetUpToolbar();       //a lot of toolbar functionalities for this class
-    void Reset();
-    void SetHelpTips();
+    typedef MapModel<CfgModel, EdgeModel> Map;
+    typedef Map::Graph Graph;
+    typedef Map::EI EI;
+    typedef Map::VI VI;
+    typedef Map::VID VID;
+    typedef Map::EID EID;
+    typedef vector<Model*>::iterator MIT;
 
-    typedef MapModel<CfgModel, EdgeModel> MM;
-    MM* GetMapModel() {
-      if(!GetVizmo().GetMap())
-        return NULL;
-      else
-        return GetVizmo().GetMap();
-    }
-    string GetNodeShape() {return (string)(m_nodeView->checkedButton())->text().toAscii();}
+    RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow);
 
   private slots:
     void ShowRoadmap();
-    void ChangeNodeShape();
     void ClickRobot(); //trim down these functions eventually
-    void ClickBox();
     void ClickPoint();
     void MakeSolid();
     void MakeWired();
@@ -51,27 +39,30 @@ class RoadmapOptions : public OptionsBase{
     void ScaleNodes();
     void ShowEdgeThicknessDialog();
     void ChangeEdgeThickness();
+    void ShowNodeEditDialog();
+    void ShowEdgeEditDialog();
+    void AddNode();
+    void AddStraightLineEdge();
+    void DeleteSelectedItems();
+    void MergeSelectedNodes();
     void RandomizeCCColors();
     void MakeCCsOneColor();
     void ShowObjectContextMenu();
-    void SaveQueryStart();
-    void SaveQueryGoal();
     void ChangeObjectColor();
 
   private:
-    QButtonGroup* m_nodeView;   //For ease of use--includes the 3 buttons below
-    QPushButton* m_robotButton; //These 3 particular menu items have text only and thus look better as buttons
-    QPushButton* m_boxButton;
-    QPushButton* m_pointButton;
+    void CreateActions();
+    void SetUpCustomSubmenu(); //submenu has its own submenus and cannot be set up with simple loop through m_actions
+    void SetUpToolbar();       //a lot of toolbar functionalities for this class
+    void Reset();
+    void SetHelpTips();
+
     QMenu* m_nodeShape;       //More submenus within the robot submenu
     QMenu* m_modifySelected;
     QMenu* m_modifyCCs;
 
     SliderDialog* m_nodeSizeDialog; //Provides slider to scale nodes
     SliderDialog* m_edgeThicknessDialog; //Slider to scale the edges
-
-    //  queryGUI* m_nodeGUI;  ***TEMPORARY DISABLE
-    //  void UpdateNodeCfg();
 };
 
 #endif

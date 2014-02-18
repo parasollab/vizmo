@@ -4,17 +4,19 @@
  * "menubar" in this class.
  * **************************************************************/
 
-#ifndef HELP_OPTIONS_H
-#define HELP_OPTIONS_H
+#ifndef HELPOPTIONS_H_
+#define HELPOPTIONS_H_
 
 #include "OptionsBase.h"
 
-class HelpOptions : public OptionsBase{
+class HelpOptions : public OptionsBase {
 
     Q_OBJECT
 
     public:
-      HelpOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
+      HelpOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+
+    private:
       void CreateActions();
       void SetUpToolbar();
       void Reset();           //Just a placeholder in this case
@@ -22,12 +24,6 @@ class HelpOptions : public OptionsBase{
 
     private slots:
       void ShowAboutBox(); //Pop up the "About" window
-
 };
 
 #endif
-
-
-
-
-

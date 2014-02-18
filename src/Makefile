@@ -14,7 +14,7 @@ ifndef VIZMO_DIR
 endif
 
 ifndef UTILS_DIR
-  UTILS_DIR = $(VIZMO_DIR)/../utils
+  UTILS_DIR = $(VIZMO_DIR)/../pmpl/utils
 endif
 
 # include makefile defaults
@@ -25,10 +25,10 @@ include Makefile.VizmoDefaults
 INCL = $(VIZMO_INCL)
 LIBS = $(VIZMO_LIBS)
 
-default_target: $(UTILS_LIBFILES) $(VIZMO_LIBFILE) vizmo++
+default_target: $(MP_LIBFILE) $(VIZMO_LIBFILE) vizmo++
 
-vizmo++: $(UTILS_LIBFILES) $(VIZMO_OBJECTS) $(VIZMO_LIBFILE) main.cpp
-	$(CXX) $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) main.cpp $(VIZMO_LIBFILE) $(LIBS) -o $@
+vizmo++: $(MP_LIBFILE) $(VIZMO_OBJECTS) $(VIZMO_LIBFILE) main.cpp
+	$(CXX) $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) main.cpp $(VIZMO_LIBFILE) $(LIBS) -o $@
 
 %.o: %.cpp
 	@${MAKE} -s check_platform
@@ -44,9 +44,7 @@ reallyclean:
 
 reallyreallyclean:
 	@${MAKE} reallyclean
-	cd $(RAPID_DIR); ${MAKE} clean
-	cd $(MATHTOOL_DIR); ${MAKE} clean
-	cd $(MODELLOADER_DIR); ${MAKE} clean
+	cd $(PMPL_DIR); ${MAKE} reallyreallyclean
 
 -include Dependencies
 

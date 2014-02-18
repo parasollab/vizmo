@@ -2,26 +2,34 @@ SRCMOC += $(patsubst GUI/%.h, GUI/MOC/moc_%.cpp, $(shell grep -l Q_OBJECT GUI/*.
 OBJMOC = $(patsubst GUI/%.h, GUI/MOC/moc_%.o, $(shell grep -l Q_OBJECT GUI/*.h))
 OBJECTS += \
 	   $(OBJMOC) \
-	   GUI/MainWin.o \
-	   GUI/SceneWin.o \
-	   GUI/AnimationGUI.o \
-	   GUI/ItemSelectionGUI.o \
-	   GUI/FileListDialog.o \
-	   GUI/QueryGUI.o \
+	   GUI/AnimationWidget.o \
+	   GUI/BoundingBoxWidget.o \
+	   GUI/BoundingSphereWidget.o \
 	   GUI/CameraPosDialog.o \
-	   GUI/CustomizePathDialog.o \
-	   GUI/TextGUI.o \
-	   GUI/MainMenu.o \
-	   GUI/FileOptions.o \
-	   GUI/SceneOptions.o \
-	   GUI/RobotOptions.o \
-	   GUI/EnvironmentOptions.o \
-	   GUI/RoadmapOptions.o \
-	   GUI/PathOptions.o \
 	   GUI/CaptureOptions.o \
+	   GUI/ChangeBoundaryDialog.o \
+	   GUI/CustomizePathDialog.o \
+	   GUI/EdgeEditDialog.o \
+	   GUI/EditRobotDialog.o \
+	   GUI/EnvironmentOptions.o \
+	   GUI/FileListDialog.o \
+	   GUI/FileOptions.o \
+	   GUI/GLWidget.o \
+	   GUI/GLWidgetOptions.o \
 	   GUI/HelpOptions.o \
+	   GUI/MainMenu.o \
+	   GUI/MainWindow.o \
+	   GUI/ModelSelectionWidget.o \
 	   GUI/MovieSaveDialog.o \
-	   GUI/SliderDialog.o
+	   GUI/ObstaclePosDialog.o \
+	   GUI/NodeEditDialog.o \
+	   GUI/PathOptions.o \
+	   GUI/QueryEditDialog.o \
+	   GUI/QueryOptions.o \
+	   GUI/RoadmapOptions.o \
+	   GUI/RobotOptions.o \
+	   GUI/SliderDialog.o \
+	   GUI/TextWidget.o
 
 ####### MOC
 .SECONDARY: $(SRCMOC)

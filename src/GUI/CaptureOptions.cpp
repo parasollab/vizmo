@@ -1,16 +1,9 @@
 #include "CaptureOptions.h"
 
-#include <QAction>
-#include <QToolBar>
-#include <QPixmap>
-#include <QFileDialog>
-#include <QProgressDialog>
-#include <QApplication>
-
-#include "MainWin.h"
-#include "SceneWin.h"
+#include "MainWindow.h"
+#include "GLWidget.h"
 #include "MovieSaveDialog.h"
-#include "AnimationGUI.h"
+#include "AnimationWidget.h"
 #include "Models/Vizmo.h"
 #include "Utilities/ImageFilters.h"
 
@@ -18,13 +11,14 @@
 #include "Icons/Camera.xpm"
 #include "Icons/Camcorder.xpm"
 
-CaptureOptions::CaptureOptions(QWidget* _parent, VizmoMainWin* _mainWin) : OptionsBase(_parent, _mainWin) {
-  CreateActions();
-  SetUpSubmenu("Capture");
-  SetUpToolbar();
-  SetHelpTips();
-  m_cropBox = false;
-}
+CaptureOptions::CaptureOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow) {
+    CreateActions();
+    SetUpSubmenu("Capture");
+    SetUpToolbar();
+    SetHelpTips();
+    m_cropBox = false;
+  }
 
 void
 CaptureOptions::CreateActions(){
@@ -51,16 +45,15 @@ CaptureOptions::CreateActions(){
   connect(m_actions["picture"], SIGNAL(triggered()), this, SLOT(CapturePicture()));
   connect(m_actions["movie"], SIGNAL(triggered()), this, SLOT(CaptureMovie()));
 
-  connect(this, SIGNAL(ToggleSelectionSignal()), GetMainWin()->GetGLScene(), SLOT(ToggleSelectionSlot()));
-  connect(this, SIGNAL(SimulateMouseUp()), GetMainWin()->GetGLScene(), SLOT(SimulateMouseUpSlot()));
-  connect(this, SIGNAL(CallUpdate()), GetMainWin(), SLOT(updateScreen()));
-  connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationGUI(), SLOT(goToFrame(int)));
-  connect(this, SIGNAL(GoToFrame(int)), GetMainWin()->GetAnimationDebugGUI(), SLOT(goToFrame(int)));
+  connect(this, SIGNAL(ToggleSelectionSignal()), m_mainWindow->GetGLScene(), SLOT(ToggleSelectionSlot()));
+  connect(this, SIGNAL(SimulateMouseUp()), m_mainWindow->GetGLScene(), SLOT(SimulateMouseUpSlot()));
+  connect(this, SIGNAL(CallUpdate()), m_mainWindow, SLOT(UpdateScreen()));
+  connect(this, SIGNAL(UpdateFrame(int)), m_mainWindow->GetAnimationWidget(), SLOT(UpdateFrame(int)));
 }
 
 void
 CaptureOptions::SetUpToolbar() {
-  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["crop"]);
   m_toolbar->addAction(m_actions["picture"]);
   m_toolbar->addAction(m_actions["movie"]);
@@ -82,7 +75,7 @@ void
 CaptureOptions::Reset(){
   m_actions["crop"]->setEnabled(true);
   m_actions["picture"]->setEnabled(true);
-  m_actions["movie"]->setEnabled(GetVizmo().GetPathSize() || GetVizmo().GetDebugSize());
+  m_actions["movie"]->setEnabled(GetVizmo().GetPath() || GetVizmo().GetDebug());
 }
 
 //Slots
@@ -111,7 +104,7 @@ CaptureOptions::CapturePicture(){
     QStringList files = fd.selectedFiles();
     if(!files.empty()) {
       QString filename = GrabFilename(files[0], fd.selectedFilter());
-      GetMainWin()->GetGLScene()->SaveImage(filename, m_cropBox);
+      m_mainWindow->GetGLScene()->SaveImage(filename, m_cropBox);
     }
   }
 }
@@ -136,7 +129,7 @@ CaptureOptions::CaptureMovie(){
         break;
 
       // update the GLScene
-      emit GoToFrame(i);
+      emit UpdateFrame(i);
 
       //grab string for frame number
       ostringstream oss;
@@ -151,7 +144,7 @@ CaptureOptions::CaptureMovie(){
       filename.replace(msd.m_frameDigitStart, msd.m_frameDigits, num.c_str());
 
       //save the image
-      GetMainWin()->GetGLScene()->SaveImage(filename, m_cropBox);
+      m_mainWindow->GetGLScene()->SaveImage(filename, m_cropBox);
     }
   }
 }

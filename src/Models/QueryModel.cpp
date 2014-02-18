@@ -1,54 +1,20 @@
 #include "QueryModel.h"
 
-#include "CfgModel.h"
-#include "EnvObj/RobotModel.h"
-#include "Utilities/IOUtils.h"
-#include "Utilities/Exceptions.h"
-#include "Utilities/GL/gliFont.h"
+#include "Utilities/Font.h"
+#include "Utilities/IO.h"
 
-QueryModel::QueryModel(const string& _filename, RobotModel* _robotModel) :
-  m_glQueryIndex(-1), m_robotModel(_robotModel) {
+QueryModel::QueryModel(const string& _filename) :
+  LoadableModel("Query"),
+  m_glQueryIndex(-1) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
 
     ParseFile();
-    BuildModels();
+    Build();
   }
 
 QueryModel::~QueryModel() {
   glDeleteLists(m_glQueryIndex, 1);
-}
-
-vector<string>
-QueryModel::GetInfo() const {
-  vector<string> info;
-  int dof = m_robotModel->returnDOF();
-
-  info.push_back(GetFilename());
-
-  //output start
-  ostringstream temp;
-  temp << "Start = ( ";
-  for(int i=0; i < dof; i++){
-    temp << m_queries[0][i];
-    if(i < dof-1)
-      temp << ", ";
-  }
-  temp << " )" << endl;
-  info.push_back(temp.str());
-
-  //output goal
-  temp.str("");
-  temp <<"Goal = ( " ;
-  for(int i=0; i<dof; i++){
-    temp << m_queries[1][i];
-    if(i < dof-1)
-      temp << ", ";
-  }
-  temp << " )" << endl;
-  info.push_back(temp.str());
-
-  return info;
 }
 
 void
@@ -59,76 +25,88 @@ QueryModel::ParseFile() {
 
   ifstream ifs(GetFilename().c_str());
 
-  m_queries.clear();
-
-  //TODO: Fix to load arbitrary number of queries
-  size_t numLines=2;
+  m_cfgs.clear();
 
   //Build  Model
-  int dof  = CfgModel::GetDOF();
-  for(size_t i = 0; i < numLines; ++i) {
-    vector<double> cfg;
-
-    //read in Robot Index and throw it away for now
-    double robotIndex;
-    ifs >> robotIndex;
-
-    for(int j=0; j<dof; ++j){
-      double d;
-      ifs >> d;
-      cfg.push_back(d);
-    }
-
-    m_queries.push_back(cfg);
+  CfgModel c;
+  while(ifs >> c) {
+    m_cfgs.push_back(c);
+    m_cfgs.back().SetIsQuery();
   }
 }
 
 void
-QueryModel::BuildModels(){
-
-  //can't build model without robot
-  if(!m_robotModel)
-    throw BuildException(WHERE, "RobotModel is null.");
+QueryModel::Build() {
 
   glMatrixMode(GL_MODELVIEW);
 
-  m_robotModel->SetRenderMode(WIRE_MODE);
-
-  Color4 oldcol = m_robotModel->GetColor(); //remember old color
-
-  m_robotModel->SetColor(Color4(0, 1, 0, 0));
   //create list
+  glDeleteLists(m_glQueryIndex, 1);
   m_glQueryIndex = glGenLists(1);
   glNewList(m_glQueryIndex, GL_COMPILE);
 
-  for(size_t i=0; i<m_queries.size(); i++ ){
-    vector<double> cfg = m_queries[i];
-    m_robotModel->Configure(cfg);
-
-    if(i==1)
-      m_robotModel->SetColor(Color4(1, 0.6, 0, 0));
-
-    m_robotModel->Draw(GL_RENDER);
+  double n = m_cfgs.size() - 1;
+  for(size_t i = 0; i < m_cfgs.size(); ++i) {
+    m_cfgs[i].SetRenderMode(WIRE_MODE);
+    m_cfgs[i].SetColor(Color4(1.0 - i/n, 0, i/n, 1));
+    m_cfgs[i].DrawRender();
 
     //draw text for start and goal
     //TODO: Move to using Qt functions for drawing text to scene
+    Point3d pos = m_cfgs[i].GetPoint();
     glColor3d(0.1, 0.1, 0.1);
     if(i==0)
-      drawstr(cfg[0]-0.5, cfg[1]-0.5, cfg[2],"S");
-    else
-      drawstr(cfg[0]-0.2, cfg[1]-0.2, cfg[2],"G");
+      DrawStr(pos[0]-0.5, pos[1]-0.5, pos[2], "S");
+    else {
+      stringstream gNum;
+      gNum << "G" << i;
+      DrawStr(pos[0]-0.5, pos[1]-0.5, pos[2], gNum.str());
+    }
   }
   glEndList();
-
-  //set back
-  m_robotModel->SetColor(oldcol);
-  m_robotModel->SetRenderMode(SOLID_MODE);
 }
 
-void QueryModel::Draw(GLenum _mode) {
-  if(_mode == GL_SELECT || m_renderMode == INVISIBLE_MODE)
+void
+QueryModel::DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
     return; //not draw anything
+
   glLineWidth(2.0);
   glCallList(m_glQueryIndex);
+}
+
+void
+QueryModel::DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return; //not draw anything
+
+  glLineWidth(2.0);
+  glCallList(m_glQueryIndex);
+}
+
+void
+QueryModel::Print(ostream& _os) const {
+  _os << Name() << ": " << GetFilename() << endl;
+  for(size_t i = 0; i < m_cfgs.size(); ++i){
+    if(i == 0)
+      _os << "Start: ( ";
+    else
+      _os << "G" << i << ": ( ";
+    _os << m_cfgs[i] << " )" << endl;
+  }
+}
+
+void
+QueryModel::SaveQuery(const string& _filename) {
+  ofstream ofs(_filename.c_str());
+  typedef vector<CfgModel>::iterator CIT;
+  for(CIT cit = m_cfgs.begin(); cit != m_cfgs.end(); ++cit)
+    ofs << *cit << endl;
+}
+
+void
+QueryModel::AddCfg(int _num) {
+  m_cfgs.insert(m_cfgs.begin()+_num, CfgModel());
+  m_cfgs[_num+1].SetIsQuery();
 }
 

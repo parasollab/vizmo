@@ -1,158 +1,129 @@
-#include <limits.h>
-#include <stdlib.h>
-
 #include "EdgeModel.h"
+
+#include <limits.h>
+#include <cstdlib>
+
+#include "CfgModel.h"
 
 double EdgeModel::m_edgeThickness = 1;
 
-EdgeModel::EdgeModel() {
-  m_lp = INT_MAX;
-  m_weight = LONG_MAX;
-  m_id = -1;
+EdgeModel::EdgeModel(string _lpLabel, double _weight, const vector<CfgModel>& _intermediates) :
+  Model(""), DefaultWeight<CfgModel>(_lpLabel, _weight, _intermediates), m_id(-1), m_isValid(true) {
 }
 
-EdgeModel::EdgeModel(double _weight) {
-  m_lp = INT_MAX;
-  m_weight = _weight;
-  m_id = -1;
+EdgeModel::EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""), DefaultWeight<CfgModel>(_e), m_id(-1), m_isValid(true) {
 }
 
-EdgeModel::~EdgeModel() {
-  m_lp = INT_MAX;
-  m_weight = LONG_MAX;
-}
-
-const string
-EdgeModel::GetName() const {
-
+void
+EdgeModel::SetName() {
   ostringstream temp;
-  temp << "Edge" << m_id;
-  return temp.str();
+  temp << "Edge " << m_id;
+  m_name = temp.str();
 }
 
-vector<string>
-EdgeModel::GetInfo() const {
-
-  vector<string> info;
-  ostringstream temp;
-
-  temp << "Edge, ID= " << m_id << ", ";
-  temp << "connects Node " << m_startCfg.GetIndex() << " and Node " << m_endCfg.GetIndex();
-  temp << "Intermediates | ";
+void
+EdgeModel::Print(ostream& _os) const {
+  _os << "Edge ID= " << m_id << endl
+    << "Connects Nodes: " << m_startCfg->GetIndex() << " and " << m_endCfg->GetIndex() << endl
+    << "Intermediates: ";
 
   typedef vector<CfgModel>::const_iterator CFGIT;
-  for(CFGIT c = m_intermediateCfgs.begin(); c != m_intermediateCfgs.end(); c++)
-    temp << *c << " | ";
-  info.push_back(temp.str());
+  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
+    _os << *c << " | ";
 
-  return info;
-}
+  _os << endl;
 
-vector<int>
-EdgeModel::GetEdgeNodes(){
-
-  vector<int> v;
-  v.push_back(m_startCfg.GetIndex());
-  v.push_back(m_endCfg.GetIndex());
-  return v;
-}
-
-bool
-EdgeModel::operator==(const EdgeModel& _other){
-
-  if(m_lp != _other.m_lp || m_weight != _other.m_weight)
-    return false;
-  return true;
+  if(!m_isValid)
+    _os << "**** IS IN COLLISION!! ****" << endl;
 }
 
 void
-EdgeModel::Set(int _id, CfgModel* _c1, CfgModel* _c2, RobotModel* _robot){
-
+EdgeModel::Set(size_t _id, CfgModel* _c1, CfgModel* _c2){
   m_id = _id;
-  m_startCfg = *_c1;
-  m_endCfg = *_c2;
+  m_startCfg = _c1;
+  m_endCfg = _c2;
 
-  typedef vector<CfgModel>::iterator CIT;
-  for(CIT c = m_intermediateCfgs.begin();
-      c != m_intermediateCfgs.end(); c++){
-    c->SetRobot(_robot);
-  }
+  SetName();
 }
 
 void
-EdgeModel::Draw(GLenum _mode) {
+EdgeModel::Set(CfgModel* _c1, CfgModel* _c2){
+  m_startCfg = _c1;
+  m_endCfg = _c2;
+}
+
+void
+EdgeModel::DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
 
   typedef vector<CfgModel>::iterator CFGIT;
-  glPushName(m_id);
 
-  if(m_renderMode == SOLID_MODE || m_renderMode == WIRE_MODE){
+  if(m_isValid)
+    glColor4fv(m_color);
+  else
+    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
 
-    glColor4fv(GetColor());
-    glBegin(GL_LINES);
-    glVertex3d(m_startCfg.tx(), m_startCfg.ty(), m_startCfg.tz());
+  glBegin(GL_LINE_STRIP);
+  glVertex3dv(m_startCfg->GetPoint());
+  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
+    glVertex3dv(c->GetPoint()); //starting point of next line
+  glVertex3dv(m_endCfg->GetPoint());
+  glEnd();
 
-    for(CFGIT c = m_intermediateCfgs.begin();
-        c != m_intermediateCfgs.end(); c++){
-      glVertex3d (c->tx(), c->ty(), c->tz()); //ending point of prev line
-      glVertex3d (c->tx(), c->ty(), c->tz()); //starting point of next line
-    }
-
-    glVertex3d(m_endCfg.tx(), m_endCfg.ty(), m_endCfg.tz());
-    glEnd();
-
-    //draw intermediate configurations
-    if(m_cfgShape == CfgModel::Box || m_cfgShape == CfgModel::Robot){
-      for(CFGIT c = m_intermediateCfgs.begin();
-          c != m_intermediateCfgs.end(); c++){
-          c->SetShape(m_cfgShape);
-          c->SetRenderMode(WIRE_MODE);
-          c->Draw(_mode);
-      }
+  //draw intermediate configurations
+  if(CfgModel::GetShape() == CfgModel::Robot) {
+    for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
+      c->SetRenderMode(WIRE_MODE);
+      c->DrawRender();
     }
   }
-  glPopName();
 }
 
 void
-EdgeModel::DrawSelect(){
+EdgeModel::DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
 
+  typedef vector<CfgModel>::iterator CFGIT;
+  glBegin(GL_LINE_STRIP);
+  glVertex3dv(m_startCfg->GetPoint());
+  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
+    glVertex3dv(c->GetPoint()); //starting point of next line
+  glVertex3dv(m_endCfg->GetPoint());
+  glEnd();
+
+  //draw intermediate configurations
+  if(CfgModel::GetShape() == CfgModel::Robot) {
+    for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
+      c->SetRenderMode(WIRE_MODE);
+      c->DrawSelect();
+    }
+  }
+}
+
+void
+EdgeModel::DrawSelected(){
   typedef vector<CfgModel>::iterator CFGIT;
   glLineWidth(m_edgeThickness + 4);
 
-  glBegin(GL_LINES);
-  glVertex3d(m_startCfg.tx(), m_startCfg.ty(), m_startCfg.tz());
-
-  for(CFGIT c = m_intermediateCfgs.begin();
-      c != m_intermediateCfgs.end(); c++) {
-    glVertex3d (c->tx(), c->ty(), c->tz() ); //ending point of prev line
-    glVertex3d (c->tx(), c->ty(), c->tz() ); //starting point of next line
-  }
-
-  glVertex3d( m_endCfg.tx(),m_endCfg.ty(),m_endCfg.tz() );
+  glBegin(GL_LINE_STRIP);
+    glVertex3dv(m_startCfg->GetPoint());
+    for(CFGIT c = m_intermediates.begin();
+        c != m_intermediates.end(); c++)
+      glVertex3dv(c->GetPoint()); //starting point of next line
+    glVertex3dv(m_endCfg->GetPoint());
   glEnd();
 }
 
-ostream&
-operator<<(ostream& _out, const EdgeModel& _edge){
-  _out << _edge.m_lp << " " << _edge.m_weight << " ";
-  return _out;
-}
-
-istream&
-operator>>(istream&  _in, EdgeModel& _edge){
-
-  _edge.m_intermediateCfgs.clear();
-  int numIntermediates = 0;
-  CfgModel cfgtmp;
-
-  _in >> numIntermediates;
-  for(int i = 0; i < numIntermediates; i++){
-    _in >> cfgtmp;
-    _edge.m_intermediateCfgs.push_back(cfgtmp);
+void
+EdgeModel::DrawRenderInCC() {
+  typedef vector<CfgModel>::iterator CFGIT;
+  glVertex3dv(m_startCfg->GetPoint());
+  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
+    glVertex3dv(c->GetPoint()); //starting point of next line
+    glVertex3dv(c->GetPoint()); //starting point of next line
   }
-
-  _in >> _edge.m_weight;
-  return _in;
+  glVertex3dv(m_endCfg->GetPoint());
 }
-
 

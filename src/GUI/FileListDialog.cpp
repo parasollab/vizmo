@@ -1,72 +1,18 @@
 #include "FileListDialog.h"
 
-#include <QDialog>
-#include <QString>
-#include <QGridLayout>
-#include <QCheckBox>
-#include <QLabel>
-#include <QPushButton>
-#include <QFileDialog>
-#include <QMessageBox>
-
 #include "Models/Vizmo.h"
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
 #include "Models/MapModel.h"
 
 #include "Icons/Folder.xpm"
-#include "Icons/Eye.xpm"
+#include "Icons/Vizmo.xpm"
 
 FileListDialog::FileListDialog(const string& _filename,
     QWidget* _parent, Qt::WFlags _f) : QDialog(_parent, _f) {
 
-  setWindowIcon(QPixmap(eye));
-
-  //1. Create subwidgets
-  m_envCheckBox = new QCheckBox(this);
-  m_envCheckBox->setEnabled(false);
-  m_envLabel = new QLabel("<b>Env File</b>:", this);
-  m_envFilename = new QLabel(this);
-  m_envButton = new QPushButton(QIcon(folder), "Browse", this);
-
-  m_mapCheckBox = new QCheckBox(this);
-  m_mapLabel = new QLabel("<b>Map File</b>:", this);
-  m_mapFilename = new QLabel(this);
-  m_mapButton = new QPushButton(QIcon(folder),"Browse", this);
-
-  m_queryCheckBox = new QCheckBox(this);
-  m_queryLabel = new QLabel("<b>Query File</b>:", this);
-  m_queryFilename = new QLabel(this);
-  m_queryButton = new QPushButton(QIcon(folder), "Browse", this);
-
-  m_pathCheckBox = new QCheckBox(this);
-  m_pathLabel = new QLabel("<b>Path File</b>:", this);
-  m_pathFilename = new QLabel(this);
-  m_pathButton = new QPushButton(QIcon(folder), "Browse", this);
-
-  m_debugCheckBox = new QCheckBox(this);
-  m_debugLabel = new QLabel("<b>Debug File</b>:", this);
-  m_debugFilename = new QLabel(this);
-  m_debugButton = new QPushButton(QIcon(folder), "Browse", this);
-
-  m_loadButton = new QPushButton("Load", this);
-  m_cancelButton = new QPushButton("Cancel", this);
-
-  //2. Make connections
-  connect(m_mapButton, SIGNAL(clicked()), this, SLOT(ChangeMap()));
-  connect(m_envButton, SIGNAL(clicked()), this, SLOT(ChangeEnv()));
-  connect(m_pathButton, SIGNAL(clicked()), this, SLOT(ChangePath()));
-  connect(m_debugButton, SIGNAL(clicked()), this, SLOT(ChangeDebug()));
-  connect(m_queryButton, SIGNAL(clicked()), this, SLOT(ChangeQuery()));
-  connect(m_loadButton, SIGNAL(clicked()), this, SLOT(Accept()));
-  connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-  connect(m_pathCheckBox, SIGNAL(stateChanged(int)), this, SLOT(PathChecked()));
-  connect(m_debugCheckBox, SIGNAL(stateChanged(int)), this, SLOT(DebugChecked()));
-
-  //3. Set up layout
-  SetUpLayout();
-
-  //4. GetAssociated filenames to reset the labels appropriately
+  setWindowIcon(QPixmap(vizmoIcon));
+  SetUpSubwidgets();
   GetAssociatedFiles(_filename);
 }
 
@@ -74,23 +20,23 @@ void
 FileListDialog::GetAssociatedFiles(const string& _filename) {
   //empty filename provided, so grab previous values
   if(_filename.empty()) {
-    string envname = GetVizmo().getEnvFileName();
+    string envname = GetVizmo().GetEnvFileName();
     m_envFilename->setText(envname.c_str());
     m_envCheckBox->setChecked(!envname.empty());
 
-    string mapname = GetVizmo().getMapFileName();
+    string mapname = GetVizmo().GetMapFileName();
     m_mapFilename->setText(mapname.c_str());
     m_mapCheckBox->setChecked(!mapname.empty());
 
-    string queryname = GetVizmo().getQryFileName();
+    string queryname = GetVizmo().GetQryFileName();
     m_queryFilename->setText(queryname.c_str());
     m_queryCheckBox->setChecked(!queryname.empty());
 
-    string pathname = GetVizmo().getPathFileName();
+    string pathname = GetVizmo().GetPathFileName();
     m_pathFilename->setText(pathname.c_str());
     m_pathCheckBox->setChecked(!pathname.empty());
 
-    string debugname = GetVizmo().getDebugFileName();
+    string debugname = GetVizmo().GetDebugFileName();
     m_debugFilename->setText(debugname.c_str());
     m_debugCheckBox->setChecked(!debugname.empty());
   }
@@ -108,8 +54,9 @@ FileListDialog::GetAssociatedFiles(const string& _filename) {
     if(FileExists(mapname, false)){
       m_mapFilename->setText(mapname.c_str());
       m_mapCheckBox->setChecked(true);
-      MapModel<CfgModel,EdgeModel> headerParser(mapname);
-      envname = headerParser.GetEnvFileName();
+      envname = ParseMapHeader(mapname);
+      cout << "MapName::" << mapname << endl;
+      cout << "EnvName::" << envname << endl;
     }
 
     if(FileExists(envname, false)){
@@ -134,43 +81,82 @@ FileListDialog::GetAssociatedFiles(const string& _filename) {
 }
 
 void
-FileListDialog::SetUpLayout(){
+FileListDialog::SetUpSubwidgets(){
 
-  m_layout = new QGridLayout;
-  this->setLayout(m_layout);
+  QGridLayout* layout = new QGridLayout;
+  setLayout(layout);
 
-  m_layout->addWidget(m_envCheckBox, 0, 0);
-  m_layout->addWidget(m_envLabel, 0, 1);
-  m_layout->addWidget(m_envFilename, 0, 2, 1, 3);
-  m_layout->addWidget(m_envButton, 0, 5);
+  QPushButton* loadButton = new QPushButton("Load", this);
+  QPushButton* cancelButton = new QPushButton("Cancel", this);
 
-  m_layout->addWidget(m_mapCheckBox, 1, 0);
-  m_layout->addWidget(m_mapLabel, 1, 1);
-  m_layout->addWidget(m_mapFilename, 1, 2, 1, 3);
-  m_layout->addWidget(m_mapButton, 1, 5);
+  m_envCheckBox = new QCheckBox(this);
+  m_envCheckBox->setEnabled(false);
+  m_envFilename = new QLabel(this);
+  QLabel* envLabel = new QLabel("<b>Env File</b>:", this);
+  QPushButton* envButton = new QPushButton(QIcon(folder), "Browse", this);
 
-  m_layout->addWidget(m_queryCheckBox, 2, 0);
-  m_layout->addWidget(m_queryLabel, 2, 1);
-  m_layout->addWidget(m_queryFilename, 2, 2, 1, 3);
-  m_layout->addWidget(m_queryButton, 2, 5);
+  m_mapCheckBox = new QCheckBox(this);
+  m_mapFilename = new QLabel(this);
+  QLabel* mapLabel = new QLabel("<b>Map File</b>:", this);
+  QPushButton* mapButton = new QPushButton(QIcon(folder),"Browse", this);
 
-  m_layout->addWidget(m_pathCheckBox, 3, 0);
-  m_layout->addWidget(m_pathLabel, 3, 1);
-  m_layout->addWidget(m_pathFilename, 3, 2, 1, 3);
-  m_layout->addWidget(m_pathButton, 3, 5);
+  m_queryCheckBox = new QCheckBox(this);
+  m_queryFilename = new QLabel(this);
+  QLabel* queryLabel = new QLabel("<b>Query File</b>:", this);
+  QPushButton* queryButton = new QPushButton(QIcon(folder), "Browse", this);
 
-  m_layout->addWidget(m_debugCheckBox, 4, 0);
-  m_layout->addWidget(m_debugLabel, 4, 1);
-  m_layout->addWidget(m_debugFilename, 4, 2, 1, 3);
-  m_layout->addWidget(m_debugButton, 4, 5);
+  m_pathCheckBox = new QCheckBox(this);
+  m_pathFilename = new QLabel(this);
+  QLabel* pathLabel = new QLabel("<b>Path File</b>:", this);
+  QPushButton* pathButton = new QPushButton(QIcon(folder), "Browse", this);
 
-  m_loadButton->setFixedWidth(m_cancelButton->width());
-  m_layout->addWidget(m_loadButton, 5, 4);
-  m_layout->addWidget(m_cancelButton, 5, 5);
+  m_debugCheckBox = new QCheckBox(this);
+  m_debugFilename = new QLabel(this);
+  QLabel* debugLabel = new QLabel("<b>Debug File</b>:", this);
+  QPushButton* debugButton = new QPushButton(QIcon(folder), "Browse", this);
+
+  layout->addWidget(m_envCheckBox, 0, 0);
+  layout->addWidget(m_envFilename, 0, 2, 1, 3);
+  layout->addWidget(envLabel, 0, 1);
+  layout->addWidget(envButton, 0, 5);
+
+  layout->addWidget(m_mapCheckBox, 1, 0);
+  layout->addWidget(m_mapFilename, 1, 2, 1, 3);
+  layout->addWidget(mapLabel, 1, 1);
+  layout->addWidget(mapButton, 1, 5);
+
+  layout->addWidget(m_queryCheckBox, 2, 0);
+  layout->addWidget(m_queryFilename, 2, 2, 1, 3);
+  layout->addWidget(queryLabel, 2, 1);
+  layout->addWidget(queryButton, 2, 5);
+
+  layout->addWidget(m_pathCheckBox, 3, 0);
+  layout->addWidget(m_pathFilename, 3, 2, 1, 3);
+  layout->addWidget(pathLabel, 3, 1);
+  layout->addWidget(pathButton, 3, 5);
+
+  layout->addWidget(m_debugCheckBox, 4, 0);
+  layout->addWidget(m_debugFilename, 4, 2, 1, 3);
+  layout->addWidget(debugLabel, 4, 1);
+  layout->addWidget(debugButton, 4, 5);
+
+  loadButton->setFixedWidth(cancelButton->width());
+  layout->addWidget(loadButton, 5, 4);
+  layout->addWidget(cancelButton, 5, 5);
+
+  connect(mapButton, SIGNAL(clicked()), this, SLOT(ChangeMap()));
+  connect(envButton, SIGNAL(clicked()), this, SLOT(ChangeEnv()));
+  connect(pathButton, SIGNAL(clicked()), this, SLOT(ChangePath()));
+  connect(debugButton, SIGNAL(clicked()), this, SLOT(ChangeDebug()));
+  connect(queryButton, SIGNAL(clicked()), this, SLOT(ChangeQuery()));
+  connect(loadButton, SIGNAL(clicked()), this, SLOT(Accept()));
+  connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
+  connect(m_pathCheckBox, SIGNAL(stateChanged(int)), this, SLOT(PathChecked()));
+  connect(m_debugCheckBox, SIGNAL(stateChanged(int)), this, SLOT(DebugChecked()));
 }
 
 void
-FileListDialog::ChangeEnv(){
+FileListDialog::ChangeEnv() {
   QString fn = QFileDialog::getOpenFileName(this, "Choose an environment file", QString::null,"Env File (*.env)");
   if(!fn.isEmpty()) {
     m_envFilename->setText(fn);
@@ -217,25 +203,25 @@ FileListDialog::ChangeDebug(){
 void
 FileListDialog::Accept() {
   if(m_envCheckBox->isChecked()) {
-    GetVizmo().setEnvFileName(m_envFilename->text().toStdString());
+    GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
 
-    GetVizmo().setMapFileName("");
-    GetVizmo().setPathFileName("");
-    GetVizmo().setDebugFileName("");
-    GetVizmo().setQryFileName("");
-
+    GetVizmo().SetMapFileName("");
     if(m_mapCheckBox->isChecked())
-      GetVizmo().setMapFileName(m_mapFilename->text().toStdString());
+      GetVizmo().SetMapFileName(m_mapFilename->text().toStdString());
 
+    GetVizmo().SetQryFileName("");
     if(m_queryCheckBox->isChecked())
-      GetVizmo().setQryFileName(m_queryFilename->text().toStdString());
+      GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
 
+    GetVizmo().SetPathFileName("");
     if(m_pathCheckBox->isChecked())
-      GetVizmo().setPathFileName(m_pathFilename->text().toStdString());
+      GetVizmo().SetPathFileName(m_pathFilename->text().toStdString());
 
+    GetVizmo().SetDebugFileName("");
     if(m_debugCheckBox->isChecked())
-      GetVizmo().setDebugFileName(m_debugFilename->text().toStdString());
+      GetVizmo().SetDebugFileName(m_debugFilename->text().toStdString());
 
+    accept();
   }
   else {
     QMessageBox msgBox(this);
@@ -243,10 +229,7 @@ FileListDialog::Accept() {
     msgBox.setText("No Environment File Loaded.");
     msgBox.setStandardButtons(QMessageBox::Close);
     msgBox.exec();
-    return;
   }
-
-  accept();
 }
 
 void

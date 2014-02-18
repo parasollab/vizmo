@@ -4,35 +4,35 @@
 #include <Vector.h>
 using namespace mathtool;
 
-#include "Plum/GLModel.h"
+#include "CfgModel.h"
+#include "Utilities/Color.h"
 
 class RobotModel;
 
-class PathModel : public GLModel {
+class PathModel : public LoadableModel {
   public:
-    typedef Vector<float, 4> Color4;
+    PathModel(const string& _filename);
 
-    PathModel(const string& _filename, RobotModel* _robotModel);
-
-    virtual const string GetName() const {return "Path";}
-    virtual vector<string> GetInfo() const;
-    size_t GetPathSize() {return m_path.size();}
+    size_t GetSize() {return m_path.size();}
     vector<Color4>& GetGradientVector() {return m_stopColors;}
-    const vector<double>& GetConfiguration(size_t _i) const {return m_path[_i];}
+    const CfgModel& GetConfiguration(size_t _i) const {return m_path[_i];}
 
     void SetLineWidth(float _width) {m_lineWidth = _width;}
     void SetDisplayInterval(int _disp) {m_displayInterval = _disp;}
 
-    virtual void ParseFile();
-    virtual void BuildModels();
-    virtual void Draw(GLenum _mode);
+    void ParseFile();
+    void Build();
+    void Select(GLuint* _index, vector<Model*>& _sel) {}
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected() {}
+    void Print(ostream& _os) const;
 
   private:
     Color4 Mix(Color4& _a, Color4& _b, float _percent);
 
-    vector<vector<double> > m_path; //path storage
+    vector<CfgModel> m_path; //path storage
     size_t m_glPathIndex; //Display list index
-    RobotModel * m_robotModel; //robot model
 
     //display options
     float m_lineWidth;

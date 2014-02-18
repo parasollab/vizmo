@@ -1,32 +1,30 @@
 #include "FileOptions.h"
 
-#include <QApplication>
-#include <QAction>
-#include <QToolBar>
-#include <QPushButton>
-#include <QPixmap>
-#include <QFileDialog>
-#include <QTranslator>
-#include <QStatusBar>
-
 #include "MainMenu.h"
 #include "FileListDialog.h"
-#include "SceneWin.h"
-#include "AnimationGUI.h"
-#include "ItemSelectionGUI.h"
+#include "GLWidget.h"
+#include "AnimationWidget.h"
+#include "ModelSelectionWidget.h"
 #include "OptionsBase.h"
-#include "MainWin.h"
-#include "Models/Vizmo.h"
+#include "MainWindow.h"
+#include "Models/EnvModel.h"
 #include "Models/MapModel.h"
+#include "Models/QueryModel.h"
+#include "Models/Vizmo.h"
 
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
+#include "Icons/SaveEnv.xpm"
+#include "Icons/SaveMap.xpm"
+#include "Icons/SaveQuery.xpm"
+#include "Icons/Quit.xpm"
 
-FileOptions::FileOptions(QWidget* _parent, VizmoMainWin* _mainWin) : OptionsBase(_parent, _mainWin) {
-  CreateActions();
-  SetUpSubmenu("File");
-  SetUpToolbar();
-  SetHelpTips();
+FileOptions::FileOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow) {
+    CreateActions();
+    SetUpSubmenu("File");
+    SetUpToolbar();
+    SetHelpTips();
 }
 
 void
@@ -35,15 +33,15 @@ FileOptions::CreateActions(){
   //1. Create actions and add them to map
   QAction* openFile = new QAction(QPixmap(folder), tr("&Open"), this);
   m_actions["openFile"] = openFile;
-  QAction* updateFile = new QAction(QPixmap(updateIcon), tr("Update File"), this);
+  QAction* updateFile = new QAction(QPixmap(updateicon), tr("Update File"), this);
   m_actions["updateFile"] = updateFile;
-  QAction* saveFile = new QAction(tr("Save Environment"), this);
+  QAction* saveFile = new QAction(QPixmap(saveenv), tr("Save Environment"), this);
   m_actions["saveFile"] = saveFile;
-  QAction* saveQuery = new QAction(tr("Save Query"), this);
+  QAction* saveQuery = new QAction(QPixmap(savequery), tr("Save Query"), this);
   m_actions["saveQuery"] = saveQuery;
-  QAction* saveRoadmap = new QAction(tr("Save Roadmap"), this);
+  QAction* saveRoadmap = new QAction(QPixmap(savemap), tr("Save Roadmap"), this);
   m_actions["saveRoadmap"] = saveRoadmap;
-  QAction* quit = new QAction(tr("Quit"), this);
+  QAction* quit = new QAction(QPixmap(quiticon), tr("Quit"), this);
   m_actions["quit"] = quit;
 
   //2. Set other specifications as necessary
@@ -67,7 +65,7 @@ FileOptions::CreateActions(){
 
 void
 FileOptions::SetUpToolbar(){
-  m_toolbar = new QToolBar(GetMainWin());
+  m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["openFile"]);
 }
 
@@ -88,24 +86,25 @@ FileOptions::SetHelpTips(){
 //Slots
 
 void
-FileOptions::LoadFile() {
+FileOptions::LoadFile(){
   QString fn = QFileDialog::getOpenFileName(this,  "Choose an environment to open",
       QString::null, "Files (*.env *.map *.query *.path *.vd)");
 
   QFileInfo fi(fn);
 
-  if (!fn.isEmpty()){
-    GetMainWin()->GetArgs().clear();
-    GetMainWin()->GetArgs().push_back(QString(fn.toLatin1()).toStdString()); //access the actual main window
-    GetMainWin()->SetVizmoInit(false);
-    GetMainWin()->setWindowTitle("Vizmo++ - "+fi.baseName()+ " environment");
-    GetMainWin()->statusBar()->showMessage("File Loaded : "+fn);
+  if(!fn.isEmpty()){
+    m_mainWindow->GetArgs().clear();
+    m_mainWindow->GetArgs().push_back(QString(fn.toLatin1()).toStdString()); //access the actual main window
+    m_mainWindow->SetVizmoInit(false);
+    m_mainWindow->setWindowTitle("Vizmo++ - "+fi.baseName()+ " environment");
+    m_mainWindow->statusBar()->showMessage("File Loaded : "+fn);
   }
   else
-    GetMainWin()->statusBar()->showMessage("Loading aborted");
+    m_mainWindow->statusBar()->showMessage("Loading aborted");
 
-  GetMainWin()->GetGLScene()->resetTransTool();
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->ResetTransTool();
+  m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -119,11 +118,11 @@ FileOptions::UpdateFiles(){
     return;
 
   //reset guis
-  GetMainWin()->GetAnimationGUI()->reset();
-  GetMainWin()->GetAnimationDebugGUI()->reset();
-  GetMainWin()->GetObjectSelection()->ResetLists();
-  GetMainWin()->m_mainMenu->CallReset();
-  GetMainWin()->GetGLScene()->resetTransTool();
+  m_mainWindow->GetAnimationWidget()->Reset();
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->m_mainMenu->CallReset();
+  m_mainWindow->GetGLScene()->ResetTransTool();
+  m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
 }
 
 void
@@ -133,17 +132,16 @@ FileOptions::SaveEnv(){
       QString::null, "Files(*.env)");
 
   QFileInfo fi(fn);
-  if (!fn.isEmpty()){
+  if(!fn.isEmpty()){
     string filename = fn.toStdString();
     const char* f;
     f = filename.c_str();
-    GetVizmo().SaveEnv(f);
+    GetVizmo().GetEnv()->SaveFile(f);
   }
-
   else{
-    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
+    m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
   }
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -153,18 +151,12 @@ FileOptions::SaveQryFile(){
       QString::null, "Files (*.query)");
 
   QFileInfo fi(fn);
-  if (!fn.isEmpty()) {
-    string filename = fn.toStdString();
-    const char* f;
-    f = filename.c_str();
-    GetVizmo().SaveQry(f);
-  }
+  if(!fn.isEmpty())
+    GetVizmo().GetQry()->SaveQuery(fn.toStdString());
+  else
+    m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
 
-  else {
-    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
-  }
-
-  GetMainWin()->GetGLScene()->updateGL();
+  //m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
@@ -174,14 +166,14 @@ FileOptions::SaveRoadmap(){
     QString::null, "Files (*.map)");
 
   QFileInfo fi(fn);
-  if (!fn.isEmpty()){
+  if(!fn.isEmpty()){
     string filename = fn.toStdString();
     const char* f;
     f = filename.c_str();
-    GetVizmo().GetMap()->WriteMapFile(f);
+    GetVizmo().GetMap()->Write(f);
   }
   else
-    GetMainWin()->statusBar()->showMessage("Saving aborted", 2000);
+    m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
 
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetGLScene()->updateGL();
 }

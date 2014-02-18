@@ -1,31 +1,32 @@
 #include "MainMenu.h"
-#include "MainWin.h"
+
+#include "MainWindow.h"
 #include "OptionsBase.h"
 #include "FileOptions.h"
-#include "SceneOptions.h"
+#include "GLWidgetOptions.h"
 #include "RobotOptions.h"
 #include "EnvironmentOptions.h"
 #include "RoadmapOptions.h"
 #include "PathOptions.h"
+#include "QueryOptions.h"
 #include "CaptureOptions.h"
 #include "HelpOptions.h"
 
 #include <iostream>
-#include <QMenuBar>
 
 using namespace std;
 
-MainMenu::MainMenu(VizmoMainWin* _parent)
-  :QWidget(_parent)
-{
-  m_fileOptions = new FileOptions(this, _parent);
-  m_sceneOptions = new SceneOptions(this, _parent);
-  m_robotOptions = new RobotOptions(this, _parent);
-  m_environmentOptions = new EnvironmentOptions(this, _parent);
-  m_roadmapOptions = new RoadmapOptions(this, _parent);
-  m_pathOptions = new PathOptions(this, _parent);
-  m_captureOptions = new CaptureOptions(this, _parent);
-  m_help = new HelpOptions(this, _parent);              //This one should always be last!
+MainMenu::MainMenu(MainWindow* _mainWindow) {
+
+  m_fileOptions = new FileOptions(this, _mainWindow);
+  m_glWidgetOptions = new GLWidgetOptions(this, _mainWindow);
+  m_robotOptions = new RobotOptions(this, _mainWindow);
+  m_environmentOptions = new EnvironmentOptions(this, _mainWindow);
+  m_roadmapOptions = new RoadmapOptions(this, _mainWindow);
+  m_pathOptions = new PathOptions(this, _mainWindow);
+  m_queryOptions = new QueryOptions(this, _mainWindow);
+  m_captureOptions = new CaptureOptions(this, _mainWindow);
+  m_help = new HelpOptions(this, _mainWindow);              //This one should always be last!
 
   SetUpMainMenu();
 }
@@ -33,29 +34,29 @@ MainMenu::MainMenu(VizmoMainWin* _parent)
 void
 MainMenu::SetUpMainMenu(){
 
-  m_menubar = new QMenuBar(this);
+  m_menuBar = new QMenuBar(this);
 
-  m_menubar->addMenu(m_fileOptions->m_submenu);
-  m_menubar->addMenu(m_sceneOptions->m_submenu);
-  m_menubar->addMenu(m_robotOptions->m_submenu);
-  m_menubar->addMenu(m_environmentOptions->m_submenu);
-  m_menubar->addMenu(m_roadmapOptions->m_submenu);
-  m_menubar->addMenu(m_pathOptions->m_submenu);
-  m_menubar->addMenu(m_captureOptions->m_submenu);
-  m_menubar->addMenu(m_help->m_submenu);
+  m_menuBar->addMenu(m_fileOptions->GetSubMenu());
+  m_menuBar->addMenu(m_glWidgetOptions->GetSubMenu());
+  m_menuBar->addMenu(m_robotOptions->GetSubMenu());
+  m_menuBar->addMenu(m_environmentOptions->GetSubMenu());
+  m_menuBar->addMenu(m_roadmapOptions->GetSubMenu());
+  m_menuBar->addMenu(m_pathOptions->GetSubMenu());
+  m_menuBar->addMenu(m_queryOptions->GetSubMenu());
+  m_menuBar->addMenu(m_captureOptions->GetSubMenu());
+  m_menuBar->addMenu(m_help->GetSubMenu());
 }
 
 void
-MainMenu::Reset(){
+MainMenu::CallReset(){
 
   m_fileOptions->Reset();
-  m_sceneOptions->Reset();
+  m_glWidgetOptions->Reset();
   m_robotOptions->Reset();
   m_environmentOptions->Reset();
   m_roadmapOptions->Reset();
   m_pathOptions->Reset();
+  m_queryOptions->Reset();
   m_captureOptions->Reset();
   m_help->Reset();
 }
-
-

@@ -6,27 +6,23 @@
 #ifndef SLIDER_DIALOG_H
 #define SLIDER_DIALOG_H
 
-#include <QVariant>
-#include <QAction>
-#include <QApplication>
 #include <QDialog>
-#include <QDialogButtonBox>
-#include <QHeaderView>
-#include <QLabel>
 #include <QSlider>
-#include <QString>
 
 using namespace std;
 
-class SliderDialog : public QDialog{
+class QDialogButtonBox;
+class QLabel;
+
+class SliderDialog : public QDialog {
 
   Q_OBJECT
 
   public:
-    SliderDialog(QWidget* _parent = 0){};
+    SliderDialog(QString _windowTitle, QString _instrustions,
+        int _rangeStart, int _rangeEnd, int _startValue,
+        QWidget* _parent = NULL);
 
-    void SetSpecifications(QString _windowTitle, QString _instructions, 
-      int _rangeStart, int _rangeEnd, int _startValue);
     QSlider* GetSlider() { return m_slider; }
     double GetSliderValue() { return m_slider->value(); }
     virtual void show();

@@ -2,27 +2,29 @@
 
 #include <QAction>
 
-#include "MainWin.h"
-#include "AnimationGUI.h"
-#include "SceneWin.h"
+#include "MainWindow.h"
+#include "AnimationWidget.h"
+#include "GLWidget.h"
 #include "Models/Vizmo.h"
 
-RobotOptions::RobotOptions(QWidget* _parent, VizmoMainWin* _mainWin)
-  :OptionsBase(_parent, _mainWin)
-{
-  CreateActions();
-  SetUpSubmenu("Robot");
-  SetUpToolbar();
-  SetHelpTips();
-}
+#include "Icons/ResetRobotPos.xpm"
+#include "Icons/ShowRobotCfg.xpm"
+
+RobotOptions::RobotOptions(QWidget* _parent, MainWindow* _mainWindow)
+  : OptionsBase(_parent, _mainWindow) {
+    CreateActions();
+    SetUpSubmenu("Robot");
+    SetUpToolbar();
+    SetHelpTips();
+  }
 
 void
 RobotOptions::CreateActions(){
 
   //1. Create actions and add them to the map
-  QAction* resetRobotPos = new QAction(tr("Reset position"), this);
+  QAction* resetRobotPos = new QAction(QPixmap(resetrobotpos), tr("Reset position"), this);
   m_actions["resetRobotPos"] = resetRobotPos;
-  QAction* showRobotCfg = new QAction(tr("Show configuration"), this);
+  QAction* showRobotCfg = new QAction(QPixmap(showrobotcfg), tr("Show configuration"), this);
   m_actions["showRobotCfg"] = showRobotCfg;
 
   //2. Set other specifications as necessary
@@ -56,9 +58,8 @@ RobotOptions::SetHelpTips(){
 
 void
 RobotOptions::ResetRobotPosition(){
-  GetMainWin()->GetAnimationGUI()->reset();
-  GetMainWin()->GetAnimationDebugGUI()->reset();
-  GetMainWin()->GetGLScene()->updateGL();
+  m_mainWindow->GetAnimationWidget()->Reset();
+  m_mainWindow->GetGLScene()->updateGL();
 }
 
 /*void RobotOptions::ShowRobotCfg(){

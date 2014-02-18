@@ -1,200 +1,151 @@
 #ifndef MAPMODEL_H_
 #define MAPMODEL_H_
 
-#include <graph.h>
-#include <algorithms/graph_algo_util.h>
-#include <algorithms/graph_input_output.h>
-using namespace stapl;
+#include "boost/shared_ptr.hpp"
+using boost::shared_ptr;
+#include "MPProblem/RoadmapGraph.h"
+
+#include <QMutex>
+#include <QMutexLocker>
 
 #include "CCModel.h"
-#include "CfgModel.h"
-#include "EdgeModel.h"
-#include "EnvObj/RobotModel.h"
-#include "Utilities/IOUtils.h"
+#include "Utilities/IO.h"
+
+struct EdgeAccess {
+  typedef double value_type;
+  template<typename Property>
+    value_type get(Property& p) {return p.GetWeight();}
+
+  template<typename Property>
+    void put(Property& p, value_type _v) {p.GetWeight()=_v;}
+};
 
 template<typename, typename>
 class CCModel;
 
-template <class CfgModel, class WEIGHT>
-class MapModel : public GLModel{
+template <class CFG, class WEIGHT>
+class MapModel : public LoadableModel {
 
   public:
-    typedef CCModel<CfgModel, WEIGHT> CCM;
-    typedef graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT> Wg;
-    typedef typename Wg::vertex_descriptor VID;
-    typedef vector_property_map<Wg, size_t> ColorMap;
-    ColorMap m_colorMap;
-    typedef typename Wg::vertex_iterator VI;
-    typedef typename CfgModel::Shape Shape;
+    typedef CCModel<CFG, WEIGHT> CCM;
+    typedef typename vector<CCM*>::iterator CCIT;
+    typedef RoadmapGraph<CFG, WEIGHT> RGraph;
+    typedef stapl::sequential::graph<stapl::DIRECTED, stapl::NONMULTIEDGES, CFG, WEIGHT> Graph;
+    typedef typename Graph::vertex_descriptor VID;
+    typedef typename Graph::vertex_iterator VI;
+    typedef typename Graph::edge_descriptor EID;
+    typedef typename Graph::adj_edge_iterator EI;
+    typedef stapl::sequential::vector_property_map<Graph, size_t> ColorMap;
+    typedef stapl::sequential::edge_property_map<Graph, EdgeAccess> EdgeMap;
 
-    MapModel(RobotModel* _robotModel);
-    //constructor only to grab header environment name
+    MapModel();
+    MapModel(RGraph* _g);
     MapModel(const string& _filename);
-    MapModel(const string& _filename, RobotModel* _robotModel);
-    virtual ~MapModel();
+    ~MapModel();
 
     //Access functions
-    virtual const string GetName() const{ return "Map"; }
-    const string  GetEnvFileName() const{ return m_envFileName; }
-    const string  GetFileDir() const{ return m_fileDir; }
-    Wg* GetGraph(){ return m_graph; }
-    vector<CCM*>& GetCCModels(){ return m_cCModels; }
-    list<GLModel*>& GetNodeList(){ return m_nodes; }
-    vector<GLModel*>& GetNodesToConnect(){ return m_nodesToConnect; }
-    void SetMBEditModel(bool _setting){ m_editModel = _setting; }
-    CCM* GetCCModel(int _id){ return m_cCModels[_id]; }
-    int NumberOfCC(){ return m_cCModels.size(); }
-    bool RobCfgOn() { return m_robCfgOn; }
-    void SetEdgeThickness(double _thickness){ EdgeModel::m_edgeThickness = _thickness; }
-    void SetNodeShape(Shape _s) { CfgModel::m_shape = _s; }
-    void SetAddNode(bool _setting){ m_addNode = _setting; }
-    void SetAddEdge(bool _setting){ m_addEdge = _setting; }
+    const string& GetEnvFileName() const {return m_envFileName;}
+    RGraph* GetGraph() {return m_graph;}
+    vector<CFG*>& GetTempCfgs() {return m_tempCfgs;}
+    vector<WEIGHT*>& GetTempEdges() {return m_tempEdges;}
 
+    VID Cfg2VID(const CFG& _target);
 
     //Load functions
-    //Moving generic load functions to virtual in GLModel.h
-    void InitGraph(){ m_graph = new Wg(); }
-    void WriteMapFile(const string& _filename);
-    void ParseHeader(istream& _in);
+    //Moving generic load functions to virtual in Model.h
+    void Write(const string& _filename);
     virtual void ParseFile();
-    VID Cfg2VID(CfgModel _target);
-    void GenGraph();
 
     //Display fuctions
-    virtual void BuildModels();
-    virtual void Draw(GLenum _mode);
-    void Select(unsigned int* _index, vector<GLModel*>& _sel);
     virtual void SetRenderMode(RenderMode _mode); //Wire, solid, or invisible
-    bool AddCC(int _vid);
-    virtual void GetChildren(list<GLModel*>& _models);
-    virtual vector<string> GetInfo() const;
-    //void SetProperties(typename CCM::Shape _s, float _size, vector<float> _color, bool _isNew);
-    void ScaleNodes(float _scale);
-    //  void HandleSelect(); ORIGINALLY IN ROADMAP.H/.CPP
-    //  void HandleAddEdge();
-    //  void HandleAddNode();
-    //  void HandleEditMap();
-    //  void MoveNode();
+    virtual void GetChildren(list<Model*>& _models);
+
+    void Build();
+    void Select(GLuint* _index, vector<Model*>& _sel);
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected() {}
+    void Print(ostream& _os) const;
+    void SetColor(const Color4& _c);
+
+    //Modification functions
+    void RandomizeCCColors();
+    void RefreshMap();
+    void ClearTempItems();
+
+    QMutex& AcquireMutex() {return m_lock;}
 
   private:
-    string  m_envFileName;
-    string  m_fileDir;
-    bool m_robCfgOn;
-    bool m_addNode;
-    bool m_addEdge;
-    //double* m_cfg; (Originally used in Roadmap.h/Roadmap.cpp)
-    int m_dof;
-    RobotModel* m_robot;
-    vector<CCM*> m_cCModels;
-    list<GLModel*> m_nodes;
-    vector<GLModel*> m_nodesToConnect; //nodes to be connected
-    double m_oldT[3], m_oldR[3];  //old_T
-    string m_cfgString, m_robCfgString; //s_cfg, s_robCfg
-    bool m_editModel;
-    bool m_noMap;
+    string m_envFileName;
 
-  protected:
-    Wg* m_graph;
-    //virtual void DumpNode();
-    //virtual void SelectNode( bool bSel );
+    vector<CCM*> m_ccModels;
+    RGraph* m_graph;
+
+    bool m_delGraph;
+
+    mutable QMutex m_lock;
+    QMutexLocker* m_locker; //for acquire/release around get children
+
+    //Currently for preview in MergeNodes
+    vector<CFG*> m_tempCfgs;
+    vector<WEIGHT*> m_tempEdges;
 };
 
-template <class CfgModel, class WEIGHT>
-MapModel<CfgModel, WEIGHT>::MapModel(RobotModel* _robotModel) {
-
+template <class CFG, class WEIGHT>
+MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map"), m_delGraph(true) {
   m_renderMode = INVISIBLE_MODE;
-  m_robot = _robotModel;
-  m_graph = NULL;
-  m_editModel = false;
-  m_addNode = false;
-  m_addEdge = false;
-  m_robCfgOn = false;
-  m_robCfgString = "";
-  m_noMap = false;
+  m_graph = new RGraph();
+}
+
+template <class CFG, class WEIGHT>
+MapModel<CFG, WEIGHT>::MapModel(RGraph* _g) : LoadableModel("Map"), m_graph(_g), m_delGraph(false) {
+  m_renderMode = SOLID_MODE;
+  Build();
 }
 
 //constructor only to grab header environment name
-template <class CfgModel, class WEIGHT>
-MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename) {
-  SetFilename(_filename);
-  if(!FileExists(_filename))
-    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
-
-  ifstream ifs(_filename.c_str());
-  ParseHeader(ifs);
-  m_graph = NULL;
-}
-
-template <class CfgModel, class WEIGHT>
-MapModel<CfgModel, WEIGHT>::MapModel(const string& _filename, RobotModel* _robotModel){
+template <class CFG, class WEIGHT>
+MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map"), m_delGraph(true) {
   SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
-  m_robot = _robotModel;
-  m_graph = NULL;
-  m_editModel = false;
-  m_addNode = false;
-  m_addEdge = false;
-  m_robCfgOn = false;
-  m_robCfgString = "";
-  m_noMap = false;
+  m_graph = new RGraph();
 
   ParseFile();
-  BuildModels();
+  Build();
 }
 
-template <class CfgModel, class WEIGHT>
-MapModel<CfgModel, WEIGHT>::~MapModel(){
-
-  typedef typename vector<CCM*>::iterator CIT;
-  for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++)
+template <class CFG, class WEIGHT>
+MapModel<CFG, WEIGHT>::~MapModel() {
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
-  delete m_graph;
-  m_graph = NULL;
+  if(m_delGraph)
+    delete m_graph;
 }
 
 ///////////Load functions//////////
 
-template <class CfgModel, class WEIGHT>
+template<class CFG, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::ParseHeader(istream& _in){
-
-  m_fileDir = GetPathName(GetFilename());
-
-  //Open file for reading data
-  string s;
-
-  //Get env file name info
-  GoToNext(_in);
-  getline(_in, s);
-
-  //See if we need to add directory
-  if(s[0] != '/')
-    m_envFileName = m_fileDir + s;
-  else
-    m_envFileName = s;
-}
-
-template<class CfgModel, class WEIGHT>
-void
-MapModel<CfgModel,WEIGHT>::ParseFile(){
+MapModel<CFG,WEIGHT>::ParseFile(){
   if(!FileExists(GetFilename()))
-    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
+    throw ParseException(WHERE, "File '" + GetFilename() + "' does not exist");
 
   ifstream ifs(GetFilename().c_str());
 
-  ParseHeader(ifs);
+  //parse env filename
+  string s;
+  GoToNext(ifs);
+  getline(ifs, m_envFileName);
+  getline(ifs, s);
 
   //Get Graph Data
-  string s;
-  getline(ifs, s);
-  m_graph  = new Wg();
   read_graph(*m_graph, ifs);
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::WriteMapFile(const string& _filename){
-
+MapModel<CFG, WEIGHT>::Write(const string& _filename){
+  QMutexLocker lock(&m_lock);
   ofstream outfile(_filename.c_str());
 
   outfile << "#####ENVFILESTART##### \n";
@@ -204,408 +155,156 @@ MapModel<CfgModel, WEIGHT>::WriteMapFile(const string& _filename){
   write_graph(*m_graph, outfile);
 }
 
-template <class CfgModel, class WEIGHT>
-//VID
-typename graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT>::vertex_descriptor
-MapModel<CfgModel, WEIGHT>::Cfg2VID(CfgModel _target){
-
-  VI vi;
-  //typename VID tvid = -1;
-  typename graph<DIRECTED, MULTIEDGES, CfgModel, WEIGHT>::vertex_descriptor tvid = -1;
-  for(vi = m_graph->begin(); vi != m_graph->end(); vi++){
-    if(_target == (*vi).property()){
-      tvid=(*vi).descriptor();
-      break;
-    }
-  }
-  return tvid;
-}
-
-template<class CfgModel, class WEIGHT>
-void
-MapModel<CfgModel, WEIGHT>::GenGraph(){
-  m_graph  = new Wg();
+template <class CFG, class WEIGHT>
+typename MapModel<CFG, WEIGHT>::VID
+MapModel<CFG, WEIGHT>::Cfg2VID(const CFG& _target){
+  QMutexLocker lock(&m_lock);
+  for(VI vi = m_graph->begin(); vi != m_graph->end(); vi++)
+    if(_target == vi->property())
+      return vi->descriptor();
+  return -1;
 }
 
 //////////Display functions//////////
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::BuildModels() {
-  typedef typename vector<CCM*>::iterator CCIT;
-  for(CCIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++)
-    delete (*ic);
+MapModel<CFG, WEIGHT>::Build() {
+  QMutexLocker lock(&m_lock);
 
-  m_cCModels.clear();
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
+    delete *ic;
+  m_ccModels.clear();
 
   //Get CCs
-  typedef typename vector< pair<size_t,VID> >::iterator CIT;
-  vector<pair<size_t,VID> > ccs;
-  m_colorMap.reset();
-  get_cc_stats(*m_graph, m_colorMap, ccs);
-
-  int CCSize = ccs.size();
-  m_cCModels.reserve(CCSize);
-  for(CIT ic = ccs.begin(); ic != ccs.end(); ic++){
-    CCM* cc = new CCM(ic-ccs.begin());
-    cc->SetRobotModel(m_robot);
-    cc->BuildModels(ic->second, m_graph);
-    m_cCModels.push_back(cc);
-  }
+  typedef typename vector<pair<size_t, VID> >::iterator CIT;
+  vector<pair<size_t, VID> > ccs;
+  ColorMap colorMap;
+  get_cc_stats(*m_graph, colorMap, ccs);
+  m_ccModels.reserve(ccs.size());
+  for(CIT ic = ccs.begin(); ic != ccs.end(); ic++)
+    m_ccModels.push_back(new CCM(ic-ccs.begin(), ic->second, m_graph));
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::Draw(GLenum _mode){
+MapModel<CFG, WEIGHT>::DrawRender(){
+  QMutexLocker lock(&m_lock);
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
   //Draw each CC
-  typedef typename vector<CCM*>::iterator CIT;//CC iterator
-  for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++){
-    if(_mode == GL_SELECT)
-      glPushName((*ic)->GetID());
-    (*ic)->Draw(_mode);
-    if(_mode == GL_SELECT)
-      glPopName();
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
+    (*ic)->DrawRender();
+
+  glLineWidth(2);
+  typedef typename vector<CFG*>::iterator NIT;
+  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++){
+    (*nit)->SetColor(Color4(0.0, 1.0, 0.0, 1.0));
+    (*nit)->SetRenderMode(WIRE_MODE);
+    (*nit)->DrawRender();
+  }
+
+  typedef typename vector<WEIGHT*>::iterator WIT;
+  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++){
+    (*wit)->SetColor(Color4(0.0, 1.0, 0.0, 1.0));
+    (*wit)->SetRenderMode(WIRE_MODE);
+    (*wit)->DrawRender();
   }
 }
 
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::SetRenderMode(RenderMode _mode){
+MapModel<CFG, WEIGHT>::DrawSelect(){
+  QMutexLocker lock(&m_lock);
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
+  //Draw each CC
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++){
+    glPushName((*ic)->GetID());
+    (*ic)->DrawSelect();
+    glPopName();
+  }
+
+  typedef typename vector<CFG*>::iterator NIT;
+  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
+    (*nit)->DrawSelect();
+
+  typedef typename vector<WEIGHT*>::iterator WIT;
+  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
+    (*wit)->DrawSelect();
+}
+
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::SetRenderMode(RenderMode _mode){
+  QMutexLocker lock(&m_lock);
   m_renderMode = _mode;
-  typedef typename vector<CCM*>::iterator CIT;//CC iterator
-  for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++){
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     (*ic)->SetRenderMode(_mode);
-  }
 }
 
-
-template <class CfgModel, class WEIGHT>
-bool
-MapModel<CfgModel, WEIGHT>::AddCC(int _vid){
-
-  if(m_graph == NULL)
-    return false;
-
-  CCM* cc = new CCM(m_cCModels.size());
-  cc->RobotModel(m_robot);
-  cc->BuildModels(_vid, m_graph);
-
-  float size;
-  vector<float> color;
-  if(m_cCModels[m_cCModels.size()-1]->getShape() == 0)
-    size = m_cCModels[m_cCModels.size()-1]->getRobotSize();
-  else if(m_cCModels[m_cCModels.size()-1]->getShape() == 1)
-    size = m_cCModels[m_cCModels.size()-1]->getBoxSize();
-  else
-    size = 0.0;
-
-  color =  m_cCModels[m_cCModels.size()-1]->getColor();
-  cc->change_properties(m_cCModels[m_cCModels.size()-1]->getShape(),size,
-      color, true);
-
-  m_cCModels.push_back(cc);
-  return true;
-}
-
-template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::GetChildren(list<GLModel*>& _models){
-  typedef typename vector<CCM*>::iterator CIT;
-  for(CIT ic = m_cCModels.begin(); ic != m_cCModels.end(); ic++)
+MapModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models) {
+  //QMutexLocker lock(&m_lock);
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     _models.push_back(*ic);
 }
 
-template <class CfgModel, class WEIGHT>
-vector<string>
-MapModel<CfgModel, WEIGHT>::GetInfo() const{
-  vector<string> info;
-  info.push_back(GetFilename());
-  ostringstream temp;
-  temp<< "There are " << m_cCModels.size() << " connected components";
-  info.push_back(temp.str());
-  return info;
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::Print(ostream& _os) const {
+  _os << Name() << ": " << GetFilename() << endl
+    << "Connected components: " << m_ccModels.size() << endl;
 }
 
-/*template <class CfgModel, class WEIGHT>
+template <class CFG, class WEIGHT>
 void
-MapModel<CfgModel, WEIGHT>::SetProperties(typename CCM::Shape _s, float _size,
-    vector<float> _color, bool _isNew){
-  typedef typename vector<CCM*>::iterator CIT;//CC iterator
-  for(CIT ic = m_cCModels.begin(); ic!= m_cCModels.end(); ic++)
-    (*ic)->change_properties(_s, _size, _color, _isNew);
-}
-*/
-template <class CfgModel, class WEIGHT>
-void
-MapModel<CfgModel, WEIGHT>::ScaleNodes(float _scale){
-
-  CfgModel::Scale(_scale);
-}
-
-template <class CfgModel, class WEIGHT>
-void
-MapModel<CfgModel, WEIGHT>::Select(unsigned int* _index, vector<GLModel*>& _sel){
-  if(_index == NULL)
+MapModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
+  QMutexLocker lock(&m_lock);
+  if(!m_selectable || _index == NULL)
     return;
-  m_cCModels[_index[0]]->Select(&_index[1],_sel);
+  m_ccModels[_index[0]]->Select(&_index[1], _sel);
 }
 
-//Commented out functions below are from Roadmap.h/.cpp and did not work there
-//(or need other attn.)
-//They should probably be here when fixed.
-
-/* template <class CfgModel, class WEIGHT>
-   void MapModel<CfgModel, WEIGHT>::HandleSelect(){
-
-//find nodes
-m_nodes.clear();
-vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
-typedef vector<GLModel*>::iterator OIT;
-
-for(OIT i=sel.begin(); i!=sel.end(); i++){  //GETS THE NODES FROM SELECTED ITEM AND PUTS THEM IN NODE VECTOR
-string myName = ((GLModel*)(*i))->GetName();
-if(((GLModel*)(*i)) != NULL)
-if(myName.find("Node")!=string::npos){
-m_nodes.push_back((GLModel*)(*i));
-}//end if
-
-if(m_robCfgOn){
-this->GetVizmo().getRoboCfg();
-//  printRobCfg(); MAY NEED TO RESTORE THIS
-}
-}//end for
-
-if(!m_editModel){return;}
-
-if(m_nodes.size() > 0){
-GLModel* n = m_nodes.front();
-//   printNodeCfg((CfgModel*)n); MAY NEED TO RESTORE THIS
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::SetColor(const Color4& _c) {
+  QMutexLocker lock(&m_lock);
+  Model::SetColor(_c);
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
+    (*ic)->SetColor(_c);
 }
 
-if(m_addEdge)
-this->HandleAddEdge();
-else if(m_addNode)
-this->HandleAddNode();
-// else
-//   handleEditMap();
-}*/
-
-/*  template <class CfgModel, class WEIGHT>
-    void MapModel<CfgModel, WEIGHT>::HandleAddEdge(){
-
-//find two nodes...
-PlumObject* m_map;
-m_map = this->GetVizmo().GetMap();
-CfgModel *cfg1, *cfg2;
-
-typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
-WG* graph;
-CMapLoader<CfgModel,EdgeModel>* m_loader=(CMapLoader<CfgModel,EdgeModel>*)m_map->getLoader();
-graph = m_loader->GetGraph();
-
-//get from m_nodes node1 and node2
-//get VID from those Cfgs
-//add edge
-
-list<GLModel*>::const_iterator it;
-for(it = m_nodes.begin(); it != m_nodes.end(); it++){
-m_nodesToConnect.push_back(*it);
-}
-if(m_nodesToConnect.size() == 2){
-cfg1 = (CfgModel*)m_nodesToConnect[0];
-cfg2 = (CfgModel*)m_nodesToConnect[1];
-graph->add_edge(cfg1->GetIndex(), cfg2->GetIndex(),1);
-//////////  Jun 16-05 ///////////////
-// Add edge to CCModel:
-// get a CC id
-int CC_id = cfg1->GetCC_ID();
-//get mapModel
-MapModel<CfgModel,EdgeModel>* mmodel =(MapModel<CfgModel,EdgeModel>*)m_map->getModel();
-//get the CCModel of CfgModel
-CCModel<CfgModel,EdgeModel>* m_cCModel = mmodel->GetCCModel(CC_id);
-//add edge to CC
-//m_cCModel->addEdge(cfg1, cfg2); Jul 17-12
-
-//backUp current prpoperties:
-CCModel<CfgModel,EdgeModel>::Shape shape = m_cCModel->getShape();
-float size;
-if(shape == 0)
-size = m_cCModel->getRobotSize();
-else if (shape == 1)
-size = m_cCModel->getBoxSize();
-else
-size = 0;
-vector<float> rgb;
-rgb = m_cCModel->getColor();
-
-mmodel->BuildModels();
-mmodel->SetProperties(shape, size, rgb, false);
-//emit callUpdate();
-//  'UpdateNodeCfg();' //FIX THIS!!!
-
-m_nodesToConnect.clear();
-}
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::RandomizeCCColors() {
+  QMutexLocker lock(&m_lock);
+  for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
+    (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }
 
-template <class CfgModel, class WEIGHT>
-void MapModel<CfgModel, WEIGHT>::HandleAddNode(){
-
-vector<GLModel*>& sel = this->GetVizmo().GetSelectedItem();
-if(sel.size() !=0){
-if(!m_nodes.empty()){
-GLModel* n = m_nodes.front();
-CfgModel* cfg = (CfgModel*)n;
-//get current node's cfg
-vector<double> c = cfg->GetDataCfg();
-m_cfg = new double [c.size()];
-m_dof = c.size();
-
-for(unsigned int i=0; i<c.size(); i++){
-m_cfg[i] = c[i];
-}
-//create a window to let user change Cfg:
-//  createWindow();
-// to avoid add other more nodes every time the user clicks on
-// this cfg.
-//addNodeAction->setChecked(false);
-m_addNode = false;
-//  m_messageLabel->clear();
-//  m_iconLabel->clear();
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::RefreshMap(){
+  Build();
+  SetRenderMode(m_renderMode);
 }
 
-else{ //no node selected and assumes there is not roadmap....
+template <class CFG, class WEIGHT>
+void
+MapModel<CFG, WEIGHT>::ClearTempItems(){
+  typedef typename vector<CFG*>::iterator CIT;
+  for(CIT cit = m_tempCfgs.begin(); cit != m_tempCfgs.end(); cit++)
+    delete *cit;
+  m_tempCfgs.clear();
 
-  if (this->GetVizmo().GetMap() == NULL) {
-    CMapLoader<CfgModel,EdgeModel>* mloader=new CMapLoader<CfgModel,EdgeModel>();
-    MapModel<CfgModel,EdgeModel>* mmodel = new MapModel<CfgModel,EdgeModel>();
-
-    mmodel->SetMapLoader(mloader);
-
-    PlumObject* m_rob;
-    m_rob = this->GetVizmo().GetRobot();
-    RobotModel* r = (RobotModel*)m_rob->getModel();
-
-    if(r != NULL)
-      mmodel->SetRobotModel(r);
-
-    this->GetVizmo().setMapObj(mloader, mmodel);
-    mloader->genGraph();
-
-    //add node to graph
-    typedef CMapLoader<CfgModel,EdgeModel>::Wg WG;
-    WG* graph;
-    graph = mloader->GetGraph();
-    CfgModel* cfgNew = new CfgModel();
-    //get robot's current cfg
-    m_dof = r->returnDOF();
-
-    vector<double> rCfg = r->getFinalCfg();
-    vector<double> tmp;
-    tmp.clear();
-    for(int i=0; i<m_dof; i++){
-      if(i==0)
-        tmp.push_back(rCfg[i]+1);
-      else
-        tmp.push_back(rCfg[i]);
-    }
-    cfgNew->SetDof(m_dof);
-    cfgNew->SetCfg(tmp);
-    int vertx = graph->add_vertex(*cfgNew);
-    cfgNew->SetIndex(vertx);
-
-    mmodel->BuildModels();
-    this->GetVizmo().ShowRoadMap(true);
-
-    cfgNew->SetCCModel(mmodel->GetCCModel(mmodel->number_of_CC()-1));
-
-    //uselect
-    this->GetVizmo().cleanSelectedItem();
-    //select new node
-    this->GetVizmo().addSelectedItem((GLModel*)cfgNew);
-    vector<double> cf = cfgNew->GetDataCfg();
-    m_cfg = new double [cf.size()];
-    for(unsigned int i=0; i<cf.size(); i++)
-      m_cfg[i] = cf[i];
-
-    m_noMap = true;
-    // createWindow();
-    //now, shape automatically set upon construction of RoadmapOptions class
-    // setShape(); //clicks the robot button
-    //   emit getSelectedItem();
-    this->GetVizmo().Display();
-    //addNodeAction->setChecked(false);
-    m_addNode = false;
-    //  m_messageLabel->clear();
-    //  m_iconLabel->clear();
-    m_noMap = false;
-  }
+  typedef typename vector<WEIGHT*>::iterator WIT;
+  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
+    delete *wit;
+  m_tempEdges.clear();
 }
-}
-}
-*/
-/*
-   template <class CfgModel, class WEIGHT>
-   void MapModel<CfgModel, WEIGHT>::HandleEditMap(){
-
-   if(m_nodes.empty()==false){
-   GLModel* n = m_nodes.front();
-   m_oldT[0] = n->tx();
-   m_oldT[1] = n->ty();
-   m_oldT[2] = n->tz();
-
-   m_oldR[0] = n->rx();
-   m_oldR[1] = n->ry();
-   m_oldR[2] = n->rz();
-   }
-   }
-   */
-
-/*template <class CfgModel, class WEIGHT>
-  void MapModel<CfgModel, WEIGHT>::MoveNode(){
-
-  if(m_nodes.empty()) return;
-  GLModel * n=m_nodes.front();
-  double diff = fabs(m_oldT[0]-n->tx())+
-  fabs(m_oldT[1]-n->ty())+
-  fabs(m_oldT[2]-n->tz())+
-  fabs(m_oldR[0]-n->rx())+
-  fabs(m_oldR[1]-n->ry())+
-  fabs(m_oldR[2]-n->rz());
-
-  if(diff > 1e-10){
-  vector<GLModel*>& sel=GetVizmo().GetSelectedItem();
-  if(sel.size() !=0){
-  GetVizmo().Node_CD((CfgModel*)n);
-  }
-
-  typedef vector<GLModel*>::iterator OIT;
-  for(OIT i=sel.begin();i!=sel.end();i++){
-  if(((GLModel*)(*i))->GetName()=="Node")
-  printNodeCfg((CfgModel*)n);
-  }
-
-  if(nodeGUI!= NULL){
-  if(nodeGUI->isVisible()){
-  v_cfg = ((CfgModel*)n)->GetDataCfg();
-  double* new_cfg = new double [v_cfg.size()];
-  for(unsigned int v= 0; v<v_cfg.size(); v++)
-  new_cfg[v] = v_cfg[v];
-  nodeGUI->setNodeVal(v_cfg.size(), new_cfg);
-  nodeGUI->filledFirstTime = false;
-  }
-  }
-  m_map_Changed=true;
-
-//  emit callUpdate(); ****CHECK THIS**********
-}
-}*/
-
-//  void
-//  TestMapModel(){
-//    MapModel<CfgModel,EdgeModel> model;
-//  }
 
 #endif

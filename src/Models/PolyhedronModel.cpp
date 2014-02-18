@@ -4,45 +4,33 @@
 #include <algorithm>
 #include <numeric>
 
-#include <RAPID.H>
-#include <obb.H>
-
 #include "ModelFactory.h"
 
-#include "Utilities/Exceptions.h"
-#include "Plum/EnvObj/BodyModel.h"
-#include "ModelGraph/ModelGraph.h"
-using namespace modelgraph;
+#include "Utilities/VizmoExceptions.h"
 
-PolyhedronModel::PolyhedronModel(BodyModel* _bodyModel)
-  : m_solidID(-1), m_wiredID(-1), m_bodyModel(_bodyModel), m_rapidModel(NULL) {
-    BuildModels();
-    SetColor(m_bodyModel->GetColor());
+PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
+  : Model(_filename), m_filename(_filename), m_isSurface(_isSurface),
+  m_solidID(-1), m_wiredID(-1) {
+    Build();
+  }
+
+PolyhedronModel::PolyhedronModel(const PolyhedronModel& _p) : Model(_p),
+  m_filename(_p.m_filename), m_isSurface(_p.m_isSurface) {
+    Build();
   }
 
 PolyhedronModel::~PolyhedronModel(){
-  delete m_rapidModel;
   glDeleteLists(m_wiredID,1);
   glDeleteLists(m_solidID,1);
 }
 
-const string
-PolyhedronModel::GetName() const {
-  return m_bodyModel->GetFilename();
-}
-
-vector<string>
-PolyhedronModel::GetInfo() const {
-  vector<string> info;
-  info.push_back(m_bodyModel->GetModelFilename());
-  return info;
-}
-
 void
-PolyhedronModel::BuildModels() {
+PolyhedronModel::Build() {
 
-  string file = m_bodyModel->GetModelFilename();
-  IModel* imodel = CreateModelLoader(file, false);
+  IModel* imodel = CreateModelLoader(m_filename, false);
+
+  if(!imodel)
+    throw BuildException(WHERE, "File '" + m_filename + "' does not exist.");
 
   const PtVector& points=imodel->GetVertices();
   const TriVector& tris=imodel->GetTriP(); //GetTriangles();
@@ -61,39 +49,18 @@ PolyhedronModel::BuildModels() {
   vector<Vector3d> normals;
   ComputeNormals(points, tris, normals);
 
-  BuildRapid(points, tris);
-
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_DOUBLE, 0, vertice);
 
   BuildSolid(points, tris, normals);
   BuildWired(points, tris, normals);
 
-  //setup rotation and translation
-  if(m_bodyModel->IsFixed()) {
-    const Transformation& t = m_bodyModel->GetTransform();
-    const Vector3d& p = t.translation();
-    const Orientation& o = t.rotation();
-    EulerAngle e;
-    convertFromMatrix(e, o.matrix());
-    Quaternion qua;
-    convertFromMatrix(qua, o.matrix());
-
-    m_bodyModel->tx() = p[0];
-    m_bodyModel->ty() = p[1];
-    m_bodyModel->tz() = p[2];
-
-    m_bodyModel->rx() = e.alpha();
-    m_bodyModel->ry() = e.beta();
-    m_bodyModel->rz() = e.gamma();
-
-    m_bodyModel->q(qua);
-  }
+  delete imodel;
 }
 
-void PolyhedronModel::Draw(GLenum _mode) {
-  if(m_solidID == size_t(-1)) return;
-  if(m_renderMode == INVISIBLE_MODE) return;
+void PolyhedronModel::DrawRender() {
+  if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
+    return;
 
   if(m_renderMode == SOLID_MODE){
     glEnable(GL_POLYGON_OFFSET_FILL);
@@ -107,8 +74,22 @@ void PolyhedronModel::Draw(GLenum _mode) {
     glCallList(m_wiredID);
 }
 
-void PolyhedronModel::DrawSelect() {
+void
+PolyhedronModel::DrawSelect() {
+  if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
+    return;
+
+  glCallList(m_solidID);
+}
+
+void
+PolyhedronModel::DrawSelected() {
   glCallList(m_wiredID);
+}
+
+void
+PolyhedronModel::Print(ostream& _os) const {
+  _os << m_filename << endl;
 }
 
 //build models, given points and triangles
@@ -125,24 +106,6 @@ PolyhedronModel::ComputeNormals(const PtVector& _points, const TriVector& _tris,
 }
 
 void
-PolyhedronModel::BuildRapid(const PtVector& _points, const TriVector& _tris) {
-  m_rapidModel = new RAPID_model;
-  m_rapidModel->BeginModel();
-
-  typedef TriVector::const_iterator TRIT;
-  for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
-    const Tri& tri = *trit;
-
-    Vector3d p1 = _points[tri[0]] - m_com;
-    Vector3d p2 = _points[tri[1]] - m_com;
-    Vector3d p3 = _points[tri[2]] - m_com;
-
-    m_rapidModel->AddTri(p1, p2, p3, trit - _tris.begin());
-  }
-  m_rapidModel->EndModel();
-}
-
-void
 PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {
   m_solidID = glGenLists(1);
   glNewList(m_solidID, GL_COMPILE);
@@ -154,13 +117,17 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   //draw
+  glBegin(GL_TRIANGLES);
   typedef TriVector::const_iterator TRIT;
   for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
     const Tri& tri = *trit;
     glNormal3dv(_norms[trit-_tris.begin()]);
-    GLint id[3] = {tri[0], tri[1], tri[2]};
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, id);
+    for(int i=0; i<3; i++)
+      glVertex3dv(_points[tri[i]]);
+    //GLint id[3] = {tri[0], tri[1], tri[2]};
+    //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, id);
   }
+  glEnd();
 
   glPopMatrix();
   glEndList();
@@ -169,9 +136,9 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
 //build wire frame
 void
 PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {
-  CModelGraph mg;
-  if(!mg.doInit(_points, _tris))
-    throw BuildException(WHERE, "Cannot initialize ModelGraph");
+
+  //create model graph
+  BuildModelGraph(_points, _tris);
 
   //build model
   m_wiredID=glGenLists(1);
@@ -183,20 +150,45 @@ PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, con
 
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
-  const CModelEdge* edge = mg.getEdges();
-  while(edge != NULL){
-    int tril = edge->getLeftTri();
-    int trir = edge->getRightTri();
+  typedef ModelGraph::edge_iterator EIT;
+  for(EIT eit = m_modelGraph.edges_begin(); eit != m_modelGraph.edges_end(); ++eit) {
+    int tril = (*eit).property()[0];
+    int trir = (*eit).property()[1];
 
-    if(tril == -1 || trir == -1 || 1-fabs(_norms[tril] * _norms[trir]) > 1e-3){
-      GLint id[2]={edge->getStartPt(),edge->getEndPt()};
+    if(tril == -1 || trir == -1 || 1-fabs(_norms[tril] * _norms[trir]) > 1e-3) {
+      GLint id[2] = {(int)(*eit).source(), (int)(*eit).target()};
       glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, id);
     }
-    edge = edge->getNext();
   }
 
   glPopMatrix();
   glEndList();
+}
+
+//compute the model graph for wire frame
+void
+PolyhedronModel::BuildModelGraph(const PtVector& _points, const TriVector& _tris) {
+  //create nodes
+  for(size_t i = 0; i < _points.size(); ++i)
+    m_modelGraph.add_vertex(i, i);
+
+  //create edge from triangles
+  for(size_t i = 0; i < _tris.size(); ++i) {
+    for(size_t j = 0; j < 3; ++j) {
+      int a = _tris[i][j];
+      int b = _tris[i][(j+1)%3];
+      //see if edge (a, b) exists
+      ModelGraph::vertex_iterator vit;
+      ModelGraph::adj_edge_iterator eit;
+      ModelGraph::edge_descriptor eid(a, b);
+      bool found = m_modelGraph.find_edge(eid, vit, eit);
+
+      if(found) //set the right triangle
+        (*eit).property()[1] = i;
+      else //add new edge and set left triangle
+        m_modelGraph.add_edge(a, b, Vector<int, 2>(i, -1));
+    }
+  }
 }
 
 //set m_com to center of mass of _points
@@ -204,7 +196,7 @@ void
 PolyhedronModel::COM(const PtVector& _points) {
   m_com = accumulate(_points.begin(), _points.end(), Point3d(0, 0, 0));
   m_com /= _points.size();
-  if(m_bodyModel->IsSurface())
+  if(m_isSurface)
     m_com[1] = 0;
 }
 
@@ -218,25 +210,5 @@ PolyhedronModel::Radius(const PtVector& _points) {
       m_radius = d;
   }
   m_radius = sqrt(m_radius);
-}
-
-void
-PolyhedronModel::CopyRapidModel(const PolyhedronModel& _source){
-  m_rapidModel = new RAPID_model;
-
-  m_rapidModel->num_tris = (_source.m_rapidModel)->num_tris;
-  m_rapidModel->build_state = (_source.m_rapidModel)->build_state;
-  m_rapidModel->num_tris_alloced = (_source.m_rapidModel)->num_tris_alloced;
-  m_rapidModel->num_boxes_alloced = (_source.m_rapidModel)->num_boxes_alloced;
-
-  m_rapidModel->b = new box[(_source.m_rapidModel)->num_boxes_alloced];
-  box* boxBeginPtr = &((_source.m_rapidModel)->b)[0];
-  box* boxEndPtr = &((_source.m_rapidModel)->b)[m_rapidModel->num_boxes_alloced];
-  copy(boxBeginPtr, boxEndPtr, &(m_rapidModel->b)[0]);
-
-  m_rapidModel->tris = new tri[(_source.m_rapidModel)->num_tris_alloced];
-  tri* triBeginPtr = &((_source.m_rapidModel)->tris)[0];
-  tri* triEndPtr = &((_source.m_rapidModel)->tris)[m_rapidModel->num_tris_alloced];
-  copy(triBeginPtr, triEndPtr, &(m_rapidModel->tris)[0]);
 }
 

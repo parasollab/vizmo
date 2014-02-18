@@ -1,6 +1,6 @@
 #include "BoundaryModel.h"
 
-BoundaryModel::BoundaryModel() : m_displayID(-1), m_linesID(-1) {
+BoundaryModel::BoundaryModel(const string& _name) : Model(_name), m_displayID(-1), m_linesID(-1) {
 }
 
 BoundaryModel::~BoundaryModel() {
@@ -9,21 +9,31 @@ BoundaryModel::~BoundaryModel() {
 }
 
 void
-BoundaryModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
-  if(_index)
+BoundaryModel::Select(GLuint* _index, vector<Model*>& _sel) {
+  if(m_selectable && _index)
     _sel.push_back(this);
 }
 
 void
-BoundaryModel::Draw(GLenum _mode){
-  if(m_renderMode == INVISIBLE_MODE) return;
+BoundaryModel::DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
   glDisable(GL_LIGHTING);
   glCallList(m_displayID);
   glEnable(GL_LIGHTING);
 }
 
 void
-BoundaryModel::DrawSelect(){
+BoundaryModel::DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
+  glCallList(m_displayID);
+}
+
+void
+BoundaryModel::DrawSelected(){
   glDisable(GL_LIGHTING);
   glLineWidth(2);
   glCallList(m_linesID);

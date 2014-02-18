@@ -2,81 +2,75 @@
 
 #include <limits>
 
-#include <QGridLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QIntValidator>
-#include <QPushButton>
-#include <QFileDialog>
-
+#include "Models/DebugModel.h"
+#include "Models/PathModel.h"
 #include "Models/Vizmo.h"
 #include "Utilities/ImageFilters.h"
 
 MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
   QDialog(_parent, _f),
+
   m_startFrame(0), m_endFrame(-1), m_stepSize(10),
   m_frameDigits(5), m_frameDigitStart(11),
   m_filename("vizmo_movie#####.jpg") {
 
     int maxint = std::numeric_limits<int>::max();
 
-    if(GetVizmo().GetPathSize() > 0){
-      m_endFrame = GetVizmo().GetPathSize()-1;
+    Vizmo& vizmo = GetVizmo();
+    if(vizmo.IsPathLoaded()){
+      size_t size = vizmo.GetPath()->GetSize();
+      if(size > 0)
+        m_endFrame = size-1;
     }
-    else if(GetVizmo().GetDebugSize() > 0){
-      m_endFrame = GetVizmo().GetDebugSize()-1;
+    else if(vizmo.IsDebugLoaded()){
+      size_t size = vizmo.GetDebug()->GetSize();
+      if(size > 0)
+        m_endFrame = size-1;
     }
 
     //1. Create subwidgets/members
-
     QString tmp;
-    m_startFrameLabel = new QLabel("Start Frame", this);
+    QLabel* startFrameLabel = new QLabel("Start Frame", this);
     tmp.setNum(m_startFrame);
     m_startFrameEdit = new QLineEdit(tmp, this);
     m_startFrameEdit->setValidator(new QIntValidator(0, maxint, this));
 
-    m_endFrameLabel = new QLabel("EndFrame", this);
+    QLabel* endFrameLabel = new QLabel("End Frame", this);
     tmp.setNum(m_endFrame);
     m_endFrameEdit = new QLineEdit(tmp, this);
     m_endFrameEdit->setValidator(new QIntValidator(0, maxint, this));
 
-    m_stepSizeLabel = new QLabel("Step Size", this);
+    QLabel* stepSizeLabel = new QLabel("Step Size", this);
     tmp.setNum(m_stepSize);
     m_stepSizeEdit = new QLineEdit(tmp, this);
     m_stepSizeEdit->setValidator(new QIntValidator(0, maxint, this));
 
-    m_selectNameButton = new QPushButton("Select Name", this);
+    QPushButton* selectNameButton = new QPushButton("Select Name", this);
     m_fileNameLabel = new QLabel(m_filename, this);
 
-    m_go = new QPushButton("Go", this);
-    m_cancel = new QPushButton("Cancel", this);
+    QPushButton* goButton = new QPushButton("Go", this);
+    QPushButton* cancelButton = new QPushButton("Cancel", this);
 
     //2. Make connections
-    connect(m_selectNameButton, SIGNAL(clicked()), this, SLOT(ShowFileDialog()));
-    connect(m_cancel, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(m_go, SIGNAL(clicked()), this, SLOT(SaveImages()));
+    connect(selectNameButton, SIGNAL(clicked()), this, SLOT(ShowFileDialog()));
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(goButton, SIGNAL(clicked()), this, SLOT(SaveImages()));
 
     //3. Set up layout
-    SetUpLayout();
-  }
+    QGridLayout* layout = new QGridLayout;
+    setLayout(layout);
 
-void
-MovieSaveDialog::SetUpLayout(){
-  m_layout = new QGridLayout;
-  this->setLayout(m_layout);
+    layout->addWidget(startFrameLabel, 1, 1);
+    layout->addWidget(endFrameLabel, 2, 1);
+    layout->addWidget(stepSizeLabel, 3, 1);
+    layout->addWidget(selectNameButton, 4, 1);
+    layout->addWidget(goButton, 5, 1);
 
-  m_layout->addWidget(m_startFrameLabel, 1, 1);
-  m_layout->addWidget(m_startFrameEdit, 1, 2);
-  m_layout->addWidget(m_endFrameLabel, 2, 1);
-  m_layout->addWidget(m_endFrameEdit, 2, 2);
-  m_layout->addWidget(m_stepSizeLabel, 3, 1);
-  m_layout->addWidget(m_stepSizeEdit, 3, 2);
-
-  m_layout->addWidget(m_selectNameButton, 4, 1);
-  m_layout->addWidget(m_fileNameLabel, 4, 2);
-
-  m_layout->addWidget(m_go, 5, 1);
-  m_layout->addWidget(m_cancel, 5, 2);
+    layout->addWidget(m_startFrameEdit, 1, 2);
+    layout->addWidget(m_endFrameEdit, 2, 2);
+    layout->addWidget(m_stepSizeEdit, 3, 2);
+    layout->addWidget(m_fileNameLabel, 4, 2);
+    layout->addWidget(cancelButton, 5, 2);
 }
 
 void

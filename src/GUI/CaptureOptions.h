@@ -3,21 +3,17 @@
 * Both have actions Crop, Picture, and Movie.
 *************************************************************************/
 
-#ifndef CAPTUREOPTIONS_H
-#define CAPTUREOPTIONS_H
+#ifndef CAPTUREOPTIONS_H_
+#define CAPTUREOPTIONS_H_
 
 #include "OptionsBase.h"
 
-class CaptureOptions : public OptionsBase{
+class CaptureOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    CaptureOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
-    void CreateActions();
-    void SetUpToolbar(); //crop, picture, and movie actions
-    void SetHelpTips();
-    void Reset();
+    CaptureOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
   private slots:
     void CropRegion();
@@ -28,16 +24,14 @@ class CaptureOptions : public OptionsBase{
     void SimulateMouseUp();
     void ToggleSelectionSignal();
     void CallUpdate();
-    void GoToFrame(int);
+    void UpdateFrame(int);
 
   private:
+    void CreateActions();
+    void SetUpToolbar(); //crop, picture, and movie actions
+    void SetHelpTips();
+    void Reset();
     bool m_cropBox;
 };
 
 #endif
-
-
-
-
-
-

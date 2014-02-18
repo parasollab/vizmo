@@ -1,15 +1,56 @@
-#include "BoundingBoxModel.h"
 #include <limits>
+#include <sstream>
 
-BoundingBoxModel::BoundingBoxModel() : BoundaryModel() {
-  for(int i = 0; i<3; ++i){
-    m_bbx[i].first = -numeric_limits<double>::max();
-    m_bbx[i].second = numeric_limits<double>::max();
+#include "BoundingBoxModel.h"
+
+BoundingBoxModel::BoundingBoxModel() :
+  BoundaryModel("Bounding Box"),
+  m_bbx(3, make_pair(-numeric_limits<double>::max(), numeric_limits<double>::max())) {
   }
+
+BoundingBoxModel::BoundingBoxModel(const pair<double, double>& _x,
+    const pair<double, double>& _y,
+    const pair<double, double>& _z
+    ) :
+  BoundaryModel("Bounding Box") {
+    m_bbx.push_back(_x);
+    m_bbx.push_back(_y);
+    m_bbx.push_back(_z);
+    Build();
+  }
+
+bool
+BoundingBoxModel::Parse(istream& _is) {
+  //read next three tokens
+  string line;
+  getline(_is, line);
+  istringstream iss(line);
+  for(size_t i = 0; i < 3; ++i){
+    string tok;
+    if(iss >> tok){
+      size_t del = tok.find(":");
+      if(del == string::npos){
+        cerr << "Error::Reading bounding box range " << i << ". Should be delimited by ':'." << endl;
+        return false;
+      }
+      istringstream minVStr(tok.substr(0, del)), maxVStr(tok.substr(del+1, tok.length()));
+      double minV, maxV;
+      if((minVStr >> minV && maxVStr >> maxV) == false){
+        cerr << "Error::Reading bounding box range " << i << "." << endl;
+        return false;
+      }
+      m_bbx[i] = make_pair(minV, maxV);
+    }
+    else if(i < 2) { //error. only 1 token provided.
+      cerr << "Error::Reading bounding box ranges. Only one provided." << endl;
+      return false;
+    }
+  }
+  return true;
 }
 
 void
-BoundingBoxModel::BuildModels(){
+BoundingBoxModel::Build() {
   double zmin = m_bbx[2].second == numeric_limits<double>::max() ? -1 : m_bbx[2].first;
   double zmax = m_bbx[2].second == numeric_limits<double>::max() ? 1 : m_bbx[2].second;
 
@@ -80,49 +121,21 @@ BoundingBoxModel::BuildModels(){
   glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-const string BoundingBoxModel::GetName() const{
-  return "Bounding Box";
+void
+BoundingBoxModel::Print(ostream& _os) const {
+  _os << Name() << endl
+    << "[ ";
+  for(int i = 0; i < 3; ++i)
+    if(m_bbx[i].second != numeric_limits<double>::max())
+      _os << m_bbx[i].first << ":" << m_bbx[i].second << " ";
+  _os << "]" << endl;
 }
 
-vector<string>
-BoundingBoxModel::GetInfo() const {
-  vector<string> info;
-  info.push_back(GetName());
-  info.push_back(" [ ");
-  for(int i = 0; i < 3; ++i){
-    if(m_bbx[i].second != numeric_limits<double>::max()){
-      ostringstream tmp;
-      tmp << m_bbx[i].first << ":" << m_bbx[i].second << " ";
-      info.push_back(tmp.str());
-    }
-  }
-  return info;
+void
+BoundingBoxModel::Write(ostream& _os) const {
+  _os << "Box ";
+  for(size_t i = 0; i < 3; ++i)
+    if(m_bbx[i].second != numeric_limits<double>::max())
+      _os << m_bbx[i].first << ":" << m_bbx[i].second << " ";
 }
 
-bool
-BoundingBoxModel::Parse(istream& _is){
-  //read next three tokens
-  string line;
-  getline(_is, line);
-  istringstream iss(line);
-  for(size_t i = 0; i < 3; ++i){
-    string tok;
-    if(iss >> tok){
-      size_t del = tok.find(":");
-      if(del == string::npos){
-        cerr << "Error::Reading bounding box range " << i << ". Should be delimited by ':'." << endl;
-        return false;
-      }
-      istringstream minv(tok.substr(0,del)), maxv(tok.substr(del+1, tok.length()));
-      if(!(minv>>m_bbx[i].first && maxv>>m_bbx[i].second)){
-        cerr << "Error::Reading bounding box range " << i << "." << endl;
-        return false;
-      }
-    }
-    else if(i < 2) { //error. only 1 token provided.
-      cerr << "Error::Reading bounding box ranges. Only one provided." << endl;
-      return false;
-    }
-  }
-  return true;
-}

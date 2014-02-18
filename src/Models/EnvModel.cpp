@@ -1,26 +1,89 @@
 #include "EnvModel.h"
 
-#include "Plum/EnvObj/ConnectionModel.h"
-#include "Plum/EnvObj/BodyModel.h"
-#include "CfgModel.h"
-#include "Models/BoundingBoxModel.h"
-#include "Models/BoundingSphereModel.h"
-#include "Utilities/IOUtils.h"
-#include "Utilities/Exceptions.h"
+#include <fstream>
 
-EnvModel::EnvModel(const string& _filename) :
+#include "BodyModel.h"
+#include "BoundingBoxModel.h"
+#include "BoundingSphereModel.h"
+#include "CfgModel.h"
+#include "ConnectionModel.h"
+#include "Utilities/VizmoExceptions.h"
+#include "Utilities/IO.h"
+
+EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
   m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
+
     SetFilename(_filename);
-    SetModelDataDir(_filename.substr(0, _filename.rfind('/')));
+    size_t sl = _filename.rfind('/');
+    SetModelDataDir(_filename.substr(0, sl == string::npos ? 0 : sl));
 
     ParseFile();
-    BuildModels();
+    Build();
+
+    m_environment = new Environment();
+    m_environment->Read(_filename);
+    m_environment->ComputeResolution();
   }
 
 EnvModel::~EnvModel() {
+  delete m_boundary;
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
     delete *mit;
+  typedef vector<RegionModel*>::const_iterator RIT;
+  for(RIT rit = m_attractRegions.begin(); rit != m_attractRegions.end(); ++rit)
+    delete *rit;
+  for(RIT rit = m_avoidRegions.begin(); rit!=m_avoidRegions.end(); ++rit)
+    delete *rit;
+  for(RIT rit = m_nonCommitRegions.begin(); rit!=m_nonCommitRegions.end(); ++rit)
+    delete *rit;
+}
+
+bool
+EnvModel::IsNonCommitRegion(RegionModel* _r) const {
+  return find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r)
+    != m_nonCommitRegions.end();
+}
+
+void
+EnvModel::ChangeRegionType(RegionModel* _r, bool _attract) {
+  vector<RegionModel*>::iterator rit;
+  rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
+  if(rit != m_nonCommitRegions.end()) {
+    m_nonCommitRegions.erase(rit);
+    if(_attract) {
+      _r->SetColor(Color4(0, 1, 0, 0.5));
+      m_attractRegions.push_back(_r);
+    }
+    else {
+      _r->SetColor(Color4(0, 0, 0, 0.5));
+      m_avoidRegions.push_back(_r);
+    }
+  }
+}
+
+void
+EnvModel::DeleteRegion(RegionModel* _r) {
+  vector<RegionModel*>::iterator rit;
+  rit = find(m_attractRegions.begin(), m_attractRegions.end(), _r);
+  if(rit != m_attractRegions.end()) {
+    delete *rit;
+    m_attractRegions.erase(rit);
+  }
+  else {
+    rit = find(m_avoidRegions.begin(), m_avoidRegions.end(), _r);
+    if(rit != m_avoidRegions.end()) {
+      delete *rit;
+      m_avoidRegions.erase(rit);
+    }
+    else {
+      rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
+      if(rit != m_nonCommitRegions.end()) {
+        delete *rit;
+        m_nonCommitRegions.erase(rit);
+      }
+    }
+  }
 }
 
 //////////Load Functions//////////
@@ -54,17 +117,11 @@ EnvModel::ParseFile(){
   size_t numMultiBodies = ReadField<size_t>(ifs, WHERE,
       "Failed reading number of Multibodies.");
 
-  for(size_t i = 0; i < numMultiBodies; i++) {
-    MultiBodyModel* m = new MultiBodyModel();
+  for(size_t i = 0; i < numMultiBodies && ifs; i++) {
+    MultiBodyModel* m = new MultiBodyModel(this);
     m->ParseMultiBody(ifs, m_modelDataDir);
     m_multibodies.push_back(m);
   }
-
-  BuildRobotStructure();
-  CfgModel::SetDOF(m_dof);
-  CfgModel::SetIsPlanarRobot(m_robots[0].m_base == Robot::PLANAR ? true : false);
-  CfgModel::SetIsVolumetricRobot(m_robots[0].m_base == Robot::VOLUMETRIC ? true : false);
-  CfgModel::SetIsRotationalRobot(m_robots[0].m_baseMovement == Robot::ROTATIONAL ? true : false);
 }
 
 void
@@ -75,7 +132,6 @@ EnvModel::SetModelDataDir(const string _modelDataDir){
 
 void
 EnvModel::ParseBoundary(ifstream& _ifs) {
-
   string type = ReadFieldString(_ifs, WHERE, "Failed reading Boundary type.");
 
   if(type == "BOX")
@@ -84,112 +140,24 @@ EnvModel::ParseBoundary(ifstream& _ifs) {
     m_boundary = new BoundingSphereModel();
   else
     throw ParseException(WHERE,
-        "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
+      "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
 
   m_boundary->Parse(_ifs);
 }
 
 void
-EnvModel::BuildRobotStructure(){
-
-  m_dof = 0;
-  int robotIndex = 0;
-  for(size_t i = 0; i < m_multibodies.size(); i++){
-    if(m_multibodies[i]->IsActive()){
-      robotIndex = i;
-      break;
-    }
-  }
-  MultiBodyModel* robot = m_multibodies[robotIndex];
-    //int fixedBodyCount = robot -> GetFixedBodyCount();
-    //int freeBodyCount = robot->GetFreeBodyCount();
-    //int numOfBodies = robot.m_numberOfBody;
-  for(int i = 0; i < distance(robot->Begin(), robot->End()); i++)
-    m_robotGraph.add_vertex(i);
-
-  //Total amount of bodies in environment: free + fixed
-  for (MultiBodyModel::BodyIter bit = robot->Begin(); bit!=robot->End(); ++bit)
-    //For each body, find forward connections and connect them
-    for(BodyModel::ConnectionIter cit = (*bit)->Begin(); cit!=(*bit)->End(); ++cit)
-      m_robotGraph.add_edge(bit-robot->Begin(), (*cit)->GetNextIndex());
-
-  //Robot ID typedef
-  typedef RobotGraph::vertex_descriptor RID;
-  vector<pair<size_t,RID> > ccs;
-  stapl::vector_property_map<RobotGraph, size_t> cmap;
-
-  //Initialize CC information
-  get_cc_stats(m_robotGraph, cmap, ccs);
-  for(size_t i = 0; i < ccs.size(); i++){
-    cmap.reset();
-    vector<RID> cc;
-    //Find CCs, construct robot objects
-    get_cc(m_robotGraph, cmap, ccs[i].second, cc);
-    size_t baseIndx = -1;
-
-    for(size_t j = 0; j < cc.size(); j++){
-      size_t index = m_robotGraph.find_vertex(cc[j])->property();
-      if((*(robot->Begin()+index))->IsBase()){
-        baseIndx = index;
-        break;
-      }
-    }
-
-    if(baseIndx == size_t(-1))
-      throw ParseException(WHERE, "Robot does not have base.");
-
-    const BodyModel* base = *(robot->Begin() + baseIndx);
-    Robot::Base bt = base->GetBase();
-    Robot::BaseMovement bm = base->GetBaseMovement();
-    if(bt == Robot::PLANAR){
-      m_dof += 2;
-      if(bm == Robot::ROTATIONAL){
-        m_dof += 1;
-      }
-    }
-    else if(bt == Robot::VOLUMETRIC){
-      m_dof += 3;
-      if(bm == Robot::ROTATIONAL){
-        m_dof += 3;
-      }
-    }
-
-    Robot::JointMap jm;
-    for(size_t j = 0; j<cc.size(); j++){
-      size_t index = m_robotGraph.find_vertex(cc[j])->property();
-      typedef Robot::JointMap::const_iterator MIT;
-      for(MIT mit = robot->GetJointMap().begin(); mit!=robot->GetJointMap().end(); mit++){
-        if((*mit)->GetPreviousIndex() == index){
-          jm.push_back(*mit);
-          if((*mit)->GetJointType() == ConnectionModel::REVOLUTE ||
-              (*mit)->GetJointType() == ConnectionModel::SMAJOINT){
-            m_dof += 1;
-          }
-          else if((*mit)->GetJointType() == ConnectionModel::SPHERICAL){
-            m_dof += 2;
-          }
-        }
-      }
-    }
-
-    m_robots.push_back(Robot(bt, bm, jm, baseIndx));
-  }
-}
-
-//////////Display functions//////////
-void
-EnvModel::BuildModels(){
-
+EnvModel::Build(){
   //Build boundary model
-  m_boundary = GetBoundary();
   if(!m_boundary)
     throw BuildException(WHERE, "Boundary is NULL");
-  m_boundary->BuildModels();
+  m_boundary->Build();
 
   //Build each
+  MultiBodyModel::ClearDOFInfo();
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit) {
-    (*mit)->BuildModels();
+    (*mit)->Build();
+    m_dof += (*mit)->GetDOF();
     m_centerOfMass += (*mit)->GetCOM();
   }
 
@@ -204,26 +172,97 @@ EnvModel::BuildModels(){
 }
 
 void
-EnvModel::Draw(GLenum _mode) {
-  int numMBs = m_multibodies.size();
-  if(_mode == GL_SELECT)
-    glPushName(numMBs);
+EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
+  size_t numMBs = m_multibodies.size();
+  size_t numAttractRegions = m_attractRegions.size();
+  size_t numAvoidRegions = m_avoidRegions.size();
+  size_t numNonCommitRegions = m_nonCommitRegions.size();
+  //unselect old one
+  if(!_index || *_index > numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions) //input error
+    return;
+  else if(*_index == numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions)
+    m_boundary->Select(_index+1, _sel);
+  else if(*_index < numMBs)
+    m_multibodies[*_index]->Select(_index+1, _sel);
+  else if(*_index < numMBs + numAttractRegions)
+    m_attractRegions[*_index - numMBs]->Select(_index+1, _sel);
+  else if(*_index < numMBs + numAttractRegions + numAvoidRegions)
+    m_avoidRegions[*_index - numMBs - numAttractRegions]->Select(_index+1, _sel);
+  else
+    m_nonCommitRegions[*_index - numMBs - numAttractRegions - numAvoidRegions]->Select(_index+1, _sel);
+}
 
-  m_boundary->Draw(_mode);
+void
+EnvModel::DrawRender() {
+  size_t numMBs = m_multibodies.size();
+  size_t numAttractRegions = m_attractRegions.size();
+  size_t numAvoidRegions = m_avoidRegions.size();
+  size_t numNonCommitRegions = m_nonCommitRegions.size();
 
-  if(_mode == GL_SELECT)
-    glPopName();
+  m_boundary->DrawRender();
 
   glLineWidth(1);
-  for(int i = 0; i < numMBs; i++){
+  for(size_t i = 0; i < numMBs; ++i)
+    if(!m_multibodies[i]->IsActive())
+      m_multibodies[i]->DrawRender();
+
+  glEnable(GL_BLEND);
+  glDepthMask(GL_FALSE);
+  for(size_t i = 0; i < numAttractRegions; ++i)
+    m_attractRegions[i]->DrawRender();
+  for(size_t i = 0; i < numAvoidRegions; ++i)
+    m_avoidRegions[i]->DrawRender();
+  for(size_t i = 0; i < numNonCommitRegions; ++i)
+    m_nonCommitRegions[i]->DrawRender();
+  glDepthMask(GL_TRUE);
+  glDisable(GL_BLEND);
+}
+
+void
+EnvModel::DrawSelect() {
+  size_t numMBs = m_multibodies.size();
+  size_t numAttractRegions = m_attractRegions.size();
+  size_t numAvoidRegions = m_avoidRegions.size();
+  size_t numNonCommitRegions = m_nonCommitRegions.size();
+
+  glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions);
+  m_boundary->DrawSelect();
+  glPopName();
+
+  glLineWidth(1);
+  for(size_t i = 0; i < numMBs; ++i){
     if(!m_multibodies[i]->IsActive()){
-      if(_mode == GL_SELECT)
-        glPushName(i);
-      m_multibodies[i]->Draw(_mode);
-      if(_mode == GL_SELECT)
-        glPopName();
+      glPushName(i);
+      m_multibodies[i]->DrawSelect();
+      glPopName();
     }
   }
+
+  glEnable(GL_BLEND);
+  glDepthMask(GL_FALSE);
+  for(size_t i = 0; i < numAttractRegions; ++i) {
+    glPushName(numMBs + i);
+    m_attractRegions[i]->DrawSelect();
+    glPopName();
+  }
+  for(size_t i = 0; i < numAvoidRegions; ++i) {
+    glPushName(numMBs + numAttractRegions + i);
+    m_avoidRegions[i]->DrawSelect();
+    glPopName();
+  }
+  for(size_t i = 0; i < numNonCommitRegions; ++i) {
+    glPushName(numMBs + numAttractRegions + numAvoidRegions + i);
+    m_nonCommitRegions[i]->DrawSelect();
+    glPopName();
+  }
+  glDepthMask(GL_TRUE);
+  glDisable(GL_BLEND);
+}
+
+void
+EnvModel::Print(ostream& _os) const {
+  _os << Name() << ": " << GetFilename() << endl
+    << m_multibodies.size() << " multibodies" << endl;
 }
 
 void
@@ -234,41 +273,32 @@ EnvModel::ChangeColor(){
 }
 
 void
-EnvModel::Select(unsigned int* _index, vector<GLModel*>& _sel){
-  //unselect old one
-  if(!_index || *_index > m_multibodies.size()) //input error
-    return;
-  else if(*_index == m_multibodies.size())
-    m_boundary->Select(_index+1, _sel);
-  else
-    m_multibodies[_index[0]]->Select(_index+1, _sel);
+EnvModel::SetSelectable(bool _s){
+  m_selectable = _s;
+  typedef vector<MultiBodyModel*>::iterator MIT;
+  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
+    (*i)->SetSelectable(_s);
+  m_boundary->SetSelectable(_s);
 }
 
 void
-EnvModel::GetChildren(list<GLModel*>& _models){
-  typedef vector<MultiBodyModel *>::iterator MIT;
-  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); i++){
+EnvModel::GetChildren(list<Model*>& _models){
+  typedef vector<MultiBodyModel*>::iterator MIT;
+  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
     if(!(*i)->IsActive())
       _models.push_back(*i);
-  }
+  typedef vector<RegionModel*>::iterator RIT;
+  for(RIT i = m_attractRegions.begin(); i != m_attractRegions.end(); ++i)
+    _models.push_back(*i);
+  for(RIT i = m_avoidRegions.begin(); i != m_avoidRegions.end(); ++i)
+    _models.push_back(*i);
+  for(RIT i = m_nonCommitRegions.begin(); i != m_nonCommitRegions.end(); ++i)
+    _models.push_back(*i);
   _models.push_back(m_boundary);
-}
-
-vector<string>
-EnvModel::GetInfo() const{
-  vector<string> info;
-  info.push_back(GetFilename());
-
-  ostringstream temp;
-  temp << "There are " << m_multibodies.size() << " multibodies";
-  info.push_back(temp.str());
-
-  return info;
 }
 
 void
 EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
-
   vector<MultiBodyModel*>::iterator mbit;
   for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){
     if((*mbit) == _mbl){
@@ -280,186 +310,127 @@ EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
 
 void
 EnvModel::AddMBModel(MultiBodyModel* _m){
-  _m->BuildModels();
+  _m->Build();
   m_multibodies.push_back(_m);
 }
 
 bool
 EnvModel::SaveFile(const char* _filename){
-/*
-  const MultiBodyInfo* mBI = GetMultiBodyInfo();
-
-  FILE* envFile;
-  if((envFile = fopen(_filename, "a")) == NULL){
+  ofstream envFile(_filename);
+  if(!envFile.is_open()){
     cout<<"Couldn't open the file"<<endl;
     return false;
   }
-
-  int numMBs = GetNumMultiBodies(); //number of objects in env.
-  //write num. of Bodies
-  fprintf(envFile,"%d\n\n", numMBs);
-
-  //getMBody() and then current position and orientation
-  vector<MultiBodyModel*> mBModels = this->GetMultiBodies();
-
-  for(int i = 0; i < numMBs; i++){ //for each body in *.env
-
-    if(mBI[i].m_active)
-      fprintf(envFile,"Multibody   Active\n");
+  envFile<<"Boundary " << *m_boundary;
+  envFile<<"\n\n";
+  int numMBs = m_multibodies.size();
+  envFile<<"Multibodies\n"<<numMBs<<"\n\n";
+  vector<MultiBodyModel*> saveMB = GetMultiBodies();
+  reverse(saveMB.begin(), saveMB.end());
+  while(!saveMB.empty()){
+    if(saveMB.back()->IsActive())
+      envFile<<"Active\n";
+    else if(saveMB.back()->IsSurface())
+      envFile<<"Surface\n";
     else
-      fprintf(envFile,"Multibody   Passive\n");
-
-    if(mBI[i].m_numberOfBody != 0){
-      int nB = mBI[i].m_numberOfBody;
-      //write Num. of Bodies in the current MultiBody
-      fprintf(envFile,"%d\n", nB);
-      //write COLOR tag
-      list<GLModel*> tmpList;
-      mBModels[i]->GetChildren(tmpList);
-      GLModel* om = tmpList.front();
-      if(mBI[i].m_active){
-        fprintf(envFile,"#VIZMO_COLOR %2f %2f %2f\n",
-            mBI[i].m_mBodyInfo[0].rgb[0],
-            mBI[i].m_mBodyInfo[0].rgb[1],
-            mBI[i].m_mBodyInfo[0].rgb[2]);
+      envFile<<"Passive\n";
+    int nB = saveMB.back()->GetNbBodies();
+    if(nB!= 0){
+      if(saveMB.back()->IsActive())
+        envFile<<nB<<endl;
+      vector<BodyModel*> bodies = saveMB.back()->GetBodies();
+      reverse(bodies.begin(),bodies.end());
+      envFile<<"#VIZMO_COLOR"<<" "<<bodies.back()->GetColor()[0]
+                             <<" "<<bodies.back()->GetColor()[1]
+                             <<" "<<bodies.back()->GetColor()[2]<<endl;
+      if(saveMB.back()->IsActive()){
+        int nbJoints = 0;
+        vector<ConnectionModel*> joints = saveMB.back()->GetJoints();
+        reverse(joints.begin(),joints.end());
+        while(!bodies.empty()){
+          envFile<<bodies.back()->GetFilename()<<" ";
+          if(bodies.back()->IsBaseVolumetric()||bodies.back()->IsBasePlanar()){
+            string baseMovement = "Translational";
+            if (bodies.back()->IsBaseRotational())
+              baseMovement = "Rotational";
+            if(bodies.back()->IsBaseVolumetric())
+              envFile<<"Volumetric "<<baseMovement<<endl;
+            else
+              envFile<<"Planar "<<baseMovement<<endl;
+          }
+          else if(bodies.back()->IsBaseFixed()){
+            envFile<<"Fixed ";
+            ostringstream transform;
+            transform<<bodies.back()->GetTransform();
+            envFile<<SetTransformRight(transform.str())<<endl;
+          }
+          else{
+            envFile<<"Joint"<<endl;
+            nbJoints++;
+          }
+          bodies.pop_back();
+        }
+        envFile<<"Connections"<<endl<<nbJoints<<endl;
+        if(nbJoints!=0){
+          while(!joints.empty()){
+            pair<double, double> jointLimits[2] = joints.back()->GetJointLimits();
+            ostringstream limits;
+            string jointType = "NonActuated ";
+            if(joints.back()->IsSpherical()){
+              jointType = "Spherical ";
+              limits<<jointLimits[0].first<<":"<<jointLimits[0].second<<" "
+                    <<jointLimits[1].first<<":"<<jointLimits[1].second;
+            }
+            else if(joints.back()->IsRevolute()){
+              jointType = "Revolute ";
+              limits<<jointLimits[0].first<<":"<<jointLimits[0].second<<" ";
+            }
+            envFile<<joints.back()->GetPreviousIndex()<<" "
+                     <<joints.back()->GetNextIndex()<<"  "
+                     <<jointType<<limits.str()<<endl;
+            ostringstream transform;
+            transform<<joints.back()->TransformToDHFrame();
+            envFile<<SetTransformRight(transform.str())<<"   ";
+            envFile<<joints.back()->GetAlpha()<<" "
+                     <<joints.back()->GetA()<<" "<<joints.back()->GetD()<<" "
+                     <<joints.back()->GetTheta()<<"   ";
+            ostringstream transform2;
+            transform2<<joints.back()->TransformToBody2();
+            envFile<<SetTransformRight(transform2.str())<<endl;
+            joints.pop_back();
+          }
+        }
       }
       else{
-        fprintf(envFile,"#VIZMO_COLOR %2f %2f %2f\n",
-                om->GetColor()[0],om->GetColor()[1], om->GetColor()[2]);
+        envFile<<bodies.back()->GetFilename()<<"  ";
+        ostringstream transform;
+        transform<<bodies.back()->GetTransform();
+        envFile<<SetTransformRight(transform.str())<<endl;
       }
-
-      for(int j = 0; j < nB; j++){
-        if(mBI[i].m_mBodyInfo[j].m_isFixed)
-          fprintf(envFile,"FixedBody    ");
-        else
-          fprintf(envFile,"FreeBody    ");
-
-        fprintf(envFile, "%d  ", mBI[i].m_mBodyInfo[j].m_index);
-        string s_tmp = mBI[i].m_mBodyInfo[j].m_modelDataFileName;
-        const char* st;
-        st = s_tmp.c_str();
-        const char *pos = strrchr(st, '/');
-        int position = pos-st+1;
-        string sub_string = s_tmp.substr(position);
-
-        const char* f;
-        f = sub_string.c_str();
-
-        if(!mBI[i].m_active){
-          string s = mBI[i].m_mBodyInfo[j].m_fileName;
-          f = s.c_str();
-          fprintf(envFile,"%s  ",f);
-        }
-        else
-          fprintf(envFile,"%s  ",f);
-
-        //get current (new) rotation
-
-        Quaternion qtmp = mBModels[i]->q();
-        //Matrix3x3 mtmp = qtmp.getMatrix();
-        //Vector3d vtmp = qtmp.MatrixToEuler(mtmp);
-
-        //get prev. rotation
-
-        list<GLModel*> objList;
-        mBModels[i]->GetChildren(objList);
-        GLModel* om = objList.front();
-
-        //multiply polyhedron0 and multiBody quaternions
-        //to get new rotation
-        Quaternion finalQ;
-        finalQ = qtmp * om->q();
-
-        EulerAngle e;
-        convertFromQuaternion(e, finalQ);
-
-        fprintf(envFile,"%.1f %.1f %.1f %.1f %.1f %.1f\n",
-            mBModels[i]->tx(), mBModels[i]->ty(), mBModels[i]->tz(),
-            radToDeg(e.alpha()),
-            radToDeg(e.beta()),
-            radToDeg(e.gamma()));
-
-      }
-      //write Connection tag
-
-      if(mBI[i].m_numberOfConnections != 0)
-        fprintf(envFile, "\nConnection\n");
-      else
-        fprintf(envFile,"Connection\n");
-
-      fprintf(envFile, "%d\n", mBI[i].m_numberOfConnections);
-
-      //write Connection info.
-      if(mBI[i].m_numberOfConnections != 0){
-        const char* str;
-        int numConn = mBI[i].GetJointMap().size();
-
-        for(int l = 0; l < numConn; l++){
-          int indexList = mBI[i].GetJointMap()[l]->GetPreviousBody();
-          if(mBI[i].m_mBodyInfo[indexList].m_connectionInfo->m_actuated)
-            str = "Actuated";
-          else
-            str = "NonActuated";
-
-          fprintf(envFile,"%d %d  %s\n",indexList,
-              mBI[i].GetJointMap()[l]->GetNextBody(), str);
-
-          //get info. from current Body and current connection
-          int index = 0;
-          for(int b = 0;
-              b<mBI[i].m_mBodyInfo[indexList].m_numberOfConnection; b++){
-
-            int n = mBI[i].m_mBodyInfo[indexList].m_connectionInfo[b].m_nextIndex;
-
-            if(mBI[i].GetJointMap()[l]->GetNextBody() == n){
-              index = b;
-              break;
-            }
-          }
-
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_posX);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_posY);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_posZ);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orientX*57.29578);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orientY* 57.29578);
-          fprintf(envFile, "%.1f\t",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orientZ* 57.29578);
-
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].alpha);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].a);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].d);
-          fprintf(envFile, "%.1f        ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_theta);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_pos2X);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_pos2Y);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_pos2Z);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orient2X* 57.29578);
-          fprintf(envFile, "%.1f ",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orient2Y* 57.29578);
-          fprintf(envFile, "%.1f\n\n",
-              mBI[i].m_mBodyInfo[indexList].m_connectionInfo[index].m_orient2Z* 57.29578);
-        }
-
-      }
-
     }
-    fprintf(envFile,"\n");
+    envFile<<endl;
+    saveMB.pop_back();
   }
-
-  fclose(envFile);
-  */
-  return 1;
+  envFile.close();
+  return true;
 }
 
+
+string
+EnvModel::SetTransformRight(string _transformString){
+  stringstream transform;
+  istringstream splitTransform(_transformString);
+  string splittedTransform[6]={"","","","","",""};
+  int j=0;
+  do{
+    splitTransform>>splittedTransform[j];
+    j++;
+  }while(splitTransform);
+  string temp;
+  temp=splittedTransform[3];
+  splittedTransform[3]=splittedTransform[5];
+  splittedTransform[5]=temp;
+  for(int i=0; i<6; i++)
+    transform<<splittedTransform[i]<<" ";
+  return transform.str();
+}

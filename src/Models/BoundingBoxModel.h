@@ -1,23 +1,32 @@
 #ifndef BOUNDINGBOXMODEL_H_
 #define BOUNDINGBOXMODEL_H_
 
+using namespace std;
+
 #include "BoundaryModel.h"
 
 class BoundingBoxModel : public BoundaryModel {
   public:
     BoundingBoxModel();
+    BoundingBoxModel(const pair<double, double>& _x,
+        const pair<double, double>& _y,
+        const pair<double, double>& _z = pair<double, double>(
+          -numeric_limits<double>::max(),
+          numeric_limits<double>::max())
+        );
 
-    virtual void BuildModels();
-
-    virtual const string GetName() const;
-    virtual vector<string> GetInfo() const;
-
-    const pair<double, double>* getBBX(){return m_bbx;}
-
+    virtual vector<pair<double, double> > GetRanges() { return m_bbx; }
     virtual bool Parse(istream& _is);
+    virtual void Build();
+    virtual void Print(ostream& _os) const;
+
+  protected:
+    virtual void Write(ostream& _os) const;
 
   private:
-    pair<double, double> m_bbx[3];
+    vector<pair<double, double> > m_bbx;
+
+    friend class BoundingBoxesModel;
 };
 
 #endif

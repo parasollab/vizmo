@@ -2,33 +2,68 @@
 * Class for the "Environment" submenu and associated action button
 ******************************************************************/
 
-#ifndef ENVIRONMENT_OPTIONS_H
-#define ENVIRONMENT_OPTIONS_H
+#ifndef ENVIRONMENTOPTIONS_H_
+#define ENVIRONMENTOPTIONS_H_
 
 #include "OptionsBase.h"
 
-class EnvironmentOptions : public OptionsBase{
+using namespace std;
+
+class ModelSelectionWidget;
+class MultiBodyModel;
+
+class EnvironmentOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    EnvironmentOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
-    void CreateActions();
-    void SetUpToolbar(); //Just randomize colors button
-    void Reset();
-    void SetHelpTips();
+    EnvironmentOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+
+    QThread* GetMPThread() {return m_threadDone ? NULL : m_thread;}
 
   private slots:
     void RefreshEnv();
     void RandomizeEnvColors();
+
     void AddObstacle();
+    void DeleteObstacle();
+    void MoveObstacle();
+    void DuplicateObstacles();
+    void ChangeBoundaryForm();
+    void EditRobot();
+
+    void AddRegionBox();
+    void AddRegionSphere();
+    void DeleteRegion();
+    void MakeRegionAttract();
+    void MakeRegionAvoid();
+    void ChangeRegionType(bool _attract);
+
+    void HandleTimer();
+    void MapEnvironment();
+    void ThreadDone();
+
+  private:
+    void CreateActions();
+    void SetUpCustomSubmenu();
+    void SetUpToolbar(); //Just randomize colors button
+    void Reset();
+    void SetHelpTips();
+
+    bool m_regionsStarted, m_threadDone;
+    QMenu* m_obstacleMenu;
+    QThread* m_thread;
+    QTimer* m_timer;
+};
+
+class MapEnvironmentWorker : public QObject {
+  Q_OBJECT
+
+  public slots:
+    void Solve();
+
+  signals:
+    void Finished();
 };
 
 #endif
-
-
-
-
-
-
-

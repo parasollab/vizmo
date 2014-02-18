@@ -1,28 +1,37 @@
-#ifndef QUERY_H_
-#define QUERY_H_
+#ifndef QUERYMODEL_H_
+#define QUERYMODEL_H_
 
-#include "Plum/GLModel.h"
+#include "Model.h"
+#include "CfgModel.h"
 
 class RobotModel;
 
-class QueryModel : public GLModel {
+class QueryModel : public LoadableModel {
   public:
-    QueryModel(const string& _filename, RobotModel* _robotModel);
-    virtual ~QueryModel();
+    QueryModel(const string& _filename);
+    ~QueryModel();
 
-    virtual const string GetName() const { return "Query"; }
-    virtual vector<string> GetInfo() const;
-    size_t GetQuerySize() const {return m_queries.size();}
-    const vector<double>& GetStartGoal(size_t _i) {return m_queries[_i];}
+    size_t GetQuerySize() {return m_cfgs.size();}
+    CfgModel& GetQueryCfg(size_t _i) {return m_cfgs[_i];}
 
-    virtual void ParseFile();
-    virtual void BuildModels();
-    virtual void Draw(GLenum _mode);
+    void AddCfg(int _num);
+    void SwapUp(size_t _i) {swap(m_cfgs[_i], m_cfgs[_i-1]);}
+    void SwapDown(size_t _i) {swap(m_cfgs[_i], m_cfgs[_i+1]);}
+    void DeleteQuery(size_t _i) {m_cfgs.erase(m_cfgs.begin()+_i);}
+
+    void ParseFile();
+    void Build();
+    void Select(GLuint* _index, vector<Model*>& _sel) {}
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected() {}
+    void Print(ostream& _os) const;
+
+    void SaveQuery(const string& _filename);
 
   private:
-    vector<vector<double> > m_queries; //vector of queries
+    vector<CfgModel> m_cfgs; //query points
     size_t m_glQueryIndex; //Display list index
-    RobotModel * m_robotModel; //robot model
 };
 
 #endif

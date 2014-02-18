@@ -1,22 +1,27 @@
 #ifndef BOUNDARYMODEL_H_
 #define BOUNDARYMODEL_H_
 
-#include "Plum/GLModel.h"
+#include "Model.h"
+#include <string>
 
-class BoundaryModel : public GLModel {
+class BoundaryModel : public Model {
   public:
-    BoundaryModel();
+    BoundaryModel(const string& _name);
     virtual ~BoundaryModel();
 
-    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
-    virtual void BuildModels() = 0;
-    virtual void Draw(GLenum mode);
-    virtual void DrawSelect();
-
-    virtual const string GetName() const {return "Wrong object";}
-    virtual vector<string> GetInfo() const = 0;
-
+    virtual vector<pair<double, double> > GetRanges() = 0;
     virtual bool Parse(istream& _is) = 0;
+    virtual void Build() = 0;
+    void Select(GLuint* _index, vector<Model*>& _sel);
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected();
+    virtual void Print(ostream& _os) const = 0;
+
+    friend ostream& operator<<(ostream& _os, const BoundaryModel& _b) {_b.Write(_os); return _os;}
+
+  protected:
+    virtual void Write(ostream& _os) const = 0;
 
   protected:
     size_t m_displayID, m_linesID;

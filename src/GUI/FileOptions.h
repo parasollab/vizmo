@@ -2,21 +2,17 @@
 * Class for the "File" submenu and associated action button
 ***************************************************************************/
 
-#ifndef FILE_OPTIONS_H
-#define FILE_OPTIONS_H
+#ifndef FILEOPTIONS_H_
+#define FILEOPTIONS_H_
 
 #include "OptionsBase.h"
 
-class FileOptions : public OptionsBase{
+class FileOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    FileOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
-    void CreateActions();
-    void SetUpToolbar(); //just the folder button in this case
-    void Reset();
-    void SetHelpTips();
+    FileOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
   private slots:
     void LoadFile();
@@ -24,6 +20,12 @@ class FileOptions : public OptionsBase{
     void SaveEnv();
     void SaveQryFile();
     void SaveRoadmap();
+
+  private:
+    void CreateActions();
+    void SetUpToolbar(); //just the folder button in this case
+    void Reset();
+    void SetHelpTips();
 };
 
 #endif

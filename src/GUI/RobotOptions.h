@@ -2,23 +2,23 @@
  * Class for the "Robot" submenu
  ********************************************************************/
 
-#ifndef ROBOT_OPTIONS_H
-#define ROBOT_OPTIONS_H
+#ifndef ROBOTOPTIONS_H_
+#define ROBOTOPTIONS_H_
 
 #include "OptionsBase.h"
 
-class RobotOptions : public OptionsBase{
+class RobotOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    RobotOptions(QWidget* _parent = 0, VizmoMainWin* _mainWin = 0);
+    RobotOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+
+  private slots:
     void CreateActions();
     void SetUpToolbar(); //no tool buttons in this case; just a placeholder
     void Reset();
     void SetHelpTips();
-
-  private slots:
     void ResetRobotPosition();
     //	void ShowRobotCfg();
 };

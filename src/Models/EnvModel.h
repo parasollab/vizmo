@@ -1,37 +1,48 @@
 #ifndef ENVMODEL_H_
 #define ENVMODEL_H_
 
-#include "Plum/GLModel.h"
-#include "Plum/EnvObj/MultiBodyModel.h"
-#include "Models/BoundaryModel.h"
-#include "Plum/EnvObj/RobotInfo.h"
+#include "MPProblem/Environment.h"
 
-#include <graph.h>
-#include <algorithms/graph_input_output.h>
-#include <algorithms/connected_components.h>
+#include "BoundaryModel.h"
+#include "Model.h"
+#include "MultiBodyModel.h"
+#include "RegionModel.h"
 
-class EnvModel : public GLModel {
+class EnvModel : public LoadableModel {
 
   public:
     EnvModel(const string& _filename);
     ~EnvModel();
 
     //Access functions
-    virtual const string GetName() const { return "Environment"; }
-    string GetModelDataDir(){ return  m_modelDataDir; }
-    int GetDOF(){ return m_dof; }
-    vector<MultiBodyModel*> GetMultiBodies(){ return m_multibodies; }
-    vector<Robot>& GetRobots(){ return m_robots; }
+    string GetModelDataDir() {return  m_modelDataDir;}
+    int GetDOF() {return m_dof;}
+    double GetRadius() const {return m_radius;}
+    const Point3d& GetCOM() const {return m_centerOfMass;}
+    Environment* GetEnvironment() {return m_environment;}
+
+    vector<MultiBodyModel*> GetMultiBodies() {return m_multibodies;}
+
+    //Boundary
     BoundaryModel* GetBoundary() {return m_boundary;}
-    double GetRadius() const { return m_radius; }
-    const Point3d& GetCOM() const { return m_centerOfMass; }
+    void SetBoundary(BoundaryModel* _b) {m_boundary = _b;}
+
+    //Regions
+    bool IsNonCommitRegion(RegionModel* _r) const;
+    const vector<RegionModel*>& GetAttractRegions() const {return m_attractRegions;}
+    const vector<RegionModel*>& GetAvoidRegions() const {return m_avoidRegions;}
+    const vector<RegionModel*>& GetNonCommitRegions() const {return m_nonCommitRegions;}
+    void AddAttractRegion(RegionModel* _r) {m_attractRegions.push_back(_r);}
+    void AddAvoidRegion(RegionModel* _r) {m_avoidRegions.push_back(_r);}
+    void AddNonCommitRegion(RegionModel* _r) {m_nonCommitRegions.push_back(_r);}
+    void ChangeRegionType(RegionModel* _r, bool _attract);
+    void DeleteRegion(RegionModel* _r);
 
     //Load functions
     virtual void ParseFile();
     void SetModelDataDir(const string _modelDataDir);
     void NewModelDir();
     void ParseBoundary(ifstream& _ifs);
-    void BuildRobotStructure();
 
     //Display functions
     void ChangeColor(); //changes object's color randomly
@@ -41,27 +52,34 @@ class EnvModel : public GLModel {
     // TESTING to save Env. file
     bool SaveFile(const char* _filename);
 
-    virtual void BuildModels();
-    virtual void Draw(GLenum _mode);
-    virtual void Select(unsigned int* _index, vector<GLModel*>& _sel);
-    virtual void GetChildren(list<GLModel*>& _models);
-    virtual vector<string> GetInfo() const;
+    virtual void SetSelectable(bool _s); //propagate selectability to children
+    virtual void GetChildren(list<Model*>& _models);
+
+    void Build();
+    void Select(GLuint* _index, vector<Model*>& _sel);
+    void DrawRender();
+    void DrawSelect();
+    void DrawSelected() {}
+    void Print(ostream& _os) const;
 
   private:
     string m_modelDataDir;
     bool m_containsSurfaces;
 
-    typedef stapl::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
-    RobotGraph m_robotGraph;
-    vector<Robot> m_robots;
-
     int m_dof;
+    string SetTransformRight(string _transformString);
 
     vector<MultiBodyModel*> m_multibodies;
 
     double m_radius;
     Point3d m_centerOfMass;
+
     BoundaryModel* m_boundary;
+
+    vector<RegionModel*> m_attractRegions, m_avoidRegions, m_nonCommitRegions;
+
+    //PMPL environment
+    Environment* m_environment;
 };
 
 #endif
