@@ -430,17 +430,9 @@ RoadmapOptions::ShowNodeEditDialog(){
   VI vi = graph->find_vertex(nodeID);
 
   for(EI ei = vi->begin(); ei != vi->end(); ++ei){
-    VID startID = min((*ei).source(), (*ei).target());
-    VID endID = max((*ei).source(), (*ei).target());
-    EID eid(startID, endID);
-    eids.push_back(eid);
+    eids.push_back((*ei).descriptor());
     EdgeModel* edgePreview = new EdgeModel((*ei).property());
-
-    if(nodeID == startID)
-      edgePreview->Set(nodePreview, &(graph->find_vertex(endID)->property()));
-    else
-      edgePreview->Set(&(graph->find_vertex(startID)->property()), nodePreview);
-
+    edgePreview->Set(nodePreview, &(graph->find_vertex((*ei).target())->property()));
     tempEdges.push_back(edgePreview);
   }
 
