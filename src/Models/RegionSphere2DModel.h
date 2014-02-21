@@ -1,15 +1,15 @@
-#ifndef REGIONSPHEREMODEL_H_
-#define REGIONSPHEREMODEL_H_
+#ifndef REGIONSPHERE2DMODEL_H_
+#define REGIONSPHERE2DMODEL_H_
 
 #include "RegionModel.h"
 
 class Camera;
 
-class RegionSphereModel : public RegionModel {
+class RegionSphere2DModel : public RegionModel {
   public:
     enum Highlight {NONE, PERIMETER, ALL};
 
-    RegionSphereModel(const Point3d& _center = Point3d(), double _radius = -1, bool _firstClick = true);
+    RegionSphere2DModel(const Point3d& _center = Point3d(), double _radius = -1, bool _firstClick = true);
 
     shared_ptr<Boundary> GetBoundary() const;
 
@@ -33,20 +33,13 @@ class RegionSphereModel : public RegionModel {
 
     double WSpaceArea() const;
 
-  protected:
-    void GetCameraVectors(Camera* _c);
-
   private:
     Vector3d m_center, m_centerOrig;
     double m_radius;
 
-    bool m_lmb, m_rmb, m_firstClick;
+    bool m_lmb, m_firstClick;
     Highlight m_highlightedPart;
     QPoint m_clicked;
-
-    Vector3d m_cameraX;
-    Vector3d m_cameraY;
-    Vector3d m_cameraZ;
 };
 
 #endif

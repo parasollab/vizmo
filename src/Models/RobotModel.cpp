@@ -156,3 +156,16 @@ void
 RobotModel::Print(ostream& _os) const {
   _os << Name() << endl;
 }
+
+bool
+RobotModel::IsPlanar() {
+  const MultiBodyModel::Robots& robots = m_robotModel->GetRobots();
+  typedef MultiBodyModel::Robots::const_iterator RIT;
+
+  for(RIT rit = robots.begin(); rit != robots.end(); ++rit) {
+    BodyModel* base = rit->first;
+    if(base->IsBasePlanar()) return true;
+  }
+
+  return false;
+}

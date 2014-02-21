@@ -14,6 +14,8 @@ OBJECTS += \
 	   Models/PolyhedronModel.o \
 	   Models/QueryModel.o \
 	   Models/RegionBoxModel.o \
+	   Models/RegionBox2DModel.o \
 	   Models/RegionSphereModel.o \
+	   Models/RegionSphere2DModel.o \
 	   Models/RobotModel.o \
 	   Models/Vizmo.o

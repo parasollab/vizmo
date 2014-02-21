@@ -8,7 +8,7 @@ class Camera;
 class RegionBoxModel : public RegionModel {
   public:
     enum Highlight {NONE = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8, FRONT = 16,
-        BACK = 32, ALL = 64};
+        BACK = 32, ALL = 63};
 
     RegionBoxModel();
 
@@ -36,9 +36,12 @@ class RegionBoxModel : public RegionModel {
     double WSpaceArea() const;
 
   protected:
-    //helper function
+    //helper functions
     void FindCenter();
     void GetCameraVectors(Camera* _c);
+    void MapControls(const Vector3d& _deltaMouse,
+        Vector3d& _deltaWorld, vector<Vector3d>& _axisCtrlDir);
+    void ApplyTransform(const Vector3d& _delta);
 
   private:
     //event tracking storage

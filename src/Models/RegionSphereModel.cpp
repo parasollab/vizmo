@@ -66,13 +66,11 @@ RegionSphereModel::DrawSelected() {
   if(m_radius < 0)
     return;
 
-  glDisable(GL_LIGHTING);
   glLineWidth(4);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
   glutWireSphere(m_radius, 20, 20);
   glPopMatrix();
-  glEnable(GL_LIGHTING);
 }
 
 //output model info
@@ -87,13 +85,14 @@ RegionSphereModel::MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
+  GetCameraVectors(_c);
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_lmb = true;
     if(m_firstClick) {
       //set center and click spot
       int x = m_clicked.x(), y = m_clicked.y();
-      m_center = ProjectToWorld(x, y, Point3d(0, 0, 0), -_c->GetDir());
+      m_center = ProjectToWorld(x, y, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
     }
     return true;
   }
@@ -126,15 +125,15 @@ RegionSphereModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
     return false;
 
   if(m_lmb) {
-    Point3d prj = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
+    Point3d m = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
         m_center, -_c->GetDir());
     if(m_firstClick || m_highlightedPart == PERIMETER)
-      m_radius = (m_center - prj).norm();
+      m_radius = (m_center - m).norm();
     else if(m_highlightedPart == ALL) {
-      Point3d prjClicked = ProjectToWorld(m_clicked.x(), m_clicked.y(),
+      Point3d c = ProjectToWorld(m_clicked.x(), m_clicked.y(),
           m_center, -_c->GetDir());
-      Vector3d diff = prj - prjClicked;
-      m_center = m_centerOrig + diff;
+      Vector3d delta = m - c;
+      m_center = m_centerOrig + delta;
     }
 
     ClearNodeCount();
@@ -143,8 +142,13 @@ RegionSphereModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
     return true;
   }
   else if(m_rmb && m_highlightedPart) {
-    Vector3d diff = (m_centerOrig -_c->GetEye()).normalize() * (g_height - _e->pos().y() - m_clicked.y());
-    m_center = m_centerOrig + diff;
+    Point3d m = ProjectToWorld(0, g_height - _e->pos().y(),
+        m_center, -_c->GetDir());
+    Point3d c = ProjectToWorld(0, m_clicked.y(),
+        m_center, -_c->GetDir());
+    Vector3d delta = (m_centerOrig - _c->GetEye()).normalize() *
+        ((m - c) * m_cameraY);
+    m_center = m_centerOrig + delta;
     return true;
   }
   return false;
@@ -156,9 +160,9 @@ RegionSphereModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
     return false;
 
   m_highlightedPart = NONE;
-  Point3d prj = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
+  Point3d m = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
       m_center, -_c->GetDir());
-  double v = (prj - m_center).norm();
+  double v = (m - m_center).norm();
   if(v < m_radius - .5)
     m_highlightedPart = ALL;
   else if(v < m_radius + .5)
@@ -173,4 +177,16 @@ RegionSphereModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
 double
 RegionSphereModel::WSpaceArea() const {
   return PI * sqr(m_radius);
+}
+
+void
+RegionSphereModel::GetCameraVectors(Camera* _c) {
+  Vector3d s = ProjectToWorld(0, 0, Point3d(0, 0, 0), -_c->GetDir());
+  Vector3d e = ProjectToWorld(1, 0, Point3d(0, 0, 0), -_c->GetDir());
+  m_cameraX = (e - s).normalize();
+
+  e = ProjectToWorld(0, 1, Point3d(0, 0, 0), -_c->GetDir());
+  m_cameraY = (e - s).normalize();
+
+  m_cameraZ = (-_c->GetDir()).normalize();
 }

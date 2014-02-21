@@ -8,10 +8,9 @@
 
 #include "MainWindow.h"
 #include "Models/EnvModel.h"
-#include "Models/RegionSphereModel.h"
-#include "Models/RegionBoxModel.h"
-
+#include "Models/RegionModel.h"
 #include "Models/Vizmo.h"
+
 #include "Utilities/Camera.h"
 #include "Utilities/Font.h"
 #include "Utilities/GLUtils.h"

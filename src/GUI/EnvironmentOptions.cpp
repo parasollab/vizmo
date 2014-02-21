@@ -9,7 +9,10 @@
 #include "ObstaclePosDialog.h"
 #include "Models/EnvModel.h"
 #include "Models/RegionBoxModel.h"
+#include "Models/RegionBox2DModel.h"
 #include "Models/RegionSphereModel.h"
+#include "Models/RegionSphere2DModel.h"
+#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/AddSphereRegion.xpm"
@@ -206,8 +209,16 @@ EnvironmentOptions::AddRegionBox() {
     m_regionsStarted = true;
   }
 
-  //create new spherical region and add to environment
-  RegionBoxModel* r = new RegionBoxModel();
+  //create new box region
+  RegionModel* r;
+
+  //check to see if robot is 2D or 3D, set region to the same
+  RobotModel* robot = GetVizmo().GetRobot();
+  if(robot->IsPlanar()) r = new RegionBox2DModel();
+  else r = new RegionBoxModel();
+
+  //add region to environment
+  //RegionBoxModel* r = new RegionBoxModel();
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   //set mouse events to current region for GLWidget
@@ -225,8 +236,16 @@ EnvironmentOptions::AddRegionSphere() {
     m_regionsStarted = true;
   }
 
-  //create new spherical region and add to environment
-  RegionSphereModel* r = new RegionSphereModel();
+  //create new sphere region
+  RegionModel* r;
+
+  //check to see if robot is 2D or 3D, set region to the same
+  RobotModel* robot = GetVizmo().GetRobot();
+  if(robot->IsPlanar()) r = new RegionSphere2DModel();
+  else r = new RegionSphereModel();
+
+  //add region to environment
+  //RegionSphereModel* r = new RegionSphereModel();
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   //set mouse events to current region for GLWidget
@@ -262,7 +281,8 @@ void
 EnvironmentOptions::ChangeRegionType(bool _attract) {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   //alert that only the boundary should be selected
-  if(sel.size() == 1 && (sel[0]->Name() == "Box Region" || sel[0]->Name() == "Sphere Region")) {
+  if(sel.size() == 1 && (sel[0]->Name() == "Box Region" || sel[0]->Name() == "Sphere Region"
+        || sel[0]->Name() == "Box Region 2D" || sel[0]->Name() == "Sphere Region 2D")) {
     RegionModel* r = (RegionModel*)sel[0];
     if(GetVizmo().GetEnv()->IsNonCommitRegion(r)) {
       r->SetType(_attract ? RegionModel::ATTRACT : RegionModel::AVOID);

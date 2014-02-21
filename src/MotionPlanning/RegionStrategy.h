@@ -5,6 +5,7 @@
 
 #include "Models/RegionModel.h"
 #include "Models/RegionSphereModel.h"
+#include "Models/RegionSphere2DModel.h"
 #include "Models/Vizmo.h"
 
 template<class MPTraits>
@@ -295,10 +296,13 @@ RegionStrategy<MPTraits>::RecommendRegions(vector<VID>& _vids, size_t _i) {
       if(g->get_degree(*vit) < 1) {
         //node is not connected to anything
         //recommend a region
-        RegionSphereModel* r = new RegionSphereModel(
-            g->find_vertex(*vit)->property().GetPoint(),
-            this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100,
-            false);
+        RegionModel* r;
+        if(GetVizmo().GetRobot()->IsPlanar())
+          r = new RegionSphere2DModel(g->find_vertex(*vit)->property().GetPoint(),
+              this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100, false);
+        else
+          r = new RegionSphereModel(g->find_vertex(*vit)->property().GetPoint(),
+              this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100, false);
         r->SetCreationIter(_i);
         GetVizmo().GetEnv()->AddNonCommitRegion(r);
       }

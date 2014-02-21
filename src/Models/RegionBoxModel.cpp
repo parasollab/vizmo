@@ -1,7 +1,5 @@
 #include "RegionBoxModel.h"
 
-#include "glut.h"
-
 #include <QtGui>
 
 #include "MPProblem/BoundingBox.h"
@@ -35,8 +33,6 @@ RegionBoxModel::Select(GLuint* _index, vector<Model*>& _sel) {
 void
 RegionBoxModel::DrawRender() {
   //configure gl modes
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
   glColor4fv(m_color);
 
   //create model
@@ -100,9 +96,6 @@ RegionBoxModel::DrawRender() {
     glVertex3dv(m_boxVertices[7]);
   glEnd();
 
-  //reset gl modes to previous configuration
-  glPopMatrix();
-
   //change mouse cursor if highlighted
   if(m_highlightedPart == ALL)
     QApplication::setOverrideCursor(Qt::SizeAllCursor);
@@ -120,10 +113,6 @@ RegionBoxModel::DrawRender() {
 
 void
 RegionBoxModel::DrawSelect() {
-  //configure gl modes
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-
   //create model
   glBegin(GL_QUADS);
 
@@ -183,19 +172,13 @@ RegionBoxModel::DrawSelect() {
     glVertex3dv(m_boxVertices[3]);
     glVertex3dv(m_boxVertices[7]);
   glEnd();
-
-  //reset gl modes to previous configuration
-  glPopMatrix();
 }
 
 //DrawSelect is only called if item is selected
 void
 RegionBoxModel::DrawSelected() {
   //configure gl modes
-  glDisable(GL_LIGHTING);
-  glMatrixMode(GL_MODELVIEW);
   glLineWidth(4);
-  glPushMatrix();
   glColor3f(.9, .9, 0.);
 
   //create model
@@ -220,10 +203,6 @@ RegionBoxModel::DrawSelected() {
     glVertex3dv(m_boxVertices[3]);
     glVertex3dv(m_boxVertices[7]);
   glEnd();
-
-  //reset gl modes to previous configuration
-  glPopMatrix();
-  glEnable(GL_LIGHTING);
 }
 
 //output model info
@@ -240,16 +219,15 @@ RegionBoxModel::MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
+  GetCameraVectors(_c);
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_lmb = true;
-    GetCameraVectors(_c);
     return true;
   }
   if(_e->buttons() == Qt::RightButton && !m_firstClick && m_highlightedPart > NONE) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_rmb = true;
-    GetCameraVectors(_c);
     return true;
   }
   return false;
@@ -276,190 +254,75 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
+  //get mouse position
+  QPoint mousePos = QPoint(_e->pos().x(), g_height - _e->pos().y());
+
   if(m_lmb) {
-    //get mouse position
-    QPoint mousePos = QPoint(_e->pos().x(), g_height - _e->pos().y());
-    Point3d c;
-    Point3d m;
+    Point3d c; //click point
+    Point3d m; //mouse point
 
     //handle creation
     if(m_firstClick) {
       //create box: start from top left and draw CCW about vector (0, 0, 1)
-      c = ProjectToWorld(m_clicked.x(), m_clicked.y(), Point3d(), -_c->GetDir());
-      m = ProjectToWorld(mousePos.x(), mousePos.y(), Point3d(), -_c->GetDir());
-      double minx = min(c[0], m[0]), maxx = max(c[0], m[0]);
-      double miny = min(c[1], m[1]), maxy = max(c[1], m[1]);
-      double minz = min(c[2], m[2]), maxz = max(c[2], m[2]);
-      m_boxVertices[0] = Point3d(minx, maxy, maxz);
-      m_boxVertices[1] = Point3d(minx, miny, maxz);
-      m_boxVertices[2] = Point3d(maxx, miny, maxz);
-      m_boxVertices[3] = Point3d(maxx, maxy, maxz);
-      m_boxVertices[4] = Point3d(minx, maxy, minz);
-      m_boxVertices[5] = Point3d(minx, miny, minz);
-      m_boxVertices[6] = Point3d(maxx, miny, minz);
-      m_boxVertices[7] = Point3d(maxx, maxy, minz);
+      c = ProjectToWorld(m_clicked.x(), m_clicked.y(),
+          _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
+      m = ProjectToWorld(mousePos.x(), mousePos.y(),
+          _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
+      double minX = min(c[0], m[0]), maxX = max(c[0], m[0]);
+      double minY = min(c[1], m[1]), maxY = max(c[1], m[1]);
+      double minZ = min(c[2], m[2]), maxZ = max(c[2], m[2]);
+      m_boxVertices[0] = Point3d(minX, maxY, maxZ);
+      m_boxVertices[1] = Point3d(minX, minY, maxZ);
+      m_boxVertices[2] = Point3d(maxX, minY, maxZ);
+      m_boxVertices[3] = Point3d(maxX, maxY, maxZ);
+      m_boxVertices[4] = Point3d(minX, maxY, minZ);
+      m_boxVertices[5] = Point3d(minX, minY, minZ);
+      m_boxVertices[6] = Point3d(maxX, minY, minZ);
+      m_boxVertices[7] = Point3d(maxX, maxY, minZ);
     }
-    //handle resizing
-    else if(m_highlightedPart > NONE && m_highlightedPart < ALL) {
+    //handle translating and resizing
+    else if(m_highlightedPart > NONE) {
+      //get click pos, mouse pos, and their difference
       c = ProjectToWorld(m_clicked.x(), m_clicked.y(), m_center, -_c->GetDir());
       m = ProjectToWorld(mousePos.x(), mousePos.y(), m_center, -_c->GetDir());
-      Vector3d xHat(1, 0, 0);
-      Vector3d yHat(0, 1, 0);
-      Vector3d zHat(0, 0, 1);
-      double xScore, yScore, zScore, score;
-      double deltaX = 0;
-      double deltaY = 0;
-      double deltaZ = 0;
+      Vector3d deltaMouse = m - c;
+      //resizing
+      if(m_highlightedPart < ALL) {
+        //axisCtrlDir[q] vector tracks which camera direction is
+        //controlling world direction q - needed to reassign an unused
+        //mouse x or y control to the cameraZ direction
+        Vector3d deltaWorld;
+        vector<Vector3d> axisCtrlDir(3);
 
-      //calculate x motion
-      xScore = fabs(m_cameraX * xHat);
-      yScore = fabs(m_cameraX * yHat);
-      zScore = fabs(m_cameraX * zHat);
-      score = max(xScore, yScore);
-      score = max(score, fabs(zScore));
-
-      if(score == xScore) {
-        //cameraX is nearest the X direction
-        deltaX = ((m - c) * m_cameraX) * (m_cameraX * xHat);
+        MapControls(deltaMouse, deltaWorld, axisCtrlDir);
+        ApplyTransform(deltaWorld);
       }
-      else if(score == yScore) {
-        //cameraX is nearest the Y direction
-        deltaY = ((m - c) * m_cameraX) * (m_cameraX * yHat);
-      }
-      else if(score == zScore) {
-        //cameraX is nearest the Z direction
-        deltaZ = ((m - c) * m_cameraX) * (m_cameraX * zHat);
-      }
-
-      //calculate y motion
-      xScore = fabs(m_cameraY * xHat);
-      yScore = fabs(m_cameraY * yHat);
-      zScore = fabs(m_cameraY * zHat);
-      score = max(xScore, yScore);
-      score = max(score, fabs(zScore));
-
-      if(score == xScore) {
-        //cameraY is nearest the X direction
-        deltaX = ((m - c) * m_cameraY) * (m_cameraY * xHat);
-      }
-      else if(score == yScore) {
-        //cameraY is nearest the Y direction
-        deltaY = ((m - c) * m_cameraY) * (m_cameraY * yHat);
-      }
-      else if(score == zScore) {
-        //cameraY is nearest the Z direction
-        deltaZ = ((m - c) * m_cameraY) * (m_cameraY * zHat);
-      }
-
-      //if a mouse axis is unused, assign it to the appropriate box axis
-      if((m_highlightedPart & (TOP + BOTTOM)) &&
-          (m_highlightedPart & (RIGHT + LEFT)) && deltaZ) {
-        if(!deltaX) deltaX = deltaZ;
-        if(!deltaY) deltaY = deltaZ;
-      }
-      if((m_highlightedPart & (TOP + BOTTOM)) &&
-          (m_highlightedPart & (FRONT + BACK)) && deltaX) {
-        if(!deltaZ) deltaZ = -deltaX;
-        if(!deltaY) deltaY = deltaX;
-      }
-      if((m_highlightedPart & (RIGHT + LEFT)) &&
-          (m_highlightedPart & (FRONT + BACK)) && deltaY) {
-        if(!deltaZ) {
-          deltaZ = -deltaY;
-          if(m_cameraZ * zHat < 0) deltaZ = deltaY;
-        }
-        if(!deltaX) {
-          deltaX = deltaY;
-          if(m_cameraZ * xHat > 0) deltaX = -deltaY;
-        }
-      }
-
-      //apply delta to vertices
-      if(m_highlightedPart & LEFT) {
-        m_boxVertices[0][0] = m_prevPos[0][0] + deltaX;
-        m_boxVertices[1][0] = m_prevPos[1][0] + deltaX;
-        m_boxVertices[4][0] = m_prevPos[4][0] + deltaX;
-        m_boxVertices[5][0] = m_prevPos[5][0] + deltaX;
-      }
-      if(m_highlightedPart & RIGHT) {
-        m_boxVertices[2][0] = m_prevPos[2][0] + deltaX;
-        m_boxVertices[3][0] = m_prevPos[3][0] + deltaX;
-        m_boxVertices[6][0] = m_prevPos[6][0] + deltaX;
-        m_boxVertices[7][0] = m_prevPos[7][0] + deltaX;
-      }
-      if(m_highlightedPart & TOP) {
-        m_boxVertices[0][1] = m_prevPos[0][1] + deltaY;
-        m_boxVertices[3][1] = m_prevPos[3][1] + deltaY;
-        m_boxVertices[4][1] = m_prevPos[4][1] + deltaY;
-        m_boxVertices[7][1] = m_prevPos[7][1] + deltaY;
-      }
-      if(m_highlightedPart & BOTTOM) {
-        m_boxVertices[1][1] = m_prevPos[1][1] + deltaY;
-        m_boxVertices[2][1] = m_prevPos[2][1] + deltaY;
-        m_boxVertices[5][1] = m_prevPos[5][1] + deltaY;
-        m_boxVertices[6][1] = m_prevPos[6][1] + deltaY;
-      }
-      if(m_highlightedPart & FRONT) {
-        m_boxVertices[0][2] = m_prevPos[0][2] + deltaZ;
-        m_boxVertices[1][2] = m_prevPos[1][2] + deltaZ;
-        m_boxVertices[2][2] = m_prevPos[2][2] + deltaZ;
-        m_boxVertices[3][2] = m_prevPos[3][2] + deltaZ;
-      }
-      if(m_highlightedPart & BACK) {
-        m_boxVertices[4][2] = m_prevPos[4][2] + deltaZ;
-        m_boxVertices[5][2] = m_prevPos[5][2] + deltaZ;
-        m_boxVertices[6][2] = m_prevPos[6][2] + deltaZ;
-        m_boxVertices[7][2] = m_prevPos[7][2] + deltaZ;
-      }
-      //ensure that [0] is still top left and that drawing is CCW
-      if(m_boxVertices[0][0] > m_boxVertices[3][0]) {
-        swap(m_boxVertices[0], m_boxVertices[3]);
-        swap(m_boxVertices[1], m_boxVertices[2]);
-        swap(m_boxVertices[4], m_boxVertices[7]);
-        swap(m_boxVertices[5], m_boxVertices[6]);
-        m_highlightedPart = m_highlightedPart ^ LEFT ^ RIGHT;
-      }
-      if(m_boxVertices[0][1] < m_boxVertices[1][1]) {
-        swap(m_boxVertices[0], m_boxVertices[1]);
-        swap(m_boxVertices[2], m_boxVertices[3]);
-        swap(m_boxVertices[4], m_boxVertices[5]);
-        swap(m_boxVertices[6], m_boxVertices[7]);
-        m_highlightedPart = m_highlightedPart ^ TOP ^ BOTTOM;
-      }
-      if(m_boxVertices[0][2] < m_boxVertices[4][2]) {
-        swap(m_boxVertices[0], m_boxVertices[4]);
-        swap(m_boxVertices[1], m_boxVertices[5]);
-        swap(m_boxVertices[2], m_boxVertices[6]);
-        swap(m_boxVertices[3], m_boxVertices[7]);
-        m_highlightedPart = m_highlightedPart ^ FRONT ^ BACK;
-      }
+      //translation in camera x/y
+      else if(m_highlightedPart == ALL)
+        ApplyTransform(deltaMouse);
     }
-
-    //translation in camera x/y
-    else if(m_highlightedPart == ALL) {
-      Vector3d worldPrj = ProjectToWorld(mousePos.x(), mousePos.y(),
-        m_center, -_c->GetDir());
-      Point3d oldPos = ProjectToWorld(m_clicked.x(), m_clicked.y(),
-          m_center, -_c->GetDir());
-      Vector3d delta = worldPrj - oldPos;
-      for(size_t i = 0; i < m_boxVertices.size(); ++i)
-        m_boxVertices[i] = m_prevPos[i] + delta;
-    }
-
+    //reset feedback values
     ClearNodeCount();
     ClearFACount();
-
     return true;
   }
 
-  //translation in camera z
+  //translation in ~camera z
   if(m_rmb) {
-    //get mouse position
-    QPoint mousePos = QPoint(_e->pos().x(), g_height - _e->pos().y());
+    //get screen-y mouse and click positions
+    Point3d m = ProjectToWorld(0, mousePos.y(), m_center, -_c->GetDir());
+    Point3d c = ProjectToWorld(0, m_clicked.y(), m_center, -_c->GetDir());
+    //find the difference between m and c in the screen-y direction,
+    //then multiply by the unit vector pointing from the camera to the
+    //center to get delta
     Vector3d delta = (m_center - _c->GetEye()).normalize() *
-      (mousePos.y() - m_clicked.y());
-    for(size_t i = 0; i < m_boxVertices.size(); ++i)
-      m_boxVertices[i] = m_prevPos[i] + delta;
+      ((m - c) * m_cameraY);
+    //translate region according to delta
+    ApplyTransform(delta);
+
+    //reset feedback values
+    ClearNodeCount();
+    ClearFACount();
     return true;
   }
 
@@ -488,8 +351,8 @@ RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   //e is a vector pointing from a box corner c to its neighbor c+1
   Vector2d e, r;
   //check front edges
-  if(!m_highlightedPart) {
-    for(int i = 0; i < 4; ++i) {
+  for(int i = 0; i < 4; ++i) {
+    if(!m_highlightedPart) {
       e = m_winVertices[(i + 1) % 4] - m_winVertices[i];
       r = m - m_winVertices[i];
       if(r.comp(e) > 0 && r.comp(e) < e.norm() &&
@@ -512,8 +375,8 @@ RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
     }
   }
   //check back edges
-  if(!m_highlightedPart) {
-    for(int i = 0; i < 4; ++i) {
+  for(int i = 0; i < 4; ++i) {
+    if(!m_highlightedPart) {
       e = m_winVertices[(i + 1) % 4 + 4] - m_winVertices[i + 4];
       r = m - m_winVertices[i + 4];
       if(r.comp(e) > 0 && r.comp(e) < e.norm() &&
@@ -536,8 +399,8 @@ RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
     }
   }
   //check side edges
-  if(!m_highlightedPart) {
-    for(int i = 0; i < 4; ++i) {
+  for(int i = 0; i < 4; ++i) {
+    if(!m_highlightedPart) {
       e = m_winVertices[i] - m_winVertices[i + 4];
       r = m - m_winVertices[i + 4];
       if(r.comp(e) > 0 && r.comp(e) < e.norm() &&
@@ -586,18 +449,176 @@ RegionBoxModel::WSpaceArea() const {
 
 void
 RegionBoxModel::FindCenter() {
+  //find midpoint of the diagonal from top-left-front to bottom-right-back
   m_center = (m_boxVertices[0] + m_boxVertices[6])/2.;
 }
 
 void
 RegionBoxModel::GetCameraVectors(Camera* _c) {
-  Vector3d s = ProjectToWorld(0, 0, Point3d(0, 0, 0), -_c->GetDir());
-  Vector3d e = ProjectToWorld(1, 0, Point3d(0, 0, 0), -_c->GetDir());
+  //project start and end points to the world to find the cameraX direction
+  Vector3d s = ProjectToWorld(0, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
+  Vector3d e = ProjectToWorld(1, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
   m_cameraX = (e - s).normalize();
 
-  s = ProjectToWorld(0, 0, Point3d(0, 0, 0), -_c->GetDir());
-  e = ProjectToWorld(0, 1, Point3d(0, 0, 0), -_c->GetDir());
+  //project a new end point to find the cameraY direction
+  e = ProjectToWorld(0, 1, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
   m_cameraY = (e - s).normalize();
 
+  //get cameraZ from _c->GetDir()
   m_cameraZ = (-_c->GetDir()).normalize();
+}
+
+void
+RegionBoxModel::MapControls(const Vector3d& _deltaMouse,
+    Vector3d& _deltaWorld, vector<Vector3d>& _axisCtrlDir) {
+  double score, xScore, yScore, zScore;
+  Vector3d xHat(1, 0, 0);
+  Vector3d yHat(0, 1, 0);
+  Vector3d zHat(0, 0, 1);
+
+  //find the world axis Q closest to m_cameraX and
+  //set _delta[Q] = change in m_cameraX
+  xScore = fabs(m_cameraX * xHat);
+  yScore = fabs(m_cameraX * yHat);
+  zScore = fabs(m_cameraX * zHat);
+  score = max(xScore, yScore);
+  score = max(score, zScore);
+  if(score == xScore) {
+    //m_cameraX is nearest the X direction
+    _deltaWorld[0] = _deltaMouse.proj(m_cameraX) * xHat;
+    _axisCtrlDir[0] = m_cameraX;
+  }
+  else if(score == yScore) {
+    //m_cameraX is nearest the Y direction
+    _deltaWorld[1] = _deltaMouse.proj(m_cameraX) * yHat;
+    _axisCtrlDir[1] = m_cameraX;
+  }
+  else if(score == zScore) {
+    //m_cameraX is nearest the Z direction
+    _deltaWorld[2] = _deltaMouse.proj(m_cameraX) * zHat;
+    _axisCtrlDir[2] = m_cameraX;
+  }
+
+  //find the world axis Q closest to m_cameraY and
+  //set _delta[Q] = change in m_cameraY. Store -m_cameraY
+  //as controller for correct remapping to m_cameraZ
+  xScore = fabs(m_cameraY * xHat);
+  yScore = fabs(m_cameraY * yHat);
+  zScore = fabs(m_cameraY * zHat);
+  score = max(xScore, yScore);
+  score = max(score, zScore);
+  if(score == xScore) {
+    //m_cameraY is nearest the X direction
+    _deltaWorld[0] = _deltaMouse.proj(m_cameraY) * xHat;
+    _axisCtrlDir[0] = -m_cameraY;
+  }
+  else if(score == yScore) {
+    //m_cameraY _camDir is nearest the Y direction
+    _deltaWorld[1] = _deltaMouse.proj(m_cameraY) * yHat;
+    _axisCtrlDir[1] = -m_cameraY;
+  }
+  else if(score == zScore) {
+    //m_cameraY _camDir is nearest the Z direction
+    _deltaWorld[2] = _deltaMouse.proj(m_cameraY) * zHat;
+    _axisCtrlDir[2] = -m_cameraY;
+  }
+
+  //if mouse x or y is not used for resizing the highlighted part,
+  //assign it to control the unused (m_cameraZ) axis.
+  if((m_highlightedPart & (TOP + BOTTOM)) &&
+      (m_highlightedPart & (RIGHT + LEFT)) && _deltaWorld[2]) {
+    if(!_deltaWorld[0])
+      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[2]) * (m_cameraZ * xHat);
+    if(!_deltaWorld[1])
+      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[2]) * (m_cameraZ * yHat);
+  }
+  if((m_highlightedPart & (TOP + BOTTOM)) &&
+      (m_highlightedPart & (FRONT + BACK)) && _deltaWorld[0]) {
+    if(!_deltaWorld[1])
+      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[0]) * (m_cameraZ * yHat);
+    if(!_deltaWorld[2])
+      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[0]) * (m_cameraZ * zHat);
+  }
+  if((m_highlightedPart & (RIGHT + LEFT)) &&
+      (m_highlightedPart & (FRONT + BACK)) && _deltaWorld[1]) {
+    if(!_deltaWorld[2])
+      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[1]) * (m_cameraZ * zHat);
+    if(!_deltaWorld[0])
+      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[1]) * (m_cameraZ * xHat);
+  }
+}
+
+void
+RegionBoxModel::ApplyTransform(const Vector3d& _delta) {
+  if(m_highlightedPart & LEFT) {
+    m_boxVertices[0][0] = m_prevPos[0][0] + _delta[0];
+    m_boxVertices[1][0] = m_prevPos[1][0] + _delta[0];
+    m_boxVertices[4][0] = m_prevPos[4][0] + _delta[0];
+    m_boxVertices[5][0] = m_prevPos[5][0] + _delta[0];
+  }
+  if(m_highlightedPart & RIGHT) {
+    m_boxVertices[2][0] = m_prevPos[2][0] + _delta[0];
+    m_boxVertices[3][0] = m_prevPos[3][0] + _delta[0];
+    m_boxVertices[6][0] = m_prevPos[6][0] + _delta[0];
+    m_boxVertices[7][0] = m_prevPos[7][0] + _delta[0];
+  }
+  if(m_highlightedPart & TOP) {
+    m_boxVertices[0][1] = m_prevPos[0][1] + _delta[1];
+    m_boxVertices[3][1] = m_prevPos[3][1] + _delta[1];
+    m_boxVertices[4][1] = m_prevPos[4][1] + _delta[1];
+    m_boxVertices[7][1] = m_prevPos[7][1] + _delta[1];
+  }
+  if(m_highlightedPart & BOTTOM) {
+    m_boxVertices[1][1] = m_prevPos[1][1] + _delta[1];
+    m_boxVertices[2][1] = m_prevPos[2][1] + _delta[1];
+    m_boxVertices[5][1] = m_prevPos[5][1] + _delta[1];
+    m_boxVertices[6][1] = m_prevPos[6][1] + _delta[1];
+  }
+  if(m_highlightedPart & FRONT) {
+    m_boxVertices[0][2] = m_prevPos[0][2] + _delta[2];
+    m_boxVertices[1][2] = m_prevPos[1][2] + _delta[2];
+    m_boxVertices[2][2] = m_prevPos[2][2] + _delta[2];
+    m_boxVertices[3][2] = m_prevPos[3][2] + _delta[2];
+  }
+  if(m_highlightedPart & BACK) {
+    m_boxVertices[4][2] = m_prevPos[4][2] + _delta[2];
+    m_boxVertices[5][2] = m_prevPos[5][2] + _delta[2];
+    m_boxVertices[6][2] = m_prevPos[6][2] + _delta[2];
+    m_boxVertices[7][2] = m_prevPos[7][2] + _delta[2];
+  }
+
+  //ensure that [0] is still top-left-front corner and that drawing is CCW
+  if(m_boxVertices[0][0] > m_boxVertices[3][0]) {
+    swap(m_boxVertices[0], m_boxVertices[3]);
+    swap(m_boxVertices[1], m_boxVertices[2]);
+    swap(m_boxVertices[4], m_boxVertices[7]);
+    swap(m_boxVertices[5], m_boxVertices[6]);
+    swap(m_prevPos[0], m_prevPos[3]);
+    swap(m_prevPos[1], m_prevPos[2]);
+    swap(m_prevPos[4], m_prevPos[7]);
+    swap(m_prevPos[5], m_prevPos[6]);
+    m_highlightedPart = m_highlightedPart ^ LEFT ^ RIGHT;
+  }
+  if(m_boxVertices[0][1] < m_boxVertices[1][1]) {
+    swap(m_boxVertices[0], m_boxVertices[1]);
+    swap(m_boxVertices[2], m_boxVertices[3]);
+    swap(m_boxVertices[4], m_boxVertices[5]);
+    swap(m_boxVertices[6], m_boxVertices[7]);
+    swap(m_prevPos[0], m_prevPos[1]);
+    swap(m_prevPos[2], m_prevPos[3]);
+    swap(m_prevPos[4], m_prevPos[5]);
+    swap(m_prevPos[6], m_prevPos[7]);
+    m_highlightedPart = m_highlightedPart ^ TOP ^ BOTTOM;
+  }
+  if(m_boxVertices[0][2] < m_boxVertices[4][2]) {
+    swap(m_boxVertices[0], m_boxVertices[4]);
+    swap(m_boxVertices[1], m_boxVertices[5]);
+    swap(m_boxVertices[2], m_boxVertices[6]);
+    swap(m_boxVertices[3], m_boxVertices[7]);
+    swap(m_prevPos[0], m_prevPos[4]);
+    swap(m_prevPos[1], m_prevPos[5]);
+    swap(m_prevPos[2], m_prevPos[6]);
+    swap(m_prevPos[3], m_prevPos[7]);
+    m_highlightedPart = m_highlightedPart ^ FRONT ^ BACK;
+  }
 }

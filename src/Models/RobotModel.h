@@ -28,6 +28,7 @@ class RobotModel : public Model {
     void DrawSelect();
     void DrawSelected();
     void Print(ostream& _os) const;
+    bool IsPlanar();
 
   private:
     EnvModel* m_envModel;

@@ -1,15 +1,15 @@
-#ifndef REGIONSPHEREMODEL_H_
-#define REGIONSPHEREMODEL_H_
+#ifndef REGIONBOX2DMODEL_H_
+#define REGIONBOX2DMODEL_H_
 
 #include "RegionModel.h"
 
 class Camera;
 
-class RegionSphereModel : public RegionModel {
+class RegionBox2DModel : public RegionModel {
   public:
-    enum Highlight {NONE, PERIMETER, ALL};
+    enum Highlight {NONE = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8, ALL = 15};
 
-    RegionSphereModel(const Point3d& _center = Point3d(), double _radius = -1, bool _firstClick = true);
+    RegionBox2DModel();
 
     shared_ptr<Boundary> GetBoundary() const;
 
@@ -31,22 +31,25 @@ class RegionSphereModel : public RegionModel {
     bool MouseMotion(QMouseEvent* _e, Camera* _c);
     bool PassiveMouseMotion(QMouseEvent* _e, Camera* _c);
 
+    //user feedback function
     double WSpaceArea() const;
 
   protected:
-    void GetCameraVectors(Camera* _c);
+    //helper function
+    void FindCenter();
+    void ApplyTransform(const Vector2d& _delta);
 
   private:
-    Vector3d m_center, m_centerOrig;
-    double m_radius;
-
-    bool m_lmb, m_rmb, m_firstClick;
-    Highlight m_highlightedPart;
+    //event tracking storage
     QPoint m_clicked;
+    bool m_lmb, m_firstClick;
+    int m_highlightedPart;
 
-    Vector3d m_cameraX;
-    Vector3d m_cameraY;
-    Vector3d m_cameraZ;
+    //position storage
+    vector<Vector3d> m_boxVertices;
+    vector<Vector3d> m_prevPos;
+    vector<Vector2d> m_winVertices;
+    Point3d m_center;
 };
 
 #endif
