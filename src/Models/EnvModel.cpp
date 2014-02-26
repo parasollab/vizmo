@@ -206,6 +206,7 @@ EnvModel::DrawRender() {
     if(!m_multibodies[i]->IsActive())
       m_multibodies[i]->DrawRender();
 
+  glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
   for(size_t i = 0; i < numAttractRegions; ++i)
@@ -238,6 +239,7 @@ EnvModel::DrawSelect() {
     }
   }
 
+  glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
   for(size_t i = 0; i < numAttractRegions; ++i) {
