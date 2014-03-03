@@ -47,6 +47,7 @@ class ConnectionModel {
     pair<double, double> m_jointLimits[2]; //ranges of joints
     Transformation m_toDHFrame, m_toBody2; //transformations from/to body frames
     double m_alpha, m_theta, m_a, m_d; //dh parameters
+    double m_l, m_w; //dh parameters for SMA joint
 };
 
 #endif
