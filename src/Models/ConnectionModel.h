@@ -19,8 +19,9 @@ class ConnectionModel {
     size_t GetNextIndex() const {return m_nextIndex;}
     JointType GetJointType() const {return m_jointType;}
     static JointType GetJointTypeFromTag(const string& _tag);
-    bool IsRevolute(){return (m_jointType==REVOLUTE);}
-    bool IsSpherical(){return (m_jointType==SPHERICAL);}
+    bool IsNonActuated() const {return m_jointType == NONACTUATED;}
+    bool IsRevolute() const {return m_jointType == REVOLUTE;}
+    bool IsSpherical() const {return m_jointType == SPHERICAL;}
     pair<double, double> GetJointLimits() const {return *m_jointLimits;} //ranges of joints
     double GetAlpha() const {return m_alpha;}
     double GetA() const {return m_a;}

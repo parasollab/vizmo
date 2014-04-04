@@ -29,7 +29,8 @@ OBJECTS += \
 	   GUI/RoadmapOptions.o \
 	   GUI/RobotOptions.o \
 	   GUI/SliderDialog.o \
-	   GUI/TextWidget.o
+	   GUI/TextWidget.o \
+	   GUI/Utilities/AlertUser.o \
 
 ####### MOC
 .SECONDARY: $(SRCMOC)
