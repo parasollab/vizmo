@@ -741,7 +741,7 @@ EditRobotDialog::DeleteBase() {
         for(MIT mit = rit->second.begin(); mit != rit->second.end(); ++mit)
           (*mit)->ChangeIndex(-(m_jointList->count()+1));
     }
-    for(size_t i = 0; i < m_jointList->count(); ++i) {
+    for(int i = 0; i < m_jointList->count(); ++i) {
       m_robotBody->DeleteJoint(index, 0, bodyCount+1);
       m_robotBody->DeleteBody(bodyCount+1);
     }
