@@ -4,8 +4,6 @@
 #include <vector>
 #include <string>
 
-#include <QString>
-
 #include "Models/Vizmo.h"
 #include "Models/DebugModel.h"
 

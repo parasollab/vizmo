@@ -1,6 +1,6 @@
 #include "RobotOptions.h"
 
-#include <QAction>
+#include <QtGui>
 
 #include "MainWindow.h"
 #include "AnimationWidget.h"

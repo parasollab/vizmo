@@ -1,8 +1,5 @@
 #include <sstream>
 
-#include <QLabel>
-#include <QDialogButtonBox>
-
 #include "SliderDialog.h"
 
 SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
@@ -11,14 +8,14 @@ SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
 
   resize(477, 139);
   setWindowTitle(_windowTitle);
-  m_instructions = new QLabel(this);
-  m_instructions->setGeometry(QRect(20, 20, 311, 17));
-  m_instructions->setText(_instructions);
 
-  m_okayCancel = new QDialogButtonBox(this);
-  m_okayCancel->setGeometry(QRect(290, 100, 181, 32));
-  m_okayCancel->setOrientation(Qt::Horizontal);
-  m_okayCancel->setStandardButtons(QDialogButtonBox::Cancel
+  QLabel* instructions = new QLabel(_instructions, this);
+  instructions->setGeometry(QRect(20, 20, 311, 17));
+
+  QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
+  okayCancel->setGeometry(QRect(290, 100, 181, 32));
+  okayCancel->setOrientation(Qt::Horizontal);
+  okayCancel->setStandardButtons(QDialogButtonBox::Cancel
     |QDialogButtonBox::Ok);
 
   m_slider = new QSlider(this);
@@ -34,8 +31,8 @@ SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
   m_value->setGeometry(QRect(20, 90, 70, 17)); //long width for plenty of room
   m_value->setText("100%");
 
-  connect(m_okayCancel, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(m_okayCancel, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(okayCancel, SIGNAL(accepted()), this, SLOT(accept()));
+  connect(okayCancel, SIGNAL(rejected()), this, SLOT(reject()));
 
   QMetaObject::connectSlotsByName(this);
 }

@@ -6,20 +6,16 @@
 #ifndef SLIDER_DIALOG_H
 #define SLIDER_DIALOG_H
 
-#include <QDialog>
-#include <QSlider>
+#include <QtGui>
 
 using namespace std;
-
-class QDialogButtonBox;
-class QLabel;
 
 class SliderDialog : public QDialog {
 
   Q_OBJECT
 
   public:
-    SliderDialog(QString _windowTitle, QString _instrustions,
+    SliderDialog(QString _windowTitle, QString _instructions,
         int _rangeStart, int _rangeEnd, int _startValue,
         QWidget* _parent = NULL);
 
@@ -29,9 +25,7 @@ class SliderDialog : public QDialog {
     void Reset();
 
   private:
-    QDialogButtonBox* m_okayCancel;
     QSlider* m_slider;
-    QLabel* m_instructions;
     QLabel* m_value;
     int m_startValue; //For percent calculation
     int m_oldValue;

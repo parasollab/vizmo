@@ -3,13 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <QAction>
-#include <QToolButton>
-#include <QPixmap>
-#include <QTranslator>
-#include <QStatusBar>
-#include <QColorDialog>
-#include <QCursor>
+#include <QtGui>
 
 #include "CameraPosDialog.h"
 #include "GLWidget.h"

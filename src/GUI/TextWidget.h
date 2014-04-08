@@ -4,7 +4,7 @@
 #ifndef TEXTWIDGET_H_
 #define TEXTWIDGET_H_
 
-#include <QTextEdit>
+#include <QtGui>
 
 class TextWidget : public QTextEdit {
 
