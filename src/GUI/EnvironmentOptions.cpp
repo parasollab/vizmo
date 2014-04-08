@@ -30,6 +30,8 @@
 #include "Icons/EditRobot.xpm"
 #include "Icons/RefreshEnv.xpm"
 
+#include "Utilities/AlertUser.h"
+
 EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_threadDone(true), m_thread(NULL) {
     CreateActions();
@@ -92,13 +94,9 @@ EnvironmentOptions::DeleteObstacle(){
       toDel.push_back((MultiBodyModel*)*sit);
 
   //alert that only non-active multibodies can be selected
-  if(toDel.empty() || toDel.size() != sel.size()) {
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle("Alert");
-    msgBox.setText("Must select one or more non-active multibodies only.");
-    msgBox.setStandardButtons(QMessageBox::Close);
-    msgBox.exec();
-  }
+  if(toDel.empty() || toDel.size() != sel.size())
+    AlertUser("Must select one or more non-active multibodies only.");
+
   //successful selection, show ObstaclePosDialog
   else {
     typedef vector<MultiBodyModel*>::iterator MIT;
@@ -122,13 +120,9 @@ EnvironmentOptions::MoveObstacle(){
       toMove.push_back((MultiBodyModel*)*sit);
 
   //alert that only non-active multibodies can be selected
-  if(toMove.empty() || toMove.size() != sel.size()) {
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle("Alert");
-    msgBox.setText("Must select one or more non-active multibodies only.");
-    msgBox.setStandardButtons(QMessageBox::Close);
-    msgBox.exec();
-  }
+  if(toMove.empty() || toMove.size() != sel.size())
+    AlertUser("Must select one or more non-active multibodies only.");
+
   //successful selection, show ObstaclePosDialog
   else {
     ObstaclePosDialog o(toMove, m_mainWindow, this);
@@ -147,13 +141,9 @@ EnvironmentOptions::DuplicateObstacles() {
       toCopy.push_back((MultiBodyModel*)(*sit));
 
   //alert that only non-active multibodies can be selected
-  if(toCopy.empty() || toCopy.size() != sel.size()) {
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle("Alert");
-    msgBox.setText("Must select one or more non-active multibodies only.");
-    msgBox.setStandardButtons(QMessageBox::Close);
-    msgBox.exec();
-  }
+  if(toCopy.empty() || toCopy.size() != sel.size())
+    AlertUser("Must select one or more non-active multibodies only.");
+
   //successful selection, copy and show ObstaclePosDialog
   else {
     vector<MultiBodyModel*> copies;
@@ -177,13 +167,9 @@ void
 EnvironmentOptions::ChangeBoundaryForm(){
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   //alert that only the boundary should be selected
-  if(sel.size() != 1 || !(sel[0]->Name() == "Bounding Box" || sel[0]->Name() == "Bounding Sphere")) {
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle("Alert");
-    msgBox.setText("Must select only the boundary.");
-    msgBox.setStandardButtons(QMessageBox::Close);
-    msgBox.exec();
-  }
+  if(sel.size() != 1 || !(sel[0]->Name() == "Bounding Box" || sel[0]->Name() == "Bounding Sphere"))
+    AlertUser("Must select only the boundary.");
+
   //successful selection, show ChangeBoundaryDialog
   else {
     ChangeBoundaryDialog c(this);

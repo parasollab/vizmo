@@ -21,6 +21,7 @@
 #include "Models/DebugModel.h"
 #include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
+#include "Utilities/AlertUser.h"
 
 #include "Icons/Pallet.xpm"
 #include "Icons/MakeSolid.xpm"
@@ -377,7 +378,7 @@ RoadmapOptions::ShowNodeSizeDialog(){
   if(CfgModel::GetShape() != CfgModel::Robot)
     m_nodeSizeDialog->show();
   else
-    QMessageBox::about(this, "Sorry!", "You can only resize the nodes in <b>Point</b> mode.");
+    AlertUser("You can only resize the nodes in <b>Point</b> mode.");
 }
 
 void
@@ -417,7 +418,7 @@ RoadmapOptions::ShowNodeEditDialog(){
     }
   }
   if(nodeSelected == false){
-    QMessageBox::about(this, "", "Please select a node to modify.");
+    AlertUser("Please select a node to modify.");
     return;
   }
 
@@ -451,7 +452,7 @@ RoadmapOptions::ShowNodeEditDialog(){
       }
     }
     else
-      QMessageBox::about(this, "", "Invalid configuration!");
+      AlertUser("Invalid configuration!");
 
   map->RefreshMap();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
@@ -478,7 +479,7 @@ RoadmapOptions::ShowEdgeEditDialog(){
     }
   }
   if(edgeSelected == false){
-    QMessageBox::about(this, "", "Please select an edge to modify.");
+    AlertUser("Please select an edge to modify.");
     return;
   }
 
@@ -493,7 +494,7 @@ RoadmapOptions::ShowEdgeEditDialog(){
       actualEdge->SetIntermediates(edgePreview->GetIntermediates());
     else
       //For now, user must start all over again in this case
-      QMessageBox::about(this, "", "Invalid edge!");
+      AlertUser("Invalid edge!");
     sel.clear();
     map->RefreshMap();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
@@ -523,7 +524,7 @@ RoadmapOptions::AddNode(){
       m_mainWindow->GetGLScene()->updateGL();
     }
     else
-      QMessageBox::about(this, "", "Cannot add invalid node!");
+      AlertUser("Cannot add invalid node!");
   }
   map->ClearTempItems();
 }
@@ -543,7 +544,7 @@ RoadmapOptions::AddStraightLineEdge(){
       selNodes.push_back((CfgModel*)*it);
 
   if(selNodes.size() != 2){
-    QMessageBox::about(this, "", "Please select exactly two nodes.");
+    AlertUser("Please select exactly two nodes.");
     return;
   }
 
@@ -558,7 +559,7 @@ RoadmapOptions::AddStraightLineEdge(){
     m_mainWindow->GetGLScene()->updateGL();
   }
   else
-    QMessageBox::about(this, "", "Cannot add invalid edge!");
+    AlertUser("Cannot add invalid edge!");
 
   sel.clear();
   map->ClearTempItems();
@@ -591,7 +592,7 @@ RoadmapOptions::DeleteSelectedItems(){
   }
 
   if(selectionValid == false)
-    QMessageBox::about(this, "", "Please select a group of nodes and edges to remove.");
+    AlertUser("Please select a group of nodes and edges to remove.");
 
   else{
     //Remove selected vertices
@@ -637,7 +638,7 @@ RoadmapOptions::MergeSelectedNodes(){
     }
   }
   if(nodesSelected == false){
-    QMessageBox::about(this, "", "Please select a group of nodes.");
+    AlertUser("Please select a group of nodes.");
       return;
   }
 
@@ -702,7 +703,7 @@ RoadmapOptions::MergeSelectedNodes(){
       map->RefreshMap();
     }
     else
-      QMessageBox::about(this, "", "Invalid merge!");
+      AlertUser("Invalid merge!");
   }
 
   sel.clear();

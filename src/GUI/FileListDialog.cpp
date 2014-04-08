@@ -4,6 +4,7 @@
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
 #include "Models/MapModel.h"
+#include "Utilities/AlertUser.h"
 
 #include "Icons/Folder.xpm"
 #include "Icons/Vizmo.xpm"
@@ -223,13 +224,8 @@ FileListDialog::Accept() {
 
     accept();
   }
-  else {
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle("Vizmo++");
-    msgBox.setText("No Environment File Loaded.");
-    msgBox.setStandardButtons(QMessageBox::Close);
-    msgBox.exec();
-  }
+  else
+    AlertUser("No Environment File Loaded.");
 }
 
 void
