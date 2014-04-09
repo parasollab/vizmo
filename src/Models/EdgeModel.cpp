@@ -33,6 +33,8 @@ EdgeModel::Print(ostream& _os) const {
 
   _os << endl;
 
+  _os << "Weight: " << m_weight << endl;
+
   if(!m_isValid)
     _os << "**** IS IN COLLISION!! ****" << endl;
 }

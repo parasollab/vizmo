@@ -61,7 +61,7 @@ class NodeEditDialog : public QDialog {
     ~NodeEditDialog();
     void SetUpSliders(vector<NodeEditSlider*>& _sliders);
     void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _title);
-    void SetCurrentEdges(vector<EdgeModel*>* _edges) {m_currentEdges = _edges;}
+    void SetCurrentEdges(vector<EdgeModel*>* _edges);
     void InitSliderValues(const vector<double>& _vals);
 
   private slots:

@@ -80,7 +80,7 @@ class Vizmo {
 
     // Collision Detection Related Functions
     bool CollisionCheck(CfgModel& _c1);
-    bool VisibilityCheck(CfgModel& _c1, CfgModel& _c2);
+    pair<bool, double> VisibilityCheck(CfgModel& _c1, CfgModel& _c2);
 
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}

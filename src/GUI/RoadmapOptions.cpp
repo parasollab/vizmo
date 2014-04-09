@@ -445,7 +445,17 @@ RoadmapOptions::ShowNodeEditDialog(){
       actualNode->SetCfg(nodePreview->GetDataCfg());
 
       for(size_t i = 0; i < tempEdges.size(); i++){
-        if(tempEdges[i]->IsValid() == false){
+        //Transfer modified weights from preview edges to actual edges (BOTH
+        //directions)
+        if(tempEdges[i]->IsValid()){
+          VI viTemp, viTemp2;
+          EI eiTemp, eiTemp2;
+          graph->find_edge(eids[i], viTemp, eiTemp);
+          graph->find_edge(EID(eids[i].target(), eids[i].source()), viTemp2, eiTemp2);
+          (*eiTemp).property().SetWeight(tempEdges[i]->GetWeight());
+          (*eiTemp2).property().SetWeight(tempEdges[i]->GetWeight());
+        }
+        else{
           graph->delete_edge(eids[i]);
           graph->delete_edge(eids[i].target(), eids[i].source());
         }
@@ -467,6 +477,7 @@ RoadmapOptions::ShowEdgeEditDialog(){
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
   vector<EdgeModel*>& tempEdges = map->GetTempEdges();
 
   bool edgeSelected = false;
@@ -490,8 +501,16 @@ RoadmapOptions::ShowEdgeEditDialog(){
   EdgeEditDialog ed(this, edgePreview, m_mainWindow->GetGLScene());
 
   if(ed.exec() == QDialog::Accepted){
-    if(edgePreview->IsValid())
+    if(edgePreview->IsValid()){
       actualEdge->SetIntermediates(edgePreview->GetIntermediates());
+      actualEdge->SetWeight(edgePreview->GetWeight());
+      //Apply settings to other direction
+      VI viTemp;
+      EI eiTemp;
+      graph->find_edge(EID(actualEdge->GetEndCfg()->GetIndex(), actualEdge->GetStartCfg()->GetIndex()), viTemp, eiTemp);
+      (*eiTemp).property().SetIntermediates(edgePreview->GetIntermediates());
+      (*eiTemp).property().SetWeight(edgePreview->GetWeight());
+    }
     else
       //For now, user must start all over again in this case
       AlertUser("Invalid edge!");
@@ -548,11 +567,20 @@ RoadmapOptions::AddStraightLineEdge(){
     return;
   }
 
-  if(GetVizmo().VisibilityCheck(*selNodes[0], *selNodes[1])){
+  pair<bool, double> visibility = GetVizmo().VisibilityCheck(*selNodes[0], *selNodes[1]);
+  if(visibility.first){
     VID v0 = selNodes[0]->GetIndex();
     VID v1 = selNodes[1]->GetIndex();
     graph->add_edge(v0, v1);
     graph->add_edge(v1, v0);
+
+    //Set edge weights in underlying graph
+    VI viTemp, viTemp2;
+    EI eiTemp, eiTemp2;
+    graph->find_edge(EID(v0, v1), viTemp, eiTemp);
+    graph->find_edge(EID(v1, v0), viTemp2, eiTemp2);
+    (*eiTemp).property().SetWeight(visibility.second);
+    (*eiTemp2).property().SetWeight(visibility.second);
 
     map->RefreshMap();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
@@ -689,11 +717,17 @@ RoadmapOptions::MergeSelectedNodes(){
       super.SetRenderMode(SOLID_MODE);
       Map::VID superID = graph->add_vertex(super);
 
-      //Add the valid new edges
+      //Add and assign weights to the valid new edges
       for(size_t i = 0; i < tempEdges.size(); i++){
         if(tempEdges[i]->IsValid()){
           graph->add_edge(superID, toAdd[i]);
           graph->add_edge(toAdd[i], superID);
+          VI viTemp, viTemp2;
+          EI eiTemp, eiTemp2;
+          graph->find_edge(EID(superID, toAdd[i]), viTemp, eiTemp);
+          graph->find_edge(EID(toAdd[i], superID), viTemp2, eiTemp2);
+          (*eiTemp).property().SetWeight(tempEdges[i]->GetWeight());
+          (*eiTemp2).property().SetWeight(tempEdges[i]->GetWeight());
         }
       }
       //Remove selected vertices

@@ -282,16 +282,18 @@ Vizmo::CollisionCheck(CfgModel& _c) {
   return false;
 }
 
-bool
+pair<bool, double>
 Vizmo::VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
   if(m_envModel) {
     Environment* env = GetVizmoProblem()->GetEnvironment();
     VizmoProblem::LocalPlannerPointer lp = GetVizmoProblem()->GetLocalPlanner("sl");
     LPOutput<VizmoTraits> lpout;
-    return lp->IsConnected(_c1, _c2, &lpout, env->GetPositionRes(), env->GetOrientationRes());
+    if(lp->IsConnected(_c1, _c2, &lpout, env->GetPositionRes(), env->GetOrientationRes()))
+      return make_pair(true, lpout.m_edge.first.GetWeight());
+    else return make_pair(false, EdgeModel::GetMaxWeight());
   }
-  cerr << "Warning::Visibility checking when there is no environment. Returning false." << endl;
-  return false;
+  cerr << "Warning::Visibility checking when there is no environment. Returning false" << endl;
+  return make_pair(false, EdgeModel::GetMaxWeight());
 }
 
 void

@@ -159,6 +159,12 @@ NodeEditDialog::SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _titl
 }
 
 void
+NodeEditDialog::SetCurrentEdges(vector<EdgeModel*>* _edges){
+  m_currentEdges = _edges;
+  ValidityCheck(); //ensures weights are assigned; e.g., for a merge with no adjustment
+}
+
+void
 NodeEditDialog::InitSliderValues(const vector<double>& _vals){
   //Works on assumption that m_sliders and _vals are same size..
   for(size_t i = 0; i < m_sliders.size(); i++){
@@ -206,19 +212,41 @@ NodeEditDialog::ValidityCheck(){
     typedef vector<CfgModel>::iterator IIT;
 
     for(EIT eit = m_currentEdges->begin(); eit != m_currentEdges->end(); eit++){
-      //Check actual start and end
-      (*eit)->SetValidity(GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), *(*eit)->GetEndCfg()));
-
+      //If no intermediates, just check start and end
+      double weight = 0.0;
       vector<CfgModel>& intermediates = (*eit)->GetIntermediates();
-      if(intermediates.empty() == false){
+
+      if(intermediates.empty()){
+        pair<bool, double> visibility = GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), *(*eit)->GetEndCfg());
+        (*eit)->SetValidity(visibility.first);
+        weight = visibility.second;
+      }
+
+      else{
         //Check boundary intermediates
-        (*eit)->SetValidity(GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), intermediates[0]));
-        (*eit)->SetValidity(GetVizmo().VisibilityCheck(intermediates[intermediates.size() - 1], *(*eit)->GetEndCfg()));
+        pair<bool, double> startVis = GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), intermediates[0]);
+        (*eit)->SetValidity(startVis.first);
+        if(!startVis.first)
+          break;
+        weight += startVis.second;
+
+        pair<bool, double> endVis = GetVizmo().VisibilityCheck(intermediates[intermediates.size() - 1], *(*eit)->GetEndCfg());
+        (*eit)->SetValidity(endVis.first);
+        if(!endVis.first)
+          break;
+        weight += endVis.second;
 
         //Check intermediates in between
-        for(IIT it = intermediates.begin(), it2 = it+1; it2 != intermediates.end(); it++, it2++)
-          (*eit)->SetValidity(GetVizmo().VisibilityCheck(*it, *it2));
+        for(IIT it = intermediates.begin(), it2 = it+1; it2 != intermediates.end(); it++, it2++){
+          pair<bool, double> betweenVis = GetVizmo().VisibilityCheck(*it, *it2);
+          (*eit)->SetValidity(betweenVis.first);
+          if(!betweenVis.first)
+            break;
+          weight += betweenVis.second;
+        }
       }
+
+      (*eit)->SetWeight(weight);
     } //end for all current edges
   }
 }
