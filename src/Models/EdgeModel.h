@@ -28,7 +28,6 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
     CfgModel* GetStartCfg() { return m_startCfg; }
     CfgModel* GetEndCfg() { return m_endCfg; }
-    static double GetMaxWeight() { return MAX_WEIGHT; }
 
     void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
     void SetValidity(bool _validity) { m_isValid = _validity; }

@@ -290,10 +290,10 @@ Vizmo::VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
     LPOutput<VizmoTraits> lpout;
     if(lp->IsConnected(_c1, _c2, &lpout, env->GetPositionRes(), env->GetOrientationRes()))
       return make_pair(true, lpout.m_edge.first.GetWeight());
-    else return make_pair(false, EdgeModel::GetMaxWeight());
+    else return make_pair(false, EdgeModel::MaxWeight().Weight());
   }
   cerr << "Warning::Visibility checking when there is no environment. Returning false" << endl;
-  return make_pair(false, EdgeModel::GetMaxWeight());
+  return make_pair(false, EdgeModel::MaxWeight().Weight());
 }
 
 void
