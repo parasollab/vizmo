@@ -68,35 +68,9 @@ Camera::MouseMotion(QMouseEvent* _e){
     double dy = -drag.y();
 
     //ctrl+shift+left
-    //  Y - changes elevation of camera
-    //  X - changes azimuth of camera
-    if(_e->modifiers() & Qt::ShiftModifier && _e->buttons() == Qt::LeftButton) {
-      double phi = degToRad(-dx * rotSpeed);
-      double theta = degToRad(dy * rotSpeed);
-
-      m_currEye = m_eye;
-      m_currDir = m_dir;
-
-      //rotate around Y-axis
-      m_currEye.rotateY(phi);
-      m_currDir.rotateY(phi);
-
-      //rotate around left-axis
-      Vector3d left = (m_currDir % m_up).normalize();
-      Rotate(m_currEye, left, theta);
-      Rotate(m_currDir, left, theta);
-      m_currDir.selfNormalize();
-    }
-    //ctrl+shift+right/middle
-    //  not handled by camera
-    else if(_e->modifiers() & Qt::ShiftModifier) {
-      return false;
-    }
-    //ctrl+left
     //  Y - rotates at vector up/down
     //  X - rotates at vector right/left
-    else if(_e->buttons() == Qt::LeftButton) {
-
+    if(_e->modifiers() & Qt::ShiftModifier && _e->buttons() == Qt::LeftButton) {
       double phi = degToRad(-dx * rotSpeed);
       double theta = degToRad(dy * rotSpeed);
       double beta = acos(m_up * m_dir);
@@ -112,6 +86,31 @@ Camera::MouseMotion(QMouseEvent* _e){
 
       //rotate at vector around up by phi
       Rotate(m_currDir, m_up, phi);
+      m_currDir.selfNormalize();
+    }
+    //ctrl+shift+right/middle
+    //  not handled by camera
+    else if(_e->modifiers() & Qt::ShiftModifier) {
+      return false;
+    }
+    //ctrl+left
+    //  Y - changes elevation of camera
+    //  X - changes azimuth of camera
+    else if(_e->buttons() == Qt::LeftButton) {
+      double phi = degToRad(-dx * rotSpeed);
+      double theta = degToRad(dy * rotSpeed);
+
+      m_currEye = m_eye;
+      m_currDir = m_dir;
+
+      //rotate around Y-axis
+      m_currEye.rotateY(phi);
+      m_currDir.rotateY(phi);
+
+      //rotate around left-axis
+      Vector3d left = (m_currDir % m_up).normalize();
+      Rotate(m_currEye, left, theta);
+      Rotate(m_currDir, left, theta);
       m_currDir.selfNormalize();
     }
     //ctrl+right
