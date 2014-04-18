@@ -52,11 +52,13 @@ void
 CustomizePathDialog::AddColor(){
 
   QColor color = QColorDialog::getColor(Qt::white, this);
-  if(m_isDefault)
-    m_colors.clear();
-  m_colors.push_back(color);
-  m_isDefault = false;
-  update();
+  if(color.isValid()){
+    if(m_isDefault)
+      m_colors.clear();
+    m_colors.push_back(color);
+    m_isDefault = false;
+    update();
+  }
 }
 
 void
