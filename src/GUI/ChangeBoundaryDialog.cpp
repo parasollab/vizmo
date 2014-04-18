@@ -13,8 +13,8 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
   //construct objects
   QPushButton* loadButton = new QPushButton("OK", this);
   QPushButton* cancelButton = new QPushButton("Cancel", this);
-  m_boxButton = new QRadioButton("Bounding Box", this);
-  m_sphereButton = new QRadioButton("Bounding Sphere", this);
+  QRadioButton* boxButton = new QRadioButton("Bounding Box", this);
+  QRadioButton* sphereButton = new QRadioButton("Bounding Sphere", this);
 
   m_boxWidget = new BoundingBoxWidget(this);
   m_sphereWidget = new BoundingSphereWidget(this);
@@ -24,15 +24,15 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
 
   connect(loadButton, SIGNAL(clicked()), this, SLOT(SetBoundary()));
   connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-  connect(m_sphereButton, SIGNAL(clicked()), this, SLOT(ChangeToSphereDialog()));
-  connect(m_boxButton, SIGNAL(clicked()), this, SLOT(ChangeToBoxDialog()));
+  connect(sphereButton, SIGNAL(clicked()), this, SLOT(ChangeToSphereDialog()));
+  connect(boxButton, SIGNAL(clicked()), this, SLOT(ChangeToBoxDialog()));
 
   //set up layout
   QGridLayout* layout = new QGridLayout;
   setLayout(layout);
 
-  layout->addWidget(m_boxButton, 0, 0);
-  layout->addWidget(m_sphereButton, 0, 1);
+  layout->addWidget(boxButton, 0, 0);
+  layout->addWidget(sphereButton, 0, 1);
   layout->addWidget(m_boxWidget, 1, 0, 1, 2);
   layout->addWidget(m_sphereWidget, 1, 0, 1, 2);
   layout->addWidget(loadButton, 2, 0);
@@ -59,8 +59,6 @@ ChangeBoundaryDialog::SetBoundary() {
 void
 ChangeBoundaryDialog::ChangeToSphereDialog(){
   m_isBox = false;
-  m_boxButton->setChecked(false);
-  m_sphereButton->setChecked(true);
   m_boxWidget->setVisible(false);
   m_sphereWidget->setVisible(true);
 }
@@ -69,8 +67,6 @@ ChangeBoundaryDialog::ChangeToSphereDialog(){
 void
 ChangeBoundaryDialog::ChangeToBoxDialog(){
   m_isBox = true;
-  m_boxButton->setChecked(true);
-  m_sphereButton->setChecked(false);
   m_boxWidget->setVisible(true);
   m_sphereWidget->setVisible(false);
 }

@@ -22,8 +22,6 @@ class ChangeBoundaryDialog : public QDialog {
     void ShowCurrentValues();
 
     bool m_isBox;
-    QRadioButton* m_boxButton;
-    QRadioButton* m_sphereButton;
     BoundingBoxWidget* m_boxWidget;
     BoundingSphereWidget* m_sphereWidget;
 };
