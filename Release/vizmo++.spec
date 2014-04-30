@@ -65,8 +65,10 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
-* Thu May 24 2012 Jory Denny <jdenny@cse.tamu.edu> 3-24may2012
-- Version 3 - new environment definition
+* Wed Apr 30 2014 Jory Denny <jdenny@cse.tamu.edu> 4-30apr2014
+- Version 0.1.0 - Release for Fedora 20. Includes new camera controls, uniform
+  looking buttons, consolidated UI, environment editing tools, map editing
+  tools, OpenGL optimizations, and minor bug fixes.
 
 # EOF - vizmo++.spec
 
