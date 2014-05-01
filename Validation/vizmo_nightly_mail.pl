@@ -12,7 +12,7 @@ use List::Util qw(min max);
 $outputdir = "/tmp/vizmo_nightly_logs";
 $cron_machine = "zenigata.cse.tamu.edu";
 #$MAILTO = "OBPRM\@listserv.tamu.edu";
-$MAILTO = "jorydenny\@tamu.edu,nicolevioletj\@neo.tamu.edu";
+$MAILTO = "jorydenny\@tamu.edu,nicolevioletj\@neo.tamu.edu,readamus\@cse.tamu.edu";
 $ENV{'PATH'}    = '/usr/local/bin/:/usr/X11R6/bin/:'.$ENV{'PATH'};
 $ENV{'DISPLAY'} = '';
 
@@ -44,10 +44,10 @@ $message  = "\n";
 #
 $errcode = max($errcode,
   &get_error_code("$outputdir/$fulldate/vizmo.LINUX_gcc.debug0.out",
-    "Configuration: gcc 4.7.0 (platform=LINUX_gcc, debug=0)"));
+    "Configuration: gcc 4.8.2 (platform=LINUX_gcc, debug=0)"));
 $errcode = max($errcode,
   &get_error_code("$outputdir/$fulldate/vizmo.LINUX_gcc.debug1.out",
-    "Configuration: gcc 4.7.0 (platform=LINUX_gcc, debug=1)"));
+    "Configuration: gcc 4.8.2 (platform=LINUX_gcc, debug=1)"));
 #
 # Send out e-mail
 #
