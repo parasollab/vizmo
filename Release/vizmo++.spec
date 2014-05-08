@@ -65,6 +65,9 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Thu May 8 2014 Jory Denny <jdenny@cse.tamu.edu> 5-08may2014
+- Version 0.1.1 - Query display bug fix. Now query correctly displayed in point
+  and robot mode, with colors.
 * Wed Apr 30 2014 Jory Denny <jdenny@cse.tamu.edu> 4-30apr2014
 - Version 0.1.0 - Release for Fedora 20. Includes new camera controls, uniform
   looking buttons, consolidated UI, environment editing tools, map editing
