@@ -37,7 +37,6 @@ QueryModel::ParseFile() {
 
 void
 QueryModel::Build() {
-
   glMatrixMode(GL_MODELVIEW);
 
   //create list
@@ -71,7 +70,9 @@ QueryModel::DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return; //not draw anything
 
+  glDisable(GL_LIGHTING);
   glLineWidth(2.0);
+  glPointSize(CfgModel::GetPointSize());
   glCallList(m_glQueryIndex);
 }
 
@@ -81,6 +82,7 @@ QueryModel::DrawSelect() {
     return; //not draw anything
 
   glLineWidth(2.0);
+  glPointSize(CfgModel::GetPointSize() + 3);
   glCallList(m_glQueryIndex);
 }
 
@@ -107,6 +109,6 @@ QueryModel::SaveQuery(const string& _filename) {
 void
 QueryModel::AddCfg(int _num) {
   m_cfgs.insert(m_cfgs.begin()+_num, CfgModel());
-  m_cfgs[_num+1].SetIsQuery();
+  m_cfgs[_num].SetIsQuery();
 }
 

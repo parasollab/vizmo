@@ -20,6 +20,7 @@
 #include "ModelSelectionWidget.h"
 #include "Models/DebugModel.h"
 #include "Models/RobotModel.h"
+#include "Models/QueryModel.h"
 #include "Models/Vizmo.h"
 #include "Utilities/AlertUser.h"
 
@@ -337,12 +338,14 @@ RoadmapOptions::ShowRoadmap(){
 void
 RoadmapOptions::ClickRobot() {
   CfgModel::SetShape(CfgModel::Robot);
+  GetVizmo().GetQry()->Build();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
 RoadmapOptions::ClickPoint() {
   CfgModel::SetShape(CfgModel::Point);
+  GetVizmo().GetQry()->Build();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
