@@ -65,6 +65,8 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Fri May 9 2014 Jory Denny <jdenny@cse.tamu.edu> 5-09may2014
+- Version 0.1.2 - Query segmentation fault bug fix from previous release.
 * Thu May 8 2014 Jory Denny <jdenny@cse.tamu.edu> 5-08may2014
 - Version 0.1.1 - Query display bug fix. Now query correctly displayed in point
   and robot mode, with colors.
