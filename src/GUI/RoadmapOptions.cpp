@@ -338,14 +338,16 @@ RoadmapOptions::ShowRoadmap(){
 void
 RoadmapOptions::ClickRobot() {
   CfgModel::SetShape(CfgModel::Robot);
-  GetVizmo().GetQry()->Build();
+  if(GetVizmo().IsQueryLoaded())
+    GetVizmo().GetQry()->Build();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
 RoadmapOptions::ClickPoint() {
   CfgModel::SetShape(CfgModel::Point);
-  GetVizmo().GetQry()->Build();
+  if(GetVizmo().IsQueryLoaded())
+    GetVizmo().GetQry()->Build();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
