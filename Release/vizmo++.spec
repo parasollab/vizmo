@@ -65,6 +65,10 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Thu May 29 2014 Jory Denny <jdenny@cse.tamu.edu> 5-29may2014
+- Version 0.2.0 - New user interface. All buttons moved to side of window. Text
+  GUI located at the bottom. All dialogs are attached to pop up on the right of
+  the GUI.
 * Fri May 9 2014 Jory Denny <jdenny@cse.tamu.edu> 5-09may2014
 - Version 0.1.2 - Query segmentation fault bug fix from previous release.
 * Thu May 8 2014 Jory Denny <jdenny@cse.tamu.edu> 5-08may2014
