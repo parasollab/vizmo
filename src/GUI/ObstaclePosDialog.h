@@ -1,5 +1,5 @@
-#ifndef OBSTACLEPOSDIALOG_H_
-#define OBSTACLEPOSDIALOG_H_
+#ifndef OBSTACLE_POS_DIALOG_H_
+#define OBSTACLE_POS_DIALOG_H_
 
 #include <QtGui>
 
@@ -14,7 +14,8 @@ class ObstaclePosDialog : public QDialog {
   Q_OBJECT
 
   public:
-    ObstaclePosDialog(const vector<MultiBodyModel*>& _multiBody, MainWindow* _mainWindow,  QWidget* _parent);
+    ObstaclePosDialog(MainWindow* _mainWindow,
+        const vector<MultiBodyModel*>& _multiBody);
 
   public slots:
     void DisplaySlidersValues(int _i);

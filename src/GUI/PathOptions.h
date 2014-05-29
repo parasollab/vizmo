@@ -2,8 +2,8 @@
  * Class for the "Path" submenu and associated action buttons
  *****************************************************************/
 
-#ifndef PATHOPTIONS_H_
-#define PATHOPTIONS_H_
+#ifndef PATH_OPTIONS_H_
+#define PATH_OPTIONS_H_
 
 #include "OptionsBase.h"
 
@@ -24,10 +24,11 @@ class PathOptions : public OptionsBase {
     void CreateActions();
     void SetUpCustomSubmenu(); //like RoadmapOptions
     void SetUpToolbar();       //show/hide path and show/hide start/goal
+    void SetUpToolTab();
     void Reset();
     void SetHelpTips();
 
-    CustomizePathDialog* m_pathOptionsInput; //pop-up dialog for gradient input, etc.
+    QPointer<CustomizePathDialog> m_customizePathDialog; //pop-up dialog for gradient input, etc.
 };
 
 #endif

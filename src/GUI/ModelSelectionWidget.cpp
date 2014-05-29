@@ -6,8 +6,7 @@
 
 ModelSelectionWidget::ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent) :
   QTreeWidget(_parent), m_glWidget(_glWidget) {
-    setMinimumSize(205, 277);
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    setFixedWidth(160);
     m_maxNoModels = 0;
     setHeaderLabel("Environment Objects");
     setSelectionMode(QAbstractItemView::ExtendedSelection);

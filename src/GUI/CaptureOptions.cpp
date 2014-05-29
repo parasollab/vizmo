@@ -11,25 +11,23 @@
 #include "Icons/Camera.xpm"
 #include "Icons/Camcorder.xpm"
 
-CaptureOptions::CaptureOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow) {
-    CreateActions();
-    SetUpSubmenu("Capture");
-    SetUpToolbar();
-    SetHelpTips();
-    m_cropBox = false;
-  }
+CaptureOptions::
+CaptureOptions(QWidget* _parent, MainWindow* _mainWindow)
+    : OptionsBase(_parent, _mainWindow) {
+  CreateActions();
+  SetUpSubmenu("Capture");
+  SetUpToolbar();
+  SetHelpTips();
+  m_cropBox = false;
+}
 
 void
-CaptureOptions::CreateActions(){
-
+CaptureOptions::
+CreateActions() {
   //1. Create actions and add them to map
-  QAction* crop = new QAction(QPixmap(cropIcon), tr("Crop"), this);
-  m_actions["crop"] = crop;
-  QAction* picture = new QAction(QPixmap(cameraIcon), tr("Picture"), this);
-  m_actions["picture"] = picture;
-  QAction* movie = new QAction(QPixmap(camcorderIcon), tr("Movie"), this);
-  m_actions["movie"] = movie;
+  m_actions["crop"] = new QAction(QPixmap(cropIcon), tr("Crop"), this);
+  m_actions["picture"] = new QAction(QPixmap(cameraIcon), tr("Picture"), this);
+  m_actions["movie"] = new QAction(QPixmap(camcorderIcon), tr("Movie"), this);
 
   //2. Set other specifications as necessary
   m_actions["crop"]->setEnabled(false);
@@ -41,18 +39,26 @@ CaptureOptions::CreateActions(){
   m_actions["movie"]->setStatusTip(tr("Save movie"));
 
   //3. Make connections
-  connect(m_actions["crop"], SIGNAL(triggered()), this, SLOT(CropRegion()));
-  connect(m_actions["picture"], SIGNAL(triggered()), this, SLOT(CapturePicture()));
-  connect(m_actions["movie"], SIGNAL(triggered()), this, SLOT(CaptureMovie()));
+  connect(m_actions["crop"], SIGNAL(triggered()),
+      this, SLOT(CropRegion()));
+  connect(m_actions["picture"], SIGNAL(triggered()),
+      this, SLOT(CapturePicture()));
+  connect(m_actions["movie"], SIGNAL(triggered()),
+      this, SLOT(CaptureMovie()));
 
-  connect(this, SIGNAL(ToggleSelectionSignal()), m_mainWindow->GetGLScene(), SLOT(ToggleSelectionSlot()));
-  connect(this, SIGNAL(SimulateMouseUp()), m_mainWindow->GetGLScene(), SLOT(SimulateMouseUpSlot()));
-  connect(this, SIGNAL(CallUpdate()), m_mainWindow, SLOT(UpdateScreen()));
-  connect(this, SIGNAL(UpdateFrame(int)), m_mainWindow->GetAnimationWidget(), SLOT(UpdateFrame(int)));
+  connect(this, SIGNAL(ToggleSelectionSignal()),
+      m_mainWindow->GetGLScene(), SLOT(ToggleSelectionSlot()));
+  connect(this, SIGNAL(SimulateMouseUp()),
+      m_mainWindow->GetGLScene(), SLOT(SimulateMouseUpSlot()));
+  connect(this, SIGNAL(CallUpdate()),
+      m_mainWindow, SLOT(UpdateScreen()));
+  connect(this, SIGNAL(UpdateFrame(int)),
+      m_mainWindow->GetAnimationWidget(), SLOT(UpdateFrame(int)));
 }
 
 void
-CaptureOptions::SetUpToolbar() {
+CaptureOptions::
+SetUpToolbar() {
   m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["crop"]);
   m_toolbar->addAction(m_actions["picture"]);
@@ -60,7 +66,8 @@ CaptureOptions::SetUpToolbar() {
 }
 
 void
-CaptureOptions::SetHelpTips() {
+CaptureOptions::
+SetHelpTips() {
   m_actions["crop"]->setWhatsThis(tr("Click and drag to specify a"
         " cropping area. You can then use the <b>Picture</b> button to"
         " save a screenshot."));
@@ -72,7 +79,8 @@ CaptureOptions::SetHelpTips() {
 }
 
 void
-CaptureOptions::Reset(){
+CaptureOptions::
+Reset() {
   m_actions["crop"]->setEnabled(true);
   m_actions["picture"]->setEnabled(true);
   m_actions["movie"]->setEnabled(GetVizmo().GetPath() || GetVizmo().GetDebug());
@@ -80,8 +88,8 @@ CaptureOptions::Reset(){
 
 //Slots
 void
-CaptureOptions::CropRegion() {
-
+CaptureOptions::
+CropRegion() {
   m_cropBox =! m_cropBox;
 
   if(!m_cropBox)
@@ -92,9 +100,10 @@ CaptureOptions::CropRegion() {
 }
 
 void
-CaptureOptions::CapturePicture(){
+CaptureOptions::
+CapturePicture() {
   //Set up the file dialog to select image filename
-  QFileDialog fd(this, "Choose a name", ".", QString::null);
+  QFileDialog fd(m_mainWindow, "Choose a name", ".", QString::null);
   fd.setFileMode(QFileDialog::AnyFile);
   fd.setFilters(imageFilters);
   fd.setAcceptMode(QFileDialog::AcceptSave);
@@ -110,18 +119,22 @@ CaptureOptions::CapturePicture(){
 }
 
 void
-CaptureOptions::CaptureMovie(){
+CaptureOptions::
+CaptureMovie() {
   //Pop up a MovieSaveDialog
-  MovieSaveDialog msd(this, Qt::Dialog);
+  MovieSaveDialog msd(m_mainWindow, Qt::Dialog);
   if(msd.exec() == QDialog::Accepted){
-    size_t digits = max(double(msd.m_frameDigits), log10(msd.m_endFrame/msd.m_stepSize) + 2);
+    size_t digits = max(double(msd.m_frameDigits),
+        log10(msd.m_endFrame/msd.m_stepSize) + 2);
 
     //Create the progress bar for saving images
-    QProgressDialog progress("Saving images...", "Abort", msd.m_startFrame, msd.m_endFrame, this);
+    QProgressDialog progress("Saving images...", "Abort",
+        msd.m_startFrame, msd.m_endFrame, this);
 
     //for each frame, update the image, compute a filename, and save the image
     size_t frame = 0;
-    for(size_t i = msd.m_startFrame; i <= msd.m_endFrame; i += msd.m_stepSize, ++frame){
+    for(size_t i = msd.m_startFrame; i <= msd.m_endFrame;
+        i += msd.m_stepSize, ++frame) {
       //update progress bar
       progress.setValue(i - msd.m_startFrame);
       qApp->processEvents();

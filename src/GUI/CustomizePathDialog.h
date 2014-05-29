@@ -8,6 +8,8 @@
 
 #include <QtGui>
 
+class MainWindow;
+
 using namespace std;
 
 class CustomizePathDialog : public QDialog {
@@ -17,23 +19,25 @@ class CustomizePathDialog : public QDialog {
   using QDialog::paintEvent;
 
   public:
-    CustomizePathDialog(QWidget* _parent = 0);
-
-    QLineEdit* m_widthLineEdit;
-    QLineEdit* m_modLineEdit;
+    CustomizePathDialog(MainWindow* _mainWindow = 0);
+    QLineEdit* GetWidthLine() { return m_widthLineEdit; }
+    QLineEdit* GetModLine() { return m_modLineEdit; }
 
   public slots:
-    void RestoreDefault(); //restore to default cyan-green-yellow gradient
+    void RestoreDefault();
 
   private slots:
     void AddColor();
     void AcceptData();
 
   private:
-    void paintEvent(QPaintEvent*);  //overridden to display gradient
-    void SetUpDialog(QDialog* _dialog);
+    void paintEvent(QPaintEvent* _p);  //overridden to display gradient
+    void SetUpDialog();
 
-    vector<QColor> m_colors; //larger units of color in the gradient
+    QWidget* m_gradientRect;
+    QLineEdit* m_widthLineEdit;
+    QLineEdit* m_modLineEdit;
+    vector<QColor> m_colors;
     bool m_isDefault;
 };
 

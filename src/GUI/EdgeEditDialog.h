@@ -12,11 +12,15 @@
 
 #include <QtGui>
 
+#include "Models/TempObjsModel.h"
+
 using namespace std;
 
-class GLWidget;
 class CfgModel;
 class EdgeModel;
+class GLWidget;
+class MainWindow;
+class NodeEditDialog;
 
 struct CfgListItem : public QListWidgetItem {
 
@@ -51,7 +55,7 @@ class EdgeEditDialog : public QDialog {
   public:
     typedef vector<CfgListItem*>::iterator IIT;
 
-    EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _scene);
+    EdgeEditDialog(MainWindow* _mainWindow, EdgeModel* _originalEdge);
     ~EdgeEditDialog();
 
     void ClearIntermediates();
@@ -61,11 +65,16 @@ class EdgeEditDialog : public QDialog {
     void EditIntermediate();
     void AddIntermediate();
     void RemoveIntermediate();
+    void FinalizeEdgeEdit(int _accepted);
 
   private:
     CfgListWidget* m_intermediatesList;
+    MainWindow* m_mainWindow;
+    EdgeModel* m_originalEdge;
+    EdgeModel* m_tempEdge;
     GLWidget* m_glScene;
-    EdgeModel* m_currentEdge;
+    TempObjsModel m_tempObjs;
+    QPointer<NodeEditDialog> m_nodeEditDialog;
 };
 
 #endif

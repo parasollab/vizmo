@@ -2,18 +2,20 @@
 
 #include <limits>
 
+#include "MainWindow.h"
 #include "Models/DebugModel.h"
 #include "Models/PathModel.h"
 #include "Models/Vizmo.h"
 #include "Utilities/ImageFilters.h"
 
-MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
-  QDialog(_parent, _f),
+MovieSaveDialog::MovieSaveDialog(MainWindow* _mainWindow, Qt::WFlags _f) :
+  QDialog(_mainWindow, _f),
 
   m_startFrame(0), m_endFrame(-1), m_stepSize(10),
   m_frameDigits(5), m_frameDigitStart(11),
   m_filename("vizmo_movie#####.jpg") {
 
+    setFixedSize(200, 230);
     int maxint = std::numeric_limits<int>::max();
 
     Vizmo& vizmo = GetVizmo();
@@ -63,14 +65,15 @@ MovieSaveDialog::MovieSaveDialog(QWidget* _parent, Qt::WFlags _f) :
     layout->addWidget(startFrameLabel, 1, 1);
     layout->addWidget(endFrameLabel, 2, 1);
     layout->addWidget(stepSizeLabel, 3, 1);
-    layout->addWidget(selectNameButton, 4, 1);
-    layout->addWidget(goButton, 5, 1);
+    layout->addWidget(m_fileNameLabel, 4, 1, 1, 2);
+    layout->addWidget(selectNameButton, 5, 1);
+    layout->addItem(new QSpacerItem(200, 10), 6, 1, 1, 2);
+    layout->addWidget(goButton, 7, 1);
 
     layout->addWidget(m_startFrameEdit, 1, 2);
     layout->addWidget(m_endFrameEdit, 2, 2);
     layout->addWidget(m_stepSizeEdit, 3, 2);
-    layout->addWidget(m_fileNameLabel, 4, 2);
-    layout->addWidget(cancelButton, 5, 2);
+    layout->addWidget(cancelButton, 7, 2);
 }
 
 void

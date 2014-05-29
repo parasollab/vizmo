@@ -93,6 +93,7 @@ FileOptions::LoadFile(){
   QFileInfo fi(fn);
 
   if(!fn.isEmpty()){
+    m_mainWindow->ResetDialogs();
     m_mainWindow->GetArgs().clear();
     m_mainWindow->GetArgs().push_back(QString(fn.toLatin1()).toStdString()); //access the actual main window
     m_mainWindow->SetVizmoInit(false);
@@ -113,6 +114,7 @@ FileOptions::UpdateFiles(){
 
   if(flDialog.exec() != QDialog::Accepted)
     return;
+  m_mainWindow->ResetDialogs();
 
   if(!GetVizmo().InitModels())
     return;

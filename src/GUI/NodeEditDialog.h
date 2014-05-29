@@ -3,19 +3,23 @@
  * 2 input options from here: Slider adjustment or explicit value entry
  ********************************************************************************/
 
-#ifndef NODE_EDIT_DIALOG_H
-#define NODE_EDIT_DIALOG_H
+#ifndef NODE_EDIT_DIALOG_H_
+#define NODE_EDIT_DIALOG_H_
 
 #include <string>
 #include <vector>
 
 #include <QtGui>
 
+#include "Models/MapModel.h"
+#include "Models/CfgModel.h"
+#include "Models/EdgeModel.h"
+#include "Models/TempObjsModel.h"
+
 using namespace std;
 
 class GLWidget;
-class CfgModel;
-class EdgeModel;
+class MainWindow;
 
 class NodeEditValidator : public QDoubleValidator{
 
@@ -34,7 +38,7 @@ class NodeEditSlider : public QWidget {
   Q_OBJECT
 
   public:
-    NodeEditSlider(QWidget* _parent, string _label, string _details);
+    NodeEditSlider(QWidget* _parent, string _label);
 
     QSlider* GetSlider() { return m_slider; }
     QLineEdit* GetDOFValue() { return m_dofValue; }
@@ -56,24 +60,45 @@ class NodeEditDialog : public QDialog {
 
   public:
     typedef vector<NodeEditSlider*>::iterator SIT;
+    typedef MapModel<CfgModel, EdgeModel> Map;
+    typedef Map::Graph Graph;
+    typedef Map::EID EID;
+    typedef Map::EI EI;
+    typedef Map::VID VID;
+    typedef Map::VI VI;
 
-    NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene, string _title);
+    //Edit node constructor
+    NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
+        EdgeModel* _parentEdge = NULL);
+    //Add new node constructor
+    NodeEditDialog(MainWindow* _mainWindow, string _title);
+    //Merge nodes constructor
+    NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _tempNode,
+        vector<VID> _nodesToConnect, vector<VID> _nodesToDelte);
     ~NodeEditDialog();
-    void SetUpSliders(vector<NodeEditSlider*>& _sliders);
-    void SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _title);
-    void SetCurrentEdges(vector<EdgeModel*>* _edges);
-    void InitSliderValues(const vector<double>& _vals);
 
   private slots:
-    void UpdateDOF(int _id); //Update value of DOF associated with m_sliders[_id]
+    void UpdateDOF(int _id);  //Update value of DOF associated with m_sliders[_id]
+    //Custom finishing slots for various use cases
+    void FinalizeNodeEdit(int _accepted);  //For when dialog is used to modify existing node
+    void FinalizeNodeAdd(int _accepted);  //For using dialog to add new nodes
+    void FinalizeNodeMerge(int _accepted);  //For using dialog to merge nodes
 
   private:
+    void Init();
+    void SetUpSliders(vector<NodeEditSlider*>& _sliders);
+    void InitSliderValues(const vector<double>& _vals);
     void ValidityCheck();
 
     vector<NodeEditSlider*> m_sliders; //destruction??
+    MainWindow* m_mainWindow;
+    string m_title;
+    CfgModel* m_tempNode;
+    CfgModel* m_originalNode;
+    vector<VID> m_nodesToConnect;
+    vector<VID> m_nodesToDelete;
+    TempObjsModel m_tempObjs;
     GLWidget* m_glScene;
-    CfgModel* m_currentNode;
-    vector<EdgeModel*>* m_currentEdges;
 };
 
 #endif

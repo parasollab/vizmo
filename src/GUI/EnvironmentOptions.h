@@ -2,13 +2,15 @@
 * Class for the "Environment" submenu and associated action button
 ******************************************************************/
 
-#ifndef ENVIRONMENTOPTIONS_H_
-#define ENVIRONMENTOPTIONS_H_
+#ifndef ENVIRONMENT_OPTIONS_H_
+#define ENVIRONMENT_OPTIONS_H_
 
 #include "OptionsBase.h"
 
 using namespace std;
 
+class ChangeBoundaryDialog;
+class EditRobotDialog;
 class ModelSelectionWidget;
 class MultiBodyModel;
 
@@ -47,6 +49,7 @@ class EnvironmentOptions : public OptionsBase {
     void CreateActions();
     void SetUpCustomSubmenu();
     void SetUpToolbar(); //Just randomize colors button
+    void SetUpToolTab();
     void Reset();
     void SetHelpTips();
 
@@ -54,6 +57,9 @@ class EnvironmentOptions : public OptionsBase {
     QMenu* m_obstacleMenu;
     QThread* m_thread;
     QTimer* m_timer;
+
+    QPointer<EditRobotDialog> m_editRobotDialog;
+    QPointer<ChangeBoundaryDialog> m_changeBoundaryDialog;
 };
 
 class MapEnvironmentWorker : public QObject {

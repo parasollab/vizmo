@@ -18,4 +18,5 @@ OBJECTS += \
 	   Models/RegionSphereModel.o \
 	   Models/RegionSphere2DModel.o \
 	   Models/RobotModel.o \
+	   Models/TempObjsModel.o \
 	   Models/Vizmo.o

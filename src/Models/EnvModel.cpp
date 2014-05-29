@@ -7,11 +7,13 @@
 #include "BoundingSphereModel.h"
 #include "CfgModel.h"
 #include "ConnectionModel.h"
+#include "TempObjsModel.h"
 #include "Utilities/VizmoExceptions.h"
 #include "Utilities/IO.h"
 
-EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
-  m_containsSurfaces(false), m_radius(0), m_boundary(NULL) {
+EnvModel::
+EnvModel(const string& _filename) : LoadableModel("Environment"),
+  m_containsSurfaces(false), m_radius(0), m_boundary(NULL), m_tempObjs() {
 
     SetFilename(_filename);
     size_t sl = _filename.rfind('/');
@@ -25,7 +27,8 @@ EnvModel::EnvModel(const string& _filename) : LoadableModel("Environment"),
     m_environment->ComputeResolution();
   }
 
-EnvModel::~EnvModel() {
+EnvModel::
+~EnvModel() {
   delete m_boundary;
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
@@ -40,13 +43,15 @@ EnvModel::~EnvModel() {
 }
 
 bool
-EnvModel::IsNonCommitRegion(RegionModel* _r) const {
+EnvModel::
+IsNonCommitRegion(RegionModel* _r) const {
   return find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r)
     != m_nonCommitRegions.end();
 }
 
 void
-EnvModel::ChangeRegionType(RegionModel* _r, bool _attract) {
+EnvModel::
+ChangeRegionType(RegionModel* _r, bool _attract) {
   vector<RegionModel*>::iterator rit;
   rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
   if(rit != m_nonCommitRegions.end()) {
@@ -63,7 +68,8 @@ EnvModel::ChangeRegionType(RegionModel* _r, bool _attract) {
 }
 
 void
-EnvModel::DeleteRegion(RegionModel* _r) {
+EnvModel::
+DeleteRegion(RegionModel* _r) {
   vector<RegionModel*>::iterator rit;
   rit = find(m_attractRegions.begin(), m_attractRegions.end(), _r);
   if(rit != m_attractRegions.end()) {
@@ -86,9 +92,24 @@ EnvModel::DeleteRegion(RegionModel* _r) {
   }
 }
 
+//////////TempObjs////////////
+void
+EnvModel::
+RemoveTempObjs(TempObjsModel* _t) {
+  //remove TempObjs container from EnvModel
+  for(vector<TempObjsModel*>::iterator tit = m_tempObjs.begin();
+      tit != m_tempObjs.end(); ++tit) {
+    if(*tit == _t) {
+      m_tempObjs.erase(tit);
+      break;
+    }
+  }
+}
+
 //////////Load Functions//////////
 void
-EnvModel::ParseFile(){
+EnvModel::
+ParseFile() {
 
   if(!FileExists(GetFilename()))
     throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
@@ -125,13 +146,15 @@ EnvModel::ParseFile(){
 }
 
 void
-EnvModel::SetModelDataDir(const string _modelDataDir){
+EnvModel::
+SetModelDataDir(const string _modelDataDir) {
   m_modelDataDir = _modelDataDir;
   cout<<"- Geo Dir   : "<< m_modelDataDir << endl;
 }
 
 void
-EnvModel::ParseBoundary(ifstream& _ifs) {
+EnvModel::
+ParseBoundary(ifstream& _ifs) {
   string type = ReadFieldString(_ifs, WHERE, "Failed reading Boundary type.");
 
   if(type == "BOX")
@@ -146,7 +169,8 @@ EnvModel::ParseBoundary(ifstream& _ifs) {
 }
 
 void
-EnvModel::Build(){
+EnvModel::
+Build() {
   //Build boundary model
   if(!m_boundary)
     throw BuildException(WHERE, "Boundary is NULL");
@@ -172,7 +196,8 @@ EnvModel::Build(){
 }
 
 void
-EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
+EnvModel::
+Select(GLuint* _index, vector<Model*>& _sel) {
   size_t numMBs = m_multibodies.size();
   size_t numAttractRegions = m_attractRegions.size();
   size_t numAvoidRegions = m_avoidRegions.size();
@@ -193,7 +218,8 @@ EnvModel::Select(GLuint* _index, vector<Model*>& _sel){
 }
 
 void
-EnvModel::DrawRender() {
+EnvModel::
+DrawRender() {
   size_t numMBs = m_multibodies.size();
   size_t numAttractRegions = m_attractRegions.size();
   size_t numAvoidRegions = m_avoidRegions.size();
@@ -217,10 +243,16 @@ EnvModel::DrawRender() {
     m_nonCommitRegions[i]->DrawRender();
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
+
+  for(vector<TempObjsModel*>::iterator tit = m_tempObjs.begin();
+      tit != m_tempObjs.end(); ++tit) {
+    (*tit)->DrawRender();
+  }
 }
 
 void
-EnvModel::DrawSelect() {
+EnvModel::
+DrawSelect() {
   size_t numMBs = m_multibodies.size();
   size_t numAttractRegions = m_attractRegions.size();
   size_t numAvoidRegions = m_avoidRegions.size();
@@ -259,23 +291,31 @@ EnvModel::DrawSelect() {
   }
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
+
+  for(vector<TempObjsModel*>::iterator tit = m_tempObjs.begin();
+      tit != m_tempObjs.end(); ++tit) {
+    (*tit)->DrawSelect();
+  }
 }
 
 void
-EnvModel::Print(ostream& _os) const {
+EnvModel::
+Print(ostream& _os) const {
   _os << Name() << ": " << GetFilename() << endl
     << m_multibodies.size() << " multibodies" << endl;
 }
 
 void
-EnvModel::ChangeColor(){
+EnvModel::
+ChangeColor() {
   int numMBs = m_multibodies.size();
   for(int i = 0; i < numMBs; i++)
     m_multibodies[i]->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }
 
 void
-EnvModel::SetSelectable(bool _s){
+EnvModel::
+SetSelectable(bool _s) {
   m_selectable = _s;
   typedef vector<MultiBodyModel*>::iterator MIT;
   for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
@@ -284,7 +324,8 @@ EnvModel::SetSelectable(bool _s){
 }
 
 void
-EnvModel::GetChildren(list<Model*>& _models){
+EnvModel::
+GetChildren(list<Model*>& _models) {
   typedef vector<MultiBodyModel*>::iterator MIT;
   for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
     if(!(*i)->IsActive())
@@ -300,7 +341,8 @@ EnvModel::GetChildren(list<Model*>& _models){
 }
 
 void
-EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
+EnvModel::
+DeleteMBModel(MultiBodyModel* _mbl) {
   vector<MultiBodyModel*>::iterator mbit;
   for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){
     if((*mbit) == _mbl){
@@ -311,13 +353,15 @@ EnvModel::DeleteMBModel(MultiBodyModel* _mbl){
 }
 
 void
-EnvModel::AddMBModel(MultiBodyModel* _m){
+EnvModel::
+AddMBModel(MultiBodyModel* _m) {
   _m->Build();
   m_multibodies.push_back(_m);
 }
 
 bool
-EnvModel::SaveFile(const char* _filename){
+EnvModel::
+SaveFile(const char* _filename) {
   ofstream envFile(_filename);
   if(!envFile.is_open()){
     cout<<"Couldn't open the file"<<endl;
@@ -419,7 +463,8 @@ EnvModel::SaveFile(const char* _filename){
 
 
 string
-EnvModel::SetTransformRight(string _transformString){
+EnvModel::
+SetTransformRight(string _transformString) {
   stringstream transform;
   istringstream splitTransform(_transformString);
   string splittedTransform[6]={"","","","","",""};

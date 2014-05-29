@@ -6,6 +6,7 @@
 
 BoundingBoxWidget::BoundingBoxWidget(QWidget* _parent) : QWidget(_parent) {
   //construct objects
+  setStyleSheet("QLineEdit { font: 9pt }");
   QLabel* labelX = new QLabel("<b>X<b>", this);
   QLabel* labelY = new QLabel("<b>Y<b>", this);
   QLabel* labelZ = new QLabel("<b>Z<b>", this);
@@ -36,15 +37,15 @@ BoundingBoxWidget::BoundingBoxWidget(QWidget* _parent) : QWidget(_parent) {
   setLayout(layout);
 
   layout->addWidget(m_checkIs2D, 0, 0, 1, 6, Qt::AlignCenter);
-  layout->addWidget(labelX, 1, 0, 1, 2, Qt::AlignCenter);
-  layout->addWidget(labelY, 1, 2, 1, 2, Qt::AlignCenter);
-  layout->addWidget(labelZ, 1, 4, 1, 2, Qt::AlignCenter);
-  layout->addWidget(m_lineXMin, 2, 0);
-  layout->addWidget(m_lineXMax, 2, 1);
-  layout->addWidget(m_lineYMin, 2, 2);
-  layout->addWidget(m_lineYMax, 2, 3);
-  layout->addWidget(m_lineZMin, 2, 4);
-  layout->addWidget(m_lineZMax, 2, 5);
+  layout->addWidget(labelX, 1, 0, 1, 1);
+  layout->addWidget(labelY, 2, 0, 1, 1);
+  layout->addWidget(labelZ, 3, 0, 1, 1);
+  layout->addWidget(m_lineXMin, 1, 1);
+  layout->addWidget(m_lineXMax, 1, 2);
+  layout->addWidget(m_lineYMin, 2, 1);
+  layout->addWidget(m_lineYMax, 2, 2);
+  layout->addWidget(m_lineZMin, 3, 1);
+  layout->addWidget(m_lineZMax, 3, 2);
 }
 
 void

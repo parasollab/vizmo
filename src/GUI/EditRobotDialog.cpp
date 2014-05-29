@@ -15,18 +15,44 @@
 #define DEFAULT_BASE_CONF "  FIXED  0 0 0 0 0 0 \n"
 #define DEFAULT_JOINT_CONF "0 1  REVOLUTE -1:1\n0 0 0 0 0 0  0 0 0 0  0 0 0 0 0 0\n"
 
-EditRobotDialog::EditRobotDialog(MainWindow* _mainWindow, QWidget* _parent) : QDialog(_parent) {
-  setWindowTitle("Edit Robot");
+EditRobotDialog::EditRobotDialog(MainWindow* _mainWindow) : QDialog(_mainWindow) {
 
-  m_okButton = new QPushButton("Ok", this);
+  vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
+  typedef vector<MultiBodyModel*>::const_iterator MIT;
+  for(MIT mit = mBody.begin(); mit<mBody.end(); mit++)
+    if((*mit)->IsActive())
+      m_robotBody = *mit;
+
+  m_newRobotModel = m_robotBody->GetRobots();
+  m_jointIsInit = false;
+  m_baseIsInit = false;
+  m_mainWindow = _mainWindow;
+
+  SetUpDialog();
+  SaveJointsNames();
+  DisplayBases();
+
+  //set delete on close
+  setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void
+EditRobotDialog::SetUpDialog(){
+
+  setWindowTitle("Edit Robot");
+  setFixedSize(200, 570);
+  setStyleSheet("QLabel { font:8pt } QLineEdit { font:8pt } QListWidget { font:8pt }"
+                "QPushButton { font:8pt } QCheckBox { font:8pt } ");
+
+  //Initialize objects
+  QPushButton* addBaseButton = new QPushButton("Add...", this);
+  QPushButton* deleteBaseButton = new QPushButton("Delete", this);
+  QPushButton* addJointButton = new QPushButton("Add...", this);
+  QPushButton* deleteJointButton = new QPushButton("Delete", this);
+  QPushButton* newRobotButton = new QPushButton("New robot...", this);
+  QPushButton* okButton = new QPushButton("Ok", this);
 
   m_directory = new QLabel(this);
-
-  m_addBaseButton = new QPushButton("Add", this);
-  m_deleteBaseButton = new QPushButton("Delete", this);
-  m_addJointButton = new QPushButton("Add", this);
-  m_deleteJointButton = new QPushButton("Delete", this);
-
   m_baseList = new QListWidget(this);
   m_jointList = new QListWidget(this);
 
@@ -50,12 +76,169 @@ EditRobotDialog::EditRobotDialog(MainWindow* _mainWindow, QWidget* _parent) : QD
   m_jointALine = new QLineEdit(this);
   m_jointDLine = new QLineEdit(this);
   m_jointThetaLine = new QLineEdit(this);
-  m_newRobotButton = new QPushButton("New robot", this);
-  m_bodyNumberLine = new QLineEdit(this);
+  m_bodyNumberLine = new QLabel(this);
   m_jointConnectionsLine1 = new QLineEdit(this);
   m_jointConnectionsLine2 = new QLineEdit(this);
 
-  connect(m_okButton, SIGNAL(clicked()), this, SLOT(Accept()));
+  //Set up layout
+  QVBoxLayout* overall = new QVBoxLayout();
+  setLayout(overall);
+
+  //Top = non-scrolling lists of bases/joints to select
+  QGridLayout* listsLayout = new QGridLayout();
+  overall->addLayout(listsLayout);
+
+  listsLayout->addWidget(new QLabel("<b>Bases:<b>", this), 1, 1, 1, 20);
+  listsLayout->addWidget(m_baseList, 2, 1, 2, 18);
+  listsLayout->addWidget(addBaseButton, 2, 19, 1, 2);
+  listsLayout->addWidget(deleteBaseButton, 3, 19, 1, 2);
+
+  listsLayout->addWidget(new QLabel("<b>Joints:<b>", this), 4, 1, 1, 20);
+  listsLayout->addWidget(m_jointList, 5, 1, 2, 18);
+  listsLayout->addWidget(addJointButton, 5, 19, 1, 2);
+  listsLayout->addWidget(deleteJointButton, 6, 19, 1, 2);
+
+  listsLayout->addWidget(new QLabel("Body num:", this), 7, 1, 1, 8);
+  listsLayout->addWidget(m_bodyNumberLine, 7, 9, 1, 12);
+  listsLayout->addItem(new QSpacerItem(190, 5), 8, 1);
+
+  m_baseList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  m_jointList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  m_bodyNumberLine->setFixedWidth(25);
+
+  QFrame* spacerLine = new QFrame(this);
+  spacerLine->setFrameShape(QFrame::HLine);
+  spacerLine->setFrameShadow(QFrame::Sunken);
+
+  listsLayout->addWidget(spacerLine, 9, 1, 1, 20);
+  listsLayout->addItem(new QSpacerItem(190, 10), 10, 1);
+  listsLayout->addWidget(new QLabel("<b>Attributes<\b>", this), 11, 1, 1, 20);
+
+  //Middle = scrollable area to adjust attributes of selected base/joint
+  //Toggles between base and joint attributes display
+  QGridLayout* scrollLayout = new QGridLayout();
+  QWidget* scrollAreaWidget = new QWidget(this);
+  VerticalScrollArea* scrollArea = new VerticalScrollArea(this);
+  scrollAreaWidget->setLayout(scrollLayout);
+  scrollAreaWidget->setFixedWidth(170);
+
+  //Base interface
+  QGridLayout* baseAttributes = new QGridLayout();
+
+  baseAttributes->addWidget(new QLabel("<b>Directory:<\b>", this), 1, 1, 1, 4);
+  baseAttributes->addWidget(m_directory, 2, 1, 1, 4);
+  baseAttributes->addItem(new QSpacerItem(190, 15), 3, 1, 1, 4);
+
+  baseAttributes->addWidget(new QLabel("<b>Type:<\b>", this), 4, 1, 1, 2);
+  baseAttributes->addWidget(m_baseFixedCheck, 5, 2, 1, 3);
+  baseAttributes->addWidget(m_basePlanarCheck, 6, 2, 1, 3);
+  baseAttributes->addWidget(m_baseVolumetricCheck, 7, 2, 1, 3);
+  baseAttributes->addItem(new QSpacerItem(190, 15), 8, 1, 1, 4);
+
+  baseAttributes->addWidget(new QLabel("<b>Movement:<\b>", this), 9, 1, 1, 3);
+  baseAttributes->addWidget(m_baseTranslationalCheck, 10, 2, 1, 3);
+  baseAttributes->addWidget(m_baseRotationalCheck, 11, 2, 1, 3);
+
+  m_baseWidget = new QWidget(this);
+  m_baseWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+  m_baseWidget->setLayout(baseAttributes);
+
+  //Joint interface
+  QGridLayout* jointAttributes = new QGridLayout();
+
+  jointAttributes->addWidget(new QLabel("<b>Type:<\b>", this), 1, 1, 1, 4);
+  jointAttributes->addWidget(m_jointNonActuatedCheck, 2, 2, 1, 3);
+  jointAttributes->addWidget(m_jointRevoluteCheck, 3, 2, 1, 3);
+  jointAttributes->addWidget(m_jointSphericalCheck, 4, 2, 1, 3);
+  jointAttributes->addItem(new QSpacerItem(190, 12), 5, 1, 1, 4);
+
+  jointAttributes->addWidget(new QLabel("<b>Connects bodies:<\b>", this), 6, 1, 1, 4);
+  jointAttributes->addWidget(m_jointConnectionsLine1, 7, 2);
+  jointAttributes->addWidget(m_jointConnectionsLine2, 7, 4);
+  jointAttributes->addItem(new QSpacerItem(190, 15), 8, 1, 1, 4);
+
+  m_jointConnectionsLine2->setReadOnly(true);
+  m_jointConnectionsLine1->setValidator(new QIntValidator(0, numeric_limits<size_t>::max(), this));
+
+
+  jointAttributes->addWidget(new QLabel("<b>Limits:<\b>", this), 9, 1, 1, 4);
+  jointAttributes->addWidget(new QLabel("X:", this), 10, 1);
+  jointAttributes->addWidget(m_jointLimits[0][0], 10, 2);
+  jointAttributes->addWidget(m_jointLimits[0][1], 10, 4);
+  jointAttributes->addWidget(new QLabel("Y:", this), 11, 1);
+  jointAttributes->addWidget(m_jointLimits[1][0], 11, 2);
+  jointAttributes->addWidget(m_jointLimits[1][1], 11, 4);
+  jointAttributes->addItem(new QSpacerItem(190, 15), 12, 1, 1, 4);
+
+  for(size_t i = 0; i<2; ++i) {
+    for(size_t j = 0; j<2; ++j) {
+      m_jointLimits[i][j]->setRange(-1, 1);
+      m_jointLimits[i][j]->setSingleStep(0.1);
+    }
+  }
+
+  jointAttributes->addWidget(new QLabel("<b>Transform to DH Frame:<\b>", this), 13, 1, 1, 4);
+  jointAttributes->addWidget(new QLabel("X", this), 14, 1);
+  jointAttributes->addWidget(new QLabel("Y", this), 15, 1);
+  jointAttributes->addWidget(new QLabel("Z", this), 16, 1);
+  jointAttributes->addWidget(new QLabel(QChar(0x03B1), this), 14, 3);
+  jointAttributes->addWidget(new QLabel(QChar(0x03B2), this), 15, 3);
+  jointAttributes->addWidget(new QLabel(QChar(0x03B3), this), 16, 3);
+  jointAttributes->addWidget(m_jointPos[0][0], 14, 2);
+  jointAttributes->addWidget(m_jointPos[0][1], 15, 2);
+  jointAttributes->addWidget(m_jointPos[0][2], 16, 2);
+  jointAttributes->addWidget(m_jointPos[0][3], 14, 4);
+  jointAttributes->addWidget(m_jointPos[0][4], 15, 4);
+  jointAttributes->addWidget(m_jointPos[0][5], 16, 4);
+  jointAttributes->addItem(new QSpacerItem(190, 15), 17, 1, 1, 4);
+
+  jointAttributes->addWidget(new QLabel("<b>DH Parameters:<\b>", this), 18, 1, 1, 4);
+  jointAttributes->addWidget(new QLabel(QChar(0x03B1),this), 19, 1);
+  jointAttributes->addWidget(new QLabel("a",this), 19, 3);
+  jointAttributes->addWidget(new QLabel("d",this), 20, 1);
+  jointAttributes->addWidget(new QLabel(QChar(0x03B8),this), 20, 3);
+  jointAttributes->addWidget(m_jointAlphaLine, 19, 2);
+  jointAttributes->addWidget(m_jointALine, 19, 4);
+  jointAttributes->addWidget(m_jointDLine, 20, 2);
+  jointAttributes->addWidget(m_jointThetaLine, 20, 4);
+  jointAttributes->addItem(new QSpacerItem(190, 15), 21, 1, 1, 4);
+
+  m_jointAlphaLine->setValidator(new QDoubleValidator(this));
+  m_jointALine->setValidator(new QDoubleValidator(this));
+  m_jointDLine->setValidator(new QDoubleValidator(this));
+  m_jointThetaLine->setValidator(new QDoubleValidator(this));
+
+  jointAttributes->addWidget(new QLabel("<b>Transform to Body 2:<\b>", this), 22, 1, 1, 4);
+  jointAttributes->addWidget(new QLabel("X", this), 23, 1);
+  jointAttributes->addWidget(new QLabel("Y", this), 24, 1);
+  jointAttributes->addWidget(new QLabel("Z", this), 25, 1);
+  jointAttributes->addWidget(new QLabel(QChar(0x03B1), this), 23, 3);
+  jointAttributes->addWidget(new QLabel(QChar(0x03B2), this), 24, 3);
+  jointAttributes->addWidget(new QLabel(QChar(0x03B3), this), 25, 3);
+  jointAttributes->addWidget(m_jointPos[1][0], 23, 2);
+  jointAttributes->addWidget(m_jointPos[1][1], 24, 2);
+  jointAttributes->addWidget(m_jointPos[1][2], 25, 2);
+  jointAttributes->addWidget(m_jointPos[1][3], 23, 4);
+  jointAttributes->addWidget(m_jointPos[1][4], 24, 4);
+  jointAttributes->addWidget(m_jointPos[1][5], 25, 4);
+
+  m_jointWidget = new QWidget(this);
+  m_jointWidget->setLayout(jointAttributes);
+
+  //One visible at a time
+  scrollLayout->addWidget(m_baseWidget, 1, 1, 1, 2, Qt::AlignTop);
+  scrollLayout->addWidget(m_jointWidget, 1, 1, 1, 2);
+
+  scrollArea->setWidget(scrollAreaWidget);
+  overall->addWidget(scrollArea);
+  overall->addWidget(newRobotButton);
+  overall->addWidget(okButton);
+
+  DisplayHideJointAttributes(false);
+  DisplayHideBaseAttributes(false);
+
+  //Make connections
+  connect(okButton, SIGNAL(clicked()), this, SLOT(Accept()));
   connect(m_baseList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(ShowBase()));
   connect(m_jointList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(ShowJoint()));
   connect(m_baseFixedCheck, SIGNAL(clicked()), this, SLOT(BaseFixedChecked()));
@@ -63,14 +246,14 @@ EditRobotDialog::EditRobotDialog(MainWindow* _mainWindow, QWidget* _parent) : QD
   connect(m_baseVolumetricCheck, SIGNAL(clicked()), this, SLOT(BaseVolumetricChecked()));
   connect(m_baseRotationalCheck, SIGNAL(clicked()), this, SLOT(BaseRotationalChecked()));
   connect(m_baseTranslationalCheck, SIGNAL(clicked()), this, SLOT(BaseTranslationalChecked()));
-  connect(m_deleteBaseButton, SIGNAL(clicked()), this, SLOT(DeleteBase()));
-  connect(m_addBaseButton, SIGNAL(clicked()), this, SLOT(AddBase()));
-  connect(m_newRobotButton, SIGNAL(clicked()), this, SLOT(CreateNewRobot()));
+  connect(deleteBaseButton, SIGNAL(clicked()), this, SLOT(DeleteBase()));
+  connect(addBaseButton, SIGNAL(clicked()), this, SLOT(AddBase()));
+  connect(newRobotButton, SIGNAL(clicked()), this, SLOT(CreateNewRobot()));
   connect(m_jointNonActuatedCheck, SIGNAL(clicked()), this, SLOT(JointNonActuatedChecked()));
   connect(m_jointSphericalCheck, SIGNAL(clicked()), this, SLOT(JointSphericalChecked()));
   connect(m_jointRevoluteCheck, SIGNAL(clicked()), this, SLOT(JointRevoluteChecked()));
-  connect(m_deleteJointButton, SIGNAL(clicked()), this, SLOT(DeleteJoint()));
-  connect(m_addJointButton, SIGNAL(clicked()), this, SLOT(AddJoint()));
+  connect(deleteJointButton, SIGNAL(clicked()), this, SLOT(DeleteJoint()));
+  connect(addJointButton, SIGNAL(clicked()), this, SLOT(AddJoint()));
   connect(m_jointConnectionsLine1, SIGNAL(editingFinished()), this, SLOT(UpdateJoint()));
   connect(m_jointAlphaLine, SIGNAL(editingFinished()), this, SLOT(UpdateJoint()));
   connect(m_jointALine, SIGNAL(editingFinished()), this, SLOT(UpdateJoint()));
@@ -85,188 +268,6 @@ EditRobotDialog::EditRobotDialog(MainWindow* _mainWindow, QWidget* _parent) : QD
   connect(m_jointSphericalCheck, SIGNAL(clicked(bool)), this, SLOT(UpdateJoint(bool)));
   connect(m_jointRevoluteCheck, SIGNAL(clicked(bool)), this, SLOT(UpdateJoint(bool)));
   connect(m_jointNonActuatedCheck, SIGNAL(clicked(bool)), this, SLOT(UpdateJoint(bool)));
-
-  vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
-  typedef vector<MultiBodyModel*>::const_iterator MIT;
-  for(MIT mit = mBody.begin(); mit<mBody.end(); mit++)
-    if((*mit)->IsActive())
-      m_robotBody = *mit;
-
-  m_newRobotModel = m_robotBody->GetRobots();
-  m_jointIsInit = false;
-  m_baseIsInit = false;
-  m_mainWindow = _mainWindow;
-
-  SaveJointsNames();
-  SetUpLayout();
-  DisplayBases();
-}
-
-void
-EditRobotDialog::SetUpLayout(){
-  QVBoxLayout* layout = new QVBoxLayout(this);
-  setLayout(layout);
-
-  layout->addWidget(m_newRobotButton, 0, Qt::AlignCenter);
-  m_newRobotButton->setFixedWidth(250);
-
-  //set up base/joint lists section
-  QHBoxLayout* baseJointLabels = new QHBoxLayout();
-  baseJointLabels->addWidget(new QLabel("<b>Bases:<b>", this));
-  baseJointLabels->addSpacing(50);
-  baseJointLabels->addWidget(new QLabel("<b>Joints:<b>", this));
-  layout->addLayout(baseJointLabels);
-
-  QHBoxLayout* baseJointLists = new QHBoxLayout();
-
-  QVBoxLayout* baseAddDel = new QVBoxLayout();
-  baseAddDel->addStretch(1);
-  baseAddDel->addWidget(m_addBaseButton);
-  baseAddDel->addWidget(m_deleteBaseButton);
-  baseAddDel->addStretch(1);
-
-  QVBoxLayout* jointAddDel = new QVBoxLayout();
-  jointAddDel->addStretch(1);
-  jointAddDel->addWidget(m_addJointButton);
-  jointAddDel->addWidget(m_deleteJointButton);
-  jointAddDel->addStretch(1);
-
-  baseJointLists->addWidget(m_baseList);
-  baseJointLists->addLayout(baseAddDel);
-  baseJointLists->addSpacing(50);
-  baseJointLists->addWidget(m_jointList);
-  baseJointLists->addLayout(jointAddDel);
-  m_baseList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-  m_jointList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-  layout->addLayout(baseJointLists);
-
-  //set up body num
-  QHBoxLayout* bodyNum = new QHBoxLayout();
-  bodyNum->addStretch(1);
-  bodyNum->addWidget(new QLabel("Body num:", this));
-  bodyNum->addWidget(m_bodyNumberLine);
-  bodyNum->addStretch(1);
-  m_bodyNumberLine->setReadOnly(true);
-  layout->addLayout(bodyNum);
-
-  //attributes
-  layout->addWidget(new QLabel("<b>Attributes:<b>", this), 0, Qt::AlignLeft);
-
-  //hidden layout for base stuff
-  QGridLayout* baseAttributes = new QGridLayout();
-
-  //directory
-  baseAttributes->addWidget(new QLabel("Directory:", this), 0, 0);
-  baseAttributes->addWidget(m_directory, 0, 1, 1, 3);
-
-  //base type
-  baseAttributes->addWidget(new QLabel("Type:", this), 1, 0);
-  baseAttributes->addWidget(m_baseFixedCheck, 1, 1);
-  baseAttributes->addWidget(m_basePlanarCheck, 1, 2);
-  baseAttributes->addWidget(m_baseVolumetricCheck, 1, 3);
-
-  //base movement
-  baseAttributes->addWidget(new QLabel("Movement:", this), 2, 0);
-  baseAttributes->addWidget(m_baseTranslationalCheck, 2, 1);
-  baseAttributes->addWidget(m_baseRotationalCheck, 2, 2);
-
-  m_baseWidget = new QWidget(this);
-  m_baseWidget->setLayout(baseAttributes);
-
-  //layout->addLayout(baseAttributes);
-  layout->addWidget(m_baseWidget);
-
-  //hidden layout for joint stuff
-  QGridLayout* jointAttributes = new QGridLayout();
-
-  //joint type
-  jointAttributes->addWidget(new QLabel("Type:", this), 0, 0);
-  jointAttributes->addWidget(m_jointNonActuatedCheck, 0, 1);
-  jointAttributes->addWidget(m_jointRevoluteCheck, 0, 2);
-  jointAttributes->addWidget(m_jointSphericalCheck, 0, 3);
-
-  //joint limits
-  jointAttributes->addWidget(new QLabel("Limits:", this), 1, 0);
-  jointAttributes->addWidget(new QLabel("X:", this), 1, 1);
-  jointAttributes->addWidget(m_jointLimits[0][0], 1, 2);
-  jointAttributes->addWidget(m_jointLimits[0][1], 1, 3);
-  jointAttributes->addWidget(new QLabel("Y:", this), 1, 4);
-  jointAttributes->addWidget(m_jointLimits[1][0], 1, 5);
-  jointAttributes->addWidget(m_jointLimits[1][1], 1, 6);
-  for(size_t i = 0; i<2; ++i) {
-    for(size_t j = 0; j<2; ++j) {
-      m_jointLimits[i][j]->setRange(-1, 1);
-      m_jointLimits[i][j]->setSingleStep(0.1);
-    }
-  }
-  jointAttributes->addWidget(new QLabel("Connected to bodies num:", this), 1, 7);
-  jointAttributes->addWidget(m_jointConnectionsLine1, 1, 8);
-  jointAttributes->addWidget(m_jointConnectionsLine2, 1, 9);
-  m_jointConnectionsLine2->setReadOnly(true);
-  m_jointConnectionsLine1->setValidator(new QIntValidator(0, numeric_limits<size_t>::max()));
-
-  //transform to DH Frame
-  jointAttributes->addWidget(new QLabel("Transform to", this), 2, 0);
-  jointAttributes->addWidget(new QLabel("X", this), 2, 1);
-  jointAttributes->addWidget(new QLabel("Y", this), 2, 2);
-  jointAttributes->addWidget(new QLabel("Z", this), 2, 3);
-  jointAttributes->addWidget(new QLabel(QChar(0x03B1), this), 2, 4);
-  jointAttributes->addWidget(new QLabel(QChar(0x03B2), this), 2, 5);
-  jointAttributes->addWidget(new QLabel(QChar(0x03B3), this), 2, 6);
-  jointAttributes->addWidget(new QLabel("DH Frame:", this), 3, 0);
-  jointAttributes->addWidget(m_jointPos[0][0], 3, 1);
-  jointAttributes->addWidget(m_jointPos[0][1], 3, 2);
-  jointAttributes->addWidget(m_jointPos[0][2], 3, 3);
-  jointAttributes->addWidget(m_jointPos[0][3], 3, 4);
-  jointAttributes->addWidget(m_jointPos[0][4], 3, 5);
-  jointAttributes->addWidget(m_jointPos[0][5], 3, 6);
-
-  //DH parameters
-  jointAttributes->addWidget(new QLabel("Denavit-Hartenberg (DH)", this), 4, 0);
-  jointAttributes->addWidget(new QLabel(QChar(0x03B1),this), 4, 1);
-  jointAttributes->addWidget(new QLabel("a",this), 4, 2);
-  jointAttributes->addWidget(new QLabel("d",this), 4, 3);
-  jointAttributes->addWidget(new QLabel(QChar(0x03B8),this), 4, 4);
-  jointAttributes->addWidget(new QLabel("Parameters:", this), 5, 0);
-  jointAttributes->addWidget(m_jointAlphaLine, 5, 1);
-  jointAttributes->addWidget(m_jointALine, 5, 2);
-  jointAttributes->addWidget(m_jointDLine, 5, 3);
-  jointAttributes->addWidget(m_jointThetaLine, 5, 4);
-  m_jointAlphaLine->setValidator(new QDoubleValidator());
-  m_jointALine->setValidator(new QDoubleValidator());
-  m_jointDLine->setValidator(new QDoubleValidator());
-  m_jointThetaLine->setValidator(new QDoubleValidator());
-
-  //transform to body2
-  jointAttributes->addWidget(new QLabel("Transform to", this), 6, 0);
-  jointAttributes->addWidget(new QLabel("X", this), 6, 1);
-  jointAttributes->addWidget(new QLabel("Y", this), 6, 2);
-  jointAttributes->addWidget(new QLabel("Z", this), 6, 3);
-  jointAttributes->addWidget(new QLabel(QChar(0x03B1), this), 6, 4);
-  jointAttributes->addWidget(new QLabel(QChar(0x03B2), this), 6, 5);
-  jointAttributes->addWidget(new QLabel(QChar(0x03B3), this), 6, 6);
-  jointAttributes->addWidget(new QLabel("Body 2:", this), 7, 0);
-  jointAttributes->addWidget(m_jointPos[1][0], 7, 1);
-  jointAttributes->addWidget(m_jointPos[1][1], 7, 2);
-  jointAttributes->addWidget(m_jointPos[1][2], 7, 3);
-  jointAttributes->addWidget(m_jointPos[1][3], 7, 4);
-  jointAttributes->addWidget(m_jointPos[1][4], 7, 5);
-  jointAttributes->addWidget(m_jointPos[1][5], 7, 6);
-
-  m_jointWidget = new QWidget(this);
-  m_jointWidget->setLayout(jointAttributes);
-
-  //layout->addLayout(jointAttributes);
-  layout->addWidget(m_jointWidget);
-
-  //cancel button
-  layout->addWidget(m_okButton, 0, Qt::AlignRight);
-
-  DisplayHideJointAttributes(false);
-  DisplayHideBaseAttributes(false);
-
-  QDialog::show();
 }
 
 void
@@ -837,4 +838,20 @@ EditRobotDialog::RefreshVizmo(){
   GetVizmo().PlaceRobot();
   m_mainWindow->GetGLScene()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
+}
+
+VerticalScrollArea::VerticalScrollArea(QWidget* _parent)
+: QScrollArea(_parent) {
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+}
+
+bool
+VerticalScrollArea::eventFilter(QObject* _o, QEvent* _e){
+
+  if(_o && _o == widget() && _e->type() == QEvent::Resize)
+    setMinimumWidth(widget()->minimumSizeHint().width() +
+      verticalScrollBar()->width());
+
+  return QScrollArea::eventFilter(_o, _e);
 }

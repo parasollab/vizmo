@@ -2,21 +2,24 @@
 
 #include <iostream>
 
+#include "MainWindow.h"
 #include "Models/PathModel.h"
 #include "Models/Vizmo.h"
 
-CustomizePathDialog::CustomizePathDialog(QWidget* _parent)
-  : QDialog(_parent){
-
+CustomizePathDialog::
+CustomizePathDialog(MainWindow* _mainWindow) : QDialog(_mainWindow) {
   RestoreDefault();
-  SetUpDialog(this);
+  SetUpDialog();
+  setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void
-CustomizePathDialog::paintEvent(QPaintEvent* _p){
+CustomizePathDialog::
+paintEvent(QPaintEvent* _p) {
 
   QPainter painter(this);
-  QLinearGradient grad(QPointF(20, 140), QPointF(501, 30));
+  QLinearGradient grad(QPointF(m_gradientRect->x(), m_gradientRect->y()),
+    QPointF(m_gradientRect->x(), m_gradientRect->y() + m_gradientRect->height()));
 
   if(m_colors.size() == 0){
     RestoreDefault();
@@ -33,11 +36,13 @@ CustomizePathDialog::paintEvent(QPaintEvent* _p){
     grad.setColorAt(0, m_colors[0]);
 
   painter.setBrush(grad);
-  painter.drawRect(20, 140, 501, 30);
+  painter.drawRect(m_gradientRect->x(), m_gradientRect->y(), m_gradientRect->width(),
+    m_gradientRect->height());
 }
 
 void
-CustomizePathDialog::RestoreDefault(){
+CustomizePathDialog::
+RestoreDefault() {
 
   m_colors.clear();
   m_colors.push_back(QColor(0, 255, 255));
@@ -49,7 +54,8 @@ CustomizePathDialog::RestoreDefault(){
 }
 
 void
-CustomizePathDialog::AddColor(){
+CustomizePathDialog::
+AddColor() {
 
   QColor color = QColorDialog::getColor(Qt::white, this);
   if(color.isValid()){
@@ -62,8 +68,8 @@ CustomizePathDialog::AddColor(){
 }
 
 void
-CustomizePathDialog::AcceptData(){
-
+CustomizePathDialog::
+AcceptData() {
   PathModel* path = GetVizmo().GetPath();
 
   double width = (m_widthLineEdit->text()).toDouble();
@@ -84,59 +90,46 @@ CustomizePathDialog::AcceptData(){
 }
 
 void
-CustomizePathDialog::SetUpDialog(QDialog* _dialog){
+CustomizePathDialog::
+SetUpDialog() {
+  setFixedSize(200, 540);
+  setWindowTitle("Customize Path");
 
-  _dialog->resize(550, 312);
-  _dialog->setWindowTitle("Customize Path");
+  QGridLayout* layout = new QGridLayout();
+  layout->setContentsMargins(20, 0, 20, 10);
+  setLayout(layout);
 
-  QDialogButtonBox* okayCancel = new QDialogButtonBox(_dialog);
-  okayCancel->setGeometry(QRect(350, 270, 176, 27));
-  okayCancel->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+  m_gradientRect = new QWidget(this);
+  m_gradientRect->setFixedSize(30, 425);
+  layout->addWidget(new QLabel("Path Gradient Fill", this), 1, 1, 1, 3);
+  layout->addWidget(m_gradientRect, 2, 1, 7, 1);
 
-  QLabel* gradientLabel = new QLabel(_dialog);
-  gradientLabel->setGeometry(QRect(20, 120, 121, 17));
-  gradientLabel->setText("Path Gradient Fill");
-
-  m_widthLineEdit = new QLineEdit(_dialog);
-  m_widthLineEdit->setGeometry(20, 210, 91, 27);
-
-  QLabel* widthLabel = new QLabel(_dialog);
-  widthLabel->setGeometry(20, 190, 101, 20);
-  widthLabel->setText("Outline width");
-
-  m_modLineEdit = new QLineEdit(_dialog);
-  m_modLineEdit->setGeometry(20, 270, 91, 27);
-
-  QLabel* modLabel = new QLabel(_dialog);
-  modLabel->setGeometry(20, 250, 161, 17);
-  modLabel->setText("Display cfgs at interval");
-
-  QPushButton* addColorButton = new QPushButton(_dialog);
-  addColorButton->setGeometry(QRect(360, 110, 101, 27));
+  QPushButton* addColorButton = new QPushButton(this);
   addColorButton->setText("Add Color...");
-  connect(addColorButton, SIGNAL(pressed()), this, SLOT(AddColor()));
+  layout->addWidget(addColorButton, 2, 3, 1, 1);
 
-  QPushButton* clearGradButton = new QPushButton(_dialog);
-  clearGradButton->setGeometry(470, 110, 51, 27);
+  QPushButton* clearGradButton = new QPushButton(this);
   clearGradButton->setText("Clear");
   clearGradButton->setToolTip("Restores the default gradient. When a new color is added, the default gradient is erased.");
+  layout->addWidget(clearGradButton, 3, 3, 1, 1);
+  layout->addItem(new QSpacerItem(0, 195), 4, 3, 1, 1);
+
+  m_widthLineEdit = new QLineEdit(this);
+  layout->addWidget(new QLabel("Outline width", this), 5, 3, 1, 1);
+  layout->addWidget(m_widthLineEdit, 6, 3, 1, 1);
+
+  m_modLineEdit = new QLineEdit(this);
+  layout->addWidget(new QLabel("Cfg display\ninterval", this), 7, 3, 1, 1);
+  layout->addWidget(m_modLineEdit, 8, 3, 1, 1);
+  layout->addItem(new QSpacerItem(200, 12), 9, 1, 1, 3);
+
+  QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
+  okayCancel->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+  layout->addWidget(okayCancel, 10, 1, 1, 3);
+
+  //Make connections
+  connect(addColorButton, SIGNAL(pressed()), this, SLOT(AddColor()));
   connect(clearGradButton, SIGNAL(pressed()), this, SLOT(RestoreDefault()));
-
-  QLabel* instructions1 = new QLabel(_dialog);
-  instructions1->setGeometry(20, 20, 521, 17);
-  instructions1->setText("Customize the path display with <b>Add Color</b>, or select <b>Clear</b> to start over.");
-
-  QLabel* instructions2 = new QLabel(_dialog);
-  instructions2->setGeometry(20, 40, 521, 17);
-  instructions2->setText("The default gradient is cyan-green-yellow.");
-
-  QFrame* spacerLine = new QFrame(_dialog);
-  spacerLine->setGeometry(20, 70, 501, 16);
-  spacerLine->setFrameShape(QFrame::HLine);
-  spacerLine->setFrameShadow(QFrame::Sunken);
-
-  connect(okayCancel, SIGNAL(accepted()), _dialog, SLOT(AcceptData()));
-  connect(okayCancel, SIGNAL(rejected()), _dialog, SLOT(reject()));
-
-  QMetaObject::connectSlotsByName(_dialog);
+  connect(okayCancel, SIGNAL(accepted()), this, SLOT(AcceptData()));
+  connect(okayCancel, SIGNAL(rejected()), this, SLOT(reject()));
 }

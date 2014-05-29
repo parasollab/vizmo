@@ -3,16 +3,19 @@
 #include <sstream>
 
 #include "GLWidget.h"
+#include "MainWindow.h"
+#include "ModelSelectionWidget.h"
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
 #include "Models/CfgModel.h"
-#include "Models/QueryModel.h"
-#include "Models/MapModel.h"
 #include "Models/MultiBodyModel.h"
+#include "Models/QueryModel.h"
 #include "Models/Vizmo.h"
+#include "Utilities/AlertUser.h"
 
 QValidator::State
-NodeEditValidator::validate(QString& _s, int& _i) const {
+NodeEditValidator::
+validate(QString& _s, int& _i) const {
 
   if(_s.isEmpty() || _s == "-" || _s == "." || _s == "-.")
     return QValidator::Intermediate;
@@ -26,50 +29,51 @@ NodeEditValidator::validate(QString& _s, int& _i) const {
     return QValidator::Invalid;
 }
 
-NodeEditSlider::NodeEditSlider(QWidget* _parent, string _label, string _details){
+NodeEditSlider::
+NodeEditSlider(QWidget* _parent, string _label) : QWidget(_parent) {
 
-  QHBoxLayout* layout = new QHBoxLayout();
+  setStyleSheet("QLabel { font:8pt } QLineEdit { font:8pt }");
+
+  QGridLayout* layout = new QGridLayout();
   this->setLayout(layout);
 
   QLabel* dofName = new QLabel(this);
-  dofName->setFixedWidth(50);
-  dofName->setStyleSheet("font: 9pt;");
-  QString label = QString::fromStdString(_label);
-  dofName->setText(label);
-  dofName->setToolTip(QString::fromStdString(_details));
-  layout->addWidget(dofName);
+  dofName->setText(QString::fromStdString(_label));
+  layout->addWidget(dofName, 1, 1, 1, 14);
 
   m_slider = new QSlider(this);
-  m_slider->setFixedWidth(180);
   m_slider->setOrientation(Qt::Horizontal);
   m_slider->installEventFilter(this);
-  layout->addWidget(m_slider);
+  layout->addWidget(m_slider, 2, 1, 1, 14);
 
   m_dofValue = new QLineEdit(this);
-  m_dofValue->setFixedSize(65, 22);
-  m_dofValue->setStyleSheet("font: 9pt;");
-  layout->addWidget(m_dofValue);
+  layout->addWidget(m_dofValue, 3, 14);
 
   connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(UpdateDOFLabel(int)));
 }
 
 void
-NodeEditSlider::UpdateDOFLabel(int _newVal){
+NodeEditSlider::
+UpdateDOFLabel(int _newVal) {
 
   ostringstream oss;
   oss << (double)_newVal/100000.0;
   QString qs(oss.str().c_str());
+  m_dofValue->setCursorPosition(0);
   m_dofValue->setText(qs);
+  m_dofValue->setCursorPosition(0);
 }
 
 void
-NodeEditSlider::MoveSlider(QString _inputVal){
+NodeEditSlider::
+MoveSlider(QString _inputVal) {
 
  m_slider->setSliderPosition(_inputVal.toDouble() * 100000.0);
 }
 
 bool
-NodeEditSlider::eventFilter(QObject* _target, QEvent* _event){
+NodeEditSlider::
+eventFilter(QObject* _target, QEvent* _event) {
 
   if(_target == m_slider && _event->type() == QEvent::Wheel){
     _event->ignore(); //Prevent mouse wheel from moving sliders
@@ -78,20 +82,131 @@ NodeEditSlider::eventFilter(QObject* _target, QEvent* _event){
   return false;
 }
 
-NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _scene, string _title)
-: QDialog(_parent), m_currentEdges(NULL) {
+//Edit node constructor
+NodeEditDialog::
+NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
+    EdgeModel* _parentEdge)
+    : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
+    m_tempNode(NULL), m_originalNode(_originalNode),
+    m_nodesToConnect(), m_nodesToDelete(), m_tempObjs(),
+    m_glScene(_mainWindow->GetGLScene()) {
+  //Set temporary objects
+  if(_parentEdge == NULL) {
+    //No parent edge, this is not an intermediate cfg.
+    //Check all adjacent edges during modification.
 
-  m_glScene = _scene;
+    //Set temporary cfg for editing
+    m_tempNode = new CfgModel(*_originalNode);
+    m_tempObjs.AddCfg(m_tempNode);
 
+    //Set temporary edges
+    Graph* graph = GetVizmo().GetMap()->GetGraph();
+    VI vit = graph->find_vertex(m_originalNode->GetIndex());
+    for(EI eit = vit->begin(); eit != vit->end(); ++eit) {
+      m_nodesToConnect.push_back((*eit).target());
+      EdgeModel* tempEdge = new EdgeModel((*eit).property());
+      CfgModel* targetCfg = &(graph->find_vertex((*eit).target())->property());
+      tempEdge->Set(m_tempNode, targetCfg);
+      m_tempObjs.AddEdge(tempEdge);
+    }
+  }
+  else {
+    //Parent edge specified, this is an intermediate cfg.
+    //Check edges leading to and from this cfg
+    for(vector<CfgModel>::iterator iit = _parentEdge->GetIntermediates().begin();
+        iit != _parentEdge->GetIntermediates().end(); ++iit) {
+      if(*iit == *_originalNode) {
+        m_tempNode = new CfgModel(*iit);
+        CfgModel* start;
+        CfgModel* end;
+        EdgeModel* startEdge = new EdgeModel();
+        EdgeModel* endEdge = new EdgeModel();
+        if(iit == _parentEdge->GetIntermediates().begin())
+          start = _parentEdge->GetStartCfg();
+        else
+          start = &(*(iit - 1));
+        if(iit == _parentEdge->GetIntermediates().end() - 1)
+          end = _parentEdge->GetEndCfg();
+        else
+          end = &(*(iit + 1));
+        startEdge->Set(start, m_tempNode);
+        endEdge->Set(m_tempNode, end);
+        m_tempObjs.AddCfg(m_tempNode);
+        m_tempObjs.AddEdge(startEdge);
+        m_tempObjs.AddEdge(endEdge);
+      }
+    }
+  }
+
+  //Set up dialog widget
+  Init();
+
+  //Configure end behavior
+  connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeNodeEdit(int)));
+}
+
+//Add new node constructor
+NodeEditDialog::
+NodeEditDialog(MainWindow* _mainWindow, string _title)
+    : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
+    m_tempNode(NULL), m_originalNode(NULL),
+    m_nodesToConnect(), m_nodesToDelete(), m_tempObjs(),
+    m_glScene(_mainWindow->GetGLScene()) {
+  //Set temporary cfg for editing
+  m_tempNode = new CfgModel();
+  m_tempObjs.AddCfg(m_tempNode);
+
+  //Set up dialog widget
+  Init();
+
+  //Configure end behavior
+  connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeNodeAdd(int)));
+}
+
+//Merge nodes constructor
+NodeEditDialog::
+NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _tempNode,
+    vector<VID> _toConnect, vector<VID> _toDelete)
+    : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
+    m_tempNode(_tempNode), m_originalNode(NULL),
+    m_nodesToConnect(_toConnect), m_nodesToDelete(_toDelete), m_tempObjs(),
+    m_glScene(_mainWindow->GetGLScene()) {
+  //Set temporary cfg for editing
+  m_tempObjs.AddCfg(m_tempNode);
+
+  //Set temporary edges
+  Graph* graph = GetVizmo().GetMap()->GetGraph();
+  for(vector<VID>::iterator vit = m_nodesToConnect.begin();
+      vit != m_nodesToConnect.end(); ++vit) {
+    EdgeModel* tempEdge = new EdgeModel();
+    CfgModel* targetCfg = &(graph->find_vertex(*vit)->property());
+    tempEdge->Set(m_tempNode, targetCfg);
+    m_tempObjs.AddEdge(tempEdge);
+  }
+
+  //Set up dialog Widget
+  Init();
+
+  //Configure end behavior
+  connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeNodeMerge(int)));
+}
+
+NodeEditDialog::
+~NodeEditDialog() {}
+
+void
+NodeEditDialog::
+Init() {
   setWindowTitle("Modify Node");
-  setFixedWidth(390);
-  setFixedHeight(300);
+  setFixedWidth(200);
+  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
   QLabel* nodeLabel = new QLabel(this);
   QScrollArea* scrollArea = new QScrollArea(this);
+  scrollArea->setWidgetResizable(true);
 
   QVBoxLayout* scrollAreaBoxLayout = new QVBoxLayout();
-  scrollAreaBoxLayout->setSpacing(0);
+  scrollAreaBoxLayout->setSpacing(4);
   scrollAreaBoxLayout->setContentsMargins(3, 7, 3, 7); //L, T, R, B
 
   QGroupBox* scrollAreaBox = new QGroupBox(this);
@@ -115,23 +230,23 @@ NodeEditDialog::NodeEditDialog(QWidget* _parent, CfgModel* _node, GLWidget* _sce
   scrollArea->setWidget(scrollAreaBox);
   this->setLayout(overallLayout);
 
-  SetCurrentNode(_node, nodeLabel, _title);
+  nodeLabel->setText(QString::fromStdString("<b>DOFs</b> of " + m_title + ":"));
+  const vector<double>& currCfg = m_tempNode->GetData();
+  InitSliderValues(currCfg);
+
+  setAttribute(Qt::WA_DeleteOnClose);
 }
 
-NodeEditDialog::~NodeEditDialog(){}
-
 void
-NodeEditDialog::SetUpSliders(vector<NodeEditSlider*>& _sliders){
+NodeEditDialog::
+SetUpSliders(vector<NodeEditSlider*>& _sliders) {
 
   vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
   QSignalMapper* sliderMapper = new QSignalMapper(this);
   connect(sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
 
   for(size_t i = 0; i < dofInfo.size(); i++){
-    ostringstream oss;
-    oss << "DOF " << i;
-
-    NodeEditSlider* s = new NodeEditSlider(this, oss.str(), dofInfo[i].m_name);
+    NodeEditSlider* s = new NodeEditSlider(this, dofInfo[i].m_name);
     QSlider* actualSlider = s->GetSlider();
     QLineEdit* dofValue = s->GetDOFValue();
 
@@ -149,24 +264,8 @@ NodeEditDialog::SetUpSliders(vector<NodeEditSlider*>& _sliders){
 }
 
 void
-NodeEditDialog::SetCurrentNode(CfgModel* _node, QLabel* _nodeLabel, string _title){
-
-  m_currentNode = _node;
-  _nodeLabel->setText(QString::fromStdString(_title));
-
-  const vector<double>& currCfg = _node->GetData();
-  InitSliderValues(currCfg);
-}
-
-void
-NodeEditDialog::SetCurrentEdges(vector<EdgeModel*>* _edges){
-  m_currentEdges = _edges;
-  ValidityCheck(); //ensures weights are assigned; e.g., for a merge with no adjustment
-}
-
-void
-NodeEditDialog::InitSliderValues(const vector<double>& _vals){
-  //Works on assumption that m_sliders and _vals are same size..
+NodeEditDialog::
+InitSliderValues(const vector<double>& _vals) {
   for(size_t i = 0; i < m_sliders.size(); i++){
     (m_sliders[i])->GetSlider()->setSliderPosition(100000*_vals[i]);
     ostringstream oss;
@@ -177,13 +276,14 @@ NodeEditDialog::InitSliderValues(const vector<double>& _vals){
 }
 
 void
-NodeEditDialog::UpdateDOF(int _id){
+NodeEditDialog::
+UpdateDOF(int _id) {
   //Also assumes index alignment
-  (*m_currentNode)[_id] = m_sliders[_id]->GetSlider()->value() / 100000.0;
+  (*m_tempNode)[_id] = m_sliders[_id]->GetSlider()->value() / 100000.0;
 
   ValidityCheck();
 
-  if(m_currentNode->IsQuery()){
+  if(m_tempNode->IsQuery()){
     GetVizmo().GetQry()->Build();
     GetVizmo().PlaceRobot();
   }
@@ -191,27 +291,29 @@ NodeEditDialog::UpdateDOF(int _id){
 }
 
 void
-NodeEditDialog::ValidityCheck(){
+NodeEditDialog::
+ValidityCheck() {
 
   vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
   bool collFound = false; //new or existing
   for(size_t i = 0; i < dofInfo.size(); i++){
-    if(((*m_currentNode)[i] <= dofInfo[i].m_minVal) ||
-     ((*m_currentNode)[i] >= dofInfo[i].m_maxVal)){
-      m_currentNode->SetValidity(false);
+    if(((*m_tempNode)[i] <= dofInfo[i].m_minVal) ||
+        ((*m_tempNode)[i] >= dofInfo[i].m_maxVal)){
+      m_tempNode->SetValidity(false);
       collFound = true;
     }
   }
   if(collFound == false){
-    m_currentNode->SetValidity(true);
-    GetVizmo().CollisionCheck(*m_currentNode);
+    m_tempNode->SetValidity(true);
+    GetVizmo().CollisionCheck(*m_tempNode);
   }
 
-  if(m_currentEdges != NULL){
+  if(m_tempObjs.GetEdges().size() > 0){
     typedef vector<EdgeModel*>::iterator EIT;
     typedef vector<CfgModel>::iterator IIT;
 
-    for(EIT eit = m_currentEdges->begin(); eit != m_currentEdges->end(); eit++){
+    for(EIT eit = m_tempObjs.GetEdges().begin();
+        eit != m_tempObjs.GetEdges().end(); eit++){
       //If no intermediates, just check start and end
       double weight = 0.0;
       vector<CfgModel>& intermediates = (*eit)->GetIntermediates();
@@ -249,4 +351,89 @@ NodeEditDialog::ValidityCheck(){
       (*eit)->SetWeight(weight);
     } //end for all current edges
   }
+}
+
+void
+NodeEditDialog::
+FinalizeNodeEdit(int _accepted) {
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
+
+  if(_accepted == 1){  //user pressed okay
+    if(m_tempNode->IsValid()) {
+      //set data for original node to match temp
+      m_originalNode->SetCfg(m_tempNode->GetDataCfg());
+
+      //delete edges that are no longer valid
+      for(vector<EdgeModel*>::iterator eit = m_tempObjs.GetEdges().begin();
+          eit != m_tempObjs.GetEdges().end(); ++eit) {
+        if((*eit)->IsValid() == false) {
+          VID start = map->Cfg2VID(*((*eit)->GetStartCfg()));
+          VID end = map->Cfg2VID(*((*eit)->GetEndCfg()));
+          graph->delete_edge(start, end);
+          graph->delete_edge(end, start);
+        }
+      }
+    }
+    else
+      AlertUser("Invalid configuration!");
+
+    map->RefreshMap();
+  }
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
+}
+
+void
+NodeEditDialog::
+FinalizeNodeAdd(int _accepted) {
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
+
+  if(_accepted == 1) {
+    if(m_tempNode->IsValid()) {
+      CfgModel newNode = *m_tempNode;
+      newNode.SetRenderMode(SOLID_MODE);
+      graph->add_vertex(newNode);
+      map->RefreshMap();
+    }
+    else
+      QMessageBox::about(this, "", "Cannot add invalid node!");
+  }
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
+}
+
+void
+NodeEditDialog::
+FinalizeNodeMerge(int _accepted) {
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
+
+  if(_accepted == 1) {
+    if(m_tempNode->IsValid()) {
+      CfgModel super = *m_tempNode;
+      super.SetRenderMode(SOLID_MODE);
+      Map::VID superID = graph->add_vertex(super);
+
+      //Add the valid new edges
+      for(vector<EdgeModel*>::iterator vit = m_tempObjs.GetEdges().begin();
+          vit != m_tempObjs.GetEdges().end(); vit++) {
+        if((*vit)->IsValid()) {
+          graph->add_edge(superID, map->Cfg2VID(*((*vit)->GetEndCfg())));
+          graph->add_edge(map->Cfg2VID(*((*vit)->GetEndCfg())), superID);
+        }
+      }
+      //Remove selected vertices
+      for(vector<VID>::iterator it = m_nodesToDelete.begin();
+          it != m_nodesToDelete.end(); it++)
+        graph->delete_vertex(*it);
+
+      map->RefreshMap();
+    }
+    else
+      QMessageBox::about(this, "", "Invalid merge!");
+  }
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
 }

@@ -3,8 +3,8 @@
 * Both have actions Crop, Picture, and Movie.
 *************************************************************************/
 
-#ifndef CAPTUREOPTIONS_H_
-#define CAPTUREOPTIONS_H_
+#ifndef CAPTURE_OPTIONS_H_
+#define CAPTURE_OPTIONS_H_
 
 #include "OptionsBase.h"
 

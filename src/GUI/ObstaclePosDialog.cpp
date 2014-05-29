@@ -8,12 +8,15 @@
 #include "Models/EnvModel.h"
 #include "Utilities/IO.h"
 
-ObstaclePosDialog::ObstaclePosDialog(const vector<MultiBodyModel*>& _multiBody, MainWindow* _mainWindow,
-    QWidget* _parent) : QDialog(_parent), m_multiBody(_multiBody), m_mainWindow(_mainWindow) {
+ObstaclePosDialog::
+ObstaclePosDialog(MainWindow* _mainWindow,
+    const vector<MultiBodyModel*>& _multiBody) : QDialog(_mainWindow),
+    m_multiBody(_multiBody), m_mainWindow(_mainWindow) {
 
   m_oneObst = m_multiBody.size() == 1;
 
   setWindowTitle("Obstacle Position");
+  setFixedSize(200, 400);
 
   SetUpLayout();
   SetSlidersInit();
@@ -25,13 +28,19 @@ ObstaclePosDialog::ObstaclePosDialog(const vector<MultiBodyModel*>& _multiBody, 
     connect(m_posLines[i], SIGNAL(editingFinished()), this, SLOT(ChangeSlidersValues()));
   }
 
+  //set delete on close
+  setAttribute(Qt::WA_DeleteOnClose);
+
+  //show dialog
   QDialog::show();
 }
 
 void
-ObstaclePosDialog::SetUpLayout(){
+ObstaclePosDialog::
+SetUpLayout() {
   QGridLayout* layout = new QGridLayout;
   setLayout(layout);
+  setStyleSheet("QLabel { font:9pt } QLineEdit { font:8pt }");
 
   QPushButton* loadButton = new QPushButton("OK", this);
   connect(loadButton, SIGNAL(clicked()), this, SLOT(accept()));
@@ -50,7 +59,7 @@ ObstaclePosDialog::SetUpLayout(){
   size_t num = m_oneObst ? 6 : 3;
   for(size_t i = 0; i < num; i++) {
     m_sliders[i] = new QSlider(Qt::Horizontal, this);
-    m_sliders[i]->setFixedWidth(200);
+    m_sliders[i]->setFixedWidth(125);
     layout->addWidget(m_sliders[i], i < 3 ? i+1 : i+2, 1);
 
     m_posLines[i] = new QLineEdit("0", this);
@@ -60,7 +69,8 @@ ObstaclePosDialog::SetUpLayout(){
 }
 
 void
-ObstaclePosDialog::SetSlidersInit(){
+ObstaclePosDialog::
+SetSlidersInit() {
   //set validators for posLines
   vector<pair<double, double> > ranges = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
   m_posLines[0]->setValidator(new QDoubleValidator(ranges[0].first, ranges[0].second, 2, this));
@@ -117,7 +127,8 @@ ObstaclePosDialog::SetSlidersInit(){
 }
 
 void
-ObstaclePosDialog::DisplaySlidersValues(int _i) {
+ObstaclePosDialog::
+DisplaySlidersValues(int _i) {
   if(!m_valueEdited) {
     size_t num = m_oneObst ? 6 : 3;
     for(size_t i = 0; i < num; ++i)
@@ -128,7 +139,8 @@ ObstaclePosDialog::DisplaySlidersValues(int _i) {
 }
 
 void
-ObstaclePosDialog::ChangeSlidersValues(){
+ObstaclePosDialog::
+ChangeSlidersValues() {
   m_valueEdited=true;
   size_t num = m_oneObst ? 6 : 3;
   for(size_t i = 0; i < num; i++) {
@@ -141,7 +153,8 @@ ObstaclePosDialog::ChangeSlidersValues(){
 }
 
 void
-ObstaclePosDialog::RefreshPosition() {
+ObstaclePosDialog::
+RefreshPosition() {
   if(m_oneObst) {
     double x = m_posLines[0]->text().toDouble();
     double y = m_posLines[1]->text().toDouble();

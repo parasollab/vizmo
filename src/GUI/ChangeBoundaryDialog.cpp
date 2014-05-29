@@ -1,13 +1,18 @@
 #include "ChangeBoundaryDialog.h"
+#include "ModelSelectionWidget.h"
 
 #include "GUI/BoundingBoxWidget.h"
 #include "GUI/BoundingSphereWidget.h"
+#include "GUI/GLWidget.h"
+#include "GUI/MainWindow.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
-ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) {
+ChangeBoundaryDialog::
+ChangeBoundaryDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
+    m_mainWindow(_mainWindow) {
   //initialize dialog values
-  resize(300, 150);
+  setFixedSize(200, 275);
   setWindowTitle("Change Boundary");
 
   //construct objects
@@ -18,7 +23,6 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
 
   m_boxWidget = new BoundingBoxWidget(this);
   m_sphereWidget = new BoundingSphereWidget(this);
-
 
   m_isBox = true;
 
@@ -31,12 +35,12 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
   QGridLayout* layout = new QGridLayout;
   setLayout(layout);
 
-  layout->addWidget(boxButton, 0, 0);
-  layout->addWidget(sphereButton, 0, 1);
-  layout->addWidget(m_boxWidget, 1, 0, 1, 2);
-  layout->addWidget(m_sphereWidget, 1, 0, 1, 2);
-  layout->addWidget(loadButton, 2, 0);
-  layout->addWidget(cancelButton, 2, 1);
+  layout->addWidget(boxButton, 0, 0, 1, 2);
+  layout->addWidget(sphereButton, 1, 0, 1, 2);
+  layout->addWidget(m_boxWidget, 2, 0, 1, 2);
+  layout->addWidget(m_sphereWidget, 2, 0, 1, 2);
+  layout->addWidget(loadButton, 3, 0);
+  layout->addWidget(cancelButton, 3, 1);
 
   const string& name = GetVizmo().GetEnv()->GetBoundary()->Name();
   if(name == "Bounding Box")
@@ -44,20 +48,29 @@ ChangeBoundaryDialog::ChangeBoundaryDialog(QWidget* _parent) : QDialog(_parent) 
   else
     ChangeToSphereDialog();
 
-  QDialog::show();
+  //set delete on close
+  setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void
-ChangeBoundaryDialog::SetBoundary() {
+ChangeBoundaryDialog::
+SetBoundary() {
   if(m_isBox)
     m_boxWidget->SetBoundary();
   else
     m_sphereWidget->SetBoundary();
+
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  sel.clear();
+  sel.push_back(GetVizmo().GetEnv()->GetBoundary());
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
   accept();
 }
 
 void
-ChangeBoundaryDialog::ChangeToSphereDialog(){
+ChangeBoundaryDialog::
+ChangeToSphereDialog() {
   m_isBox = false;
   m_boxWidget->setVisible(false);
   m_sphereWidget->setVisible(true);
@@ -65,7 +78,8 @@ ChangeBoundaryDialog::ChangeToSphereDialog(){
 
 
 void
-ChangeBoundaryDialog::ChangeToBoxDialog(){
+ChangeBoundaryDialog::
+ChangeToBoxDialog() {
   m_isBox = true;
   m_boxWidget->setVisible(true);
   m_sphereWidget->setVisible(false);

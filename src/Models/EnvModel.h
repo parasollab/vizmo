@@ -1,5 +1,5 @@
-#ifndef ENVMODEL_H_
-#define ENVMODEL_H_
+#ifndef ENV_MODEL_H_
+#define ENV_MODEL_H_
 
 #include "MPProblem/Environment.h"
 
@@ -7,6 +7,8 @@
 #include "Model.h"
 #include "MultiBodyModel.h"
 #include "RegionModel.h"
+
+class TempObjsModel;
 
 class EnvModel : public LoadableModel {
 
@@ -37,6 +39,10 @@ class EnvModel : public LoadableModel {
     void AddNonCommitRegion(RegionModel* _r) {m_nonCommitRegions.push_back(_r);}
     void ChangeRegionType(RegionModel* _r, bool _attract);
     void DeleteRegion(RegionModel* _r);
+
+    //Temporary Objects
+    void AddTempObjs(TempObjsModel* _t) {m_tempObjs.push_back(_t);}
+    void RemoveTempObjs(TempObjsModel* _t);
 
     //Load functions
     virtual void ParseFile();
@@ -77,6 +83,8 @@ class EnvModel : public LoadableModel {
     BoundaryModel* m_boundary;
 
     vector<RegionModel*> m_attractRegions, m_avoidRegions, m_nonCommitRegions;
+
+    vector<TempObjsModel*> m_tempObjs;
 
     //PMPL environment
     Environment* m_environment;

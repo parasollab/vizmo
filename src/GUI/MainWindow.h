@@ -16,6 +16,7 @@ class VizmoScreenShotGUI;
 class ModelSelectionWidget;
 class VizmoAttributeSelectionGUI;
 class TextWidget;
+class ToolTabWidget;
 class MainMenu;
 class GLWidget;
 
@@ -40,13 +41,18 @@ class MainWindow : public QMainWindow {
     GLWidget* GetGLScene() { return m_gl; }
     AnimationWidget* GetAnimationWidget() { return m_animationWidget; }
     ModelSelectionWidget* GetModelSelectionWidget() { return m_modelSelectionWidget; }
+    QDockWidget* GetDialogDock() { return m_dialogDock; }
+    void ShowDialog(QDialog* _dialog);
+    void ResetDialogs();
 
     MainMenu* m_mainMenu;   //top menubar...owns everything
+    ToolTabWidget* m_toolTabWidget; //tab widget, owns tool tabs
 
     void closeEvent(QCloseEvent* _event);
 
   private slots:
     void UpdateScreen();  // redraw GL scene
+    void HideDialogDock();
 
   private:
     string m_command;    //command line to be executed to make a new roadmap
@@ -62,15 +68,10 @@ class MainWindow : public QMainWindow {
     vector<string> m_args; //user input arguments.
     bool m_vizmoInit;     //true if vizmo is init.
 
-    QGridLayout* m_layout;
-    QToolBar* m_allTogether;       //all of the toolbars in one...keeps them together for window resize
-    QVBoxLayout* m_objTextLayout;  //contains the Environment Objects selection list and the TextWidget
-    QVBoxLayout* m_animationBarLayout;  //contains the animation and debug controls
-    QWidget* m_layoutWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
-    QVBoxLayout* m_obstacleWidget;  //placeholder to hold the overall layout. This is the invisible central widget.
     GLWidget* m_gl;           //the scene window which displays environment..
     AnimationWidget* m_animationWidget;
     ModelSelectionWidget* m_modelSelectionWidget;
+    QDockWidget* m_dialogDock;
 };
 
 #endif /*_MAIN_WIN_H_*/

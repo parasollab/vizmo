@@ -14,16 +14,19 @@
 #include "Icons/Flag.xpm"
 #include "Icons/EditQuery.xpm"
 
-QueryOptions::QueryOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow) {
-    CreateActions();
-    SetUpCustomSubmenu();
-    SetUpToolbar();
-    SetHelpTips();
-  }
+QueryOptions::
+QueryOptions(QWidget* _parent, MainWindow* _mainWindow)
+    : OptionsBase(_parent, _mainWindow), m_queryEditDialog(NULL) {
+  CreateActions();
+  SetUpCustomSubmenu();
+  //SetUpToolbar(); currently using tool tabs
+  SetUpToolTab();
+  SetHelpTips();
+}
 
 void
-QueryOptions::CreateActions(){
+QueryOptions::
+CreateActions() {
 
   //1. Create actions and add them to map
   QAction* showHideQuery = new QAction(QPixmap(flag), tr("Show/Hide Query"), this);
@@ -44,7 +47,8 @@ QueryOptions::CreateActions(){
 }
 
 void
-QueryOptions::SetUpCustomSubmenu(){
+QueryOptions::
+SetUpCustomSubmenu() {
 
   m_submenu = new QMenu("Query", this);
 
@@ -53,7 +57,8 @@ QueryOptions::SetUpCustomSubmenu(){
 }
 
 void
-QueryOptions::SetUpToolbar(){
+QueryOptions::
+SetUpToolbar() {
 
   m_toolbar = new QToolBar(m_mainWindow);
 
@@ -61,8 +66,17 @@ QueryOptions::SetUpToolbar(){
 }
 
 void
-QueryOptions::Reset(){
+QueryOptions::
+SetUpToolTab() {
+  vector<string> buttonList;
+  buttonList.push_back("showHideQuery");
+  buttonList.push_back("editQuery");
+  CreateToolTab(buttonList);
+}
 
+void
+QueryOptions::
+Reset() {
   if(m_actions["showHideQuery"] != NULL) {
     m_actions["showHideQuery"]->setEnabled(GetVizmo().IsQueryLoaded());
     m_actions["showHideQuery"]->setChecked(false);
@@ -71,7 +85,8 @@ QueryOptions::Reset(){
 }
 
 void
-QueryOptions::SetHelpTips(){
+QueryOptions::
+SetHelpTips() {
   m_actions["showHideQuery"]->setWhatsThis(tr("Click this button to visualize the"
         " <b>Start and Goal</b> configurations.<br>"
         "You can also select the <b>Show/Hide Start/Goal</b> option "
@@ -80,19 +95,21 @@ QueryOptions::SetHelpTips(){
 
 //Slots
 void
-QueryOptions::ShowHideQuery(){
+QueryOptions::
+ShowHideQuery() {
   GetVizmo().GetQry()->SetRenderMode(m_actions["showHideQuery"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-QueryOptions::EditQuery(){
-  m_actions["showHideQuery"]->setChecked(true);
-  GetVizmo().GetQry()->SetRenderMode(SOLID_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
-  QueryEditDialog q(GetVizmo().GetQry(), m_mainWindow, this);
-  if(q.exec() != QDialog::Accepted)
-    return;
-  m_mainWindow->GetGLScene()->updateGL();
+QueryOptions::
+EditQuery() {
+  if(m_queryEditDialog == NULL) {
+    m_actions["showHideQuery"]->setChecked(true);
+    GetVizmo().GetQry()->SetRenderMode(SOLID_MODE);
+    m_mainWindow->GetGLScene()->updateGL();
+    m_queryEditDialog = new QueryEditDialog(m_mainWindow, GetVizmo().GetQry());
+    m_mainWindow->ShowDialog(m_queryEditDialog);
+    m_mainWindow->GetGLScene()->updateGL();
+  }
 }
-

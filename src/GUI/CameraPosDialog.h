@@ -9,13 +9,14 @@
 #include <QtGui>
 
 class Camera;
+class MainWindow;
 
 class CameraPosDialog : public QDialog {
 
   Q_OBJECT
 
   public:
-    CameraPosDialog(QWidget* _parent, Camera* _camera);
+    CameraPosDialog(MainWindow* _mainWindow, Camera* _camera);
     ~CameraPosDialog();
     void SetCamera(Camera* _camera);
 

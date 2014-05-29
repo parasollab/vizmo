@@ -2,10 +2,12 @@
  * Class for the "Path" submenu and associated action buttons
  *****************************************************************/
 
-#ifndef QUERYOPTIONS_H_
-#define QUERYOPTIONS_H_
+#ifndef QUERY_OPTIONS_H_
+#define QUERY_OPTIONS_H_
 
 #include "OptionsBase.h"
+
+class QueryEditDialog;
 
 class QueryOptions : public OptionsBase {
 
@@ -22,8 +24,11 @@ class QueryOptions : public OptionsBase {
     void CreateActions();
     void SetUpCustomSubmenu(); //like RoadmapOptions
     void SetUpToolbar();       //show/hide path and show/hide start/goal
+    void SetUpToolTab();
     void Reset();
     void SetHelpTips();
+
+    QPointer<QueryEditDialog> m_queryEditDialog;
 };
 
 #endif

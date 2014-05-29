@@ -1,5 +1,5 @@
-#ifndef GLWIDGETOPTIONS_H_
-#define GLWIDGETOPTIONS_H_
+#ifndef GL_WIDGET_OPTIONS_H_
+#define GL_WIDGET_OPTIONS_H_
 
 #include "OptionsBase.h"
 
@@ -21,8 +21,12 @@ class GLWidgetOptions : public OptionsBase {
   private:
     void CreateActions();
     void SetUpToolbar(); //two buttons: Reset camera and change BG color
+    void SetUpToolTab();
     void Reset();
     void SetHelpTips();
+
+    QPointer<QDialog> m_cameraPosDialog;
+
 };
 
 #endif

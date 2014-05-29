@@ -18,7 +18,7 @@ class EditRobotDialog : public QDialog {
     typedef MultiBodyModel::Robot Robot;
     typedef MultiBodyModel::Robots Robots;
 
-    EditRobotDialog(MainWindow* _mainWindow, QWidget* _parent);
+    EditRobotDialog(MainWindow* _mainWindow);
 
   public slots:
     void ShowBase();
@@ -44,7 +44,7 @@ class EditRobotDialog : public QDialog {
 
   private:
     //Functions
-    void SetUpLayout();
+    void SetUpDialog();
     void DisplayBases();
     void BaseNotFixedChecked();
     void DisplayHideBaseAttributes(bool _visible);
@@ -66,12 +66,7 @@ class EditRobotDialog : public QDialog {
     bool m_baseIsInit;
 
     //Qt Variables
-    QPushButton* m_okButton;
     QLabel* m_directory;
-    QPushButton* m_addBaseButton;
-    QPushButton* m_deleteBaseButton;
-    QPushButton* m_addJointButton;
-    QPushButton* m_deleteJointButton;
     QListWidget* m_baseList;
     QListWidget* m_jointList;
     QCheckBox* m_baseFixedCheck;
@@ -82,8 +77,6 @@ class EditRobotDialog : public QDialog {
 
     QWidget* m_baseWidget, * m_jointWidget;
 
-    QPushButton* m_jointSaveAttributesButton;
-    QPushButton* m_jointRestaureAttributesButton;
     QCheckBox* m_jointSphericalCheck;
     QCheckBox* m_jointRevoluteCheck;
     QDoubleSpinBox* m_jointLimits[2][2];
@@ -93,12 +86,20 @@ class EditRobotDialog : public QDialog {
     QLineEdit* m_jointALine;
     QLineEdit* m_jointDLine;
     QLineEdit* m_jointThetaLine;
-    QPushButton* m_newRobotButton;
-    QLineEdit* m_bodyNumberLine;
+    QLabel* m_bodyNumberLine;
     QLineEdit* m_jointConnectionsLine1;
     QLineEdit* m_jointConnectionsLine2;
 };
 
+//What it takes to make the layout size properly
+class VerticalScrollArea : public QScrollArea{
+
+  Q_OBJECT
+
+  public:
+    VerticalScrollArea(QWidget* _parent = 0);
+    //override
+    virtual bool eventFilter(QObject* _o, QEvent* _e);
+};
+
 #endif
-
-

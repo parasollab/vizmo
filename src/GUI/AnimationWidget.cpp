@@ -10,7 +10,7 @@
 #include "Icons/Next.xpm"
 #include "Icons/Previous.xpm"
 #include "Icons/Play.xpm"
-#include "Icons/Playback.xpm"
+#include "Icons/BackPlay.xpm"
 #include "Icons/Pause.xpm"
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ bool AnimationWidget::CreateActions(){
   QAction* playPathAction = new QAction(QIcon(QPixmap(play)), tr("Play"), this);
   connect(playPathAction, SIGNAL(triggered()), SLOT(Animate()));
 
-  QAction* playBackAction = new QAction(QPixmap(playback), "BackPlay",this);
+  QAction* playBackAction = new QAction(QPixmap(backplay), "BackPlay",this);
   connect(playBackAction, SIGNAL(triggered()), SLOT(BackAnimate()));
 
   QAction* pausePathAction = new QAction(QIcon(QPixmap(pauseIcon)), tr("Pause"),this);

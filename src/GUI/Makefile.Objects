@@ -22,6 +22,7 @@ OBJECTS += \
 	   GUI/ModelSelectionWidget.o \
 	   GUI/MovieSaveDialog.o \
 	   GUI/ObstaclePosDialog.o \
+	   GUI/OptionsBase.o \
 	   GUI/NodeEditDialog.o \
 	   GUI/PathOptions.o \
 	   GUI/QueryEditDialog.o \
@@ -30,6 +31,8 @@ OBJECTS += \
 	   GUI/RobotOptions.o \
 	   GUI/SliderDialog.o \
 	   GUI/TextWidget.o \
+	   GUI/ToolTabOptions.o \
+	   GUI/ToolTabWidget.o \
 	   GUI/Utilities/AlertUser.o \
 
 ####### MOC

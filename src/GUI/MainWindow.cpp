@@ -8,13 +8,14 @@
 #include "ModelSelectionWidget.h"
 #include "OptionsBase.h"
 #include "TextWidget.h"
+#include "ToolTabOptions.h"
+#include "ToolTabWidget.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/Vizmo.xpm"
 
-MainWindow::MainWindow(QWidget* _parent)
-  : QMainWindow(_parent), m_vizmoInit(false){
-
+MainWindow::
+MainWindow(QWidget* _parent) : QMainWindow(_parent), m_vizmoInit(false) {
   setMinimumSize(960, 700);
   setWindowTitle("Vizmo++");
   m_gl = NULL;
@@ -25,18 +26,15 @@ MainWindow::MainWindow(QWidget* _parent)
   m_command = "";
   m_mainMenu = NULL;
   m_textWidget = NULL;
-  m_layout = NULL;
-  m_allTogether = NULL;
-  m_objTextLayout = NULL;
-  m_layoutWidget = NULL;
   m_modelSelectionWidget = NULL;
-  m_animationBarLayout = NULL;
+  m_toolTabWidget = NULL;
+  m_dialogDock = NULL;
 }
 
 bool
-MainWindow::Init(){
+MainWindow::
+Init() {
   this->setWindowIcon(QPixmap(vizmoIcon));
-  m_layoutWidget = new QWidget(this);
 
   //Create Model
   if((m_gl = new GLWidget(this, this)) == NULL)
@@ -48,12 +46,12 @@ MainWindow::Init(){
 
   SetUpLayout();
   statusBar()->showMessage("Ready");
-
   return true;
 }
 
 bool
-MainWindow::InitVizmo(){
+MainWindow::
+InitVizmo() {
   if(m_vizmoInit)
     return true;
 
@@ -85,7 +83,8 @@ MainWindow::InitVizmo(){
 }
 
 void
-MainWindow::closeEvent(QCloseEvent* _event) {
+MainWindow::
+closeEvent(QCloseEvent* _event) {
   QThread* thread = ((EnvironmentOptions*)m_mainMenu->m_environmentOptions)->GetMPThread();
   if(thread)
     delete thread;
@@ -93,17 +92,18 @@ MainWindow::closeEvent(QCloseEvent* _event) {
 }
 
 bool
-MainWindow::CreateGUI(){
+MainWindow::
+CreateGUI() {
   m_animationWidget = new AnimationWidget("Animation", this);
-  connect(m_animationWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
-
   m_modelSelectionWidget = new ModelSelectionWidget(m_gl, this);
-  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
-
   m_mainMenu = new MainMenu(this);  //also creates the toolbars
-
   m_textWidget = new TextWidget(this);
+  m_toolTabWidget = new ToolTabWidget(this); //depends on main menu
+  m_mainMenu->m_toolTabOptions->Init(); //initialize the tool tab menu
+  m_dialogDock = new QDockWidget(this);
 
+  connect(m_animationWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
+  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
   connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()), m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_modelSelectionWidget, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_modelSelectionWidget, SLOT(Select()));
@@ -115,62 +115,101 @@ MainWindow::CreateGUI(){
 
 void
 MainWindow::SetUpLayout(){
-  m_layout = new QGridLayout();
-  m_layoutWidget->setLayout(m_layout); //Set this before actual layout specifications
-  m_layout->setHorizontalSpacing(3);
+  QWidget* layoutWidget = new QWidget(this);
+  QGridLayout* layout = new QGridLayout();
+  layoutWidget->setLayout(layout); //Set this before actual layout specifications
 
   //The toolbars.
-  //The m_allTogether toolbar holds them all together when window is expanded
-  m_allTogether = new QToolBar(this);
-  m_allTogether->addWidget(m_mainMenu->m_fileOptions->GetToolbar());
-  m_allTogether->addWidget(m_mainMenu->m_glWidgetOptions->GetToolbar());
-  m_allTogether->addWidget(m_mainMenu->m_environmentOptions->GetToolbar());
-  m_allTogether->addWidget(m_mainMenu->m_roadmapOptions->GetToolbar());
-  m_allTogether->addWidget(m_mainMenu->m_pathOptions->GetToolbar());
-  m_allTogether->addWidget(m_mainMenu->m_queryOptions->GetToolbar());
-  m_allTogether->addWidget(m_mainMenu->m_captureOptions->GetToolbar());
-  m_allTogether->addWidget(m_mainMenu->m_help->GetToolbar());
+  //The allTogether toolbar holds them all together when window is expanded
+  QToolBar* allTogether = new QToolBar(this);
+  allTogether->addWidget(m_mainMenu->m_fileOptions->GetToolbar());
+  allTogether->addWidget(m_mainMenu->m_captureOptions->GetToolbar());
+  allTogether->addWidget(m_animationWidget);
+  allTogether->addWidget(m_mainMenu->m_help->GetToolbar());
 
-  m_layout->addWidget(m_allTogether, 1, 1, 1, 25);
+  //The menubar and main toolbar
+  QDockWidget* topDock = new QDockWidget();
+  topDock->layout()->setMenuBar(m_mainMenu->m_menuBar);
+  topDock->setWidget(allTogether);
+  topDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+  addDockWidget(Qt::TopDockWidgetArea, topDock);
 
-  m_objTextLayout = new QVBoxLayout();
-  m_objTextLayout->addWidget(m_modelSelectionWidget); //The Environment Objects list
-  m_objTextLayout->addWidget(m_textWidget);          //The TextWidget
-  m_objTextLayout->setStretchFactor(m_modelSelectionWidget, 1);
-
-  m_layout->addLayout(m_objTextLayout, 2, 1, 4, 5);
-
-  m_animationBarLayout = new QVBoxLayout();
-  m_animationBarLayout->addWidget(m_animationWidget);
-
-  m_layout->addLayout(m_animationBarLayout, 8, 1, 9, 25);
-
+  //Invisible row prevents top dock from messing up gl scene
+  layout->setRowMinimumHeight(1, 10);
 
   //The GL Scene
-  m_layout->addWidget(m_gl, 2, 6, 4, 25);
-  m_layout->setRowStretch(1, 3);
-  m_layout->setRowStretch(2, 3);  //help the GL scene expand better
-  m_layout->setRowStretch(3, 3);
-  m_layout->setRowStretch(4, 3);
+  layout->addWidget(m_gl, 2, 2, 8, 32);
+  layout->setRowStretch(2, 3);  //Fill as much vertical space as possible
+  layout->setRowStretch(3, 3);
+  layout->setRowStretch(4, 3);
+  for(int i = 2; i <= 32; i++)
+    layout->setColumnStretch(i, 2); //...also helps GL scene expand better
 
-  for(int i = 6; i <= 25; i++)
-    m_layout->setColumnStretch(i, 2); //...also helps GL scene expand better
+  //The model selection tree
+  layout->addWidget(m_modelSelectionWidget, 2, 1, 2, 1);
 
-  //The menubar
-  m_layout->setMenuBar(m_mainMenu->m_menuBar);
+  //The tool tab
+  layout->addWidget(m_toolTabWidget, 4, 1, 7, 1);
 
-  setCentralWidget(m_layoutWidget); //Finally, set layout onto MainWin
+  //The text display area
+  layout->addWidget(m_textWidget, 10, 2, 1, 32);
+
+  //The dialog dock. All dialogs built to width 200.
+  QTabWidget* dialogTab = new QTabWidget(m_dialogDock);
+  dialogTab->setFixedWidth(205);
+  m_dialogDock->setFixedWidth(205);
+  m_dialogDock->setWidget(dialogTab);
+  m_dialogDock->setVisible(false);
+  addDockWidget(Qt::RightDockWidgetArea, m_dialogDock);
+
+  //Finally, set layout onto MainWin
+  setCentralWidget(layoutWidget);
 }
 
 void
-MainWindow::keyPressEvent(QKeyEvent* _e) {
+MainWindow::
+keyPressEvent(QKeyEvent* _e) {
   switch(_e->key()){
     case Qt::Key_Escape: qApp->quit();
   }
 }
 
 void
-MainWindow::UpdateScreen() {
+MainWindow::
+UpdateScreen() {
   m_gl->updateGL();
 }
 
+void
+MainWindow::
+HideDialogDock() {
+  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
+  QDialog* dialog = dynamic_cast<QDialog*>(sender());
+  int index = tabs->indexOf(dialog);
+
+  tabs->removeTab(index);
+  if(tabs->count() == 0)
+    m_dialogDock->hide();
+}
+
+//Display a dialog in the tabbed dialog dock
+void
+MainWindow::
+ShowDialog(QDialog* _dialog) {
+  connect(_dialog, SIGNAL(finished(int)), this, SLOT(HideDialogDock()));
+  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
+  tabs->addTab(_dialog, _dialog->windowTitle());
+  tabs->setCurrentWidget(_dialog);
+  if(!m_dialogDock->isVisible())
+    m_dialogDock->show();
+  _dialog->show();
+}
+
+void
+MainWindow::
+ResetDialogs() {
+  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
+  while(tabs->count() > 0)
+    tabs->currentWidget()->close();
+  m_dialogDock->hide();
+}

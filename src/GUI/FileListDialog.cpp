@@ -9,8 +9,9 @@
 #include "Icons/Folder.xpm"
 #include "Icons/Vizmo.xpm"
 
-FileListDialog::FileListDialog(const string& _filename,
-    QWidget* _parent, Qt::WFlags _f) : QDialog(_parent, _f) {
+FileListDialog::
+FileListDialog(const string& _filename, QWidget* _parent, Qt::WFlags _f) :
+    QDialog(_parent, _f) {
 
   setWindowIcon(QPixmap(vizmoIcon));
   SetUpSubwidgets();
@@ -18,7 +19,8 @@ FileListDialog::FileListDialog(const string& _filename,
 }
 
 void
-FileListDialog::GetAssociatedFiles(const string& _filename) {
+FileListDialog::
+GetAssociatedFiles(const string& _filename) {
   //empty filename provided, so grab previous values
   if(_filename.empty()) {
     string envname = GetVizmo().GetEnvFileName();
@@ -82,7 +84,8 @@ FileListDialog::GetAssociatedFiles(const string& _filename) {
 }
 
 void
-FileListDialog::SetUpSubwidgets(){
+FileListDialog::
+SetUpSubwidgets(){
 
   QGridLayout* layout = new QGridLayout;
   setLayout(layout);
@@ -157,8 +160,10 @@ FileListDialog::SetUpSubwidgets(){
 }
 
 void
-FileListDialog::ChangeEnv() {
-  QString fn = QFileDialog::getOpenFileName(this, "Choose an environment file", QString::null,"Env File (*.env)");
+FileListDialog::
+ChangeEnv() {
+  QString fn = QFileDialog::getOpenFileName(this,
+      "Choose an environment file", QString::null,"Env File (*.env)");
   if(!fn.isEmpty()) {
     m_envFilename->setText(fn);
     m_envCheckBox->setChecked(true);
@@ -166,8 +171,10 @@ FileListDialog::ChangeEnv() {
 }
 
 void
-FileListDialog::ChangeMap() {
-  QString fn = QFileDialog::getOpenFileName(this, "Choose a map file", QString::null,"Map File (*.map)");
+FileListDialog::
+ChangeMap() {
+  QString fn = QFileDialog::getOpenFileName(this,
+      "Choose a map file", QString::null,"Map File (*.map)");
   if(!fn.isEmpty()) {
     m_mapFilename->setText(fn);
     m_mapCheckBox->setChecked(true);
@@ -175,8 +182,10 @@ FileListDialog::ChangeMap() {
 }
 
 void
-FileListDialog::ChangeQuery() {
-  QString fn = QFileDialog::getOpenFileName(this, "Choose a query file", QString::null,"Query File (*.query)");
+FileListDialog::
+ChangeQuery() {
+  QString fn = QFileDialog::getOpenFileName(this,
+      "Choose a query file", QString::null,"Query File (*.query)");
   if(!fn.isEmpty()) {
     m_queryFilename->setText(fn);
     m_queryCheckBox->setChecked(true);
@@ -184,8 +193,10 @@ FileListDialog::ChangeQuery() {
 }
 
 void
-FileListDialog::ChangePath() {
-  QString fn = QFileDialog::getOpenFileName(this, "Choose a path file", QString::null,"Path File (*.path)");
+FileListDialog::
+ChangePath() {
+  QString fn = QFileDialog::getOpenFileName(this,
+      "Choose a path file", QString::null,"Path File (*.path)");
   if(!fn.isEmpty()) {
     m_pathFilename->setText(fn);
     m_pathCheckBox->setChecked(true);
@@ -193,8 +204,10 @@ FileListDialog::ChangePath() {
 }
 
 void
-FileListDialog::ChangeDebug(){
-  QString fn = QFileDialog::getOpenFileName(this, "Choose a debug file", QString::null,"Debug File (*.vd)");
+FileListDialog::
+ChangeDebug() {
+  QString fn = QFileDialog::getOpenFileName(this,
+      "Choose a debug file", QString::null,"Debug File (*.vd)");
   if(!fn.isEmpty()) {
     m_debugFilename->setText(fn);
     m_debugCheckBox->setChecked(true);
@@ -202,7 +215,8 @@ FileListDialog::ChangeDebug(){
 }
 
 void
-FileListDialog::Accept() {
+FileListDialog::
+Accept() {
   if(m_envCheckBox->isChecked()) {
     GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
 
@@ -229,13 +243,16 @@ FileListDialog::Accept() {
 }
 
 void
-FileListDialog::PathChecked() {
+FileListDialog::
+PathChecked() {
   if(m_pathCheckBox->isChecked())
     m_debugCheckBox->setChecked(false);
 }
 
 void
-FileListDialog::DebugChecked() {
+FileListDialog::
+DebugChecked() {
   if(m_debugCheckBox->isChecked())
     m_pathCheckBox->setChecked(false);
 }
+

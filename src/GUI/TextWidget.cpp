@@ -10,7 +10,7 @@
 TextWidget::TextWidget(QWidget* _parent)
   :QTextEdit(_parent) {
 
-  setFixedSize(205, 225);
+  setMaximumHeight(80);
   setReadOnly(true);
 }
 

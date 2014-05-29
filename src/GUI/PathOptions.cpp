@@ -12,23 +12,25 @@
 #include "Icons/Path.xpm"
 #include "Icons/PathOptions.xpm"
 
-PathOptions::PathOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow) {
-    CreateActions();
-    SetUpCustomSubmenu();
-    SetUpToolbar();
-    SetHelpTips();
-  }
+PathOptions::
+PathOptions(QWidget* _parent, MainWindow* _mainWindow)
+    : OptionsBase(_parent, _mainWindow), m_customizePathDialog(NULL) {
+  CreateActions();
+  SetUpCustomSubmenu();
+  //SetUpToolbar(); currently using tool tabs
+  SetUpToolTab();
+  SetHelpTips();
+}
 
 void
-PathOptions::CreateActions(){
+PathOptions::
+CreateActions() {
 
   //1. Create actions and add them to map
   QAction* showHidePath = new QAction(QPixmap(path), tr("Show/Hide Path"), this);
   m_actions["showHidePath"] = showHidePath;
   QAction* pathOptions = new QAction(QPixmap(pathoptions), tr("Path Display Options"), this);
   m_actions["pathOptions"] = pathOptions;
-  m_pathOptionsInput = new CustomizePathDialog(this);          //pop-up window
 
   //2. Set other specifications as necessary
   m_actions["showHidePath"]->setCheckable(true);
@@ -42,7 +44,8 @@ PathOptions::CreateActions(){
 }
 
 void
-PathOptions::SetUpCustomSubmenu(){
+PathOptions::
+SetUpCustomSubmenu() {
 
   m_submenu = new QMenu("Path", this);
 
@@ -51,7 +54,8 @@ PathOptions::SetUpCustomSubmenu(){
 }
 
 void
-PathOptions::SetUpToolbar(){
+PathOptions::
+SetUpToolbar() {
 
   m_toolbar = new QToolBar(m_mainWindow);
 
@@ -59,7 +63,17 @@ PathOptions::SetUpToolbar(){
 }
 
 void
-PathOptions::Reset(){
+PathOptions::
+SetUpToolTab() {
+  vector<string> buttonList;
+  buttonList.push_back("showHidePath");
+  buttonList.push_back("pathOptions");
+  CreateToolTab(buttonList);
+}
+
+void
+PathOptions::
+Reset() {
 
   if(m_actions["showHidePath"] != NULL){
     m_actions["showHidePath"]->setEnabled(GetVizmo().IsPathLoaded());
@@ -67,15 +81,18 @@ PathOptions::Reset(){
     m_actions["showHidePath"]->setChecked(false);
   }
 
-  m_pathOptionsInput->RestoreDefault();
-  //Statements below should NOT be moved into RestoreDefault()
-  //RestoreDefault is for colors only
-  m_pathOptionsInput->m_widthLineEdit->setText("1");
-  m_pathOptionsInput->m_modLineEdit->setText("3");  //Display interval
+  if(m_customizePathDialog != NULL) {
+    m_customizePathDialog->RestoreDefault();
+    //Statements below should NOT be moved into RestoreDefault()
+    //RestoreDefault is for colors only
+    m_customizePathDialog->GetWidthLine()->setText("1");
+    m_customizePathDialog->GetModLine()->setText("3");  //Display interval
+  }
 }
 
 void
-PathOptions::SetHelpTips(){
+PathOptions::
+SetHelpTips() {
   m_actions["showHidePath"]->setWhatsThis(tr("Click this button to visualize"
         " the <b>Path</b>.<br> You can also select the <b>Show/Hide Path</b> option"
         " from the <b>Path</b> menu."));
@@ -83,14 +100,19 @@ PathOptions::SetHelpTips(){
 
 //Slots
 void
-PathOptions::ShowHidePath(){
+PathOptions::
+ShowHidePath() {
   GetVizmo().GetPath()->SetRenderMode(m_actions["showHidePath"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
+//Pop up the path customization window
 void
-PathOptions::PathDisplayOptions(){
-  //Pop up the path customization window
-  m_pathOptionsInput->show();
+PathOptions::
+PathDisplayOptions() {
+  if(m_customizePathDialog == NULL) {
+    m_customizePathDialog = new CustomizePathDialog(m_mainWindow);
+    m_mainWindow->ShowDialog(m_customizePathDialog);
+  }
 }
 

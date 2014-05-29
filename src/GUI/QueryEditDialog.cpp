@@ -8,11 +8,22 @@
 #include "NodeEditDialog.h"
 #include "Models/Vizmo.h"
 
-QueryEditDialog::QueryEditDialog(QueryModel* _queryModel, MainWindow* _mainWindow,
-    QWidget* _parent) : QDialog(_parent) {
-  resize(235, 246);
+QueryEditDialog::
+QueryEditDialog(MainWindow* _mainWindow, QueryModel* _queryModel)
+    : QDialog(_mainWindow), m_queryModel(_queryModel), m_mainWindow(_mainWindow) {
+  setFixedSize(200, 310);
   setWindowTitle("Edit Query");
+  SetUpDialog();
+  setAttribute(Qt::WA_DeleteOnClose);
+  ShowQuery();
+}
 
+QueryEditDialog::
+~QueryEditDialog() {}
+
+void
+QueryEditDialog::
+SetUpDialog() {
   m_listWidget = new QListWidget(this);
   QPushButton* editButton = new QPushButton("Edit",this);
   QPushButton* addButton = new QPushButton("Add",this);
@@ -21,33 +32,33 @@ QueryEditDialog::QueryEditDialog(QueryModel* _queryModel, MainWindow* _mainWindo
   QPushButton* downButton = new QPushButton(QChar(0x2228),this);
   QPushButton* leaveButton = new QPushButton("Leave",this);
 
+  QGridLayout* layout = new QGridLayout();
+  setLayout(layout);
+
+  QVBoxLayout* upDown = new QVBoxLayout();
+  upDown->setSpacing(0);
+  upDown->addWidget(upButton);
+  upDown->addWidget(downButton);
+
+  layout->addWidget(m_listWidget, 1, 1, 5, 1);
+  m_listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  layout->addWidget(editButton, 1, 2, 1, 1);
+  layout->addWidget(addButton, 2, 2, 1, 1);
+  layout->addWidget(deleteButton, 3, 2, 1, 1);
+  layout->addLayout(upDown, 4, 2, 1, 1);
+  layout->addWidget(leaveButton, 5, 2, 1, 1);
+
   connect(deleteButton, SIGNAL(clicked()), this, SLOT(Delete()));
   connect(addButton, SIGNAL(clicked()), this, SLOT(Add()));
   connect(editButton, SIGNAL(clicked()), this, SLOT(EditQuery()));
   connect(upButton, SIGNAL(clicked()), this, SLOT(SwapUp()));
   connect(downButton, SIGNAL(clicked()), this, SLOT(SwapDown()));
   connect(leaveButton, SIGNAL(clicked()), this, SLOT(accept()));
-
-  m_queryModel=_queryModel;
-  m_mainWindow= _mainWindow;
-
-  ShowQuery();
-
-  m_listWidget->setGeometry(QRect(10, 10, 131, 231));
-  m_listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-  editButton->setGeometry(QRect(160, 10, 61, 31));
-  addButton->setGeometry(QRect(160, 50, 61, 31));
-  deleteButton->setGeometry(QRect(160, 90, 61, 31));
-  upButton->setGeometry(QRect(160, 130, 61, 31));
-  downButton->setGeometry(QRect(160, 160, 61, 31));
-  leaveButton->setGeometry(QRect(160, 210, 61, 31));
 }
 
-QueryEditDialog::~QueryEditDialog(){}
-
 void
-QueryEditDialog::ShowQuery(){
+QueryEditDialog::
+ShowQuery() {
   for(size_t i=0; i<m_queryModel->GetQuerySize(); i++){
     if(i==0)
       m_listWidget->addItem("start");
@@ -60,7 +71,8 @@ QueryEditDialog::ShowQuery(){
 }
 
 void
-QueryEditDialog::Add(){
+QueryEditDialog::
+Add() {
   RefreshEnv();
   if(m_listWidget->currentItem()!=NULL){
     int num=m_listWidget->currentRow();
@@ -71,13 +83,14 @@ QueryEditDialog::Add(){
   }
   size_t numQuery=m_listWidget->row(m_listWidget->currentItem());
   CfgModel& qryCfg = m_queryModel->GetQueryCfg(numQuery);
-  NodeEditDialog q(this, &qryCfg, m_mainWindow->GetGLScene(), qryCfg.Name());
-  q.exec();
+  NodeEditDialog* ned = new NodeEditDialog(m_mainWindow, qryCfg.Name(), &qryCfg);
+  m_mainWindow->ShowDialog(ned);
   RefreshEnv();
 }
 
 void
-QueryEditDialog::Delete(){
+QueryEditDialog::
+Delete() {
   if(m_listWidget->currentItem()!=NULL){
     size_t numQuery=m_listWidget->row(m_listWidget->currentItem());
     m_queryModel->DeleteQuery(numQuery);
@@ -88,18 +101,20 @@ QueryEditDialog::Delete(){
 }
 
 void
-QueryEditDialog::EditQuery(){
+QueryEditDialog::
+EditQuery() {
   if(m_listWidget->currentItem()!=NULL){
     size_t numQuery=m_listWidget->row(m_listWidget->currentItem());
     CfgModel& qryCfg = m_queryModel->GetQueryCfg(numQuery);
-    NodeEditDialog q(this, &qryCfg, m_mainWindow->GetGLScene(), qryCfg.Name());
-    q.exec();
-    RefreshEnv();
+    NodeEditDialog* ned = new NodeEditDialog(m_mainWindow, qryCfg.Name(), &qryCfg);
+    m_mainWindow->ShowDialog(ned);
+    //RefreshEnv();
   }
 }
 
 void
-QueryEditDialog::SwapUp(){
+QueryEditDialog::
+SwapUp() {
   if((m_listWidget->currentItem()!=NULL)&&(m_listWidget->row(m_listWidget->currentItem())!=0)){
     size_t numQuery=m_listWidget->row(m_listWidget->currentItem());
     m_queryModel->SwapUp(numQuery);
@@ -109,7 +124,8 @@ QueryEditDialog::SwapUp(){
 }
 
 void
-QueryEditDialog::SwapDown(){
+QueryEditDialog::
+SwapDown() {
   if((m_listWidget->currentItem()!=NULL)&&(m_listWidget->row(m_listWidget->currentItem())!=m_listWidget->count()-1)){
     size_t numQuery=m_listWidget->row(m_listWidget->currentItem());
     m_queryModel->SwapDown(numQuery);
@@ -119,7 +135,8 @@ QueryEditDialog::SwapDown(){
 }
 
 void
-QueryEditDialog::RefreshEnv(){
+QueryEditDialog::
+RefreshEnv() {
   m_queryModel->Build();
   GetVizmo().PlaceRobot();
   m_mainWindow->GetGLScene()->updateGL();

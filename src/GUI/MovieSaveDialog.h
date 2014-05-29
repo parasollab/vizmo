@@ -4,11 +4,12 @@
  * Used in close conjunction with SnapshotGUI utilities...
  **************************************************************/
 
-#ifndef MOVIESAVEDIALOG_H
-#define MOVIESAVEDIALOG_H
+#ifndef MOVIE_SAVE_DIALOG_H
+#define MOVIE_SAVE_DIALOG_H
 
 #include <QtGui>
 
+class MainWindow;
 class QGridLayout;
 class QLineEdit;
 class QLabel;
@@ -18,7 +19,7 @@ class MovieSaveDialog : public QDialog {
   Q_OBJECT
 
   public:
-    MovieSaveDialog(QWidget* _parent, Qt::WFlags _f = 0);
+    MovieSaveDialog(MainWindow* _mainWindow, Qt::WFlags _f = 0);
     size_t m_startFrame; //start frame of video
     size_t m_endFrame; //end frame of video
     size_t m_stepSize; //step size for video

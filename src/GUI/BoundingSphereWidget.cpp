@@ -6,6 +6,7 @@
 
 BoundingSphereWidget::BoundingSphereWidget(QWidget* _parent) : QWidget(_parent) {
   //construct objects
+  setStyleSheet("QLineEdit { font: 9pt }");
   QLabel* labelX = new QLabel("<b>X<b>", this);
   QLabel* labelY = new QLabel("<b>Y<b>", this);
   QLabel* labelZ = new QLabel("<b>Z<b>", this);
@@ -29,13 +30,13 @@ BoundingSphereWidget::BoundingSphereWidget(QWidget* _parent) : QWidget(_parent) 
   setLayout(layout);
 
   layout->addWidget(labelX, 0, 0, Qt::AlignCenter);
-  layout->addWidget(labelY, 0, 1, Qt::AlignCenter);
-  layout->addWidget(labelZ, 0, 2, Qt::AlignCenter);
-  layout->addWidget(labelR, 0, 3, Qt::AlignCenter);
-  layout->addWidget(m_lineX, 1, 0);
+  layout->addWidget(labelY, 1, 0, Qt::AlignCenter);
+  layout->addWidget(labelZ, 2, 0, Qt::AlignCenter);
+  layout->addWidget(labelR, 3, 0, Qt::AlignCenter);
+  layout->addWidget(m_lineX, 0, 1);
   layout->addWidget(m_lineY, 1, 1);
-  layout->addWidget(m_lineZ, 1, 2);
-  layout->addWidget(m_lineR, 1, 3);
+  layout->addWidget(m_lineZ, 2, 1);
+  layout->addWidget(m_lineR, 3, 1);
 }
 
 void

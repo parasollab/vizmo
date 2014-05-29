@@ -1,5 +1,5 @@
-#ifndef MAPMODEL_H_
-#define MAPMODEL_H_
+#ifndef MAP_MODEL_H_
+#define MAP_MODEL_H_
 
 #include "boost/shared_ptr.hpp"
 using boost::shared_ptr;
@@ -92,20 +92,23 @@ class MapModel : public LoadableModel {
 };
 
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel() : LoadableModel("Map"), m_delGraph(true) {
+MapModel<CFG, WEIGHT>::
+MapModel() : LoadableModel("Map"), m_delGraph(true) {
   m_renderMode = INVISIBLE_MODE;
   m_graph = new RGraph();
 }
 
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel(RGraph* _g) : LoadableModel("Map"), m_graph(_g), m_delGraph(false) {
+MapModel<CFG, WEIGHT>::
+MapModel(RGraph* _g) : LoadableModel("Map"), m_graph(_g), m_delGraph(false) {
   m_renderMode = SOLID_MODE;
   Build();
 }
 
 //constructor only to grab header environment name
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map"), m_delGraph(true) {
+MapModel<CFG, WEIGHT>::
+MapModel(const string& _filename) : LoadableModel("Map"), m_delGraph(true) {
   SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
   m_graph = new RGraph();
@@ -115,7 +118,8 @@ MapModel<CFG, WEIGHT>::MapModel(const string& _filename) : LoadableModel("Map"),
 }
 
 template <class CFG, class WEIGHT>
-MapModel<CFG, WEIGHT>::~MapModel() {
+MapModel<CFG, WEIGHT>::
+~MapModel() {
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
   if(m_delGraph)
@@ -126,7 +130,8 @@ MapModel<CFG, WEIGHT>::~MapModel() {
 
 template<class CFG, class WEIGHT>
 void
-MapModel<CFG,WEIGHT>::ParseFile(){
+MapModel<CFG,WEIGHT>::
+ParseFile() {
   if(!FileExists(GetFilename()))
     throw ParseException(WHERE, "File '" + GetFilename() + "' does not exist");
 
@@ -144,7 +149,8 @@ MapModel<CFG,WEIGHT>::ParseFile(){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::Write(const string& _filename){
+MapModel<CFG, WEIGHT>::
+Write(const string& _filename) {
   QMutexLocker lock(&m_lock);
   ofstream outfile(_filename.c_str());
 
@@ -157,7 +163,8 @@ MapModel<CFG, WEIGHT>::Write(const string& _filename){
 
 template <class CFG, class WEIGHT>
 typename MapModel<CFG, WEIGHT>::VID
-MapModel<CFG, WEIGHT>::Cfg2VID(const CFG& _target){
+MapModel<CFG, WEIGHT>::
+Cfg2VID(const CFG& _target) {
   QMutexLocker lock(&m_lock);
   for(VI vi = m_graph->begin(); vi != m_graph->end(); vi++)
     if(_target == vi->property())
@@ -169,7 +176,8 @@ MapModel<CFG, WEIGHT>::Cfg2VID(const CFG& _target){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::Build() {
+MapModel<CFG, WEIGHT>::
+Build() {
   QMutexLocker lock(&m_lock);
 
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
@@ -188,7 +196,8 @@ MapModel<CFG, WEIGHT>::Build() {
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::DrawRender(){
+MapModel<CFG, WEIGHT>::
+DrawRender() {
   QMutexLocker lock(&m_lock);
   if(m_renderMode == INVISIBLE_MODE)
     return;
@@ -215,7 +224,8 @@ MapModel<CFG, WEIGHT>::DrawRender(){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::DrawSelect(){
+MapModel<CFG, WEIGHT>::
+DrawSelect() {
   QMutexLocker lock(&m_lock);
   if(m_renderMode == INVISIBLE_MODE)
     return;
@@ -238,7 +248,8 @@ MapModel<CFG, WEIGHT>::DrawSelect(){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::SetRenderMode(RenderMode _mode){
+MapModel<CFG, WEIGHT>::
+SetRenderMode(RenderMode _mode) {
   QMutexLocker lock(&m_lock);
   m_renderMode = _mode;
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
@@ -247,7 +258,8 @@ MapModel<CFG, WEIGHT>::SetRenderMode(RenderMode _mode){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models) {
+MapModel<CFG, WEIGHT>::
+GetChildren(list<Model*>& _models) {
   //QMutexLocker lock(&m_lock);
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     _models.push_back(*ic);
@@ -255,14 +267,16 @@ MapModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models) {
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::Print(ostream& _os) const {
+MapModel<CFG, WEIGHT>::
+Print(ostream& _os) const {
   _os << Name() << ": " << GetFilename() << endl
     << "Connected components: " << m_ccModels.size() << endl;
 }
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
+MapModel<CFG, WEIGHT>::
+Select(GLuint* _index, vector<Model*>& _sel) {
   QMutexLocker lock(&m_lock);
   if(!m_selectable || _index == NULL)
     return;
@@ -271,7 +285,8 @@ MapModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::SetColor(const Color4& _c) {
+MapModel<CFG, WEIGHT>::
+SetColor(const Color4& _c) {
   QMutexLocker lock(&m_lock);
   Model::SetColor(_c);
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
@@ -280,7 +295,8 @@ MapModel<CFG, WEIGHT>::SetColor(const Color4& _c) {
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::RandomizeCCColors() {
+MapModel<CFG, WEIGHT>::
+RandomizeCCColors() {
   QMutexLocker lock(&m_lock);
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ++ic)
     (*ic)->SetColor(Color4(drand48(), drand48(), drand48(), 1));
@@ -288,14 +304,16 @@ MapModel<CFG, WEIGHT>::RandomizeCCColors() {
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::RefreshMap(){
+MapModel<CFG, WEIGHT>::
+RefreshMap() {
   Build();
   SetRenderMode(m_renderMode);
 }
 
 template <class CFG, class WEIGHT>
 void
-MapModel<CFG, WEIGHT>::ClearTempItems(){
+MapModel<CFG, WEIGHT>::
+ClearTempItems() {
   typedef typename vector<CFG*>::iterator CIT;
   for(CIT cit = m_tempCfgs.begin(); cit != m_tempCfgs.end(); cit++)
     delete *cit;

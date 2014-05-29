@@ -5,17 +5,21 @@
 
 #include "NodeEditDialog.h"
 #include "GLWidget.h"
+#include "MainWindow.h"
+#include "ModelSelectionWidget.h"
 #include "Models/EdgeModel.h"
+#include "Models/MapModel.h"
 #include "Models/Vizmo.h"
 
-CfgListWidget::CfgListWidget(QWidget* _parent)
-  : QListWidget(_parent) {
+CfgListWidget::
+CfgListWidget(QWidget* _parent) : QListWidget(_parent) {
 
   connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(SelectInMap()));
 }
 
 void
-CfgListWidget::SelectInMap(){ //Display intermediate cfg selection on map
+CfgListWidget::
+SelectInMap() { //Display intermediate cfg selection on map
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
@@ -28,56 +32,49 @@ CfgListWidget::SelectInMap(){ //Display intermediate cfg selection on map
   emit CallUpdateGL();
 }
 
-EdgeEditDialog::EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _scene)
-: QDialog(_parent) {
+EdgeEditDialog::
+EdgeEditDialog(MainWindow* _mainWindow, EdgeModel* _originalEdge)
+    : QDialog(_mainWindow), m_mainWindow(_mainWindow),
+    m_originalEdge(_originalEdge), m_glScene(_mainWindow->GetGLScene()),
+    m_tempObjs(), m_nodeEditDialog(NULL) {
+
+  //make a working copy of the edge to be modified
+  m_tempEdge = new EdgeModel(*_originalEdge);
+  m_tempEdge->Set(m_originalEdge->GetStartCfg(), m_originalEdge->GetEndCfg());
+  m_tempObjs.AddEdge(m_tempEdge);
 
   setWindowTitle("Modify Edge");
-  setFixedWidth(480);
-  setFixedHeight(200);
-
-  m_glScene = _scene;
-  m_currentEdge = _edge;
+  setFixedSize(200, 350);
+  setStyleSheet("QListWidget { font:8pt } QPushButton { font:8pt }");
 
   m_intermediatesList = new CfgListWidget(this);
 
-  QPushButton* editIntermediateButton = new QPushButton(this);
-  editIntermediateButton->setFixedWidth(70);
-  editIntermediateButton->setText("Edit...");
-
-  QPushButton* addIntermediateButton = new QPushButton(this);
-  addIntermediateButton->setFixedWidth(70);
-  addIntermediateButton->setText("Add...");
+  QPushButton* editIntermediateButton = new QPushButton("Edit...", this);
+  QPushButton* addIntermediateButton = new QPushButton("Add...", this);
   addIntermediateButton->setToolTip("Add an intermediate configuration after the one currently selected in the list.");
-
-  QPushButton* removeIntermediateButton = new QPushButton(this);
-  removeIntermediateButton->setFixedWidth(70);
-  removeIntermediateButton->setText("Remove");
+  QPushButton* removeIntermediateButton = new QPushButton("Remove", this);
   removeIntermediateButton->setToolTip("Remove the currently selected configuration.");
+  QPushButton* doneButton = new QPushButton("Done", this);
+  QPushButton* cancelButton = new QPushButton("Cancel", this);
 
-  QPushButton* doneButton = new QPushButton(this);
-  doneButton->setFixedWidth(90);
-  doneButton->setText("Done");
+  QLabel* edgeLabel = new QLabel(m_tempEdge->Name().c_str(), this);
 
-  QPushButton* cancelButton = new QPushButton(this);
-  cancelButton->setFixedWidth(90);
-  cancelButton->setText("Cancel");
+  QHBoxLayout* topButtonLayout = new QHBoxLayout();
+  topButtonLayout->addWidget(editIntermediateButton);
+  topButtonLayout->addWidget(addIntermediateButton);
+  topButtonLayout->addWidget(removeIntermediateButton);
 
-  QLabel* edgeLabel = new QLabel(this);
-  edgeLabel->setText(_edge->Name().c_str());
-
-  QHBoxLayout* buttonLayout = new QHBoxLayout();
-  buttonLayout->setAlignment(Qt::AlignLeft);
-  buttonLayout->addWidget(editIntermediateButton);
-  buttonLayout->addWidget(addIntermediateButton);
-  buttonLayout->addWidget(removeIntermediateButton);
-  buttonLayout->insertSpacing(3, 50);
-  buttonLayout->addWidget(doneButton);
-  buttonLayout->addWidget(cancelButton);
+  QHBoxLayout* bottomButtonLayout = new QHBoxLayout();
+  bottomButtonLayout->addItem(new QSpacerItem(40, 0));
+  bottomButtonLayout->addWidget(doneButton);
+  bottomButtonLayout->addWidget(cancelButton);
 
   QVBoxLayout* overallLayout = new QVBoxLayout();
   overallLayout->addWidget(edgeLabel);
   overallLayout->addWidget(m_intermediatesList);
-  overallLayout->addLayout(buttonLayout);
+  overallLayout->addLayout(topButtonLayout);
+  overallLayout->addItem(new QSpacerItem(200, 40));
+  overallLayout->addLayout(bottomButtonLayout);
 
   this->setLayout(overallLayout);
 
@@ -89,27 +86,33 @@ EdgeEditDialog::EdgeEditDialog(QWidget* _parent, EdgeModel* _edge, GLWidget* _sc
   connect(doneButton, SIGNAL(clicked()), this, SLOT(accept()));
   connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
   connect(m_intermediatesList, SIGNAL(CallUpdateGL()), m_glScene, SLOT(updateGL()));
+
+  //Set end behavior
+  connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeEdgeEdit(int)));
+  setAttribute(Qt::WA_DeleteOnClose);
 }
 
 EdgeEditDialog::~EdgeEditDialog(){}
 
 void
-EdgeEditDialog::ClearIntermediates(){
+EdgeEditDialog::
+ClearIntermediates() {
 
   m_intermediatesList->clear();
   m_intermediatesList->GetListItems().clear();
 }
 
 void
-EdgeEditDialog::ResetIntermediates(){
+EdgeEditDialog::
+ResetIntermediates() {
 
   ClearIntermediates();
 
-  vector<CfgModel>& intermediates = m_currentEdge->GetIntermediates();
+  vector<CfgModel>& intermediates = m_tempEdge->GetIntermediates();
   if(intermediates.empty()){
     //Assign to start cfg so that new one can be added right after it
-    CfgListItem* defaultItem = new CfgListItem(m_intermediatesList, m_currentEdge->GetStartCfg());
-    defaultItem->setText("There are no intermediate configurations.\n");
+    CfgListItem* defaultItem = new CfgListItem(m_intermediatesList, m_tempEdge->GetStartCfg());
+    defaultItem->setText("There are no intermediates.\n");
     m_intermediatesList->addItem(defaultItem);
     m_intermediatesList->GetListItems().push_back(defaultItem);
   }
@@ -131,26 +134,25 @@ EdgeEditDialog::ResetIntermediates(){
 }
 
 void
-EdgeEditDialog::EditIntermediate(){
+EdgeEditDialog::
+EditIntermediate() {
+  if(m_nodeEditDialog == NULL) {
+    vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
 
-  vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
-  vector<EdgeModel*> currentEdge; //For NodeEditDialog's validity checks
-
-  for(IIT it = listItems.begin(); it != listItems.end(); it++){
-    currentEdge.clear();
-    //Default list item has start cfg as m_cfg, so check against that
-    if((*it)->isSelected() && (*it)->m_cfg != m_currentEdge->GetStartCfg()){
-      currentEdge.push_back(m_currentEdge);
-      NodeEditDialog n(this, (*it)->m_cfg, m_glScene, "Intermediate Configuration");
-      n.SetCurrentEdges(&currentEdge);
-      n.exec();
-      break;
+    for(IIT it = listItems.begin(); it != listItems.end(); it++){
+      if((*it)->isSelected() && (*it)->m_cfg != m_tempEdge->GetStartCfg()){
+        m_nodeEditDialog = new NodeEditDialog(m_mainWindow,
+            "Intermediate Configuration", (*it)->m_cfg, m_tempEdge);
+        m_mainWindow->ShowDialog(m_nodeEditDialog);
+        break;
+      }
     }
   }
 }
 
 void
-EdgeEditDialog::AddIntermediate(){
+EdgeEditDialog::
+AddIntermediate() {
 
   vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
   int indexAhead = 1;
@@ -158,7 +160,7 @@ EdgeEditDialog::AddIntermediate(){
   for(IIT it = listItems.begin(); it != listItems.end(); it++){
     if((*it)->isSelected()){
 
-      vector<CfgModel>& allInts = m_currentEdge->GetIntermediates();
+      vector<CfgModel>& allInts = m_tempEdge->GetIntermediates();
       vector<CfgModel>::iterator pos = std::find(allInts.begin(), allInts.end(), *((*it)->m_cfg));
       allInts.insert(pos++, *((*it)->m_cfg)); //insertion is before, so must increment
 
@@ -177,14 +179,15 @@ EdgeEditDialog::AddIntermediate(){
 }
 
 void
-EdgeEditDialog::RemoveIntermediate(){
+EdgeEditDialog::
+RemoveIntermediate() {
 
   vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
 
   for(IIT it = listItems.begin(); it != listItems.end(); it++){
     if((*it)->isSelected()){
 
-      vector<CfgModel>& allInts = m_currentEdge->GetIntermediates();
+      vector<CfgModel>& allInts = m_tempEdge->GetIntermediates();
       vector<CfgModel>::iterator pos = std::find(allInts.begin(), allInts.end(), *(*it)->m_cfg);
 
       if(pos != allInts.end()){
@@ -194,4 +197,18 @@ EdgeEditDialog::RemoveIntermediate(){
       return;
     }
   }
+}
+
+void
+EdgeEditDialog::
+FinalizeEdgeEdit(int _accepted) {
+  if(_accepted == 1) {
+    if(m_tempEdge->IsValid())
+      m_originalEdge->SetIntermediates(m_tempEdge->GetIntermediates());
+    else
+      //For now, user must start all over again in this case
+      QMessageBox::about(this, "", "Invalid edge!");
+  }
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  m_mainWindow->GetGLScene()->updateGL();
 }

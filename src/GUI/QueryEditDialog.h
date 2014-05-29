@@ -1,5 +1,5 @@
-#ifndef QUERYEDITDIALOG_H_
-#define QUERYEDITDIALOG_H_
+#ifndef QUERY_EDIT_DIALOG_H_
+#define QUERY_EDIT_DIALOG_H_
 
 #include <QtGui>
 
@@ -17,7 +17,7 @@ class QueryEditDialog : public QDialog {
   Q_OBJECT
 
   public:
-    QueryEditDialog(QueryModel* _queryModel, MainWindow* _mainWindow,  QWidget* _parent);
+    QueryEditDialog(MainWindow* _mainWindow, QueryModel* _queryModel);
     ~QueryEditDialog();
 
   private slots:
@@ -29,6 +29,7 @@ class QueryEditDialog : public QDialog {
 
   private:
     //Functions
+    void SetUpDialog();
     void RefreshEnv();
     void ShowQuery();
     //Model Variables

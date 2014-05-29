@@ -1,24 +1,30 @@
 #include "CameraPosDialog.h"
+#include "MainWindow.h"
 
 #include <sstream>
 using namespace std;
 
 #include "Utilities/Camera.h"
 
-CameraPosDialog::CameraPosDialog(QWidget* _parent, Camera* _camera) : QDialog(_parent) {
+CameraPosDialog::
+CameraPosDialog(MainWindow* _mainWindow, Camera* _camera)
+    : QDialog(_mainWindow) {
   //initialize objects
   setWindowTitle("Camera Position");
+  setFixedSize(200, 400);
 
   QDialogButtonBox* buttonBox = new QDialogButtonBox(this);
   buttonBox->setOrientation(Qt::Horizontal);
   buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
 
-  QLabel* mainLabel = new QLabel("Enter a camera position and the point where the camera looks at:", this);
+  QLabel* mainLabel = new QLabel("Enter a camera position and\nthe point the camera looks at:", this);
+  mainLabel->setStyleSheet("font:9pt");
 
   QLabel* eyeLabel[4];
   QLabel* atLabel[4];
 
   eyeLabel[0] = new QLabel("Eye", this);
+  eyeLabel[0]->setStyleSheet("font:9pt");
   eyeLabel[1] = new QLabel("x", this);
   eyeLabel[2] = new QLabel("y", this);
   eyeLabel[3] = new QLabel("z", this);
@@ -26,6 +32,7 @@ CameraPosDialog::CameraPosDialog(QWidget* _parent, Camera* _camera) : QDialog(_p
   m_lineEye[1] = new QLineEdit(this);
   m_lineEye[2] = new QLineEdit(this);
   atLabel[0] = new QLabel("At", this);
+  atLabel[0]->setStyleSheet("font:9pt");
   atLabel[1] = new QLabel("x", this);
   atLabel[2] = new QLabel("y", this);
   atLabel[3] = new QLabel("z", this);
@@ -37,17 +44,17 @@ CameraPosDialog::CameraPosDialog(QWidget* _parent, Camera* _camera) : QDialog(_p
   QGridLayout* layout = new QGridLayout(this);
   setLayout(layout);
 
-  layout->addWidget(mainLabel, 0, 0, 1, 4);
-  layout->addWidget(eyeLabel[0], 1, 0);
-  layout->addWidget(atLabel[0], 1, 2);
+  layout->addWidget(mainLabel, 0, 0, 1, 2);
+  layout->addWidget(eyeLabel[0], 2, 0);
+  layout->addWidget(atLabel[0], 6, 0);
   for(size_t i = 0; i < 3; ++i) {
-    layout->addWidget(eyeLabel[i+1], i+2, 0);
-    layout->addWidget(m_lineEye[i], i+2, 1);
-    layout->addWidget(atLabel[i+1], i+2, 2);
-    layout->addWidget(m_lineAt[i], i+2, 3);
+    layout->addWidget(eyeLabel[i+1], i+3, 0);
+    layout->addWidget(m_lineEye[i], i+3, 1);
+    layout->addWidget(atLabel[i+1], i+7, 0);
+    layout->addWidget(m_lineAt[i], i+7, 1);
   }
-
-  layout->addWidget(buttonBox, 5, 0, 1, 4);
+  layout->addItem(new QSpacerItem(200, 15), 11, 0, 1, 2);
+  layout->addWidget(buttonBox, 12, 0, 1, 2);
 
   //connect signals/slots
   QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(AcceptData()));
@@ -55,12 +62,15 @@ CameraPosDialog::CameraPosDialog(QWidget* _parent, Camera* _camera) : QDialog(_p
 
   QMetaObject::connectSlotsByName(this);
   SetCamera(_camera);
+  setAttribute(Qt::WA_DeleteOnClose);
 }
 
-CameraPosDialog::~CameraPosDialog(){}
+CameraPosDialog::
+~CameraPosDialog() {}
 
 void
-CameraPosDialog::SetCamera(Camera* _camera){
+CameraPosDialog::
+SetCamera(Camera* _camera) {
   m_camera = _camera;
   const Vector3d& eye = m_camera->GetEye();
   Vector3d at = m_camera->GetAt();
@@ -71,7 +81,8 @@ CameraPosDialog::SetCamera(Camera* _camera){
 }
 
 void
-CameraPosDialog::AcceptData(){
+CameraPosDialog::
+AcceptData() {
   Vector3d eye, at;
   for(size_t i=0; i < 3; i++) {
     eye[i] = m_lineEye[i]->text().toDouble();

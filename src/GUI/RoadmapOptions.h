@@ -2,8 +2,8 @@
  * Class for the "Roadmap" submenu and associated toolbars
  * *************************************************************/
 
-#ifndef ROADMAPOPTIONS_H_
-#define ROADMAPOPTIONS_H_
+#ifndef ROAD_MAP_OPTIONS_H_
+#define ROAD_MAP_OPTIONS_H_
 
 #include "OptionsBase.h"
 #include "Models/MapModel.h"
@@ -11,6 +11,7 @@
 
 class QPushButton;
 class SliderDialog;
+class EdgeEditDialog;
 class NodeEditDialog;
 
 class RoadmapOptions : public OptionsBase {
@@ -54,6 +55,7 @@ class RoadmapOptions : public OptionsBase {
     void CreateActions();
     void SetUpCustomSubmenu(); //submenu has its own submenus and cannot be set up with simple loop through m_actions
     void SetUpToolbar();       //a lot of toolbar functionalities for this class
+    void SetUpToolTab();
     void Reset();
     void SetHelpTips();
 

@@ -11,6 +11,7 @@
 class MainWindow;
 class OptionsBase;
 class QMenuBar;
+class ToolTabOptions;
 
 using namespace std;
 
@@ -28,9 +29,11 @@ class MainMenu : public QWidget {
     OptionsBase* m_pathOptions;         //2 buttons and submenu
     OptionsBase* m_queryOptions;         //2 buttons and submenu
     OptionsBase* m_captureOptions;      //3 buttons and submenu
+    ToolTabOptions* m_toolTabOptions;      //toggle tool tabs on/off
     OptionsBase* m_help;                //The What's This? button
 
     QMenuBar* m_menuBar;
+    QAction* m_end;                     //track the last menu item
 
   public slots:
     void CallReset();

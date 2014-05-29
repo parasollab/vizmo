@@ -6,31 +6,35 @@ SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
   int _rangeStart, int _rangeEnd, int _startValue,
   QWidget* _parent) : QDialog(_parent){
 
-  resize(477, 139);
+  QGridLayout* layout = new QGridLayout();
+  setLayout(layout);
   setWindowTitle(_windowTitle);
 
-  QLabel* instructions = new QLabel(_instructions, this);
-  instructions->setGeometry(QRect(20, 20, 311, 17));
+  QLabel* instructions = new QLabel(this);
+  instructions->setText(_instructions);
+  layout->addWidget(instructions, 1, 1, 1, 4);
 
-  QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
-  okayCancel->setGeometry(QRect(290, 100, 181, 32));
-  okayCancel->setOrientation(Qt::Horizontal);
-  okayCancel->setStandardButtons(QDialogButtonBox::Cancel
-    |QDialogButtonBox::Ok);
+  m_value = new QLabel(this);
+  m_value->setFixedWidth(70);
+  m_value->setText("100%");
+  layout->addWidget(m_value, 2, 1, 1, 1);
 
   m_slider = new QSlider(this);
-  m_slider->setGeometry(QRect(19, 60, 441, 20));
-  m_slider->setOrientation(Qt::Horizontal);
+  m_slider->setOrientation(Qt::Vertical);
   m_slider->setRange(_rangeStart, _rangeEnd);
   m_slider->setValue(_startValue);
   m_startValue = _startValue;
   m_oldValue = _startValue;
+  layout->addWidget(m_slider, 2, 2, 1, 1);
+
+  QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
+  okayCancel->setFixedSize(120, 32);
+  okayCancel->setOrientation(Qt::Horizontal);
+  okayCancel->setStandardButtons(QDialogButtonBox::Cancel
+    |QDialogButtonBox::Ok);
+  layout->addWidget(okayCancel, 3, 1, 1, 2);
+
   connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(UpdatePercentile()));
-
-  m_value = new QLabel(this);
-  m_value->setGeometry(QRect(20, 90, 70, 17)); //long width for plenty of room
-  m_value->setText("100%");
-
   connect(okayCancel, SIGNAL(accepted()), this, SLOT(accept()));
   connect(okayCancel, SIGNAL(rejected()), this, SLOT(reject()));
 

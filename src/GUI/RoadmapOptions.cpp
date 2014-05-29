@@ -42,16 +42,19 @@
 #include "Icons/PointMode.xpm"
 #include "Icons/DeleteSelected.xpm"
 
-RoadmapOptions::RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow) {
-    CreateActions();
-    SetUpCustomSubmenu();
-    SetUpToolbar();
-    SetHelpTips();
-  }
+RoadmapOptions::
+RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
+    : OptionsBase(_parent, _mainWindow) {
+  CreateActions();
+  SetUpCustomSubmenu();
+  //SetUpToolbar(); currently using tool tabs
+  SetUpToolTab();
+  SetHelpTips();
+}
 
 void
-RoadmapOptions::CreateActions(){
+RoadmapOptions::
+CreateActions() {
 
   //1. Create actions/additional submenus and add them to the map
   QAction* showHideRoadmap = new QAction(QPixmap(navigate), tr("Show Roadmap"), this);
@@ -74,12 +77,12 @@ RoadmapOptions::CreateActions(){
   QAction* scaleNodes = new QAction(QPixmap(nodeSizeIcon), tr("Scale Nodes"), this);
   m_actions["scaleNodes"] = scaleNodes;
   m_nodeSizeDialog = new SliderDialog("Node Scaling",
-      "Drag the slider to scale the nodes", 0, 2500, 1000, this);
+      "Node Scale", 0, 2500, 1000, this);
 
   QAction* edgeThickness = new QAction(QPixmap(edgeThicknessIcon), tr("Change Edge Thickness"), this);
   m_actions["edgeThickness"] = edgeThickness;
   m_edgeThicknessDialog = new SliderDialog("Edge Thickness",
-      "Drag the slider to change the edge thickness", 100, 1000, 100, this);
+      "Edge Thickness", 100, 1000, 100, this);
 
   QAction* editNode = new QAction(QPixmap(editnode), tr("Edit Node"), this);
   m_actions["editNode"] = editNode;
@@ -185,7 +188,8 @@ RoadmapOptions::CreateActions(){
 }
 
 void
-RoadmapOptions::SetUpCustomSubmenu(){
+RoadmapOptions::
+SetUpCustomSubmenu() {
 
   m_submenu = new QMenu("Roadmap", this);
 
@@ -226,7 +230,8 @@ RoadmapOptions::SetUpCustomSubmenu(){
 }
 
 void
-RoadmapOptions::SetUpToolbar(){
+RoadmapOptions::
+SetUpToolbar() {
 
   m_toolbar = new QToolBar(m_mainWindow);
 
@@ -248,7 +253,33 @@ RoadmapOptions::SetUpToolbar(){
 }
 
 void
-RoadmapOptions::Reset(){
+RoadmapOptions::
+SetUpToolTab() {
+  vector<string> buttonList;
+  buttonList.push_back("showHideRoadmap");
+  buttonList.push_back("robotView");
+  buttonList.push_back("pointView");
+  buttonList.push_back("_separator_");
+
+  buttonList.push_back("makeSolid");
+  buttonList.push_back("makeWired");
+  buttonList.push_back("makeInvisible");
+  buttonList.push_back("changeNodeColor");
+  buttonList.push_back("ccsOneColor");
+  buttonList.push_back("randomizeColors");
+  buttonList.push_back("scaleNodes");
+  buttonList.push_back("edgeThickness");
+  buttonList.push_back("_separator_");
+
+  buttonList.push_back("editNode");
+  buttonList.push_back("editEdge");
+
+  CreateToolTab(buttonList);
+}
+
+void
+RoadmapOptions::
+Reset() {
 
   if(m_actions["showHideRoadmap"] != NULL){
     m_actions["showHideRoadmap"]->setEnabled(GetVizmo().IsRoadMapLoaded());
@@ -288,7 +319,8 @@ RoadmapOptions::Reset(){
 }
 
 void
-RoadmapOptions::SetHelpTips(){
+RoadmapOptions::
+SetHelpTips() {
 
   m_actions["showHideRoadmap"]->setWhatsThis(tr("Click this button"
         " to visualize the <b>Roadmap</b>. You can also select the"
@@ -330,13 +362,15 @@ RoadmapOptions::SetHelpTips(){
 //Slots
 
 void
-RoadmapOptions::ShowRoadmap(){
+RoadmapOptions::
+ShowRoadmap() {
   GetVizmo().GetMap()->SetRenderMode(m_actions["showHideRoadmap"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-RoadmapOptions::ClickRobot() {
+RoadmapOptions::
+ClickRobot() {
   CfgModel::SetShape(CfgModel::Robot);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
@@ -344,7 +378,8 @@ RoadmapOptions::ClickRobot() {
 }
 
 void
-RoadmapOptions::ClickPoint() {
+RoadmapOptions::
+ClickPoint() {
   CfgModel::SetShape(CfgModel::Point);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
@@ -352,7 +387,8 @@ RoadmapOptions::ClickPoint() {
 }
 
 void
-RoadmapOptions::MakeSolid(){
+RoadmapOptions::
+MakeSolid() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(SOLID_MODE);
@@ -360,7 +396,8 @@ RoadmapOptions::MakeSolid(){
 }
 
 void
-RoadmapOptions::MakeWired(){
+RoadmapOptions::
+MakeWired() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(WIRE_MODE);
@@ -368,7 +405,8 @@ RoadmapOptions::MakeWired(){
 }
 
 void
-RoadmapOptions::MakeInvisible(){
+RoadmapOptions::
+MakeInvisible() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(INVISIBLE_MODE);
@@ -376,41 +414,44 @@ RoadmapOptions::MakeInvisible(){
 }
 
 void
-RoadmapOptions::ShowNodeSizeDialog(){
+RoadmapOptions::
+ShowNodeSizeDialog() {
 
   //For now, resizing only enabled for point abstraction. For robot,
   //would require extensive local coordinate system aspects
-  if(CfgModel::GetShape() != CfgModel::Robot)
-    m_nodeSizeDialog->show();
+  if(CfgModel::GetShape() != CfgModel::Robot){
+    m_mainWindow->ShowDialog(m_nodeSizeDialog);
+  }
   else
     AlertUser("You can only resize the nodes in <b>Point</b> mode.");
 }
 
 void
-RoadmapOptions::ScaleNodes(){
+RoadmapOptions::
+ScaleNodes() {
   double resize = m_nodeSizeDialog->GetSliderValue() / 1000;
   CfgModel::Scale(resize);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-RoadmapOptions::ShowEdgeThicknessDialog(){
-  m_edgeThicknessDialog->show();
+RoadmapOptions::
+ShowEdgeThicknessDialog() {
+  m_mainWindow->ShowDialog(m_edgeThicknessDialog);
 }
 
 void
-RoadmapOptions::ChangeEdgeThickness(){
+RoadmapOptions::
+ChangeEdgeThickness() {
   double resize = m_edgeThicknessDialog->GetSliderValue() / 100;
   EdgeModel::m_edgeThickness = resize;
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-RoadmapOptions::ShowNodeEditDialog(){
-
+RoadmapOptions::
+ShowNodeEditDialog() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  Map* map = GetVizmo().GetMap();
-  Graph* graph = map->GetGraph();
 
   //Filter out incident edges and just use one node if multiple selected
   bool nodeSelected = false;
@@ -427,63 +468,15 @@ RoadmapOptions::ShowNodeEditDialog(){
     return;
   }
 
-  CfgModel* nodePreview = new CfgModel(*actualNode);
-  map->GetTempCfgs().push_back(nodePreview);
-
-  vector<EdgeModel*>& tempEdges = map->GetTempEdges();
-  vector<EID> eids; //Save for edge removals if needed later
-  VID nodeID = nodePreview->GetIndex();
-  VI vi = graph->find_vertex(nodeID);
-
-  for(EI ei = vi->begin(); ei != vi->end(); ++ei){
-    eids.push_back((*ei).descriptor());
-    EdgeModel* edgePreview = new EdgeModel((*ei).property());
-    edgePreview->Set(nodePreview, &(graph->find_vertex((*ei).target())->property()));
-    tempEdges.push_back(edgePreview);
-  }
-
-  NodeEditDialog n(this, nodePreview, m_mainWindow->GetGLScene(), nodePreview->Name());
-  n.SetCurrentEdges(&tempEdges);
-
-  if(n.exec() == QDialog::Accepted){
-    if(nodePreview->IsValid()){
-      actualNode->SetCfg(nodePreview->GetDataCfg());
-
-      for(size_t i = 0; i < tempEdges.size(); i++){
-        //Transfer modified weights from preview edges to actual edges (BOTH
-        //directions)
-        if(tempEdges[i]->IsValid()){
-          VI viTemp, viTemp2;
-          EI eiTemp, eiTemp2;
-          graph->find_edge(eids[i], viTemp, eiTemp);
-          graph->find_edge(EID(eids[i].target(), eids[i].source()), viTemp2, eiTemp2);
-          (*eiTemp).property().SetWeight(tempEdges[i]->GetWeight());
-          (*eiTemp2).property().SetWeight(tempEdges[i]->GetWeight());
-        }
-        else{
-          graph->delete_edge(eids[i]);
-          graph->delete_edge(eids[i].target(), eids[i].source());
-        }
-      }
-    }
-    else
-      AlertUser("Invalid configuration!");
-
-  map->RefreshMap();
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLScene()->updateGL();
-  }
-  sel.clear();
-  map->ClearTempItems();
+  NodeEditDialog* ned = new NodeEditDialog(m_mainWindow, actualNode->Name(),
+      actualNode);
+  m_mainWindow->ShowDialog(ned);
 }
 
 void
-RoadmapOptions::ShowEdgeEditDialog(){
-
+RoadmapOptions::
+ShowEdgeEditDialog() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  Map* map = GetVizmo().GetMap();
-  Graph* graph = map->GetGraph();
-  vector<EdgeModel*>& tempEdges = map->GetTempEdges();
 
   bool edgeSelected = false;
   EdgeModel* actualEdge;
@@ -499,62 +492,20 @@ RoadmapOptions::ShowEdgeEditDialog(){
     return;
   }
 
-  EdgeModel* edgePreview = new EdgeModel(*actualEdge);
-  edgePreview->Set(actualEdge->GetStartCfg(), actualEdge->GetEndCfg());
-  tempEdges.push_back(edgePreview);
-
-  EdgeEditDialog ed(this, edgePreview, m_mainWindow->GetGLScene());
-
-  if(ed.exec() == QDialog::Accepted){
-    if(edgePreview->IsValid()){
-      actualEdge->SetIntermediates(edgePreview->GetIntermediates());
-      actualEdge->SetWeight(edgePreview->GetWeight());
-      //Apply settings to other direction
-      VI viTemp;
-      EI eiTemp;
-      graph->find_edge(EID(actualEdge->GetEndCfg()->GetIndex(), actualEdge->GetStartCfg()->GetIndex()), viTemp, eiTemp);
-      (*eiTemp).property().SetIntermediates(edgePreview->GetIntermediates());
-      (*eiTemp).property().SetWeight(edgePreview->GetWeight());
-    }
-    else
-      //For now, user must start all over again in this case
-      AlertUser("Invalid edge!");
-    sel.clear();
-    map->RefreshMap();
-    m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLScene()->updateGL();
-  }
-  sel.clear();
-  map->ClearTempItems();
+  EdgeEditDialog* eed = new EdgeEditDialog(m_mainWindow, actualEdge);
+  m_mainWindow->ShowDialog(eed);
 }
 
 void
-RoadmapOptions::AddNode(){
-
-  Map* map = GetVizmo().GetMap();
-  Graph* graph = map->GetGraph();
-
-  CfgModel* previewNode = new CfgModel();
-  map->GetTempCfgs().push_back(previewNode);
-  NodeEditDialog n(this, previewNode, m_mainWindow->GetGLScene(), "New Node");
-
-  if(n.exec() == QDialog::Accepted){
-    if(previewNode->IsValid()){
-      CfgModel newNode = *previewNode;
-      newNode.SetRenderMode(SOLID_MODE);
-      graph->add_vertex(newNode);
-      map->RefreshMap();
-      m_mainWindow->GetModelSelectionWidget()->ResetLists();
-      m_mainWindow->GetGLScene()->updateGL();
-    }
-    else
-      AlertUser("Cannot add invalid node!");
-  }
-  map->ClearTempItems();
+RoadmapOptions::
+AddNode() {
+  NodeEditDialog* ned = new NodeEditDialog(m_mainWindow, "New Node");
+  m_mainWindow->ShowDialog(ned);
 }
 
 void
-RoadmapOptions::AddStraightLineEdge(){
+RoadmapOptions::
+AddStraightLineEdge() {
 //By default, just attempts straight line and does not pop up EdgeEditDialog
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
@@ -599,7 +550,8 @@ RoadmapOptions::AddStraightLineEdge(){
 }
 
 void
-RoadmapOptions::DeleteSelectedItems(){
+RoadmapOptions::
+DeleteSelectedItems() {
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   Map* map = GetVizmo().GetMap();
@@ -648,8 +600,8 @@ RoadmapOptions::DeleteSelectedItems(){
 }
 
 void
-RoadmapOptions::MergeSelectedNodes(){
-
+RoadmapOptions::
+MergeSelectedNodes() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   vector<CfgModel*> selNodes;
   Map* map = GetVizmo().GetMap();
@@ -672,93 +624,46 @@ RoadmapOptions::MergeSelectedNodes(){
   }
   if(nodesSelected == false){
     AlertUser("Please select a group of nodes.");
-      return;
+    return;
   }
 
   *superPreview /= numSelected;
 
-  //Mark selected vertices for removal and save ids for edge addition
+  //Mark selected vertices for removal
   vector<VID> toDelete;
-  vector<VID> toAdd;
-
+  vector<VID> toConnect;
   typedef vector<CfgModel*>::iterator NIT;
   for(NIT it = selNodes.begin(); it != selNodes.end(); it++){
     VID selectedID = (*it)->GetIndex();
     toDelete.push_back(selectedID);
     VI vi = graph->find_vertex(selectedID);
+    std::map<VID, bool> superTargets;
     for(EI ei = vi->begin(); ei != vi->end(); ++ei){
-      //Avoid saving selected node ids..better way to do this?!
-      bool newEdge = true;
-      for(NIT it2 = selNodes.begin(); it2 != selNodes.end(); it2++){
-        if(**it2 == graph->find_vertex((*ei).target())->property()){
-          newEdge = false;
-          break;
-        }
+      VID targetVID = (*ei).target();
+      if(superTargets.count(targetVID) == 0) {
+        superTargets[targetVID] = true;
+        toConnect.push_back(targetVID);
       }
-      if(newEdge)
-        toAdd.push_back((*ei).target());
     }
-  }
-
-  map->GetTempCfgs().push_back(superPreview);
-
-  typedef vector<VID>::iterator VIT;
-  vector<EdgeModel*>& tempEdges = map->GetTempEdges();
-  for(VIT it = toAdd.begin(); it != toAdd.end(); it++){
-    EdgeModel* edgePreview = new EdgeModel();
-    CfgModel& c = graph->find_vertex(*it)->property();
-    edgePreview->Set(superPreview, &c);
-    tempEdges.push_back(edgePreview);
   }
 
   m_mainWindow->GetGLScene()->updateGL();
 
-  NodeEditDialog n(this, superPreview, m_mainWindow->GetGLScene(), "New Supervertex");
-  n.SetCurrentEdges(&tempEdges);
-
-  if(n.exec() == QDialog::Accepted){
-    if(superPreview->IsValid()){
-      CfgModel super = *superPreview;
-      super.SetRenderMode(SOLID_MODE);
-      Map::VID superID = graph->add_vertex(super);
-
-      //Add and assign weights to the valid new edges
-      for(size_t i = 0; i < tempEdges.size(); i++){
-        if(tempEdges[i]->IsValid()){
-          graph->add_edge(superID, toAdd[i]);
-          graph->add_edge(toAdd[i], superID);
-          VI viTemp, viTemp2;
-          EI eiTemp, eiTemp2;
-          graph->find_edge(EID(superID, toAdd[i]), viTemp, eiTemp);
-          graph->find_edge(EID(toAdd[i], superID), viTemp2, eiTemp2);
-          (*eiTemp).property().SetWeight(tempEdges[i]->GetWeight());
-          (*eiTemp2).property().SetWeight(tempEdges[i]->GetWeight());
-        }
-      }
-      //Remove selected vertices
-      for(VIT it = toDelete.begin(); it != toDelete.end(); it++)
-        graph->delete_vertex(*it);
-
-      map->RefreshMap();
-    }
-    else
-      AlertUser("Invalid merge!");
-  }
-
-  sel.clear();
-  map->ClearTempItems();
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLScene()->updateGL();
+  NodeEditDialog* ned = new NodeEditDialog(m_mainWindow, "New Supervertex",
+      superPreview, toConnect, toDelete);
+  m_mainWindow->ShowDialog(ned);
 }
 
 void
-RoadmapOptions::RandomizeCCColors(){
+RoadmapOptions::
+RandomizeCCColors() {
   GetVizmo().GetMap()->RandomizeCCColors();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-RoadmapOptions::MakeCCsOneColor(){
+RoadmapOptions::
+MakeCCsOneColor() {
   QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
   if(color.isValid()) {
     float r = color.red()/255.;
@@ -769,7 +674,8 @@ RoadmapOptions::MakeCCsOneColor(){
 }
 
 void
-RoadmapOptions::ShowObjectContextMenu(){
+RoadmapOptions::
+ShowObjectContextMenu() {
 
   QMenu cm(this);
   cm.addAction(m_actions["makeSolid"]);
@@ -800,7 +706,8 @@ RoadmapOptions::ShowObjectContextMenu(){
 }
 
 void
-RoadmapOptions::ChangeObjectColor(){
+RoadmapOptions::
+ChangeObjectColor() {
 
   QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
   double r, g, b;

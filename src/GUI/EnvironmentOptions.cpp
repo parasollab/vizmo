@@ -7,6 +7,7 @@
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 #include "ObstaclePosDialog.h"
+
 #include "Models/EnvModel.h"
 #include "Models/RegionBoxModel.h"
 #include "Models/RegionBox2DModel.h"
@@ -32,16 +33,22 @@
 
 #include "Utilities/AlertUser.h"
 
-EnvironmentOptions::EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow), m_regionsStarted(false), m_threadDone(true), m_thread(NULL) {
-    CreateActions();
-    SetUpCustomSubmenu();
-    SetUpToolbar();
-    SetHelpTips();
-  }
+//<<<<<<< .working
+EnvironmentOptions::
+EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow) :
+    OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
+    m_threadDone(true), m_thread(NULL), m_editRobotDialog(NULL),
+    m_changeBoundaryDialog(NULL) {
+  CreateActions();
+  SetUpCustomSubmenu();
+  //SetUpToolbar(); currently using tool tabs
+  SetUpToolTab();
+  SetHelpTips();
+}
 
 void
-EnvironmentOptions::RefreshEnv(){
+EnvironmentOptions::
+RefreshEnv() {
   GetVizmo().GetEnv()->SetRenderMode(SOLID_MODE);
   m_mainWindow->GetModelSelectionWidget()->reset();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
@@ -49,13 +56,15 @@ EnvironmentOptions::RefreshEnv(){
 }
 
 void
-EnvironmentOptions::RandomizeEnvColors(){
+EnvironmentOptions::
+RandomizeEnvColors() {
   GetVizmo().GetEnv()->ChangeColor();
   m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-EnvironmentOptions::AddObstacle(){
+EnvironmentOptions::
+AddObstacle() {
   QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
       QString::null, "Files  (*.g *.obj)");
 
@@ -74,16 +83,16 @@ EnvironmentOptions::AddObstacle(){
     RefreshEnv();
 
     vector<MultiBodyModel*> v(1, m);
-    ObstaclePosDialog o(v, m_mainWindow, this);
-    if(o.exec() != QDialog::Accepted)
-      return;
+    ObstaclePosDialog* opd = new ObstaclePosDialog(m_mainWindow, v);
+    m_mainWindow->ShowDialog(opd);
   }
   else
     m_mainWindow->statusBar()->showMessage("Loading aborted");
 }
 
 void
-EnvironmentOptions::DeleteObstacle(){
+EnvironmentOptions::
+DeleteObstacle() {
   vector<MultiBodyModel*> toDel;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
@@ -97,7 +106,7 @@ EnvironmentOptions::DeleteObstacle(){
   if(toDel.empty() || toDel.size() != sel.size())
     AlertUser("Must select one or more non-active multibodies only.");
 
-  //successful selection, show ObstaclePosDialog
+  //successful selection, delete obstacle(s)
   else {
     typedef vector<MultiBodyModel*>::iterator MIT;
     for(MIT mit = toDel.begin(); mit != toDel.end(); ++mit)
@@ -109,7 +118,8 @@ EnvironmentOptions::DeleteObstacle(){
 }
 
 void
-EnvironmentOptions::MoveObstacle(){
+EnvironmentOptions::
+MoveObstacle() {
   vector<MultiBodyModel*> toMove;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
@@ -125,14 +135,14 @@ EnvironmentOptions::MoveObstacle(){
 
   //successful selection, show ObstaclePosDialog
   else {
-    ObstaclePosDialog o(toMove, m_mainWindow, this);
-    o.exec();
-    RefreshEnv();
+    ObstaclePosDialog* opd = new ObstaclePosDialog(m_mainWindow, toMove);
+    m_mainWindow->ShowDialog(opd);
   }
 }
 
 void
-EnvironmentOptions::DuplicateObstacles() {
+EnvironmentOptions::
+DuplicateObstacles() {
   vector<MultiBodyModel*> toCopy;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator SIT;
@@ -156,40 +166,41 @@ EnvironmentOptions::DuplicateObstacles() {
     sel.clear();
     copy(copies.begin(), copies.end(), back_inserter(sel));
 
-    ObstaclePosDialog o(copies, m_mainWindow, this);
-    o.exec();
-
-    RefreshEnv();
+    ObstaclePosDialog* opd = new ObstaclePosDialog(m_mainWindow, copies);
+    m_mainWindow->ShowDialog(opd);
   }
 }
 
 void
-EnvironmentOptions::ChangeBoundaryForm(){
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  //alert that only the boundary should be selected
-  if(sel.size() != 1 || !(sel[0]->Name() == "Bounding Box" || sel[0]->Name() == "Bounding Sphere"))
-    AlertUser("Must select only the boundary.");
-
-  //successful selection, show ChangeBoundaryDialog
-  else {
-    ChangeBoundaryDialog c(this);
-    if(c.exec() != QDialog::Accepted)
-      return;
-    sel.clear();
-    sel.push_back(GetVizmo().GetEnv()->GetBoundary());
-    RefreshEnv();
+EnvironmentOptions::
+ChangeBoundaryForm() {
+  if(m_changeBoundaryDialog == NULL) {
+    vector<Model*>& sel = GetVizmo().GetSelectedModels();
+    //alert that only the boundary should be selected
+    if(sel.size() != 1 || !(sel[0]->Name() == "Bounding Box" ||
+          sel[0]->Name() == "Bounding Sphere")) {
+      AlertUser("Must select only the boundary.");
+    }
+    //successful selection, show ChangeBoundaryDialog
+    else {
+      m_changeBoundaryDialog = new ChangeBoundaryDialog(m_mainWindow);
+      m_mainWindow->ShowDialog(m_changeBoundaryDialog);
+    }
   }
 }
 
-void EnvironmentOptions::EditRobot() {
-  EditRobotDialog e(m_mainWindow, this);
-  if(e.exec() != QDialog::Accepted)
-    return;
-  RefreshEnv();
+void
+EnvironmentOptions::
+EditRobot() {
+  if(m_editRobotDialog == NULL) {
+    m_editRobotDialog = new EditRobotDialog(m_mainWindow);
+    m_mainWindow->ShowDialog(m_editRobotDialog);
+  }
 }
 
 void
-EnvironmentOptions::AddRegionBox() {
+EnvironmentOptions::
+AddRegionBox() {
   if(!m_regionsStarted) {
     GetVizmo().StartClock("Pre-regions");
     m_regionsStarted = true;
@@ -204,7 +215,6 @@ EnvironmentOptions::AddRegionBox() {
   else r = new RegionBoxModel();
 
   //add region to environment
-  //RegionBoxModel* r = new RegionBoxModel();
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   //set mouse events to current region for GLWidget
@@ -216,7 +226,8 @@ EnvironmentOptions::AddRegionBox() {
 }
 
 void
-EnvironmentOptions::AddRegionSphere() {
+EnvironmentOptions::
+AddRegionSphere() {
   if(!m_regionsStarted) {
     GetVizmo().StartClock("Pre-regions");
     m_regionsStarted = true;
@@ -231,7 +242,6 @@ EnvironmentOptions::AddRegionSphere() {
   else r = new RegionSphereModel();
 
   //add region to environment
-  //RegionSphereModel* r = new RegionSphereModel();
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   //set mouse events to current region for GLWidget
@@ -243,7 +253,8 @@ EnvironmentOptions::AddRegionSphere() {
 }
 
 void
-EnvironmentOptions::DeleteRegion() {
+EnvironmentOptions::
+DeleteRegion() {
   RegionModel* r = m_mainWindow->GetGLScene()->GetCurrentRegion();
   if(r) {
     GetVizmo().GetEnv()->DeleteRegion(r);
@@ -254,17 +265,20 @@ EnvironmentOptions::DeleteRegion() {
 }
 
 void
-EnvironmentOptions::MakeRegionAttract() {
+EnvironmentOptions::
+MakeRegionAttract() {
   ChangeRegionType(true);
 }
 
 void
-EnvironmentOptions::MakeRegionAvoid() {
+EnvironmentOptions::
+MakeRegionAvoid() {
   ChangeRegionType(false);
 }
 
 void
-EnvironmentOptions::ChangeRegionType(bool _attract) {
+EnvironmentOptions::
+ChangeRegionType(bool _attract) {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   //alert that only the boundary should be selected
   if(sel.size() == 1 && (sel[0]->Name() == "Box Region" || sel[0]->Name() == "Sphere Region"
@@ -278,13 +292,15 @@ EnvironmentOptions::ChangeRegionType(bool _attract) {
 }
 
 void
-EnvironmentOptions::HandleTimer() {
+EnvironmentOptions::
+HandleTimer() {
   m_mainWindow->GetGLScene()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }
 
 void
-EnvironmentOptions::ThreadDone() {
+EnvironmentOptions::
+ThreadDone() {
   m_threadDone = true;
 
   //disconnect and delete timer
@@ -299,7 +315,8 @@ EnvironmentOptions::ThreadDone() {
 }
 
 void
-EnvironmentOptions::MapEnvironment() {
+EnvironmentOptions::
+MapEnvironment() {
   if(m_threadDone) {
     //stop timer for before regions
     GetVizmo().StopClock("Pre-regions");
@@ -328,7 +345,8 @@ EnvironmentOptions::MapEnvironment() {
 }
 
 void
-EnvironmentOptions::CreateActions(){
+EnvironmentOptions::
+CreateActions() {
 
   //1. Create actions and add them to the map
   QAction* refreshEnv = new QAction(QPixmap(refreshenv), tr("Refresh"), this);
@@ -395,7 +413,8 @@ EnvironmentOptions::CreateActions(){
 }
 
 void
-EnvironmentOptions::SetUpCustomSubmenu(){
+EnvironmentOptions::
+SetUpCustomSubmenu() {
   m_submenu = new QMenu("Environment", this);
   m_submenu->addAction(m_actions["refreshEnv"]);
   m_submenu->addAction(m_actions["randEnvColors"]);
@@ -417,7 +436,8 @@ EnvironmentOptions::SetUpCustomSubmenu(){
 }
 
 void
-EnvironmentOptions::SetUpToolbar(){
+EnvironmentOptions::
+SetUpToolbar() {
   m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["randEnvColors"]);
   m_toolbar->addAction(m_actions["addRegionSphere"]);
@@ -429,7 +449,37 @@ EnvironmentOptions::SetUpToolbar(){
 }
 
 void
-EnvironmentOptions::Reset(){
+EnvironmentOptions::
+SetUpToolTab() {
+  vector<string> buttonList;
+
+  //row 1 & 2 - env modification tools
+  buttonList.push_back("addObstacle");
+  buttonList.push_back("deleteObstacle");
+  buttonList.push_back("moveObstacle");
+  buttonList.push_back("duplicateObstacle");
+  buttonList.push_back("changeBoundary");
+  buttonList.push_back("editRobot");
+  buttonList.push_back("_separator_");
+
+  //row 3 & 4 - region tools
+  buttonList.push_back("addRegionSphere");
+  buttonList.push_back("addRegionBox");
+  buttonList.push_back("deleteRegion");
+  buttonList.push_back("makeRegionAttract");
+  buttonList.push_back("makeRegionAvoid");
+  buttonList.push_back("ugmp");
+  buttonList.push_back("_separator_");
+
+  //row 5 - general env tools
+  buttonList.push_back("randEnvColors");
+
+  CreateToolTab(buttonList);
+}
+
+void
+EnvironmentOptions::
+Reset() {
   m_actions["refreshEnv"]->setEnabled(true);
   m_actions["randEnvColors"]->setEnabled(true);
   m_actions["addObstacle"]->setEnabled(true);
@@ -448,7 +498,8 @@ EnvironmentOptions::Reset(){
 }
 
 void
-EnvironmentOptions::SetHelpTips(){
+EnvironmentOptions::
+SetHelpTips() {
   m_actions["randEnvColors"]->setWhatsThis(tr("Click this button to"
         " randomize the colors of the environment objects."));
   m_actions["addObstacle"]->setWhatsThis(tr("Add obstacle button"));
@@ -466,7 +517,8 @@ EnvironmentOptions::SetHelpTips(){
 }
 
 void
-MapEnvironmentWorker::Solve() {
+MapEnvironmentWorker::
+Solve() {
   //clear any map and path currently loaded
   //delete GetVizmo().GetMap();
   //delete GetVizmo().GetPath();
