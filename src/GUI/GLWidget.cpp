@@ -9,6 +9,7 @@
 #include "MainWindow.h"
 #include "Models/EnvModel.h"
 #include "Models/RegionModel.h"
+#include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
 
 #include "Utilities/Camera.h"
@@ -22,7 +23,7 @@ bool SHIFT_CLICK = false;
 //This class handle opengl features
 
 GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
-  : QGLWidget(_parent), m_transformTool(m_cameraFactory.GetCurrentCamera()), m_currentRegion(NULL) {
+  : QGLWidget(_parent), m_transformTool(m_cameraFactory.GetCurrentCamera()), m_currentRegion(NULL), m_currentUserPath(NULL) {
     m_mainWindow = _mainWindow;
     setMinimumSize(271, 211); //original size: 400 x 600
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -156,8 +157,11 @@ GLWidget::mousePressEvent(QMouseEvent* _e){
   }
   else if(!m_transformTool.MousePressed(_e)) {
     if((m_currentRegion && !m_currentRegion->MousePressed(_e, GetCurrentCamera()))
-        || !m_currentRegion)
-      m_pickBox.MousePressed(_e);
+        || !m_currentRegion) {
+      if((m_currentUserPath && !m_currentUserPath->MousePressed(_e, GetCurrentCamera())) ||
+          !m_currentUserPath)
+        m_pickBox.MousePressed(_e);
+    }
   }
 
   updateGL();
@@ -188,6 +192,8 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
     handled = true;
   else if(m_currentRegion)
     handled = m_currentRegion->MouseReleased(_e, GetCurrentCamera());
+  else if(m_currentUserPath)
+    handled = m_currentUserPath->MouseReleased(_e, GetCurrentCamera());
 
   if(handled){ //handled by gli
     updateGL();
@@ -297,7 +303,8 @@ void
 GLWidget::mouseMoveEvent(QMouseEvent* _e) {
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion
-    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e, GetCurrentCamera())))
+    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e, GetCurrentCamera()))
+        && !(m_currentUserPath && m_currentUserPath->PassiveMouseMotion(_e, GetCurrentCamera())))
       m_pickBox.PassiveMouseMotion(_e);
     updateGL();
   }
@@ -309,8 +316,11 @@ GLWidget::mouseMoveEvent(QMouseEvent* _e) {
     }
     else if(!m_transformTool.MouseMotion(_e)) {
       if((m_currentRegion && !m_currentRegion->MouseMotion(_e, GetCurrentCamera()))
-          || !m_currentRegion)
-        m_pickBox.MouseMotion(_e);
+          || !m_currentRegion ) {
+        if((m_currentUserPath && !m_currentUserPath->MouseMotion(_e, GetCurrentCamera())) ||
+            !m_currentUserPath)
+          m_pickBox.MouseMotion(_e);
+      }
     }
 
     updateGL();

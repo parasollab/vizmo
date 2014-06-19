@@ -17,6 +17,7 @@ using namespace std;
 
 class MainWindow;
 class RegionModel;
+class UserPathModel;
 
 class GLWidget : public QGLWidget {
 
@@ -44,6 +45,9 @@ class GLWidget : public QGLWidget {
 
     RegionModel* GetCurrentRegion() { return m_currentRegion;}
     void SetCurrentRegion(RegionModel* _r) {m_currentRegion = _r;}
+
+    UserPathModel* GetCurrentUserPath() {return m_currentUserPath;}
+    void SetCurrentUserPath(UserPathModel* _p) {m_currentUserPath = _p;}
 
   signals:
     void selectByRMB();
@@ -96,6 +100,7 @@ class GLWidget : public QGLWidget {
     PickBox m_pickBox;
 
     RegionModel* m_currentRegion;
+    UserPathModel* m_currentUserPath;
 };
 
 #endif

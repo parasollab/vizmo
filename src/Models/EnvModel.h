@@ -9,6 +9,7 @@
 #include "RegionModel.h"
 
 class TempObjsModel;
+class UserPathModel;
 
 class EnvModel : public LoadableModel {
 
@@ -39,6 +40,10 @@ class EnvModel : public LoadableModel {
     void AddNonCommitRegion(RegionModel* _r) {m_nonCommitRegions.push_back(_r);}
     void ChangeRegionType(RegionModel* _r, bool _attract);
     void DeleteRegion(RegionModel* _r);
+
+    //Paths
+    void AddUserPath(UserPathModel* _p) {m_userPaths.push_back(_p);}
+    void DeleteUserPath(UserPathModel* _p);
 
     //Temporary Objects
     void AddTempObjs(TempObjsModel* _t) {m_tempObjs.push_back(_t);}
@@ -84,6 +89,7 @@ class EnvModel : public LoadableModel {
 
     vector<RegionModel*> m_attractRegions, m_avoidRegions, m_nonCommitRegions;
 
+    vector<UserPathModel*> m_userPaths;
     vector<TempObjsModel*> m_tempObjs;
 
     //PMPL environment

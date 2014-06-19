@@ -19,4 +19,5 @@ OBJECTS += \
 	   Models/RegionSphere2DModel.o \
 	   Models/RobotModel.o \
 	   Models/TempObjsModel.o \
+	   Models/UserPathModel.o \
 	   Models/Vizmo.o

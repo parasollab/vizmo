@@ -14,6 +14,7 @@
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
 #include "Models/RobotModel.h"
+#include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/AddSphereRegion.xpm"
@@ -30,15 +31,17 @@
 #include "Icons/ChangeBoundary.xpm"
 #include "Icons/EditRobot.xpm"
 #include "Icons/RefreshEnv.xpm"
+#include "Icons/UserPath.xpm"
+#include "Icons/DeleteUserPath.xpm"
+#include "Icons/PrintUserPath.xpm"
 
 #include "Utilities/AlertUser.h"
 
-//<<<<<<< .working
 EnvironmentOptions::
 EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow) :
     OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
-    m_threadDone(true), m_thread(NULL), m_editRobotDialog(NULL),
-    m_changeBoundaryDialog(NULL) {
+    m_threadDone(true), m_thread(NULL), m_userPathCount(0),
+    m_editRobotDialog(NULL), m_changeBoundaryDialog(NULL) {
   CreateActions();
   SetUpCustomSubmenu();
   //SetUpToolbar(); currently using tool tabs
@@ -293,6 +296,49 @@ ChangeRegionType(bool _attract) {
 
 void
 EnvironmentOptions::
+AddUserPath() {
+  UserPathModel* p = new UserPathModel();
+  GetVizmo().GetEnv()->AddUserPath(p);
+
+  //set mouse events to current path for GLWidget
+  m_mainWindow->GetGLScene()->SetCurrentUserPath(p);
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  GetVizmo().GetSelectedModels().clear();
+  GetVizmo().GetSelectedModels().push_back(p);
+  m_mainWindow->GetModelSelectionWidget()->Select();
+}
+
+void
+EnvironmentOptions::
+DeleteUserPath() {
+  UserPathModel* p = m_mainWindow->GetGLScene()->GetCurrentUserPath();
+  if(p) {
+    GetVizmo().GetEnv()->DeleteUserPath(p);
+    GetVizmo().GetSelectedModels().clear();
+    m_mainWindow->GetModelSelectionWidget()->ResetLists();
+    m_mainWindow->GetGLScene()->SetCurrentUserPath(NULL);
+  }
+}
+
+void
+EnvironmentOptions::
+PrintUserPath() {
+  UserPathModel* p = m_mainWindow->GetGLScene()->GetCurrentUserPath();
+  if(p) {
+    ++m_userPathCount;
+    string base = GetVizmo().GetEnvFileName();
+    ostringstream fileName;
+    fileName << base.substr(0, base.size() - 4) << "."
+             << m_userPathCount << ".user.path";
+    ofstream pos(fileName.str().c_str());
+    pos << "Workspace Path" << endl << "1" << endl;
+    p->PrintPath(pos);
+    pos.close();
+  }
+}
+
+void
+EnvironmentOptions::
 HandleTimer() {
   m_mainWindow->GetGLScene()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
@@ -377,6 +423,12 @@ CreateActions() {
   m_actions["makeRegionAvoid"] = makeRegionAvoid;
   QAction* ugmp = new QAction(QPixmap(mapenv), tr("Map Environment"), this);
   m_actions["ugmp"] = ugmp;
+  QAction* addUserPath = new QAction(QPixmap(adduserpath), tr("Add User Path"), this);
+  m_actions["addUserPath"] = addUserPath;
+  QAction* deleteUserPath = new QAction(QPixmap(deleteuserpath), tr("Delete User Path"), this);
+  m_actions["deleteUserPath"] = deleteUserPath;
+  QAction* printUserPath = new QAction(QPixmap(printuserpath), tr("Print User Path"), this);
+  m_actions["printUserPath"] = printUserPath;
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -394,6 +446,9 @@ CreateActions() {
   m_actions["makeRegionAttract"]->setEnabled(false);
   m_actions["makeRegionAvoid"]->setEnabled(false);
   m_actions["ugmp"]->setEnabled(false);
+  m_actions["addUserPath"]->setEnabled(false);
+  m_actions["deleteUserPath"]->setEnabled(false);
+  m_actions["printUserPath"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()), this, SLOT(RefreshEnv()));
@@ -410,6 +465,9 @@ CreateActions() {
   connect(m_actions["makeRegionAttract"], SIGNAL(triggered()), this, SLOT(MakeRegionAttract()));
   connect(m_actions["makeRegionAvoid"], SIGNAL(triggered()), this, SLOT(MakeRegionAvoid()));
   connect(m_actions["ugmp"], SIGNAL(triggered()), this, SLOT(MapEnvironment()));
+  connect(m_actions["addUserPath"], SIGNAL(triggered()), this, SLOT(AddUserPath()));
+  connect(m_actions["deleteUserPath"], SIGNAL(triggered()), this, SLOT(DeleteUserPath()));
+  connect(m_actions["printUserPath"], SIGNAL(triggered()), this, SLOT(PrintUserPath()));
 }
 
 void
@@ -432,6 +490,9 @@ SetUpCustomSubmenu() {
   m_submenu->addAction(m_actions["makeRegionAttract"]);
   m_submenu->addAction(m_actions["makeRegionAvoid"]);
   m_submenu->addAction(m_actions["ugmp"]);
+  m_submenu->addAction(m_actions["addUserPath"]);
+  m_submenu->addAction(m_actions["deleteUserPath"]);
+  m_submenu->addAction(m_actions["printUserPath"]);
   m_obstacleMenu->setEnabled(false);
 }
 
@@ -446,6 +507,9 @@ SetUpToolbar() {
   m_toolbar->addAction(m_actions["makeRegionAttract"]);
   m_toolbar->addAction(m_actions["makeRegionAvoid"]);
   m_toolbar->addAction(m_actions["ugmp"]);
+  m_toolbar->addAction(m_actions["addUserPath"]);
+  m_toolbar->addAction(m_actions["deleteUserPath"]);
+  m_toolbar->addAction(m_actions["printUserPath"]);
 }
 
 void
@@ -471,7 +535,13 @@ SetUpToolTab() {
   buttonList.push_back("ugmp");
   buttonList.push_back("_separator_");
 
-  //row 5 - general env tools
+  //row 5 - path tools
+  buttonList.push_back("addUserPath");
+  buttonList.push_back("deleteUserPath");
+  buttonList.push_back("printUserPath");
+  buttonList.push_back("_separator_");
+
+  //row 6 - general env tools
   buttonList.push_back("randEnvColors");
 
   CreateToolTab(buttonList);
@@ -494,6 +564,9 @@ Reset() {
   m_actions["makeRegionAttract"]->setEnabled(true);
   m_actions["makeRegionAvoid"]->setEnabled(true);
   m_actions["ugmp"]->setEnabled(true);
+  m_actions["addUserPath"]->setEnabled(true);
+  m_actions["deleteUserPath"]->setEnabled(true);
+  m_actions["printUserPath"]->setEnabled(true);
   m_obstacleMenu->setEnabled(true);
 }
 
@@ -514,6 +587,9 @@ SetHelpTips() {
   m_actions["makeRegionAttract"]->setWhatsThis(tr("Change a region to attract"));
   m_actions["makeRegionAvoid"]->setWhatsThis(tr("Change a region to avoid"));
   m_actions["ugmp"]->setWhatsThis(tr("Map an environment using region strategy"));
+  m_actions["addUserPath"]->setWhatsThis(tr("Add an approximate path to aid planner"));
+  m_actions["deleteUserPath"]->setWhatsThis(tr("Remove an approximate path from the scene"));
+  m_actions["printUserPath"]->setWhatsThis(tr("Print selected user path to file"));
 }
 
 void

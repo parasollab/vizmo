@@ -8,6 +8,7 @@
 #include "CfgModel.h"
 #include "ConnectionModel.h"
 #include "TempObjsModel.h"
+#include "UserPathModel.h"
 #include "Utilities/VizmoExceptions.h"
 #include "Utilities/IO.h"
 
@@ -40,6 +41,9 @@ EnvModel::
     delete *rit;
   for(RIT rit = m_nonCommitRegions.begin(); rit!=m_nonCommitRegions.end(); ++rit)
     delete *rit;
+  typedef vector<UserPathModel*>::iterator PIT;
+  for(PIT pit = m_userPaths.begin(); pit != m_userPaths.end(); ++pit)
+    delete *pit;
 }
 
 bool
@@ -89,6 +93,17 @@ DeleteRegion(RegionModel* _r) {
         m_nonCommitRegions.erase(rit);
       }
     }
+  }
+}
+
+void
+EnvModel::
+DeleteUserPath(UserPathModel* _p) {
+  vector<UserPathModel*>::iterator pit;
+  pit = find(m_userPaths.begin(), m_userPaths.end(), _p);
+  if(pit != m_userPaths.end()) {
+    delete *pit;
+    m_userPaths.erase(pit);
   }
 }
 
@@ -202,10 +217,12 @@ Select(GLuint* _index, vector<Model*>& _sel) {
   size_t numAttractRegions = m_attractRegions.size();
   size_t numAvoidRegions = m_avoidRegions.size();
   size_t numNonCommitRegions = m_nonCommitRegions.size();
+  size_t numPaths = m_userPaths.size();
+
   //unselect old one
-  if(!_index || *_index > numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions) //input error
+  if(!_index || *_index > numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions + numPaths) //input error
     return;
-  else if(*_index == numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions)
+  else if(*_index == numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions + numPaths)
     m_boundary->Select(_index+1, _sel);
   else if(*_index < numMBs)
     m_multibodies[*_index]->Select(_index+1, _sel);
@@ -213,8 +230,11 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     m_attractRegions[*_index - numMBs]->Select(_index+1, _sel);
   else if(*_index < numMBs + numAttractRegions + numAvoidRegions)
     m_avoidRegions[*_index - numMBs - numAttractRegions]->Select(_index+1, _sel);
-  else
+  else if(*_index < numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions)
     m_nonCommitRegions[*_index - numMBs - numAttractRegions - numAvoidRegions]->Select(_index+1, _sel);
+  else
+    m_userPaths[*_index - numMBs - numAttractRegions - numAvoidRegions - numNonCommitRegions]->Select(_index+1, _sel);
+
 }
 
 void
@@ -224,6 +244,7 @@ DrawRender() {
   size_t numAttractRegions = m_attractRegions.size();
   size_t numAvoidRegions = m_avoidRegions.size();
   size_t numNonCommitRegions = m_nonCommitRegions.size();
+  size_t numPaths = m_userPaths.size();
 
   m_boundary->DrawRender();
 
@@ -241,6 +262,8 @@ DrawRender() {
     m_avoidRegions[i]->DrawRender();
   for(size_t i = 0; i < numNonCommitRegions; ++i)
     m_nonCommitRegions[i]->DrawRender();
+  for(size_t i = 0; i < numPaths; ++i)
+    m_userPaths[i]->DrawRender();
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
 
@@ -257,8 +280,9 @@ DrawSelect() {
   size_t numAttractRegions = m_attractRegions.size();
   size_t numAvoidRegions = m_avoidRegions.size();
   size_t numNonCommitRegions = m_nonCommitRegions.size();
+  size_t numPaths = m_userPaths.size();
 
-  glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions);
+  glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions + numPaths);
   m_boundary->DrawSelect();
   glPopName();
 
@@ -287,6 +311,11 @@ DrawSelect() {
   for(size_t i = 0; i < numNonCommitRegions; ++i) {
     glPushName(numMBs + numAttractRegions + numAvoidRegions + i);
     m_nonCommitRegions[i]->DrawSelect();
+    glPopName();
+  }
+  for(size_t i = 0; i < numPaths; ++i) {
+    glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions + i);
+    m_userPaths[i]->DrawSelect();
     glPopName();
   }
   glDepthMask(GL_TRUE);
@@ -336,6 +365,9 @@ GetChildren(list<Model*>& _models) {
   for(RIT i = m_avoidRegions.begin(); i != m_avoidRegions.end(); ++i)
     _models.push_back(*i);
   for(RIT i = m_nonCommitRegions.begin(); i != m_nonCommitRegions.end(); ++i)
+    _models.push_back(*i);
+  typedef vector<UserPathModel*>::iterator PIT;
+  for(PIT i = m_userPaths.begin(); i != m_userPaths.end(); ++i)
     _models.push_back(*i);
   _models.push_back(m_boundary);
 }

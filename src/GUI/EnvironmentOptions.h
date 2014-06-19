@@ -41,6 +41,10 @@ class EnvironmentOptions : public OptionsBase {
     void MakeRegionAvoid();
     void ChangeRegionType(bool _attract);
 
+    void AddUserPath();
+    void DeleteUserPath();
+    void PrintUserPath();
+
     void HandleTimer();
     void MapEnvironment();
     void ThreadDone();
@@ -57,6 +61,7 @@ class EnvironmentOptions : public OptionsBase {
     QMenu* m_obstacleMenu;
     QThread* m_thread;
     QTimer* m_timer;
+    short m_userPathCount;
 
     QPointer<EditRobotDialog> m_editRobotDialog;
     QPointer<ChangeBoundaryDialog> m_changeBoundaryDialog;

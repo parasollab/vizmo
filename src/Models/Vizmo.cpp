@@ -28,21 +28,24 @@ VizmoProblem*& GetVizmoProblem() {return vizmoProblem;}
 ////////////////////////////////////////////////////////////////////////////////
 // Vizmo
 ////////////////////////////////////////////////////////////////////////////////
-Vizmo::Vizmo() :
+Vizmo::
+Vizmo() :
   m_envModel(NULL),
   m_robotModel(NULL),
   m_mapModel(NULL),
   m_queryModel(NULL),
   m_pathModel(NULL),
   m_debugModel(NULL) {
-  }
+}
 
-Vizmo::~Vizmo() {
+Vizmo::
+~Vizmo() {
   Clean();
 }
 
 bool
-Vizmo::InitModels() {
+Vizmo::
+InitModels() {
   Clean();
 
   try {
@@ -106,7 +109,8 @@ Vizmo::InitModels() {
 }
 
 void
-Vizmo::InitPMPL() {
+Vizmo::
+InitPMPL() {
   //initialize PMPL structures for collision detection
   VizmoProblem*& problem = GetVizmoProblem();
   problem = new VizmoProblem();
@@ -180,7 +184,8 @@ Vizmo::InitPMPL() {
 }
 
 void
-Vizmo::Clean() {
+Vizmo::
+Clean() {
   delete m_envModel;
   delete m_robotModel;
   delete m_mapModel;
@@ -203,7 +208,8 @@ Vizmo::Clean() {
 
 //Display OpenGL Scene
 void
-Vizmo::Draw() {
+Vizmo::
+Draw() {
   typedef vector<Model*>::iterator MIT;
   for(MIT mit = m_loadedModels.begin(); mit!=m_loadedModels.end(); ++mit)
     (*mit)->DrawRender();
@@ -215,7 +221,8 @@ Vizmo::Draw() {
 
 //Select Objects in OpenGL Scene
 void
-Vizmo::Select(const Box& _box) {
+Vizmo::
+Select(const Box& _box) {
   // prepare for selection mode
   GLuint hitBuffer[1024];
   glSelectBuffer(1024, hitBuffer);
@@ -271,7 +278,8 @@ Vizmo::Select(const Box& _box) {
 //////////////////////////////////////////////////
 
 bool
-Vizmo::CollisionCheck(CfgModel& _c) {
+Vizmo::
+CollisionCheck(CfgModel& _c) {
   if(m_envModel) {
     VizmoProblem::ValidityCheckerPointer vc = GetVizmoProblem()->GetValidityChecker("PQP_SOLID");
     bool b = vc->IsValid(_c, "Vizmo");
@@ -283,7 +291,8 @@ Vizmo::CollisionCheck(CfgModel& _c) {
 }
 
 pair<bool, double>
-Vizmo::VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
+Vizmo::
+VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
   if(m_envModel) {
     Environment* env = GetVizmoProblem()->GetEnvironment();
     VizmoProblem::LocalPlannerPointer lp = GetVizmoProblem()->GetLocalPlanner("sl");
@@ -297,7 +306,8 @@ Vizmo::VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
 }
 
 void
-Vizmo::PlaceRobot() {
+Vizmo::
+PlaceRobot() {
   if(m_robotModel){
     vector<double> cfg;
     if(m_queryModel)
@@ -324,7 +334,8 @@ Vizmo::PlaceRobot() {
 //if all, all obj select will be put into m_selectedItems,
 //otherwise only the closest will be selected.
 void
-Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
+Vizmo::
+SearchSelectedItems(int _hit, void* _buffer, bool _all) {
   //init local data
   GLuint* ptr = (GLuint*)_buffer;
   unsigned int* selName = NULL;
@@ -381,13 +392,15 @@ Vizmo::SearchSelectedItems(int _hit, void* _buffer, bool _all) {
 }
 
 void
-Vizmo::StartClock(const string& _c) {
+Vizmo::
+StartClock(const string& _c) {
   m_timers[_c].first.start();
   //GetVizmoProblem()->GetStatClass()->StartClock(_c);
 }
 
 void
-Vizmo::StopClock(const string& _c) {
+Vizmo::
+StopClock(const string& _c) {
   if(m_timers.count(_c))
     m_timers[_c].second = m_timers[_c].first.elapsed()/1000.;
   else
@@ -396,13 +409,15 @@ Vizmo::StopClock(const string& _c) {
 }
 
 void
-Vizmo::PrintClock(const string& _c, ostream& _os) {
+Vizmo::
+PrintClock(const string& _c, ostream& _os) {
   _os << _c << ": " << m_timers[_c].second << " sec" << endl;
   //GetVizmoProblem()->GetStatClass()->PrintClock(_c, _os);
 }
 
 void
-Vizmo::SetPMPLMap() {
+Vizmo::
+SetPMPLMap() {
   if(GetVizmo().IsRoadMapLoaded()) {
     vector<Model*>::iterator mit = find(m_loadedModels.begin(), m_loadedModels.end(), m_mapModel);
     m_loadedModels.erase(mit);
@@ -413,7 +428,8 @@ Vizmo::SetPMPLMap() {
 }
 
 void
-Vizmo::Solve(const string& _strategy) {
+Vizmo::
+Solve(const string& _strategy) {
   SRand(m_seed);
   VizmoProblem::MPStrategyPointer mps = GetVizmoProblem()->GetMPStrategy(_strategy);
   mps->operator()();

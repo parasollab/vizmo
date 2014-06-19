@@ -9,13 +9,13 @@ using namespace std;
 #include "Models/EdgeModel.h"
 
 class Box;
-class Model;
-class EnvModel;
-class RobotModel;
-template<typename, typename> class MapModel;
-class QueryModel;
-class PathModel;
 class DebugModel;
+class EnvModel;
+template<typename, typename> class MapModel;
+class Model;
+class PathModel;
+class QueryModel;
+class RobotModel;
 
 //Define singleton
 class Vizmo;

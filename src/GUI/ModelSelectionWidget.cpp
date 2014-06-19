@@ -84,6 +84,8 @@ ModelSelectionWidget::SelectionChanged(){
       if((*i)->m_model->Name() == "Sphere Region" || (*i)->m_model->Name() == "Box Region" ||
           (*i)->m_model->Name() == "Sphere Region 2D" || (*i)->m_model->Name() == "Box Region 2D" )
         m_glWidget->SetCurrentRegion((RegionModel*)(*i)->m_model);
+      else if((*i)->m_model->Name() == "User Path")
+        m_glWidget->SetCurrentUserPath((UserPathModel*)(*i)->m_model);
       for(int j = 0; j < (*i)->childCount(); j++){ //Select all subcomponents as well
         ListViewItem* child = (ListViewItem*)(*i)->child(j);
           sel.push_back(child->m_model);
@@ -114,6 +116,7 @@ ModelSelectionWidget::Select(){
   //Find selected
   vector<ListViewItem*> selected;
   m_glWidget->SetCurrentRegion(NULL);
+  m_glWidget->SetCurrentUserPath(NULL);
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator MIT;
   for(MIT mit = sel.begin(); mit != sel.end();/* increments conditionally below */) {
@@ -131,6 +134,8 @@ ModelSelectionWidget::Select(){
         if((*mit)->Name() == "Sphere Region" || (*mit)->Name() == "Box Region" ||
             (*mit)->Name() == "Sphere Region 2D" || (*mit)->Name() == "Box Region 2D" )
           m_glWidget->SetCurrentRegion((RegionModel*)(*mit));
+        else if((*mit)->Name() == "User Path")
+          m_glWidget->SetCurrentUserPath((UserPathModel*)(*mit));
       }
     }
     if(!found)
