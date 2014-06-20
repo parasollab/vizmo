@@ -27,6 +27,7 @@ class MainMenu : public QWidget {
     OptionsBase* m_environmentOptions;  //randomize colors button and submenu
     OptionsBase* m_roadmapOptions;      //large toolbar and submenu
     OptionsBase* m_pathOptions;         //2 buttons and submenu
+    OptionsBase* m_planningOptions;
     OptionsBase* m_queryOptions;         //2 buttons and submenu
     OptionsBase* m_captureOptions;      //3 buttons and submenu
     ToolTabOptions* m_toolTabOptions;      //toggle tool tabs on/off
@@ -36,10 +37,10 @@ class MainMenu : public QWidget {
     QAction* m_end;                     //track the last menu item
 
   public slots:
-    void CallReset();
+      void CallReset();
 
   private slots:
-    void SetUpMainMenu();
+      void SetUpMainMenu();
 
   private:
     OptionsBase* m_robotOptions;        //just a submenu

@@ -51,7 +51,7 @@ class MainWindow : public QMainWindow {
     void closeEvent(QCloseEvent* _event);
 
   private slots:
-    void UpdateScreen();  // redraw GL scene
+      void UpdateScreen();  // redraw GL scene
     void HideDialogDock();
 
   private:

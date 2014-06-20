@@ -11,12 +11,14 @@ ToolTabWidget(MainWindow* _mainWindow) : QTabWidget() {
       _mainWindow->m_mainMenu->m_roadmapOptions->GetToolTab());
   m_tabs["Env"] = make_pair("Environment Tools",
       _mainWindow->m_mainMenu->m_environmentOptions->GetToolTab());
-  m_tabs["GL"] = make_pair("GL Options",
+  m_tabs["Display"] = make_pair("GL Options",
       _mainWindow->m_mainMenu->m_glWidgetOptions->GetToolTab());
   m_tabs["Path"] = make_pair("Path Tools",
       _mainWindow->m_mainMenu->m_pathOptions->GetToolTab());
   m_tabs["Query"] = make_pair("Query Tools",
       _mainWindow->m_mainMenu->m_queryOptions->GetToolTab());
+  m_tabs["Planning"] = make_pair("Planning Tools",
+      _mainWindow->m_mainMenu->m_planningOptions->GetToolTab());
 
   //add tabs to tool tab widget
   for(map<string, pair<string, QWidget*> >::iterator mit = m_tabs.begin();

@@ -1,0 +1,66 @@
+/*******************************************************
+ * Class for the "Planning" Submenu
+ */
+
+#ifndef PLANNINGOPTIONS_H_
+#define PLANNINGOPTIONS_H_
+
+#include "OptionsBase.h"
+
+using namespace std;
+
+class PlanningOptions : public OptionsBase {
+
+  Q_OBJECT
+
+  public:
+    PlanningOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+
+    QThread* GetMPThread() {return m_threadDone ? NULL : m_thread;}
+
+  private slots:
+    void AddRegionSphere();
+    void AddRegionBox();
+    void DeleteRegion();
+    void MakeRegionAttract();
+    void MakeRegionAvoid();
+    void ChangeRegionType(bool _attract);
+
+    void HandleTimer();
+    void MapEnvironment();
+    void ThreadDone();
+
+    void AddUserPath();
+    void DeleteUserPath();
+    void PrintUserPath();
+
+  private:
+    void CreateActions();
+    void SetUpCustomSubmenu();
+    void SetUpToolbar();
+    void SetUpToolTab();
+    void Reset();
+    void SetHelpTips();
+
+    bool m_regionsStarted;
+    bool m_threadDone;
+    QThread* m_thread;
+    QTimer* m_timer;
+    QMenu* m_addRegionMenu;
+    QMenu* m_regionPropertiesMenu;
+    QMenu* m_pathsMenu;
+    short m_userPathCount;
+};
+
+class MapEnvironmentWorker : public QObject {
+
+  Q_OBJECT
+
+    public slots:
+    void Solve();
+
+signals:
+  void Finished();
+};
+
+#endif

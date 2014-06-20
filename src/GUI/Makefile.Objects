@@ -25,6 +25,7 @@ OBJECTS += \
 	   GUI/OptionsBase.o \
 	   GUI/NodeEditDialog.o \
 	   GUI/PathOptions.o \
+	   GUI/PlanningOptions.o \
 	   GUI/QueryEditDialog.o \
 	   GUI/QueryOptions.o \
 	   GUI/RoadmapOptions.o \

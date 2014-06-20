@@ -1,12 +1,12 @@
 #include "MainWindow.h"
 
 #include "AnimationWidget.h"
-#include "EnvironmentOptions.h"
 #include "FileListDialog.h"
 #include "GLWidget.h"
 #include "MainMenu.h"
 #include "ModelSelectionWidget.h"
 #include "OptionsBase.h"
+#include "PlanningOptions.h"
 #include "TextWidget.h"
 #include "ToolTabOptions.h"
 #include "ToolTabWidget.h"
@@ -85,7 +85,7 @@ InitVizmo() {
 void
 MainWindow::
 closeEvent(QCloseEvent* _event) {
-  QThread* thread = ((EnvironmentOptions*)m_mainMenu->m_environmentOptions)->GetMPThread();
+  QThread* thread = ((PlanningOptions*)m_mainMenu->m_planningOptions)->GetMPThread();
   if(thread)
     delete thread;
   QMainWindow::closeEvent(_event);

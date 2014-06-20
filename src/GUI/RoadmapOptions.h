@@ -31,11 +31,6 @@ class RoadmapOptions : public OptionsBase {
 
   private slots:
     void ShowRoadmap();
-    void ClickRobot(); //trim down these functions eventually
-    void ClickPoint();
-    void MakeSolid();
-    void MakeWired();
-    void MakeInvisible();
     void ShowNodeSizeDialog();
     void ScaleNodes();
     void ShowEdgeThicknessDialog();
@@ -49,7 +44,6 @@ class RoadmapOptions : public OptionsBase {
     void RandomizeCCColors();
     void MakeCCsOneColor();
     void ShowObjectContextMenu();
-    void ChangeObjectColor();
 
   private:
     void CreateActions();
@@ -59,8 +53,6 @@ class RoadmapOptions : public OptionsBase {
     void Reset();
     void SetHelpTips();
 
-    QMenu* m_nodeShape;       //More submenus within the robot submenu
-    QMenu* m_modifySelected;
     QMenu* m_modifyCCs;
 
     SliderDialog* m_nodeSizeDialog; //Provides slider to scale nodes

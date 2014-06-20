@@ -24,10 +24,6 @@
 #include "Models/Vizmo.h"
 #include "Utilities/AlertUser.h"
 
-#include "Icons/Pallet.xpm"
-#include "Icons/MakeSolid.xpm"
-#include "Icons/MakeWired.xpm"
-#include "Icons/MakeInvisible.xpm"
 #include "Icons/RColor.xpm"
 #include "Icons/CCsOneColor.xpm"
 #include "Icons/NodeSize.xpm"
@@ -38,19 +34,18 @@
 #include "Icons/AddNode.xpm"
 #include "Icons/AddEdge.xpm"
 #include "Icons/MergeNodes.xpm"
-#include "Icons/RobotMode.xpm"
-#include "Icons/PointMode.xpm"
+
 #include "Icons/DeleteSelected.xpm"
 
 RoadmapOptions::
 RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
-    : OptionsBase(_parent, _mainWindow) {
-  CreateActions();
-  SetUpCustomSubmenu();
-  //SetUpToolbar(); currently using tool tabs
-  SetUpToolTab();
-  SetHelpTips();
-}
+  : OptionsBase(_parent, _mainWindow) {
+    CreateActions();
+    SetUpCustomSubmenu();
+    //SetUpToolbar(); currently using tool tabs
+    SetUpToolTab();
+    SetHelpTips();
+  }
 
 void
 RoadmapOptions::
@@ -59,31 +54,14 @@ CreateActions() {
   //1. Create actions/additional submenus and add them to the map
   QAction* showHideRoadmap = new QAction(QPixmap(navigate), tr("Show Roadmap"), this);
   m_actions["showHideRoadmap"] = showHideRoadmap;
-
-  QAction* robotView = new QAction(QPixmap(robotmode), tr("Robot"), this);
-  m_actions["robotView"] = robotView;
-  QAction* pointView = new QAction(QPixmap(pointmode), tr("Point"), this);
-  m_actions["pointView"] = pointView;
-
-  QAction* makeSolid = new QAction(QPixmap(makeSolidIcon), tr("Make Solid"), this);
-  m_actions["makeSolid"] = makeSolid;
-  QAction* makeWired = new QAction(QPixmap(makeWiredIcon), tr("Make Wired"), this);
-  m_actions["makeWired"] = makeWired;
-  QAction* makeInvisible = new QAction(QPixmap(makeInvisibleIcon), tr("Make Invisible"), this);
-  m_actions["makeInvisible"] = makeInvisible;
-  QAction* changeNodeColor = new QAction(QPixmap(pallet), tr("Change Color"), this);
-  m_actions["changeNodeColor"] = changeNodeColor;
-
   QAction* scaleNodes = new QAction(QPixmap(nodeSizeIcon), tr("Scale Nodes"), this);
   m_actions["scaleNodes"] = scaleNodes;
   m_nodeSizeDialog = new SliderDialog("Node Scaling",
       "Node Scale", 0, 2500, 1000, this);
-
   QAction* edgeThickness = new QAction(QPixmap(edgeThicknessIcon), tr("Change Edge Thickness"), this);
   m_actions["edgeThickness"] = edgeThickness;
   m_edgeThicknessDialog = new SliderDialog("Edge Thickness",
       "Edge Thickness", 100, 1000, 100, this);
-
   QAction* editNode = new QAction(QPixmap(editnode), tr("Edit Node"), this);
   m_actions["editNode"] = editNode;
   QAction* editEdge = new QAction(QPixmap(editedge), tr("Edit Edge"), this);
@@ -96,7 +74,6 @@ CreateActions() {
   m_actions["deleteSelected"] = deleteSelected;
   QAction* mergeNodes = new QAction(QPixmap(mergenodes), tr("Merge Nodes"), this);
   m_actions["mergeNodes"] = mergeNodes;
-
   QAction* randomizeColors = new QAction(QPixmap(rcolor), tr("Randomize Colors"), this);
   m_actions["randomizeColors"] = randomizeColors;
   QAction* ccsOneColor = new QAction(QPixmap(ccsOneColorIcon), tr("Make All One Color"), this);
@@ -105,31 +82,12 @@ CreateActions() {
   m_actions["saveStart"] = saveStart;
   QAction* saveGoal = new QAction(tr("Save Query Goal"), this);
   m_actions["saveGoal"] = saveGoal;
-  QAction* changeObjectColor = new QAction(tr("Change Color"), this);
-  m_actions["changeObjectColor"] = changeObjectColor;
 
   //2. Set other specifications as necessary
   m_actions["showHideRoadmap"]->setCheckable(true);
   m_actions["showHideRoadmap"]->setEnabled(false);
   m_actions["showHideRoadmap"]->setStatusTip("Display or hide the roadmap");
   m_actions["showHideRoadmap"]->setToolTip("Show/Hide Roadmap");
-  m_actions["robotView"]->setEnabled(false);
-  m_actions["robotView"]->setStatusTip(tr("Display nodes in robot mode"));
-  m_actions["pointView"]->setEnabled(false);
-  m_actions["pointView"]->setStatusTip(tr("Display nodes in point mode"));
-
-  m_actions["makeSolid"]->setShortcut(tr("CTRL+N"));
-  m_actions["makeSolid"]->setEnabled(false);
-  m_actions["makeSolid"]->setStatusTip(tr("Change to solid display mode"));
-  m_actions["makeWired"]->setShortcut(tr("CTRL+N"));
-  m_actions["makeWired"]->setEnabled(false);
-  m_actions["makeWired"]->setStatusTip(tr("Change to wired display mode"));
-  m_actions["makeInvisible"]->setShortcut(tr("CTRL+N"));
-  m_actions["makeInvisible"]->setEnabled(false);
-  m_actions["makeInvisible"]->setStatusTip(tr("Change to invisible"));
-  m_actions["changeNodeColor"]->setShortcut(tr("CTRL+N"));
-  m_actions["changeNodeColor"]->setEnabled(false);
-  m_actions["changeNodeColor"]->setStatusTip(tr("Change node color"));
 
   m_actions["scaleNodes"]->setShortcut(tr("CTRL+S"));
   m_actions["scaleNodes"]->setEnabled(false);
@@ -159,15 +117,6 @@ CreateActions() {
 
   //3. Make connections
   connect(m_actions["showHideRoadmap"], SIGNAL(triggered()), this, SLOT(ShowRoadmap()));
-
-  connect(m_actions["robotView"], SIGNAL(triggered()), this, SLOT(ClickRobot())); //would be better as single function
-  connect(m_actions["pointView"], SIGNAL(triggered()), this, SLOT(ClickPoint()));
-
-  connect(m_actions["makeSolid"], SIGNAL(triggered()), this, SLOT(MakeSolid()));
-  connect(m_actions["makeWired"], SIGNAL(triggered()), this, SLOT(MakeWired()));
-  connect(m_actions["makeInvisible"], SIGNAL(triggered()), this, SLOT(MakeInvisible()));
-  connect(m_actions["changeNodeColor"], SIGNAL(triggered()), this, SLOT(ChangeObjectColor()));
-
   connect(m_actions["scaleNodes"], SIGNAL(triggered()), this, SLOT(ShowNodeSizeDialog()));
   connect(m_nodeSizeDialog->GetSlider(), SIGNAL(valueChanged(int)), this, SLOT(ScaleNodes()));
 
@@ -183,7 +132,6 @@ CreateActions() {
 
   connect(m_actions["randomizeColors"], SIGNAL(triggered()), this, SLOT(RandomizeCCColors()));
   connect(m_actions["ccsOneColor"], SIGNAL(triggered()), this, SLOT(MakeCCsOneColor()));
-  connect(m_actions["changeObjectColor"], SIGNAL(triggered()), this, SLOT(ChangeObjectColor()));
   connect(m_mainWindow->GetGLScene(), SIGNAL(selectByRMB()), this, SLOT(ShowObjectContextMenu()));
 }
 
@@ -194,23 +142,8 @@ SetUpCustomSubmenu() {
   m_submenu = new QMenu("Roadmap", this);
 
   m_submenu->addAction(m_actions["showHideRoadmap"]);
-
-  m_nodeShape = new QMenu("Change Node Shape", this);
-  m_nodeShape->addAction(m_actions["robotView"]);
-  m_nodeShape->addAction(m_actions["pointView"]);
-  m_submenu->addMenu(m_nodeShape);
-
-  m_modifySelected = new QMenu("Modify Selected Item", this);
-  m_modifySelected->addAction(m_actions["makeSolid"]);
-  m_modifySelected->addAction(m_actions["makeWired"]);
-  m_modifySelected->addAction(m_actions["makeInvisible"]);
-  m_modifySelected->addAction(m_actions["changeNodeColor"]);
-  m_submenu->addMenu(m_modifySelected);
-
   m_submenu->addAction(m_actions["scaleNodes"]);
-
   m_submenu->addAction(m_actions["edgeThickness"]);
-
   m_submenu->addAction(m_actions["editNode"]);
   m_submenu->addAction(m_actions["editEdge"]);
   m_submenu->addAction(m_actions["addNode"]);
@@ -224,8 +157,6 @@ SetUpCustomSubmenu() {
   m_submenu->addMenu(m_modifyCCs);
 
   //Disable the extra submenus by default
-  m_nodeShape->setEnabled(false);
-  m_modifySelected->setEnabled(false);
   m_modifyCCs->setEnabled(false);
 }
 
@@ -236,13 +167,6 @@ SetUpToolbar() {
   m_toolbar = new QToolBar(m_mainWindow);
 
   m_toolbar->addAction(m_actions["showHideRoadmap"]);
-  m_toolbar->addAction(m_actions["robotView"]);
-  m_toolbar->addAction(m_actions["pointView"]);
-  m_toolbar->addSeparator();
-  m_toolbar->addAction(m_actions["makeSolid"]);
-  m_toolbar->addAction(m_actions["makeWired"]);
-  m_toolbar->addAction(m_actions["makeInvisible"]);
-  m_toolbar->addAction(m_actions["changeNodeColor"]);
   m_toolbar->addAction(m_actions["scaleNodes"]);
   m_toolbar->addAction(m_actions["edgeThickness"]);
   m_toolbar->addAction(m_actions["randomizeColors"]);
@@ -257,14 +181,7 @@ RoadmapOptions::
 SetUpToolTab() {
   vector<string> buttonList;
   buttonList.push_back("showHideRoadmap");
-  buttonList.push_back("robotView");
-  buttonList.push_back("pointView");
-  buttonList.push_back("_separator_");
 
-  buttonList.push_back("makeSolid");
-  buttonList.push_back("makeWired");
-  buttonList.push_back("makeInvisible");
-  buttonList.push_back("changeNodeColor");
   buttonList.push_back("ccsOneColor");
   buttonList.push_back("randomizeColors");
   buttonList.push_back("scaleNodes");
@@ -283,33 +200,20 @@ Reset() {
 
   if(m_actions["showHideRoadmap"] != NULL){
     m_actions["showHideRoadmap"]->setEnabled(GetVizmo().IsRoadMapLoaded());
-    m_actions["showHideRoadmap"]->setChecked(false);
+    m_actions["showHideRoadmap"]->setChecked(true);
+    if(GetVizmo().IsRoadMapLoaded())
+    {
+      ShowRoadmap();
+    }
   }
-
-  //Enable m_nodeShape AND its items
-  m_nodeShape->setEnabled(true);
-  m_actions["robotView"]->setEnabled(true);
-  m_actions["pointView"]->setEnabled(true);
-
-  ClickPoint();
-
-  m_modifySelected->setEnabled(true);
-  m_actions["makeSolid"]->setEnabled(true);
-  m_actions["makeWired"]->setEnabled(true);
-  m_actions["makeInvisible"]->setEnabled(true);
-  m_actions["changeNodeColor"]->setEnabled(true);
-
   m_actions["scaleNodes"]->setEnabled(true);
-
   m_actions["edgeThickness"]->setEnabled(true);
-
   m_actions["editNode"]->setEnabled(true);
   m_actions["editEdge"]->setEnabled(true);
   m_actions["addNode"]->setEnabled(true);
   m_actions["addEdge"]->setEnabled(true);
   m_actions["deleteSelected"]->setEnabled(true);
   m_actions["mergeNodes"]->setEnabled(true);
-
   m_modifyCCs->setEnabled(true);
   m_actions["randomizeColors"]->setEnabled(true);
   m_actions["ccsOneColor"]->setEnabled(true);
@@ -325,18 +229,6 @@ SetHelpTips() {
   m_actions["showHideRoadmap"]->setWhatsThis(tr("Click this button"
         " to visualize the <b>Roadmap</b>. You can also select the"
         " <b>Show/Hide Roadmap</b> option from the <b>Roadmap</b> menu."));
-  m_actions["robotView"]->setWhatsThis(tr("Click this button to visualize"
-        " the nodes in <b>Robot</b> mode."));
-  m_actions["pointView"]->setWhatsThis(tr("Click this button to visualize"
-        " the nodes in <b>Point</b> mode."));
-  m_actions["makeSolid"]->setWhatsThis(tr("Click this button to display a"
-        " selected item in <b>Solid</b> mode."));
-  m_actions["makeWired"]->setWhatsThis(tr("Click this button to display a"
-        " selected item in <b>Wire</b> mode."));
-  m_actions["makeInvisible"]->setWhatsThis(tr("Click this button to make a"
-        " selected item invisible."));
-  m_actions["changeNodeColor"]->setWhatsThis(tr("Click this button to change"
-        " the color of a selected item."));
   m_actions["scaleNodes"]->setWhatsThis(tr("Click this button to resize the"
         " roadmap nodes by a specified factor."));
   m_actions["edgeThickness"]->setWhatsThis(tr("Click this button to scale the"
@@ -365,51 +257,6 @@ void
 RoadmapOptions::
 ShowRoadmap() {
   GetVizmo().GetMap()->SetRenderMode(m_actions["showHideRoadmap"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-RoadmapOptions::
-ClickRobot() {
-  CfgModel::SetShape(CfgModel::Robot);
-  if(GetVizmo().IsQueryLoaded())
-    GetVizmo().GetQry()->Build();
-  m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-RoadmapOptions::
-ClickPoint() {
-  CfgModel::SetShape(CfgModel::Point);
-  if(GetVizmo().IsQueryLoaded())
-    GetVizmo().GetQry()->Build();
-  m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-RoadmapOptions::
-MakeSolid() {
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  for(MIT i = sel.begin(); i!= sel.end(); i++)
-    (*i)->SetRenderMode(SOLID_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-RoadmapOptions::
-MakeWired() {
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  for(MIT i = sel.begin(); i!= sel.end(); i++)
-    (*i)->SetRenderMode(WIRE_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-RoadmapOptions::
-MakeInvisible() {
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  for(MIT i = sel.begin(); i!= sel.end(); i++)
-    (*i)->SetRenderMode(INVISIBLE_MODE);
   m_mainWindow->GetGLScene()->updateGL();
 }
 
@@ -506,7 +353,7 @@ AddNode() {
 void
 RoadmapOptions::
 AddStraightLineEdge() {
-//By default, just attempts straight line and does not pop up EdgeEditDialog
+  //By default, just attempts straight line and does not pop up EdgeEditDialog
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   vector<CfgModel*> selNodes;
@@ -575,10 +422,8 @@ DeleteSelectedItems() {
       edgesToDelete.push_back(make_pair(e->GetStartCfg()->GetIndex(), e->GetEndCfg()->GetIndex()));
     }
   }
-
   if(selectionValid == false)
     AlertUser("Please select a group of nodes and edges to remove.");
-
   else{
     //Remove selected vertices
     typedef vector<VID>::iterator VIT;
@@ -590,7 +435,6 @@ DeleteSelectedItems() {
       graph->delete_edge(it->first, it->second);
       graph->delete_edge(it->second, it->first);
     }
-
     map->RefreshMap();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
     m_mainWindow->GetGLScene()->updateGL();
@@ -626,7 +470,6 @@ MergeSelectedNodes() {
     AlertUser("Please select a group of nodes.");
     return;
   }
-
   *superPreview /= numSelected;
 
   //Mark selected vertices for removal
@@ -678,8 +521,6 @@ RoadmapOptions::
 ShowObjectContextMenu() {
 
   QMenu cm(this);
-  cm.addAction(m_actions["makeSolid"]);
-  cm.addAction(m_actions["makeWired"]);
 
   //Create submenu to set start and goal configs.
   //create it just if RobotModel.has been selected
@@ -697,36 +538,8 @@ ShowObjectContextMenu() {
     cm.addMenu(cfgs);
   }
   else {
-    cm.addAction(m_actions["makeInvisible"]);
-    cm.addAction(m_actions["changeObjectColor"]);
     cm.addSeparator();
   }
   if(cm.exec(QCursor::pos())!= 0) //was -1 for q3 version (index based)
     m_mainWindow->GetGLScene()->updateGL();
-}
-
-void
-RoadmapOptions::
-ChangeObjectColor() {
-
-  QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
-  double r, g, b;
-  if (color.isValid()){
-    r = color.red() / 255.0;
-    g = color.green() / 255.0;
-    b = color.blue() / 255.0;
-  }
-  else
-    return;
-
-  vector<Model*>& selectedModels = GetVizmo().GetSelectedModels();
-  for(MIT mit = selectedModels.begin(); mit != selectedModels.end(); ++mit) {
-    Model* model = *mit;
-    if(model->Name() == "Robot"){
-      model->SetColor(Color4(r, g, b, 1));
-      ((RobotModel*)model)->BackUp();
-    }
-    else
-      model->SetColor(Color4(r, g, b, 1));
-  }
 }
