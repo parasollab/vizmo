@@ -1,4 +1,4 @@
-#include "Phantom.h"
+#include "PHANToMManager.h"
 
 #ifdef USE_PHANTOM
 

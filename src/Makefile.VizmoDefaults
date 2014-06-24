@@ -44,6 +44,16 @@ $(MP_DIR)/libobprm.a:
 	cd ${PMPL_DIR}; ${MAKE} ROBOT_DEF=$(ROBOT_DEF) platform=${platform} debug=${debug};
 
 ################################################################################
+# PHANToM DEFINES
+################################################################################
+ifeq ($(phantom), 1)
+  PHANTOM_LIBS = -lHD -lHDU -lrt
+  MP_DEF += -DUSE_PHANTOM
+else
+  PHANTOM_LIBS =
+endif
+
+################################################################################
 #Vizmo src objects
 ################################################################################
 #Define Vizmo Objects
@@ -52,15 +62,14 @@ SRCMOC =
 include $(VIZMO_DIR)/Utilities/Makefile.Objects
 include $(VIZMO_DIR)/Models/Makefile.Objects
 include $(VIZMO_DIR)/GUI/Makefile.Objects
+ifeq ($(phantom), 1)
+  include $(VIZMO_DIR)/PHANToM/Makefile.Objects
+endif
 VIZMO_OBJECTS = $(OBJECTS)
 VIZMO_SRCMOC = $(SRCMOC)
 VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(MP_INCL)
-VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS)
+VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS) $(PHANTOM_LIBS)
 VIZMO_LIBFILE = $(VIZMO_DIR)/libvizmo.a
 $(VIZMO_DIR)/libvizmo.a: $(VIZMO_OBJECTS)
 	ar rc $@ $(VIZMO_OBJECTS)
 
-################################################################################
-# OLD PHANTOM DEFINES
-################################################################################
-#Phantom_LIB = -lHD -lHDU -lrt

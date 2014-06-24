@@ -8,6 +8,11 @@ ifndef debug
   debug = 0
 endif
 
+# set PHANToM compile
+ifndef phantom
+  phantom = 1
+endif
+
 # set directory paths
 ifndef VIZMO_DIR
   VIZMO_DIR = .
@@ -27,7 +32,7 @@ LIBS = $(VIZMO_LIBS)
 
 default_target: $(MP_LIBFILE) $(VIZMO_LIBFILE) vizmo++
 
-$(VIZMO_OBJECTS): $(MP_LIBFILE)
+$(VIZMO_OBJECTS): ${STAPL_LIBFILE} ${CD_LIBFILE} ${XML_LIBFILE} ${MPNN_LIBFILE} ${MODELLOADER_LIBFILE} ${KMEANS_LIBFILE}
 
 vizmo++: $(MP_LIBFILE) $(VIZMO_OBJECTS) $(VIZMO_LIBFILE) main.cpp
 	$(CXX) $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) main.cpp $(VIZMO_LIBFILE) $(LIBS) -o $@
