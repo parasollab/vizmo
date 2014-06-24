@@ -1,9 +1,10 @@
-//TODO reinstantiate stuff
+#ifdef USE_PHANTOM
 
 #ifndef PHANTOM_H_
 #define PHANTOM_H_
 
-#ifdef USE_PHANTOM
+#include <vector>
+using namespace std;
 
 #include <HD/hd.h>
 #include <HDU/hduError.h>
@@ -41,12 +42,21 @@ void exitHandler();
   Gets data, in a thread safe manner, that is constantly being modified by the
   haptics thread.
  *******************************************************************************/
+#define LINUX
+#ifdef LINUX
+HDCallbackCode DeviceStateCallback(void *pUserData);
+#else
 HDCallbackCode HDCALLBACK DeviceStateCallback(void *pUserData);
+#endif
 
 /*******************************************************************************
   Main callback that calculates and sets the force.
  *******************************************************************************/
+#ifdef LINUX
+HDCallbackCode MainCallback(void *data);
+#else
 HDCallbackCode HDCALLBACK MainCallback(void *data);
+#endif
 
 class PhantomManager
 {

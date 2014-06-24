@@ -1,15 +1,15 @@
+#ifdef USE_PHANTOM
+
 #include "PHANToMManager.h"
 
-#ifdef USE_PHANTOM
+#include <iostream>
+#include <cstdlib>
 
 //////////////////////////////////////////////////////////////////////
 //Define Phantom Manager singleton
 PhantomManager g_phantomManager;
 PhantomManager& GetPhantomManager(){ return g_phantomManager; }
 //////////////////////////////////////////////////////////////////////
-
-
-
 
 // PhantomManager
 void exitHandler()
@@ -31,8 +31,12 @@ void exitHandler()
   Gets data, in a thread safe manner, that is constantly being modified by the
   haptics thread.
  *******************************************************************************/
-HDCallbackCode HDCALLBACK DeviceStateCallback(void *pUserData)
-{
+#ifdef LINUX
+HDCallbackCode
+#else
+HDCallbackCode HDCALLBACK
+#endif
+DeviceStateCallback(void *pUserData) {
    DeviceDisplayState *pDisplayState =
       static_cast<DeviceDisplayState *>(pUserData);
 
@@ -48,8 +52,12 @@ HDCallbackCode HDCALLBACK DeviceStateCallback(void *pUserData)
 /*******************************************************************************
   Main callback that calculates and sets the force.
  *******************************************************************************/
-HDCallbackCode HDCALLBACK MainCallback(void *data)
-{
+#ifdef LINUX
+HDCallbackCode
+#else
+HDCallbackCode HDCALLBACK
+#endif
+MainCallback(void *data) {
    HHD hHD = hdGetCurrentDevice();
 
    hdBeginFrame(hHD);
@@ -73,7 +81,8 @@ HDCallbackCode HDCALLBACK MainCallback(void *data)
                forceVec[0] = GetPhantomManager().phantomforce*(GetPhantomManager().validpos[0] - GetPhantomManager().fpos[0]);
                forceVec[1] = GetPhantomManager().phantomforce*(GetPhantomManager().validpos[1] - GetPhantomManager().fpos[1]);
                forceVec[2] = GetPhantomManager().phantomforce*(GetPhantomManager().validpos[2] - GetPhantomManager().fpos[2]);
-               GetCamera()->ReverseTransform(forceVec[0],forceVec[1],forceVec[2]);
+               //TODO FIX
+               //GetCamera()->ReverseTransform(forceVec[0],forceVec[1],forceVec[2]);
                double R = pow(pow(forceVec[0],2)+pow(forceVec[1],2)+pow(forceVec[2],2),.5);
                if(R < 1)
                   hdSetDoublev(HD_CURRENT_FORCE, forceVec);
