@@ -21,6 +21,7 @@ void ExitHandler();
 class Manager {
   public:
     Manager();
+    ~Manager();
 
     hduVector3Dd GetPosition();
     hduVector3Dd GetRotation();

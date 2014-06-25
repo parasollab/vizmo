@@ -16,6 +16,9 @@ namespace PHANToM {
  */
 HDCallbackCode
   GetDeviceState(void* _data) {
+
+    cout << "GDS" << endl;
+
     DeviceState* deviceState = static_cast<DeviceState*>(_data);
 
     hdGetDoublev(HD_CURRENT_POSITION, deviceState->m_position);
@@ -39,10 +42,7 @@ HDCallbackCode
     hduVector3Dd pos;
     hdGetDoublev(HD_CURRENT_POSITION, pos);
 
-    hduVector3Dd force;
-    force[0] = 0;
-    force[1] = 0;
-    force[2] = 0;
+    hduVector3Dd force(0, 0, 0);
     hdSetDoublev(HD_CURRENT_FORCE, force);
 
     Manager& manager = GetManager();
@@ -56,13 +56,11 @@ HDCallbackCode
             force[2] = manager.phantomforce*(manager.validpos[2] - manager.fpos[2]);
             //TODO FIX
             //GetCamera()->ReverseTransform(force[0],force[1],force[2]);
-            double r = sqrt(sqr(force[0]) + sqr(force[1]) + sqr(force[2]));
+            double r = force.magnitude();
             if(r < 1)
               hdSetDoublev(HD_CURRENT_FORCE, force);
             else {
-              force[0] /= r;
-              force[1] /= r;
-              force[2] /= r;
+              force /= r;
               hdSetDoublev(HD_CURRENT_FORCE, force);
             }
           }
@@ -82,6 +80,13 @@ HDCallbackCode
       if (hduIsSchedulerError(&error))
         return HD_CALLBACK_DONE;
     }
+
+    DeviceState ds;
+    GetDeviceState(&ds);
+    cout << "Pos::" << ds.m_position << endl;
+    cout << "Force::" << ds.m_force << endl;
+    cout << "Angles::" << ds.m_rotation << endl;
+    cout << "Vel::" << ds.m_velocity << endl;
 
     return HD_CALLBACK_CONTINUE;
   }

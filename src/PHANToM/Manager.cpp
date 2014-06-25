@@ -42,6 +42,18 @@ Manager() {
   InitPhantom();
 }
 
+Manager::
+~Manager() {
+  hdStopScheduler();
+  hdUnschedule(gSchedulerCallback);
+
+  // Free the haptics device
+  if (ghHD != HD_INVALID_HANDLE) {
+    hdDisableDevice(ghHD);
+    ghHD = HD_INVALID_HANDLE;
+  }
+}
+
 void
 Manager::
 InitPhantom() {

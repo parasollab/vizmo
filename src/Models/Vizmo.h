@@ -8,6 +8,8 @@ using namespace std;
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
 
+#include "PHANToM/Manager.h"
+
 class Box;
 class DebugModel;
 class EnvModel;
@@ -109,6 +111,9 @@ class Vizmo {
 
     //robot
     RobotModel* m_robotModel;
+
+    //PHANToM manager
+    PHANToM::Manager* m_manager;
 
     //map
     MapModel<CfgModel, EdgeModel>* m_mapModel;

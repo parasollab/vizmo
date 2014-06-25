@@ -61,6 +61,9 @@ InitModels() {
     m_loadedModels.push_back(m_robotModel);
     cout << "Load Environment File : "<< m_envFilename << endl;
 
+    //try to initialize PHANToM
+    m_manager = new PHANToM::Manager();
+
     //Create map
     if(!m_mapFilename.empty()) {
       m_mapModel = new MapModel<CfgModel, EdgeModel>(m_mapFilename);
@@ -188,6 +191,7 @@ Vizmo::
 Clean() {
   delete m_envModel;
   delete m_robotModel;
+  delete m_manager;
   delete m_mapModel;
   delete m_queryModel;
   delete m_pathModel;
