@@ -198,6 +198,7 @@ Clean() {
   delete m_debugModel;
   m_envModel = NULL;
   m_robotModel = NULL;
+  m_manager = NULL;
   m_mapModel = NULL;
   m_queryModel = NULL;
   m_pathModel = NULL;

@@ -16,8 +16,6 @@ namespace PHANToM {
 class Manager;
 Manager& GetManager();
 
-void ExitHandler();
-
 class Manager {
   public:
     Manager();
@@ -29,9 +27,12 @@ class Manager {
 
   private:
 
-    void InitPhantom();
+    void Initialize();
 
-    void ScheduleForceCallback();
+    void Clean();
+
+    HHD m_hhd; //haptic device handle
+    HDSchedulerHandle m_schedulerCallback; //callback handle of scheduler
 
     //TODO: Move to private
   public:

@@ -88,6 +88,7 @@ closeEvent(QCloseEvent* _event) {
   QThread* thread = ((PlanningOptions*)m_mainMenu->m_planningOptions)->GetMPThread();
   if(thread)
     delete thread;
+  GetVizmo().Clean();
   QMainWindow::closeEvent(_event);
 }
 

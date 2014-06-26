@@ -39,14 +39,33 @@ HDCallbackCode
 
     hdBeginFrame(hhd);
 
-    hduVector3Dd pos;
-    hdGetDoublev(HD_CURRENT_POSITION, pos);
+    DeviceState ds;
+    GetDeviceState(&ds);
+    cout << endl << "State" << endl;
+    cout << "\tPos: " << ds.m_position << endl;
+    cout << "\tForce: " << ds.m_force << endl;
+    cout << "\tAngles: " << ds.m_rotation << endl;
+    cout << "\tVel: " << ds.m_velocity << endl;
+
+    //Manager& manager = GetManager();
+
+    hduVector3Dd pos = ds.m_position;
 
     hduVector3Dd force(0, 0, 0);
-    hdSetDoublev(HD_CURRENT_FORCE, force);
 
-    Manager& manager = GetManager();
+    double r = 100;
+    double dist = pos.magnitude();
+    if(dist > r) {
+      double penDist = r-dist;
 
+      force = pos/dist;
+
+      double k = 0.25;
+
+      force = k * penDist * force;
+    }
+
+    /*
     if(manager.CDOn) {
       if(manager.fpos.size() > 0) {
           if(manager.Collision > .5 && manager.validpos.size() > 0) {
@@ -57,11 +76,8 @@ HDCallbackCode
             //TODO FIX
             //GetCamera()->ReverseTransform(force[0],force[1],force[2]);
             double r = force.magnitude();
-            if(r < 1)
-              hdSetDoublev(HD_CURRENT_FORCE, force);
-            else {
+            if(r >= 1)
               force /= r;
-              hdSetDoublev(HD_CURRENT_FORCE, force);
             }
           }
 
@@ -70,7 +86,9 @@ HDCallbackCode
 
           manager.proceed = false;
       }
-    }
+    }*/
+
+    hdSetDoublev(HD_CURRENT_FORCE, force);
 
     hdEndFrame(hhd);
 
@@ -80,13 +98,6 @@ HDCallbackCode
       if (hduIsSchedulerError(&error))
         return HD_CALLBACK_DONE;
     }
-
-    DeviceState ds;
-    GetDeviceState(&ds);
-    cout << "Pos::" << ds.m_position << endl;
-    cout << "Force::" << ds.m_force << endl;
-    cout << "Angles::" << ds.m_rotation << endl;
-    cout << "Vel::" << ds.m_velocity << endl;
 
     return HD_CALLBACK_CONTINUE;
   }
