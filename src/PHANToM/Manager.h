@@ -38,16 +38,6 @@ class Manager {
 
     hduVector3Dd m_pos, m_rot, m_vel, m_force; //Device State
     hduVector3Dd m_worldPos, m_worldRot; //World State
-
-    //TODO: Move to private
-  public:
-    vector<double> validpos; //Previous Valid cfg
-    vector<double> fpos; //Potential Valid cfg
-    int Collision;
-    bool UseFeedback;
-    bool CDOn;
-    bool proceed;
-    double phantomforce; //force factor
 };
 
 }

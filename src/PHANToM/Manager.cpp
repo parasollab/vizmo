@@ -16,11 +16,6 @@ Manager& GetManager(){
 
 Manager::
 Manager() : m_hhd(HD_INVALID_HANDLE) {
-  CDOn = false;
-  proceed = false;
-  phantomforce = .5;
-  Collision = -1;
-  UseFeedback = true;
   Initialize();
 }
 
@@ -64,38 +59,14 @@ Manager::Frame() {
     force = k * penDist * force;
   }
 
-  /*if(manager.CDOn) {
-    if(manager.fpos.size() > 0) {
-      if(manager.Collision > .5 && manager.validpos.size() > 0) {
-
-        force[0] = manager.phantomforce*(manager.validpos[0] - manager.fpos[0]);
-        force[1] = manager.phantomforce*(manager.validpos[1] - manager.fpos[1]);
-        force[2] = manager.phantomforce*(manager.validpos[2] - manager.fpos[2]);
-        //TODO FIX
-        //GetCamera()->ReverseTransform(force[0],force[1],force[2]);
-        double r = force.magnitude();
-        if(r >= 1)
-          force /= r;
-      }
-
-      if(fabs(manager.Collision) < .5)
-        manager.validpos = manager.fpos;
-
-      manager.proceed = false;
-    }
-  }*/
-
   //hdSetDoublev(HD_CURRENT_FORCE, force);
 
   hlEndFrame();
 
-  //Try getting proxy pos/rotation
-  //hduVector3Dd proxyPos;
-  HLdouble proxyPos[3];
-  hlGetDoublev(HL_DEVICE_POSITION, proxyPos);
+  hlGetDoublev(HL_DEVICE_POSITION, m_worldPos);
 
-  cout << endl << "Workspace State" << endl;
-  cout << "\tPos: " << proxyPos[0] << " " << proxyPos[1] << " " << proxyPos[2] << endl;
+  cout << endl << "World State" << endl;
+  cout << "\tPos: " << m_worldPos << endl;
 }
 
 void
