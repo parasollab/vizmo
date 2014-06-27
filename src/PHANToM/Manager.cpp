@@ -5,12 +5,9 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "Callbacks.h"
-#include "DeviceState.h"
+#include <HDU/hduError.h>
 
 namespace PHANToM {
-
-//static HHLRC ghHLRC = NULL;
 
 Manager& GetManager(){
   static Manager manager;
@@ -18,7 +15,7 @@ Manager& GetManager(){
 }
 
 Manager::
-Manager() : m_hhd(HD_INVALID_HANDLE), m_schedulerCallback(HD_INVALID_HANDLE) {
+Manager() : m_hhd(HD_INVALID_HANDLE) {
   CDOn = false;
   proceed = false;
   phantomforce = .5;
@@ -40,20 +37,18 @@ Manager::Frame() {
 
   hlBeginFrame();
 
-  hdGetDoublev(HD_CURRENT_POSITION, deviceState->m_position);
-  hdGetDoublev(HD_CURRENT_FORCE, deviceState->m_force);
-  hdGetDoublev(HD_CURRENT_GIMBAL_ANGLES, deviceState->m_rotation);
-  hdGetDoublev(HD_CURRENT_VELOCITY, deviceState->m_velocity);
+  hdGetDoublev(HD_CURRENT_POSITION, m_pos);
+  hdGetDoublev(HD_CURRENT_GIMBAL_ANGLES, m_rot);
+  hdGetDoublev(HD_CURRENT_VELOCITY, m_vel);
+  hdGetDoublev(HD_CURRENT_FORCE, m_force);
 
   cout << endl << "Haptic State" << endl;
-  cout << "\tPos: " << m_position << endl;
+  cout << "\tPos: " << m_pos << endl;
+  cout << "\tRot: " << m_rot << endl;
+  cout << "\tVel: " << m_vel << endl;
   cout << "\tForce: " << m_force << endl;
-  cout << "\tAngles: " << m_rotation << endl;
-  cout << "\tVel: " << m_velocity << endl;
 
-  //Manager& manager = GetManager();
-
-  hduVector3Dd pos = m_position;
+  hduVector3Dd pos = m_pos;
 
   hduVector3Dd force(0, 0, 0);
 
@@ -150,10 +145,6 @@ Initialize() {
 
       hlOrtho(-25, 25, -15, 15, -25, 25);
       */
-
-    //hdStartScheduler();
-
-    //m_schedulerCallback = hdScheduleAsynchronous(ForceFeedback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
   }
   catch(...) {
     if(HD_DEVICE_ERROR(error = hdGetError()))
@@ -168,11 +159,6 @@ Initialize() {
 void
 Manager::
 Clean() {
-  if(m_schedulerCallback != HD_INVALID_HANDLE) {
-    hdStopScheduler();
-    hdUnschedule(m_schedulerCallback);
-    m_schedulerCallback = HD_INVALID_HANDLE;
-  }
 
   // Free the haptics device
   if(m_hhd != HD_INVALID_HANDLE) {
@@ -181,31 +167,6 @@ Clean() {
   }
 }
 
-hduVector3Dd
-Manager::
-GetPosition() {
-  DeviceState state;
-  hdScheduleSynchronous(GetDeviceState, &state, HD_MIN_SCHEDULER_PRIORITY);
-  return state.m_position;
 }
 
-hduVector3Dd
-Manager::
-GetRotation() {
-  DeviceState state;
-  hdScheduleSynchronous(GetDeviceState, &state, HD_MIN_SCHEDULER_PRIORITY);
-  return state.m_rotation;
-}
-
-
-hduVector3Dd
-Manager::
-GetVelocity() {
-  DeviceState state;
-  hdScheduleSynchronous(GetDeviceState, &state, HD_MIN_SCHEDULER_PRIORITY);
-  return state.m_velocity;
-}
-
-}
-///////////////////////////////////////////////////////////////////////////
 #endif

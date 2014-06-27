@@ -6,8 +6,6 @@
 #include <vector>
 using namespace std;
 
-#include <HD/hd.h>
-#include <HDU/hduError.h>
 #include <HDU/hduVector.h>
 #include <HL/hl.h>
 
@@ -24,9 +22,10 @@ class Manager {
 
     void Frame();
 
-    hduVector3Dd GetPosition();
-    hduVector3Dd GetRotation();
-    hduVector3Dd GetVelocity();
+    const hduVector3Dd& GetPos() const {return m_pos;}
+    const hduVector3Dd& GetRot() const {return m_rot;}
+    const hduVector3Dd& GetVel() const {return m_vel;}
+    const hduVector3Dd& GetForce() const {return m_force;}
 
   private:
 
@@ -35,11 +34,10 @@ class Manager {
     void Clean();
 
     HHD m_hhd; //haptic device handle
-    HDSchedulerHandle m_schedulerCallback; //callback handle of scheduler
     HHLRC m_hhlrc; //hl rendering context
 
-    hduVector3Dd m_position, m_velocity, m_force, m_rotation; //Device State
-    hduVector3Dd m_position, m_rotation; //World State
+    hduVector3Dd m_pos, m_rot, m_vel, m_force; //Device State
+    hduVector3Dd m_worldPos, m_worldRot; //World State
 
     //TODO: Move to private
   public:
