@@ -55,8 +55,6 @@ Initialize() {
     hdEnable(HD_FORCE_OUTPUT);
     hdEnable(HD_MAX_FORCE_CLAMPING);
 
-    hdStartScheduler();
-
     // Get the workspace dimensions.
     HDdouble maxWorkspace[6];
     hdGetDoublev(HD_MAX_WORKSPACE_DIMENSIONS, maxWorkspace);
@@ -64,6 +62,36 @@ Initialize() {
     hduVector3Dd llb(maxWorkspace[0], maxWorkspace[1], maxWorkspace[2]);
     // Top/right/front point of device workspace.
     hduVector3Dd trf(maxWorkspace[3], maxWorkspace[4], maxWorkspace[5]);
+
+    cout << "BBX1: " << llb << "\t" << trf << endl;
+
+    //create hl context
+    m_hhlrc = hlCreateContext(m_hhd);
+    hlMakeCurrent(m_hhlrc);
+
+    // Force mapping to TestRigid bounds
+    hlDisable(HL_USE_GL_MODELVIEW);
+    hlMatrixMode(HL_TOUCHWORKSPACE);
+    hlLoadIdentity();
+
+    //set limits of haptic workspace in millimeters.
+    hlWorkspace(-150, -45, -90, 150, 450, 50);
+
+    hlOrtho(-25, 25, -15, 15, 25, 25);
+
+    // Get the workspace dimensions.
+    {
+      HDdouble maxWorkspace[6];
+      hdGetDoublev(HD_MAX_WORKSPACE_DIMENSIONS, maxWorkspace);
+      // Low/left/back point of device workspace.
+      hduVector3Dd llb(maxWorkspace[0], maxWorkspace[1], maxWorkspace[2]);
+      // Top/right/front point of device workspace.
+      hduVector3Dd trf(maxWorkspace[3], maxWorkspace[4], maxWorkspace[5]);
+
+      cout << "BBX2: " << llb << "\t" << trf << endl;
+    }
+
+    hdStartScheduler();
 
     m_schedulerCallback = hdScheduleAsynchronous(ForceFeedback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
   }

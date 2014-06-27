@@ -8,8 +8,6 @@ using namespace std;
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
 
-#include "PHANToM/Manager.h"
-
 class Box;
 class DebugModel;
 class EnvModel;
@@ -18,6 +16,7 @@ class Model;
 class PathModel;
 class QueryModel;
 class RobotModel;
+namespace PHANToM {class Manager;}
 
 //Define singleton
 class Vizmo;

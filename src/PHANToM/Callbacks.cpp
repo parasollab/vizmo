@@ -17,8 +17,6 @@ namespace PHANToM {
 HDCallbackCode
   GetDeviceState(void* _data) {
 
-    cout << "GDS" << endl;
-
     DeviceState* deviceState = static_cast<DeviceState*>(_data);
 
     hdGetDoublev(HD_CURRENT_POSITION, deviceState->m_position);
@@ -41,7 +39,7 @@ HDCallbackCode
 
     DeviceState ds;
     GetDeviceState(&ds);
-    cout << endl << "State" << endl;
+    cout << endl << "Haptic State" << endl;
     cout << "\tPos: " << ds.m_position << endl;
     cout << "\tForce: " << ds.m_force << endl;
     cout << "\tAngles: " << ds.m_rotation << endl;
@@ -64,6 +62,14 @@ HDCallbackCode
 
       force = k * penDist * force;
     }
+
+    //Try getting proxy pos/rotation
+    //hduVector3Dd proxyPos;
+    HLdouble proxyPos[3];
+    hlGetDoublev(HL_PROXY_POSITION, proxyPos);
+
+    cout << endl << "Workspace State" << endl;
+    cout << "\tPos: " << proxyPos[0] << " " << proxyPos[1] << " " << proxyPos[2] << endl;
 
     /*
     if(manager.CDOn) {
@@ -88,7 +94,7 @@ HDCallbackCode
       }
     }*/
 
-    hdSetDoublev(HD_CURRENT_FORCE, force);
+    //hdSetDoublev(HD_CURRENT_FORCE, force);
 
     hdEndFrame(hhd);
 

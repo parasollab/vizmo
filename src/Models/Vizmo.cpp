@@ -11,6 +11,7 @@ using namespace std;
 #include "QueryModel.h"
 #include "RobotModel.h"
 #include "MotionPlanning/VizmoTraits.h"
+#include "PHANToM/Manager.h"
 #include "Utilities/PickBox.h"
 
 ////////////////////////////////////////////////////////////////////////////////

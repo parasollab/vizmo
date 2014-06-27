@@ -39,15 +39,15 @@ include ${PMPL_DIR}/Makefile.PMPLdefaults
 MP_DEF = -D$(ROBOT_DEF) $(UTILS_DEF) $(CGAL_DEF)
 MP_INCL = $(MP_DEF) $(PMPL_INCL) $(UTILS_INCL) $(STAPL_INCL) $(BOOST_INCL) $(CGAL_INCL) $(MPNN_INCL)
 MP_LIBS = $(PMPL_LIB) $(UTILS_LIB) $(MPNN_LIB) $(BOOST_LIB)
-MP_LIBFILE = $(MP_DIR)/libobprm.a
-$(MP_DIR)/libobprm.a:
+MP_LIBFILE = $(PMPL_DIR)/libobprm.a
+$(PMPL_DIR)/libobprm.a:
 	cd ${PMPL_DIR}; ${MAKE} ROBOT_DEF=$(ROBOT_DEF) platform=${platform} debug=${debug};
 
 ################################################################################
 # PHANToM DEFINES
 ################################################################################
 ifeq ($(phantom), 1)
-  PHANTOM_LIBS = -lHD -lHDU -lrt
+  PHANTOM_LIBS = -lHD -lHDU -lHL -lrt
   MP_DEF += -DUSE_PHANTOM
 else
   PHANTOM_LIBS =

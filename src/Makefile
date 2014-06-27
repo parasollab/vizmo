@@ -30,11 +30,13 @@ include Makefile.VizmoDefaults
 INCL = $(VIZMO_INCL)
 LIBS = $(VIZMO_LIBS)
 
-default_target: $(MP_LIBFILE) $(VIZMO_LIBFILE) vizmo++
+default_target: vizmo++
 
-$(VIZMO_OBJECTS): ${STAPL_LIBFILE} ${CD_LIBFILE} ${XML_LIBFILE} ${MPNN_LIBFILE} ${MODELLOADER_LIBFILE} ${KMEANS_LIBFILE}
+$(VIZMO_OBJECTS): $(MP_LIBFILE)
 
-vizmo++: $(MP_LIBFILE) $(VIZMO_OBJECTS) $(VIZMO_LIBFILE) main.cpp
+$(VIZMO_LIBFILE): $(VIZMO_OBJECTS)
+
+vizmo++: $(VIZMO_LIBFILE) main.cpp
 	$(CXX) $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) main.cpp $(VIZMO_LIBFILE) $(LIBS) -o $@
 
 %.o: %.cpp

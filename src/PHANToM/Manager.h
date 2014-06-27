@@ -9,6 +9,7 @@ using namespace std;
 #include <HD/hd.h>
 #include <HDU/hduError.h>
 #include <HDU/hduVector.h>
+#include <HL/hl.h>
 
 namespace PHANToM {
 
@@ -33,6 +34,7 @@ class Manager {
 
     HHD m_hhd; //haptic device handle
     HDSchedulerHandle m_schedulerCallback; //callback handle of scheduler
+    HHLRC m_hhlrc; //hl rendering context
 
     //TODO: Move to private
   public:
