@@ -15,7 +15,7 @@ Manager& GetManager(){
 }
 
 Manager::
-Manager() : m_hhd(HD_INVALID_HANDLE) {
+Manager() : m_hhd(HD_INVALID_HANDLE), m_hhlrc(NULL) {
   Initialize();
 }
 
@@ -84,14 +84,6 @@ Initialize() {
 
     cout << "Found device " << hdGetString(HD_DEVICE_MODEL_TYPE) << endl;
 
-    // Create a haptic context for the device.  The haptic context maintains
-    // the state that persists between frame intervals and is used for
-    // haptic rendering.
-    //ghHLRC = hlCreateContext(m_hhd);
-    //hlMakeCurrent(ghHLRC);
-    hdEnable(HD_FORCE_OUTPUT);
-    hdEnable(HD_MAX_FORCE_CLAMPING);
-
     // Get the workspace dimensions.
     HDdouble maxWorkspace[6];
     hdGetDoublev(HD_MAX_WORKSPACE_DIMENSIONS, maxWorkspace);
@@ -130,10 +122,12 @@ Initialize() {
 void
 Manager::
 Clean() {
-
   // Free the haptics device
   if(m_hhd != HD_INVALID_HANDLE) {
+    hlMakeCurrent(NULL);
+    hlDeleteContext(m_hhlrc);
     hdDisableDevice(m_hhd);
+    m_hhlrc = NULL;
     m_hhd = HD_INVALID_HANDLE;
   }
 }
