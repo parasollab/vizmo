@@ -22,6 +22,8 @@ class Manager {
     Manager();
     ~Manager();
 
+    void Frame();
+
     hduVector3Dd GetPosition();
     hduVector3Dd GetRotation();
     hduVector3Dd GetVelocity();
@@ -35,6 +37,9 @@ class Manager {
     HHD m_hhd; //haptic device handle
     HDSchedulerHandle m_schedulerCallback; //callback handle of scheduler
     HHLRC m_hhlrc; //hl rendering context
+
+    hduVector3Dd m_position, m_velocity, m_force, m_rotation; //Device State
+    hduVector3Dd m_position, m_rotation; //World State
 
     //TODO: Move to private
   public:

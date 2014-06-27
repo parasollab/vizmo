@@ -33,6 +33,77 @@ Manager::
 }
 
 void
+Manager::Frame() {
+
+  if(m_hhd == HD_INVALID_HANDLE)
+    return;
+
+  hlBeginFrame();
+
+  hdGetDoublev(HD_CURRENT_POSITION, deviceState->m_position);
+  hdGetDoublev(HD_CURRENT_FORCE, deviceState->m_force);
+  hdGetDoublev(HD_CURRENT_GIMBAL_ANGLES, deviceState->m_rotation);
+  hdGetDoublev(HD_CURRENT_VELOCITY, deviceState->m_velocity);
+
+  cout << endl << "Haptic State" << endl;
+  cout << "\tPos: " << m_position << endl;
+  cout << "\tForce: " << m_force << endl;
+  cout << "\tAngles: " << m_rotation << endl;
+  cout << "\tVel: " << m_velocity << endl;
+
+  //Manager& manager = GetManager();
+
+  hduVector3Dd pos = m_position;
+
+  hduVector3Dd force(0, 0, 0);
+
+  double r = 100;
+  double dist = pos.magnitude();
+  if(dist > r) {
+    double penDist = r-dist;
+
+    force = pos/dist;
+
+    double k = 0.25;
+
+    force = k * penDist * force;
+  }
+
+  /*if(manager.CDOn) {
+    if(manager.fpos.size() > 0) {
+      if(manager.Collision > .5 && manager.validpos.size() > 0) {
+
+        force[0] = manager.phantomforce*(manager.validpos[0] - manager.fpos[0]);
+        force[1] = manager.phantomforce*(manager.validpos[1] - manager.fpos[1]);
+        force[2] = manager.phantomforce*(manager.validpos[2] - manager.fpos[2]);
+        //TODO FIX
+        //GetCamera()->ReverseTransform(force[0],force[1],force[2]);
+        double r = force.magnitude();
+        if(r >= 1)
+          force /= r;
+      }
+
+      if(fabs(manager.Collision) < .5)
+        manager.validpos = manager.fpos;
+
+      manager.proceed = false;
+    }
+  }*/
+
+  //hdSetDoublev(HD_CURRENT_FORCE, force);
+
+  hlEndFrame();
+
+  //Try getting proxy pos/rotation
+  //hduVector3Dd proxyPos;
+  HLdouble proxyPos[3];
+  hlGetDoublev(HL_DEVICE_POSITION, proxyPos);
+
+  cout << endl << "Workspace State" << endl;
+  cout << "\tPos: " << proxyPos[0] << " " << proxyPos[1] << " " << proxyPos[2] << endl;
+}
+
+void
 Manager::
 Initialize() {
 
@@ -69,31 +140,20 @@ Initialize() {
     m_hhlrc = hlCreateContext(m_hhd);
     hlMakeCurrent(m_hhlrc);
 
-    // Force mapping to TestRigid bounds
-    hlDisable(HL_USE_GL_MODELVIEW);
-    hlMatrixMode(HL_TOUCHWORKSPACE);
-    hlLoadIdentity();
-
     //set limits of haptic workspace in millimeters.
-    hlWorkspace(-150, -45, -90, 150, 450, 50);
+    //hlWorkspace(-150, -45, -90, 150, 450, 50);
 
-    hlOrtho(-25, 25, -15, 15, 25, 25);
+    // Force mapping to TestRigid bounds
+    /*hlDisable(HL_USE_GL_MODELVIEW);
+      hlMatrixMode(HL_TOUCHWORKSPACE);
+      hlLoadIdentity();
 
-    // Get the workspace dimensions.
-    {
-      HDdouble maxWorkspace[6];
-      hdGetDoublev(HD_MAX_WORKSPACE_DIMENSIONS, maxWorkspace);
-      // Low/left/back point of device workspace.
-      hduVector3Dd llb(maxWorkspace[0], maxWorkspace[1], maxWorkspace[2]);
-      // Top/right/front point of device workspace.
-      hduVector3Dd trf(maxWorkspace[3], maxWorkspace[4], maxWorkspace[5]);
+      hlOrtho(-25, 25, -15, 15, -25, 25);
+      */
 
-      cout << "BBX2: " << llb << "\t" << trf << endl;
-    }
+    //hdStartScheduler();
 
-    hdStartScheduler();
-
-    m_schedulerCallback = hdScheduleAsynchronous(ForceFeedback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
+    //m_schedulerCallback = hdScheduleAsynchronous(ForceFeedback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
   }
   catch(...) {
     if(HD_DEVICE_ERROR(error = hdGetError()))

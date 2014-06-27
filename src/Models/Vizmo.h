@@ -55,6 +55,8 @@ class Vizmo {
     //Put robot in start configuration if possible
     void PlaceRobot();
 
+    PHANToM::Manager* GetManager() const {return m_manager;}
+
     // Roadmap Related Functions
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
     const string& GetMapFileName() const {return m_mapFilename;}

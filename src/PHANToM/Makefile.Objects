@@ -1,3 +1,2 @@
 OBJECTS += \
-	   PHANToM/Callbacks.o \
 	   PHANToM/Manager.o

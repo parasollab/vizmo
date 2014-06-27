@@ -11,7 +11,7 @@
 #include "Models/RegionModel.h"
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
-
+#include "PHANToM/Manager.h"
 #include "Utilities/Camera.h"
 #include "Utilities/Font.h"
 #include "Utilities/GLUtils.h"
@@ -122,6 +122,10 @@ GLWidget::paintGL(){
   double frameRate = 1./(accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.) / m_frameTimes.size());
   if(m_showFrameRate)
     DrawFrameRate(frameRate);
+
+  //Render haptics!
+  if(GetVizmo().GetManager())
+    GetVizmo().GetManager()->Frame();
 }
 
 void
