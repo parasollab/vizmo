@@ -73,10 +73,30 @@ GLWidget::resizeGL(int _w, int _h) {
   g_height = _h;
   m_transformTool.ProjectToWindow();
 
-  glViewport(0, 0, _w, _h);
+  /*glViewport(0, 0, _w, _h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, ((GLfloat)_w)/((GLfloat)_h), 1, 10000);
+  gluPerspective(60, ((GLfloat)_w)/((GLfloat)_h), 1, 10000);*/
+
+  static const double kFovY = 40;
+
+  double nearDist, farDist, aspect;
+
+  glViewport(0, 0, _w, _h);
+
+  // Compute the viewing parameters based on a fixed fov and viewing
+  // a canonical box centered at the origin.
+
+  nearDist = 1.0 / tan(degToRad(kFovY / 2.0));
+  farDist = nearDist + 2.0;
+  aspect = (double) _w / _h;
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(kFovY, aspect, nearDist, farDist);
+
+  if(GetVizmo().GetManager())
+    GetVizmo().GetManager()->UpdateWorkspace();
 }
 
 void
@@ -96,6 +116,15 @@ GLWidget::paintGL(){
   //draw camera
   GetCurrentCamera()->Draw();
 
+  //Render haptics!
+  if(GetVizmo().GetManager())
+    GetVizmo().GetManager()->HapticRender();
+
+  //Render haptics!
+  if(GetVizmo().GetManager())
+    GetVizmo().GetManager()->DrawRender();
+
+/*
   //draw pick box
   m_pickBox.Draw();
 
@@ -104,12 +133,13 @@ GLWidget::paintGL(){
 
   //draw axis
   DrawAxis();
+*/
 
   //set lights
   SetLightPos();
 
   //draw scene
-  GetVizmo().Draw();
+  //GetVizmo().Draw();
 
   //stop clock, update frametimes, and compute framerate
   clock_t endTime = clock();
@@ -123,9 +153,6 @@ GLWidget::paintGL(){
   if(m_showFrameRate)
     DrawFrameRate(frameRate);
 
-  //Render haptics!
-  if(GetVizmo().GetManager())
-    GetVizmo().GetManager()->Frame();
 }
 
 void

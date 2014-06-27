@@ -6,6 +6,7 @@
 
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
+#include "PHANToM/Manager.h"
 
 Camera::Camera(const string& _name, const Point3d& _eye, const Vector3d& _at) :
   m_name(_name),
@@ -33,6 +34,9 @@ Camera::Draw() {
       c[0], c[1], c[2],
       m_up[0], m_up[1], m_up[2]
       );
+
+  //if(GetVizmo().GetManager())
+  //  GetVizmo().GetManager()->UpdateWorkspace();
 }
 
 bool

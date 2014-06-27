@@ -72,6 +72,8 @@ class MainWindow : public QMainWindow {
     AnimationWidget* m_animationWidget;
     ModelSelectionWidget* m_modelSelectionWidget;
     QDockWidget* m_dialogDock;
+
+    QTimer* m_timer;
 };
 
 #endif /*_MAIN_WIN_H_*/

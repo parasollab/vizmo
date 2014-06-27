@@ -103,6 +103,11 @@ CreateGUI() {
   m_mainMenu->m_toolTabOptions->Init(); //initialize the tool tab menu
   m_dialogDock = new QDockWidget(this);
 
+  // Set up timer to redraw and refresh GUI
+  m_timer = new QTimer(this);
+  connect(m_timer, SIGNAL(timeout()), this, SLOT(UpdateScreen()));
+  m_timer->start(33);
+
   connect(m_animationWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
   connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
   connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()), m_textWidget, SLOT(SetText()));

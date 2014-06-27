@@ -47,7 +47,7 @@ $(PMPL_DIR)/libobprm.a:
 # PHANToM DEFINES
 ################################################################################
 ifeq ($(phantom), 1)
-  PHANTOM_LIBS = -lHD -lHDU -lHL -lrt
+  PHANTOM_LIBS = -lHD -lHDU -lHL -lHLU -lrt
   MP_DEF += -DUSE_PHANTOM
 else
   PHANTOM_LIBS =

@@ -20,7 +20,10 @@ class Manager {
     Manager();
     ~Manager();
 
-    void Frame();
+    void HapticRender();
+    void DrawRender();
+
+    void UpdateWorkspace();
 
     const hduVector3Dd& GetPos() const {return m_pos;}
     const hduVector3Dd& GetRot() const {return m_rot;}
@@ -38,6 +41,8 @@ class Manager {
 
     hduVector3Dd m_pos, m_rot, m_vel, m_force; //Device State
     hduVector3Dd m_worldPos, m_worldRot; //World State
+
+    HLuint m_shapeId;
 };
 
 }
