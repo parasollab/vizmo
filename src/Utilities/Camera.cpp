@@ -35,8 +35,8 @@ Camera::Draw() {
       m_up[0], m_up[1], m_up[2]
       );
 
-  //if(GetVizmo().GetManager())
-  //  GetVizmo().GetManager()->UpdateWorkspace();
+  if(GetVizmo().GetManager())
+    GetVizmo().GetManager()->UpdateWorkspace();
 }
 
 bool

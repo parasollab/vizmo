@@ -83,19 +83,22 @@ Manager::DrawRender() {
 
 void
 Manager::UpdateWorkspace() {
-  //GLdouble modelview[16];
+  GLdouble modelview[16];
   GLdouble projection[16];
-  //GLint viewport[4];
+  GLint viewport[4];
 
-  //glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+  glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
   glGetDoublev(GL_PROJECTION_MATRIX, projection);
-  //glGetIntegerv(GL_VIEWPORT, viewport);
+  glGetIntegerv(GL_VIEWPORT, viewport);
 
   hlMatrixMode(HL_TOUCHWORKSPACE);
   hlLoadIdentity();
 
   // Fit haptic workspace to view volume.
-  hluFitWorkspace(projection);
+  //hluFitWorkspace(projection);
+
+  double minP[3] = {-25, -15, -25}, maxP[3] = {25, 15, 25};
+  hluFitWorkspaceBox(modelview, minP, maxP);
 }
 
 void
@@ -132,19 +135,11 @@ Initialize() {
     //set limits of haptic workspace in millimeters.
     hlWorkspace(-150, -45, -90, 150, 250, 50);
 
-    // Force mapping to TestRigid bounds
-    hlDisable(HL_USE_GL_MODELVIEW);
-    //hlMatrixMode(HL_TOUCHWORKSPACE);
-    //hlLoadIdentity();
-
-    //hlOrtho(-25, 25, -25, 25, -25, 25);
-
     UpdateWorkspace();
 
     m_shapeId = hlGenShapes(1);
 
     hlTouchableFace(HL_FRONT);
-
   }
   catch(...) {
     if(HD_DEVICE_ERROR(error = hdGetError()))
