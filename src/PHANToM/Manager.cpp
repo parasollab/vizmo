@@ -29,6 +29,7 @@ Manager::
 ~Manager() {
   Clean();
   hlDeleteShapes(m_shapeId, 1);
+  hlDeleteShapes(m_shapeId + 1, 1);
 }
 
 void
@@ -59,10 +60,11 @@ Manager::HapticRender() {
   hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.1f);
 
   hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_shapeId);
+  GetVizmo().GetEnv()->GetBoundary()->DrawRender();
+  hlEndShape();
 
-  //GetVizmo().GetEnv()->GetBoundary()->DrawRender();
+  hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_shapeId + 1);
   glutSolidSphere(15, 32, 32);
-
   hlEndShape();
 
   hlEndFrame();
@@ -71,7 +73,7 @@ Manager::HapticRender() {
 void
 Manager::DrawRender() {
   //draw object to touch
-  glutSolidSphere(15, 32, 32);
+  //glutSolidSphere(15, 32, 32);
 
   //draw sphere at device position
   glPushMatrix();
@@ -137,7 +139,7 @@ Initialize() {
 
     UpdateWorkspace();
 
-    m_shapeId = hlGenShapes(1);
+    m_shapeId = hlGenShapes(2);
 
     hlTouchableFace(HL_FRONT);
   }
