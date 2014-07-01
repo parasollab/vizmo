@@ -36,13 +36,18 @@ class Manager {
 
     void Clean();
 
+    void GetState();
+
+    void BoundaryRender();
+    void ObstacleRender();
+
     HHD m_hhd; //haptic device handle
     HHLRC m_hhlrc; //hl rendering context
 
     hduVector3Dd m_pos, m_rot, m_vel, m_force; //Device State
     hduVector3Dd m_worldPos, m_worldRot; //World State
 
-    HLuint m_shapeId;
+    HLuint m_boundaryId;
 };
 
 }

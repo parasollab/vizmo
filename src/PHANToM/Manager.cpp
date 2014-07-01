@@ -28,53 +28,27 @@ Manager() : m_hhd(HD_INVALID_HANDLE), m_hhlrc(NULL) {
 Manager::
 ~Manager() {
   Clean();
-  hlDeleteShapes(m_shapeId, 1);
-  hlDeleteShapes(m_shapeId + 1, 1);
+  hlDeleteShapes(m_boundaryId, 1);
 }
 
 void
 Manager::HapticRender() {
-
   hlBeginFrame();
 
-  hdGetDoublev(HD_CURRENT_POSITION, m_pos);
-  hdGetDoublev(HD_CURRENT_GIMBAL_ANGLES, m_rot);
-  hdGetDoublev(HD_CURRENT_VELOCITY, m_vel);
-  hdGetDoublev(HD_CURRENT_FORCE, m_force);
-
-  cout << endl << endl << "Haptic State" << endl;
-  cout << "\tPos: " << m_pos << endl;
-  cout << "\tRot: " << m_rot << endl;
-  cout << "\tVel: " << m_vel << endl;
-  cout << "\tForce: " << m_force << endl;
-
-  hlGetDoublev(HL_DEVICE_POSITION, m_worldPos);
-
-  cout << endl << "World State" << endl;
-  cout << "\tPos: " << m_worldPos << endl;
+  //Get all state variables
+  GetState();
 
   //create a shape for the boundary
-  //hlHinti(HL_SHAPE_FEEDBACK_BUFFER_VERTICES, 8);
+  BoundaryRender();
 
-  hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 0.7f);
-  hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.1f);
-
-  hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_shapeId);
-  GetVizmo().GetEnv()->GetBoundary()->DrawRender();
-  hlEndShape();
-
-  hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_shapeId + 1);
-  glutSolidSphere(15, 32, 32);
-  hlEndShape();
+  //create shapes for obstacles
+  ObstacleRender();
 
   hlEndFrame();
 }
 
 void
 Manager::DrawRender() {
-  //draw object to touch
-  //glutSolidSphere(15, 32, 32);
-
   //draw sphere at device position
   glPushMatrix();
   glTranslatef(m_worldPos[0], m_worldPos[1], m_worldPos[2]);
@@ -96,10 +70,10 @@ Manager::UpdateWorkspace() {
   hlMatrixMode(HL_TOUCHWORKSPACE);
   hlLoadIdentity();
 
-  // Fit haptic workspace to view volume.
-  //hluFitWorkspace(projection);
-
-  double minP[3] = {-25, -15, -25}, maxP[3] = {25, 15, 25};
+  //get min and max points from boundary
+  vector<pair<double, double> > ranges = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
+  double minP[3] = {ranges[0].first, ranges[1].first, ranges[2].first};
+  double maxP[3] = {ranges[0].second, ranges[1].second, ranges[2].second};
   hluFitWorkspaceBox(modelview, minP, maxP);
 }
 
@@ -119,7 +93,7 @@ Initialize() {
     cout << "Found device " << hdGetString(HD_DEVICE_MODEL_TYPE) << endl;
 
     // Get the workspace dimensions.
-    HDdouble maxWorkspace[6];
+    /*HDdouble maxWorkspace[6];
     hdGetDoublev(HD_MAX_WORKSPACE_DIMENSIONS, maxWorkspace);
     // Low/left/back point of device workspace.
     hduVector3Dd llb(maxWorkspace[0], maxWorkspace[1], maxWorkspace[2]);
@@ -127,6 +101,7 @@ Initialize() {
     hduVector3Dd trf(maxWorkspace[3], maxWorkspace[4], maxWorkspace[5]);
 
     cout << "BBX1: " << llb << "\t" << trf << endl;
+    */
 
     //create hl context
     m_hhlrc = hlCreateContext(m_hhd);
@@ -135,11 +110,11 @@ Initialize() {
     hlEnable(HL_HAPTIC_CAMERA_VIEW);
 
     //set limits of haptic workspace in millimeters.
-    hlWorkspace(-150, -45, -90, 150, 250, 50);
+    hlWorkspace(-150, -45, 0, 150, 250, 90);
 
     UpdateWorkspace();
 
-    m_shapeId = hlGenShapes(2);
+    m_boundaryId = hlGenShapes(1);
 
     hlTouchableFace(HL_FRONT);
   }
@@ -164,6 +139,45 @@ Clean() {
     m_hhlrc = NULL;
     m_hhd = HD_INVALID_HANDLE;
   }
+}
+
+void
+Manager::
+GetState() {
+  hdGetDoublev(HD_CURRENT_POSITION, m_pos);
+  hdGetDoublev(HD_CURRENT_GIMBAL_ANGLES, m_rot);
+  hdGetDoublev(HD_CURRENT_VELOCITY, m_vel);
+  hdGetDoublev(HD_CURRENT_FORCE, m_force);
+
+  /*cout << endl << endl << "Haptic State" << endl;
+  cout << "\tPos: " << m_pos << endl;
+  cout << "\tRot: " << m_rot << endl;
+  cout << "\tVel: " << m_vel << endl;
+  cout << "\tForce: " << m_force << endl;*/
+
+  hlGetDoublev(HL_DEVICE_POSITION, m_worldPos);
+
+  /*cout << endl << "World State" << endl;
+  cout << "\tPos: " << m_worldPos << endl;*/
+}
+
+void
+Manager::
+BoundaryRender() {
+  //create a shape for the boundary
+  hlHinti(HL_SHAPE_FEEDBACK_BUFFER_VERTICES, 8);
+
+  hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 0.7f);
+  hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.1f);
+
+  hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_boundaryId);
+  GetVizmo().GetEnv()->GetBoundary()->DrawRender();
+  hlEndShape();
+}
+
+void
+Manager::
+ObstacleRender() {
 }
 
 }

@@ -100,11 +100,6 @@ GLWidget::paintGL(){
   //draw camera
   GetCurrentCamera()->Draw();
 
-  //Render haptics!
-  if(GetVizmo().GetManager())
-    GetVizmo().GetManager()->DrawRender();
-
-/*
   //draw pick box
   m_pickBox.Draw();
 
@@ -113,13 +108,16 @@ GLWidget::paintGL(){
 
   //draw axis
   DrawAxis();
-*/
 
   //set lights
   SetLightPos();
 
   //draw scene
   GetVizmo().Draw();
+
+  //Render haptics!
+  if(GetVizmo().GetManager())
+    GetVizmo().GetManager()->DrawRender();
 
   //stop clock, update frametimes, and compute framerate
   clock_t endTime = clock();
