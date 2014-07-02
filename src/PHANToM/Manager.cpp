@@ -115,6 +115,7 @@ Initialize() {
     UpdateWorkspace();
 
     m_boundaryId = hlGenShapes(1);
+    m_obstaclesId = hlGenShapes(GetVizmo().GetEnv()->GetMultiBodies().size()-1);
 
     hlTouchableFace(HL_FRONT);
   }
@@ -178,6 +179,20 @@ BoundaryRender() {
 void
 Manager::
 ObstacleRender() {
+  size_t count = 0;
+  const vector<MultiBodyModel*>& mbs = GetVizmo().GetEnv()->GetMultiBodies();
+  typedef vector<MultiBodyModel*>::const_iterator CMIT;
+  for(CMIT cmit = mbs.begin(); cmit != mbs.end(); ++cmit) {
+    if((*cmit)->IsActive())
+      continue;
+
+    hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 1.0f);
+    hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.02f);
+
+    hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_obstaclesId + count++);
+    (*cmit)->DrawRender();
+    hlEndShape();
+  }
 }
 
 }
