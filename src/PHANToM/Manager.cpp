@@ -33,7 +33,9 @@ Manager::
 
 void
 Manager::HapticRender() {
-  //get device data for debugging
+  glDisable(GL_CULL_FACE);
+  hlBeginFrame();
+
   //Get all state variables
   GetState();
 
@@ -51,11 +53,18 @@ Manager::HapticRender() {
 void
 Manager::DrawRender() {
   //draw spherical cursor and crosshairs at device position
-  glPushMatrix();
-  //cursor
-  glTranslatef(m_worldPos[0], m_worldPos[1], m_worldPos[2]);
   glColor3f(0.1, 0.4, 0.9);
-  glutSolidSphere(1, 25, 25);
+
+  //cursor
+  glPushMatrix();
+  glTranslatef(m_worldPos[0], m_worldPos[1], m_worldPos[2]);
+  //glutSolidSphere(1, 25, 25);
+  glPointSize(5);
+  glBegin(GL_POINTS);
+  //glVertex3f(m_worldPos[0], m_worldPos[1], m_worldPos[2]);
+  glVertex3f(0, 0, 0);
+  glEnd();
+
   //crosshair
   if(IsInsideBBX()) {
     glColor4f(.9, .9, .9, .2);
@@ -134,7 +143,7 @@ Initialize() {
     m_boundaryId = hlGenShapes(1);
     m_obstaclesId = hlGenShapes(GetVizmo().GetEnv()->GetMultiBodies().size()-1);
 
-    hlTouchableFace(HL_FRONT);
+    //hlTouchableFace(HL_FRONT);
   }
   catch(...) {
     if(HD_DEVICE_ERROR(error = hdGetError()))
@@ -182,6 +191,9 @@ GetState() {
 void
 Manager::
 BoundaryRender() {
+
+  hlTouchableFace(HL_BACK);
+
   //create a shape for the boundary
   hlHinti(HL_SHAPE_FEEDBACK_BUFFER_VERTICES, 8);
 
@@ -189,13 +201,16 @@ BoundaryRender() {
   hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.1f);
 
   hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_boundaryId);
-  GetVizmo().GetEnv()->GetBoundary()->DrawRender();
+  GetVizmo().GetEnv()->GetBoundary()->DrawHaptics();
   hlEndShape();
 }
 
 void
 Manager::
 ObstacleRender() {
+
+  hlTouchableFace(HL_FRONT);
+
   size_t count = 0;
   const vector<MultiBodyModel*>& mbs = GetVizmo().GetEnv()->GetMultiBodies();
   typedef vector<MultiBodyModel*>::const_iterator CMIT;
@@ -204,10 +219,10 @@ ObstacleRender() {
       continue;
 
     hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 1.0f);
-    hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.02f);
+    hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.0f);
 
     hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_obstaclesId + count++);
-    (*cmit)->DrawRender();
+    (*cmit)->DrawHaptics();
     hlEndShape();
   }
 }

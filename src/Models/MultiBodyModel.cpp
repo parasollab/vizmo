@@ -117,6 +117,13 @@ MultiBodyModel::DrawSelected(){
 }
 
 void
+MultiBodyModel::
+DrawHaptics() {
+  for(BodyIter bit = Begin(); bit!=End(); ++bit)
+    (*bit)->DrawHaptics();
+}
+
+void
 MultiBodyModel::Print(ostream& _os) const {
   _os << Name() << endl;
   if(m_active) {

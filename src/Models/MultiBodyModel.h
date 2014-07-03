@@ -65,6 +65,7 @@ class MultiBodyModel : public Model {
     virtual void DrawRender();
     virtual void DrawSelect();
     virtual void DrawSelected();
+    virtual void DrawHaptics();
     virtual void Print(ostream& _os) const;
 
     //IO

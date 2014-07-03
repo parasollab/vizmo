@@ -69,6 +69,7 @@ class BodyModel : public TransformableModel {
     void DrawRender();
     void DrawSelect();
     void DrawSelected();
+    void DrawHaptics();
     void Print(ostream& _os) const;
 
     //file IO

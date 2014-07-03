@@ -88,6 +88,12 @@ PolyhedronModel::DrawSelected() {
 }
 
 void
+PolyhedronModel::
+DrawHaptics() {
+  glCallList(m_solidID);
+}
+
+void
 PolyhedronModel::Print(ostream& _os) const {
   _os << m_filename << endl;
 }

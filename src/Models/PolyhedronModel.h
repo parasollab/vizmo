@@ -23,6 +23,7 @@ class PolyhedronModel : public Model {
     void DrawRender();
     void DrawSelect();
     void DrawSelected();
+    void DrawHaptics();
     void Print(ostream& _os) const;
 
   protected:

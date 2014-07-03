@@ -53,6 +53,8 @@ class Model {
     virtual void DrawSelect() = 0;
     //DrawSelected is only called when model is selected
     virtual void DrawSelected() = 0;
+    //Draw Haptics for PHANToM device
+    virtual void DrawHaptics() {};
     //output model info
     virtual void Print(ostream& _os) const = 0;
 

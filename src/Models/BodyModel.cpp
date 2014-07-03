@@ -134,6 +134,15 @@ BodyModel::DrawSelected() {
 }
 
 void
+BodyModel::
+DrawHaptics() {
+  glPushMatrix();
+  Transform();
+  m_polyhedronModel->DrawHaptics();
+  glPopMatrix();
+}
+
+void
 BodyModel::ParseActiveBody(istream& _is, const string& _modelDataDir, const Color4 _color) {
 
   m_filename = ReadFieldString(_is, WHERE,
