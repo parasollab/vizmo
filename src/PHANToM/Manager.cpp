@@ -33,10 +33,11 @@ Manager::
 
 void
 Manager::HapticRender() {
-  hlBeginFrame();
-
+  //get device data for debugging
   //Get all state variables
   GetState();
+
+  hlBeginFrame();
 
   //create a shape for the boundary
   BoundaryRender();
@@ -49,11 +50,25 @@ Manager::HapticRender() {
 
 void
 Manager::DrawRender() {
-  //draw sphere at device position
+  //draw spherical cursor and crosshairs at device position
   glPushMatrix();
+  //cursor
   glTranslatef(m_worldPos[0], m_worldPos[1], m_worldPos[2]);
   glColor3f(0.1, 0.4, 0.9);
   glutSolidSphere(1, 25, 25);
+  //crosshair
+  glColor4f(.9, .9, .9, .2);
+  glLineWidth(4);
+  vector<pair<double, double> > ranges = GetVizmo().GetEnv()->GetBoundary()->
+      GetRanges();
+  glBegin(GL_LINES);
+    glVertex3f(ranges[0].first  - m_worldPos[0], 0., 0.);
+    glVertex3f(ranges[0].second - m_worldPos[0], 0., 0.);
+    glVertex3f(0., ranges[1].first  - m_worldPos[1], 0.);
+    glVertex3f(0., ranges[1].second - m_worldPos[1], 0.);
+    glVertex3f(0., 0., ranges[2].first  - m_worldPos[2]);
+    glVertex3f(0., 0., ranges[2].second - m_worldPos[2]);
+  glEnd();
   glPopMatrix();
 }
 

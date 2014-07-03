@@ -7,19 +7,26 @@
 
 #include "UserPathModel.h"
 
-#include <QtGui>
+#include "GUI/MainWindow.h"
 
 #include "Models/CfgModel.h"
 #include "Models/EnvModel.h"
 #include "Models/MultiBodyModel.h"
 #include "Models/Vizmo.h"
+
+#include "PHANToM/Manager.h"
+
 #include "Utilities/GLUtils.h"
 
 class Camera;
 
 UserPathModel::
-UserPathModel() : Model("User Path"), m_finished(false), m_drawing(false),
-    m_userPath(), m_oldPos(), m_newPos(), m_valid(true) { }
+UserPathModel(MainWindow* _mainWindow, InputType _t) :
+    Model("User Path"), m_mainWindow(_mainWindow), m_type(_t),
+    m_finished(false), m_valid(true), m_oldPos(), m_newPos(), m_userPath() {
+  if(m_type == Haptic)
+    UpdatePositions(GetVizmo().GetManager()->GetWorldPos());
+}
 
 void
 UserPathModel::
@@ -100,23 +107,12 @@ GetCfgs() {
 bool
 UserPathModel::
 MousePressed(QMouseEvent* _e, Camera* _c) {
-  if(_e->buttons() == Qt::LeftButton && !m_finished) {
+  if(m_type == Mouse && _e->buttons() == Qt::LeftButton && !m_finished) {
     //start drawing path
-    m_drawing = true;
-
-    //get first point
     Point3d p = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
         Point3d(), Vector3d(0, 0, 1));
-
-    //set up new/old positions (two calls for initialize)
     UpdatePositions(p);
-    UpdatePositions(p);
-
-    //collision check current position & set color
-    UpdateValidity();
-
-    //add first point to path
-    m_userPath.push_back(p);
+    SendToPath(p);
     return true;
   }
 
@@ -126,9 +122,8 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
 bool
 UserPathModel::
 MouseReleased(QMouseEvent* _e, Camera* _c) {
-  if(!m_finished && (m_userPath.begin() != m_userPath.end())) {
+  if(m_type == Mouse && !m_finished && (m_userPath.begin() != m_userPath.end())) {
     m_finished = true;
-    m_drawing = false;
     return true;
   }
 
@@ -138,23 +133,26 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
 bool
 UserPathModel::
 MouseMotion(QMouseEvent* _e, Camera* _c) {
-  if(!m_finished && m_drawing) {
+  if(m_type == Mouse && !m_finished) {
     //get current mouse position
     Point3d p = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
         Point3d(), Vector3d(0, 0, 1));
+    SendToPath(p);
+    return true;
+  }
 
-    //check that this position is not already in the path
-    if(p != m_userPath.back()) {
-      //update new/old positions
-      UpdatePositions(p);
+  return false;
+}
 
-      //collision check new position & set color
-      UpdateValidity();
+bool
+UserPathModel::
+KeyPressed(QKeyEvent* _e) {
+  if(m_type == Mouse)
+    return false;
 
-      //store new point
-      m_userPath.push_back(p);
-      return true;
-    }
+  if(_e->key() == Qt::Key_Space) {
+    m_finished = true;
+    return true;
   }
 
   return false;
@@ -175,6 +173,17 @@ UpdateValidity() {
     m_valid = false;
 }
 
+void
+UserPathModel::
+SendToPath(const Point3d& _p) {
+  //check that this position is new
+  if(m_userPath.empty() || _p != m_userPath.back()) {
+    UpdatePositions(_p);
+    UpdateValidity();
+    m_userPath.push_back(_p);
+  }
+}
+
 vector<double>
 UserPathModel::
 Point3dToVector(const Point3d& _p) {
@@ -182,3 +191,4 @@ Point3dToVector(const Point3d& _p) {
   copy(_p.begin(), _p.end(), data.begin());
   return data;
 }
+

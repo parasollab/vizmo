@@ -4,6 +4,9 @@
 #ifdef USE_PHANTOM
 
 #include <vector>
+
+#include "Vector.h"
+
 using namespace std;
 
 #include <HDU/hduVector.h>
@@ -29,6 +32,11 @@ class Manager {
     const hduVector3Dd& GetRot() const {return m_rot;}
     const hduVector3Dd& GetVel() const {return m_vel;}
     const hduVector3Dd& GetForce() const {return m_force;}
+
+    mathtool::Point3d GetWorldPos() const
+        {return mathtool::Point3d(m_worldPos[0], m_worldPos[1], m_worldPos[2]);}
+    mathtool::Point3d GetWorldRot() const
+        {return mathtool::Point3d(m_worldRot[0], m_worldRot[1], m_worldRot[2]);}
 
   private:
 

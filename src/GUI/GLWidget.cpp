@@ -340,7 +340,8 @@ void
 GLWidget::keyPressEvent(QKeyEvent* _e) {
   //check camera then transform tool
   if(!GetCurrentCamera()->KeyPressed(_e) &&
-      !m_transformTool.KeyPressed(_e))
+      !m_transformTool.KeyPressed(_e) &&
+      !GetCurrentUserPath()->KeyPressed(_e))
     _e->ignore(); //not handled
   updateGL();
 }
