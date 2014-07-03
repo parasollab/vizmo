@@ -57,18 +57,18 @@ Manager::DrawRender() {
   glColor3f(0.1, 0.4, 0.9);
   glutSolidSphere(1, 25, 25);
   //crosshair
-  glColor4f(.9, .9, .9, .2);
-  glLineWidth(4);
-  vector<pair<double, double> > ranges = GetVizmo().GetEnv()->GetBoundary()->
-      GetRanges();
-  glBegin(GL_LINES);
-    glVertex3f(ranges[0].first  - m_worldPos[0], 0., 0.);
-    glVertex3f(ranges[0].second - m_worldPos[0], 0., 0.);
-    glVertex3f(0., ranges[1].first  - m_worldPos[1], 0.);
-    glVertex3f(0., ranges[1].second - m_worldPos[1], 0.);
-    glVertex3f(0., 0., ranges[2].first  - m_worldPos[2]);
-    glVertex3f(0., 0., ranges[2].second - m_worldPos[2]);
-  glEnd();
+  if(IsInsideBBX()) {
+    glColor4f(.9, .9, .9, .2);
+    glLineWidth(4);
+    glBegin(GL_LINES);
+      glVertex3f(m_worldRange[0].first  - m_worldPos[0], 0., 0.);
+      glVertex3f(m_worldRange[0].second - m_worldPos[0], 0., 0.);
+      glVertex3f(0., m_worldRange[1].first  - m_worldPos[1], 0.);
+      glVertex3f(0., m_worldRange[1].second - m_worldPos[1], 0.);
+      glVertex3f(0., 0., m_worldRange[2].first  - m_worldPos[2]);
+      glVertex3f(0., 0., m_worldRange[2].second - m_worldPos[2]);
+    glEnd();
+  }
   glPopMatrix();
 }
 
@@ -86,9 +86,10 @@ Manager::UpdateWorkspace() {
   hlLoadIdentity();
 
   //get min and max points from boundary
-  vector<pair<double, double> > ranges = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
-  double minP[3] = {ranges[0].first, ranges[1].first, ranges[2].first};
-  double maxP[3] = {ranges[0].second, ranges[1].second, ranges[2].second};
+  double minP[3] = {m_worldRange[0].first, m_worldRange[1].first,
+      m_worldRange[2].first};
+  double maxP[3] = {m_worldRange[0].second, m_worldRange[1].second,
+      m_worldRange[2].second};
   hluFitWorkspaceBox(modelview, minP, maxP);
 }
 
@@ -96,6 +97,7 @@ void
 Manager::
 Initialize() {
 
+  m_worldRange = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
   HDErrorInfo error;
 
   try {
@@ -208,6 +210,18 @@ ObstacleRender() {
     (*cmit)->DrawRender();
     hlEndShape();
   }
+}
+
+bool
+Manager::
+IsInsideBBX() {
+  for(int i = 0; i < 3; ++i) {
+    if(m_worldPos[i] < m_worldRange[i].first ||
+        m_worldPos[i] > m_worldRange[i].second)
+      return false;
+  }
+
+  return true;
 }
 
 }

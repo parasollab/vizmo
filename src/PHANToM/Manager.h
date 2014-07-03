@@ -38,6 +38,8 @@ class Manager {
     mathtool::Point3d GetWorldRot() const
         {return mathtool::Point3d(m_worldRot[0], m_worldRot[1], m_worldRot[2]);}
 
+    bool IsInsideBBX();
+
   private:
 
     void Initialize();
@@ -54,6 +56,7 @@ class Manager {
 
     hduVector3Dd m_pos, m_rot, m_vel, m_force; //Device State
     hduVector3Dd m_worldPos, m_worldRot; //World State
+    vector<pair<double, double> > m_worldRange;
 
     HLuint m_boundaryId, m_obstaclesId;
 };
