@@ -239,6 +239,15 @@ IsInsideBBX() {
   return true;
 }
 
+void
+Manager::
+ToggleForceOutput() {
+  if(hdIsEnabled(HD_FORCE_OUTPUT))
+    hdDisable(HD_FORCE_OUTPUT);
+  else
+    hdEnable(HD_FORCE_OUTPUT);
+}
+
 }
 
 #endif

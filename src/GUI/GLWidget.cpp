@@ -338,8 +338,11 @@ GLWidget::mouseMoveEvent(QMouseEvent* _e) {
 
 void
 GLWidget::keyPressEvent(QKeyEvent* _e) {
+  //check for haptic toggle switch
+  if(_e->key() == Qt::Key_QuoteLeft)
+    GetVizmo().GetManager()->ToggleForceOutput();
   //check camera then transform tool
-  if(!GetCurrentCamera()->KeyPressed(_e) &&
+  else if(!GetCurrentCamera()->KeyPressed(_e) &&
       !m_transformTool.KeyPressed(_e) &&
       GetCurrentUserPath() && !GetCurrentUserPath()->KeyPressed(_e))
     _e->ignore(); //not handled
@@ -483,4 +486,3 @@ GLWidget::DrawAxis() {
     glMatrixMode(GL_MODELVIEW);
   }
 }
-
