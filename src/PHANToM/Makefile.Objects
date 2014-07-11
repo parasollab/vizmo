@@ -1,0 +1,2 @@
+OBJECTS += \
+	   PHANToM/Manager.o

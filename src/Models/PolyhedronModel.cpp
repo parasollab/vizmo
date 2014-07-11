@@ -10,7 +10,7 @@
 
 PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
   : Model(_filename), m_filename(_filename), m_isSurface(_isSurface),
-  m_solidID(-1), m_wiredID(-1) {
+  m_numVerts(0), m_solidID(-1), m_wiredID(-1), m_normalsID(-1) {
     Build();
   }
 
@@ -22,6 +22,7 @@ PolyhedronModel::PolyhedronModel(const PolyhedronModel& _p) : Model(_p),
 PolyhedronModel::~PolyhedronModel(){
   glDeleteLists(m_wiredID,1);
   glDeleteLists(m_solidID,1);
+  glDeleteLists(m_normalsID,1);
 }
 
 void
@@ -34,6 +35,8 @@ PolyhedronModel::Build() {
 
   const PtVector& points=imodel->GetVertices();
   const TriVector& tris=imodel->GetTriP(); //GetTriangles();
+
+  m_numVerts = points.size();
 
   //compute center of mass and radius
   COM(points);
@@ -54,6 +57,7 @@ PolyhedronModel::Build() {
 
   BuildSolid(points, tris, normals);
   BuildWired(points, tris, normals);
+  BuildNormals(points, tris, normals);
 
   delete imodel;
 }
@@ -72,6 +76,9 @@ void PolyhedronModel::DrawRender() {
   }
   else
     glCallList(m_wiredID);
+
+  if(m_showNormals)
+    glCallList(m_normalsID);
 }
 
 void
@@ -85,6 +92,12 @@ PolyhedronModel::DrawSelect() {
 void
 PolyhedronModel::DrawSelected() {
   glCallList(m_wiredID);
+}
+
+void
+PolyhedronModel::
+DrawHaptics() {
+  glCallList(m_solidID);
 }
 
 void
@@ -111,7 +124,6 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
   glNewList(m_solidID, GL_COMPILE);
 
   glEnable(GL_LIGHTING);
-  glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
@@ -160,6 +172,49 @@ PolyhedronModel::BuildWired(const PtVector& _points, const TriVector& _tris, con
       glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, id);
     }
   }
+
+  glPopMatrix();
+  glEndList();
+}
+
+void
+PolyhedronModel::
+BuildNormals(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms) {
+  m_normalsID = glGenLists(1);
+  glNewList(m_normalsID, GL_COMPILE);
+
+  glDisable(GL_LIGHTING);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+
+  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+
+  //draw
+  glColor3f(0, 1, 0);
+  glBegin(GL_LINES);
+  typedef TriVector::const_iterator TRIT;
+  for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
+    const Tri& tri = *trit;
+    const Vector3d& norm = _norms[distance(_tris.begin(), trit)];
+    Point3d center = (_points[tri[0]] + _points[tri[1]] + _points[tri[2]])/3;
+    Point3d endp = center + norm.normalize();
+
+    glVertex3dv(center);
+    glVertex3dv(endp);
+  }
+  glEnd();
+
+  glBegin(GL_POINTS);
+  typedef TriVector::const_iterator TRIT;
+  for(TRIT trit = _tris.begin(); trit!=_tris.end(); ++trit){
+    const Tri& tri = *trit;
+    const Vector3d& norm = _norms[distance(_tris.begin(), trit)];
+    Point3d center = (_points[tri[0]] + _points[tri[1]] + _points[tri[2]])/3;
+    Point3d endp = center + norm.normalize();
+
+    glVertex3dv(endp);
+  }
+  glEnd();
 
   glPopMatrix();
   glEndList();

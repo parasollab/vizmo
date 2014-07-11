@@ -40,6 +40,7 @@ class MultiBodyModel : public Model {
     virtual void SetRenderMode(RenderMode _mode);
     virtual void SetSelectable(bool _s);
     virtual void SetColor(const Color4& _c);
+    virtual void ToggleNormals();
 
     bool IsActive() const{return m_active;}
     bool IsSurface() const {return m_surface;}
@@ -65,6 +66,7 @@ class MultiBodyModel : public Model {
     virtual void DrawRender();
     virtual void DrawSelect();
     virtual void DrawSelected();
+    virtual void DrawHaptics();
     virtual void Print(ostream& _os) const;
 
     //IO

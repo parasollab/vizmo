@@ -3,6 +3,8 @@
 
 #include "BoundingBoxModel.h"
 
+#include <glut.h>
+
 BoundingBoxModel::BoundingBoxModel() :
   BoundaryModel("Bounding Box"),
   m_bbx(3, make_pair(-numeric_limits<double>::max(), numeric_limits<double>::max())) {
@@ -119,6 +121,113 @@ BoundingBoxModel::Build() {
   glEndList();
 
   glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void
+BoundingBoxModel::DrawHaptics() {
+  glPushMatrix();
+  glTranslatef((m_bbx[0].first+m_bbx[0].second)/2, (m_bbx[1].first+m_bbx[1].second)/2, (m_bbx[2].first+m_bbx[2].second)/2);
+  glScalef(m_bbx[0].second-m_bbx[0].first, m_bbx[1].second-m_bbx[1].first, m_bbx[2].second-m_bbx[2].first);
+  glutSolidCube(1);
+  glPopMatrix();
+  /*float xmin = m_bbx[0].first;
+  float xmax = m_bbx[0].second;
+  float ymin = m_bbx[1].first;
+  float ymax = m_bbx[1].second;
+  float zmin = m_bbx[2].second == numeric_limits<double>::max() ? -1 : m_bbx[2].first;
+  float zmax = m_bbx[2].second == numeric_limits<double>::max() ? 1 : m_bbx[2].second;
+
+  GLfloat vertices[24][3] = {
+    //{xmin, ymin, zmin}, //1
+    //{xmin, ymin, zmax}, //2
+    //{xmin, ymax, zmin}, //3
+    //{xmin, ymax, zmax}, //4
+    //{xmax, ymin, zmin}, //5
+    //{xmax, ymin, zmax}, //6
+    //{xmax, ymax, zmin}, //7
+    //{xmax, ymax, zmax}, //8
+    {xmin, ymin, zmin}, //1
+    {xmax, ymax, zmin}, //7
+    {xmax, ymin, zmin}, //5
+    {xmin, ymax, zmin}, //3
+    {xmin, ymin, zmin}, //1
+    {xmin, ymax, zmax}, //4
+    {xmin, ymax, zmin}, //3
+    {xmin, ymin, zmax}, //2
+    {xmin, ymax, zmin}, //3
+    {xmax, ymax, zmax}, //8
+    {xmax, ymax, zmin}, //7
+    {xmin, ymax, zmax}, //4
+    {xmax, ymin, zmin}, //5
+    {xmax, ymax, zmin}, //7
+    {xmax, ymax, zmax}, //8
+    {xmax, ymin, zmax}, //6
+    {xmin, ymin, zmin}, //1
+    {xmax, ymin, zmin}, //5
+    {xmax, ymin, zmax}, //6
+    {xmin, ymin, zmax}, //2
+    {xmin, ymin, zmax}, //2
+    {xmax, ymin, zmax}, //6
+    {xmax, ymax, zmax}, //8
+    {xmin, ymax, zmax} //4
+  };
+
+  static GLfloat normals[24][3] = {
+    //{0, 0, 1},  //1
+    //{0, 0, -1}, //2
+    //{0, 1, 0},  //3
+    //{0, -1, 0}, //4
+    //{1, 0, 0},  //5
+    //{-1, 0, 0}, //6
+    {0, 0, -1}, //2
+    {0, 0, -1}, //2
+    {0, 0, -1}, //2
+    {0, 0, -1}, //2
+    {-1, 0, 0}, //6
+    {-1, 0, 0}, //6
+    {-1, 0, 0}, //6
+    {-1, 0, 0}, //6
+    {0, 1, 0},  //3
+    {0, 1, 0},  //3
+    {0, 1, 0},  //3
+    {0, 1, 0},  //3
+    {1, 0, 0},  //5
+    {1, 0, 0},  //5
+    {1, 0, 0},  //5
+    {1, 0, 0},  //5
+    {0, -1, 0}, //4
+    {0, -1, 0}, //4
+    {0, -1, 0}, //4
+    {0, -1, 0}, //4
+    {0, 0, 1},  //1
+    {0, 0, 1},  //1
+    {0, 0, 1},  //1
+    {0, 0, 1}  //1
+  };
+
+  GLubyte triangles[] = {
+    0, 1, 2, 0, 3, 1,
+    4, 5, 6, 4, 7, 5,
+    8, 9, 10, 8, 11, 9,
+    12, 13, 14, 12, 15, 13,
+    16, 17, 18, 16, 19, 17,
+    20, 21, 22, 20, 23, 21
+  };
+
+  //set properties for this box
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  //setup points
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+  glEnableClientState(GL_NORMAL_ARRAY);
+  glNormalPointer(GL_FLOAT, 0, normals);
+
+  glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_BYTE, triangles);
+
+  glDisableClientState(GL_NORMAL_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);*/
 }
 
 void

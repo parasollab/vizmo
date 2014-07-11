@@ -8,6 +8,11 @@ ifndef debug
   debug = 0
 endif
 
+# set PHANToM compile
+ifndef phantom
+  phantom = 0
+endif
+
 # set directory paths
 ifndef VIZMO_DIR
   VIZMO_DIR = .

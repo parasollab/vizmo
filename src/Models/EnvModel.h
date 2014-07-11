@@ -24,7 +24,7 @@ class EnvModel : public LoadableModel {
     const Point3d& GetCOM() const {return m_centerOfMass;}
     Environment* GetEnvironment() {return m_environment;}
 
-    vector<MultiBodyModel*> GetMultiBodies() {return m_multibodies;}
+    const vector<MultiBodyModel*>& GetMultiBodies() const {return m_multibodies;}
 
     //Boundary
     BoundaryModel* GetBoundary() {return m_boundary;}

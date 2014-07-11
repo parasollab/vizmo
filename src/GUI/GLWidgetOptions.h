@@ -27,6 +27,7 @@ class GLWidgetOptions : public OptionsBase {
     void MakeSolid();
     void MakeWired();
     void MakeInvisible();
+    void ShowObjectNormals();
 
   private:
     void CreateActions();

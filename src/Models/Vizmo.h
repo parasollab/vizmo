@@ -16,6 +16,7 @@ class Model;
 class PathModel;
 class QueryModel;
 class RobotModel;
+namespace PHANToM {class Manager;}
 
 //Define singleton
 class Vizmo;
@@ -53,6 +54,8 @@ class Vizmo {
     RobotModel* GetRobot() const {return m_robotModel;}
     //Put robot in start configuration if possible
     void PlaceRobot();
+
+    PHANToM::Manager* GetManager() const {return m_manager;}
 
     // Roadmap Related Functions
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
@@ -109,6 +112,9 @@ class Vizmo {
 
     //robot
     RobotModel* m_robotModel;
+
+    //PHANToM manager
+    PHANToM::Manager* m_manager;
 
     //map
     MapModel<CfgModel, EdgeModel>* m_mapModel;

@@ -4,11 +4,15 @@
 #include "Model.h"
 #include "Vizmo.h"
 
-//class MultiBodyModel;
+class MainWindow;
 
 class UserPathModel : public Model {
+
   public:
-    UserPathModel();
+    //specify input type
+    enum InputType {Mouse, Haptic};
+
+    UserPathModel(MainWindow* _mainWindow, InputType _t = Mouse);
 
     //initialization of gl models
     void Build() {}
@@ -23,28 +27,31 @@ class UserPathModel : public Model {
     void Print(ostream& _os) const;
     void PrintPath(ostream& _os) const;
 
-    //primative cfg extraction
+    //access functions
+    const bool IsFinished() const {return m_finished;}
+    InputType GetInputType() {return m_type;}
     shared_ptr< vector<CfgModel> > GetCfgs();
+    void SendToPath(const Point3d& _p);
 
     //mouse events for selecting and drawing
     bool MousePressed(QMouseEvent* _e, Camera* _c);
     bool MouseReleased(QMouseEvent* _e, Camera* _c);
     bool MouseMotion(QMouseEvent* _e, Camera* _c);
     bool PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {return false;}
+    bool KeyPressed(QKeyEvent* _e);
 
   protected:
+    //helper functions
     void UpdatePositions(const Point3d& _p);
     void UpdateValidity();
-
     vector<double> Point3dToVector(const Point3d& _p);
 
   private:
-    bool m_finished, m_drawing;
-
+    MainWindow* m_mainWindow;
+    InputType m_type;
+    bool m_finished, m_valid;
+    CfgModel m_oldPos, m_newPos;
     vector<Point3d> m_userPath;
-    CfgModel m_oldPos;
-    CfgModel m_newPos;
-    bool m_valid;
 };
 
 #endif

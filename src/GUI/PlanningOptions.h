@@ -33,6 +33,7 @@ class PlanningOptions : public OptionsBase {
     void AddUserPath();
     void DeleteUserPath();
     void PrintUserPath();
+    void HapticPathCapture();
 
   private:
     void CreateActions();
@@ -56,11 +57,11 @@ class MapEnvironmentWorker : public QObject {
 
   Q_OBJECT
 
-    public slots:
+  public slots:
     void Solve();
 
-signals:
-  void Finished();
+  signals:
+    void Finished();
 };
 
 #endif

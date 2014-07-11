@@ -11,7 +11,7 @@
 #include "Models/RegionModel.h"
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
-
+#include "PHANToM/Manager.h"
 #include "Utilities/Camera.h"
 #include "Utilities/Font.h"
 #include "Utilities/GLUtils.h"
@@ -85,6 +85,10 @@ GLWidget::paintGL(){
   //start clock
   clock_t startTime = clock();
 
+  //Render haptics!
+  if(GetVizmo().GetManager())
+    GetVizmo().GetManager()->HapticRender();
+
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -111,6 +115,10 @@ GLWidget::paintGL(){
   //draw scene
   GetVizmo().Draw();
 
+  //Render haptics!
+  if(GetVizmo().GetManager())
+    GetVizmo().GetManager()->DrawRender();
+
   //stop clock, update frametimes, and compute framerate
   clock_t endTime = clock();
 
@@ -122,6 +130,7 @@ GLWidget::paintGL(){
   double frameRate = 1./(accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.) / m_frameTimes.size());
   if(m_showFrameRate)
     DrawFrameRate(frameRate);
+
 }
 
 void
@@ -329,9 +338,13 @@ GLWidget::mouseMoveEvent(QMouseEvent* _e) {
 
 void
 GLWidget::keyPressEvent(QKeyEvent* _e) {
+  //check for haptic toggle switch
+  if(_e->key() == Qt::Key_QuoteLeft)
+    GetVizmo().GetManager()->ToggleForceOutput();
   //check camera then transform tool
-  if(!GetCurrentCamera()->KeyPressed(_e) &&
-      !m_transformTool.KeyPressed(_e))
+  else if(!GetCurrentCamera()->KeyPressed(_e) &&
+      !m_transformTool.KeyPressed(_e) &&
+      GetCurrentUserPath() && !GetCurrentUserPath()->KeyPressed(_e))
     _e->ignore(); //not handled
   updateGL();
 }
@@ -473,4 +486,3 @@ GLWidget::DrawAxis() {
     glMatrixMode(GL_MODELVIEW);
   }
 }
-

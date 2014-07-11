@@ -42,6 +42,7 @@ class MainWindow : public QMainWindow {
     AnimationWidget* GetAnimationWidget() { return m_animationWidget; }
     ModelSelectionWidget* GetModelSelectionWidget() { return m_modelSelectionWidget; }
     QDockWidget* GetDialogDock() { return m_dialogDock; }
+    QTimer* GetMainClock() {return m_timer;}
     void ShowDialog(QDialog* _dialog);
     void ResetDialogs();
 
@@ -72,6 +73,8 @@ class MainWindow : public QMainWindow {
     AnimationWidget* m_animationWidget;
     ModelSelectionWidget* m_modelSelectionWidget;
     QDockWidget* m_dialogDock;
+
+    QTimer* m_timer;
 };
 
 #endif /*_MAIN_WIN_H_*/

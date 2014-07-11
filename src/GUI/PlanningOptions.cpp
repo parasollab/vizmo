@@ -15,6 +15,8 @@
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
 
+#include "PHANToM/Manager.h"
+
 #include "Icons/AddSphereRegion.xpm"
 #include "Icons/AddBoxRegion.xpm"
 #include "Icons/DeleteRegion.xpm"
@@ -27,14 +29,14 @@
 
 PlanningOptions::
 PlanningOptions(QWidget* _parent, MainWindow* _mainWindow) :
-  OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
-  m_threadDone(true), m_thread(NULL), m_userPathCount(0) {
+    OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
+    m_threadDone(true), m_thread(NULL), m_userPathCount(0) {
 
-    CreateActions();
-    SetUpCustomSubmenu();
-    SetUpToolTab();
-    SetHelpTips();
-  }
+  CreateActions();
+  SetUpCustomSubmenu();
+  SetUpToolTab();
+  SetHelpTips();
+}
 
 void
 PlanningOptions::
@@ -53,9 +55,14 @@ CreateActions() {
   QAction* mapEnv = new QAction(QPixmap(mapenv), tr("Map Environment"), this);
   m_actions["mapEnv"] = mapEnv;
 
-  m_actions["addUserPath"] = new QAction(QPixmap(adduserpath), tr("Add User Path"), this);
-  m_actions["deleteUserPath"] = new QAction(QPixmap(deleteuserpath), tr("Delete User Path"), this);
-  m_actions["printUserPath"] = new QAction(QPixmap(printuserpath), tr("Print User Path"), this);
+  m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
+      tr("Add User Path with Mouse"), this);
+  m_actions["addUserPathHaptic"] = new QAction(QPixmap(adduserpath),
+      tr("Add User Path with Haptics"), this);
+  m_actions["deleteUserPath"] = new QAction(QPixmap(deleteuserpath),
+      tr("Delete User Path"), this);
+  m_actions["printUserPath"] = new QAction(QPixmap(printuserpath),
+      tr("Print User Path"), this);
 
   // 2. Set other specifications
   m_actions["addRegionSphere"]->setEnabled(false);
@@ -64,7 +71,8 @@ CreateActions() {
   m_actions["makeRegionAttract"]->setEnabled(false);
   m_actions["makeRegionAvoid"]->setEnabled(false);
   m_actions["mapEnv"]->setEnabled(false);
-  m_actions["addUserPath"]->setEnabled(false);
+  m_actions["addUserPathMouse"]->setEnabled(false);
+  m_actions["addUserPathHaptic"]->setEnabled(false);
   m_actions["deleteUserPath"]->setEnabled(false);
   m_actions["printUserPath"]->setEnabled(false);
 
@@ -74,10 +82,16 @@ CreateActions() {
   connect(m_actions["deleteRegion"], SIGNAL(triggered()), this, SLOT(DeleteRegion()));
   connect(m_actions["makeRegionAttract"], SIGNAL(triggered()), this, SLOT(MakeRegionAttract()));
   connect(m_actions["makeRegionAvoid"], SIGNAL(triggered()), this, SLOT(MakeRegionAvoid()));
-  connect(m_actions["mapEnv"], SIGNAL(triggered()), this, SLOT(MapEnvironment()));
-  connect(m_actions["addUserPath"], SIGNAL(triggered()), this, SLOT(AddUserPath()));
-  connect(m_actions["deleteUserPath"], SIGNAL(triggered()), this, SLOT(DeleteUserPath()));
-  connect(m_actions["printUserPath"], SIGNAL(triggered()), this, SLOT(PrintUserPath()));
+  connect(m_actions["mapEnv"], SIGNAL(triggered()),
+      this, SLOT(MapEnvironment()));
+  connect(m_actions["addUserPathMouse"], SIGNAL(triggered()),
+      this, SLOT(AddUserPath()));
+  connect(m_actions["addUserPathHaptic"], SIGNAL(triggered()),
+      this, SLOT(AddUserPath()));
+  connect(m_actions["deleteUserPath"], SIGNAL(triggered()),
+      this, SLOT(DeleteUserPath()));
+  connect(m_actions["printUserPath"], SIGNAL(triggered()),
+      this, SLOT(PrintUserPath()));
 }
 
 void PlanningOptions::
@@ -100,7 +114,8 @@ SetUpCustomSubmenu() {
   m_submenu->addAction(m_actions["mapEnv"]);
 
   m_pathsMenu = new QMenu("User Paths", this);
-  m_pathsMenu->addAction(m_actions["addUserPath"]);
+  m_pathsMenu->addAction(m_actions["addUserPathMouse"]);
+  m_pathsMenu->addAction(m_actions["addUserPathHaptic"]);
   m_pathsMenu->addAction(m_actions["deleteUserPath"]);
   m_pathsMenu->addAction(m_actions["printUserPath"]);
 
@@ -115,7 +130,8 @@ PlanningOptions::
 SetUpToolbar() {
   m_toolbar = new QToolBar(m_mainWindow);
 
-  m_toolbar->addAction(m_actions["addUserPath"]);
+  m_toolbar->addAction(m_actions["addUserPathMouse"]);
+  m_toolbar->addAction(m_actions["addUserPathHaptic"]);
   m_toolbar->addAction(m_actions["deleteUserPath"]);
   m_toolbar->addAction(m_actions["printUserPath"]);
 }
@@ -126,7 +142,8 @@ SetUpToolTab() {
 
   vector<string> buttonList;
 
-  buttonList.push_back("addUserPath");
+  buttonList.push_back("addUserPathMouse");
+  buttonList.push_back("addUserPathHaptic");
   buttonList.push_back("deleteUserPath");
   buttonList.push_back("printUserPath");
 
@@ -154,7 +171,8 @@ Reset() {
   m_actions["makeRegionAttract"]->setEnabled(true);
   m_actions["makeRegionAvoid"]->setEnabled(true);
   m_actions["mapEnv"]->setEnabled(true);
-  m_actions["addUserPath"]->setEnabled(true);
+  m_actions["addUserPathMouse"]->setEnabled(true);
+  m_actions["addUserPathHaptic"]->setEnabled(true);
   m_actions["deleteUserPath"]->setEnabled(true);
   m_actions["printUserPath"]->setEnabled(true);
   m_pathsMenu->setEnabled(true);
@@ -172,7 +190,8 @@ SetHelpTips() {
   m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
   m_actions["makeRegionAttract"]->setWhatsThis(tr("Change a region to attract"));
   m_actions["makeRegionAvoid"]->setWhatsThis(tr("Change a region to avoid"));
-  m_actions["addUserPath"]->setWhatsThis(tr("Add an approximatr path to aid planner"));
+  m_actions["addUserPathMouse"]->setWhatsThis(tr("Add an approximate path to aid planner"));
+  m_actions["addUserPathHaptic"]->setWhatsThis(tr("Add an approximate path to aid planner"));
   m_actions["deleteUserPath"]->setWhatsThis(tr("Remove an approximate path from the scene"));
   m_actions["printUserPath"]->setWhatsThis(tr("Print selected user path to file"));
 }
@@ -331,7 +350,16 @@ MapEnvironment() {
 void
 PlanningOptions::
 AddUserPath() {
-  UserPathModel* p = new UserPathModel();
+  QAction* callee = dynamic_cast<QAction*>(sender());
+  UserPathModel* p;
+
+  if(callee->text().toStdString() == "Add User Path with Haptics") {
+    p = new UserPathModel(m_mainWindow, UserPathModel::Haptic);
+    connect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
+        this, SLOT(HapticPathCapture()));
+  }
+  else
+    p = new UserPathModel(m_mainWindow, UserPathModel::Mouse);
   GetVizmo().GetEnv()->AddUserPath(p);
 
   // set mouse events to current path for GLWidget
@@ -368,6 +396,19 @@ PrintUserPath() {
     pos << "Workspace Path" << endl << "1" << endl;
     p->PrintPath(pos);
     pos.close();
+  }
+}
+
+void
+PlanningOptions::
+HapticPathCapture() {
+  UserPathModel* p = m_mainWindow->GetGLScene()->GetCurrentUserPath();
+  if(p) {
+    if(!p->IsFinished())
+      p->SendToPath(GetVizmo().GetManager()->GetWorldPos());
+    else
+      disconnect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
+          this, SLOT(HapticPathCapture()));
   }
 }
 
