@@ -88,6 +88,13 @@ BodyModel::SetSelectable(bool _s){
 }
 
 void
+BodyModel::
+ToggleNormals() {
+  Model::ToggleNormals();
+  m_polyhedronModel->ToggleNormals();
+}
+
+void
 BodyModel::ComputeTransform(const BodyModel* _body, size_t _nextBody){
   for(ConnectionIter cit = _body->Begin(); cit!=_body->End(); ++cit) {
     if((*cit)->GetNextIndex() == _nextBody) {

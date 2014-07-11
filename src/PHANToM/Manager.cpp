@@ -10,7 +10,9 @@
 #include <HDU/hduError.h>
 #include <HLU/hlu.h>
 
+#include "Models/BodyModel.h"
 #include "Models/EnvModel.h"
+#include "Models/PolyhedronModel.h"
 #include "Models/Vizmo.h"
 
 namespace PHANToM {
@@ -142,8 +144,6 @@ Initialize() {
 
     m_boundaryId = hlGenShapes(1);
     m_obstaclesId = hlGenShapes(GetVizmo().GetEnv()->GetMultiBodies().size()-1);
-
-    //hlTouchableFace(HL_FRONT);
   }
   catch(...) {
     if(HD_DEVICE_ERROR(error = hdGetError()))
@@ -221,6 +221,10 @@ ObstacleRender() {
     hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 1.0f);
     hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.0f);
 
+    BodyModel* bm = *(*cmit)->Begin();
+    PolyhedronModel* pm = bm->GetPolyhedronModel();
+
+    hlHinti(HL_SHAPE_FEEDBACK_BUFFER_VERTICES, pm->GetNumVertices());
     hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, m_obstaclesId + count++);
     (*cmit)->DrawHaptics();
     hlEndShape();

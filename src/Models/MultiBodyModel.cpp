@@ -74,6 +74,14 @@ MultiBodyModel::SetColor(const Color4& _c) {
 }
 
 void
+MultiBodyModel::
+ToggleNormals() {
+  Model::ToggleNormals();
+  for(BodyIter bit = Begin(); bit!=End(); ++bit)
+    (*bit)->ToggleNormals();
+}
+
+void
 MultiBodyModel::Build() {
   //build for each body and compute com
   m_com(0, 0, 0);

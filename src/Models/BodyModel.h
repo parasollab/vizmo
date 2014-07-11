@@ -27,10 +27,12 @@ class BodyModel : public TransformableModel {
     void GetChildren(list<Model*>& _models);
     void SetRenderMode(RenderMode _mode);
     void SetSelectable(bool _s);
+    void ToggleNormals();
 
     const string& GetDirectory() {return m_directory;}
     const string& GetFilename() const {return m_filename;}
     const string& GetModelFilename() const {return m_modelFilename;}
+    PolyhedronModel* GetPolyhedronModel() const {return m_polyhedronModel;}
 
     const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
     double GetRadius() const {return m_polyhedronModel->GetRadius();}

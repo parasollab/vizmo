@@ -13,15 +13,16 @@
 #include "Models/Vizmo.h"
 #include "Utilities/Camera.h"
 
-#include "Icons/ResetCamera.xpm"
-#include "Icons/BgColor.xpm"
-#include "Icons/SetCameraPosition.xpm"
-#include "Icons/FrameRate.xpm"
 #include "Icons/Axis.xpm"
+#include "Icons/BgColor.xpm"
+#include "Icons/FrameRate.xpm"
+#include "Icons/MakeInvisible.xpm"
 #include "Icons/MakeSolid.xpm"
 #include "Icons/MakeWired.xpm"
-#include "Icons/MakeInvisible.xpm"
 #include "Icons/Pallet.xpm"
+#include "Icons/ResetCamera.xpm"
+#include "Icons/SetCameraPosition.xpm"
+#include "Icons/ShowNormals.xpm"
 
 
 GLWidgetOptions::
@@ -58,6 +59,8 @@ CreateActions() {
 
   m_actions["changeObjectColor"] = new QAction(QPixmap(pallet), tr("Change Color"), this);
 
+  m_actions["showObjectNormals"] = new QAction(QPixmap(showNormals), tr("Show Normals"), this);
+
   //2. Set other specifications as necessary
   m_actions["showAxis"]->setCheckable(true);
   m_actions["showAxis"]->setChecked(true);
@@ -81,6 +84,8 @@ CreateActions() {
 
   m_actions["changeObjectColor"]->setEnabled(false);
   m_actions["changeObjectColor"]->setStatusTip(tr("Change object color"));
+  m_actions["showObjectNormals"]->setEnabled(false);
+  m_actions["showObjectNormals"]->setStatusTip(tr("Show model normals"));
 
 
   //3. Make connections
@@ -99,6 +104,7 @@ CreateActions() {
   connect(m_actions["makeWired"], SIGNAL(triggered()), this, SLOT(MakeWired()));
   connect(m_actions["makeInvisible"], SIGNAL(triggered()), this, SLOT(MakeInvisible()));
   connect(m_actions["changeObjectColor"], SIGNAL(triggered()), this, SLOT(ChangeObjectColor()));
+  connect(m_actions["showObjectNormals"], SIGNAL(triggered()), this, SLOT(ShowObjectNormals()));
 }
 
 void
@@ -113,6 +119,7 @@ SetUpCustomSubmenu() {
   m_submenu->addMenu(m_modifySelected);
 
   m_submenu->addAction(m_actions["changeObjectColor"]);
+  m_submenu->addAction(m_actions["showObjectNormals"]);
 
   m_submenu->addAction(m_actions["resetCamera"]);
   m_submenu->addAction(m_actions["changeBGColor"]);
@@ -129,6 +136,7 @@ SetUpToolbar() {
   m_toolbar->addAction(m_actions["makeWired"]);
   m_toolbar->addAction(m_actions["makeInvisible"]);
   m_toolbar->addAction(m_actions["changeObjectColor"]);
+  m_toolbar->addAction(m_actions["showObjectNormals"]);
   m_toolbar->addAction(m_actions["resetCamera"]);
   m_toolbar->addAction(m_actions["changeBGColor"]);
 }
@@ -146,6 +154,7 @@ SetUpToolTab() {
   buttonList.push_back("changeObjectColor");
   buttonList.push_back("changeBGColor");
   buttonList.push_back("resetCamera");
+  buttonList.push_back("showObjectNormals");
   CreateToolTab(buttonList);
 }
 
@@ -159,6 +168,7 @@ Reset() {
   m_actions["makeSolid"]->setEnabled(true);
   m_actions["makeWired"]->setEnabled(true);
   m_actions["makeInvisible"]->setEnabled(true);
+  m_actions["showObjectNormals"]->setEnabled(true);
 }
 
 void
@@ -166,8 +176,10 @@ GLWidgetOptions::
 SetHelpTips() {
   m_actions["changeBGColor"]->setWhatsThis(tr("Click this button to"
         " change the <b>background</b> color in the scene."));
-    m_actions["changeObjectColor"]->setWhatsThis(tr("Click this button to change"
+  m_actions["changeObjectColor"]->setWhatsThis(tr("Click this button to change"
         " the color of a selected item."));
+  m_actions["showObjectNormals"]->setWhatsThis(tr("Click this button to show"
+        " the normals within a model of a selected item."));
   m_actions["resetCamera"]->setWhatsThis(tr("Click this button to"
         " restore the default camera position. You can also manually specify"
         " a camera position with the <b>Set Camera Position</b> menu option."));
@@ -276,5 +288,15 @@ ChangeObjectColor() {
     }
     else
       model->SetColor(Color4(r, g, b, 1));
+  }
+}
+
+void
+GLWidgetOptions::
+ShowObjectNormals() {
+  vector<Model*>& selectedModels = GetVizmo().GetSelectedModels();
+  for(MIT mit = selectedModels.begin(); mit != selectedModels.end(); ++mit) {
+    Model* model = *mit;
+    model->ToggleNormals();
   }
 }

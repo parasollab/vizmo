@@ -20,7 +20,7 @@ enum RenderMode {INVISIBLE_MODE, WIRE_MODE, SOLID_MODE};
 
 class Model {
   public:
-    Model(const string& _name) : m_name(_name), m_renderMode(SOLID_MODE), m_selectable(true) {}
+    Model(const string& _name) : m_name(_name), m_renderMode(SOLID_MODE), m_selectable(true), m_showNormals(false) {}
     virtual ~Model() {
       for(vector<Model*>::iterator cit = m_allChildren.begin();
           cit != m_allChildren.end(); ++cit)
@@ -37,6 +37,8 @@ class Model {
 
     const Color4& GetColor() const {return m_color;}
     virtual void SetColor(const Color4& _c) {m_color = _c;}
+
+    virtual void ToggleNormals() {m_showNormals = !m_showNormals;}
 
     //GetChildren for compatability until model constructors intantiate children
     virtual void GetChildren(list<Model*>& _models) {};
@@ -71,6 +73,7 @@ class Model {
     Color4 m_color;
     vector<Model*> m_selectableChildren, m_allChildren;
     bool m_selectable;
+    bool m_showNormals;
 };
 
 class LoadableModel : public Model {

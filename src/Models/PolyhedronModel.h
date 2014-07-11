@@ -15,6 +15,7 @@ class PolyhedronModel : public Model {
     PolyhedronModel(const PolyhedronModel& _p);
     ~PolyhedronModel();
 
+    size_t GetNumVertices() const {return m_numVerts;}
     double GetRadius() const {return m_radius;}
     const Point3d& GetCOM() const {return m_com;}
 
@@ -31,6 +32,7 @@ class PolyhedronModel : public Model {
     void ComputeNormals(const PtVector& _points, const TriVector& _tris, vector<Vector3d>& _norms);
     void BuildSolid(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
     void BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
+    void BuildNormals(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
     void BuildModelGraph(const PtVector& _points, const TriVector& _tris);
 
     //set m_com to center of mass of _points
@@ -42,8 +44,11 @@ class PolyhedronModel : public Model {
     string m_filename;
     bool m_isSurface;
 
+    size_t m_numVerts;
+
     GLuint m_solidID; //the compiled model id for solid model
     GLuint m_wiredID; //the compiled model id for wire frame
+    GLuint m_normalsID; //the compiled model id for normals
 
     double m_radius; //radius
     Point3d m_com; //Center of Mass
