@@ -124,7 +124,6 @@ PolyhedronModel::BuildSolid(const PtVector& _points, const TriVector& _tris, con
   glNewList(m_solidID, GL_COMPILE);
 
   glEnable(GL_LIGHTING);
-  glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
   glTranslated(-m_com[0], -m_com[1], -m_com[2]);
