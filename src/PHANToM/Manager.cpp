@@ -144,6 +144,9 @@ Initialize() {
 
     m_boundaryId = hlGenShapes(1);
     m_obstaclesId = hlGenShapes(GetVizmo().GetEnv()->GetMultiBodies().size()-1);
+
+    //initialize with force disabled
+    hdDisable(HD_FORCE_OUTPUT);
   }
   catch(...) {
     if(HD_DEVICE_ERROR(error = hdGetError()))
