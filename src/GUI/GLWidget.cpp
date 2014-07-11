@@ -86,7 +86,7 @@ GLWidget::paintGL(){
   clock_t startTime = clock();
 
   //Render haptics!
-  if(GetVizmo().GetManager())
+  if(Haptics::UsingPhantom())
     GetVizmo().GetManager()->HapticRender();
 
   //Init Draw
@@ -116,7 +116,7 @@ GLWidget::paintGL(){
   GetVizmo().Draw();
 
   //Render haptics!
-  if(GetVizmo().GetManager())
+  if(Haptics::UsingPhantom())
     GetVizmo().GetManager()->DrawRender();
 
   //stop clock, update frametimes, and compute framerate
@@ -339,7 +339,7 @@ GLWidget::mouseMoveEvent(QMouseEvent* _e) {
 void
 GLWidget::keyPressEvent(QKeyEvent* _e) {
   //check for haptic toggle switch
-  if(_e->key() == Qt::Key_QuoteLeft)
+  if(Haptics::UsingPhantom() && _e->key() == Qt::Key_QuoteLeft)
     GetVizmo().GetManager()->ToggleForceOutput();
   //check camera then transform tool
   else if(!GetCurrentCamera()->KeyPressed(_e) &&

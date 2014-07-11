@@ -172,7 +172,8 @@ Reset() {
   m_actions["makeRegionAvoid"]->setEnabled(true);
   m_actions["mapEnv"]->setEnabled(true);
   m_actions["addUserPathMouse"]->setEnabled(true);
-  m_actions["addUserPathHaptic"]->setEnabled(true);
+  if(Haptics::UsingPhantom())
+    m_actions["addUserPathHaptic"]->setEnabled(true);
   m_actions["deleteUserPath"]->setEnabled(true);
   m_actions["printUserPath"]->setEnabled(true);
   m_pathsMenu->setEnabled(true);

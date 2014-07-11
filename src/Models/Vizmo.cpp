@@ -64,7 +64,7 @@ InitModels() {
     cout << "Load Environment File : "<< m_envFilename << endl;
 
     //try to initialize PHANToM
-    m_manager = new PHANToM::Manager();
+    m_manager = new Haptics::Manager();
 
     //Create map
     if(!m_mapFilename.empty()) {

@@ -48,7 +48,7 @@ $(PMPL_DIR)/libobprm.a:
 ################################################################################
 ifeq ($(phantom), 1)
   PHANTOM_LIBS = -lHD -lHDU -lHL -lHLU -lrt
-  MP_DEF += -DUSE_PHANTOM
+  MP_DEF += -DUSE_HAPTICS
 else
   PHANTOM_LIBS =
 endif

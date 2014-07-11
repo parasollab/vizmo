@@ -35,7 +35,7 @@ Camera::Draw() {
       m_up[0], m_up[1], m_up[2]
       );
 
-  if(GetVizmo().GetManager())
+  if(Haptics::UsingPhantom())
     GetVizmo().GetManager()->UpdateWorkspace();
 }
 

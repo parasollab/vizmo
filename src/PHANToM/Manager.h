@@ -1,7 +1,7 @@
 #ifndef MANAGER_H_
 #define MANAGER_H_
 
-#ifdef USE_PHANTOM
+#ifdef USE_HAPTICS
 
 #include <vector>
 using namespace std;
@@ -12,11 +12,13 @@ using namespace mathtool;
 #include <HDU/hduVector.h>
 #include <HL/hl.h>
 
-namespace PHANToM {
+namespace Haptics {
 
 //Define singleton
 class Manager;
 Manager& GetManager();
+
+inline const bool UsingPhantom() {return true;}
 
 class Manager {
   public:
@@ -70,7 +72,10 @@ class Manager {
 #include "Vector.h"
 using namespace mathtool;
 
-namespace PHANToM {
+namespace Haptics {
+
+inline const bool UsingPhantom() {return false;}
+
 class Manager {
   public:
     void HapticRender() {}

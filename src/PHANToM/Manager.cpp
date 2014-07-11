@@ -1,4 +1,4 @@
-#ifdef USE_PHANTOM
+#ifdef USE_HAPTICS
 
 #include "Manager.h"
 
@@ -15,7 +15,7 @@
 #include "Models/PolyhedronModel.h"
 #include "Models/Vizmo.h"
 
-namespace PHANToM {
+namespace Haptics {
 
 Manager& GetManager(){
   static Manager manager;

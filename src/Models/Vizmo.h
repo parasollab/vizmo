@@ -16,7 +16,7 @@ class Model;
 class PathModel;
 class QueryModel;
 class RobotModel;
-namespace PHANToM {class Manager;}
+namespace Haptics {class Manager;}
 
 //Define singleton
 class Vizmo;
@@ -55,7 +55,7 @@ class Vizmo {
     //Put robot in start configuration if possible
     void PlaceRobot();
 
-    PHANToM::Manager* GetManager() const {return m_manager;}
+    Haptics::Manager* GetManager() const {return m_manager;}
 
     // Roadmap Related Functions
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
@@ -114,7 +114,7 @@ class Vizmo {
     RobotModel* m_robotModel;
 
     //PHANToM manager
-    PHANToM::Manager* m_manager;
+    Haptics::Manager* m_manager;
 
     //map
     MapModel<CfgModel, EdgeModel>* m_mapModel;
