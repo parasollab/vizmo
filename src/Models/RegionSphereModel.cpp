@@ -7,35 +7,56 @@
 #include "Utilities/Camera.h"
 #include "MPProblem/BoundingSphere.h"
 #include "Utilities/GLUtils.h"
+#include "Utilities/IO.h"
 
-RegionSphereModel::RegionSphereModel(const Point3d& _center, double _radius, bool _firstClick) :
-  RegionModel("Sphere Region"),
-  m_center(_center), m_centerOrig(_center), m_radius(_radius),
+RegionSphereModel::
+RegionSphereModel(const Point3d& _center, double _radius, bool _firstClick) :
+  RegionModel("Sphere Region", SPHERE),
+  m_center(_center), m_centerOrig(_center), m_radius(_radius), m_radiusOrig(_radius),
   m_lmb(false), m_rmb(false), m_firstClick(_firstClick), m_highlightedPart(NONE) {}
 
-shared_ptr<Boundary>
-RegionSphereModel::GetBoundary() const {
-  return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
-}
+  shared_ptr<Boundary>
+  RegionSphereModel::GetBoundary() const {
+    return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
+  }
 
 //initialization of gl models
 void
-RegionSphereModel::Build() {
+RegionSphereModel::
+Build() {
 }
 
 //determing if _index is this GL model
 void
-RegionSphereModel::Select(GLuint* _index, vector<Model*>& _sel) {
+RegionSphereModel::
+Select(GLuint* _index, vector<Model*>& _sel) {
   if(_index)
     _sel.push_back(this);
 }
 
+const bool
+RegionSphereModel::
+operator==(const RegionModel& _other) const {
+  if(_other.GetShape() == this->GetShape()) {
+    const RegionSphereModel* myModel = dynamic_cast<const RegionSphereModel*>(&_other);
+    if(GetType() == myModel->GetType()) {
+      bool result = true;
+      result &= (m_centerOrig == myModel->m_centerOrig);
+      result &= (fabs(m_radiusOrig - myModel->m_radiusOrig) <
+        numeric_limits<double>::epsilon());
+      return result;
+    }
+  }
+
+  return false;
+}
+
 //draw is called for the scene.
 void
-RegionSphereModel::DrawRender() {
+RegionSphereModel::
+DrawRender() {
   if(m_radius < 0)
     return;
-
   glColor4fv(m_color);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
@@ -50,10 +71,10 @@ RegionSphereModel::DrawRender() {
 }
 
 void
-RegionSphereModel::DrawSelect() {
+RegionSphereModel::
+DrawSelect() {
   if(m_radius < 0)
     return;
-
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
   glutSolidSphere(m_radius, 20, 20);
@@ -62,10 +83,10 @@ RegionSphereModel::DrawSelect() {
 
 //DrawSelect is only called if item is selected
 void
-RegionSphereModel::DrawSelected() {
+RegionSphereModel::
+DrawSelected() {
   if(m_radius < 0)
     return;
-
   glLineWidth(4);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
@@ -75,13 +96,21 @@ RegionSphereModel::DrawSelected() {
 
 //output model info
 void
-RegionSphereModel::Print(ostream& _os) const {
+RegionSphereModel::
+Print(ostream& _os) const {
   _os << Name() << endl
     << "[ " << m_center << " " << m_radius << " ]" << endl;
 }
 
+void
+RegionSphereModel::
+OutputDebugInfo(ostream& _os) const {
+  _os << m_type << " SPHERE " << m_centerOrig << " " << m_radiusOrig << endl;
+}
+
 bool
-RegionSphereModel::MousePressed(QMouseEvent* _e, Camera* _c) {
+RegionSphereModel::
+MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
@@ -105,22 +134,28 @@ RegionSphereModel::MousePressed(QMouseEvent* _e, Camera* _c) {
 }
 
 bool
-RegionSphereModel::MouseReleased(QMouseEvent* _e, Camera* _c) {
+RegionSphereModel::
+MouseReleased(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
   if(m_lmb || m_rmb) {
+    if(!m_firstClick)
+      VDRemoveRegion(this);
     m_lmb = false;
     m_rmb = false;
     m_firstClick = false;
     m_centerOrig = m_center;
+    m_radiusOrig = m_radius;
+    VDAddRegion(this);
     return true;
   }
   return false;
 }
 
 bool
-RegionSphereModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
+RegionSphereModel::
+MouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
@@ -135,10 +170,8 @@ RegionSphereModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
       Vector3d delta = m - c;
       m_center = m_centerOrig + delta;
     }
-
     ClearNodeCount();
     ClearFACount();
-
     return true;
   }
   else if(m_rmb && m_highlightedPart) {
@@ -147,7 +180,7 @@ RegionSphereModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
     Point3d c = ProjectToWorld(0, m_clicked.y(),
         m_center, -_c->GetDir());
     Vector3d delta = (m_centerOrig - _c->GetEye()).normalize() *
-        ((m - c) * m_cameraY);
+      ((m - c) * m_cameraY);
     m_center = m_centerOrig + delta;
     return true;
   }
@@ -155,7 +188,8 @@ RegionSphereModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
 }
 
 bool
-RegionSphereModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
+RegionSphereModel::
+PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
@@ -170,17 +204,18 @@ RegionSphereModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
 
   if(!m_highlightedPart)
     QApplication::setOverrideCursor(Qt::ArrowCursor);
-
   return m_highlightedPart;
 }
 
 double
-RegionSphereModel::WSpaceArea() const {
+RegionSphereModel::
+WSpaceArea() const {
   return PI * sqr(m_radius);
 }
 
 void
-RegionSphereModel::GetCameraVectors(Camera* _c) {
+RegionSphereModel::
+GetCameraVectors(Camera* _c) {
   Vector3d s = ProjectToWorld(0, 0, Point3d(0, 0, 0), -_c->GetDir());
   Vector3d e = ProjectToWorld(1, 0, Point3d(0, 0, 0), -_c->GetDir());
   m_cameraX = (e - s).normalize();

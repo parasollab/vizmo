@@ -1,6 +1,14 @@
 #include "DebugModel.h"
 
-DebugModel::DebugModel(const string& _filename) :
+#include "EnvModel.h"
+#include "RegionBoxModel.h"
+#include "RegionBox2DModel.h"
+#include "RegionSphereModel.h"
+#include "RegionSphere2DModel.h"
+#include "Vizmo.h"
+
+DebugModel::
+DebugModel(const string& _filename) :
   LoadableModel("Debug"),
   m_index(-1),
   m_mapModel(new MapModel<CfgModel, EdgeModel>()),
@@ -11,7 +19,8 @@ DebugModel::DebugModel(const string& _filename) :
     Build();
   }
 
-DebugModel::~DebugModel() {
+DebugModel::
+~DebugModel() {
   delete m_mapModel;
   typedef vector<Instruction*>::iterator IIT;
   for(IIT iit = m_instructions.begin(); iit != m_instructions.end(); ++iit)
@@ -19,12 +28,14 @@ DebugModel::~DebugModel() {
 }
 
 vector<string>
-DebugModel::GetComments(){
+DebugModel::
+GetComments(){
   return m_index == -1 ? vector<string>() : m_comments;
 }
 
 void
-DebugModel::ParseFile() {
+DebugModel::
+ParseFile() {
   //check if file exists
   if(!FileExists(GetFilename()))
     throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
@@ -97,11 +108,151 @@ DebugModel::ParseFile() {
       iss >> s >> t;
       m_instructions.push_back(new QueryInstruction(s, t));
     }
+    else if(name=="AddRegion") {
+      RegionModel* mod;
+
+      int tempType;
+      iss >> tempType;
+
+      string modelShapeName;
+      iss >> modelShapeName;
+
+      RegionModel::Type modelType = static_cast<RegionModel::Type>(tempType);
+
+      if(modelShapeName == "BOX") {
+
+        Point3d min, max;
+        iss >> min >> max;
+
+        pair<double, double> xPair(min[0], max[0]);
+        pair<double, double> yPair(min[1], max[1]);
+        pair<double, double> zPair(min[2], max[2]);
+
+        mod = new RegionBoxModel(xPair, yPair, zPair);
+        mod->SetType(modelType);
+        mod->ChangeColor();
+      }
+      else if(modelShapeName == "BOX2D") {
+
+        Point2d min, max;
+        iss >> min >> max;
+
+        pair<double, double> xPair(min[0], max[0]);
+        pair<double, double> yPair(min[1], max[1]);
+
+        mod = new RegionBox2DModel(xPair, yPair);
+        mod->SetType(modelType);
+        mod->ChangeColor();
+      }
+      else if(modelShapeName == "SPHERE") {
+
+        Point3d tempCenter;
+        iss >> tempCenter;
+
+        double radius = -1;
+        iss >> radius;
+
+        mod = new RegionSphereModel(tempCenter, radius);
+        mod->SetType(modelType);
+        mod->ChangeColor();
+      }
+      else if(modelShapeName == "SPHERE2D") {
+        // Is Point3d to match implementation of Sphere2D
+        // Constructor takes in Point3d and the center is
+        // stored this way
+        Point3d tempCenter;
+        iss >> tempCenter;
+
+        double radius = -1;
+        iss >> radius;
+
+        mod = new RegionSphere2DModel(tempCenter, radius);
+        mod->SetType(modelType);
+        mod->ChangeColor();
+      }
+      else {
+        string exceptionDescription = "Add region read unknown type: ";
+        exceptionDescription.append(modelShapeName);
+        throw ParseException(WHERE, exceptionDescription.c_str());
+      }
+      m_instructions.push_back(new AddRegion(mod));
+    }
+    else if(name=="RemoveRegion") {
+      RegionModel* mod;
+
+      int tempType;
+      iss >> tempType;
+
+      string modelShapeName;
+      iss >> modelShapeName;
+
+      RegionModel::Type modelType = static_cast<RegionModel::Type>(tempType);
+
+      if(modelShapeName == "BOX") {
+        Point3d min;
+        Point3d max;
+        iss >> min >> max;
+
+        pair<double, double> xPair(min[0], max[0]);
+        pair<double, double> yPair(min[1], max[1]);
+        pair<double, double> zPair(min[2], max[2]);
+
+        mod = new RegionBoxModel(xPair, yPair, zPair);
+        mod->SetType(modelType);
+        mod->ChangeColor();
+      }
+      else if(modelShapeName == "BOX2D") {
+        Point2d min;
+        Point2d max;
+        iss >> min >> max;
+
+        pair<double, double> xPair(min[0], max[0]);
+        pair<double, double> yPair(min[1], max[1]);
+
+        mod = new RegionBox2DModel(xPair, yPair);
+        mod->SetType(modelType);
+        mod->ChangeColor();
+      }
+      else if(modelShapeName == "SPHERE") {
+
+        Point3d tempCenter;
+        iss >> tempCenter;
+
+        double radius = -1;
+        iss >> radius;
+
+        mod = new RegionSphereModel(tempCenter, radius);
+        mod->SetType(modelType);
+        mod->ChangeColor();
+      }
+      else if(modelShapeName == "SPHERE2D") {
+        // Is Point3d to match implementation of Sphere2D
+        // Constructor takes in Point3d and the center is
+        // stored this way
+        Point3d tempCenter;
+        iss >> tempCenter;
+
+        double radius = -1;
+        iss >> radius;
+
+        mod = new RegionSphere2DModel(tempCenter, radius);
+        mod->SetType(modelType);
+        mod->ChangeColor();
+
+      }
+      else {
+        string exceptionDescription = "Add region read unknown type: ";
+        exceptionDescription.append(modelShapeName);
+        throw ParseException(WHERE, exceptionDescription.c_str());
+      }
+      m_instructions.push_back(new RemoveRegion(mod));
+    }
   }
 }
 
 void
-DebugModel::Build(){
+DebugModel::
+Build() {
   m_prevIndex = 0;
   m_index = 0;
   m_edgeNum = 0;
@@ -112,7 +263,8 @@ DebugModel::Build(){
 }
 
 void
-DebugModel::BuildForward() {
+DebugModel::
+BuildForward() {
   typedef MapModel<CfgModel, EdgeModel> MM;
   typedef MM::VID VID;
   typedef MM::VI VI;
@@ -122,14 +274,14 @@ DebugModel::BuildForward() {
   typedef MM::ColorMap ColorMap;
   typedef MM::EdgeMap EdgeMap;
 
-  for(int i = m_prevIndex; i < m_index; i++){
+  for(int i = m_prevIndex; i < m_index; i++) {
     Instruction* ins = m_instructions[i];
     if(ins->m_name == "AddNode") {
       //add vertex specified by instruction to the graph
       AddNode* an = static_cast<AddNode*>(ins);
       m_mapModel->GetGraph()->add_vertex(an->m_cfg);
     }
-    else if(ins->m_name == "AddEdge"){
+    else if(ins->m_name == "AddEdge") {
       AddEdge* ae = static_cast<AddEdge*>(ins);
       //add edge to the graph
 
@@ -162,26 +314,21 @@ DebugModel::BuildForward() {
         color = source.GetColor();
         smallerCC = &nIdCC1;
       }
-
       //store source and target colors in instruction;
       //will be restored when AddEdge is reversed in BuildBackward
       ae->m_targetColor = target.GetColor();
       ae->m_sourceColor = source.GetColor();
-
       //change color of smaller CC to that of larger CC
       for(ITVID it = smallerCC->begin(); it != smallerCC->end(); ++it) {
         VI vi = m_mapModel->GetGraph()->find_vertex(*it);
         CfgModel* cfgCC = &(vi->property());
         cfgCC->SetColor(color);
-
         for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
           (*ei).property().SetColor(color) ;
         }
       }
-
       //set color of new edge to that of larger cc
       edge.SetColor(color);
-
       //add edge
       m_mapModel->GetGraph()->add_edge(svId, tvId, edge);
       m_mapModel->GetGraph()->add_edge(tvId, svId, edge);
@@ -242,6 +389,9 @@ DebugModel::BuildForward() {
 
       ca->m_comments = m_comments;
       m_comments.clear();
+
+      ca->m_regions = m_regions;
+      m_regions.clear();
     }
     else if(ins->m_name == "ClearComments"){
       //clear all comments
@@ -272,7 +422,7 @@ DebugModel::BuildForward() {
       m_mapModel->GetGraph()->delete_edge(svId, tvId);
       m_mapModel->GetGraph()->delete_edge(tvId, svId);
     }
-    else if(ins->m_name == "Comment"){
+    else if(ins->m_name == "Comment") {
       //add comment
       Comment* c = static_cast<Comment*>(ins);
       m_comments.push_back(c->m_comment);
@@ -295,7 +445,7 @@ DebugModel::BuildForward() {
       //store edges of query
       CfgModel source = q->m_source;
       CfgModel target;
-      if(path.size()>0){
+      if(path.size()>0) {
         for(ITVID pit = path.begin()+1; pit != path.end(); pit++){
           target = m_mapModel->GetGraph()->find_vertex(*pit)->property();
           EdgeModel e("", 1);
@@ -306,15 +456,28 @@ DebugModel::BuildForward() {
       }
       q->m_query = m_query;
     }
+    else if(ins->m_name == "AddRegion") {
+      AddRegion* add = static_cast<AddRegion*>(ins);
+      m_regions.push_back(add->m_regionModel);
+    }
+    else if(ins->m_name == "RemoveRegion") {
+      RemoveRegion* rmv = static_cast<RemoveRegion*>(ins);
+      for(vector<RegionModel*>::iterator i = m_regions.begin(); i != m_regions.end(); i++) {
+        if(*rmv->m_regionModel == **i) {
+          m_regions.erase(i);
+          break;
+        }
+      }
+    }
   }
-
   //rebuild map model since graph may have changed
   m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
 
 void
-DebugModel::BuildBackward(){
+DebugModel::
+BuildBackward() {
   typedef MapModel<CfgModel, EdgeModel> MM;
   typedef MM::VID VID;
   typedef MM::VI VI;
@@ -367,38 +530,34 @@ DebugModel::BuildBackward(){
           (*ei).property().SetColor(color) ;
         }
       }
-
       //get color of source cfg's CC
       //which was stored in the instruction
       color = ae->m_sourceColor;
-
       //restore color of source's CC
-      for(ITVID it = nIdCC2.begin(); it != nIdCC2.end(); ++it){
+      for(ITVID it = nIdCC2.begin(); it != nIdCC2.end(); ++it) {
         VI vi = m_mapModel->GetGraph()->find_vertex(*it);
         CfgModel* cfgCC = &(vi->property());
         cfgCC->SetColor(color);
-
-        for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei){
-          (*ei).property().SetColor(color) ;
+        for(EI ei = (*vi).begin(); ei != (*vi).end(); ++ei) {
+          (*ei).property().SetColor(color);
         }
       }
-
       //undo increment of edge number
       m_edgeNum--;
     }
-    else if(ins->m_name == "AddTempCfg"){
+    else if(ins->m_name == "AddTempCfg") {
       //undo addition of temp cfg
       m_tempCfgs.pop_back();
     }
-    else if(ins->m_name == "AddTempRay"){
+    else if(ins->m_name == "AddTempRay") {
       //undo addition of temp ray
       m_tempRay = NULL;
     }
-    else if(ins->m_name == "AddTempEdge"){
+    else if(ins->m_name == "AddTempEdge") {
       //undo addiion of temp edge
       m_tempEdges.pop_back();
     }
-    else if(ins->m_name == "ClearLastTemp"){
+    else if(ins->m_name == "ClearLastTemp") {
       //undo clearing of last temp cfg, edge, ray
       //by restoring them from the instruction where they were stored
       ClearLastTemp* clt = static_cast<ClearLastTemp*>(ins);
@@ -408,13 +567,12 @@ DebugModel::BuildBackward(){
         m_tempCfgs.push_back(clt->m_lastTempCfgs.back());
         clt->m_lastTempCfgs.pop_back();
       }
-
       while(clt->m_lastTempEdges.size()>0) {
         m_tempEdges.push_back(clt->m_lastTempEdges.back());
         clt->m_lastTempEdges.pop_back();
       }
     }
-    else if(ins->m_name == "ClearAll"){
+    else if(ins->m_name == "ClearAll") {
       //undo clearing of all temp cfgs, edges, queries, comments
       //by restoring them from the instruction where they were stored
       ClearAll* ca = static_cast<ClearAll*>(ins);
@@ -433,19 +591,22 @@ DebugModel::BuildBackward(){
 
       m_comments = ca->m_comments;
       ca->m_comments.clear();
+
+      m_regions = ca->m_regions;
+      ca->m_regions.clear();
     }
-    else if(ins->m_name == "ClearComments"){
+    else if(ins->m_name == "ClearComments") {
       //undo clearing of commments
       ClearComments* cc =static_cast<ClearComments*>(ins);
       m_comments = cc->m_comments;
       cc->m_comments.clear();
     }
-    else if(ins->m_name == "RemoveNode"){
+    else if(ins->m_name == "RemoveNode") {
       //undo removal of node
       RemoveNode* rn = static_cast<RemoveNode*>(ins);
       m_mapModel->GetGraph()->add_vertex(rn->m_cfg);
     }
-    else if(ins->m_name == "RemoveEdge"){
+    else if(ins->m_name == "RemoveEdge") {
       //undo removal of edge
       RemoveEdge* re = static_cast<RemoveEdge*>(ins);
       EdgeModel edge("", 1);
@@ -457,28 +618,43 @@ DebugModel::BuildBackward(){
       m_mapModel->GetGraph()->add_edge(svId, tvId, edge);
       m_mapModel->GetGraph()->add_edge(tvId, svId, edge);
     }
-    else if(ins->m_name == "Comment"){
+    else if(ins->m_name == "Comment") {
       //undo addition of comment
       m_comments.pop_back();
     }
-    else if(ins->m_name == "QueryInstruction"){
+    else if(ins->m_name == "QueryInstruction") {
       //undo addition of query and restore the previous one if any
       QueryInstruction* q = static_cast<QueryInstruction*>(ins);
       m_query = q->m_query;
       q->m_query.clear();
     }
-  }
+    else if(ins->m_name == "AddRegion") {
+      AddRegion* add = static_cast<AddRegion*>(ins);
 
+      for(vector<RegionModel*>::iterator i = m_regions.begin(); i != m_regions.end(); i++) {
+
+        if(*add->m_regionModel == **i) {
+          m_regions.erase(i);
+          break;
+        }
+      }
+    }
+    else if(ins->m_name == "RemoveRegion") {
+      RemoveRegion* rmv = static_cast<RemoveRegion*>(ins);
+      m_regions.push_back(rmv->m_regionModel);
+    }
+  }
   //rebuild map model since graph may have changed
   m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
 
 void
-DebugModel::DrawRender(){
-
+DebugModel::
+DrawRender() {
   typedef vector<CfgModel>::iterator CIT;
   typedef vector<EdgeModel>::iterator EIT;
+  typedef vector<RegionModel*>::iterator RIT;
 
   //update the map model in either the forward or backward direction
   //depending on the indices of the previous and current frames
@@ -491,7 +667,7 @@ DebugModel::DrawRender(){
   //update the index of the previous frame
   m_prevIndex = m_index;
 
-  if(m_index){
+  if(m_index) {
     m_mapModel->DrawRender();
     for(CIT cit = m_tempCfgs.begin(); cit!=m_tempCfgs.end(); cit++)
       cit->DrawRender();
@@ -501,6 +677,9 @@ DebugModel::DrawRender(){
       glLineWidth(32);
       eit->SetColor(Color4(1, 1, 0, 1));
       eit->DrawRender();
+    }
+    for(RIT rit = m_regions.begin(); rit!=m_regions.end(); rit++) {
+      (*rit)->DrawRender();
     }
     if(m_tempRay != NULL && m_tempCfgs.size() > 0) {
       EdgeModel edge;
@@ -517,12 +696,14 @@ DebugModel::DrawRender(){
 }
 
 void
-DebugModel::Print(ostream& _os) const {
+DebugModel::
+Print(ostream& _os) const {
   _os << Name() << ": " << GetFilename() << endl
     << m_instructions.size() << " debug frames" << endl;
 }
 
 void
-DebugModel::ConfigureFrame(int _frame){
+DebugModel::
+ConfigureFrame(int _frame) {
   m_index = _frame+1;
 }

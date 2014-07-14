@@ -10,7 +10,6 @@
 #include "TempObjsModel.h"
 #include "UserPathModel.h"
 #include "Utilities/VizmoExceptions.h"
-#include "Utilities/IO.h"
 
 EnvModel::
 EnvModel(const string& _filename) : LoadableModel("Environment"),
@@ -55,6 +54,26 @@ IsNonCommitRegion(RegionModel* _r) const {
 
 void
 EnvModel::
+AddAttractRegion(RegionModel* _r) {
+  m_attractRegions.push_back(_r);
+  VDAddRegion(_r);
+}
+
+void
+EnvModel::
+AddAvoidRegion(RegionModel* _r) {
+  m_avoidRegions.push_back(_r);
+  VDAddRegion(_r);
+}
+
+void
+EnvModel::
+AddNonCommitRegion(RegionModel* _r) {
+  m_nonCommitRegions.push_back(_r);
+}
+
+void
+EnvModel::
 ChangeRegionType(RegionModel* _r, bool _attract) {
   vector<RegionModel*>::iterator rit;
   rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
@@ -63,10 +82,12 @@ ChangeRegionType(RegionModel* _r, bool _attract) {
     if(_attract) {
       _r->SetColor(Color4(0, 1, 0, 0.5));
       m_attractRegions.push_back(_r);
+      VDAddRegion(_r);
     }
     else {
       _r->SetColor(Color4(0, 0, 0, 0.5));
       m_avoidRegions.push_back(_r);
+      VDAddRegion(_r);
     }
   }
 }
@@ -74,6 +95,9 @@ ChangeRegionType(RegionModel* _r, bool _attract) {
 void
 EnvModel::
 DeleteRegion(RegionModel* _r) {
+
+  VDRemoveRegion(_r);
+
   vector<RegionModel*>::iterator rit;
   rit = find(m_attractRegions.begin(), m_attractRegions.end(), _r);
   if(rit != m_attractRegions.end()) {
@@ -178,7 +202,7 @@ ParseBoundary(ifstream& _ifs) {
     m_boundary = new BoundingSphereModel();
   else
     throw ParseException(WHERE,
-      "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
+        "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
 
   m_boundary->Parse(_ifs);
 }
@@ -419,8 +443,8 @@ SaveFile(const char* _filename) {
       vector<BodyModel*> bodies = saveMB.back()->GetBodies();
       reverse(bodies.begin(),bodies.end());
       envFile<<"#VIZMO_COLOR"<<" "<<bodies.back()->GetColor()[0]
-                             <<" "<<bodies.back()->GetColor()[1]
-                             <<" "<<bodies.back()->GetColor()[2]<<endl;
+        <<" "<<bodies.back()->GetColor()[1]
+        <<" "<<bodies.back()->GetColor()[2]<<endl;
       if(saveMB.back()->IsActive()){
         int nbJoints = 0;
         vector<ConnectionModel*> joints = saveMB.back()->GetJoints();
@@ -457,21 +481,21 @@ SaveFile(const char* _filename) {
             if(joints.back()->IsSpherical()){
               jointType = "Spherical ";
               limits<<jointLimits[0].first<<":"<<jointLimits[0].second<<" "
-                    <<jointLimits[1].first<<":"<<jointLimits[1].second;
+                <<jointLimits[1].first<<":"<<jointLimits[1].second;
             }
             else if(joints.back()->IsRevolute()){
               jointType = "Revolute ";
               limits<<jointLimits[0].first<<":"<<jointLimits[0].second<<" ";
             }
             envFile<<joints.back()->GetPreviousIndex()<<" "
-                     <<joints.back()->GetNextIndex()<<"  "
-                     <<jointType<<limits.str()<<endl;
+              <<joints.back()->GetNextIndex()<<"  "
+              <<jointType<<limits.str()<<endl;
             ostringstream transform;
             transform<<joints.back()->TransformToDHFrame();
             envFile<<SetTransformRight(transform.str())<<"   ";
             envFile<<joints.back()->GetAlpha()<<" "
-                     <<joints.back()->GetA()<<" "<<joints.back()->GetD()<<" "
-                     <<joints.back()->GetTheta()<<"   ";
+              <<joints.back()->GetA()<<" "<<joints.back()->GetD()<<" "
+              <<joints.back()->GetTheta()<<"   ";
             ostringstream transform2;
             transform2<<joints.back()->TransformToBody2();
             envFile<<SetTransformRight(transform2.str())<<endl;

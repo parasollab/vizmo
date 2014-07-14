@@ -5,6 +5,8 @@
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 
+#include "Utilities/IO.h"
+
 #include "Models/EnvModel.h"
 #include "Models/RegionBoxModel.h"
 #include "Models/RegionBox2DModel.h"
@@ -29,14 +31,14 @@
 
 PlanningOptions::
 PlanningOptions(QWidget* _parent, MainWindow* _mainWindow) :
-    OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
-    m_threadDone(true), m_thread(NULL), m_userPathCount(0) {
+  OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
+  m_threadDone(true), m_thread(NULL), m_userPathCount(0) {
 
-  CreateActions();
-  SetUpCustomSubmenu();
-  SetUpToolTab();
-  SetHelpTips();
-}
+    CreateActions();
+    SetUpCustomSubmenu();
+    SetUpToolTab();
+    SetHelpTips();
+  }
 
 void
 PlanningOptions::
@@ -121,6 +123,7 @@ SetUpCustomSubmenu() {
 
   m_submenu->addMenu(m_pathsMenu);
 
+  m_pathsMenu->setEnabled(false);
   m_addRegionMenu->setEnabled(false);
   m_regionPropertiesMenu->setEnabled(false);
 }
@@ -184,7 +187,6 @@ Reset() {
 void
 PlanningOptions::
 SetHelpTips() {
-
   m_actions["mapEnv"]->setWhatsThis(tr("Map an environment using region strategy"));
   m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
   m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));
@@ -290,6 +292,7 @@ ChangeRegionType(bool _attract) {
         || sel[0]->Name() == "Box Region 2D" || sel[0]->Name() == "Sphere Region 2D")) {
     RegionModel* r = (RegionModel*)sel[0];
     if(GetVizmo().GetEnv()->IsNonCommitRegion(r)) {
+      VDRemoveRegion(r);
       r->SetType(_attract ? RegionModel::ATTRACT : RegionModel::AVOID);
       GetVizmo().GetEnv()->ChangeRegionType(r, _attract);
     }
@@ -392,7 +395,7 @@ PrintUserPath() {
     string base = GetVizmo().GetEnvFileName();
     ostringstream fileName;
     fileName << base.substr(0, base.size() - 4) << "."
-             << m_userPathCount << ".user.path";
+      << m_userPathCount << ".user.path";
     ofstream pos(fileName.str().c_str());
     pos << "Workspace Path" << endl << "1" << endl;
     p->PrintPath(pos);

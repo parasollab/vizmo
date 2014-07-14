@@ -2,6 +2,9 @@
 
 #include <fstream>
 
+#include <Models/EnvModel.h>
+#include <Models/Vizmo.h>
+
 //parse filename out of map header
 string ParseMapHeader(const string& _filename) {
   string envDir = GetPathName(_filename);
@@ -50,3 +53,33 @@ GetColorFromComment(istream& _is) {
   return Color4();
 }
 
+void VDAddRegion(RegionModel* _region) {
+
+  if(vdo != NULL) {
+    (*vdo) << "AddRegion ";
+    _region->OutputDebugInfo(*vdo);
+  }
+}
+
+void VDRemoveRegion(RegionModel* _region) {
+
+  if(vdo != NULL) {
+    (*vdo) << "RemoveRegion ";
+    _region->OutputDebugInfo(*vdo);
+  }
+}
+
+void AddInitialRegions() {
+  if(vdo != NULL) {
+    const vector<RegionModel*>& attractRegions = GetVizmo().GetEnv()->GetAttractRegions();
+    const vector<RegionModel*>& avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+    const vector<RegionModel*>& nonCommitRegions = GetVizmo().GetEnv()->GetNonCommitRegions();
+
+    for(vector<RegionModel*>::const_iterator i = attractRegions.begin(); i != attractRegions.end(); ++i)
+      VDAddRegion(*i);
+    for(vector<RegionModel*>::const_iterator i = avoidRegions.begin(); i != avoidRegions.end(); ++i)
+      VDAddRegion(*i);
+    for(vector<RegionModel*>::const_iterator i = nonCommitRegions.begin(); i != nonCommitRegions.end(); ++i)
+      VDAddRegion(*i);
+  }
+}

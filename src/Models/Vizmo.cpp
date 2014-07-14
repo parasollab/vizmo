@@ -38,7 +38,7 @@ Vizmo() :
   m_queryModel(NULL),
   m_pathModel(NULL),
   m_debugModel(NULL) {
-}
+  }
 
 Vizmo::
 ~Vizmo() {
@@ -182,6 +182,7 @@ InitPMPL() {
   //add region strategy
   VizmoProblem::MPStrategyPointer rs(new RegionStrategy<VizmoTraits>());
   problem->AddMPStrategy(rs, "regions");
+
 
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();
@@ -439,6 +440,19 @@ Vizmo::
 Solve(const string& _strategy) {
   SRand(m_seed);
   VizmoProblem::MPStrategyPointer mps = GetVizmoProblem()->GetMPStrategy(_strategy);
+
+  ostringstream oss;
+  oss << GetEnv()->GetModelDataDir() << "/RegionStrategy." << GetSeed() << ".vd";
+  // Initialize Vizmo Debug
+  VDInit(oss.str());
+
+  // Add this so that regions made prior to solving are added
+  AddInitialRegions();
+
   mps->operator()();
+
+  // Close the debug file
+  VDClose();
+
   GetVizmo().GetMap()->RefreshMap();
 }

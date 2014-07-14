@@ -24,6 +24,8 @@ class RegionSphereModel : public RegionModel {
     void DrawSelected();
     //output model info
     void Print(ostream& _os) const;
+    // output debug information
+    void OutputDebugInfo(ostream& _os) const;
 
     //mouse events for selecting and resizing
     bool MousePressed(QMouseEvent* _e, Camera* _c);
@@ -33,12 +35,15 @@ class RegionSphereModel : public RegionModel {
 
     double WSpaceArea() const;
 
+    // operators
+    const bool operator==(const RegionModel& _other) const;
+
   protected:
     void GetCameraVectors(Camera* _c);
 
   private:
     Vector3d m_center, m_centerOrig;
-    double m_radius;
+    double m_radius, m_radiusOrig;
 
     bool m_lmb, m_rmb, m_firstClick;
     Highlight m_highlightedPart;

@@ -11,15 +11,15 @@ using boost::shared_ptr;
 
 class RegionModel : public Model {
   public:
-
     enum Type {ATTRACT, AVOID, NONCOMMIT};
+    enum Shape {DEFAULT, BOX, BOX2D, SPHERE, SPHERE2D}; // DEFAULT is currently used only for vizmo debug
 
-    RegionModel(const string& _name) :
-      Model(_name),
-      m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0),
-      m_type(NONCOMMIT), m_processed(false), m_created(-1) {
-      SetColor(Color4(0, 0, 1, 0.8));
-    }
+    RegionModel(const string& _name, const Shape _shape) :
+      Model(_name), m_successfulAttempts(0),
+      m_failedAttempts(0), m_numCCs(0), m_type(NONCOMMIT),
+      m_shape(_shape), m_processed(false), m_created(-1) {
+        SetColor(Color4(0, 0, 1, 0.8));
+      }
     virtual ~RegionModel() {}
 
     Type GetType() const {return m_type;}
@@ -27,6 +27,8 @@ class RegionModel : public Model {
     bool IsProcessed() const {return m_processed;}
     void Processed() {m_processed = true;}
     virtual shared_ptr<Boundary> GetBoundary() const = 0;
+
+    Shape GetShape() const {return m_shape;}
 
     //initialization of gl models
     virtual void Build() = 0;
@@ -40,6 +42,11 @@ class RegionModel : public Model {
     virtual void DrawSelected() = 0;
     //output model info
     virtual void Print(ostream& _os) const = 0;
+    //output debug info
+    virtual void OutputDebugInfo(ostream& _os) const = 0;
+
+    // Operators
+    virtual const bool operator==(const RegionModel& _other) const = 0;
 
     //density calculation
     virtual double WSpaceArea() const = 0;
@@ -65,13 +72,26 @@ class RegionModel : public Model {
     size_t GetCreationIter() {return m_created;}
     void SetCreationIter(size_t _i) {m_created = _i;}
 
+    void ChangeColor() {
+      if(m_type == NONCOMMIT)
+        SetColor(Color4(0, 0, 1, 0.8));
+      else if(m_type == ATTRACT)
+        SetColor(Color4(0, 1, 0, 0.8));
+      else if(m_type == AVOID)
+        SetColor(Color4(0.5, 0.5, 0.5, 0.8));
+    }
+
   protected:
     size_t m_successfulAttempts, m_failedAttempts, m_numCCs;
 
     Type m_type;
+    Shape m_shape;
     bool m_processed; //check if rejection region has been processed or not
 
     size_t m_created;
+
+    // Functions
+    void SetShape(Shape _s) {m_shape = _s;}
 };
 
 #endif

@@ -5,12 +5,28 @@
 #include "MPProblem/BoundingBox.h"
 #include "Utilities/GLUtils.h"
 #include "Utilities/Camera.h"
+#include "Utilities/IO.h"
 
-RegionBox2DModel::RegionBox2DModel() : RegionModel("Box Region 2D"), m_lmb(false),
-  m_firstClick(true), m_highlightedPart(NONE), m_boxVertices(4), m_prevPos(4), m_winVertices(4) {}
+RegionBox2DModel::
+RegionBox2DModel() : RegionModel("Box Region 2D", BOX2D), m_lmb(false), m_firstClick(true),
+  m_highlightedPart(NONE), m_boxVertices(4), m_prevPos(4), m_winVertices(4),
+  m_min(0, 0), m_max(0, 0) {}
+
+RegionBox2DModel::
+RegionBox2DModel(pair<double, double> _xRange, pair<double, double> _yRange) :
+  RegionModel("Box Region 2D", BOX2D), m_lmb(false), m_firstClick(false), m_highlightedPart(NONE),
+  m_boxVertices(4), m_prevPos(4), m_winVertices(4), m_min(_xRange.first, _yRange.first),
+  m_max(_xRange.second, _yRange.second) {
+    m_boxVertices[0] = Point3d(m_min[0], m_max[1], 0.);
+    m_boxVertices[1] = Point3d(m_min[0], m_min[1], 0.);
+    m_boxVertices[2] = Point3d(m_max[0], m_min[1], 0.);
+    m_boxVertices[3] = Point3d(m_max[0], m_max[1], 0.);
+  }
+
 
 shared_ptr<Boundary>
-RegionBox2DModel::GetBoundary() const {
+RegionBox2DModel::
+GetBoundary() const {
   return shared_ptr<Boundary>(new BoundingBox(
         make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
         make_pair(m_boxVertices[1][1], m_boxVertices[0][1]) ));
@@ -18,19 +34,38 @@ RegionBox2DModel::GetBoundary() const {
 
 //initialization of gl models
 void
-RegionBox2DModel::Build() {
+RegionBox2DModel::
+Build() {
 }
 
 //determing if _index is this GL model
 void
-RegionBox2DModel::Select(GLuint* _index, vector<Model*>& _sel) {
+RegionBox2DModel::
+Select(GLuint* _index, vector<Model*>& _sel) {
   if(_index)
     _sel.push_back(this);
 }
 
+const bool
+RegionBox2DModel::
+operator==(const RegionModel& _other) const {
+  if(_other.GetShape() == this->GetShape()) {
+    const RegionBox2DModel* myModel = dynamic_cast<const RegionBox2DModel*>(&_other);
+    if(GetType() == myModel->GetType()) {
+      bool result = true;
+      for(unsigned int i = 0; i < myModel->m_boxVertices.size(); i++) {
+        result &= (m_boxVertices[i] == myModel->m_boxVertices[i]);
+      }
+      return result;
+    }
+  }
+  return false;
+}
+
 //draw is called for the scene.
 void
-RegionBox2DModel::DrawRender() {
+RegionBox2DModel::
+DrawRender() {
   //configure gl modes
   glColor4fv(m_color);
 
@@ -64,7 +99,8 @@ RegionBox2DModel::DrawRender() {
 }
 
 void
-RegionBox2DModel::DrawSelect() {
+RegionBox2DModel::
+DrawSelect() {
   //draw box
   glBegin(GL_QUADS);
   for(int i = 0; i < 4; ++i)
@@ -81,7 +117,8 @@ RegionBox2DModel::DrawSelect() {
 
 //DrawSelect is only called if item is selected
 void
-RegionBox2DModel::DrawSelected() {
+RegionBox2DModel::
+DrawSelected() {
   //configure gl modes
   glLineWidth(4);
   glColor3f(.9, .9, 0.);
@@ -95,15 +132,24 @@ RegionBox2DModel::DrawSelected() {
 
 //output model info
 void
-RegionBox2DModel::Print(ostream& _os) const {
+RegionBox2DModel::
+Print(ostream& _os) const {
   _os << Name() << " ";
   for(size_t i = 0; i < m_boxVertices.size(); i++)
     _os << "(" << m_boxVertices[i] << ")";
   _os << endl;
 }
 
+// output debug info
+void
+RegionBox2DModel::
+OutputDebugInfo(ostream& _os) const {
+  _os << m_type << " BOX2D" << " " << m_prevPos[0][0] << " " << m_prevPos[1][1] << " " << m_prevPos[2][0] << " " << m_prevPos[3][1] << endl;
+}
+
 bool
-RegionBox2DModel::MousePressed(QMouseEvent* _e, Camera* _c) {
+RegionBox2DModel::
+MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
@@ -116,22 +162,27 @@ RegionBox2DModel::MousePressed(QMouseEvent* _e, Camera* _c) {
 }
 
 bool
-RegionBox2DModel::MouseReleased(QMouseEvent* _e, Camera* _c) {
+RegionBox2DModel::
+MouseReleased(QMouseEvent* _e, Camera* _c) {
+  VDAddRegion(this);
   if(m_type == AVOID)
     return false;
-
   if(m_lmb) {
+    if(!m_firstClick)
+      VDRemoveRegion(this);
     m_lmb = false;
     m_firstClick = false;
     m_prevPos = m_boxVertices;
     FindCenter();
+    VDAddRegion(this);
     return true;
   }
   return false;
 }
 
 bool
-RegionBox2DModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
+RegionBox2DModel::
+MouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
@@ -147,12 +198,12 @@ RegionBox2DModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
       //create box: start from top left and draw CCW about vector (0, 0, 1)
       c = ProjectToWorld(m_clicked.x(), m_clicked.y(), Point3d(), Vector3d(0, 0, 1));
       m = ProjectToWorld(mousePos.x(), mousePos.y(), Point3d(), Vector3d(0, 0, 1));
-      double minX = min(c[0], m[0]), maxX = max(c[0], m[0]);
-      double minY = min(c[1], m[1]), maxY = max(c[1], m[1]);
-      m_boxVertices[0] = Point3d(minX, maxY, 0.);
-      m_boxVertices[1] = Point3d(minX, minY, 0.);
-      m_boxVertices[2] = Point3d(maxX, minY, 0.);
-      m_boxVertices[3] = Point3d(maxX, maxY, 0.);
+      m_min[0] = min(c[0], m[0]), m_max[0] = max(c[0], m[0]);
+      m_min[1] = min(c[1], m[1]), m_max[1] = max(c[1], m[1]);
+      m_boxVertices[0] = Point3d(m_min[0], m_max[1], 0.);
+      m_boxVertices[1] = Point3d(m_min[0], m_min[1], 0.);
+      m_boxVertices[2] = Point3d(m_max[0], m_min[1], 0.);
+      m_boxVertices[3] = Point3d(m_max[0], m_max[1], 0.);
     }
     //handle resizing & translating
     else if(m_highlightedPart > NONE) {
@@ -173,7 +224,8 @@ RegionBox2DModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
 }
 
 bool
-RegionBox2DModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
+RegionBox2DModel::
+PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
@@ -234,18 +286,21 @@ RegionBox2DModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
 }
 
 double
-RegionBox2DModel::WSpaceArea() const {
+RegionBox2DModel::
+WSpaceArea() const {
   return (m_boxVertices[3][0] - m_boxVertices[0][0]) *
     (m_boxVertices[0][1] - m_boxVertices[1][1]);
 }
 
 void
-RegionBox2DModel::FindCenter() {
+RegionBox2DModel::
+FindCenter() {
   m_center = (m_boxVertices[0] + m_boxVertices[2])/2.;
 }
 
 void
-RegionBox2DModel::ApplyTransform(const Vector2d& _delta) {
+RegionBox2DModel::
+ApplyTransform(const Vector2d& _delta) {
   if(m_highlightedPart & LEFT) {
     m_boxVertices[0][0] = m_prevPos[0][0] + _delta[0];
     m_boxVertices[1][0] = m_prevPos[1][0] + _delta[0];

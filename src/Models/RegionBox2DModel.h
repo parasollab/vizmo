@@ -10,6 +10,7 @@ class RegionBox2DModel : public RegionModel {
     enum Highlight {NONE = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8, ALL = 15};
 
     RegionBox2DModel();
+    RegionBox2DModel(pair<double, double>, pair<double, double>);
 
     shared_ptr<Boundary> GetBoundary() const;
 
@@ -24,6 +25,8 @@ class RegionBox2DModel : public RegionModel {
     void DrawSelected();
     //output model info
     void Print(ostream& _os) const;
+    // Output debug information
+    void OutputDebugInfo(ostream& _os) const;
 
     //mouse events for selecting and resizing
     bool MousePressed(QMouseEvent* _e, Camera* _c);
@@ -33,6 +36,9 @@ class RegionBox2DModel : public RegionModel {
 
     //user feedback function
     double WSpaceArea() const;
+
+    // operators
+    const bool operator==(const RegionModel& _other) const;
 
   protected:
     //helper function
@@ -50,6 +56,8 @@ class RegionBox2DModel : public RegionModel {
     vector<Vector3d> m_prevPos;
     vector<Vector2d> m_winVertices;
     Point3d m_center;
+    Point2d m_min;
+    Point2d m_max;
 };
 
 #endif

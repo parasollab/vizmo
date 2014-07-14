@@ -1,16 +1,35 @@
+#include "Vizmo.h"
+#include "EnvModel.h"
 #include "RegionBoxModel.h"
 
 #include <QtGui>
-
 #include "MPProblem/BoundingBox.h"
 #include "Utilities/GLUtils.h"
 #include "Utilities/Camera.h"
+#include "Utilities/IO.h"
 
-RegionBoxModel::RegionBoxModel() : RegionModel("Box Region"), m_lmb(false), m_rmb(false),
-  m_firstClick(true), m_highlightedPart(NONE), m_boxVertices(8), m_prevPos(8), m_winVertices(8) {}
+RegionBoxModel::
+RegionBoxModel() : RegionModel("Box Region", BOX), m_lmb(false), m_rmb(false), m_firstClick(true), m_highlightedPart(NONE),
+  m_boxVertices(8), m_prevPos(8), m_winVertices(8), m_min(0, 0, 0), m_max(0, 0, 0) {}
+
+RegionBoxModel::
+RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange, pair<double, double> _zRange) :
+  RegionModel("Box Region", BOX), m_lmb(false), m_rmb(false), m_firstClick(false), m_highlightedPart(NONE), m_boxVertices(8),
+  m_prevPos(8), m_winVertices(8), m_min(_xRange.first, _yRange.first, _zRange.first),
+  m_max(_xRange.second, _yRange.second, _zRange.second) {
+    m_boxVertices[0] = Point3d(m_min[0], m_max[1], m_max[2]);
+    m_boxVertices[1] = Point3d(m_min[0], m_min[1], m_max[2]);
+    m_boxVertices[2] = Point3d(m_max[0], m_min[1], m_max[2]);
+    m_boxVertices[3] = Point3d(m_max[0], m_max[1], m_max[2]);
+    m_boxVertices[4] = Point3d(m_min[0], m_max[1], m_min[2]);
+    m_boxVertices[5] = Point3d(m_min[0], m_min[1], m_min[2]);
+    m_boxVertices[6] = Point3d(m_max[0], m_min[1], m_min[2]);
+    m_boxVertices[7] = Point3d(m_max[0], m_max[1], m_min[2]);
+  }
 
 shared_ptr<Boundary>
-RegionBoxModel::GetBoundary() const {
+RegionBoxModel::
+GetBoundary() const {
   return shared_ptr<Boundary>(new BoundingBox(
         make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
         make_pair(m_boxVertices[1][1], m_boxVertices[0][1]),
@@ -19,19 +38,38 @@ RegionBoxModel::GetBoundary() const {
 
 //initialization of gl models
 void
-RegionBoxModel::Build() {
+RegionBoxModel::
+Build() {
 }
 
 //determing if _index is this GL model
 void
-RegionBoxModel::Select(GLuint* _index, vector<Model*>& _sel) {
+RegionBoxModel::
+Select(GLuint* _index, vector<Model*>& _sel) {
   if(_index)
     _sel.push_back(this);
 }
 
+const bool
+RegionBoxModel::
+operator==(const RegionModel& _other) const {
+  if(_other.GetShape() == this->GetShape()) {
+    const RegionBoxModel* myModel = dynamic_cast<const RegionBoxModel*>(&_other);
+    if(GetType() == myModel->GetType()) {
+      bool result = true;
+      for(unsigned int i = 0; i < myModel->m_boxVertices.size(); i++) {
+        result &= (m_boxVertices[i] == myModel->m_boxVertices[i]);
+      }
+      return result;
+    }
+  }
+  return false;
+}
+
 //draw is called for the scene.
 void
-RegionBoxModel::DrawRender() {
+RegionBoxModel::
+DrawRender() {
   //configure gl modes
   glColor4fv(m_color);
 
@@ -83,17 +121,17 @@ RegionBoxModel::DrawRender() {
     glVertex3dv(m_boxVertices[i]);
   glEnd();
   glBegin(GL_LINES);
-    glVertex3dv(m_boxVertices[0]);
-    glVertex3dv(m_boxVertices[4]);
+  glVertex3dv(m_boxVertices[0]);
+  glVertex3dv(m_boxVertices[4]);
 
-    glVertex3dv(m_boxVertices[1]);
-    glVertex3dv(m_boxVertices[5]);
+  glVertex3dv(m_boxVertices[1]);
+  glVertex3dv(m_boxVertices[5]);
 
-    glVertex3dv(m_boxVertices[2]);
-    glVertex3dv(m_boxVertices[6]);
+  glVertex3dv(m_boxVertices[2]);
+  glVertex3dv(m_boxVertices[6]);
 
-    glVertex3dv(m_boxVertices[3]);
-    glVertex3dv(m_boxVertices[7]);
+  glVertex3dv(m_boxVertices[3]);
+  glVertex3dv(m_boxVertices[7]);
   glEnd();
 
   //change mouse cursor if highlighted
@@ -112,7 +150,8 @@ RegionBoxModel::DrawRender() {
 }
 
 void
-RegionBoxModel::DrawSelect() {
+RegionBoxModel::
+DrawSelect() {
   //create model
   glBegin(GL_QUADS);
 
@@ -160,23 +199,24 @@ RegionBoxModel::DrawSelect() {
     glVertex3dv(m_boxVertices[i]);
   glEnd();
   glBegin(GL_LINES);
-    glVertex3dv(m_boxVertices[0]);
-    glVertex3dv(m_boxVertices[4]);
+  glVertex3dv(m_boxVertices[0]);
+  glVertex3dv(m_boxVertices[4]);
 
-    glVertex3dv(m_boxVertices[1]);
-    glVertex3dv(m_boxVertices[5]);
+  glVertex3dv(m_boxVertices[1]);
+  glVertex3dv(m_boxVertices[5]);
 
-    glVertex3dv(m_boxVertices[2]);
-    glVertex3dv(m_boxVertices[6]);
+  glVertex3dv(m_boxVertices[2]);
+  glVertex3dv(m_boxVertices[6]);
 
-    glVertex3dv(m_boxVertices[3]);
-    glVertex3dv(m_boxVertices[7]);
+  glVertex3dv(m_boxVertices[3]);
+  glVertex3dv(m_boxVertices[7]);
   glEnd();
 }
 
 //DrawSelect is only called if item is selected
 void
-RegionBoxModel::DrawSelected() {
+RegionBoxModel::
+DrawSelected() {
   //configure gl modes
   glLineWidth(4);
   glColor3f(.9, .9, 0.);
@@ -191,31 +231,40 @@ RegionBoxModel::DrawSelected() {
     glVertex3dv(m_boxVertices[i]);
   glEnd();
   glBegin(GL_LINES);
-    glVertex3dv(m_boxVertices[0]);
-    glVertex3dv(m_boxVertices[4]);
+  glVertex3dv(m_boxVertices[0]);
+  glVertex3dv(m_boxVertices[4]);
 
-    glVertex3dv(m_boxVertices[1]);
-    glVertex3dv(m_boxVertices[5]);
+  glVertex3dv(m_boxVertices[1]);
+  glVertex3dv(m_boxVertices[5]);
 
-    glVertex3dv(m_boxVertices[2]);
-    glVertex3dv(m_boxVertices[6]);
+  glVertex3dv(m_boxVertices[2]);
+  glVertex3dv(m_boxVertices[6]);
 
-    glVertex3dv(m_boxVertices[3]);
-    glVertex3dv(m_boxVertices[7]);
+  glVertex3dv(m_boxVertices[3]);
+  glVertex3dv(m_boxVertices[7]);
   glEnd();
 }
 
 //output model info
 void
-RegionBoxModel::Print(ostream& _os) const {
+RegionBoxModel::
+Print(ostream& _os) const {
   _os << Name() << " ";
   for(size_t i = 0; i < m_boxVertices.size(); i++)
     _os << "(" << m_boxVertices[i] << ")";
   _os << endl;
 }
 
+// output debug info
+void
+RegionBoxModel::
+OutputDebugInfo(ostream& _os) const {
+  _os << m_type << " BOX" << " " << m_prevPos[0][0] << " " << m_prevPos[1][1] << " " << m_prevPos[4][2] << " " << m_prevPos[2][0] << " " << m_prevPos[0][1] << " " << m_prevPos[0][2] << endl;
+}
+
 bool
-RegionBoxModel::MousePressed(QMouseEvent* _e, Camera* _c) {
+RegionBoxModel::
+MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
@@ -234,29 +283,31 @@ RegionBoxModel::MousePressed(QMouseEvent* _e, Camera* _c) {
 }
 
 bool
-RegionBoxModel::MouseReleased(QMouseEvent* _e, Camera* _c) {
+RegionBoxModel::
+MouseReleased(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
-
   if(m_lmb || m_rmb) {
+    if(!m_firstClick)
+      VDRemoveRegion(this);
     m_lmb = false;
     m_rmb = false;
     m_firstClick = false;
     m_prevPos = m_boxVertices;
     FindCenter();
+    VDAddRegion(this);
     return true;
   }
   return false;
 }
 
 bool
-RegionBoxModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
+RegionBoxModel::
+MouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
-
   //get mouse position
   QPoint mousePos = QPoint(_e->pos().x(), g_height - _e->pos().y());
-
   if(m_lmb) {
     Point3d c; //click point
     Point3d m; //mouse point
@@ -268,17 +319,17 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
           _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
       m = ProjectToWorld(mousePos.x(), mousePos.y(),
           _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-      double minX = min(c[0], m[0]), maxX = max(c[0], m[0]);
-      double minY = min(c[1], m[1]), maxY = max(c[1], m[1]);
-      double minZ = min(c[2], m[2]), maxZ = max(c[2], m[2]);
-      m_boxVertices[0] = Point3d(minX, maxY, maxZ);
-      m_boxVertices[1] = Point3d(minX, minY, maxZ);
-      m_boxVertices[2] = Point3d(maxX, minY, maxZ);
-      m_boxVertices[3] = Point3d(maxX, maxY, maxZ);
-      m_boxVertices[4] = Point3d(minX, maxY, minZ);
-      m_boxVertices[5] = Point3d(minX, minY, minZ);
-      m_boxVertices[6] = Point3d(maxX, minY, minZ);
-      m_boxVertices[7] = Point3d(maxX, maxY, minZ);
+      m_min[0] = min(c[0], m[0]), m_max[0] = max(c[0], m[0]);
+      m_min[1] = min(c[1], m[1]), m_max[1] = max(c[1], m[1]);
+      m_min[2] = min(c[2], m[2]), m_max[2] = max(c[2], m[2]);
+      m_boxVertices[0] = Point3d(m_min[0], m_max[1], m_max[2]);
+      m_boxVertices[1] = Point3d(m_min[0], m_min[1], m_max[2]);
+      m_boxVertices[2] = Point3d(m_max[0], m_min[1], m_max[2]);
+      m_boxVertices[3] = Point3d(m_max[0], m_max[1], m_max[2]);
+      m_boxVertices[4] = Point3d(m_min[0], m_max[1], m_min[2]);
+      m_boxVertices[5] = Point3d(m_min[0], m_min[1], m_min[2]);
+      m_boxVertices[6] = Point3d(m_max[0], m_min[1], m_min[2]);
+      m_boxVertices[7] = Point3d(m_max[0], m_max[1], m_min[2]);
     }
     //handle translating and resizing
     else if(m_highlightedPart > NONE) {
@@ -306,7 +357,6 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
     ClearFACount();
     return true;
   }
-
   //translation in ~camera z
   if(m_rmb) {
     //get screen-y mouse and click positions
@@ -330,7 +380,8 @@ RegionBoxModel::MouseMotion(QMouseEvent* _e, Camera* _c) {
 }
 
 bool
-RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
+RegionBoxModel::
+PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
@@ -441,20 +492,23 @@ RegionBoxModel::PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
 }
 
 double
-RegionBoxModel::WSpaceArea() const {
+RegionBoxModel::
+WSpaceArea() const {
   return (m_boxVertices[3][0] - m_boxVertices[0][0]) *
     (m_boxVertices[0][1] - m_boxVertices[1][1]) *
     (m_boxVertices[0][2] - m_boxVertices[4][2]);
 }
 
 void
-RegionBoxModel::FindCenter() {
+RegionBoxModel::
+FindCenter() {
   //find midpoint of the diagonal from top-left-front to bottom-right-back
   m_center = (m_boxVertices[0] + m_boxVertices[6])/2.;
 }
 
 void
-RegionBoxModel::GetCameraVectors(Camera* _c) {
+RegionBoxModel::
+GetCameraVectors(Camera* _c) {
   //project start and end points to the world to find the cameraX direction
   Vector3d s = ProjectToWorld(0, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
   Vector3d e = ProjectToWorld(1, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
@@ -469,7 +523,8 @@ RegionBoxModel::GetCameraVectors(Camera* _c) {
 }
 
 void
-RegionBoxModel::MapControls(const Vector3d& _deltaMouse,
+RegionBoxModel::
+MapControls(const Vector3d& _deltaMouse,
     Vector3d& _deltaWorld, vector<Vector3d>& _axisCtrlDir) {
   double score, xScore, yScore, zScore;
   Vector3d xHat(1, 0, 0);
@@ -549,7 +604,8 @@ RegionBoxModel::MapControls(const Vector3d& _deltaMouse,
 }
 
 void
-RegionBoxModel::ApplyTransform(const Vector3d& _delta) {
+RegionBoxModel::
+ApplyTransform(const Vector3d& _delta) {
   if(m_highlightedPart & LEFT) {
     m_boxVertices[0][0] = m_prevPos[0][0] + _delta[0];
     m_boxVertices[1][0] = m_prevPos[1][0] + _delta[0];

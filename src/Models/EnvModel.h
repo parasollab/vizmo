@@ -8,6 +8,8 @@
 #include "MultiBodyModel.h"
 #include "RegionModel.h"
 
+#include "Utilities/IO.h"
+
 class TempObjsModel;
 class UserPathModel;
 
@@ -35,9 +37,9 @@ class EnvModel : public LoadableModel {
     const vector<RegionModel*>& GetAttractRegions() const {return m_attractRegions;}
     const vector<RegionModel*>& GetAvoidRegions() const {return m_avoidRegions;}
     const vector<RegionModel*>& GetNonCommitRegions() const {return m_nonCommitRegions;}
-    void AddAttractRegion(RegionModel* _r) {m_attractRegions.push_back(_r);}
-    void AddAvoidRegion(RegionModel* _r) {m_avoidRegions.push_back(_r);}
-    void AddNonCommitRegion(RegionModel* _r) {m_nonCommitRegions.push_back(_r);}
+    void AddAttractRegion(RegionModel* _r);
+    void AddAvoidRegion(RegionModel* _r);
+    void AddNonCommitRegion(RegionModel* _r);
     void ChangeRegionType(RegionModel* _r, bool _attract);
     void DeleteRegion(RegionModel* _r);
 

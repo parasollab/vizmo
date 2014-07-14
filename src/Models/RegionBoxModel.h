@@ -8,9 +8,10 @@ class Camera;
 class RegionBoxModel : public RegionModel {
   public:
     enum Highlight {NONE = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8, FRONT = 16,
-        BACK = 32, ALL = 63};
+      BACK = 32, ALL = 63};
 
     RegionBoxModel();
+    RegionBoxModel(pair<double, double>, pair<double, double>, pair<double, double>);
 
     shared_ptr<Boundary> GetBoundary() const;
 
@@ -25,6 +26,8 @@ class RegionBoxModel : public RegionModel {
     void DrawSelected();
     //output model info
     void Print(ostream& _os) const;
+    // Output Debug Information
+    void OutputDebugInfo(ostream& _os) const;
 
     //mouse events for selecting and resizing
     bool MousePressed(QMouseEvent* _e, Camera* _c);
@@ -34,6 +37,9 @@ class RegionBoxModel : public RegionModel {
 
     //user feedback function
     double WSpaceArea() const;
+
+    // operators
+    const bool operator==(const RegionModel& _other) const;
 
   protected:
     //helper functions
@@ -57,6 +63,11 @@ class RegionBoxModel : public RegionModel {
     Vector3d m_cameraX;
     Vector3d m_cameraY;
     Vector3d m_cameraZ;
+
+    // More efficient saving of position
+    // min and max are two points
+    Point3d m_min;
+    Point3d m_max;
 };
 
 #endif

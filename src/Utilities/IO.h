@@ -9,6 +9,8 @@ using namespace std;
 
 #include "Utilities/IOUtils.h"
 
+#include "Models/RegionModel.h"
+
 #include "VizmoExceptions.h"
 #include "Color.h"
 
@@ -17,5 +19,9 @@ string ParseMapHeader(const string& _filename);
 
 //optionally read a color from a comment line
 Color4 GetColorFromComment(istream& _is);
+
+void VDAddRegion(RegionModel* _region);
+void VDRemoveRegion(RegionModel* _region);
+void AddInitialRegions();
 
 #endif

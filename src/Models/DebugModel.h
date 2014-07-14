@@ -5,6 +5,8 @@
 #include "MapModel.h"
 #include "Model.h"
 
+class RegionModel;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Instruction classes for the Debug model
 //
@@ -68,6 +70,7 @@ struct ClearAll : public Instruction {
   vector<EdgeModel> m_tempEdges;
   vector<EdgeModel> m_query;
   vector<string> m_comments;
+  vector<RegionModel*> m_regions;
 };
 
 struct ClearComments : public Instruction {
@@ -95,6 +98,16 @@ struct QueryInstruction : public Instruction {
   QueryInstruction(const CfgModel& _s, const CfgModel& _t) : Instruction("QueryInstruction"), m_source(_s), m_target(_t) {}
   CfgModel m_source, m_target;
   vector<EdgeModel> m_query;
+};
+
+struct AddRegion : public Instruction {
+  AddRegion(RegionModel* _mod) : Instruction("AddRegion"), m_regionModel(_mod) {}
+  RegionModel* m_regionModel;
+};
+
+struct RemoveRegion : public Instruction {
+  RemoveRegion(RegionModel* _mod) : Instruction("RemoveRegion"), m_regionModel(_mod) {}
+  RegionModel* m_regionModel;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +154,7 @@ class DebugModel : public LoadableModel {
     vector<EdgeModel> m_tempEdges, m_query;
     CfgModel* m_tempRay;
     vector<string> m_comments;
+    vector<RegionModel*> m_regions;
 };
 
 #endif
