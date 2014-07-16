@@ -57,11 +57,17 @@ class MapEnvironmentWorker : public QObject {
 
   Q_OBJECT
 
+  public:
+    MapEnvironmentWorker(string _strategyLabel);
+
   public slots:
     void Solve();
 
   signals:
     void Finished();
+
+  private:
+    string m_strategyLabel;
 };
 
 #endif

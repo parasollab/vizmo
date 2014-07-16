@@ -54,7 +54,7 @@ CreateActions() {
   m_actions["makeRegionAttract"] = makeRegionAttract;
   QAction* makeRegionAvoid = new QAction(QPixmap(avoidregion), tr("Make Avoid Region"), this);
   m_actions["makeRegionAvoid"] = makeRegionAvoid;
-  QAction* mapEnv = new QAction(QPixmap(mapenv), tr("Map Environment"), this);
+  QAction* mapEnv = new QAction(QPixmap(mapenv), tr("Map Environment or Path"), this);
   m_actions["mapEnv"] = mapEnv;
 
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
@@ -187,7 +187,7 @@ Reset() {
 void
 PlanningOptions::
 SetHelpTips() {
-  m_actions["mapEnv"]->setWhatsThis(tr("Map an environment using region strategy"));
+  m_actions["mapEnv"]->setWhatsThis(tr("Map an environment using region strategy, or the current path using path strategy"));
   m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
   m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));
   m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
@@ -340,7 +340,11 @@ MapEnvironment() {
     // Set up thread for mapping the environment
     m_threadDone = false;
     m_thread = new QThread;
-    MapEnvironmentWorker* mpsw = new MapEnvironmentWorker;
+    MapEnvironmentWorker* mpsw;
+    if(m_mainWindow->GetGLScene()->GetCurrentUserPath())
+      mpsw = new MapEnvironmentWorker("paths");
+    else
+      mpsw = new MapEnvironmentWorker("regions");
     mpsw->moveToThread(m_thread);
     m_thread->start();
     connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
@@ -416,9 +420,13 @@ HapticPathCapture() {
   }
 }
 
+MapEnvironmentWorker::
+MapEnvironmentWorker(string _strategyLabel) : QObject(),
+    m_strategyLabel(_strategyLabel) {}
+
 void
 MapEnvironmentWorker::
 Solve() {
-  GetVizmo().Solve("regions");
+  GetVizmo().Solve(m_strategyLabel);
   emit Finished();
 }
