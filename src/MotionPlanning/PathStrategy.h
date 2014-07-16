@@ -21,6 +21,11 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
     void Run();
     void Finalize();
 
+  protected:
+    //helper functions
+    void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
+    void Connect(vector<VID>& _vids, size_t _i);
+
   private:
     UserPathModel* m_samplingPath;
 };
@@ -102,6 +107,33 @@ Finalize() {
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
   GetVizmo().GetRobot()->SetSelectable(true);
+}
+
+template<class MPTraits>
+void
+PathStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
+  //lock map data
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+
+  //add nodes in _samples to graph. store VID's in _vids for connecting
+  _vids.clear();
+  for(typename vector<CfgType>::iterator cit = _samples.begin();
+      cit != _samples.end(); cit++) {
+    VID addedNode = this->GetMPProblem()->GetRoadmap()->GetGraph()->AddVertex(*cit);
+    _vids.push_back(addedNode);
+  }
+}
+
+template<class MPTraits>
+void
+PathStrategy<MPTraits>::Connect(vector<VID>& _vids, size_t _i) {
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+  stapl::sequential::
+      vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
+  typename MPProblemType::ConnectorPointer cp =
+      this->GetMPProblem()->GetConnector("Neighborhood Connector");
+  cp->Connect(this->GetMPProblem()->GetRoadmap(),
+      *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
 }
 
 #endif
