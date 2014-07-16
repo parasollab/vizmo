@@ -44,6 +44,7 @@ class EnvModel : public LoadableModel {
     void DeleteRegion(RegionModel* _r);
 
     //Paths
+    const vector<UserPathModel*>& GetUserPaths() const {return m_userPaths;}
     void AddUserPath(UserPathModel* _p) {m_userPaths.push_back(_p);}
     void DeleteUserPath(UserPathModel* _p);
 
