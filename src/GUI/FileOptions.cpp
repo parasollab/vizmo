@@ -11,12 +11,14 @@
 #include "Models/MapModel.h"
 #include "Models/QueryModel.h"
 #include "Models/Vizmo.h"
+#include "Models/PathModel.h"
 
 #include "Icons/Folder.xpm"
 #include "Icons/Update.xpm"
 #include "Icons/SaveEnv.xpm"
 #include "Icons/SaveMap.xpm"
 #include "Icons/SaveQuery.xpm"
+#include "Icons/SavePath.xpm"
 #include "Icons/Quit.xpm"
 
 FileOptions::FileOptions(QWidget* _parent, MainWindow* _mainWindow)
@@ -41,6 +43,8 @@ FileOptions::CreateActions(){
   m_actions["saveQuery"] = saveQuery;
   QAction* saveRoadmap = new QAction(QPixmap(savemap), tr("Save Roadmap"), this);
   m_actions["saveRoadmap"] = saveRoadmap;
+  QAction* savePath = new QAction(QPixmap(savepath), tr("Save Path"), this);
+  m_actions["savePath"] = savePath;
   QAction* quit = new QAction(QPixmap(quiticon), tr("Quit"), this);
   m_actions["quit"] = quit;
 
@@ -53,6 +57,7 @@ FileOptions::CreateActions(){
   m_actions["saveFile"]->setEnabled(false);
   m_actions["saveQuery"]->setEnabled(false);
   m_actions["saveRoadmap"]->setEnabled(false);
+  m_actions["savePath"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["openFile"], SIGNAL(triggered()), this, SLOT(LoadFile()));
@@ -60,6 +65,7 @@ FileOptions::CreateActions(){
   connect(m_actions["saveFile"], SIGNAL(triggered()), this, SLOT(SaveEnv()));
   connect(m_actions["saveQuery"], SIGNAL(triggered()), this, SLOT(SaveQryFile()));
   connect(m_actions["saveRoadmap"], SIGNAL(triggered()), this, SLOT(SaveRoadmap()));
+  connect(m_actions["savePath"], SIGNAL(triggered()), this, SLOT(SavePath()));
   connect(m_actions["quit"], SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 }
 
@@ -75,6 +81,7 @@ FileOptions::Reset(){
   m_actions["saveFile"]->setEnabled(true);
   m_actions["saveQuery"]->setEnabled(true);
   m_actions["saveRoadmap"]->setEnabled(true);
+  m_actions["savePath"]->setEnabled(true);
 }
 
 void
@@ -177,5 +184,21 @@ FileOptions::SaveRoadmap(){
   else
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
 
+  m_mainWindow->GetGLScene()->updateGL();
+}
+
+void
+FileOptions::
+SavePath() {
+  QString fn = QFileDialog::getSaveFileName(this, "Choose a file name for the path",
+      QString::null, "Files(*.path)");
+
+  QFileInfo fi(fn);
+  if(!fn.isEmpty() && GetVizmo().GetPath()) {
+    GetVizmo().GetPath()->SavePath(fn.toStdString());
+  }
+  else {
+    m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
+  }
   m_mainWindow->GetGLScene()->updateGL();
 }

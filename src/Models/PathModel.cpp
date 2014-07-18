@@ -3,6 +3,7 @@
 #include "RobotModel.h"
 #include "Vizmo.h"
 #include "Utilities/IO.h"
+#include "Utilities/IOUtils.h"
 
 PathModel::PathModel(const string& _filename) :
   LoadableModel("Path"),
@@ -130,4 +131,15 @@ PathModel::Print(ostream& _os) const {
 Color4
 PathModel::Mix(Color4& _a, Color4& _b, float _percent){
   return _a*(1-_percent) + _b*_percent;
+}
+
+
+void
+PathModel::
+SavePath(const string& _filename) {
+  ofstream ofs (_filename.c_str());
+
+  //WritePath has 2 parameters (string _outputFile, const vector<CfgType>& _path)
+   WritePath(_filename, m_path);
+
 }

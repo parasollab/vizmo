@@ -10,6 +10,7 @@
 #include "Models/CfgModel.h"
 #include "Models/MultiBodyModel.h"
 #include "Models/QueryModel.h"
+#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 #include "Utilities/AlertUser.h"
 
@@ -100,14 +101,16 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
     m_tempObjs.AddCfg(m_tempNode);
 
     //Set temporary edges
-    Graph* graph = GetVizmo().GetMap()->GetGraph();
-    VI vit = graph->find_vertex(m_originalNode->GetIndex());
-    for(EI eit = vit->begin(); eit != vit->end(); ++eit) {
-      m_nodesToConnect.push_back((*eit).target());
-      EdgeModel* tempEdge = new EdgeModel((*eit).property());
-      CfgModel* targetCfg = &(graph->find_vertex((*eit).target())->property());
-      tempEdge->Set(m_tempNode, targetCfg);
-      m_tempObjs.AddEdge(tempEdge);
+    if(GetVizmo().GetMap()) {
+      Graph* graph = GetVizmo().GetMap()->GetGraph();
+      VI vit = graph->find_vertex(m_originalNode->GetIndex());
+      for(EI eit = vit->begin(); eit != vit->end(); ++eit) {
+        m_nodesToConnect.push_back((*eit).target());
+        EdgeModel* tempEdge = new EdgeModel((*eit).property());
+        CfgModel* targetCfg = &(graph->find_vertex((*eit).target())->property());
+        tempEdge->Set(m_tempNode, targetCfg);
+        m_tempObjs.AddEdge(tempEdge);
+      }
     }
   }
   else {
@@ -357,7 +360,6 @@ void
 NodeEditDialog::
 FinalizeNodeEdit(int _accepted) {
   Map* map = GetVizmo().GetMap();
-  Graph* graph = map->GetGraph();
 
   if(_accepted == 1){  //user pressed okay
     if(m_tempNode->IsValid()) {
@@ -365,20 +367,29 @@ FinalizeNodeEdit(int _accepted) {
       m_originalNode->SetCfg(m_tempNode->GetDataCfg());
 
       //delete edges that are no longer valid
-      for(vector<EdgeModel*>::iterator eit = m_tempObjs.GetEdges().begin();
-          eit != m_tempObjs.GetEdges().end(); ++eit) {
-        if((*eit)->IsValid() == false) {
-          VID start = map->Cfg2VID(*((*eit)->GetStartCfg()));
-          VID end = map->Cfg2VID(*((*eit)->GetEndCfg()));
-          graph->delete_edge(start, end);
-          graph->delete_edge(end, start);
+      if(map) {
+        Graph* graph = map->GetGraph();
+        for(vector<EdgeModel*>::iterator eit = m_tempObjs.GetEdges().begin();
+            eit != m_tempObjs.GetEdges().end(); ++eit) {
+          if((*eit)->IsValid() == false) {
+            VID start = map->Cfg2VID(*((*eit)->GetStartCfg()));
+            VID end = map->Cfg2VID(*((*eit)->GetEndCfg()));
+            graph->delete_edge(start, end);
+            graph->delete_edge(end, start);
+          }
         }
       }
     }
     else
       AlertUser("Invalid configuration!");
 
-    map->RefreshMap();
+    if(map)
+      map->RefreshMap();
+
+    if(GetVizmo().GetQry()) {
+      GetVizmo().GetQry()->Build();
+      GetVizmo().PlaceRobot();
+    }
   }
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->GetGLScene()->updateGL();

@@ -20,6 +20,7 @@ class FileOptions : public OptionsBase {
     void SaveEnv();
     void SaveQryFile();
     void SaveRoadmap();
+    void SavePath();
 
   private:
     void CreateActions();

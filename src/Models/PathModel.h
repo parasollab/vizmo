@@ -27,6 +27,7 @@ class PathModel : public LoadableModel {
     void DrawSelect();
     void DrawSelected() {}
     void Print(ostream& _os) const;
+    void SavePath(const string& _filename);
 
   private:
     Color4 Mix(Color4& _a, Color4& _b, float _percent);
