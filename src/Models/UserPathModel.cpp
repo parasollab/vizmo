@@ -1,3 +1,4 @@
+
 /*
  *  This method provides a tool for capturing approximate paths in two
  *  dimensions. The path is entered with the mouse by click-and-drag. Collision
@@ -22,7 +23,7 @@ class Camera;
 
 UserPathModel::
 UserPathModel(MainWindow* _mainWindow, InputType _t) :
-    Model("User Path"), m_mainWindow(_mainWindow), m_type(_t),
+    Model("User Path"), m_checkCollision(false), m_mainWindow(_mainWindow), m_type(_t),
     m_finished(false), m_valid(true), m_oldPos(), m_newPos(), m_userPath() {
   if(m_type == Haptic)
     UpdatePositions(GetVizmo().GetManager()->GetWorldPos());
@@ -47,7 +48,7 @@ DrawRender() {
   for(vector<Point3d>::iterator it = m_userPath.begin(); it != m_userPath.end(); ++it)
     glVertex3dv(*it);
   glEnd();
-}
+ }
 
 void
 UserPathModel::

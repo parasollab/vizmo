@@ -10,7 +10,7 @@ class UserPathModel : public Model {
 
   public:
     //specify input type
-    enum InputType {Mouse, Haptic};
+    enum InputType {Mouse, Haptic, CameraPath};
 
     UserPathModel(MainWindow* _mainWindow, InputType _t = Mouse);
 
@@ -29,9 +29,14 @@ class UserPathModel : public Model {
 
     //access functions
     const bool IsFinished() const {return m_finished;}
+    const CfgModel& GetNewPos() const {return m_newPos;}
+    const CfgModel& GetOldPos() const {return m_oldPos;}
+    void RewindPos() {m_newPos = m_oldPos;}
     InputType GetInputType() {return m_type;}
     shared_ptr< vector<CfgModel> > GetCfgs();
     void SendToPath(const Point3d& _p);
+
+    bool m_checkCollision;
 
     //mouse events for selecting and drawing
     bool MousePressed(QMouseEvent* _e, Camera* _c);

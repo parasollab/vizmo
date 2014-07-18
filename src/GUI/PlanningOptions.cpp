@@ -26,6 +26,7 @@
 #include "Icons/AvoidRegion.xpm"
 #include "Icons/MapEnv.xpm"
 #include "Icons/UserPath.xpm"
+#include "Icons/RecordPath.xpm"
 #include "Icons/DeleteUserPath.xpm"
 #include "Icons/PrintUserPath.xpm"
 
@@ -59,6 +60,8 @@ CreateActions() {
 
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
+  m_actions["addUserPathCamera"] = new QAction(QPixmap(recordpath),
+      tr("Add User Path with Camera"), this);
   m_actions["addUserPathHaptic"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Haptics"), this);
   m_actions["deleteUserPath"] = new QAction(QPixmap(deleteuserpath),
@@ -74,6 +77,7 @@ CreateActions() {
   m_actions["makeRegionAvoid"]->setEnabled(false);
   m_actions["mapEnv"]->setEnabled(false);
   m_actions["addUserPathMouse"]->setEnabled(false);
+  m_actions["addUserPathCamera"]->setEnabled(false);
   m_actions["addUserPathHaptic"]->setEnabled(false);
   m_actions["deleteUserPath"]->setEnabled(false);
   m_actions["printUserPath"]->setEnabled(false);
@@ -87,6 +91,8 @@ CreateActions() {
   connect(m_actions["mapEnv"], SIGNAL(triggered()),
       this, SLOT(MapEnvironment()));
   connect(m_actions["addUserPathMouse"], SIGNAL(triggered()),
+      this, SLOT(AddUserPath()));
+  connect(m_actions["addUserPathCamera"], SIGNAL(triggered()),
       this, SLOT(AddUserPath()));
   connect(m_actions["addUserPathHaptic"], SIGNAL(triggered()),
       this, SLOT(AddUserPath()));
@@ -117,6 +123,7 @@ SetUpCustomSubmenu() {
 
   m_pathsMenu = new QMenu("User Paths", this);
   m_pathsMenu->addAction(m_actions["addUserPathMouse"]);
+  m_pathsMenu->addAction(m_actions["addUserPathCamera"]);
   m_pathsMenu->addAction(m_actions["addUserPathHaptic"]);
   m_pathsMenu->addAction(m_actions["deleteUserPath"]);
   m_pathsMenu->addAction(m_actions["printUserPath"]);
@@ -134,6 +141,7 @@ SetUpToolbar() {
   m_toolbar = new QToolBar(m_mainWindow);
 
   m_toolbar->addAction(m_actions["addUserPathMouse"]);
+  m_toolbar->addAction(m_actions["addUserPathCamera"]);
   m_toolbar->addAction(m_actions["addUserPathHaptic"]);
   m_toolbar->addAction(m_actions["deleteUserPath"]);
   m_toolbar->addAction(m_actions["printUserPath"]);
@@ -146,6 +154,7 @@ SetUpToolTab() {
   vector<string> buttonList;
 
   buttonList.push_back("addUserPathMouse");
+  buttonList.push_back("addUserPathCamera");
   buttonList.push_back("addUserPathHaptic");
   buttonList.push_back("deleteUserPath");
   buttonList.push_back("printUserPath");
@@ -175,6 +184,7 @@ Reset() {
   m_actions["makeRegionAvoid"]->setEnabled(true);
   m_actions["mapEnv"]->setEnabled(true);
   m_actions["addUserPathMouse"]->setEnabled(true);
+  m_actions["addUserPathCamera"]->setEnabled(true);
   if(Haptics::UsingPhantom())
     m_actions["addUserPathHaptic"]->setEnabled(true);
   m_actions["deleteUserPath"]->setEnabled(true);
@@ -194,6 +204,7 @@ SetHelpTips() {
   m_actions["makeRegionAttract"]->setWhatsThis(tr("Change a region to attract"));
   m_actions["makeRegionAvoid"]->setWhatsThis(tr("Change a region to avoid"));
   m_actions["addUserPathMouse"]->setWhatsThis(tr("Add an approximate path to aid planner"));
+  m_actions["addUserPathCamera"]->setWhatsThis(tr("Add an approximate path to aid planner"));
   m_actions["addUserPathHaptic"]->setWhatsThis(tr("Add an approximate path to aid planner"));
   m_actions["deleteUserPath"]->setWhatsThis(tr("Remove an approximate path from the scene"));
   m_actions["printUserPath"]->setWhatsThis(tr("Print selected user path to file"));
@@ -366,6 +377,11 @@ AddUserPath() {
     connect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
         this, SLOT(HapticPathCapture()));
   }
+  if(callee->text().toStdString() == "Add User Path with Camera") {
+    p = new UserPathModel(m_mainWindow, UserPathModel::CameraPath);
+    connect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
+        this, SLOT(CameraPathCapture()));
+  }
   else
     p = new UserPathModel(m_mainWindow, UserPathModel::Mouse);
   GetVizmo().GetEnv()->AddUserPath(p);
@@ -419,14 +435,32 @@ HapticPathCapture() {
           this, SLOT(HapticPathCapture()));
   }
 }
+void
+PlanningOptions::
+CameraPathCapture() {
+  UserPathModel* p = m_mainWindow->GetGLScene()->GetCurrentUserPath();
+  Camera* camera = m_mainWindow->GetGLScene()->GetCurrentCamera();
+  if(p) {
+    if(!p->IsFinished()) {
+      p->SendToPath(camera->GetEye());
+      if (p->m_checkCollision && !p->GetNewPos().IsValid()) {
+        p->RewindPos();
+        camera->Set(p->GetOldPos().GetPoint(), camera->GetDir());
+      }
+    }
+    else
+      disconnect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
+          this, SLOT(CameraPathCapture()));
+  }
+}
 
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel) : QObject(),
-    m_strategyLabel(_strategyLabel) {}
+  m_strategyLabel(_strategyLabel) {}
 
-void
-MapEnvironmentWorker::
-Solve() {
-  GetVizmo().Solve(m_strategyLabel);
-  emit Finished();
-}
+  void
+  MapEnvironmentWorker::
+  Solve() {
+    GetVizmo().Solve(m_strategyLabel);
+    emit Finished();
+  }

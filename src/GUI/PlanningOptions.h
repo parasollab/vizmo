@@ -34,6 +34,7 @@ class PlanningOptions : public OptionsBase {
     void DeleteUserPath();
     void PrintUserPath();
     void HapticPathCapture();
+    void CameraPathCapture();
 
   private:
     void CreateActions();

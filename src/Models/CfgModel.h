@@ -33,7 +33,7 @@ class CfgModel : public Model, public Cfg {
 
     static bool GetIsVolumetricRobot() { return m_isVolumetricRobot; } //For Translation() call in NodeEditBox...for now
     CCModel<CfgModel, EdgeModel>* GetCC() const { return m_cc; }
-    bool IsValid() { return m_isValid; }
+    bool IsValid() const { return m_isValid; }
     static Shape GetShape() { return m_shape; }
     static float GetPointSize() { return m_pointScale; }
 
