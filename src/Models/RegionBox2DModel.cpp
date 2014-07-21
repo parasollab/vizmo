@@ -21,6 +21,8 @@ RegionBox2DModel(pair<double, double> _xRange, pair<double, double> _yRange) :
     m_boxVertices[1] = Point3d(m_min[0], m_min[1], 0.);
     m_boxVertices[2] = Point3d(m_max[0], m_min[1], 0.);
     m_boxVertices[3] = Point3d(m_max[0], m_max[1], 0.);
+
+    m_prevPos = m_boxVertices;
   }
 
 

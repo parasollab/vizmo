@@ -1,7 +1,3 @@
-/*******************************************************
- * Class for the "Planning" Submenu
- */
-
 #ifndef PLANNINGOPTIONS_H_
 #define PLANNINGOPTIONS_H_
 
@@ -25,6 +21,8 @@ class PlanningOptions : public OptionsBase {
     void MakeRegionAttract();
     void MakeRegionAvoid();
     void ChangeRegionType(bool _attract);
+    void SaveRegion();
+    void LoadRegion();
 
     void HandleTimer();
     void MapEnvironment();

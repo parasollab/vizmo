@@ -25,6 +25,8 @@ RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange, pair<
     m_boxVertices[5] = Point3d(m_min[0], m_min[1], m_min[2]);
     m_boxVertices[6] = Point3d(m_max[0], m_min[1], m_min[2]);
     m_boxVertices[7] = Point3d(m_max[0], m_max[1], m_min[2]);
+
+    m_prevPos = m_boxVertices;
   }
 
 shared_ptr<Boundary>

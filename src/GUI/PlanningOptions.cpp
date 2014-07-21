@@ -10,6 +10,7 @@
 #include "Models/EnvModel.h"
 #include "Models/RegionBoxModel.h"
 #include "Models/RegionBox2DModel.h"
+#include "Models/RegionModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
 #include "Models/RobotModel.h"
@@ -21,14 +22,16 @@
 
 #include "Icons/AddSphereRegion.xpm"
 #include "Icons/AddBoxRegion.xpm"
-#include "Icons/DeleteRegion.xpm"
 #include "Icons/AttractRegion.xpm"
 #include "Icons/AvoidRegion.xpm"
+#include "Icons/DeleteRegion.xpm"
+#include "Icons/DeleteUserPath.xpm"
+#include "Icons/LoadRegion.xpm"
 #include "Icons/MapEnv.xpm"
+#include "Icons/PrintUserPath.xpm"
+#include "Icons/SaveRegion.xpm"
 #include "Icons/UserPath.xpm"
 #include "Icons/RecordPath.xpm"
-#include "Icons/DeleteUserPath.xpm"
-#include "Icons/PrintUserPath.xpm"
 
 PlanningOptions::
 PlanningOptions(QWidget* _parent, MainWindow* _mainWindow) :
@@ -57,6 +60,10 @@ CreateActions() {
   m_actions["makeRegionAvoid"] = makeRegionAvoid;
   QAction* mapEnv = new QAction(QPixmap(mapenv), tr("Map Environment or Path"), this);
   m_actions["mapEnv"] = mapEnv;
+  QAction* saveRegion = new QAction(QPixmap(saveregion), tr("Save Region"), this); 
+  m_actions["saveRegion"] = saveRegion;
+  QAction* loadRegion = new QAction(QPixmap(loadregion), tr("Load Region"), this); 
+  m_actions["loadRegion"] = loadRegion;
 
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
@@ -81,6 +88,8 @@ CreateActions() {
   m_actions["addUserPathHaptic"]->setEnabled(false);
   m_actions["deleteUserPath"]->setEnabled(false);
   m_actions["printUserPath"]->setEnabled(false);
+  m_actions["saveRegion"]->setEnabled(false);
+  m_actions["loadRegion"]->setEnabled(false);
 
   // 3. Make connections
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
@@ -88,6 +97,8 @@ CreateActions() {
   connect(m_actions["deleteRegion"], SIGNAL(triggered()), this, SLOT(DeleteRegion()));
   connect(m_actions["makeRegionAttract"], SIGNAL(triggered()), this, SLOT(MakeRegionAttract()));
   connect(m_actions["makeRegionAvoid"], SIGNAL(triggered()), this, SLOT(MakeRegionAvoid()));
+  connect(m_actions["saveRegion"], SIGNAL(triggered()), this, SLOT(SaveRegion()));
+  connect(m_actions["loadRegion"], SIGNAL(triggered()), this, SLOT(LoadRegion()));
   connect(m_actions["mapEnv"], SIGNAL(triggered()),
       this, SLOT(MapEnvironment()));
   connect(m_actions["addUserPathMouse"], SIGNAL(triggered()),
@@ -102,6 +113,7 @@ CreateActions() {
       this, SLOT(PrintUserPath()));
 }
 
+// Sets up toolbar
 void PlanningOptions::
 SetUpCustomSubmenu() {
 
@@ -117,8 +129,9 @@ SetUpCustomSubmenu() {
   m_regionPropertiesMenu->addAction(m_actions["makeRegionAvoid"]);
   m_submenu->addMenu(m_regionPropertiesMenu);
 
+  m_submenu->addAction(m_actions["saveRegion"]);
+  m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
-
   m_submenu->addAction(m_actions["mapEnv"]);
 
   m_pathsMenu = new QMenu("User Paths", this);
@@ -127,7 +140,6 @@ SetUpCustomSubmenu() {
   m_pathsMenu->addAction(m_actions["addUserPathHaptic"]);
   m_pathsMenu->addAction(m_actions["deleteUserPath"]);
   m_pathsMenu->addAction(m_actions["printUserPath"]);
-
   m_submenu->addMenu(m_pathsMenu);
 
   m_pathsMenu->setEnabled(false);
@@ -147,6 +159,7 @@ SetUpToolbar() {
   m_toolbar->addAction(m_actions["printUserPath"]);
 }
 
+// Places the buttons in order
 void
 PlanningOptions::
 SetUpToolTab() {
@@ -164,12 +177,14 @@ SetUpToolTab() {
   buttonList.push_back("addRegionBox");
   buttonList.push_back("addRegionSphere");
   buttonList.push_back("deleteRegion");
-
   buttonList.push_back("makeRegionAttract");
   buttonList.push_back("makeRegionAvoid");
+
   buttonList.push_back("_separator_");
 
   buttonList.push_back("mapEnv");
+  buttonList.push_back("saveRegion");
+  buttonList.push_back("loadRegion");
 
   CreateToolTab(buttonList);
 }
@@ -189,11 +204,14 @@ Reset() {
     m_actions["addUserPathHaptic"]->setEnabled(true);
   m_actions["deleteUserPath"]->setEnabled(true);
   m_actions["printUserPath"]->setEnabled(true);
+  m_actions["saveRegion"]->setEnabled(true);
+  m_actions["loadRegion"]->setEnabled(true);
   m_pathsMenu->setEnabled(true);
   m_addRegionMenu->setEnabled(true);
   m_regionPropertiesMenu->setEnabled(true);
 }
 
+// Setting up "whats this" helper message 
 void
 PlanningOptions::
 SetHelpTips() {
@@ -208,6 +226,8 @@ SetHelpTips() {
   m_actions["addUserPathHaptic"]->setWhatsThis(tr("Add an approximate path to aid planner"));
   m_actions["deleteUserPath"]->setWhatsThis(tr("Remove an approximate path from the scene"));
   m_actions["printUserPath"]->setWhatsThis(tr("Print selected user path to file"));
+  m_actions["saveRegion"]->setWhatsThis(tr("Saves the regions drawn in the scene"));
+  m_actions["loadRegion"]->setWhatsThis(tr("Loads saved regions to the scene"));
 }
 
 void
@@ -435,6 +455,7 @@ HapticPathCapture() {
           this, SLOT(HapticPathCapture()));
   }
 }
+
 void
 PlanningOptions::
 CameraPathCapture() {
@@ -454,6 +475,135 @@ CameraPathCapture() {
   }
 }
 
+void
+PlanningOptions::
+SaveRegion() {
+  QString fn = QFileDialog::getSaveFileName(this,
+      "Choose an region file", QString::null,"Region File (*.regions)");
+  if(!fn.isEmpty()) {
+
+    string filename = fn.toStdString();
+    ofstream ofs(filename.c_str());
+    ofs << "#####RegionFile#####" << endl;
+
+    const vector<RegionModel*>& nonCommit = GetVizmo().GetEnv()->GetNonCommitRegions();
+    const vector<RegionModel*>& attractRegion = GetVizmo().GetEnv()->GetAttractRegions();
+    const vector<RegionModel*>& avoidRegion = GetVizmo().GetEnv()->GetAvoidRegions();
+
+    typedef vector<RegionModel*>::const_iterator CRIT;
+    for(CRIT crit = nonCommit.begin(); crit != nonCommit.end(); ++crit)
+      (*crit)->OutputDebugInfo(ofs);
+    for(CRIT crit = attractRegion.begin(); crit != attractRegion.end(); ++crit)
+      (*crit)->OutputDebugInfo(ofs);
+    for(CRIT crit = avoidRegion.begin(); crit != avoidRegion.end(); ++crit)
+      (*crit)->OutputDebugInfo(ofs);
+  }
+  m_mainWindow->GetGLScene()->updateGL();
+}
+
+void
+PlanningOptions::
+LoadRegion() {
+  QString fn = QFileDialog::getOpenFileName(this,
+      "Choose an region file", QString::null,"Region File (*.regions)");
+
+  if(!fn.isEmpty()) {
+
+    string filename = fn.toStdString(); 
+    ifstream ifs(filename.c_str());
+
+    string line;
+    getline(ifs,line);
+
+    while(getline(ifs,line)) {
+
+      istringstream iss(line);
+
+      RegionModel* _mod = NULL;
+
+      int tempType;
+      iss >> tempType;
+
+      string modelShapeName;
+      iss >> modelShapeName;
+
+      RegionModel::Type modelType = static_cast<RegionModel::Type>(tempType);
+
+      if(modelShapeName == "BOX") {
+
+        Point3d min, max;
+        iss >> min >> max;
+
+        pair<double, double> xPair(min[0], max[0]);
+        pair<double, double> yPair(min[1], max[1]);
+        pair<double, double> zPair(min[2], max[2]);
+
+        _mod = new RegionBoxModel(xPair, yPair, zPair);
+        _mod->SetType(modelType);
+        _mod->ChangeColor();
+      }
+      else if(modelShapeName == "BOX2D") {
+
+        Point2d min, max;
+        iss >> min >> max;
+
+        pair<double, double> xPair(min[0], max[0]);
+        pair<double, double> yPair(min[1], max[1]);
+
+        _mod = new RegionBox2DModel(xPair, yPair);
+        _mod->SetType(modelType);
+        _mod->ChangeColor();
+
+      }
+      else if(modelShapeName == "SPHERE") {
+
+        Point3d tempCenter;
+        iss >> tempCenter;
+
+        double radius = -1;
+        iss >> radius;
+
+        _mod = new RegionSphereModel(tempCenter, radius);
+        _mod->SetType(modelType);
+        _mod->ChangeColor();
+      }
+      else if(modelShapeName == "SPHERE2D") {
+
+        Point3d tempCenter;
+        iss >> tempCenter;
+
+        double radius = -1;
+        iss >> radius;
+
+        _mod = new RegionSphere2DModel(tempCenter, radius);
+        _mod->SetType(modelType);
+        _mod->ChangeColor();
+      }
+
+      if(_mod != NULL) {
+        //Checks what type of region then adds
+        if(_mod->GetType() == 0) {
+          GetVizmo().GetEnv()->AddAttractRegion(_mod);
+        }
+        else if(_mod->GetType() == 1) {
+          GetVizmo().GetEnv()->AddAvoidRegion(_mod);
+        }
+        else if(_mod->GetType() == 2) {
+          GetVizmo().GetEnv()->AddNonCommitRegion(_mod);
+        }
+      }
+      m_mainWindow->GetGLScene()->SetCurrentRegion(_mod);
+      m_mainWindow->GetModelSelectionWidget()->ResetLists();
+      GetVizmo().GetSelectedModels().clear();
+      GetVizmo().GetSelectedModels().push_back(_mod);
+      m_mainWindow->GetModelSelectionWidget()->Select();
+    }
+  }
+  else{
+    m_mainWindow->statusBar()->showMessage("Loading aborted", 2000);
+  }
+  m_mainWindow->GetGLScene()->updateGL(); 
+}
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel) : QObject(),
   m_strategyLabel(_strategyLabel) {}
