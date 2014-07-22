@@ -21,8 +21,10 @@
 #include "Icons/MakeWired.xpm"
 #include "Icons/Pallet.xpm"
 #include "Icons/ResetCamera.xpm"
+#include "Icons/SaveCameraPosition.xpm"
 #include "Icons/SetCameraPosition.xpm"
 #include "Icons/ShowNormals.xpm"
+
 
 
 GLWidgetOptions::
@@ -47,6 +49,10 @@ CreateActions() {
       tr("Reset Camera"), this);
   m_actions["setCameraPosition"] = new QAction(QPixmap(setcameraposition),
       tr("Set camera position"), this);
+  m_actions["saveCameraPosition"] = new QAction(QPixmap(savecameraposition),
+      tr("save camera position"), this);
+  m_actions["loadCameraPosition"] = new QAction(QPixmap(savecameraposition),
+      tr("load camera position"), this);
   m_actions["changeBGColor"] = new QAction(QPixmap(bgColor),
       tr("Change background color"), this);
 
@@ -69,6 +75,8 @@ CreateActions() {
   m_actions["resetCamera"]->setStatusTip(tr("Reset the camera position"));
   m_actions["changeBGColor"]->setEnabled(false);
   m_actions["changeBGColor"]->setStatusTip(tr("Change the color of the background"));
+  m_actions["saveCameraPosition"]->setEnabled(false);
+  m_actions["loadCameraPosition"]->setEnabled(false);
 
   m_actions["makeSolid"]->setShortcut(tr("CTRL+F"));
   m_actions["makeSolid"]->setEnabled(false);
@@ -93,12 +101,20 @@ CreateActions() {
       m_mainWindow->GetGLScene(), SLOT(ShowAxis()));
   connect(m_actions["showFrameRate"], SIGNAL(triggered()),
       m_mainWindow->GetGLScene(), SLOT(ShowFrameRate()));
+
+
   connect(m_actions["resetCamera"], SIGNAL(triggered()),
       this, SLOT(ResetCamera()));
   connect(m_actions["setCameraPosition"], SIGNAL(triggered()),
       this, SLOT(SetCameraPosition()));
+  connect(m_actions["saveCameraPosition"], SIGNAL(triggered()),
+      this, SLOT(SaveCameraPosition()));
+
+  connect(m_actions["loadCameraPosition"], SIGNAL(triggered()),
+      this, SLOT(LoadCameraPosition()));
   connect(m_actions["changeBGColor"], SIGNAL(triggered()),
       this, SLOT(ChangeBGColor()));
+
   connect(m_mainWindow->GetGLScene(), SIGNAL(clickByRMB()), this, SLOT(ShowGeneralContextMenu()));
   connect(m_actions["makeSolid"], SIGNAL(triggered()), this, SLOT(MakeSolid()));
   connect(m_actions["makeWired"], SIGNAL(triggered()), this, SLOT(MakeWired()));
@@ -146,6 +162,8 @@ GLWidgetOptions::
 SetUpToolTab() {
   vector<string> buttonList;
   buttonList.push_back("setCameraPosition");
+  buttonList.push_back("saveCameraPosition");
+  buttonList.push_back("loadCameraPosition");
   buttonList.push_back("showAxis");
   buttonList.push_back("showFrameRate");
   buttonList.push_back("makeSolid");
@@ -169,6 +187,9 @@ Reset() {
   m_actions["makeWired"]->setEnabled(true);
   m_actions["makeInvisible"]->setEnabled(true);
   m_actions["showObjectNormals"]->setEnabled(true);
+  m_actions["saveCameraPosition"]->setEnabled(true);
+  m_actions["loadCameraPosition"]->setEnabled(true);
+
 }
 
 void
@@ -190,6 +211,12 @@ SetHelpTips() {
         " selected item in <b>Wire</n> mode."));
   m_actions["makeInvisible"]->setWhatsThis(tr("Click this button to make a"
         " selected item invisible."));
+  m_actions["saveCameraPosition"]->setWhatsThis(tr("Click this button Save the "
+        " camera position."));
+  m_actions["loadCameraPosition"]->setWhatsThis(tr("Click this button load the "
+        " camera position."));
+
+
 }
 
 //Slots
@@ -213,6 +240,25 @@ SetCameraPosition() {
 
 void
 GLWidgetOptions::
+SaveCameraPosition() {
+  if(m_cameraPosDialog == NULL && GetVizmo().GetEnv() != NULL) {
+    m_cameraPosDialog = new CameraPosDialog(m_mainWindow,
+        m_mainWindow->GetGLScene()->GetCurrentCamera());
+    m_cameraPosDialog->SaveCameraPosition();
+  }
+}
+
+void
+GLWidgetOptions::
+LoadCameraPosition() {
+  if(m_cameraPosDialog == NULL && GetVizmo().GetEnv() != NULL) {
+    m_cameraPosDialog = new CameraPosDialog(m_mainWindow,
+        m_mainWindow->GetGLScene()->GetCurrentCamera());
+    m_cameraPosDialog->LoadCameraPosition();
+  }
+}
+void
+GLWidgetOptions::
 ChangeBGColor() {
   QColor color = QColorDialog::getColor(Qt::white, this);
   if (color.isValid()){
@@ -230,6 +276,7 @@ ShowGeneralContextMenu() {
   QMenu cm(this);
   cm.addAction(m_actions["changeBGColor"]);
   cm.addAction(m_actions["resetCamera"]);
+  cm.addAction(m_actions["saveCameraPosition"]);
   cm.addAction(m_actions["setCameraPosition"]);
   cm.addAction(m_actions["showAxis"]);
   cm.addAction(m_actions["showFrameRate"]);

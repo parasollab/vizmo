@@ -18,7 +18,6 @@ class GLWidgetOptions : public OptionsBase {
     GLWidgetOptions(QWidget* _parent, MainWindow* _mainWindow);
 
   private slots:
-
     void ResetCamera();
     void SetCameraPosition();
     void ChangeBGColor();
@@ -28,6 +27,8 @@ class GLWidgetOptions : public OptionsBase {
     void MakeWired();
     void MakeInvisible();
     void ShowObjectNormals();
+    void SaveCameraPosition();
+    void LoadCameraPosition();
 
   private:
     void CreateActions();
@@ -37,7 +38,7 @@ class GLWidgetOptions : public OptionsBase {
     void SetHelpTips();
     void SetUpCustomSubmenu();
 
-    QPointer<QDialog> m_cameraPosDialog;
+    QPointer<CameraPosDialog> m_cameraPosDialog;
 
     QMenu* m_modifySelected;
 };
