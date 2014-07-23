@@ -10,7 +10,7 @@ class FileListDialog : public QDialog {
   Q_OBJECT
 
   public:
-    FileListDialog(const string& _filename, QWidget* _parent, Qt::WFlags _f = 0);
+    FileListDialog(const vector<string>& _filename, QWidget* _parent, Qt::WFlags _f = 0);
 
   private slots:
     void ChangeEnv();
@@ -18,14 +18,17 @@ class FileListDialog : public QDialog {
     void ChangeQuery();
     void ChangePath();
     void ChangeDebug();
+    void ChangeXML();
     void Accept();
     void PathChecked();
     void DebugChecked();
 
+    string SearchXML(string _filename, string _key);
+
   private:
     //This file locates all possible filenames related to the input file.
     //For example, *.path, *.env, *.query...etc.
-    void GetAssociatedFiles(const string& _filename);
+    void GetAssociatedFiles(const vector<string>& _filename);
     void SetUpSubwidgets();
 
     //accepting check boxes on left side of window
@@ -34,6 +37,7 @@ class FileListDialog : public QDialog {
     QCheckBox* m_queryCheckBox;
     QCheckBox* m_pathCheckBox;
     QCheckBox* m_debugCheckBox;
+    QCheckBox* m_xmlCheckBox;
 
     //The actual displayed file names/paths
     QLabel* m_envFilename;
@@ -41,6 +45,10 @@ class FileListDialog : public QDialog {
     QLabel* m_queryFilename;
     QLabel* m_pathFilename;
     QLabel* m_debugFilename;
+    QLabel* m_xmlFilename;
+
+    bool m_xmlMode;
+    bool m_setupWidgets;
 };
 
 #endif

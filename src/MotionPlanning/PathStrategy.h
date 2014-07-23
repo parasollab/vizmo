@@ -21,6 +21,8 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
     void Run();
     void Finalize();
 
+    virtual void Print(ostream& _os) const;
+
   protected:
     //helper functions
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
@@ -38,9 +40,16 @@ PathStrategy() {
 
 template<class MPTraits>
 PathStrategy<MPTraits>::
-PathStrategy(MPProblemType* _problem, XMLNodeReader& _node) {
-  cerr << "Error. This constructor should not be called yet." << endl;
-  exit(1);
+PathStrategy(MPProblemType* _problem, XMLNodeReader& _node) : MPStrategyMethod<MPTraits>(_problem, _node) {
+  this->SetName("PathStrategy");
+}
+
+
+template<class MPTraits>
+void
+PathStrategy<MPTraits>::
+Print(ostream& _os) const {
+  _os << this->GetNameAndLabel() << endl;
 }
 
 template<class MPTraits>
@@ -49,11 +58,7 @@ PathStrategy<MPTraits>::
 Initialize() {
   cout << "Initializing Path Strategy." << endl;
 
-  //set base filename
-  ostringstream oss;
-  oss << GetVizmo().GetEnv()->GetModelDataDir() << "/PathStrategy." << GetVizmo().GetSeed();
-  string basename = oss.str();
-  this->SetBaseFilename(basename);
+  string basename = this->GetBaseFilename();
 
   //Make non-user objects non-selectable while PathStrategy is running
   GetVizmo().GetMap()->SetSelectable(false);
@@ -111,7 +116,8 @@ Finalize() {
 
 template<class MPTraits>
 void
-PathStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
+PathStrategy<MPTraits>::
+AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
   //lock map data
   QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
 
@@ -126,12 +132,13 @@ PathStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vi
 
 template<class MPTraits>
 void
-PathStrategy<MPTraits>::Connect(vector<VID>& _vids, size_t _i) {
+PathStrategy<MPTraits>::
+Connect(vector<VID>& _vids, size_t _i) {
   QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   stapl::sequential::
-      vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
+    vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
-      this->GetMPProblem()->GetConnector("Neighborhood Connector");
+    this->GetMPProblem()->GetConnector("Neighborhood Connector");
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
 }

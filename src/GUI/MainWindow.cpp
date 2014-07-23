@@ -62,7 +62,7 @@ InitVizmo() {
 
   //Here we use the first argument, but in the future
   //we should use all of them to load files.
-  FileListDialog flDialog(m_args[0], this);
+  FileListDialog flDialog(m_args, this);
 
   if(flDialog.exec() != QDialog::Accepted)
     return false;

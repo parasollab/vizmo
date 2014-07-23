@@ -49,8 +49,11 @@ bool
 Vizmo::
 InitModels() {
   Clean();
-
   try {
+    if(!m_xmlFilename.empty()) {
+      InitPMPL(m_xmlFilename);
+    }
+
     //Create environment first
     if(m_envFilename.empty())
       throw ParseException(WHERE, "Vizmo must load an environment file.");
@@ -108,9 +111,18 @@ InitModels() {
   //Put robot in start cfg, if availiable
   PlaceRobot();
 
-  InitPMPL();
+  if(m_xmlFilename.empty())
+    InitPMPL();
 
   return true;
+}
+
+void
+Vizmo::
+InitPMPL(string _xmlFilename) {
+  // Initialize PMPL structures
+  VizmoProblem*& problem = GetVizmoProblem();
+  problem = new VizmoProblem(_xmlFilename);
 }
 
 void
@@ -181,11 +193,11 @@ InitPMPL() {
 
   //add region strategy
   VizmoProblem::MPStrategyPointer rs(new RegionStrategy<VizmoTraits>());
-  problem->AddMPStrategy(rs, "regions");
+  problem->AddMPStrategy(rs, "RegionStrategy");
 
   //add path strategy
   VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());
-  problem->AddMPStrategy(ps, "paths");
+  problem->AddMPStrategy(ps, "PathsStrategy");
 
 
   //set the MPProblem pointer and build CD structures
@@ -293,7 +305,15 @@ bool
 Vizmo::
 CollisionCheck(CfgModel& _c) {
   if(m_envModel) {
-    VizmoProblem::ValidityCheckerPointer vc = GetVizmoProblem()->GetValidityChecker("PQP_SOLID");
+    VizmoProblem::ValidityCheckerPointer vc;
+
+    if(!m_xmlFilename.empty()) {
+      vc = GetVizmoProblem()->GetValidityChecker("cd2");
+    }
+    else {
+      vc = GetVizmoProblem()->GetValidityChecker("PQP_SOLID");
+    }
+
     bool b = vc->IsValid(_c, "Vizmo");
     _c.SetValidity(b);
     return b;
@@ -448,7 +468,16 @@ Solve(const string& _strategy) {
   name = name.substr(0, name.find("::"));
 
   ostringstream oss;
-  oss << GetEnv()->GetModelDataDir() << "/" << name << "." << GetSeed() << ".vd";
+
+  // If the xml file is loaded, GetModelDataDir will be empty
+  // and the vizmo debug file should be made in the same
+  // directory as the xml file
+  if(GetEnv()->GetModelDataDir() != "") {
+    oss << GetEnv()->GetModelDataDir() << "/" << mps->GetBaseFilename() << ".vd";
+  }
+  else
+    oss << name << "." << GetSeed() << ".vd";
+
   // Initialize Vizmo Debug
   VDInit(oss.str());
 

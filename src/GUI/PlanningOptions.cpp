@@ -60,9 +60,9 @@ CreateActions() {
   m_actions["makeRegionAvoid"] = makeRegionAvoid;
   QAction* mapEnv = new QAction(QPixmap(mapenv), tr("Map Environment or Path"), this);
   m_actions["mapEnv"] = mapEnv;
-  QAction* saveRegion = new QAction(QPixmap(saveregion), tr("Save Region"), this); 
+  QAction* saveRegion = new QAction(QPixmap(saveregion), tr("Save Region"), this);
   m_actions["saveRegion"] = saveRegion;
-  QAction* loadRegion = new QAction(QPixmap(loadregion), tr("Load Region"), this); 
+  QAction* loadRegion = new QAction(QPixmap(loadregion), tr("Load Region"), this);
   m_actions["loadRegion"] = loadRegion;
 
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
@@ -211,7 +211,7 @@ Reset() {
   m_regionPropertiesMenu->setEnabled(true);
 }
 
-// Setting up "whats this" helper message 
+// Setting up "whats this" helper message
 void
 PlanningOptions::
 SetHelpTips() {
@@ -373,9 +373,9 @@ MapEnvironment() {
     m_thread = new QThread;
     MapEnvironmentWorker* mpsw;
     if(m_mainWindow->GetGLScene()->GetCurrentUserPath())
-      mpsw = new MapEnvironmentWorker("paths");
+      mpsw = new MapEnvironmentWorker("PathsStrategy");
     else
-      mpsw = new MapEnvironmentWorker("regions");
+      mpsw = new MapEnvironmentWorker("RegionStrategy");
     mpsw->moveToThread(m_thread);
     m_thread->start();
     connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
@@ -509,7 +509,7 @@ LoadRegion() {
 
   if(!fn.isEmpty()) {
 
-    string filename = fn.toStdString(); 
+    string filename = fn.toStdString();
     ifstream ifs(filename.c_str());
 
     string line;
@@ -602,7 +602,7 @@ LoadRegion() {
   else{
     m_mainWindow->statusBar()->showMessage("Loading aborted", 2000);
   }
-  m_mainWindow->GetGLScene()->updateGL(); 
+  m_mainWindow->GetGLScene()->updateGL();
 }
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel) : QObject(),

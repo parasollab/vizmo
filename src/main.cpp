@@ -12,16 +12,32 @@ int
 main(int _argc, char** _argv) {
   //parse command line args
   long seed = 0;
+  vector<string> filename;
   char arg;
+  bool noXML = false;
   opterr = 0;
-  while((arg = getopt(_argc, _argv, "s:")) != -1) {
-    switch(arg) {
-      case 's':
-        seed = atol(optarg);
-        break;
-      default:
-        cerr << "\nUnknown commandline argument." << endl;
+  while((arg = getopt(_argc, _argv, "x:f:s:")) != -1) {
+    if(arg == 'x') {
+      if(noXML) {
+        cerr << "XML cannot be passed as argument with other files" << endl;
         exit(1);
+      }
+      filename.push_back(optarg);
+      break;
+    }
+    else {
+      noXML = true;
+      switch(arg) {
+        case 'f':
+          filename.push_back(optarg);
+          break;
+        case 's':
+          seed = atol(optarg);
+          break;
+        default:
+          cerr << "\nUnknown commandline argument." << endl;
+          exit(1);
+      }
     }
   }
 
@@ -37,6 +53,14 @@ main(int _argc, char** _argv) {
   if(!window.Init()) {
     cerr << "Error: vizmo++ could not intialize main window." << endl;
     return 1;
+  }
+
+  if(!filename.empty()) {
+    // Directly open file dialog
+    window.ResetDialogs();
+    window.GetArgs().clear();
+    window.GetArgs() = filename;
+    window.SetVizmoInit(false);
   }
 
   //execute main window and application

@@ -23,6 +23,8 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     void Run();
     void Finalize();
 
+    virtual void Print(ostream& _os) const;
+
   protected:
     //helper functions
     size_t SelectRegion();
@@ -38,29 +40,39 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
   private:
     RegionModel* m_samplingRegion;
     vector<VID> m_toDel;
+
+    string m_samplerLabel;
+    string m_connectionLabel;
 };
 
 template<class MPTraits>
-RegionStrategy<MPTraits>::RegionStrategy() {
+RegionStrategy<MPTraits>::
+RegionStrategy() {
   this->SetName("RegionStrategy");
 }
 
 template<class MPTraits>
-RegionStrategy<MPTraits>::RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node) {
-  cerr << "Error. This constructor should not be called." << endl;
-  exit(1);
+RegionStrategy<MPTraits>::
+RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node) : MPStrategyMethod<MPTraits>(_problem, _node) {
+  this->SetName("RegionStrategy");
+  m_samplerLabel = _node.stringXMLParameter("samplerLabel", true, "UniformRandomFreePQP", "Sampler Strategy");
+  m_connectionLabel = _node.stringXMLParameter("connectionLabel", true, "Closest", "Connection Strategy");
 }
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::Initialize() {
+RegionStrategy<MPTraits>::
+Print(ostream& _os) const {
+  _os << this->GetNameAndLabel() << endl;
+}
+
+template<class MPTraits>
+void
+RegionStrategy<MPTraits>::
+Initialize() {
   cout << "Initializing Region Strategy." << endl;
 
-  //base filename
-  ostringstream oss;
-  oss << GetVizmo().GetEnv()->GetModelDataDir() << "/RegionStrategy." << GetVizmo().GetSeed();
-  string basename = oss.str();
-  this->SetBaseFilename(basename);
+  string basename = this->GetBaseFilename();
 
   if(GetVizmo().IsQueryLoaded())
     boost::static_pointer_cast<Query<MPTraits> >(this->GetMPProblem()->GetMapEvaluator("Query"))->SetPathFile(basename + ".path");
@@ -128,7 +140,8 @@ RegionStrategy<MPTraits>::Run() {
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::Finalize() {
+RegionStrategy<MPTraits>::
+Finalize() {
   cout << "Finalizing Region Strategy." << endl;
 
   //redraw finished map
@@ -164,7 +177,8 @@ RegionStrategy<MPTraits>::Finalize() {
 
 template<class MPTraits>
 size_t
-RegionStrategy<MPTraits>::SelectRegion() {
+RegionStrategy<MPTraits>::
+SelectRegion() {
   //get regions from vizmo
   const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetAttractRegions();
 
@@ -174,11 +188,12 @@ RegionStrategy<MPTraits>::SelectRegion() {
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::SampleRegion(size_t _index, vector<CfgType>& _samples) {
+RegionStrategy<MPTraits>::
+SampleRegion(size_t _index, vector<CfgType>& _samples) {
   //setup access pointers
   shared_ptr<Boundary> samplingBoundary;
   const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetAttractRegions();
-  typename MPProblemType::SamplerPointer sp = this->GetMPProblem()->GetSampler("uniform");
+  typename MPProblemType::SamplerPointer sp = this->GetMPProblem()->GetSampler(m_samplerLabel);
 
   //check if the selected region is a region or the environment boundary.  if it
   //is the env boundary, set m_samplingRegion to null
@@ -218,7 +233,8 @@ RegionStrategy<MPTraits>::SampleRegion(size_t _index, vector<CfgType>& _samples)
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::RejectSamples(vector<CfgType>& _samples) {
+RegionStrategy<MPTraits>::
+RejectSamples(vector<CfgType>& _samples) {
   Environment* env = this->GetMPProblem()->GetEnvironment();
 
   //first test to make sure all regions are processed
@@ -257,7 +273,8 @@ RegionStrategy<MPTraits>::RejectSamples(vector<CfgType>& _samples) {
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
+RegionStrategy<MPTraits>::
+AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
   //lock map data
   QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
 
@@ -272,12 +289,13 @@ RegionStrategy<MPTraits>::AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::Connect(vector<VID>& _vids, size_t _i) {
+RegionStrategy<MPTraits>::
+Connect(vector<VID>& _vids, size_t _i) {
   QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   stapl::sequential::
-      vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
+    vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
-      this->GetMPProblem()->GetConnector("Neighborhood Connector");
+    this->GetMPProblem()->GetConnector(m_connectionLabel);
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
 
@@ -287,7 +305,8 @@ RegionStrategy<MPTraits>::Connect(vector<VID>& _vids, size_t _i) {
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::RecommendRegions(vector<VID>& _vids, size_t _i) {
+RegionStrategy<MPTraits>::
+RecommendRegions(vector<VID>& _vids, size_t _i) {
   if(!m_samplingRegion) {
     typedef typename MPProblemType::RoadmapType::GraphType GraphType;
     GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
@@ -312,7 +331,8 @@ RegionStrategy<MPTraits>::RecommendRegions(vector<VID>& _vids, size_t _i) {
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::UpdateRegionStats() {
+RegionStrategy<MPTraits>::
+UpdateRegionStats() {
   if(m_samplingRegion) {
     //set up access pointers
     Environment* ep = this->GetMPProblem()->GetEnvironment();
@@ -333,18 +353,13 @@ RegionStrategy<MPTraits>::UpdateRegionStats() {
         //ccs.insert(c.GetCC());
       }
     }
-
-    //typename SetCCs::iterator cit = find(ccs.begin(), ccs.end(), (CCM)NULL);
-    //if(cit != ccs.end())
-    //  ccs.erase(cit);
-
-    //m_samplingRegion->SetCCCount(ccs.size());
   }
 }
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::UpdateRegionColor(size_t _i) {
+RegionStrategy<MPTraits>::
+UpdateRegionColor(size_t _i) {
   if(m_samplingRegion) {
     //update region color based on node density
     double densityRatio = exp(-sqr(m_samplingRegion->NodeDensity()));
@@ -366,7 +381,8 @@ RegionStrategy<MPTraits>::UpdateRegionColor(size_t _i) {
 
 template<class MPTraits>
 bool
-RegionStrategy<MPTraits>::EvaluateMap() {
+RegionStrategy<MPTraits>::
+EvaluateMap() {
   //set up map evaluator. Currently, NodesEval is used unless a query file is
   //loaded.
   vector<string> evalLabel;

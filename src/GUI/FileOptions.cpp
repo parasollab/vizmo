@@ -21,17 +21,18 @@
 #include "Icons/SavePath.xpm"
 #include "Icons/Quit.xpm"
 
-FileOptions::FileOptions(QWidget* _parent, MainWindow* _mainWindow)
+FileOptions::
+FileOptions(QWidget* _parent, MainWindow* _mainWindow)
   : OptionsBase(_parent, _mainWindow) {
     CreateActions();
     SetUpSubmenu("File");
     SetUpToolbar();
     SetHelpTips();
-}
+  }
 
 void
-FileOptions::CreateActions(){
-
+FileOptions::
+CreateActions() {
   //1. Create actions and add them to map
   QAction* openFile = new QAction(QPixmap(folder), tr("&Open"), this);
   m_actions["openFile"] = openFile;
@@ -70,13 +71,15 @@ FileOptions::CreateActions(){
 }
 
 void
-FileOptions::SetUpToolbar(){
+FileOptions::
+SetUpToolbar() {
   m_toolbar = new QToolBar(m_mainWindow);
   m_toolbar->addAction(m_actions["openFile"]);
 }
 
 void
-FileOptions::Reset(){
+FileOptions::
+Reset() {
   m_actions["updateFile"]->setEnabled(true);
   m_actions["saveFile"]->setEnabled(true);
   m_actions["saveQuery"]->setEnabled(true);
@@ -85,7 +88,8 @@ FileOptions::Reset(){
 }
 
 void
-FileOptions::SetHelpTips(){
+FileOptions::
+SetHelpTips() {
   m_actions["openFile"]->setWhatsThis("Click this button to open a <b>File</b>.<br>"
       "You can separately specify the preferred Map, Environment, Path, Debug, and Query files.");
 }
@@ -93,9 +97,10 @@ FileOptions::SetHelpTips(){
 //Slots
 
 void
-FileOptions::LoadFile(){
+FileOptions::
+LoadFile() {
   QString fn = QFileDialog::getOpenFileName(this,  "Choose an environment to open",
-      QString::null, "Files (*.env *.map *.query *.path *.vd)");
+      QString::null, "Files (*.env *.map *.query *.path *.vd *.xml)");
 
   QFileInfo fi(fn);
 
@@ -116,9 +121,10 @@ FileOptions::LoadFile(){
 }
 
 void
-FileOptions::UpdateFiles(){
-  FileListDialog flDialog("", this);
-
+FileOptions::
+UpdateFiles() {
+  vector<string> emptyFiles;
+  FileListDialog flDialog(emptyFiles, this);
   if(flDialog.exec() != QDialog::Accepted)
     return;
   m_mainWindow->ResetDialogs();
@@ -135,8 +141,8 @@ FileOptions::UpdateFiles(){
 }
 
 void
-FileOptions::SaveEnv(){
-
+FileOptions::
+SaveEnv() {
   QString fn = QFileDialog::getSaveFileName(this, "Choose a file name for the environment",
       QString::null, "Files(*.env)");
 
@@ -154,8 +160,8 @@ FileOptions::SaveEnv(){
 }
 
 void
-FileOptions::SaveQryFile(){
-
+FileOptions::
+SaveQryFile() {
   QString fn = QFileDialog::getSaveFileName(this, "Choose a file name to save the query",
       QString::null, "Files (*.query)");
 
@@ -164,15 +170,13 @@ FileOptions::SaveQryFile(){
     GetVizmo().GetQry()->SaveQuery(fn.toStdString());
   else
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
-
-  //m_mainWindow->GetGLScene()->updateGL();
 }
 
 void
-FileOptions::SaveRoadmap(){
-
+FileOptions::
+SaveRoadmap() {
   QString fn = QFileDialog::getSaveFileName(this, "Choose a file name for the roadmap",
-    QString::null, "Files (*.map)");
+      QString::null, "Files (*.map)");
 
   QFileInfo fi(fn);
   if(!fn.isEmpty()){
@@ -183,7 +187,6 @@ FileOptions::SaveRoadmap(){
   }
   else
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
-
   m_mainWindow->GetGLScene()->updateGL();
 }
 

@@ -37,6 +37,7 @@ class Vizmo {
     bool InitModels();
     //initialize PMPL data structures for collision checking
     void InitPMPL();
+    void InitPMPL(string _xmlFilename);
     void Clean();
 
     //Display OpenGL Scene
@@ -48,7 +49,7 @@ class Vizmo {
     // Environment Related Functions
     EnvModel* GetEnv() const {return m_envModel;}
     const string& GetEnvFileName() const {return m_envFilename;}
-    void SetEnvFileName(const string& name) {m_envFilename = name;}
+    void SetEnvFileName(const string& _name) {m_envFilename = _name;}
 
     // Robot Related Functions
     RobotModel* GetRobot() const {return m_robotModel;}
@@ -60,13 +61,13 @@ class Vizmo {
     // Roadmap Related Functions
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
     const string& GetMapFileName() const {return m_mapFilename;}
-    void SetMapFileName(const string& name) {m_mapFilename = name;}
+    void SetMapFileName(const string& _name) {m_mapFilename = _name;}
     bool IsRoadMapLoaded(){return m_mapModel;}
 
     // Query Related Functions
     QueryModel* GetQry() const {return m_queryModel;}
     const string& GetQryFileName() const {return m_queryFilename;}
-    void SetQryFileName(const string& name) {m_queryFilename = name;}
+    void SetQryFileName(const string& _name) {m_queryFilename = _name;}
     bool IsQueryLoaded(){ return m_queryModel; }
 
     // Path Related Functions
@@ -78,8 +79,11 @@ class Vizmo {
     // Debug Related Functions
     DebugModel* GetDebug() const {return m_debugModel;}
     const string& GetDebugFileName() const {return m_debugFilename;}
-    void SetDebugFileName(const string& name) {m_debugFilename = name;}
+    void SetDebugFileName(const string& _name) {m_debugFilename = _name;}
     bool IsDebugLoaded() const {return m_debugModel;}
+
+    const string& GetXMLFileName() const {return m_xmlFilename;}
+    void SetXMLFileName(const string& _name) {m_xmlFilename = _name;}
 
     // Collision Detection Related Functions
     bool CollisionCheck(CfgModel& _c1);
@@ -131,6 +135,9 @@ class Vizmo {
     //debug
     DebugModel* m_debugModel;
     string m_debugFilename;
+
+    // XML File
+    string m_xmlFilename;
 
     typedef vector<Model*>::iterator MIT;
     vector<Model*> m_loadedModels, m_selectedModels;
