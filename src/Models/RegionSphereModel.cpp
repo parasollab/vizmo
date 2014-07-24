@@ -34,7 +34,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     _sel.push_back(this);
 }
 
-const bool
+bool
 RegionSphereModel::
 operator==(const RegionModel& _other) const {
   if(_other.GetShape() == this->GetShape()) {
@@ -49,6 +49,25 @@ operator==(const RegionModel& _other) const {
   }
 
   return false;
+}
+
+void
+RegionSphereModel::
+ApplyOffset(const Vector3d& _v) {
+  m_center += _v;
+  m_centerOrig = m_center;
+}
+
+double
+RegionSphereModel::
+GetShortLength() const {
+  return 2. * m_radius;
+}
+
+double
+RegionSphereModel::
+GetLongLength() const {
+  return 2. * m_radius;
 }
 
 //draw is called for the scene.
@@ -213,15 +232,3 @@ WSpaceArea() const {
   return PI * sqr(m_radius);
 }
 
-void
-RegionSphereModel::
-GetCameraVectors(Camera* _c) {
-  Vector3d s = ProjectToWorld(0, 0, Point3d(0, 0, 0), -_c->GetDir());
-  Vector3d e = ProjectToWorld(1, 0, Point3d(0, 0, 0), -_c->GetDir());
-  m_cameraX = (e - s).normalize();
-
-  e = ProjectToWorld(0, 1, Point3d(0, 0, 0), -_c->GetDir());
-  m_cameraY = (e - s).normalize();
-
-  m_cameraZ = (-_c->GetDir()).normalize();
-}

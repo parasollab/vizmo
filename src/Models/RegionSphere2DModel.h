@@ -35,7 +35,10 @@ class RegionSphere2DModel : public RegionModel {
 
     double WSpaceArea() const;
 
-    const bool operator==(const RegionModel& _other) const;
+    bool operator==(const RegionModel& _other) const;
+    void ApplyOffset(const Vector3d& _v);
+    double GetShortLength() const;
+    double GetLongLength() const;
 
   private:
     Vector3d m_center, m_centerOrig;

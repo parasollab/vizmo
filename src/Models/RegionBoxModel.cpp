@@ -52,7 +52,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     _sel.push_back(this);
 }
 
-const bool
+bool
 RegionBoxModel::
 operator==(const RegionModel& _other) const {
   if(_other.GetShape() == this->GetShape()) {
@@ -66,6 +66,43 @@ operator==(const RegionModel& _other) const {
     }
   }
   return false;
+}
+
+double
+RegionBoxModel::
+GetShortLength() const {
+  double xlen, ylen, zlen, len;
+  xlen = m_boxVertices[3][0] - m_boxVertices[0][0];
+  ylen = m_boxVertices[0][1] - m_boxVertices[1][1];
+  zlen = m_boxVertices[0][2] - m_boxVertices[4][2];
+
+  len = min(xlen, ylen);
+  len = min(len, zlen);
+
+  return len;
+}
+
+double
+RegionBoxModel::
+GetLongLength() const {
+  double xlen, ylen, zlen, len;
+  xlen = m_boxVertices[3][0] - m_boxVertices[0][0];
+  ylen = m_boxVertices[0][1] - m_boxVertices[1][1];
+  zlen = m_boxVertices[0][2] - m_boxVertices[4][2];
+
+  len = max(xlen, ylen);
+  len = max(len, zlen);
+
+  return len;
+}
+
+void
+RegionBoxModel::
+ApplyOffset(const Vector3d& _v) {
+  m_highlightedPart = ALL;
+  ApplyTransform(_v);
+  m_prevPos = m_boxVertices;
+  m_highlightedPart = NONE;
 }
 
 //draw is called for the scene.
@@ -508,21 +545,6 @@ FindCenter() {
   m_center = (m_boxVertices[0] + m_boxVertices[6])/2.;
 }
 
-void
-RegionBoxModel::
-GetCameraVectors(Camera* _c) {
-  //project start and end points to the world to find the cameraX direction
-  Vector3d s = ProjectToWorld(0, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  Vector3d e = ProjectToWorld(1, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  m_cameraX = (e - s).normalize();
-
-  //project a new end point to find the cameraY direction
-  e = ProjectToWorld(0, 1, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  m_cameraY = (e - s).normalize();
-
-  //get cameraZ from _c->GetDir()
-  m_cameraZ = (-_c->GetDir()).normalize();
-}
 
 void
 RegionBoxModel::

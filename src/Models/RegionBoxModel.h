@@ -39,12 +39,14 @@ class RegionBoxModel : public RegionModel {
     double WSpaceArea() const;
 
     // operators
-    const bool operator==(const RegionModel& _other) const;
+    bool operator==(const RegionModel& _other) const;
+    void ApplyOffset(const Vector3d& _v);
+    double GetShortLength() const;
+    double GetLongLength() const;
 
   protected:
     //helper functions
     void FindCenter();
-    void GetCameraVectors(Camera* _c);
     void MapControls(const Vector3d& _deltaMouse,
         Vector3d& _deltaWorld, vector<Vector3d>& _axisCtrlDir);
     void ApplyTransform(const Vector3d& _delta);
@@ -60,9 +62,6 @@ class RegionBoxModel : public RegionModel {
     vector<Vector3d> m_prevPos;
     vector<Vector2d> m_winVertices;
     Point3d m_center;
-    Vector3d m_cameraX;
-    Vector3d m_cameraY;
-    Vector3d m_cameraZ;
 
     // More efficient saving of position
     // min and max are two points

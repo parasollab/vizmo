@@ -48,7 +48,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     _sel.push_back(this);
 }
 
-const bool
+bool
 RegionBox2DModel::
 operator==(const RegionModel& _other) const {
   if(_other.GetShape() == this->GetShape()) {
@@ -62,6 +62,39 @@ operator==(const RegionModel& _other) const {
     }
   }
   return false;
+}
+
+void
+RegionBox2DModel::
+ApplyOffset(const Vector3d& _v) {
+  m_highlightedPart = ALL;
+  ApplyTransform(Vector2d(_v[0], _v[1]));
+  m_prevPos = m_boxVertices;
+  m_highlightedPart = NONE;
+}
+
+double
+RegionBox2DModel::
+GetShortLength() const {
+  double xlen, ylen, len;
+  xlen = m_boxVertices[3][0] - m_boxVertices[0][0];
+  ylen = m_boxVertices[0][1] - m_boxVertices[1][1];
+
+  len = min(xlen, ylen);
+
+  return len;
+}
+
+double
+RegionBox2DModel::
+GetLongLength() const {
+  double xlen, ylen, len;
+  xlen = m_boxVertices[3][0] - m_boxVertices[0][0];
+  ylen = m_boxVertices[0][1] - m_boxVertices[1][1];
+
+  len = max(xlen, ylen);
+
+  return len;
 }
 
 //draw is called for the scene.

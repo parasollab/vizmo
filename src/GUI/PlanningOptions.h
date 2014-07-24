@@ -20,6 +20,7 @@ class PlanningOptions : public OptionsBase {
     void DeleteRegion();
     void MakeRegionAttract();
     void MakeRegionAvoid();
+    void DuplicateRegion();
     void ChangeRegionType(bool _attract);
     void SaveRegion();
     void LoadRegion();

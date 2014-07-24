@@ -18,7 +18,7 @@ RegionSphere2DModel(const Point3d& _center, double _radius, bool _firstClick) :
     return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
   }
 
-const bool
+bool
 RegionSphere2DModel::
 operator==(const RegionModel& _other) const {
 
@@ -34,6 +34,25 @@ operator==(const RegionModel& _other) const {
   }
 
   return false;
+}
+
+void
+RegionSphere2DModel::
+ApplyOffset(const Vector3d& _v) {
+    m_center += Vector3d(_v[0], _v[1], 0);
+    m_centerOrig = m_center;
+}
+
+double
+RegionSphere2DModel::
+GetShortLength() const {
+  return 2. * m_radius;
+}
+
+double
+RegionSphere2DModel::
+GetLongLength() const {
+  return 2. * m_radius;
 }
 
 //initialization of gl models

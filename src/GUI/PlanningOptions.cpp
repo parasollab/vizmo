@@ -5,6 +5,7 @@
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 
+#include "Utilities/AlertUser.h"
 #include "Utilities/IO.h"
 
 #include "Models/EnvModel.h"
@@ -27,6 +28,7 @@
 #include "Icons/DeleteRegion.xpm"
 #include "Icons/DeleteUserPath.xpm"
 #include "Icons/LoadRegion.xpm"
+#include "Icons/DuplicateRegion.xpm"
 #include "Icons/MapEnv.xpm"
 #include "Icons/PrintUserPath.xpm"
 #include "Icons/SaveRegion.xpm"
@@ -58,6 +60,8 @@ CreateActions() {
   m_actions["makeRegionAttract"] = makeRegionAttract;
   QAction* makeRegionAvoid = new QAction(QPixmap(avoidregion), tr("Make Avoid Region"), this);
   m_actions["makeRegionAvoid"] = makeRegionAvoid;
+  QAction* duplicateRegion = new QAction(QPixmap(duplicateregion), tr("Duplicate Region"), this);
+  m_actions["duplicateRegion"] = duplicateRegion;
   QAction* mapEnv = new QAction(QPixmap(mapenv), tr("Map Environment or Path"), this);
   m_actions["mapEnv"] = mapEnv;
   QAction* saveRegion = new QAction(QPixmap(saveregion), tr("Save Region"), this);
@@ -82,6 +86,7 @@ CreateActions() {
   m_actions["deleteRegion"]->setEnabled(false);
   m_actions["makeRegionAttract"]->setEnabled(false);
   m_actions["makeRegionAvoid"]->setEnabled(false);
+  m_actions["duplicateRegion"]->setEnabled(false);
   m_actions["mapEnv"]->setEnabled(false);
   m_actions["addUserPathMouse"]->setEnabled(false);
   m_actions["addUserPathCamera"]->setEnabled(false);
@@ -99,6 +104,7 @@ CreateActions() {
   connect(m_actions["makeRegionAvoid"], SIGNAL(triggered()), this, SLOT(MakeRegionAvoid()));
   connect(m_actions["saveRegion"], SIGNAL(triggered()), this, SLOT(SaveRegion()));
   connect(m_actions["loadRegion"], SIGNAL(triggered()), this, SLOT(LoadRegion()));
+  connect(m_actions["duplicateRegion"], SIGNAL(triggered()), this, SLOT(DuplicateRegion()));
   connect(m_actions["mapEnv"], SIGNAL(triggered()),
       this, SLOT(MapEnvironment()));
   connect(m_actions["addUserPathMouse"], SIGNAL(triggered()),
@@ -127,6 +133,7 @@ SetUpCustomSubmenu() {
   m_regionPropertiesMenu = new QMenu("Region Properties", this);
   m_regionPropertiesMenu->addAction(m_actions["makeRegionAttract"]);
   m_regionPropertiesMenu->addAction(m_actions["makeRegionAvoid"]);
+  m_regionPropertiesMenu->addAction(m_actions["duplicateRegion"]);
   m_submenu->addMenu(m_regionPropertiesMenu);
 
   m_submenu->addAction(m_actions["saveRegion"]);
@@ -151,12 +158,12 @@ void
 PlanningOptions::
 SetUpToolbar() {
   m_toolbar = new QToolBar(m_mainWindow);
-
   m_toolbar->addAction(m_actions["addUserPathMouse"]);
   m_toolbar->addAction(m_actions["addUserPathCamera"]);
   m_toolbar->addAction(m_actions["addUserPathHaptic"]);
   m_toolbar->addAction(m_actions["deleteUserPath"]);
   m_toolbar->addAction(m_actions["printUserPath"]);
+
 }
 
 // Places the buttons in order
@@ -177,6 +184,8 @@ SetUpToolTab() {
   buttonList.push_back("addRegionBox");
   buttonList.push_back("addRegionSphere");
   buttonList.push_back("deleteRegion");
+  buttonList.push_back("duplicateRegion");
+
   buttonList.push_back("makeRegionAttract");
   buttonList.push_back("makeRegionAvoid");
 
@@ -197,6 +206,7 @@ Reset() {
   m_actions["deleteRegion"]->setEnabled(true);
   m_actions["makeRegionAttract"]->setEnabled(true);
   m_actions["makeRegionAvoid"]->setEnabled(true);
+  m_actions["duplicateRegion"]->setEnabled(true);
   m_actions["mapEnv"]->setEnabled(true);
   m_actions["addUserPathMouse"]->setEnabled(true);
   m_actions["addUserPathCamera"]->setEnabled(true);
@@ -221,6 +231,7 @@ SetHelpTips() {
   m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
   m_actions["makeRegionAttract"]->setWhatsThis(tr("Change a region to attract"));
   m_actions["makeRegionAvoid"]->setWhatsThis(tr("Change a region to avoid"));
+  m_actions["duplicateRegion"]->setWhatsThis(tr("Copy of a selected region"));
   m_actions["addUserPathMouse"]->setWhatsThis(tr("Add an approximate path to aid planner"));
   m_actions["addUserPathCamera"]->setWhatsThis(tr("Add an approximate path to aid planner"));
   m_actions["addUserPathHaptic"]->setWhatsThis(tr("Add an approximate path to aid planner"));
@@ -328,6 +339,51 @@ ChangeRegionType(bool _attract) {
       GetVizmo().GetEnv()->ChangeRegionType(r, _attract);
     }
   }
+}
+
+void
+PlanningOptions::
+DuplicateRegion() {
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  bool regionFound = false;
+  typedef vector<Model*>::iterator SIT;
+  for(SIT sit = sel.begin(); sit != sel.end(); ++sit) {
+    if((*sit)->Name().find("Region")) {
+
+      RegionModel* r = NULL;
+      double dist;
+      RegionModel::Shape shape = ((RegionModel*)(*sit))->GetShape();
+      if(shape == RegionModel::BOX) {
+        r = new RegionBoxModel(*dynamic_cast<RegionBoxModel*>(*sit));
+      }
+      else if(shape == RegionModel::BOX2D) {
+        r = new RegionBox2DModel(*dynamic_cast<RegionBox2DModel*>(*sit));
+      }
+      else if(shape == RegionModel::SPHERE ) {
+        r = new RegionSphereModel(*dynamic_cast<RegionSphereModel*>(*sit));
+      }
+      else if(shape == RegionModel::SPHERE2D) {
+        r = new RegionSphere2DModel(*dynamic_cast<RegionSphere2DModel*>(*sit));
+      }
+      if(r) {
+        regionFound = true;
+        dist = r->GetLongLength();
+        r->SetType(RegionModel::NONCOMMIT);
+        vector<Vector3d> dir = r->GetCameraVectors(m_mainWindow->GetGLScene()->GetCurrentCamera());
+        Vector3d delta = dir[0] - dir[1] + dir[2];
+        delta.selfNormalize();
+        delta *= dist/3;
+        r->ApplyOffset(delta);
+        GetVizmo().GetEnv()->AddNonCommitRegion(r);
+        m_mainWindow->GetModelSelectionWidget()->ResetLists();
+        sel.clear();
+        sel.push_back(r);
+        break;
+      }
+    }
+  }
+  if(!regionFound)
+    AlertUser("Region not selected");
 }
 
 void

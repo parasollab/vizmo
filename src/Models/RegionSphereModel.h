@@ -36,10 +36,10 @@ class RegionSphereModel : public RegionModel {
     double WSpaceArea() const;
 
     // operators
-    const bool operator==(const RegionModel& _other) const;
-
-  protected:
-    void GetCameraVectors(Camera* _c);
+    bool operator==(const RegionModel& _other) const;
+    void ApplyOffset(const Vector3d& _v);
+    double GetShortLength() const;
+    double GetLongLength() const;
 
   private:
     Vector3d m_center, m_centerOrig;
@@ -49,9 +49,6 @@ class RegionSphereModel : public RegionModel {
     Highlight m_highlightedPart;
     QPoint m_clicked;
 
-    Vector3d m_cameraX;
-    Vector3d m_cameraY;
-    Vector3d m_cameraZ;
 };
 
 #endif

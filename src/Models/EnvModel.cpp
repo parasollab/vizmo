@@ -69,6 +69,7 @@ AddAvoidRegion(RegionModel* _r) {
 void
 EnvModel::
 AddNonCommitRegion(RegionModel* _r) {
+  _r->SetColor(Color4(0, 0, 1, 0.8));
   m_nonCommitRegions.push_back(_r);
 }
 
