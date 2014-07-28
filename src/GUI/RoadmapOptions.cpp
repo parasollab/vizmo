@@ -132,7 +132,7 @@ CreateActions() {
 
   connect(m_actions["randomizeColors"], SIGNAL(triggered()), this, SLOT(RandomizeCCColors()));
   connect(m_actions["ccsOneColor"], SIGNAL(triggered()), this, SLOT(MakeCCsOneColor()));
-  connect(m_mainWindow->GetGLScene(), SIGNAL(selectByRMB()), this, SLOT(ShowObjectContextMenu()));
+  connect(m_mainWindow->GetGLWidget(), SIGNAL(selectByRMB()), this, SLOT(ShowObjectContextMenu()));
 }
 
 void
@@ -257,7 +257,7 @@ void
 RoadmapOptions::
 ShowRoadmap() {
   GetVizmo().GetMap()->SetRenderMode(m_actions["showHideRoadmap"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -278,7 +278,7 @@ RoadmapOptions::
 ScaleNodes() {
   double resize = m_nodeSizeDialog->GetSliderValue() / 1000;
   CfgModel::Scale(resize);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -292,7 +292,7 @@ RoadmapOptions::
 ChangeEdgeThickness() {
   double resize = m_edgeThicknessDialog->GetSliderValue() / 100;
   EdgeModel::m_edgeThickness = resize;
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -387,7 +387,7 @@ AddStraightLineEdge() {
 
     map->RefreshMap();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLScene()->updateGL();
+    m_mainWindow->GetGLWidget()->updateGL();
   }
   else
     AlertUser("Cannot add invalid edge!");
@@ -437,7 +437,7 @@ DeleteSelectedItems() {
     }
     map->RefreshMap();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLScene()->updateGL();
+    m_mainWindow->GetGLWidget()->updateGL();
     sel.clear();
   }
   map->ClearTempItems();
@@ -490,7 +490,7 @@ MergeSelectedNodes() {
     }
   }
 
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 
   NodeEditDialog* ned = new NodeEditDialog(m_mainWindow, "New Supervertex",
       superPreview, toConnect, toDelete);
@@ -501,7 +501,7 @@ void
 RoadmapOptions::
 RandomizeCCColors() {
   GetVizmo().GetMap()->RandomizeCCColors();
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -541,5 +541,5 @@ ShowObjectContextMenu() {
     cm.addSeparator();
   }
   if(cm.exec(QCursor::pos())!= 0) //was -1 for q3 version (index based)
-    m_mainWindow->GetGLScene()->updateGL();
+    m_mainWindow->GetGLWidget()->updateGL();
 }

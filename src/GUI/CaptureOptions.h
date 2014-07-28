@@ -15,10 +15,15 @@ class CaptureOptions : public OptionsBase {
   public:
     CaptureOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
+  public slots:
+    void Record();
+
   private slots:
     void CropRegion();
     void CapturePicture();
     void CaptureMovie();
+    void StartLiveRecording();
+    void StopLiveRecording();
 
   signals:
     void SimulateMouseUp();
@@ -32,6 +37,12 @@ class CaptureOptions : public OptionsBase {
     void SetHelpTips();
     void Reset();
     bool m_cropBox;
+
+    //for live recording
+    size_t m_frame;
+    size_t m_frameDigits; //number of # in the filename
+    size_t m_frameDigitStart; //first index of # in the filename
+    QString m_filename; //base filename for movie
 };
 
 #endif

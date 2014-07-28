@@ -264,7 +264,7 @@ AddRegionBox() {
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   // Set mouse events to current region for GLWidget
-  m_mainWindow->GetGLScene()->SetCurrentRegion(r);
+  m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   GetVizmo().GetSelectedModels().clear();
   GetVizmo().GetSelectedModels().push_back(r);
@@ -294,7 +294,7 @@ AddRegionSphere() {
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   // Set mouse events to current region for GLWidget
-  m_mainWindow->GetGLScene()->SetCurrentRegion(r);
+  m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   GetVizmo().GetSelectedModels().clear();
   GetVizmo().GetSelectedModels().push_back(r);
@@ -304,12 +304,12 @@ AddRegionSphere() {
 void
 PlanningOptions::
 DeleteRegion() {
-  RegionModel* r = m_mainWindow->GetGLScene()->GetCurrentRegion();
+  RegionModel* r = m_mainWindow->GetGLWidget()->GetCurrentRegion();
   if(r) {
     GetVizmo().GetEnv()->DeleteRegion(r);
     GetVizmo().GetSelectedModels().clear();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
+    m_mainWindow->GetGLWidget()->SetCurrentRegion(NULL);
   }
 }
 
@@ -369,7 +369,7 @@ DuplicateRegion() {
         regionFound = true;
         dist = r->GetLongLength();
         r->SetType(RegionModel::NONCOMMIT);
-        vector<Vector3d> dir = r->GetCameraVectors(m_mainWindow->GetGLScene()->GetCurrentCamera());
+        vector<Vector3d> dir = r->GetCameraVectors(m_mainWindow->GetGLWidget()->GetCurrentCamera());
         Vector3d delta = dir[0] - dir[1] + dir[2];
         delta.selfNormalize();
         delta *= dist/3;
@@ -389,7 +389,7 @@ DuplicateRegion() {
 void
 PlanningOptions::
 HandleTimer() {
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }
 
@@ -403,7 +403,7 @@ ThreadDone() {
   delete m_timer;
 
   // Refresh scene + GUI
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->m_mainMenu->CallReset();
 }
@@ -428,7 +428,7 @@ MapEnvironment() {
     m_threadDone = false;
     m_thread = new QThread;
     MapEnvironmentWorker* mpsw;
-    if(m_mainWindow->GetGLScene()->GetCurrentUserPath())
+    if(m_mainWindow->GetGLWidget()->GetCurrentUserPath())
       mpsw = new MapEnvironmentWorker("PathsStrategy");
     else
       mpsw = new MapEnvironmentWorker("RegionStrategy");
@@ -463,7 +463,7 @@ AddUserPath() {
   GetVizmo().GetEnv()->AddUserPath(p);
 
   // set mouse events to current path for GLWidget
-  m_mainWindow->GetGLScene()->SetCurrentUserPath(p);
+  m_mainWindow->GetGLWidget()->SetCurrentUserPath(p);
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   GetVizmo().GetSelectedModels().clear();
   GetVizmo().GetSelectedModels().push_back(p);
@@ -473,19 +473,19 @@ AddUserPath() {
 void
 PlanningOptions::
 DeleteUserPath() {
-  UserPathModel* p = m_mainWindow->GetGLScene()->GetCurrentUserPath();
+  UserPathModel* p = m_mainWindow->GetGLWidget()->GetCurrentUserPath();
   if(p) {
     GetVizmo().GetEnv()->DeleteUserPath(p);
     GetVizmo().GetSelectedModels().clear();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLScene()->SetCurrentUserPath(NULL);
+    m_mainWindow->GetGLWidget()->SetCurrentUserPath(NULL);
   }
 }
 
 void
 PlanningOptions::
 PrintUserPath() {
-  UserPathModel* p = m_mainWindow->GetGLScene()->GetCurrentUserPath();
+  UserPathModel* p = m_mainWindow->GetGLWidget()->GetCurrentUserPath();
   if(p) {
     ++m_userPathCount;
     string base = GetVizmo().GetEnvFileName();
@@ -502,7 +502,7 @@ PrintUserPath() {
 void
 PlanningOptions::
 HapticPathCapture() {
-  UserPathModel* p = m_mainWindow->GetGLScene()->GetCurrentUserPath();
+  UserPathModel* p = m_mainWindow->GetGLWidget()->GetCurrentUserPath();
   if(p) {
     if(!p->IsFinished())
       p->SendToPath(GetVizmo().GetManager()->GetWorldPos());
@@ -515,8 +515,8 @@ HapticPathCapture() {
 void
 PlanningOptions::
 CameraPathCapture() {
-  UserPathModel* p = m_mainWindow->GetGLScene()->GetCurrentUserPath();
-  Camera* camera = m_mainWindow->GetGLScene()->GetCurrentCamera();
+  UserPathModel* p = m_mainWindow->GetGLWidget()->GetCurrentUserPath();
+  Camera* camera = m_mainWindow->GetGLWidget()->GetCurrentCamera();
   if(p) {
     if(!p->IsFinished()) {
       p->SendToPath(camera->GetEye());
@@ -554,7 +554,7 @@ SaveRegion() {
     for(CRIT crit = avoidRegion.begin(); crit != avoidRegion.end(); ++crit)
       (*crit)->OutputDebugInfo(ofs);
   }
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -648,7 +648,7 @@ LoadRegion() {
           GetVizmo().GetEnv()->AddNonCommitRegion(_mod);
         }
       }
-      m_mainWindow->GetGLScene()->SetCurrentRegion(_mod);
+      m_mainWindow->GetGLWidget()->SetCurrentRegion(_mod);
       m_mainWindow->GetModelSelectionWidget()->ResetLists();
       GetVizmo().GetSelectedModels().clear();
       GetVizmo().GetSelectedModels().push_back(_mod);
@@ -658,7 +658,7 @@ LoadRegion() {
   else{
     m_mainWindow->statusBar()->showMessage("Loading aborted", 2000);
   }
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel) : QObject(),

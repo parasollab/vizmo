@@ -103,7 +103,7 @@ void
 PathOptions::
 ShowHidePath() {
   GetVizmo().GetPath()->SetRenderMode(m_actions["showHidePath"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 //Pop up the path customization window

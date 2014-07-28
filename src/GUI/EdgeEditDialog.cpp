@@ -35,7 +35,7 @@ SelectInMap() { //Display intermediate cfg selection on map
 EdgeEditDialog::
 EdgeEditDialog(MainWindow* _mainWindow, EdgeModel* _originalEdge)
     : QDialog(_mainWindow), m_mainWindow(_mainWindow),
-    m_originalEdge(_originalEdge), m_glScene(_mainWindow->GetGLScene()),
+    m_originalEdge(_originalEdge), m_glScene(_mainWindow->GetGLWidget()),
     m_tempObjs(), m_nodeEditDialog(NULL) {
 
   //make a working copy of the edge to be modified
@@ -210,5 +210,5 @@ FinalizeEdgeEdit(int _accepted) {
       QMessageBox::about(this, "", "Invalid edge!");
   }
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }

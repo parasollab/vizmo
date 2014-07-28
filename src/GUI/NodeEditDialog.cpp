@@ -90,7 +90,7 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
     : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
     m_tempNode(NULL), m_originalNode(_originalNode),
     m_nodesToConnect(), m_nodesToDelete(), m_tempObjs(),
-    m_glScene(_mainWindow->GetGLScene()) {
+    m_glScene(_mainWindow->GetGLWidget()) {
   //Set temporary objects
   if(_parentEdge == NULL) {
     //No parent edge, this is not an intermediate cfg.
@@ -154,7 +154,7 @@ NodeEditDialog(MainWindow* _mainWindow, string _title)
     : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
     m_tempNode(NULL), m_originalNode(NULL),
     m_nodesToConnect(), m_nodesToDelete(), m_tempObjs(),
-    m_glScene(_mainWindow->GetGLScene()) {
+    m_glScene(_mainWindow->GetGLWidget()) {
   //Set temporary cfg for editing
   m_tempNode = new CfgModel();
   m_tempObjs.AddCfg(m_tempNode);
@@ -173,7 +173,7 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _tempNode,
     : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
     m_tempNode(_tempNode), m_originalNode(NULL),
     m_nodesToConnect(_toConnect), m_nodesToDelete(_toDelete), m_tempObjs(),
-    m_glScene(_mainWindow->GetGLScene()) {
+    m_glScene(_mainWindow->GetGLWidget()) {
   //Set temporary cfg for editing
   m_tempObjs.AddCfg(m_tempNode);
 
@@ -392,7 +392,7 @@ FinalizeNodeEdit(int _accepted) {
     }
   }
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -412,7 +412,7 @@ FinalizeNodeAdd(int _accepted) {
       QMessageBox::about(this, "", "Cannot add invalid node!");
   }
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -446,5 +446,5 @@ FinalizeNodeMerge(int _accepted) {
       QMessageBox::about(this, "", "Invalid merge!");
   }
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }

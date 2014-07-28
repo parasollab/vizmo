@@ -5,6 +5,7 @@
 #include "MovieSaveDialog.h"
 #include "AnimationWidget.h"
 #include "Models/Vizmo.h"
+#include "Utilities/AlertUser.h"
 #include "Utilities/ImageFilters.h"
 
 #include "Icons/Crop.xpm"
@@ -28,6 +29,8 @@ CreateActions() {
   m_actions["crop"] = new QAction(QPixmap(cropIcon), tr("Crop"), this);
   m_actions["picture"] = new QAction(QPixmap(cameraIcon), tr("Picture"), this);
   m_actions["movie"] = new QAction(QPixmap(camcorderIcon), tr("Movie"), this);
+  m_actions["startLiveRecording"] = new QAction(QPixmap(camcorderIcon), tr("StartLiveRecording"), this);
+  m_actions["stopLiveRecording"] = new QAction(QPixmap(camcorderIcon), tr("StopLiveRecording"), this);
 
   //2. Set other specifications as necessary
   m_actions["crop"]->setEnabled(false);
@@ -37,23 +40,23 @@ CreateActions() {
   m_actions["picture"]->setStatusTip(tr("Take picture"));
   m_actions["movie"]->setEnabled(false);
   m_actions["movie"]->setStatusTip(tr("Save movie"));
+  m_actions["startLiveRecording"]->setEnabled(false);
+  m_actions["startLiveRecording"]->setStatusTip(tr("Start live recording"));
+  m_actions["stopLiveRecording"]->setEnabled(false);
+  m_actions["stopLiveRecording"]->setStatusTip(tr("Stop live recording"));
 
   //3. Make connections
-  connect(m_actions["crop"], SIGNAL(triggered()),
-      this, SLOT(CropRegion()));
-  connect(m_actions["picture"], SIGNAL(triggered()),
-      this, SLOT(CapturePicture()));
-  connect(m_actions["movie"], SIGNAL(triggered()),
-      this, SLOT(CaptureMovie()));
+  connect(m_actions["crop"], SIGNAL(triggered()), this, SLOT(CropRegion()));
+  connect(m_actions["picture"], SIGNAL(triggered()), this, SLOT(CapturePicture()));
+  connect(m_actions["movie"], SIGNAL(triggered()), this, SLOT(CaptureMovie()));
+  connect(m_actions["startLiveRecording"], SIGNAL(triggered()), this, SLOT(StartLiveRecording()));
+  connect(m_actions["stopLiveRecording"], SIGNAL(triggered()), this, SLOT(StopLiveRecording()));
 
-  connect(this, SIGNAL(ToggleSelectionSignal()),
-      m_mainWindow->GetGLScene(), SLOT(ToggleSelectionSlot()));
-  connect(this, SIGNAL(SimulateMouseUp()),
-      m_mainWindow->GetGLScene(), SLOT(SimulateMouseUpSlot()));
-  connect(this, SIGNAL(CallUpdate()),
-      m_mainWindow, SLOT(UpdateScreen()));
-  connect(this, SIGNAL(UpdateFrame(int)),
-      m_mainWindow->GetAnimationWidget(), SLOT(UpdateFrame(int)));
+  connect(this, SIGNAL(ToggleSelectionSignal()), m_mainWindow->GetGLWidget(), SLOT(ToggleSelectionSlot()));
+  connect(this, SIGNAL(SimulateMouseUp()), m_mainWindow->GetGLWidget(), SLOT(SimulateMouseUpSlot()));
+  connect(this, SIGNAL(CallUpdate()), m_mainWindow, SLOT(UpdateScreen()));
+  connect(this, SIGNAL(UpdateFrame(int)), m_mainWindow->GetAnimationWidget(), SLOT(UpdateFrame(int)));
+  connect(m_mainWindow->GetGLWidget(), SIGNAL(Record()), this, SLOT(Record()));
 }
 
 void
@@ -63,6 +66,8 @@ SetUpToolbar() {
   m_toolbar->addAction(m_actions["crop"]);
   m_toolbar->addAction(m_actions["picture"]);
   m_toolbar->addAction(m_actions["movie"]);
+  m_toolbar->addAction(m_actions["startLiveRecording"]);
+  m_toolbar->addAction(m_actions["stopLiveRecording"]);
 }
 
 void
@@ -76,6 +81,8 @@ SetHelpTips() {
         " the entire scene will be saved."));
   m_actions["movie"]->setWhatsThis(tr("Click this button to save a"
         " movie.")); //If someone knows a better way to word this, please do.
+  m_actions["startLiveRecording"]->setWhatsThis(tr("Click this button to begin recording the GL scene."));
+  m_actions["stopLiveRecording"]->setWhatsThis(tr("Click this button to stop recording the GL scene"));
 }
 
 void
@@ -84,6 +91,8 @@ Reset() {
   m_actions["crop"]->setEnabled(true);
   m_actions["picture"]->setEnabled(true);
   m_actions["movie"]->setEnabled(GetVizmo().GetPath() || GetVizmo().GetDebug());
+  m_actions["startLiveRecording"]->setEnabled(true);
+  m_actions["stopLiveRecording"]->setEnabled(true);
 }
 
 //Slots
@@ -113,7 +122,7 @@ CapturePicture() {
     QStringList files = fd.selectedFiles();
     if(!files.empty()) {
       QString filename = GrabFilename(files[0], fd.selectedFilter());
-      m_mainWindow->GetGLScene()->SaveImage(filename, m_cropBox);
+      m_mainWindow->GetGLWidget()->SaveImage(filename, m_cropBox);
     }
   }
 }
@@ -157,8 +166,65 @@ CaptureMovie() {
       filename.replace(msd.m_frameDigitStart, msd.m_frameDigits, num.c_str());
 
       //save the image
-      m_mainWindow->GetGLScene()->SaveImage(filename, m_cropBox);
+      m_mainWindow->GetGLWidget()->SaveImage(filename, m_cropBox);
     }
   }
+}
+
+void
+CaptureOptions::
+StartLiveRecording() {
+  //Set up the file dialog to select image filename
+  QFileDialog fd(m_mainWindow, "Choose a name", ".", QString::null);
+  fd.setFileMode(QFileDialog::AnyFile);
+  fd.setFilters(imageFilters);
+  fd.setAcceptMode(QFileDialog::AcceptSave);
+
+  //if filename exists save image
+  if(fd.exec() == QDialog::Accepted) {
+    QStringList files = fd.selectedFiles();
+    if(!files.isEmpty()) {
+      m_filename = GrabFilename(files[0], fd.selectedFilter());
+
+      //find digit
+      int f = m_filename.indexOf('#');
+      int l = m_filename.lastIndexOf('#');
+      m_frameDigits = l - f + 1;
+      m_frameDigitStart = f;
+      if(m_frameDigitStart == size_t(-1)){
+        m_frameDigits = 0;
+        m_frameDigitStart = m_filename.lastIndexOf('.');
+      }
+    }
+    m_frame = 0;
+    m_mainWindow->GetGLWidget()->SetRecording(true);
+  }
+  else
+    AlertUser("Recording aborted.");
+}
+
+void
+CaptureOptions::
+Record() {
+  //grab string for frame number
+  ostringstream oss;
+  oss << m_frame++;
+  string num = oss.str();
+  size_t l = num.length();
+  for(size_t j = 0; j < m_frameDigits - l; ++j)
+    num = "0" + num;
+
+  //create the filename
+  QString filename = m_filename;
+  filename.replace(m_frameDigitStart, m_frameDigits, num.c_str());
+
+  //save the image
+  m_mainWindow->GetGLWidget()->SaveImage(filename, m_cropBox);
+}
+
+void
+CaptureOptions::
+StopLiveRecording() {
+  m_mainWindow->GetGLWidget()->SetRecording(false);
 }
 

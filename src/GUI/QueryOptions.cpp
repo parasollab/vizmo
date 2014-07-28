@@ -98,7 +98,7 @@ void
 QueryOptions::
 ShowHideQuery() {
   GetVizmo().GetQry()->SetRenderMode(m_actions["showHideQuery"]->isChecked() ? SOLID_MODE : INVISIBLE_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -107,9 +107,9 @@ EditQuery() {
   if(m_queryEditDialog == NULL) {
     m_actions["showHideQuery"]->setChecked(true);
     GetVizmo().GetQry()->SetRenderMode(SOLID_MODE);
-    m_mainWindow->GetGLScene()->updateGL();
+    m_mainWindow->GetGLWidget()->updateGL();
     m_queryEditDialog = new QueryEditDialog(m_mainWindow, GetVizmo().GetQry());
     m_mainWindow->ShowDialog(m_queryEditDialog);
-    m_mainWindow->GetGLScene()->updateGL();
+    m_mainWindow->GetGLWidget()->updateGL();
   }
 }

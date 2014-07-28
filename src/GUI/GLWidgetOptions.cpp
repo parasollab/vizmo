@@ -98,9 +98,9 @@ CreateActions() {
 
   //3. Make connections
   connect(m_actions["showAxis"], SIGNAL(triggered()),
-      m_mainWindow->GetGLScene(), SLOT(ShowAxis()));
+      m_mainWindow->GetGLWidget(), SLOT(ShowAxis()));
   connect(m_actions["showFrameRate"], SIGNAL(triggered()),
-      m_mainWindow->GetGLScene(), SLOT(ShowFrameRate()));
+      m_mainWindow->GetGLWidget(), SLOT(ShowFrameRate()));
 
 
   connect(m_actions["resetCamera"], SIGNAL(triggered()),
@@ -115,7 +115,7 @@ CreateActions() {
   connect(m_actions["changeBGColor"], SIGNAL(triggered()),
       this, SLOT(ChangeBGColor()));
 
-  connect(m_mainWindow->GetGLScene(), SIGNAL(clickByRMB()), this, SLOT(ShowGeneralContextMenu()));
+  connect(m_mainWindow->GetGLWidget(), SIGNAL(clickByRMB()), this, SLOT(ShowGeneralContextMenu()));
   connect(m_actions["makeSolid"], SIGNAL(triggered()), this, SLOT(MakeSolid()));
   connect(m_actions["makeWired"], SIGNAL(triggered()), this, SLOT(MakeWired()));
   connect(m_actions["makeInvisible"], SIGNAL(triggered()), this, SLOT(MakeInvisible()));
@@ -224,8 +224,8 @@ SetHelpTips() {
 void
 GLWidgetOptions::
 ResetCamera() {
-  m_mainWindow->GetGLScene()->ResetCamera();
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->ResetCamera();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -233,7 +233,7 @@ GLWidgetOptions::
 SetCameraPosition() {
   if(m_cameraPosDialog == NULL && GetVizmo().GetEnv() != NULL) {
     m_cameraPosDialog = new CameraPosDialog(m_mainWindow,
-        m_mainWindow->GetGLScene()->GetCurrentCamera());
+        m_mainWindow->GetGLWidget()->GetCurrentCamera());
     m_mainWindow->ShowDialog(m_cameraPosDialog);
   }
 }
@@ -243,7 +243,7 @@ GLWidgetOptions::
 SaveCameraPosition() {
   if(m_cameraPosDialog == NULL && GetVizmo().GetEnv() != NULL) {
     m_cameraPosDialog = new CameraPosDialog(m_mainWindow,
-        m_mainWindow->GetGLScene()->GetCurrentCamera());
+        m_mainWindow->GetGLWidget()->GetCurrentCamera());
     m_cameraPosDialog->SaveCameraPosition();
   }
 }
@@ -253,7 +253,7 @@ GLWidgetOptions::
 LoadCameraPosition() {
   if(m_cameraPosDialog == NULL && GetVizmo().GetEnv() != NULL) {
     m_cameraPosDialog = new CameraPosDialog(m_mainWindow,
-        m_mainWindow->GetGLScene()->GetCurrentCamera());
+        m_mainWindow->GetGLWidget()->GetCurrentCamera());
     m_cameraPosDialog->LoadCameraPosition();
   }
 }
@@ -262,11 +262,11 @@ GLWidgetOptions::
 ChangeBGColor() {
   QColor color = QColorDialog::getColor(Qt::white, this);
   if (color.isValid()){
-    m_mainWindow->GetGLScene()->SetClearColor(
+    m_mainWindow->GetGLWidget()->SetClearColor(
         (double)(color.red()) / 255.0,
         (double)(color.green()) / 255.0,
         (double)(color.blue()) / 255.0);
-    m_mainWindow->GetGLScene()->updateGL();
+    m_mainWindow->GetGLWidget()->updateGL();
   }
 }
 
@@ -282,7 +282,7 @@ ShowGeneralContextMenu() {
   cm.addAction(m_actions["showFrameRate"]);
 
   if(cm.exec(QCursor::pos()) != 0)
-    m_mainWindow->GetGLScene()->updateGL();
+    m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -291,7 +291,7 @@ MakeSolid() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(SOLID_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -300,7 +300,7 @@ MakeWired() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(WIRE_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -309,7 +309,7 @@ MakeInvisible() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(INVISIBLE_MODE);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void

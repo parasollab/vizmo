@@ -38,7 +38,7 @@ class MainWindow : public QMainWindow {
     vector<string>& GetArgs() { return m_args; }
     void SetVizmoInit(bool _tf) { m_vizmoInit = _tf; }
     bool GetVizmoInit() { return m_vizmoInit; }
-    GLWidget* GetGLScene() { return m_gl; }
+    GLWidget* GetGLWidget() { return m_gl; }
     AnimationWidget* GetAnimationWidget() { return m_animationWidget; }
     ModelSelectionWidget* GetModelSelectionWidget() { return m_modelSelectionWidget; }
     QDockWidget* GetDialogDock() { return m_dialogDock; }

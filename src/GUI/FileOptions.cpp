@@ -115,9 +115,9 @@ LoadFile() {
   else
     m_mainWindow->statusBar()->showMessage("Loading aborted");
 
-  m_mainWindow->GetGLScene()->ResetTransTool();
-  m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->ResetTransTool();
+  m_mainWindow->GetGLWidget()->SetCurrentRegion(NULL);
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -136,8 +136,8 @@ UpdateFiles() {
   m_mainWindow->GetAnimationWidget()->Reset();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->m_mainMenu->CallReset();
-  m_mainWindow->GetGLScene()->ResetTransTool();
-  m_mainWindow->GetGLScene()->SetCurrentRegion(NULL);
+  m_mainWindow->GetGLWidget()->ResetTransTool();
+  m_mainWindow->GetGLWidget()->SetCurrentRegion(NULL);
 }
 
 void
@@ -156,7 +156,7 @@ SaveEnv() {
   else{
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
   }
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -187,7 +187,7 @@ SaveRoadmap() {
   }
   else
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }
 
 void
@@ -203,5 +203,5 @@ SavePath() {
   else {
     m_mainWindow->statusBar()->showMessage("Saving aborted", 2000);
   }
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
 }

@@ -836,7 +836,7 @@ void
 EditRobotDialog::RefreshVizmo(){
   ChangeDOF();
   GetVizmo().PlaceRobot();
-  m_mainWindow->GetGLScene()->updateGL();
+  m_mainWindow->GetGLWidget()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }
 

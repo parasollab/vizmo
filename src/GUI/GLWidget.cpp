@@ -34,6 +34,7 @@ GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
     m_showAxis = true;
     m_showFrameRate = false;
     m_doubleClick = false;
+    m_recording = false;
 }
 
 void
@@ -119,6 +120,9 @@ GLWidget::paintGL(){
   if(Haptics::UsingPhantom())
     GetVizmo().GetManager()->DrawRender();
 
+  if(m_recording)
+    emit Record();
+
   //stop clock, update frametimes, and compute framerate
   clock_t endTime = clock();
 
@@ -130,7 +134,6 @@ GLWidget::paintGL(){
   double frameRate = 1./(accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.) / m_frameTimes.size());
   if(m_showFrameRate)
     DrawFrameRate(frameRate);
-
 }
 
 void

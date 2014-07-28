@@ -32,6 +32,8 @@ class GLWidget : public QGLWidget {
     void ResetCamera();
     Camera* GetCurrentCamera();
 
+    void SetRecording(bool _b) {m_recording = _b;}
+
     void SetClearColor(double _r, double _g, double _b) const {
       glClearColor(_r, _g, _b, 0);
     }
@@ -55,6 +57,7 @@ class GLWidget : public QGLWidget {
     void selectByLMB();
     void clickByLMB();
     void MRbyGLI();
+    void Record();
 
   private slots:
     void ShowAxis();
@@ -92,6 +95,7 @@ class GLWidget : public QGLWidget {
     bool m_takingSnapShot;
     bool m_showAxis, m_showFrameRate;
     bool m_doubleClick;
+    bool m_recording;
 
     deque<double> m_frameTimes;
 
