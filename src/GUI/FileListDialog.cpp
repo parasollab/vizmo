@@ -198,7 +198,6 @@ SetUpSubwidgets() {
     layout->addWidget(cancelButton, 1, 5);
 
     connect(xmlButton, SIGNAL(clicked()), this, SLOT(ChangeXML()));
-    connect(m_xmlCheckBox, SIGNAL(stateChanged(int)), this, SLOT(XMLChecked()));
     connect(loadButton, SIGNAL(clicked()), this, SLOT(Accept()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
   }
@@ -285,6 +284,10 @@ Accept() {
       GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
     }
 
+    // Pass list of sampler strategies read in from xml to Vizmo.
+    // These will be used for the RegionSamplerDialog
+    GetVizmo().SetLoadedSamplers(LoadXMLSamplers(m_xmlFilename->text().toStdString()));
+
     accept();
   }
   else if(m_envCheckBox->isChecked()) {
@@ -363,4 +366,33 @@ SearchXML(string _filename, string _key) {
     }
   }
   return filename;
+}
+
+vector<string>
+FileListDialog::
+LoadXMLSamplers(string _filename) {
+  TiXmlDocument doc(_filename);
+  bool loadOkay = doc.LoadFile();
+
+  vector<string> samplers;
+
+  // if file loads sucessfully
+  if(loadOkay) {
+    // Read in the motion planning node
+    XMLNodeReader mpNode(_filename, doc, "MotionPlanning");
+    for(XMLNodeReader::childiterator prob = mpNode.children_begin(); prob != mpNode.children_end(); ++prob) {
+      // Read in MPProblem node
+      if(prob->getName() == "MPProblem") {
+        for(XMLNodeReader::childiterator citr = (*prob).children_begin(); citr != (*prob).children_end(); ++citr) {
+          if(citr->getName() == "Samplers") {
+            for(XMLNodeReader::childiterator sampler = (*citr).children_begin(); sampler != (*citr).children_end(); ++sampler) {
+              samplers.push_back((*sampler).stringXMLParameter("label", "false", "", "sampler name"));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return samplers;
 }
