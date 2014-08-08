@@ -55,8 +55,8 @@ template<class MPTraits>
 RegionStrategy<MPTraits>::
 RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node) : MPStrategyMethod<MPTraits>(_problem, _node) {
   this->SetName("RegionStrategy");
-  m_samplerLabel = _node.stringXMLParameter("samplerLabel", true, "UniformRandomFreePQP", "Sampler Strategy");
-  m_connectionLabel = _node.stringXMLParameter("connectionLabel", true, "Closest", "Connection Strategy");
+  m_samplerLabel = _node.stringXMLParameter("sampler", true, "UniformRandomFreePQP", "Sampler Strategy");
+  m_connectionLabel = _node.stringXMLParameter("connection", true, "Closest", "Connection Strategy");
 }
 
 template<class MPTraits>
@@ -204,6 +204,7 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
   else {
     m_samplingRegion = regions[_index];
     samplingBoundary = m_samplingRegion->GetBoundary();
+    sp = this->GetMPProblem()->GetSampler(regions[_index]->GetSampler());
   }
 
   //attempt to sample the region. track failures in col for density calculation.
@@ -387,7 +388,7 @@ EvaluateMap() {
   //loaded.
   vector<string> evalLabel;
   if(GetVizmo().IsQueryLoaded())
-    evalLabel.push_back("BoundedQuery");
+    evalLabel.push_back("Com1");
   else
     evalLabel.push_back("NodesEval");
 

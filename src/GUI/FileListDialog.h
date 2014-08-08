@@ -24,6 +24,7 @@ class FileListDialog : public QDialog {
     void DebugChecked();
 
     string SearchXML(string _filename, string _key);
+    vector<string> LoadXMLSamplers(string _filename);
 
   private:
     //This file locates all possible filenames related to the input file.

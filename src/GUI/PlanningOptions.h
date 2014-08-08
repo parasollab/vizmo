@@ -42,6 +42,7 @@ class PlanningOptions : public OptionsBase {
     void SetUpToolTab();
     void Reset();
     void SetHelpTips();
+    void ChooseSamplerStrategy();
 
     bool m_regionsStarted;
     bool m_threadDone;

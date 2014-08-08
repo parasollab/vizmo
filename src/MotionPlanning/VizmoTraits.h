@@ -1,5 +1,5 @@
 /* Traits class for PMPL MPProblem.
- */
+*/
 
 #ifndef VIZMOTRAITS_H_
 #define VIZMOTRAITS_H_
@@ -11,6 +11,7 @@
 #include "DistanceMetrics/EuclideanDistance.h"
 
 //validity checker includes
+#include "ValidityCheckers/AlwaysTrueValidity.h"
 #include "ValidityCheckers/CollisionDetectionValidity.h"
 
 //neighborhood finder includes
@@ -19,6 +20,9 @@
 
 //sampler includes
 #include "Samplers/UniformRandomSampler.h"
+#include "Samplers/ObstacleBasedSampler.h"
+#include "Samplers/GaussianSampler.h"
+#include "Samplers/UniformObstacleBasedSampler.h"
 
 //local planner includes
 #include "LocalPlanners/StraightLine.h"
@@ -63,18 +67,22 @@ struct VizmoTraits {
 
   //types of validity checkers available in our world
   typedef boost::mpl::list<
+    AlwaysTrueValidity<VizmoTraits>,
     CollisionDetectionValidity<VizmoTraits>
-    > ValidityCheckerMethodList;
+      > ValidityCheckerMethodList;
 
   //types of neighborhood finders available in our world
   typedef boost::mpl::list<
     BruteForceNF<VizmoTraits>,
     RadiusNF<VizmoTraits>
-    > NeighborhoodFinderMethodList;
+      > NeighborhoodFinderMethodList;
 
   //types of samplers available in our world
   typedef boost::mpl::list<
-    UniformRandomSampler<VizmoTraits>
+    UniformRandomSampler<VizmoTraits>,
+    ObstacleBasedSampler<VizmoTraits>,
+    GaussianSampler<VizmoTraits>,
+    UniformObstacleBasedSampler<VizmoTraits>
       > SamplerMethodList;
 
   //types of local planners available in our world
@@ -85,23 +93,23 @@ struct VizmoTraits {
   //types of extenders avaible in our world
   typedef boost::mpl::list<
     BasicExtender<VizmoTraits>
-      > ExtenderMethodList;
+    > ExtenderMethodList;
 
   //types of path smoothing available in our world
   typedef boost::mpl::list<
     ShortcuttingPathModifier<VizmoTraits>
-      > PathModifierMethodList;
+    > PathModifierMethodList;
 
   //types of connectors available in our world
   typedef boost::mpl::list<
     NeighborhoodConnector<VizmoTraits>
-      > ConnectorMethodList;
+    > ConnectorMethodList;
 
   //types of metrics available in our world
   typedef boost::mpl::list<
     NumEdgesMetric<VizmoTraits>,
     NumNodesMetric<VizmoTraits>
-    > MetricMethodList;
+      > MetricMethodList;
 
   //types of map evaluators available in our world
   typedef boost::mpl::list<
@@ -109,14 +117,14 @@ struct VizmoTraits {
     ConditionalEvaluator<VizmoTraits>,
     PrintMapEvaluation<VizmoTraits>,
     Query<VizmoTraits>
-    > MapEvaluatorMethodList;
+      > MapEvaluatorMethodList;
 
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
     BasicPRM<VizmoTraits>,
     PathStrategy<VizmoTraits>,
     RegionStrategy<VizmoTraits>
-    > MPStrategyMethodList;
+      > MPStrategyMethodList;
 
 };
 

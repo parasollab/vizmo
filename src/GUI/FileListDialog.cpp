@@ -285,8 +285,7 @@ Accept() {
     }
 
     // Pass list of sampler strategies read in from xml to Vizmo.
-    // These will be used for the RegionSamplerDialog
-    //GetVizmo().SetLoadedSamplers(LoadXMLSamplers(m_xmlFilename->text().toStdString()));
+    GetVizmo().SetLoadedSamplers(LoadXMLSamplers(m_xmlFilename->text().toStdString()));
 
     accept();
   }
@@ -368,9 +367,6 @@ SearchXML(string _filename, string _key) {
   return filename;
 }
 
-
-// Not used in this version
-/*
 vector<string>
 FileListDialog::
 LoadXMLSamplers(string _filename) {
@@ -399,4 +395,3 @@ LoadXMLSamplers(string _filename) {
 
   return samplers;
 }
-*/

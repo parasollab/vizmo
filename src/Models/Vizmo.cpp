@@ -142,6 +142,9 @@ InitPMPL() {
   VizmoProblem::SamplerPointer sp(new UniformRandomSampler<VizmoTraits>("PQP_SOLID"));
   problem->AddSampler(sp, "uniform");
 
+  // Set Sampler Labels
+  m_loadedSamplers.push_back("uniform");
+
   //add distance metric
   VizmoProblem::DistanceMetricPointer dm(new EuclideanDistance<VizmoTraits>());
   problem->AddDistanceMetric(dm, "euclidean");
@@ -188,7 +191,7 @@ InitPMPL() {
     evals.push_back("NodesEval");
     evals.push_back("Query");
     VizmoProblem::MapEvaluatorPointer bqe(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
-    problem->AddMapEvaluator(bqe, "BoundedQuery");
+    problem->AddMapEvaluator(bqe, "Com1");
   }
 
   //add region strategy
@@ -492,4 +495,10 @@ Solve(const string& _strategy) {
   VDClose();
 
   GetVizmo().GetMap()->RefreshMap();
+}
+
+string
+Vizmo::
+GetSamplerNameAndLabel(string _label) {
+  return GetVizmoProblem()->GetSampler(_label)->GetNameAndLabel();
 }

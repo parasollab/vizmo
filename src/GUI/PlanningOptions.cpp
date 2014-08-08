@@ -4,6 +4,7 @@
 #include "MainMenu.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
+#include "RegionSamplerDialog.h"
 
 #include "Utilities/AlertUser.h"
 #include "Utilities/IO.h"
@@ -120,7 +121,8 @@ CreateActions() {
 }
 
 // Sets up toolbar
-void PlanningOptions::
+void
+PlanningOptions::
 SetUpCustomSubmenu() {
 
   m_submenu = new QMenu("Planning", this);
@@ -170,7 +172,6 @@ SetUpToolbar() {
 void
 PlanningOptions::
 SetUpToolTab() {
-
   vector<string> buttonList;
 
   buttonList.push_back("addUserPathMouse");
@@ -274,7 +275,6 @@ AddRegionBox() {
 void
 PlanningOptions::
 AddRegionSphere() {
-
   if(!m_regionsStarted) {
     GetVizmo().StartClock("Pre-regions");
     m_regionsStarted = true;
@@ -315,8 +315,20 @@ DeleteRegion() {
 
 void
 PlanningOptions::
+ChooseSamplerStrategy() {
+  vector<string> testStrings = GetVizmo().GetLoadedSamplers();
+
+  RegionSamplerDialog rsDialog(testStrings, m_mainWindow);
+
+  if(rsDialog.exec() != QDialog::Accepted)
+    cout << "The Dialog Doesnt work" << endl << flush;
+}
+
+void
+PlanningOptions::
 MakeRegionAttract() {
   ChangeRegionType(true);
+  ChooseSamplerStrategy();
 }
 
 void
@@ -664,9 +676,9 @@ MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel) : QObject(),
   m_strategyLabel(_strategyLabel) {}
 
-  void
-  MapEnvironmentWorker::
-  Solve() {
-    GetVizmo().Solve(m_strategyLabel);
-    emit Finished();
-  }
+void
+MapEnvironmentWorker::
+Solve() {
+  GetVizmo().Solve(m_strategyLabel);
+  emit Finished();
+}

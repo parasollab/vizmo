@@ -28,6 +28,7 @@ OBJECTS += \
 	   GUI/PlanningOptions.o \
 	   GUI/QueryEditDialog.o \
 	   GUI/QueryOptions.o \
+	   GUI/RegionSamplerDialog.o \
 	   GUI/RoadmapOptions.o \
 	   GUI/RobotOptions.o \
 	   GUI/SliderDialog.o \

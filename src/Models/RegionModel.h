@@ -18,7 +18,7 @@ class RegionModel : public Model {
     RegionModel(const string& _name, const Shape _shape) :
       Model(_name), m_successfulAttempts(0),
       m_failedAttempts(0), m_numCCs(0), m_type(NONCOMMIT),
-      m_shape(_shape), m_processed(false), m_created(-1) {
+      m_shape(_shape), m_sampler(""), m_processed(false), m_created(-1) {
         SetColor(Color4(0, 0, 1, 0.8));
       }
     virtual ~RegionModel() {}
@@ -30,6 +30,7 @@ class RegionModel : public Model {
     virtual shared_ptr<Boundary> GetBoundary() const = 0;
 
     Shape GetShape() const {return m_shape;}
+    string GetSampler() const {return m_sampler;}
     vector<Vector3d> GetCameraVectors(Camera* _c);
     virtual void ApplyOffset(const Vector3d& _v) = 0;
     virtual double GetShortLength() const = 0;
@@ -86,11 +87,14 @@ class RegionModel : public Model {
         SetColor(Color4(0.5, 0.5, 0.5, 0.8));
     }
 
+    void SetSampler(string _s) {m_sampler = _s;}
+
   protected:
     size_t m_successfulAttempts, m_failedAttempts, m_numCCs;
 
     Type m_type;
     Shape m_shape;
+    string m_sampler;
     bool m_processed; //check if rejection region has been processed or not
 
     size_t m_created;
