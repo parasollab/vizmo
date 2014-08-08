@@ -3,6 +3,7 @@
 
 #include "Model.h"
 #include "Vizmo.h"
+#include "TempObjsModel.h"
 
 class MainWindow;
 
@@ -35,6 +36,7 @@ class UserPathModel : public Model {
     InputType GetInputType() {return m_type;}
     shared_ptr< vector<CfgModel> > GetCfgs();
     void SendToPath(const Point3d& _p);
+    const vector<Point3d>& GetPath() {return m_userPath;}
 
     bool m_checkCollision;
 
@@ -57,6 +59,7 @@ class UserPathModel : public Model {
     bool m_finished, m_valid;
     CfgModel m_oldPos, m_newPos;
     vector<Point3d> m_userPath;
+    TempObjsModel m_avatar;
 };
 
 #endif
