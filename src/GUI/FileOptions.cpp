@@ -52,7 +52,7 @@ CreateActions() {
   //2. Set other specifications as necessary
   m_actions["openFile"]->setShortcut(tr("CTRL+O")); //this one necessary?
   m_actions["openFile"]->setStatusTip(tr("Open a file"));
-  m_actions["updateFile"]->setShortcut(tr("CTRL+R"));
+  m_actions["updateFile"]->setShortcut(tr("CTRL+U"));
   m_actions["quit"]->setShortcut(tr("CTRL+Q"));
   m_actions["updateFile"]->setEnabled(false);
   m_actions["saveFile"]->setEnabled(false);

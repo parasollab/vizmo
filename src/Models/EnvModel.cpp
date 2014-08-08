@@ -538,3 +538,8 @@ SetTransformRight(string _transformString) {
     transform<<splittedTransform[i]<<" ";
   return transform.str();
 }
+
+/*EnvModel::
+RemoveRegion() {
+
+}*/

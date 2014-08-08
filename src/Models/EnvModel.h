@@ -42,7 +42,7 @@ class EnvModel : public LoadableModel {
     void AddNonCommitRegion(RegionModel* _r);
     void ChangeRegionType(RegionModel* _r, bool _attract);
     void DeleteRegion(RegionModel* _r);
-
+    void RemoveRegion(RegionModel* _r);
     //Paths
     const vector<UserPathModel*>& GetUserPaths() const {return m_userPaths;}
     void AddUserPath(UserPathModel* _p) {m_userPaths.push_back(_p);}

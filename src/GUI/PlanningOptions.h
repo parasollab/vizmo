@@ -25,6 +25,7 @@ class PlanningOptions : public OptionsBase {
     void SaveRegion();
     void LoadRegion();
     void RegionRRT();
+    void SparkRegion();
 
     void HandleTimer();
     void MapEnvironment();

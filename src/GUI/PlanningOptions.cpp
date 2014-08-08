@@ -71,6 +71,8 @@ CreateActions() {
   m_actions["loadRegion"] = loadRegion;
   QAction* regionRRT = new QAction(QPixmap(mapenv), tr("Region RRT"), this);
   m_actions["regionRRT"] = regionRRT;
+  QAction* sparkRegion = new QAction(QPixmap(mapenv), tr("Spark Region PRM"), this);
+  m_actions["sparkRegion"] = sparkRegion;
 
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
@@ -99,6 +101,7 @@ CreateActions() {
   m_actions["saveRegion"]->setEnabled(false);
   m_actions["loadRegion"]->setEnabled(false);
   m_actions["regionRRT"]->setEnabled(false);
+  m_actions["sparkRegion"]->setEnabled(false);
 
   // 3. Make connections
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
@@ -122,6 +125,8 @@ CreateActions() {
       this, SLOT(DeleteUserPath()));
   connect(m_actions["printUserPath"], SIGNAL(triggered()),
       this, SLOT(PrintUserPath()));
+  connect(m_actions["sparkRegion"], SIGNAL(triggered()),
+      this, SLOT(SparkRegion()));
 }
 
 // Sets up toolbar
@@ -147,6 +152,7 @@ SetUpCustomSubmenu() {
   m_submenu->addAction(m_actions["deleteRegion"]);
   m_submenu->addAction(m_actions["mapEnv"]);
   m_submenu->addAction(m_actions["regionRRT"]);
+  m_submenu->addAction(m_actions["sparkRegion"]);
 
 
   m_pathsMenu = new QMenu("User Paths", this);
@@ -203,6 +209,8 @@ SetUpToolTab() {
 
   buttonList.push_back("mapEnv");
   buttonList.push_back("regionRRT");
+  buttonList.push_back("sparkRegion");
+
 
   CreateToolTab(buttonList);
 }
@@ -220,6 +228,7 @@ Reset() {
   m_actions["regionRRT"]->setEnabled(true);
   m_actions["addUserPathMouse"]->setEnabled(true);
   m_actions["addUserPathCamera"]->setEnabled(true);
+  m_actions["sparkRegion"]->setEnabled(true);
   if(Haptics::UsingPhantom())
     m_actions["addUserPathHaptic"]->setEnabled(true);
   m_actions["deleteUserPath"]->setEnabled(true);
@@ -250,6 +259,7 @@ SetHelpTips() {
   m_actions["saveRegion"]->setWhatsThis(tr("Saves the regions drawn in the scene"));
   m_actions["loadRegion"]->setWhatsThis(tr("Loads saved regions to the scene"));
   m_actions["regionRRT"]->setWhatsThis(tr("Region RRT"));
+  m_actions["sparkRegion"]->setWhatsThis(tr("Spark Region PRM"));
 
 }
 
@@ -464,7 +474,6 @@ MapEnvironment() {
     connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
   }
 }
-
 void
 PlanningOptions::
 AddUserPath() {
@@ -683,6 +692,7 @@ LoadRegion() {
   }
   m_mainWindow->GetGLWidget()->updateGL();
 }
+
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel) : QObject(),
   m_strategyLabel(_strategyLabel) {}
@@ -694,6 +704,36 @@ Solve() {
   emit Finished();
 }
 
+void
+PlanningOptions::
+SparkRegion() {
+if(m_threadDone) {
+    // Stop timer for before regions
+    GetVizmo().StopClock("Pre-regions");
+
+    // Before thread starts, make sure map model exists
+    GetVizmo().SetPMPLMap();
+    m_mainWindow->m_mainMenu->CallReset();
+
+    // Set up timer to redraw and refresh GUI
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
+    m_timer->start(200);
+
+    // Set up thread for mapping the environment
+    m_threadDone = false;
+    m_thread = new QThread;
+    MapEnvironmentWorker* mpsw;
+    mpsw = new MapEnvironmentWorker("SparkRegionPRMStrategy");
+    mpsw->moveToThread(m_thread);
+    m_thread->start();
+    connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
+    connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
+    connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
+    connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
+    connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
+  }
+}
 void
 PlanningOptions::
 RegionRRT() {
