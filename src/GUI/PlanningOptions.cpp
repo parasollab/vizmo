@@ -69,6 +69,8 @@ CreateActions() {
   m_actions["saveRegion"] = saveRegion;
   QAction* loadRegion = new QAction(QPixmap(loadregion), tr("Load Region"), this);
   m_actions["loadRegion"] = loadRegion;
+  QAction* regionRRT = new QAction(QPixmap(mapenv), tr("Region RRT"), this);
+  m_actions["regionRRT"] = regionRRT;
 
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
@@ -96,6 +98,7 @@ CreateActions() {
   m_actions["printUserPath"]->setEnabled(false);
   m_actions["saveRegion"]->setEnabled(false);
   m_actions["loadRegion"]->setEnabled(false);
+  m_actions["regionRRT"]->setEnabled(false);
 
   // 3. Make connections
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
@@ -106,6 +109,7 @@ CreateActions() {
   connect(m_actions["saveRegion"], SIGNAL(triggered()), this, SLOT(SaveRegion()));
   connect(m_actions["loadRegion"], SIGNAL(triggered()), this, SLOT(LoadRegion()));
   connect(m_actions["duplicateRegion"], SIGNAL(triggered()), this, SLOT(DuplicateRegion()));
+  connect(m_actions["regionRRT"], SIGNAL(triggered()), this, SLOT(RegionRRT()));
   connect(m_actions["mapEnv"], SIGNAL(triggered()),
       this, SLOT(MapEnvironment()));
   connect(m_actions["addUserPathMouse"], SIGNAL(triggered()),
@@ -142,6 +146,8 @@ SetUpCustomSubmenu() {
   m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
   m_submenu->addAction(m_actions["mapEnv"]);
+  m_submenu->addAction(m_actions["regionRRT"]);
+
 
   m_pathsMenu = new QMenu("User Paths", this);
   m_pathsMenu->addAction(m_actions["addUserPathMouse"]);
@@ -186,6 +192,9 @@ SetUpToolTab() {
   buttonList.push_back("addRegionSphere");
   buttonList.push_back("deleteRegion");
   buttonList.push_back("duplicateRegion");
+  buttonList.push_back("saveRegion");
+  buttonList.push_back("loadRegion");
+
 
   buttonList.push_back("makeRegionAttract");
   buttonList.push_back("makeRegionAvoid");
@@ -193,8 +202,7 @@ SetUpToolTab() {
   buttonList.push_back("_separator_");
 
   buttonList.push_back("mapEnv");
-  buttonList.push_back("saveRegion");
-  buttonList.push_back("loadRegion");
+  buttonList.push_back("regionRRT");
 
   CreateToolTab(buttonList);
 }
@@ -209,6 +217,7 @@ Reset() {
   m_actions["makeRegionAvoid"]->setEnabled(true);
   m_actions["duplicateRegion"]->setEnabled(true);
   m_actions["mapEnv"]->setEnabled(true);
+  m_actions["regionRRT"]->setEnabled(true);
   m_actions["addUserPathMouse"]->setEnabled(true);
   m_actions["addUserPathCamera"]->setEnabled(true);
   if(Haptics::UsingPhantom())
@@ -240,6 +249,8 @@ SetHelpTips() {
   m_actions["printUserPath"]->setWhatsThis(tr("Print selected user path to file"));
   m_actions["saveRegion"]->setWhatsThis(tr("Saves the regions drawn in the scene"));
   m_actions["loadRegion"]->setWhatsThis(tr("Loads saved regions to the scene"));
+  m_actions["regionRRT"]->setWhatsThis(tr("Region RRT"));
+
 }
 
 void
@@ -681,4 +692,35 @@ MapEnvironmentWorker::
 Solve() {
   GetVizmo().Solve(m_strategyLabel);
   emit Finished();
+}
+
+void
+PlanningOptions::
+RegionRRT() {
+  if(m_threadDone) {
+    // Stop timer for before regions
+    GetVizmo().StopClock("Pre-regions");
+
+    // Before thread starts, make sure map model exists
+    GetVizmo().SetPMPLMap();
+    m_mainWindow->m_mainMenu->CallReset();
+
+    // Set up timer to redraw and refresh GUI
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
+    m_timer->start(200);
+
+    // Set up thread for mapping the environment
+    m_threadDone = false;
+    m_thread = new QThread;
+    MapEnvironmentWorker* mpsw;
+    mpsw = new MapEnvironmentWorker("RegionRRT");
+    mpsw->moveToThread(m_thread);
+    m_thread->start();
+    connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
+    connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
+    connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
+    connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
+    connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
+  }
 }

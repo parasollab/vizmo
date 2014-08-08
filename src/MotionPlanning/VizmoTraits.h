@@ -47,9 +47,11 @@
 #include "MapEvaluators/Query.h"
 
 //mp strategies includes
+#include "MPStrategies/BasicRRTStrategy.h"
 #include "MPStrategies/BasicPRM.h"
 #include "PathStrategy.h"
 #include "RegionStrategy.h"
+#include "RegionRRT.h"
 
 #include "MPProblem/MPProblem.h"
 
@@ -122,7 +124,9 @@ struct VizmoTraits {
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
     BasicPRM<VizmoTraits>,
+    BasicRRTStrategy<VizmoTraits>,
     PathStrategy<VizmoTraits>,
+    RegionRRT<VizmoTraits>,
     RegionStrategy<VizmoTraits>
       > MPStrategyMethodList;
 

@@ -202,6 +202,10 @@ InitPMPL() {
   VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());
   problem->AddMPStrategy(ps, "PathsStrategy");
 
+  VizmoProblem::MPStrategyPointer rr(new RegionRRT<VizmoTraits>());
+  problem->AddMPStrategy(rr, "RegionRRT");
+
+
 
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();
