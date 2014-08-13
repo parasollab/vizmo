@@ -207,8 +207,8 @@ InitPMPL() {
 
   //add spark region strategy
   VizmoProblem::
-    MPStrategyPointer sr(new SparkRegionPRMStrategy<VizmoTraits>());
-  problem->AddMPStrategy(sr, "SparkRegionPRMStrategy");
+    MPStrategyPointer sr(new SparkRegion<VizmoTraits>());
+  problem->AddMPStrategy(sr, "SparkRegion");
 
 
   //set the MPProblem pointer and build CD structures

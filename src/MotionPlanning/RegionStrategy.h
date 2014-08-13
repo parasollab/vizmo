@@ -55,8 +55,8 @@ template<class MPTraits>
 RegionStrategy<MPTraits>::
 RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node) : MPStrategyMethod<MPTraits>(_problem, _node) {
   this->SetName("RegionStrategy");
-  m_samplerLabel = _node.stringXMLParameter("sampler", true, "UniformRandomFreePQP", "Sampler Strategy");
-  m_connectionLabel = _node.stringXMLParameter("connection", true, "Closest", "Connection Strategy");
+  m_samplerLabel = _node.stringXMLParameter("samplerLabel", true, "UniformRandomFreePQP", "Sampler Strategy");
+  m_connectionLabel = _node.stringXMLParameter("connectionLabel", true, "Closest", "Connection Strategy");
 }
 
 template<class MPTraits>

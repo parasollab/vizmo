@@ -53,7 +53,7 @@
 #include "PathStrategy.h"
 #include "RegionStrategy.h"
 #include "RegionRRT.h"
-#include "SparkRegionPRMStrategy.h"
+#include "SparkRegion.h"
 
 #include "MPProblem/MPProblem.h"
 
@@ -130,9 +130,8 @@ struct VizmoTraits {
     PathStrategy<VizmoTraits>,
     RegionRRT<VizmoTraits>,
     RegionStrategy<VizmoTraits>,
-    SparkPRM<VizmoTraits, SparkRegionPRMStrategy>,
-    SparkRegionPRMStrategy<VizmoTraits>
-      > MPStrategyMethodList;
+    SparkPRM<VizmoTraits, SparkRegion>
+    > MPStrategyMethodList;
 
 };
 

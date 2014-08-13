@@ -474,6 +474,7 @@ MapEnvironment() {
     connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
   }
 }
+
 void
 PlanningOptions::
 AddUserPath() {
@@ -724,7 +725,7 @@ if(m_threadDone) {
     m_threadDone = false;
     m_thread = new QThread;
     MapEnvironmentWorker* mpsw;
-    mpsw = new MapEnvironmentWorker("SparkRegionPRMStrategy");
+    mpsw = new MapEnvironmentWorker("SparkRegion");
     mpsw->moveToThread(m_thread);
     m_thread->start();
     connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
@@ -734,6 +735,7 @@ if(m_threadDone) {
     connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
   }
 }
+
 void
 PlanningOptions::
 RegionRRT() {
