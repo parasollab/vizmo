@@ -11,11 +11,19 @@ ModelSelectionWidget::ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent
     setHeaderLabel("Environment Objects");
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(SelectionChanged()));
+    connect(this, SIGNAL(ResetListsFromMPSig()), this, SLOT(ResetLists()));
     setEnabled(false);
   }
 
 void
-ModelSelectionWidget::ResetLists(){
+ModelSelectionWidget::
+ResetListsFromMP() {
+  emit ResetListsFromMPSig();
+}
+
+void
+ModelSelectionWidget::
+ResetLists(){
   blockSignals(true);
   vector<Model*>& objs = GetVizmo().GetLoadedModels();
   vector<Model*> sel = GetVizmo().GetSelectedModels();

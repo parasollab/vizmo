@@ -22,9 +22,12 @@ class ModelSelectionWidget : public QTreeWidget {
     };
     ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent = NULL);
 
+    void ResetListsFromMP();
+
   signals:
     void CallUpdate();
     void UpdateTextWidget();
+    void ResetListsFromMPSig();
 
   public slots:
     void ResetLists();

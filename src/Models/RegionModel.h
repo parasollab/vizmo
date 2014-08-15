@@ -1,5 +1,5 @@
-#ifndef REGIONMODEL_H_
-#define REGIONMODEL_H_
+#ifndef REGION_MODEL_H_
+#define REGION_MODEL_H_
 
 #include "boost/shared_ptr.hpp"
 using boost::shared_ptr;
@@ -16,11 +16,10 @@ class RegionModel : public Model {
     enum Shape {DEFAULT, BOX, BOX2D, SPHERE, SPHERE2D}; // DEFAULT is currently used only for vizmo debug
 
     RegionModel(const string& _name, const Shape _shape) :
-      Model(_name), m_successfulAttempts(0),
-      m_failedAttempts(0), m_numCCs(0), m_type(NONCOMMIT),
-      m_shape(_shape), m_processed(false), m_created(-1) {
-        SetColor(Color4(0, 0, 1, 0.8));
-      }
+        Model(_name), m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0),
+        m_type(NONCOMMIT), m_shape(_shape), m_processed(false), m_created(-1) {
+      SetColor(Color4(0, 0, 1, 0.8));
+    }
     virtual ~RegionModel() {}
 
     Type GetType() const {return m_type;}
@@ -28,6 +27,7 @@ class RegionModel : public Model {
     bool IsProcessed() const {return m_processed;}
     void Processed() {m_processed = true;}
     virtual shared_ptr<Boundary> GetBoundary() const = 0;
+    const Point3d& GetCenter() const {return m_center;}
 
     Shape GetShape() const {return m_shape;}
     vector<Vector3d> GetCameraVectors(Camera* _c);
@@ -94,6 +94,7 @@ class RegionModel : public Model {
     bool m_processed; //check if rejection region has been processed or not
 
     size_t m_created;
+    Point3d m_center;
     Vector3d m_cameraX;
     Vector3d m_cameraY;
     Vector3d m_cameraZ;

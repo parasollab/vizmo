@@ -52,7 +52,7 @@ bool
 RegionBox2DModel::
 operator==(const RegionModel& _other) const {
   if(_other.GetShape() == this->GetShape()) {
-    const RegionBox2DModel* myModel = dynamic_cast<const RegionBox2DModel*>(&_other);
+    const RegionBox2DModel* myModel = static_cast<const RegionBox2DModel*>(&_other);
     if(GetType() == myModel->GetType()) {
       bool result = true;
       for(unsigned int i = 0; i < myModel->m_boxVertices.size(); i++) {

@@ -9,21 +9,24 @@
 
 RegionSphere2DModel::
 RegionSphere2DModel(const Point3d& _center, double _radius, bool _firstClick) :
-  RegionModel("Sphere Region 2D", SPHERE2D),
-  m_center(_center), m_centerOrig(_center), m_radius(_radius), m_radiusOrig(_radius),
-  m_lmb(false), m_firstClick(_firstClick), m_highlightedPart(NONE) {}
+    RegionModel("Sphere Region 2D", SPHERE2D),
+    m_centerOrig(_center), m_radius(_radius), m_radiusOrig(_radius),
+    m_lmb(false), m_firstClick(_firstClick), m_highlightedPart(NONE) {
+  m_center = _center;
+}
 
-  shared_ptr<Boundary>
-  RegionSphere2DModel::GetBoundary() const {
-    return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
-  }
+shared_ptr<Boundary>
+RegionSphere2DModel::
+GetBoundary() const {
+  return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
+}
 
 bool
 RegionSphere2DModel::
 operator==(const RegionModel& _other) const {
 
   if(_other.GetShape() == this->GetShape()) {
-    const RegionSphere2DModel* myModel = dynamic_cast<const RegionSphere2DModel*>(&_other);
+    const RegionSphere2DModel* myModel = static_cast<const RegionSphere2DModel*>(&_other);
     if(GetType() == myModel->GetType()) {
       bool result = true;
       result &= (m_centerOrig == myModel->m_centerOrig);

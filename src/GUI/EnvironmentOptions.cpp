@@ -33,12 +33,13 @@
 
 EnvironmentOptions::
 EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow) :
-  OptionsBase(_parent, _mainWindow),  m_editRobotDialog(NULL), m_changeBoundaryDialog(NULL) {
-    CreateActions();
-    SetUpCustomSubmenu();
-    SetUpToolTab();
-    SetHelpTips();
-  }
+    OptionsBase(_parent, _mainWindow),  m_editRobotDialog(NULL),
+    m_changeBoundaryDialog(NULL) {
+  CreateActions();
+  SetUpCustomSubmenu();
+  SetUpToolTab();
+  SetHelpTips();
+}
 
 void
 EnvironmentOptions::

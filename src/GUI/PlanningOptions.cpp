@@ -390,7 +390,6 @@ void
 PlanningOptions::
 HandleTimer() {
   m_mainWindow->GetGLWidget()->updateGL();
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }
 
 void
@@ -445,7 +444,8 @@ MapEnvironment() {
 void
 PlanningOptions::
 AddUserPath() {
-  QAction* callee = dynamic_cast<QAction*>(sender());
+  //this slot must be connected to a QAction
+  QAction* callee = static_cast<QAction*>(sender());
   UserPathModel* p;
 
   if(callee->text().toStdString() == "Add User Path with Haptics") {
@@ -664,9 +664,10 @@ MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel) : QObject(),
   m_strategyLabel(_strategyLabel) {}
 
-  void
-  MapEnvironmentWorker::
-  Solve() {
-    GetVizmo().Solve(m_strategyLabel);
-    emit Finished();
-  }
+void
+MapEnvironmentWorker::
+Solve() {
+  GetVizmo().Solve(m_strategyLabel);
+  GetMainWindow()->m_mainMenu->m_planningOptions->ResetRegionTimer();
+  emit Finished();
+}

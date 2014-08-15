@@ -13,6 +13,7 @@ using namespace std;
 #include "MotionPlanning/VizmoTraits.h"
 #include "PHANToM/Manager.h"
 #include "Utilities/PickBox.h"
+#include "GUI/MainWindow.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //Define Vizmo singleton
@@ -173,8 +174,15 @@ InitPMPL() {
 
   //set up query evaluators
   if(m_queryModel) {
+    //setup standard query evaluator
     VizmoProblem::MapEvaluatorPointer mep(new Query<VizmoTraits>(m_queryFilename, vector<string>(1, "Neighborhood Connector")));
     problem->AddMapEvaluator(mep, "Query");
+
+    //setup region query evaluator
+    VizmoProblem::MapEvaluatorPointer rq(
+        new Query<VizmoTraits>(m_queryFilename,
+        vector<string>(1, "RegionConnector")));
+    problem->AddMapEvaluator(rq, "RegionQuery");
 
     //setup debugging evaluator
     vector<string> evals;
@@ -187,13 +195,52 @@ InitPMPL() {
     evals.clear();
     evals.push_back("NodesEval");
     evals.push_back("Query");
-    VizmoProblem::MapEvaluatorPointer bqe(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
+    VizmoProblem::MapEvaluatorPointer bqe(new
+        ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
     problem->AddMapEvaluator(bqe, "BoundedQuery");
+
+    //set up bounded region query evaluator
+    evals.clear();
+    evals.push_back("NodesEval");
+    evals.push_back("RegionQuery");
+    VizmoProblem::MapEvaluatorPointer brq(
+        new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR,
+        evals));
+    problem->AddMapEvaluator(brq, "BoundedRegionQuery");
   }
 
   //add region strategy
   VizmoProblem::MPStrategyPointer rs(new RegionStrategy<VizmoTraits>());
   problem->AddMPStrategy(rs, "RegionStrategy");
+
+  //set up supporting tools for region strategy
+  VizmoProblem::ValidityCheckerPointer avc(
+      new AvoidRegionValidity<VizmoTraits>());
+  problem->AddValidityChecker(avc, "AvoidRegionValidity");
+
+  vector<string> vcList;
+  vcList.push_back("PQP_SOLID");
+  vcList.push_back("AvoidRegionValidity");
+  VizmoProblem::ValidityCheckerPointer rvc(
+      new ComposeValidity<VizmoTraits>(ComposeValidity<VizmoTraits>::AND,
+      vcList));
+  problem->AddValidityChecker(rvc, "RegionValidity");
+
+  VizmoProblem::LocalPlannerPointer rsl(
+      new StraightLine<VizmoTraits>("RegionValidity", true));
+  problem->AddLocalPlanner(rsl, "RegionSL");
+
+  VizmoProblem::LocalPlannerPointer arsl(
+      new StraightLine<VizmoTraits>("AvoidRegionValidity", true));
+  problem->AddLocalPlanner(arsl, "AvoidRegionSL");
+
+  VizmoProblem::SamplerPointer rus(
+      new UniformRandomSampler<VizmoTraits>("RegionValidity"));
+  problem->AddSampler(rus, "RegionUniform");
+
+  VizmoProblem::ConnectorPointer rc(
+      new NeighborhoodConnector<VizmoTraits>("BFNF", "RegionSL"));
+  problem->AddConnector(rc, "RegionConnector");
 
   //add path strategy
   VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());
@@ -426,7 +473,7 @@ SearchSelectedItems(int _hit, void* _buffer, bool _all) {
 void
 Vizmo::
 StartClock(const string& _c) {
-  m_timers[_c].first.start();
+  m_timers[_c].first.restart();
   //GetVizmoProblem()->GetStatClass()->StartClock(_c);
 }
 
@@ -492,4 +539,11 @@ Solve(const string& _strategy) {
   VDClose();
 
   GetVizmo().GetMap()->RefreshMap();
+}
+
+double
+Vizmo::
+GetMaxEnvDist() {
+  return GetVizmo().GetEnv()->GetEnvironment()->GetBoundary()->
+    GetMaxDist();
 }

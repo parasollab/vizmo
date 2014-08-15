@@ -14,6 +14,12 @@
 
 #include "Icons/Vizmo.xpm"
 
+#include "Utilities/AlertUser.h"
+
+//Define singleton
+MainWindow* window;
+MainWindow*& GetMainWindow() {return window;}
+
 MainWindow::
 MainWindow(QWidget* _parent) : QMainWindow(_parent), m_vizmoInit(false) {
   setMinimumSize(960, 700);
@@ -115,7 +121,8 @@ CreateGUI() {
   connect(m_gl, SIGNAL(clickByLMB()), m_modelSelectionWidget, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_textWidget, SLOT(SetText()));
-
+  connect(this, SIGNAL(AlertUserSig(QString)),
+      this, SLOT(AlertUserCaller(QString)));
   return true;
 }
 
@@ -189,10 +196,10 @@ UpdateScreen() {
 void
 MainWindow::
 HideDialogDock() {
-  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
-  QDialog* dialog = dynamic_cast<QDialog*>(sender());
+  //this slot must be connected to a QDialog
+  QDialog* dialog = static_cast<QDialog*>(sender());
+  QTabWidget* tabs = static_cast<QTabWidget*>(m_dialogDock->widget());
   int index = tabs->indexOf(dialog);
-
   tabs->removeTab(index);
   if(tabs->count() == 0)
     m_dialogDock->hide();
@@ -203,7 +210,7 @@ void
 MainWindow::
 ShowDialog(QDialog* _dialog) {
   connect(_dialog, SIGNAL(finished(int)), this, SLOT(HideDialogDock()));
-  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
+  QTabWidget* tabs = static_cast<QTabWidget*>(m_dialogDock->widget());
   tabs->addTab(_dialog, _dialog->windowTitle());
   tabs->setCurrentWidget(_dialog);
   if(!m_dialogDock->isVisible())
@@ -214,8 +221,20 @@ ShowDialog(QDialog* _dialog) {
 void
 MainWindow::
 ResetDialogs() {
-  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
+  QTabWidget* tabs = static_cast<QTabWidget*>(m_dialogDock->widget());
   while(tabs->count() > 0)
     tabs->currentWidget()->close();
   m_dialogDock->hide();
+}
+
+void
+MainWindow::
+CallAlertUser(string _s) {
+  emit AlertUserSig(QString(_s.c_str()));
+}
+
+void
+MainWindow::
+AlertUserCaller(QString _s) {
+  AlertUser(_s.toStdString());
 }
