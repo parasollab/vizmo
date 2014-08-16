@@ -27,8 +27,12 @@ UserPathModel(MainWindow* _mainWindow, InputType _t) :
     Model("User Path"), m_checkCollision(false), m_mainWindow(_mainWindow),
     m_type(_t), m_finished(false), m_valid(true), m_oldPos(), m_newPos(),
     m_userPath(), m_avatar(NULL) {
-  if(m_type == Haptic)
+  if(m_type == CameraPath)
+    m_avatar = new RobotAvatar(&m_newPos, RobotAvatar::CameraPath);
+  if(m_type == Haptic) {
     UpdatePositions(GetVizmo().GetManager()->GetWorldPos());
+    m_avatar = new RobotAvatar(&m_newPos, RobotAvatar::Haptic);
+  }
 }
 
 void
@@ -157,6 +161,8 @@ KeyPressed(QKeyEvent* _e) {
 
   if(_e->key() == Qt::Key_Space) {
     m_finished = true;
+    delete m_avatar;
+    m_avatar = NULL;
     return true;
   }
 
