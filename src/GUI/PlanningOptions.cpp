@@ -369,8 +369,8 @@ DuplicateRegion() {
         regionFound = true;
         dist = r->GetLongLength();
         r->SetType(RegionModel::NONCOMMIT);
-        vector<Vector3d> dir = r->GetCameraVectors(m_mainWindow->GetGLWidget()->GetCurrentCamera());
-        Vector3d delta = dir[0] - dir[1] + dir[2];
+        Camera* c = m_mainWindow->GetGLWidget()->GetCurrentCamera();
+        Vector3d delta = -(c->GetWindowX() + c->GetWindowY() + c->GetWindowZ());
         delta.selfNormalize();
         delta *= dist/3;
         r->ApplyOffset(delta);

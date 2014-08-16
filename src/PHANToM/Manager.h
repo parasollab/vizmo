@@ -84,6 +84,7 @@ class Manager {
 
     //state access functions
     Point3d GetWorldPos() {return Point3d();}
+    Point3d GetWorldRot() {return Point3d();}
 
     //control functions
     void ToggleForceOutput() {}

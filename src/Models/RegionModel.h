@@ -30,7 +30,6 @@ class RegionModel : public Model {
     const Point3d& GetCenter() const {return m_center;}
 
     Shape GetShape() const {return m_shape;}
-    vector<Vector3d> GetCameraVectors(Camera* _c);
     virtual void ApplyOffset(const Vector3d& _v) = 0;
     virtual double GetShortLength() const = 0;
     virtual double GetLongLength() const = 0;
@@ -95,35 +94,9 @@ class RegionModel : public Model {
 
     size_t m_created;
     Point3d m_center;
-    Vector3d m_cameraX;
-    Vector3d m_cameraY;
-    Vector3d m_cameraZ;
 
     // Functions
     void SetShape(Shape _s) {m_shape = _s;}
 };
-
-inline vector<Vector3d>
-RegionModel::
-GetCameraVectors(Camera* _c) {
-  //project start and end points to the world to find the cameraX direction
-  Vector3d s = ProjectToWorld(0, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  Vector3d e = ProjectToWorld(1, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  m_cameraX = (e - s).normalize();
-
-  //project a new end point to find the cameraY direction
-  e = ProjectToWorld(0, 1, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  m_cameraY = (e - s).normalize();
-
-  //get cameraZ from _c->GetDir()
-  m_cameraZ = (-_c->GetDir()).normalize();
-
-  //collect directions and return
-  vector<Vector3d> v;
-  v.push_back(m_cameraX);
-  v.push_back(m_cameraY);
-  v.push_back(m_cameraZ);
-  return v;
-}
 
 #endif

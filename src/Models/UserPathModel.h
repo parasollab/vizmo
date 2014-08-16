@@ -11,7 +11,7 @@ class UserPathModel : public Model {
 
   public:
     //specify input type
-    enum InputType {Mouse, Haptic, CameraPath};
+    enum InputType {Mouse, CameraPath, Haptic};
 
     UserPathModel(MainWindow* _mainWindow, InputType _t = Mouse);
 
