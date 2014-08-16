@@ -31,6 +31,7 @@ class GLWidget : public QGLWidget {
 
     void ResetCamera();
     Camera* GetCurrentCamera();
+    Point2d GetMouse() const {return m_mouse;}
 
     void SetRecording(bool _b) {m_recording = _b;}
 
@@ -105,6 +106,8 @@ class GLWidget : public QGLWidget {
 
     RegionModel* m_currentRegion;
     UserPathModel* m_currentUserPath;
+
+    Point2d m_mouse;
 };
 
 #endif

@@ -3,9 +3,9 @@
 
 #include "Model.h"
 #include "Vizmo.h"
-#include "TempObjsModel.h"
 
 class MainWindow;
+class RobotAvatar;
 
 class UserPathModel : public Model {
 
@@ -59,7 +59,7 @@ class UserPathModel : public Model {
     bool m_finished, m_valid;
     CfgModel m_oldPos, m_newPos;
     vector<Point3d> m_userPath;
-    TempObjsModel m_avatar;
+    RobotAvatar* m_avatar;
 };
 
 #endif

@@ -9,6 +9,7 @@
 #include "UserPathModel.h"
 
 #include "GUI/MainWindow.h"
+#include "GUI/RobotAvatar.h"
 
 #include "Models/CfgModel.h"
 #include "Models/EnvModel.h"
@@ -23,8 +24,9 @@ class Camera;
 
 UserPathModel::
 UserPathModel(MainWindow* _mainWindow, InputType _t) :
-    Model("User Path"), m_checkCollision(false), m_mainWindow(_mainWindow), m_type(_t),
-    m_finished(false), m_valid(true), m_oldPos(), m_newPos(), m_userPath(), m_avatar() {
+    Model("User Path"), m_checkCollision(false), m_mainWindow(_mainWindow),
+    m_type(_t), m_finished(false), m_valid(true), m_oldPos(), m_newPos(),
+    m_userPath(), m_avatar(NULL) {
   if(m_type == Haptic)
     UpdatePositions(GetVizmo().GetManager()->GetWorldPos());
 }
@@ -47,8 +49,8 @@ DrawRender() {
   glBegin(GL_LINE_STRIP);
   for(vector<Point3d>::iterator it = m_userPath.begin(); it != m_userPath.end(); ++it)
     glVertex3dv(*it);
-    glEnd();
- }
+  glEnd();
+}
 
 void
 UserPathModel::
@@ -56,7 +58,7 @@ DrawSelect() {
   glLineWidth(4);
   for(vector<Point3d>::iterator it = m_userPath.begin(); it != m_userPath.end(); ++it)
     glVertex3dv(*it);
-    glEnd();
+  glEnd();
 }
 
 void
@@ -113,8 +115,7 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
         Point3d(), Vector3d(0, 0, 1));
     UpdatePositions(p);
     SendToPath(p);
-    m_avatar.AddCfg(&m_newPos);
-    m_newPos.SetShape(CfgModel::Robot);
+    m_avatar = new RobotAvatar(&m_newPos, RobotAvatar::Mouse);
     return true;
   }
 
@@ -126,8 +127,8 @@ UserPathModel::
 MouseReleased(QMouseEvent* _e, Camera* _c) {
   if(m_type == Mouse && !m_finished && (m_userPath.begin() != m_userPath.end())) {
     m_finished = true;
-    m_avatar.GetCfgs().clear();
-    m_newPos.SetShape(CfgModel::Point);
+    delete m_avatar;
+    m_avatar = NULL;
     return true;
   }
 
@@ -172,12 +173,8 @@ UpdatePositions(const Point3d& _p) {
 void
 UserPathModel::
 UpdateValidity() {
-  GetVizmo().CollisionCheck(m_newPos);
-  if (m_newPos.IsValid())
-    m_valid = true;
-    pair<bool, double> result = GetVizmo().VisibilityCheck(m_newPos, m_oldPos);
-    cout << "Visbility " << result.first << endl << flush;
-  if (!m_newPos.IsValid())
+  //pair<bool, double> result = GetVizmo().VisibilityCheck(m_newPos, m_oldPos);}
+  if(!GetVizmo().CollisionCheck(m_newPos))
     m_valid = false;
 }
 
