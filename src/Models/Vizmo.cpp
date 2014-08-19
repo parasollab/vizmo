@@ -157,7 +157,7 @@ InitPMPL() {
 
   //add connector
   VizmoProblem::ConnectorPointer cp(new NeighborhoodConnector<VizmoTraits>("BFNF", "sl"));
-  problem->AddConnector(cp, "Neighborhood Connector");
+  problem->AddConnector(cp, "kClosest");
 
   //add num nodes metric for evaluator
   VizmoProblem::MetricPointer mp(new NumNodesMetric<VizmoTraits>());
@@ -175,7 +175,9 @@ InitPMPL() {
   //set up query evaluators
   if(m_queryModel) {
     //setup standard query evaluator
-    VizmoProblem::MapEvaluatorPointer mep(new Query<VizmoTraits>(m_queryFilename, vector<string>(1, "Neighborhood Connector")));
+    Query<VizmoTraits>* query = new Query<VizmoTraits>(m_queryFilename,
+        vector<string>(1, "kClosest"));
+    VizmoProblem::MapEvaluatorPointer mep(query);
     problem->AddMapEvaluator(mep, "Query");
 
     //setup region query evaluator
@@ -207,6 +209,16 @@ InitPMPL() {
         new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR,
         evals));
     problem->AddMapEvaluator(brq, "BoundedRegionQuery");
+
+    //add basic extender for I-RRT
+    VizmoProblem::ExtenderPointer bero(new BasicExtender<VizmoTraits>(
+          "euclidean", "PQP_SOLID", 10., true));
+    problem->AddExtender(bero, "BERO");
+
+    //add I-RRT strategy
+    VizmoProblem::MPStrategyPointer irrt(
+        new IRRTStrategy<VizmoTraits>(query));
+    problem->AddMPStrategy(irrt, "IRRT");
   }
 
   //add region strategy
@@ -244,8 +256,7 @@ InitPMPL() {
 
   //add path strategy
   VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());
-  problem->AddMPStrategy(ps, "PathsStrategy");
-
+  problem->AddMPStrategy(ps, "PathStrategy");
 
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();

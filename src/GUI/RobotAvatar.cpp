@@ -3,7 +3,6 @@
 #include "GUI/GLWidget.h"
 #include "GUI/MainWindow.h"
 
-#include "Models/CfgModel.h"
 #include "Models/TempObjsModel.h"
 #include "Models/Vizmo.h"
 
@@ -11,6 +10,7 @@
 
 #include "Utilities/Camera.h"
 #include "Utilities/GLUtils.h"
+#include "Utilities/VizmoExceptions.h"
 
 RobotAvatar::
 RobotAvatar(InputType _t) : m_input(_t) {
@@ -19,11 +19,9 @@ RobotAvatar(InputType _t) : m_input(_t) {
 
   //create avatar and add it to tempObjs
   m_avatar = new CfgModel();
+  m_prev = new CfgModel(*m_avatar);
   m_avatar->SetShape(CfgModel::Robot);
   m_tempObjs->AddCfg(m_avatar);
-
-  //configure the signals/slots
-  Connect();
 
   //get the camera pointer
   m_camera = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
@@ -35,13 +33,10 @@ RobotAvatar(CfgModel* _initialCfg, InputType _t) : m_input(_t) {
   m_tempObjs = new TempObjsModel();
 
   //create avatar, initialize, and add it to tempObjs
-  m_avatar = new CfgModel();
-  m_avatar->SetCfg(_initialCfg->GetDataCfg());
+  m_avatar = new CfgModel(*_initialCfg);
+  m_prev = new CfgModel(*m_avatar);
   m_avatar->SetShape(CfgModel::Robot);
   m_tempObjs->AddCfg(m_avatar);
-
-  //configure the signals/slots
-  Connect();
 
   //get the camera pointer
   m_camera = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
@@ -49,8 +44,8 @@ RobotAvatar(CfgModel* _initialCfg, InputType _t) : m_input(_t) {
 
 RobotAvatar::
 ~RobotAvatar() {
-  Disconnect();
-  delete m_tempObjs;
+  delete m_tempObjs; //also deletes m_avatar
+  delete m_prev;
 }
 
 //Attach the main timer to the appropriate update slot
@@ -71,11 +66,10 @@ Connect() {
           this, SLOT(UpdateHaptic()));
       break;
     default:
-      //throw exception here
-      cerr << "\nError: failed to identify input type for RobotAvatar!\n"
-           << "\tAborting execution from SetupConnections() in "
-           << "RobotAvatar.cpp.\n" << flush;
-      exit(-1);
+      ostringstream msg;
+      msg << "\nError: failed to identify input type for RobotAvatar!\n"
+          << "\tAborting execution from Disonnect() in RobotAvatar.cpp.\n";
+      throw PMPLException("Unknown input type", WHERE, msg.str());
   }
 }
 
@@ -97,11 +91,10 @@ Disconnect() {
           this, SLOT(UpdateHaptic()));
       break;
     default:
-      //throw exception here
-      cerr << "\nError: failed to identify input type for RobotAvatar!\n"
-           << "\tAborting execution from SetupConnections() in "
-           << "RobotAvatar.cpp.\n" << flush;
-      exit(-1);
+      ostringstream msg;
+      msg << "\nError: failed to identify input type for RobotAvatar!\n"
+          << "\tAborting execution from Disonnect() in RobotAvatar.cpp.\n";
+      throw PMPLException("Unknown input type", WHERE, msg.str());
   }
 }
 
@@ -149,3 +142,13 @@ UpdateHaptic() {
   m_avatar->SetCfg(data);
 }
 
+//bring the mouse cursor to the avatar
+void
+RobotAvatar::
+SummonMouse() {
+  vector<double> pos = m_avatar->GetPosition();
+  Point3d worldPos(0., 0., 0.);
+  copy(pos.begin(), pos.end(), worldPos.begin());
+  Point3d screenPos = ProjectToWindow(worldPos);
+  QCursor::setPos(int(screenPos[0]), int(screenPos[1]));
+}

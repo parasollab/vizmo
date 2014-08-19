@@ -164,7 +164,7 @@ Connect(vector<VID>& _vids) {
   stapl::sequential::
     vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
-    this->GetMPProblem()->GetConnector("Neighborhood Connector");
+    this->GetMPProblem()->GetConnector("kClosest");
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
 }

@@ -9,9 +9,12 @@
 
 #include <QtGui>
 
+#include "Models/CfgModel.h"
+
 class Camera;
-class CfgModel;
 class TempObjsModel;
+
+using namespace std;
 
 class RobotAvatar : public QObject {
 
@@ -25,10 +28,25 @@ class RobotAvatar : public QObject {
     RobotAvatar(CfgModel* _initialCfg, InputType _t = Mouse);
     ~RobotAvatar();
 
-  public slots:
+    //access data
+    const vector<double> GetCurrPos() const {return m_avatar->GetPosition();}
+    const vector<double> GetPrevPos() const {return m_prev->GetPosition();}
+    const vector<double> GetCurrRot() const {return m_avatar->GetOrientation();}
+    const vector<double> GetPrevRot() const {return m_prev->GetOrientation();}
+    const CfgModel& GetCurrCfg() const {return *m_avatar;}
+    const CfgModel& GetPrevCfg() const {return *m_prev;}
+
+    //update current/prev position
+    void UpdatePos() {m_prev->SetData(m_avatar->GetData());}
+
+    //bring mouse to avatar
+    void SummonMouse();
+
+    //enable/disable signals/slots
     void Connect();
     void Disconnect();
 
+  public slots:
     void UpdateMouse();
     void UpdateCameraPath();
     void UpdateHaptic();
@@ -36,7 +54,7 @@ class RobotAvatar : public QObject {
   private:
     InputType m_input;
     TempObjsModel* m_tempObjs;
-    CfgModel* m_avatar;
+    CfgModel* m_avatar, * m_prev;
 
     Camera* m_camera;
 };
