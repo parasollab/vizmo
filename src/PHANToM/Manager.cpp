@@ -22,6 +22,11 @@ Manager& GetManager(){
   return manager;
 }
 
+bool
+UsingPhantom() {
+  return GetVizmo().GetManager();
+}
+
 Manager::
 Manager() : m_hhd(HD_INVALID_HANDLE), m_hhlrc(NULL) {
   Initialize();
