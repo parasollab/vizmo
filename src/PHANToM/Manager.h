@@ -74,7 +74,7 @@ using namespace mathtool;
 
 namespace Haptics {
 
-bool UsingPhantom() {return false;}
+inline bool UsingPhantom() {return false;}
 
 class Manager {
   public:
