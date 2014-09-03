@@ -180,12 +180,6 @@ InitPMPL() {
     VizmoProblem::MapEvaluatorPointer mep(query);
     problem->AddMapEvaluator(mep, "Query");
 
-    //setup region query evaluator
-    VizmoProblem::MapEvaluatorPointer rq(
-        new Query<VizmoTraits>(m_queryFilename,
-        vector<string>(1, "RegionConnector")));
-    problem->AddMapEvaluator(rq, "RegionQuery");
-
     //setup debugging evaluator
     vector<string> evals;
     evals.push_back("PrintMap");
@@ -201,15 +195,6 @@ InitPMPL() {
         ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
     problem->AddMapEvaluator(bqe, "BoundedQuery");
 
-    //set up bounded region query evaluator
-    evals.clear();
-    evals.push_back("NodesEval");
-    evals.push_back("RegionQuery");
-    VizmoProblem::MapEvaluatorPointer brq(
-        new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR,
-        evals));
-    problem->AddMapEvaluator(brq, "BoundedRegionQuery");
-
     //add basic extender for I-RRT
     VizmoProblem::ExtenderPointer bero(new BasicExtender<VizmoTraits>(
           "euclidean", "PQP_SOLID", 10., true));
@@ -224,35 +209,6 @@ InitPMPL() {
   //add region strategy
   VizmoProblem::MPStrategyPointer rs(new RegionStrategy<VizmoTraits>());
   problem->AddMPStrategy(rs, "RegionStrategy");
-
-  //set up supporting tools for region strategy
-  VizmoProblem::ValidityCheckerPointer avc(
-      new AvoidRegionValidity<VizmoTraits>());
-  problem->AddValidityChecker(avc, "AvoidRegionValidity");
-
-  vector<string> vcList;
-  vcList.push_back("PQP_SOLID");
-  vcList.push_back("AvoidRegionValidity");
-  VizmoProblem::ValidityCheckerPointer rvc(
-      new ComposeValidity<VizmoTraits>(ComposeValidity<VizmoTraits>::AND,
-      vcList));
-  problem->AddValidityChecker(rvc, "RegionValidity");
-
-  VizmoProblem::LocalPlannerPointer rsl(
-      new StraightLine<VizmoTraits>("RegionValidity", true));
-  problem->AddLocalPlanner(rsl, "RegionSL");
-
-  VizmoProblem::LocalPlannerPointer arsl(
-      new StraightLine<VizmoTraits>("AvoidRegionValidity", true));
-  problem->AddLocalPlanner(arsl, "AvoidRegionSL");
-
-  VizmoProblem::SamplerPointer rus(
-      new UniformRandomSampler<VizmoTraits>("RegionValidity"));
-  problem->AddSampler(rus, "RegionUniform");
-
-  VizmoProblem::ConnectorPointer rc(
-      new NeighborhoodConnector<VizmoTraits>("BFNF", "RegionSL"));
-  problem->AddConnector(rc, "RegionConnector");
 
   //add path strategy
   VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());

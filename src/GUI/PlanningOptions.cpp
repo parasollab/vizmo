@@ -5,7 +5,6 @@
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 
-#include "Utilities/AlertUser.h"
 #include "Utilities/IO.h"
 
 #include "Models/EnvModel.h"
@@ -391,16 +390,16 @@ DuplicateRegion() {
       double dist;
       RegionModel::Shape shape = ((RegionModel*)(*sit))->GetShape();
       if(shape == RegionModel::BOX) {
-        r = new RegionBoxModel(*dynamic_cast<RegionBoxModel*>(*sit));
+        r = new RegionBoxModel(*static_cast<RegionBoxModel*>(*sit));
       }
       else if(shape == RegionModel::BOX2D) {
-        r = new RegionBox2DModel(*dynamic_cast<RegionBox2DModel*>(*sit));
+        r = new RegionBox2DModel(*static_cast<RegionBox2DModel*>(*sit));
       }
       else if(shape == RegionModel::SPHERE ) {
-        r = new RegionSphereModel(*dynamic_cast<RegionSphereModel*>(*sit));
+        r = new RegionSphereModel(*static_cast<RegionSphereModel*>(*sit));
       }
       else if(shape == RegionModel::SPHERE2D) {
-        r = new RegionSphere2DModel(*dynamic_cast<RegionSphere2DModel*>(*sit));
+        r = new RegionSphere2DModel(*static_cast<RegionSphere2DModel*>(*sit));
       }
       if(r) {
         regionFound = true;
@@ -420,23 +419,14 @@ DuplicateRegion() {
     }
   }
   if(!regionFound)
-    AlertUser("Region not selected");
-}
-
-void
-PlanningOptions::
-HandleTimer() {
-  m_mainWindow->GetGLWidget()->updateGL();
+    GetMainWindow()->AlertUser("Region not selected");
 }
 
 void
 PlanningOptions::
 ThreadDone() {
   m_threadDone = true;
-
-  // Disconnect and delete timer
-  disconnect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
-  delete m_timer;
+  m_regionsStarted = false;
 
   // Refresh scene + GUI
   m_mainWindow->GetGLWidget()->updateGL();
@@ -449,6 +439,9 @@ PlanningOptions::
 MapEnvironment() {
   if(m_threadDone) {
     // Stop timer for before regions
+    if(!m_regionsStarted)
+      // start-stop when no regions were created
+      GetVizmo().StartClock("Pre-regions");
     GetVizmo().StopClock("Pre-regions");
 
     // Before thread starts, make sure map model exists
@@ -465,11 +458,6 @@ MapEnvironment() {
         break;
       }
     }
-
-    // Set up timer to redraw and refresh GUI
-    m_timer = new QTimer(this);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
-    m_timer->start(200);
 
     // Set up thread for mapping the environment
     m_threadDone = false;
@@ -705,6 +693,7 @@ LoadRegion() {
   }
   m_mainWindow->GetGLWidget()->updateGL();
 }
+
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel) : QObject(),
   m_strategyLabel(_strategyLabel) {}
@@ -713,6 +702,5 @@ void
 MapEnvironmentWorker::
 Solve() {
   GetVizmo().Solve(m_strategyLabel);
-  GetMainWindow()->m_mainMenu->m_planningOptions->ResetRegionTimer();
   emit Finished();
 }

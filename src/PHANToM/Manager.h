@@ -18,7 +18,7 @@ namespace Haptics {
 class Manager;
 Manager& GetManager();
 
-inline const bool UsingPhantom() {return true;}
+bool UsingPhantom();
 
 class Manager {
   public:
@@ -74,7 +74,7 @@ using namespace mathtool;
 
 namespace Haptics {
 
-inline const bool UsingPhantom() {return false;}
+inline bool UsingPhantom() {return false;}
 
 class Manager {
   public:

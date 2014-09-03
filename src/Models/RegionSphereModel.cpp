@@ -142,6 +142,7 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
+
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_lmb = true;

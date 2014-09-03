@@ -30,7 +30,6 @@ class PlanningOptions : public OptionsBase {
     void LoadRegion();
 
     //Thread and timer functions
-    void HandleTimer();
     void MapEnvironment();
     void ThreadDone();
 
@@ -52,7 +51,6 @@ class PlanningOptions : public OptionsBase {
     bool m_regionsStarted;
     bool m_threadDone;
     QThread* m_thread;
-    QTimer* m_timer;
     QMenu* m_addRegionMenu;
     QMenu* m_regionPropertiesMenu;
     QMenu* m_pathsMenu;

@@ -29,8 +29,6 @@
 #include "Icons/RobotMode.xpm"
 #include "Icons/PointMode.xpm"
 
-#include "Utilities/AlertUser.h"
-
 EnvironmentOptions::
 EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow) :
     OptionsBase(_parent, _mainWindow),  m_editRobotDialog(NULL),
@@ -92,7 +90,7 @@ DeleteObstacle() {
 
   //alert that only non-active multibodies can be selected
   if(toDel.empty() || toDel.size() != sel.size())
-    AlertUser("Must select one or more non-active multibodies only.");
+    GetMainWindow()->AlertUser("Must select one or more non-active multibodies only.");
 
   //successful selection, delete obstacle(s)
   else {
@@ -119,7 +117,7 @@ MoveObstacle() {
 
   //alert that only non-active multibodies can be selected
   if(toMove.empty() || toMove.size() != sel.size())
-    AlertUser("Must select one or more non-active multibodies only.");
+    GetMainWindow()->AlertUser("Must select one or more non-active multibodies only.");
 
   //successful selection, show ObstaclePosDialog
   else {
@@ -140,7 +138,7 @@ DuplicateObstacles() {
 
   //alert that only non-active multibodies can be selected
   if(toCopy.empty() || toCopy.size() != sel.size())
-    AlertUser("Must select one or more non-active multibodies only.");
+    GetMainWindow()->AlertUser("Must select one or more non-active multibodies only.");
 
   //successful selection, copy and show ObstaclePosDialog
   else {
@@ -167,7 +165,7 @@ ChangeBoundaryForm() {
     //alert that only the boundary should be selected
     if(sel.size() != 1 || !(sel[0]->Name() == "Bounding Box" ||
           sel[0]->Name() == "Bounding Sphere")) {
-      AlertUser("Must select only the boundary.");
+      GetMainWindow()->AlertUser("Must select only the boundary.");
     }
     //successful selection, show ChangeBoundaryDialog
     else {

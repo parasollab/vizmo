@@ -35,7 +35,6 @@ OBJECTS += \
 	   GUI/TextWidget.o \
 	   GUI/ToolTabOptions.o \
 	   GUI/ToolTabWidget.o \
-	   GUI/Utilities/AlertUser.o \
 
 ####### MOC
 .SECONDARY: $(SRCMOC)

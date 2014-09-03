@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H_
-#define MAINWINDOW_H_
+#ifndef MAIN_WINDOW_H_
+#define MAIN_WINDOW_H_
 
 using namespace std;
 
@@ -54,15 +54,15 @@ class MainWindow : public QMainWindow {
 
     void closeEvent(QCloseEvent* _event);
 
-    void CallAlertUser(string _s);
-
-  private slots:
-      void UpdateScreen();  // redraw GL scene
-    void HideDialogDock();
-    void AlertUserCaller(QString _s);
+    void AlertUser(string _s);
 
   signals:
-    void AlertUserSig(QString _s);
+    void Alert(QString _s);
+
+  private slots:
+    void UpdateScreen();  // redraw GL scene
+    void HideDialogDock();
+    void ShowAlert(QString _s);
 
   private:
     string m_command;    //command line to be executed to make a new roadmap

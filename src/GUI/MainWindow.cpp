@@ -14,8 +14,6 @@
 
 #include "Icons/Vizmo.xpm"
 
-#include "Utilities/AlertUser.h"
-
 //Define singleton
 MainWindow* window;
 MainWindow*& GetMainWindow() {return window;}
@@ -115,19 +113,21 @@ CreateGUI() {
   m_timer->start(33);
 
   connect(m_animationWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
-  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
-  connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()), m_textWidget, SLOT(SetText()));
+  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()),
+      this, SLOT(UpdateScreen()));
+  connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()),
+      m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_modelSelectionWidget, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_modelSelectionWidget, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_textWidget, SLOT(SetText()));
-  connect(this, SIGNAL(AlertUserSig(QString)),
-      this, SLOT(AlertUserCaller(QString)));
+  connect(this, SIGNAL(Alert(QString)), this, SLOT(ShowAlert(QString)));
   return true;
 }
 
 void
-MainWindow::SetUpLayout(){
+MainWindow::
+SetUpLayout() {
   QWidget* layoutWidget = new QWidget(this);
   QGridLayout* layout = new QGridLayout();
   layoutWidget->setLayout(layout); //Set this before actual layout specifications
@@ -229,12 +229,14 @@ ResetDialogs() {
 
 void
 MainWindow::
-CallAlertUser(string _s) {
-  emit AlertUserSig(QString(_s.c_str()));
+AlertUser(string _s) {
+  emit Alert(QString(_s.c_str()));
 }
 
 void
 MainWindow::
-AlertUserCaller(QString _s) {
-  AlertUser(_s.toStdString());
+ShowAlert(QString _s) {
+  QMessageBox m(this);
+  m.setText(_s);
+  m.exec();
 }

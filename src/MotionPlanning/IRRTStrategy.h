@@ -362,7 +362,7 @@ Run() {
 
     if(++iter % 20 == 0) {
       GetVizmo().GetMap()->RefreshMap();
-      GetMainWindow()->GetModelSelectionWidget()->ResetListsFromMP();
+      GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
     }
     usleep(10000);
   }

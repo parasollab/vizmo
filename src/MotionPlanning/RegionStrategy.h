@@ -5,10 +5,13 @@
 
 #include "GUI/MainWindow.h"
 #include "GUI/ModelSelectionWidget.h"
+
 #include "Models/RegionModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
 #include "Models/Vizmo.h"
+
+#include "MotionPlanning/VizmoTraits.h"
 
 template<class MPTraits>
 class RegionStrategy : public MPStrategyMethod<MPTraits> {
@@ -41,31 +44,45 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     void UpdateRegionStats();
     void UpdateRegionColor(size_t _i);
     bool EvaluateMap();
+    void SetupTools();
 
   private:
     RegionModel* m_samplingRegion;
     vector<VID> m_toDel;
 
+    string m_connectorLabel;
+    string m_lpLabel;
     string m_samplerLabel;
-    string m_connectionLabel;
+    string m_vcLabel;
+
+    string m_regionSamplerLabel;
+    string m_regionConnectorLabel;
 };
 
 template<class MPTraits>
 RegionStrategy<MPTraits>::
 RegionStrategy() : MPStrategyMethod<MPTraits>(),
-    m_samplerLabel("RegionUniform"), m_connectionLabel("RegionConnector") {
+    m_connectorLabel("BFNF"), m_lpLabel("sl"), m_samplerLabel("PQP_SOLID"),
+    m_vcLabel("PQP_SOLID"), m_regionSamplerLabel("RegionSampler"),
+    m_regionConnectorLabel("RegionConnector") {
   this->SetName("RegionStrategy");
 }
 
 template<class MPTraits>
 RegionStrategy<MPTraits>::
 RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node) :
-    MPStrategyMethod<MPTraits>(_problem, _node) {
+    MPStrategyMethod<MPTraits>(_problem, _node),
+    m_regionSamplerLabel("RegionSampler"),
+    m_regionConnectorLabel("RegionConnector") {
   this->SetName("RegionStrategy");
+  m_connectorLabel = _node.stringXMLParameter("connectionLabel", false,
+      "BFNF", "Connection Strategy");
+  m_lpLabel = _node.stringXMLParameter("lpLabel", false,
+      "sl", "Local Planner");
   m_samplerLabel = _node.stringXMLParameter("samplerLabel", false,
-      "RegionUniform", "Sampler Strategy");
-  m_connectionLabel = _node.stringXMLParameter("connectionLabel", false,
-      "RegionConnector", "Connection Strategy");
+      "uniform", "Sampler Strategy");
+  m_vcLabel = _node.stringXMLParameter("vcLabel", false,
+      "PQP_SOLID", "Validity Checker");
 }
 
 template<class MPTraits>
@@ -78,13 +95,67 @@ Print(ostream& _os) const {
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
+SetupTools() {
+  //set up supporting tools for region strategy
+  typename MPProblemType::ValidityCheckerPointer arv(
+      new AvoidRegionValidity<MPTraits>());
+  this->GetMPProblem()->AddValidityChecker(arv, "AvoidRegionValidity");
+
+  vector<string> vcList;
+  vcList.push_back(m_vcLabel);
+  vcList.push_back("AvoidRegionValidity");
+  typename MPProblemType::ValidityCheckerPointer rv(
+      new ComposeValidity<MPTraits>(ComposeValidity<MPTraits>::AND, vcList));
+  this->GetMPProblem()->AddValidityChecker(rv, "RegionValidity");
+
+  typename MPProblemType::LocalPlannerPointer rsl(
+      new StraightLine<MPTraits>("RegionValidity", true));
+  this->GetMPProblem()->AddLocalPlanner(rsl, "RegionSL");
+
+  typename MPProblemType::LocalPlannerPointer arsl(
+      new StraightLine<MPTraits>("AvoidRegionValidity", true));
+  this->GetMPProblem()->AddLocalPlanner(arsl, "AvoidRegionSL");
+
+  typename MPProblemType::SamplerPointer rus(
+      new UniformRandomSampler<MPTraits>("RegionValidity"));
+  this->GetMPProblem()->AddSampler(rus, m_regionSamplerLabel);
+
+  typename MPProblemType::ConnectorPointer rc(
+      new NeighborhoodConnector<MPTraits>("BFNF", "RegionSL"));
+  this->GetMPProblem()->AddConnector(rc, m_regionConnectorLabel);
+
+  if(GetVizmo().IsQueryLoaded()) {
+    //setup region query evaluator
+    typename MPProblemType::MapEvaluatorPointer rq(new Query<MPTraits>(
+          GetVizmo().GetQryFileName(), vector<string>(1, m_regionConnectorLabel)));
+    this->GetMPProblem()->AddMapEvaluator(rq, "RegionQuery");
+
+    //set up bounded region query evaluator
+    vector<string> evals;
+    evals.clear();
+    evals.push_back("NodesEval");
+    evals.push_back("RegionQuery");
+    typename MPProblemType::MapEvaluatorPointer brq(
+        new ComposeEvaluator<MPTraits>(ComposeEvaluator<MPTraits>::OR, evals));
+    this->GetMPProblem()->AddMapEvaluator(brq, "BoundedRegionQuery");
+  }
+
+  this->GetMPProblem()->SetMPProblem();
+}
+
+template<class MPTraits>
+void
+RegionStrategy<MPTraits>::
 Initialize() {
   cout << "Initializing Region Strategy." << endl;
 
   string basename = this->GetBaseFilename();
 
+  SetupTools();
+
   if(GetVizmo().IsQueryLoaded())
-    boost::static_pointer_cast<Query<MPTraits> >(this->GetMPProblem()->GetMapEvaluator("Query"))->SetPathFile(basename + ".path");
+    boost::static_pointer_cast<Query<MPTraits> >(this->GetMPProblem()->
+        GetMapEvaluator("Query"))->SetPathFile(basename + ".path");
 
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
@@ -127,7 +198,7 @@ RegionStrategy<MPTraits>::Run() {
     //refresh map and selection widget
     if(++iter % 20 == 0) {
       GetVizmo().GetMap()->RefreshMap();
-      GetMainWindow()->GetModelSelectionWidget()->ResetListsFromMP();
+      GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
     }
     usleep(10000);
   }
@@ -168,7 +239,7 @@ Finalize() {
   results << "Planning Complete!" << endl;
   GetVizmo().PrintClock("Pre-regions", results);
   GetVizmo().PrintClock("RegionStrategy", results);
-  GetMainWindow()->CallAlertUser(results.str());
+  GetMainWindow()->AlertUser(results.str());
 
   //output roadmap
   ofstream ofs((basename + ".map").c_str());
@@ -200,7 +271,7 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
   const vector<RegionModel*>& regions =
       GetVizmo().GetEnv()->GetAttractRegions();
   typename MPProblemType::SamplerPointer sp =
-      this->GetMPProblem()->GetSampler(m_samplerLabel);
+      this->GetMPProblem()->GetSampler(m_regionSamplerLabel);
 
   //check if the selected region is a region or the environment boundary.  if it
   //is the env boundary, set m_samplingRegion to null
@@ -295,7 +366,7 @@ ProcessAvoidRegions() {
       g->delete_vertex(*vit);
   }
   GetVizmo().GetMap()->RefreshMap();
-  GetMainWindow()->GetModelSelectionWidget()->ResetListsFromMP();
+  GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 }
 
 template<class MPTraits>
@@ -322,7 +393,7 @@ Connect(vector<VID>& _vids, size_t _i) {
   stapl::sequential::
     vector_property_map<typename GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
-    this->GetMPProblem()->GetConnector(m_connectionLabel);
+    this->GetMPProblem()->GetConnector(m_regionConnectorLabel);
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
       *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
 
@@ -413,7 +484,8 @@ EvaluateMap() {
   //loaded.
   vector<string> evalLabel;
   if(GetVizmo().IsQueryLoaded())
-    evalLabel.push_back("BoundedRegionQuery");
+    evalLabel.push_back("RegionQuery");
+    //evalLabel.push_back("BoundedRegionQuery");
   else
     evalLabel.push_back("NodesEval");
 
