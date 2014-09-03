@@ -13,6 +13,7 @@ using namespace std;
 #include "MotionPlanning/VizmoTraits.h"
 #include "PHANToM/Manager.h"
 #include "Utilities/PickBox.h"
+#include "GUI/MainWindow.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //Define Vizmo singleton
@@ -173,6 +174,7 @@ InitPMPL() {
 
   //set up query evaluators
   if(m_queryModel) {
+    //setup standard query evaluator
     VizmoProblem::MapEvaluatorPointer mep(new Query<VizmoTraits>(m_queryFilename, vector<string>(1, "Neighborhood Connector")));
     problem->AddMapEvaluator(mep, "Query");
 
@@ -187,7 +189,8 @@ InitPMPL() {
     evals.clear();
     evals.push_back("NodesEval");
     evals.push_back("Query");
-    VizmoProblem::MapEvaluatorPointer bqe(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
+    VizmoProblem::MapEvaluatorPointer bqe(new
+        ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
     problem->AddMapEvaluator(bqe, "BoundedQuery");
   }
 
@@ -198,7 +201,6 @@ InitPMPL() {
   //add path strategy
   VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());
   problem->AddMPStrategy(ps, "PathsStrategy");
-
 
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();
@@ -492,4 +494,11 @@ Solve(const string& _strategy) {
   VDClose();
 
   GetVizmo().GetMap()->RefreshMap();
+}
+
+double
+Vizmo::
+GetMaxEnvDist() {
+  return GetVizmo().GetEnv()->GetEnvironment()->GetBoundary()->
+    GetMaxDist();
 }

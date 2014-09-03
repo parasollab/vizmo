@@ -45,7 +45,7 @@ GLWidget::ToggleSelectionSlot(){
 void
 GLWidget::ResetCamera(){
   EnvModel* e = GetVizmo().GetEnv();
-  GetCurrentCamera()->Set(Point3d(0, 0, 4*(e ? e->GetRadius() : 100)), Point3d(0,0,0));
+  GetCurrentCamera()->Set(Point3d(0, 0, 2*(e ? e->GetRadius() : 100)), Point3d(0,0,0));
 }
 
 Camera*

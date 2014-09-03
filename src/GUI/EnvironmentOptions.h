@@ -11,8 +11,6 @@ using namespace std;
 
 class ChangeBoundaryDialog;
 class EditRobotDialog;
-class ModelSelectionWidget;
-class MultiBodyModel;
 
 class EnvironmentOptions : public OptionsBase {
 

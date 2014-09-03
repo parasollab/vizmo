@@ -1,5 +1,5 @@
-#ifndef REGIONBOX2DMODEL_H_
-#define REGIONBOX2DMODEL_H_
+#ifndef REGION_BOX_2D_MODEL_H_
+#define REGION_BOX_2D_MODEL_H_
 
 #include "RegionModel.h"
 
@@ -58,7 +58,6 @@ class RegionBox2DModel : public RegionModel {
     vector<Vector3d> m_boxVertices;
     vector<Vector3d> m_prevPos;
     vector<Vector2d> m_winVertices;
-    Point3d m_center;
     Point2d m_min;
     Point2d m_max;
 };

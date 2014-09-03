@@ -16,13 +16,18 @@ class ModelSelectionWidget : public QTreeWidget {
 
   public:
     struct ListViewItem : public QTreeWidgetItem {
-      ListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
-      ListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
+      ListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent),
+          m_model(NULL) {}
+      ListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent),
+          m_model(NULL) {}
       Model* m_model;
     };
     ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent = NULL);
 
+    void CallResetLists();
+
   signals:
+    void ResetSignal();
     void CallUpdate();
     void UpdateTextWidget();
 

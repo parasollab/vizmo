@@ -6,6 +6,7 @@ OBJECTS += \
 	   Models/BoundingSphereModel.o \
 	   Models/CfgModel.o \
 	   Models/ConnectionModel.o \
+	   Models/CrosshairModel.o \
 	   Models/DebugModel.o \
 	   Models/EdgeModel.o \
 	   Models/EnvModel.o \

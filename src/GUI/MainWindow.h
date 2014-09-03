@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H_
-#define MAINWINDOW_H_
+#ifndef MAIN_WINDOW_H_
+#define MAIN_WINDOW_H_
 
 using namespace std;
 
@@ -26,6 +26,9 @@ class GLWidget;
 #define D_MAX 1
 #define D_MIN 0
 
+class MainWindow;
+MainWindow*& GetMainWindow();
+
 class MainWindow : public QMainWindow {
 
   Q_OBJECT
@@ -51,9 +54,15 @@ class MainWindow : public QMainWindow {
 
     void closeEvent(QCloseEvent* _event);
 
+    void AlertUser(string _s);
+
+  signals:
+    void Alert(QString _s);
+
   private slots:
-      void UpdateScreen();  // redraw GL scene
+    void UpdateScreen();  // redraw GL scene
     void HideDialogDock();
+    void ShowAlert(QString _s);
 
   private:
     string m_command;    //command line to be executed to make a new roadmap

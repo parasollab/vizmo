@@ -1,10 +1,11 @@
-#ifndef PLANNINGOPTIONS_H_
-#define PLANNINGOPTIONS_H_
+#ifndef PLANNING_OPTIONS_H_
+#define PLANNING_OPTIONS_H_
 
 #include "OptionsBase.h"
 
 using namespace std;
 
+//This class provides access to the user-guided planning tools
 class PlanningOptions : public OptionsBase {
 
   Q_OBJECT
@@ -15,6 +16,7 @@ class PlanningOptions : public OptionsBase {
     QThread* GetMPThread() {return m_threadDone ? NULL : m_thread;}
 
   private slots:
+    //Region functions
     void AddRegionSphere();
     void AddRegionBox();
     void DeleteRegion();
@@ -25,10 +27,11 @@ class PlanningOptions : public OptionsBase {
     void SaveRegion();
     void LoadRegion();
 
-    void HandleTimer();
+    //Thread and timer functions
     void MapEnvironment();
     void ThreadDone();
 
+    //User Path functions
     void AddUserPath();
     void DeleteUserPath();
     void PrintUserPath();
@@ -46,13 +49,13 @@ class PlanningOptions : public OptionsBase {
     bool m_regionsStarted;
     bool m_threadDone;
     QThread* m_thread;
-    QTimer* m_timer;
     QMenu* m_addRegionMenu;
     QMenu* m_regionPropertiesMenu;
     QMenu* m_pathsMenu;
     short m_userPathCount;
 };
 
+//This helper class launches interactive strategies.
 class MapEnvironmentWorker : public QObject {
 
   Q_OBJECT

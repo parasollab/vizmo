@@ -13,19 +13,18 @@
 
 EnvModel::
 EnvModel(const string& _filename) : LoadableModel("Environment"),
-  m_containsSurfaces(false), m_radius(0), m_boundary(NULL), m_tempObjs() {
+    m_containsSurfaces(false), m_radius(0), m_boundary(NULL), m_tempObjs() {
+  SetFilename(_filename);
+  size_t sl = _filename.rfind('/');
+  SetModelDataDir(_filename.substr(0, sl == string::npos ? 0 : sl));
 
-    SetFilename(_filename);
-    size_t sl = _filename.rfind('/');
-    SetModelDataDir(_filename.substr(0, sl == string::npos ? 0 : sl));
+  ParseFile();
+  Build();
 
-    ParseFile();
-    Build();
-
-    m_environment = new Environment();
-    m_environment->Read(_filename);
-    m_environment->ComputeResolution();
-  }
+  m_environment = new Environment();
+  m_environment->Read(_filename);
+  m_environment->ComputeResolution();
+}
 
 EnvModel::
 ~EnvModel() {
@@ -55,6 +54,7 @@ IsNonCommitRegion(RegionModel* _r) const {
 void
 EnvModel::
 AddAttractRegion(RegionModel* _r) {
+  _r->SetColor(Color4(0, 1, 0, 0.5));
   m_attractRegions.push_back(_r);
   VDAddRegion(_r);
 }
@@ -62,6 +62,7 @@ AddAttractRegion(RegionModel* _r) {
 void
 EnvModel::
 AddAvoidRegion(RegionModel* _r) {
+  _r->SetColor(Color4(0, 0, 0, 0.5));
   m_avoidRegions.push_back(_r);
   VDAddRegion(_r);
 }
@@ -80,16 +81,10 @@ ChangeRegionType(RegionModel* _r, bool _attract) {
   rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
   if(rit != m_nonCommitRegions.end()) {
     m_nonCommitRegions.erase(rit);
-    if(_attract) {
-      _r->SetColor(Color4(0, 1, 0, 0.5));
-      m_attractRegions.push_back(_r);
-      VDAddRegion(_r);
-    }
-    else {
-      _r->SetColor(Color4(0, 0, 0, 0.5));
-      m_avoidRegions.push_back(_r);
-      VDAddRegion(_r);
-    }
+    if(_attract)
+      AddAttractRegion(_r);
+    else
+      AddAvoidRegion(_r);
   }
 }
 

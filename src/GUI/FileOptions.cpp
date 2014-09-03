@@ -1,12 +1,12 @@
 #include "FileOptions.h"
 
-#include "MainMenu.h"
+#include "AnimationWidget.h"
 #include "FileListDialog.h"
 #include "GLWidget.h"
-#include "AnimationWidget.h"
-#include "ModelSelectionWidget.h"
-#include "OptionsBase.h"
+#include "MainMenu.h"
 #include "MainWindow.h"
+#include "ModelSelectionWidget.h"
+
 #include "Models/EnvModel.h"
 #include "Models/MapModel.h"
 #include "Models/QueryModel.h"
@@ -22,13 +22,13 @@
 #include "Icons/Quit.xpm"
 
 FileOptions::
-FileOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow) {
-    CreateActions();
-    SetUpSubmenu("File");
-    SetUpToolbar();
-    SetHelpTips();
-  }
+FileOptions(QWidget* _parent, MainWindow* _mainWindow) :
+    OptionsBase(_parent, _mainWindow) {
+  CreateActions();
+  SetUpSubmenu("File");
+  SetUpToolbar();
+  SetHelpTips();
+}
 
 void
 FileOptions::

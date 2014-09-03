@@ -100,6 +100,7 @@ class Vizmo {
     void PrintClock(const string& _c, ostream& _os);
     void SetPMPLMap();
     void Solve(const string& _strategy);
+    double GetMaxEnvDist();
 
   private:
 

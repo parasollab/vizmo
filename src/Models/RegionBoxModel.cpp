@@ -1,41 +1,47 @@
-#include "Vizmo.h"
-#include "EnvModel.h"
 #include "RegionBoxModel.h"
 
 #include <QtGui>
+
+#include "Models/EnvModel.h"
+#include "Models/Vizmo.h"
 #include "MPProblem/BoundingBox.h"
-#include "Utilities/GLUtils.h"
 #include "Utilities/Camera.h"
+#include "Utilities/GLUtils.h"
 #include "Utilities/IO.h"
 
 RegionBoxModel::
-RegionBoxModel() : RegionModel("Box Region", BOX), m_lmb(false), m_rmb(false), m_firstClick(true), m_highlightedPart(NONE),
-  m_boxVertices(8), m_prevPos(8), m_winVertices(8), m_min(0, 0, 0), m_max(0, 0, 0) {}
+RegionBoxModel() : RegionModel("Box Region", BOX),
+    m_lmb(false), m_rmb(false), m_firstClick(true), m_highlightedPart(NONE),
+    m_boxVertices(8), m_prevPos(8), m_winVertices(8),
+    m_min(0, 0, 0), m_max(0, 0, 0), m_crosshair() {}
 
 RegionBoxModel::
-RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange, pair<double, double> _zRange) :
-  RegionModel("Box Region", BOX), m_lmb(false), m_rmb(false), m_firstClick(false), m_highlightedPart(NONE), m_boxVertices(8),
-  m_prevPos(8), m_winVertices(8), m_min(_xRange.first, _yRange.first, _zRange.first),
-  m_max(_xRange.second, _yRange.second, _zRange.second) {
-    m_boxVertices[0] = Point3d(m_min[0], m_max[1], m_max[2]);
-    m_boxVertices[1] = Point3d(m_min[0], m_min[1], m_max[2]);
-    m_boxVertices[2] = Point3d(m_max[0], m_min[1], m_max[2]);
-    m_boxVertices[3] = Point3d(m_max[0], m_max[1], m_max[2]);
-    m_boxVertices[4] = Point3d(m_min[0], m_max[1], m_min[2]);
-    m_boxVertices[5] = Point3d(m_min[0], m_min[1], m_min[2]);
-    m_boxVertices[6] = Point3d(m_max[0], m_min[1], m_min[2]);
-    m_boxVertices[7] = Point3d(m_max[0], m_max[1], m_min[2]);
+RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange,
+    pair<double, double> _zRange) : RegionModel("Box Region", BOX),
+    m_lmb(false), m_rmb(false), m_firstClick(false), m_highlightedPart(NONE),
+    m_boxVertices(8), m_prevPos(8), m_winVertices(8),
+    m_min(_xRange.first, _yRange.first, _zRange.first),
+    m_max(_xRange.second, _yRange.second, _zRange.second),
+    m_crosshair() {
+  m_boxVertices[0] = Point3d(m_min[0], m_max[1], m_max[2]);
+  m_boxVertices[1] = Point3d(m_min[0], m_min[1], m_max[2]);
+  m_boxVertices[2] = Point3d(m_max[0], m_min[1], m_max[2]);
+  m_boxVertices[3] = Point3d(m_max[0], m_max[1], m_max[2]);
+  m_boxVertices[4] = Point3d(m_min[0], m_max[1], m_min[2]);
+  m_boxVertices[5] = Point3d(m_min[0], m_min[1], m_min[2]);
+  m_boxVertices[6] = Point3d(m_max[0], m_min[1], m_min[2]);
+  m_boxVertices[7] = Point3d(m_max[0], m_max[1], m_min[2]);
 
-    m_prevPos = m_boxVertices;
-  }
+  m_prevPos = m_boxVertices;
+}
 
 shared_ptr<Boundary>
 RegionBoxModel::
 GetBoundary() const {
   return shared_ptr<Boundary>(new BoundingBox(
-        make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
-        make_pair(m_boxVertices[1][1], m_boxVertices[0][1]),
-        make_pair(m_boxVertices[4][2], m_boxVertices[0][2])));
+      make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
+      make_pair(m_boxVertices[1][1], m_boxVertices[0][1]),
+      make_pair(m_boxVertices[4][2], m_boxVertices[0][2])));
 }
 
 //initialization of gl models
@@ -56,7 +62,7 @@ bool
 RegionBoxModel::
 operator==(const RegionModel& _other) const {
   if(_other.GetShape() == this->GetShape()) {
-    const RegionBoxModel* myModel = dynamic_cast<const RegionBoxModel*>(&_other);
+    const RegionBoxModel* myModel = static_cast<const RegionBoxModel*>(&_other);
     if(GetType() == myModel->GetType()) {
       bool result = true;
       for(unsigned int i = 0; i < myModel->m_boxVertices.size(); i++) {
@@ -176,9 +182,11 @@ DrawRender() {
   //change mouse cursor if highlighted
   if(m_highlightedPart == ALL)
     QApplication::setOverrideCursor(Qt::SizeAllCursor);
-  else if(m_highlightedPart == (LEFT | TOP) || m_highlightedPart == (RIGHT | BOTTOM))
+  else if(m_highlightedPart == (LEFT | TOP) ||
+      m_highlightedPart == (RIGHT | BOTTOM))
     QApplication::setOverrideCursor(Qt::SizeFDiagCursor);
-  else if(m_highlightedPart == (LEFT | BOTTOM) || m_highlightedPart == (RIGHT | TOP))
+  else if(m_highlightedPart == (LEFT | BOTTOM) ||
+      m_highlightedPart == (RIGHT | TOP))
     QApplication::setOverrideCursor(Qt::SizeBDiagCursor);
   else if(m_highlightedPart & (LEFT | RIGHT))
     QApplication::setOverrideCursor(Qt::SizeHorCursor);
@@ -186,6 +194,10 @@ DrawRender() {
     QApplication::setOverrideCursor(Qt::SizeVerCursor);
   else
     QApplication::setOverrideCursor(Qt::ArrowCursor);
+
+  //draw crosshair during manipulation
+  if(m_lmb || m_rmb)
+    m_crosshair.DrawRender();
 }
 
 void
@@ -298,7 +310,13 @@ Print(ostream& _os) const {
 void
 RegionBoxModel::
 OutputDebugInfo(ostream& _os) const {
-  _os << m_type << " BOX" << " " << m_prevPos[0][0] << " " << m_prevPos[1][1] << " " << m_prevPos[4][2] << " " << m_prevPos[2][0] << " " << m_prevPos[0][1] << " " << m_prevPos[0][2] << endl;
+  _os << m_type << " BOX" << " "
+      << m_prevPos[0][0] << " "
+      << m_prevPos[1][1] << " "
+      << m_prevPos[4][2] << " "
+      << m_prevPos[2][0] << " "
+      << m_prevPos[0][1] << " "
+      << m_prevPos[0][2] << endl;
 }
 
 bool
@@ -308,12 +326,21 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
     return false;
 
   GetCameraVectors(_c);
+
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
+    //if first click, set m_center for crosshair
+    if(m_firstClick) {
+      double disp = GetVizmo().GetMaxEnvDist() / 3.;
+      m_center = ProjectToWorld(m_clicked.x(), m_clicked.y(),
+          _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
+      m_crosshair.SetPos(m_center);
+    }
     m_lmb = true;
     return true;
   }
-  if(_e->buttons() == Qt::RightButton && !m_firstClick && m_highlightedPart > NONE) {
+  if(_e->buttons() == Qt::RightButton && !m_firstClick &&
+      m_highlightedPart > NONE) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_rmb = true;
     return true;
@@ -333,7 +360,6 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
     m_rmb = false;
     m_firstClick = false;
     m_prevPos = m_boxVertices;
-    FindCenter();
     VDAddRegion(this);
     return true;
   }
@@ -354,10 +380,11 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //handle creation
     if(m_firstClick) {
       //create box: start from top left and draw CCW about vector (0, 0, 1)
+      double disp = GetVizmo().GetMaxEnvDist() / 3.;
       c = ProjectToWorld(m_clicked.x(), m_clicked.y(),
-          _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
+          _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
       m = ProjectToWorld(mousePos.x(), mousePos.y(),
-          _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
+          _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
       m_min[0] = min(c[0], m[0]), m_max[0] = max(c[0], m[0]);
       m_min[1] = min(c[1], m[1]), m_max[1] = max(c[1], m[1]);
       m_min[2] = min(c[2], m[2]), m_max[2] = max(c[2], m[2]);
@@ -394,6 +421,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //reset feedback values
     ClearNodeCount();
     ClearFACount();
+    FindCenter();
     return true;
   }
   //translation in ~camera z
@@ -412,6 +440,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //reset feedback values
     ClearNodeCount();
     ClearFACount();
+    FindCenter();
     return true;
   }
 

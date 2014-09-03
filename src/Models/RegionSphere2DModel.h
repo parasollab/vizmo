@@ -1,5 +1,5 @@
-#ifndef REGIONSPHERE2DMODEL_H_
-#define REGIONSPHERE2DMODEL_H_
+#ifndef REGION_SPHERE_2D_MODEL_H_
+#define REGION_SPHERE_2D_MODEL_H_
 
 #include "RegionModel.h"
 
@@ -9,7 +9,8 @@ class RegionSphere2DModel : public RegionModel {
   public:
     enum Highlight {NONE, PERIMETER, ALL};
 
-    RegionSphere2DModel(const Point3d& _center = Point3d(), double _radius = -1, bool _firstClick = true);
+    RegionSphere2DModel(const Point3d& _center = Point3d(), double _radius = -1,
+        bool _firstClick = true);
 
     shared_ptr<Boundary> GetBoundary() const;
 
@@ -41,7 +42,7 @@ class RegionSphere2DModel : public RegionModel {
     double GetLongLength() const;
 
   private:
-    Vector3d m_center, m_centerOrig;
+    Point3d m_centerOrig;
     double m_radius, m_radiusOrig;
 
     bool m_lmb, m_firstClick;

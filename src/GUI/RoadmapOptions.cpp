@@ -14,15 +14,14 @@
 #include "SliderDialog.h"
 #include "NodeEditDialog.h"
 #include "EdgeEditDialog.h"
-#include "OptionsBase.h"
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
+
 #include "Models/DebugModel.h"
 #include "Models/RobotModel.h"
 #include "Models/QueryModel.h"
 #include "Models/Vizmo.h"
-#include "Utilities/AlertUser.h"
 
 #include "Icons/RColor.xpm"
 #include "Icons/CCsOneColor.xpm"
@@ -38,14 +37,13 @@
 #include "Icons/DeleteSelected.xpm"
 
 RoadmapOptions::
-RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow) {
-    CreateActions();
-    SetUpCustomSubmenu();
-    //SetUpToolbar(); currently using tool tabs
-    SetUpToolTab();
-    SetHelpTips();
-  }
+RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow) :
+    OptionsBase(_parent, _mainWindow) {
+  CreateActions();
+  SetUpCustomSubmenu();
+  SetUpToolTab();
+  SetHelpTips();
+}
 
 void
 RoadmapOptions::
@@ -270,7 +268,7 @@ ShowNodeSizeDialog() {
     m_mainWindow->ShowDialog(m_nodeSizeDialog);
   }
   else
-    AlertUser("You can only resize the nodes in <b>Point</b> mode.");
+    GetMainWindow()->AlertUser("You can only resize the nodes in <b>Point</b> mode.");
 }
 
 void
@@ -311,7 +309,7 @@ ShowNodeEditDialog() {
     }
   }
   if(nodeSelected == false){
-    AlertUser("Please select a node to modify.");
+    GetMainWindow()->AlertUser("Please select a node to modify.");
     return;
   }
 
@@ -335,7 +333,7 @@ ShowEdgeEditDialog() {
     }
   }
   if(edgeSelected == false){
-    AlertUser("Please select an edge to modify.");
+    GetMainWindow()->AlertUser("Please select an edge to modify.");
     return;
   }
 
@@ -366,7 +364,7 @@ AddStraightLineEdge() {
       selNodes.push_back((CfgModel*)*it);
 
   if(selNodes.size() != 2){
-    AlertUser("Please select exactly two nodes.");
+    GetMainWindow()->AlertUser("Please select exactly two nodes.");
     return;
   }
 
@@ -390,7 +388,7 @@ AddStraightLineEdge() {
     m_mainWindow->GetGLWidget()->updateGL();
   }
   else
-    AlertUser("Cannot add invalid edge!");
+    GetMainWindow()->AlertUser("Cannot add invalid edge!");
 
   sel.clear();
   map->ClearTempItems();
@@ -423,7 +421,7 @@ DeleteSelectedItems() {
     }
   }
   if(selectionValid == false)
-    AlertUser("Please select a group of nodes and edges to remove.");
+    GetMainWindow()->AlertUser("Please select a group of nodes and edges to remove.");
   else{
     //Remove selected vertices
     typedef vector<VID>::iterator VIT;
@@ -467,7 +465,7 @@ MergeSelectedNodes() {
     }
   }
   if(nodesSelected == false){
-    AlertUser("Please select a group of nodes.");
+    GetMainWindow()->AlertUser("Please select a group of nodes.");
     return;
   }
   *superPreview /= numSelected;

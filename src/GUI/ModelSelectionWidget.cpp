@@ -1,21 +1,31 @@
 #include "ModelSelectionWidget.h"
 
 #include "GLWidget.h"
+
 #include "Models/CCModel.h"
 #include "Models/Vizmo.h"
 
-ModelSelectionWidget::ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent) :
-  QTreeWidget(_parent), m_glWidget(_glWidget) {
-    setFixedWidth(160);
-    m_maxNoModels = 0;
-    setHeaderLabel("Environment Objects");
-    setSelectionMode(QAbstractItemView::ExtendedSelection);
-    connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(SelectionChanged()));
-    setEnabled(false);
-  }
+ModelSelectionWidget::
+ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent) :
+    QTreeWidget(_parent), m_glWidget(_glWidget) {
+  setFixedWidth(160);
+  m_maxNoModels = 0;
+  setHeaderLabel("Environment Objects");
+  setSelectionMode(QAbstractItemView::ExtendedSelection);
+  connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(SelectionChanged()));
+  connect(this, SIGNAL(ResetSignal()), this, SLOT(ResetLists()));
+  setEnabled(false);
+}
 
 void
-ModelSelectionWidget::ResetLists(){
+ModelSelectionWidget::
+CallResetLists() {
+  emit ResetSignal();
+}
+
+void
+ModelSelectionWidget::
+ResetLists() {
   blockSignals(true);
   vector<Model*>& objs = GetVizmo().GetLoadedModels();
   vector<Model*> sel = GetVizmo().GetSelectedModels();
@@ -27,14 +37,16 @@ ModelSelectionWidget::ResetLists(){
 }
 
 void
-ModelSelectionWidget::FillTree(vector<Model*>& _obj){
+ModelSelectionWidget::
+FillTree(vector<Model*>& _obj) {
   typedef vector<Model*>::iterator MIT;
   for(MIT mit = _obj.begin(); mit != _obj.end(); ++mit)
     CreateItem(NULL, *mit);
 }
 
 ModelSelectionWidget::ListViewItem*
-ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
+ModelSelectionWidget::
+CreateItem(ListViewItem* _p, Model* _model) {
   ListViewItem* item = NULL;
   if(!_p){
     item = new ListViewItem(this);
@@ -73,7 +85,8 @@ ModelSelectionWidget::CreateItem(ListViewItem* _p, Model* _model){
 }
 
 void
-ModelSelectionWidget::SelectionChanged(){
+ModelSelectionWidget::
+SelectionChanged() {
   //Selects in MAP whatever has been selected in the tree widget
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   sel.clear();
@@ -97,14 +110,15 @@ ModelSelectionWidget::SelectionChanged(){
 }
 
 void
-ModelSelectionWidget::ClearLists(){
-
+ModelSelectionWidget::
+ClearLists() {
   clear();  //Qt call to clear the TreeWidget
   m_items.clear();
 }
 
 void
-ModelSelectionWidget::Select(){
+ModelSelectionWidget::
+Select() {
   //Selects in the TREE WIDGET whatever has been selected in the map
   typedef vector<ListViewItem*>::iterator IIT;
 

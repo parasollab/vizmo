@@ -1,7 +1,9 @@
-#ifndef REGIONSPHEREMODEL_H_
-#define REGIONSPHEREMODEL_H_
+#ifndef REGION_SPHERE_MODEL_H_
+#define REGION_SPHERE_MODEL_H_
 
 #include "RegionModel.h"
+
+#include "Models/CrosshairModel.h"
 
 class Camera;
 
@@ -9,7 +11,8 @@ class RegionSphereModel : public RegionModel {
   public:
     enum Highlight {NONE, PERIMETER, ALL};
 
-    RegionSphereModel(const Point3d& _center = Point3d(), double _radius = -1, bool _firstClick = true);
+    RegionSphereModel(const Point3d& _center = Point3d(), double _radius = -1,
+        bool _firstClick = true);
 
     shared_ptr<Boundary> GetBoundary() const;
 
@@ -42,13 +45,14 @@ class RegionSphereModel : public RegionModel {
     double GetLongLength() const;
 
   private:
-    Vector3d m_center, m_centerOrig;
+    Point3d m_centerOrig;
     double m_radius, m_radiusOrig;
 
     bool m_lmb, m_rmb, m_firstClick;
     Highlight m_highlightedPart;
     QPoint m_clicked;
 
+    CrosshairModel m_crosshair;
 };
 
 #endif

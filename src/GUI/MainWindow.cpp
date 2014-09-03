@@ -14,6 +14,10 @@
 
 #include "Icons/Vizmo.xpm"
 
+//Define singleton
+MainWindow* window;
+MainWindow*& GetMainWindow() {return window;}
+
 MainWindow::
 MainWindow(QWidget* _parent) : QMainWindow(_parent), m_vizmoInit(false) {
   setMinimumSize(960, 700);
@@ -109,18 +113,21 @@ CreateGUI() {
   m_timer->start(33);
 
   connect(m_animationWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
-  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
-  connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()), m_textWidget, SLOT(SetText()));
+  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()),
+      this, SLOT(UpdateScreen()));
+  connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()),
+      m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_modelSelectionWidget, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_modelSelectionWidget, SLOT(Select()));
   connect(m_gl, SIGNAL(clickByLMB()), m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_textWidget, SLOT(SetText()));
-
+  connect(this, SIGNAL(Alert(QString)), this, SLOT(ShowAlert(QString)));
   return true;
 }
 
 void
-MainWindow::SetUpLayout(){
+MainWindow::
+SetUpLayout() {
   QWidget* layoutWidget = new QWidget(this);
   QGridLayout* layout = new QGridLayout();
   layoutWidget->setLayout(layout); //Set this before actual layout specifications
@@ -189,10 +196,10 @@ UpdateScreen() {
 void
 MainWindow::
 HideDialogDock() {
-  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
-  QDialog* dialog = dynamic_cast<QDialog*>(sender());
+  //this slot must be connected to a QDialog
+  QDialog* dialog = static_cast<QDialog*>(sender());
+  QTabWidget* tabs = static_cast<QTabWidget*>(m_dialogDock->widget());
   int index = tabs->indexOf(dialog);
-
   tabs->removeTab(index);
   if(tabs->count() == 0)
     m_dialogDock->hide();
@@ -203,7 +210,7 @@ void
 MainWindow::
 ShowDialog(QDialog* _dialog) {
   connect(_dialog, SIGNAL(finished(int)), this, SLOT(HideDialogDock()));
-  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
+  QTabWidget* tabs = static_cast<QTabWidget*>(m_dialogDock->widget());
   tabs->addTab(_dialog, _dialog->windowTitle());
   tabs->setCurrentWidget(_dialog);
   if(!m_dialogDock->isVisible())
@@ -214,8 +221,22 @@ ShowDialog(QDialog* _dialog) {
 void
 MainWindow::
 ResetDialogs() {
-  QTabWidget* tabs = dynamic_cast<QTabWidget*>(m_dialogDock->widget());
+  QTabWidget* tabs = static_cast<QTabWidget*>(m_dialogDock->widget());
   while(tabs->count() > 0)
     tabs->currentWidget()->close();
   m_dialogDock->hide();
+}
+
+void
+MainWindow::
+AlertUser(string _s) {
+  emit Alert(QString(_s.c_str()));
+}
+
+void
+MainWindow::
+ShowAlert(QString _s) {
+  QMessageBox m(this);
+  m.setText(_s);
+  m.exec();
 }
