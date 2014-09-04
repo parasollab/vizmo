@@ -3,6 +3,7 @@
 
 #include "MPStrategies/BasicRRTStrategy.h"
 
+#include "GUI/GLWidget.h"
 #include "GUI/MainWindow.h"
 #include "GUI/ModelSelectionWidget.h"
 #include "GUI/RobotAvatar.h"
@@ -15,16 +16,9 @@ class IRRTStrategy : public BasicRRTStrategy<MPTraits> {
     typedef typename MPTraits::WeightType WeightType;
     typedef typename MPTraits::MPProblemType MPProblemType;
     typedef typename MPProblemType::RoadmapType RoadmapType;
-    typedef typename MPProblemType::GraphType GraphType;
     typedef typename MPProblemType::VID VID;
-    typedef typename MPProblemType::DistanceMetricPointer DistanceMetricPointer;
-    typedef typename MPProblemType::ValidityCheckerPointer
-        ValidityCheckerPointer;
-    typedef typename MPProblemType::NeighborhoodFinderPointer
-        NeighborhoodFinderPointer;
-    typedef typename MPProblemType::LocalPlannerPointer LocalPlannerPointer;
-    typedef typename MPProblemType::ConnectorPointer ConnectorPointer;
-    typedef typename MPProblemType::MapEvaluatorPointer MapEvaluatorPointer;
+    typedef typename MPProblemType::ValidityCheckerPointer ValidityCheckerPointer;
+    typedef typename MPProblemType::NeighborhoodFinderPointer NeighborhoodFinderPointer;
 
     //Non-XML constructor w/ Query (by label)
     IRRTStrategy(Query<MPTraits>* _q = NULL, string _lp = "sl",
@@ -144,13 +138,13 @@ Run() {
   while(!mapPassedEvaluation) {
     //find my growth direction. Default is to randomly select
     //node or bias towards a goal
-    double randomRatio = DRand();
-    if(randomRatio < this->m_growthFocus) {
+    /*double randomRatio = DRand();
+    if(randomRatio < this->m_growthFocus)
       dir = this->GoalBiasedDirection();
-    }
-    else {
+    else
       dir = this->SelectDirection();
-    }
+      */
+    dir = AvatarBiasedDirection();
 
     // Randomize Current Tree
     this->m_currentTree = this->m_trees.begin() + LRand() % this->m_trees.size();
@@ -209,47 +203,56 @@ template<class MPTraits>
 typename MPTraits::CfgType
 IRRTStrategy<MPTraits>::
 AvatarBiasedDirection() {
+  Point3d mouseW = GetMainWindow()->GetGLWidget()->GetMouseW();
+  static CfgType oldPos;
+  CfgType newPos;
+  newPos[0] = mouseW[0]; newPos[1] = mouseW[1];
   //get avatar data
-  CfgType newPos = m_avatar->GetCurrCfg();
+  /*CfgType newPos = m_avatar->GetCurrCfg();
   CfgType oldPos = m_avatar->GetPrevCfg();
+  */
+
+  RoadmapType* rdmp = this->GetMPProblem()->GetRoadmap();
 
   //find the nearest k neighbors.
-  NeighborhoodFinderPointer nf = this->GetMPProblem()->
-      GetNeighborhoodFinder("BFNF");
+  NeighborhoodFinderPointer nf = this->GetMPProblem()->GetNeighborhoodFinder("BFNF");
   vector<pair<VID, double> > kClosest;
 
-  StatClass* kcloseStatClass = this->GetMPProblem()->GetStatClass();
-  string kcloseClockName = "kclosest time ";
-  kcloseStatClass->StartClock(kcloseClockName);
-
-  nf->FindNeighbors(this->GetMPProblem()->GetRoadmap(), newPos,
-      back_inserter(kClosest));
-
-  kcloseStatClass->StopClock(kcloseClockName);
+  nf->FindNeighbors(rdmp, newPos, back_inserter(kClosest));
 
   //now get the average of the nearest k neighbors
-  CfgType knnDir = CfgType();
+  CfgType barycenter;
   {
     QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
     for(typename vector<pair<VID, double> >::iterator it = kClosest.begin();
         it != kClosest.end(); ++it)
-      knnDir += this->GetMPProblem()->GetRoadmap()->GetGraph()->
-          GetVertex(it->first);
+      barycenter += rdmp->GetGraph()->GetVertex(it->first);
   }
-  knnDir /= kClosest.size();
+  barycenter /= kClosest.size();
   //now find the pseudoforce vector from the avatar to the average
-  knnDir -= newPos;
+  CfgType forceAlgo = barycenter - newPos;
+
+  //get the device pseudoforce
+  CfgType forceDev = newPos - oldPos;
+  oldPos = newPos;
 
   //get the user pseudoforce
-  CfgType userDir = newPos - oldPos;
-  m_avatar->UpdatePos();
+  ValidityCheckerPointer vc = this->GetMPProblem()->GetValidityChecker(this->m_vc);
+  bool uVal = vc->IsValid(newPos, this->GetNameAndLabel() + "::AvatarBiasedDirection()");
+  CfgType forceUser = uVal ? forceDev : CfgType();
+
+  //m_avatar->UpdatePos();
 
   //scale dirs by alpha
-  userDir *= m_alpha;
-  knnDir *= (1. - m_alpha);
+  forceUser *= m_alpha;
+  forceAlgo *= (1. - m_alpha);
+  CfgType forceResult = forceUser + forceAlgo;
 
-  double stdDev = .5;
-  return (userDir + knnDir);
+  double stdDev = 0.5;
+  for(size_t i = 0; i < CfgType::DOF(); ++i)
+    forceResult[i] = GaussianDistribution(forceResult[i], stdDev);
+
+  return newPos + forceResult;
 }
 
 template<class MPTraits>

@@ -328,6 +328,7 @@ mouseMoveEvent(QMouseEvent* _e) {
   //save mouse point
   m_mouse[0] = _e->pos().x();
   m_mouse[1] = g_height - _e->pos().y();
+  m_mouseW = ProjectToWorld(m_mouse[0], m_mouse[1], Point3d(), Vector3d(0, 0, 1));
 
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion
