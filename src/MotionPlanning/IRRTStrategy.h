@@ -43,13 +43,16 @@ class IRRTStrategy : public BasicRRTStrategy<MPTraits> {
 
   protected:
     // Helper functions
-    CfgType AvatarBiasedDirection();
-
+    virtual CfgType SelectDirection();
     virtual VID ExpandTree(CfgType& _dir);
     void ConnectTrees(VID _recentlyGrown);
     void EvaluateGoals();
 
-    double m_alpha;
+    CfgType AvatarBiasedDirection();
+
+    double m_alpha; //ratio of user force vs algo force on q_rand
+    double m_sigma; //variance of Gaussian Distribution around result force
+    double m_beta; //ratio of interactive sampling vs uniform sampling
     RobotAvatar* m_avatar;
 };
 
@@ -63,7 +66,7 @@ IRRTStrategy(Query<MPTraits>* _q, string _lp, string _dm,
     BasicRRTStrategy<MPTraits>(_lp, _dm, _nf, _vc, _nc, _gt, _extenderLabel,
         _evaluators, _delta, _minDist, _growthFocus, _evaluateGoal,
         CfgType(), CfgType(),_numRoots, _numDirections, _maxTrial, _growGoals),
-    m_alpha(0.5), m_avatar(NULL) {
+    m_alpha(0.5), m_sigma(0.5), m_beta(0.5), m_avatar(NULL) {
   this->SetName("IRRTStrategy");
 
   this->m_query = shared_ptr<Query<MPTraits> >(_q);
@@ -81,6 +84,8 @@ IRRTStrategy(MPProblemType* _problem, XMLNodeReader& _node) :
   BasicRRTStrategy<MPTraits>(_problem, _node, false, true), m_avatar(NULL) {
   this->SetName("IRRTStrategy");
   m_alpha = _node.numberXMLParameter("alpha", false, 0.5, 0.0, 1.0, "Alpha");
+  m_sigma = _node.numberXMLParameter("sigma", false, 0.5, 0.0, 1.0, "Sigma");
+  m_beta = _node.numberXMLParameter("beta", false, 0.5, 0.0, 1.0, "Beta");
   _node.warnUnrequestedAttributes();
 
 //#ifdef USE_HAPTICS
@@ -138,13 +143,11 @@ Run() {
   while(!mapPassedEvaluation) {
     //find my growth direction. Default is to randomly select
     //node or bias towards a goal
-    /*double randomRatio = DRand();
+    double randomRatio = DRand();
     if(randomRatio < this->m_growthFocus)
       dir = this->GoalBiasedDirection();
     else
       dir = this->SelectDirection();
-      */
-    dir = AvatarBiasedDirection();
 
     // Randomize Current Tree
     this->m_currentTree = this->m_trees.begin() + LRand() % this->m_trees.size();
@@ -197,6 +200,41 @@ Finalize() {
   GetVizmo().GetMap()->RefreshMap();
 
   BasicRRTStrategy<MPTraits>::Finalize();
+}
+
+template<class MPTraits>
+typename IRRTStrategy<MPTraits>::CfgType
+IRRTStrategy<MPTraits>::
+SelectDirection() {
+  double r = DRand();
+  if(r <= m_beta)
+    return AvatarBiasedDirection();
+  else
+    return BasicRRTStrategy<MPTraits>::SelectDirection();
+}
+
+template<class MPTraits>
+typename IRRTStrategy<MPTraits>::VID
+IRRTStrategy<MPTraits>::
+ExpandTree(CfgType& _dir) {
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+  return BasicRRTStrategy<MPTraits>::ExpandTree(_dir);
+}
+
+template<class MPTraits>
+void
+IRRTStrategy<MPTraits>::
+ConnectTrees(VID _recentlyGrown) {
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+  return BasicRRTStrategy<MPTraits>::ConnectTrees(_recentlyGrown);
+}
+
+template<class MPTraits>
+void
+IRRTStrategy<MPTraits>::
+EvaluateGoals() {
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+  BasicRRTStrategy<MPTraits>::EvaluateGoals();
 }
 
 template<class MPTraits>
@@ -253,30 +291,6 @@ AvatarBiasedDirection() {
     forceResult[i] = GaussianDistribution(forceResult[i], stdDev);
 
   return newPos + forceResult;
-}
-
-template<class MPTraits>
-typename IRRTStrategy<MPTraits>::VID
-IRRTStrategy<MPTraits>::
-ExpandTree(CfgType& _dir) {
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-  return BasicRRTStrategy<MPTraits>::ExpandTree(_dir);
-}
-
-template<class MPTraits>
-void
-IRRTStrategy<MPTraits>::
-ConnectTrees(VID _recentlyGrown) {
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-  return BasicRRTStrategy<MPTraits>::ConnectTrees(_recentlyGrown);
-}
-
-template<class MPTraits>
-void
-IRRTStrategy<MPTraits>::
-EvaluateGoals() {
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-  BasicRRTStrategy<MPTraits>::EvaluateGoals();
 }
 
 #endif
