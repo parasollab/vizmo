@@ -1,4 +1,5 @@
 OBJECTS += \
+	   Models/AvatarModel.o \
 	   Models/BodyModel.o \
 	   Models/BoundingBoxModel.o \
 	   Models/BoundingBoxesModel.o \

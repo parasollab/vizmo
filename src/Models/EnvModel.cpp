@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "AvatarModel.h"
 #include "BodyModel.h"
 #include "BoundingBoxModel.h"
 #include "BoundingSphereModel.h"
@@ -24,11 +25,16 @@ EnvModel(const string& _filename) : LoadableModel("Environment"),
   m_environment = new Environment();
   m_environment->Read(_filename);
   m_environment->ComputeResolution();
+
+  //create avatar
+  m_avatar = new AvatarModel(AvatarModel::None);
 }
 
 EnvModel::
 ~EnvModel() {
   delete m_boundary;
+  delete m_avatar;
+  m_avatar = NULL;
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
     delete *mit;
@@ -260,6 +266,8 @@ Select(GLuint* _index, vector<Model*>& _sel) {
 void
 EnvModel::
 DrawRender() {
+  m_avatar->DrawRender();
+
   size_t numMBs = m_multibodies.size();
   size_t numAttractRegions = m_attractRegions.size();
   size_t numAvoidRegions = m_avoidRegions.size();

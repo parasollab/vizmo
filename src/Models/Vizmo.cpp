@@ -3,6 +3,7 @@
 #include <iostream>
 using namespace std;
 
+#include "AvatarModel.h"
 #include "CfgModel.h"
 #include "DebugModel.h"
 #include "EnvModel.h"
@@ -10,10 +11,14 @@ using namespace std;
 #include "PathModel.h"
 #include "QueryModel.h"
 #include "RobotModel.h"
-#include "MotionPlanning/VizmoTraits.h"
-#include "PHANToM/Manager.h"
-#include "Utilities/PickBox.h"
+
 #include "GUI/MainWindow.h"
+
+#include "MotionPlanning/VizmoTraits.h"
+
+#include "PHANToM/Manager.h"
+
+#include "Utilities/PickBox.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //Define Vizmo singleton
@@ -32,14 +37,14 @@ VizmoProblem*& GetVizmoProblem() {return vizmoProblem;}
 ////////////////////////////////////////////////////////////////////////////////
 Vizmo::
 Vizmo() :
-  m_envModel(NULL),
-  m_robotModel(NULL),
-  m_manager(NULL),
-  m_mapModel(NULL),
-  m_queryModel(NULL),
-  m_pathModel(NULL),
-  m_debugModel(NULL) {
-  }
+    m_envModel(NULL),
+    m_robotModel(NULL),
+    m_manager(NULL),
+    m_mapModel(NULL),
+    m_queryModel(NULL),
+    m_pathModel(NULL),
+    m_debugModel(NULL) {
+}
 
 Vizmo::
 ~Vizmo() {
@@ -371,6 +376,8 @@ PlaceRobot() {
       m_robotModel->Configure(cfg);
       m_robotModel->SetInitialCfg(cfg);
     }
+
+    GetEnv()->GetAvatar()->SetCfg(cfg);
   }
 }
 

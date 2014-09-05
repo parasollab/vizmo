@@ -115,7 +115,7 @@ class Vizmo {
     EnvModel* m_envModel;
     string m_envFilename;
 
-    //robot
+    //robot & avatar
     RobotModel* m_robotModel;
 
     //PHANToM manager

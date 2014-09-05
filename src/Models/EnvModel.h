@@ -10,6 +10,7 @@
 
 #include "Utilities/IO.h"
 
+class AvatarModel;
 class TempObjsModel;
 class UserPathModel;
 
@@ -31,6 +32,9 @@ class EnvModel : public LoadableModel {
     //Boundary
     BoundaryModel* GetBoundary() {return m_boundary;}
     void SetBoundary(BoundaryModel* _b) {m_boundary = _b;}
+
+    //Avatar
+    AvatarModel* GetAvatar() {return m_avatar;}
 
     //Regions
     bool IsNonCommitRegion(RegionModel* _r) const;
@@ -89,6 +93,8 @@ class EnvModel : public LoadableModel {
     Point3d m_centerOfMass;
 
     BoundaryModel* m_boundary;
+
+    AvatarModel* m_avatar;
 
     vector<RegionModel*> m_attractRegions, m_avoidRegions, m_nonCommitRegions;
 

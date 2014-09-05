@@ -6,7 +6,9 @@
 #include "GUI/GLWidget.h"
 #include "GUI/MainWindow.h"
 #include "GUI/ModelSelectionWidget.h"
-#include "GUI/RobotAvatar.h"
+
+#include "Models/AvatarModel.h"
+#include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
 template<class MPTraits>
@@ -53,7 +55,6 @@ class IRRTStrategy : public BasicRRTStrategy<MPTraits> {
     double m_alpha; //ratio of user force vs algo force on q_rand
     double m_sigma; //variance of Gaussian Distribution around result force
     double m_beta; //ratio of interactive sampling vs uniform sampling
-    RobotAvatar* m_avatar;
 };
 
 template<class MPTraits>
@@ -66,39 +67,25 @@ IRRTStrategy(Query<MPTraits>* _q, string _lp, string _dm,
     BasicRRTStrategy<MPTraits>(_lp, _dm, _nf, _vc, _nc, _gt, _extenderLabel,
         _evaluators, _delta, _minDist, _growthFocus, _evaluateGoal,
         CfgType(), CfgType(),_numRoots, _numDirections, _maxTrial, _growGoals),
-    m_alpha(0.5), m_sigma(0.5), m_beta(0.5), m_avatar(NULL) {
+    m_alpha(0.5), m_sigma(0.5), m_beta(0.5) {
   this->SetName("IRRTStrategy");
 
   this->m_query = shared_ptr<Query<MPTraits> >(_q);
-
-//#ifdef USE_HAPTICS
-//  m_avatar = new RobotAvatar(&m_query->GetQuery()[0], RobotAvatar::Haptic);
-//#else
-//  m_avatar = new RobotAvatar(&m_query->GetQuery()[0], RobotAvatar::Mouse);
-//#endif
 }
 
 template<class MPTraits>
 IRRTStrategy<MPTraits>::
 IRRTStrategy(MPProblemType* _problem, XMLNodeReader& _node) :
-  BasicRRTStrategy<MPTraits>(_problem, _node, false, true), m_avatar(NULL) {
+  BasicRRTStrategy<MPTraits>(_problem, _node, false, true) {
   this->SetName("IRRTStrategy");
   m_alpha = _node.numberXMLParameter("alpha", false, 0.5, 0.0, 1.0, "Alpha");
   m_sigma = _node.numberXMLParameter("sigma", false, 0.5, 0.0, 1.0, "Sigma");
   m_beta = _node.numberXMLParameter("beta", false, 0.5, 0.0, 1.0, "Beta");
   _node.warnUnrequestedAttributes();
-
-//#ifdef USE_HAPTICS
-//  m_avatar = new RobotAvatar(&m_query->GetQuery()[0], RobotAvatar::Haptic);
-//#else
-//  m_avatar = new RobotAvatar(&m_query->GetQuery()[0], RobotAvatar::Mouse);
-//#endif
 }
 
 template<class MPTraits>
 IRRTStrategy<MPTraits>::~IRRTStrategy() {
-  delete m_avatar;
-  m_avatar = NULL;
 }
 
 template<class MPTraits>
@@ -117,9 +104,14 @@ void
 IRRTStrategy<MPTraits>::
 Initialize() {
   BasicRRTStrategy<MPTraits>::Initialize();
-
-  //m_avatar->Connect();
-  //m_avatar->SummonMouse();
+  vector<double> data = this->m_query->GetQuery()[0].GetPosition();
+  Point3d pos;
+  copy(data.begin(), data.end(), pos.begin());
+  AvatarModel* avatar = GetVizmo().GetEnv()->GetAvatar();
+  avatar->UpdatePosition(pos);
+  avatar->SetInputType(AvatarModel::Mouse);
+  avatar->Enable();
+  //avatar->SummonMouse();
 }
 
 ////////////////
@@ -195,6 +187,7 @@ template<class MPTraits>
 void
 IRRTStrategy<MPTraits>::
 Finalize() {
+  GetVizmo().GetEnv()->GetAvatar()->Disable();
 
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
@@ -241,14 +234,8 @@ template<class MPTraits>
 typename MPTraits::CfgType
 IRRTStrategy<MPTraits>::
 AvatarBiasedDirection() {
-  Point3d mouseW = GetMainWindow()->GetGLWidget()->GetMouseW();
   static CfgType oldPos;
-  CfgType newPos;
-  newPos[0] = mouseW[0]; newPos[1] = mouseW[1];
-  //get avatar data
-  /*CfgType newPos = m_avatar->GetCurrCfg();
-  CfgType oldPos = m_avatar->GetPrevCfg();
-  */
+  CfgType newPos = *GetVizmo().GetEnv()->GetAvatar();
 
   RoadmapType* rdmp = this->GetMPProblem()->GetRoadmap();
 

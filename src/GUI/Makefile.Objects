@@ -29,7 +29,6 @@ OBJECTS += \
 	   GUI/QueryEditDialog.o \
 	   GUI/QueryOptions.o \
 	   GUI/RoadmapOptions.o \
-	   GUI/RobotAvatar.o \
 	   GUI/RobotOptions.o \
 	   GUI/SliderDialog.o \
 	   GUI/TextWidget.o \

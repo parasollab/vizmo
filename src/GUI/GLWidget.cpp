@@ -7,11 +7,15 @@
 #include <GL/glu.h>
 
 #include "MainWindow.h"
+
+#include "Models/AvatarModel.h"
 #include "Models/EnvModel.h"
 #include "Models/RegionModel.h"
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
+
 #include "PHANToM/Manager.h"
+
 #include "Utilities/Camera.h"
 #include "Utilities/Font.h"
 #include "Utilities/GLUtils.h"
@@ -330,6 +334,10 @@ mouseMoveEvent(QMouseEvent* _e) {
   m_mouse[1] = g_height - _e->pos().y();
   m_mouseW = ProjectToWorld(m_mouse[0], m_mouse[1], Point3d(), Vector3d(0, 0, 1));
 
+  //handle avatar
+  if(GetVizmo().GetEnv())
+    GetVizmo().GetEnv()->GetAvatar()->PassiveMouseMotion(_e, GetCurrentCamera());
+
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion
     if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e, GetCurrentCamera()))
@@ -365,7 +373,7 @@ keyPressEvent(QKeyEvent* _e) {
   //check camera then transform tool
   else if(!GetCurrentCamera()->KeyPressed(_e) &&
       !m_transformTool.KeyPressed(_e) &&
-      GetCurrentUserPath() && !GetCurrentUserPath()->KeyPressed(_e))
+      (!m_currentUserPath || !m_currentUserPath->KeyPressed(_e)))
     _e->ignore(); //not handled
   updateGL();
 }

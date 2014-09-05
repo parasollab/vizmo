@@ -9,8 +9,8 @@
 #include "UserPathModel.h"
 
 #include "GUI/MainWindow.h"
-#include "GUI/RobotAvatar.h"
 
+#include "Models/AvatarModel.h"
 #include "Models/CfgModel.h"
 #include "Models/EnvModel.h"
 #include "Models/MultiBodyModel.h"
@@ -23,16 +23,9 @@
 class Camera;
 
 UserPathModel::
-UserPathModel(MainWindow* _mainWindow, InputType _t) :
-    Model("User Path"), m_checkCollision(false), m_mainWindow(_mainWindow),
-    m_type(_t), m_finished(false), m_valid(true), m_oldPos(), m_newPos(),
-    m_userPath(), m_avatar(NULL) {
-  if(m_type == CameraPath)
-    m_avatar = new RobotAvatar(&m_newPos, RobotAvatar::CameraPath);
-  if(m_type == Haptic) {
-    UpdatePositions(GetVizmo().GetManager()->GetWorldPos());
-    m_avatar = new RobotAvatar(&m_newPos, RobotAvatar::Haptic);
-  }
+UserPathModel(MainWindow* _mainWindow, InputType _t) : Model("User Path"),
+    m_checkCollision(false), m_mainWindow(_mainWindow), m_type(_t),
+    m_finished(false), m_valid(true), m_oldPos(), m_newPos(), m_userPath() {
 }
 
 void
@@ -119,7 +112,9 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
         Point3d(), Vector3d(0, 0, 1));
     UpdatePositions(p);
     SendToPath(p);
-    m_avatar = new RobotAvatar(&m_newPos, RobotAvatar::Mouse);
+    GetVizmo().GetEnv()->GetAvatar()->UpdatePosition(p);
+    GetVizmo().GetEnv()->GetAvatar()->SetInputType(AvatarModel::Mouse);
+    GetVizmo().GetEnv()->GetAvatar()->Enable();
     return true;
   }
 
@@ -131,8 +126,7 @@ UserPathModel::
 MouseReleased(QMouseEvent* _e, Camera* _c) {
   if(m_type == Mouse && !m_finished && (m_userPath.begin() != m_userPath.end())) {
     m_finished = true;
-    delete m_avatar;
-    m_avatar = NULL;
+    GetVizmo().GetEnv()->GetAvatar()->Disable();
     return true;
   }
 
@@ -161,8 +155,6 @@ KeyPressed(QKeyEvent* _e) {
 
   if(_e->key() == Qt::Key_Space) {
     m_finished = true;
-    delete m_avatar;
-    m_avatar = NULL;
     return true;
   }
 
