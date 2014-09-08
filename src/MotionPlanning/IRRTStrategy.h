@@ -111,7 +111,7 @@ Initialize() {
   avatar->UpdatePosition(pos);
   avatar->SetInputType(AvatarModel::Mouse);
   avatar->Enable();
-  //avatar->SummonMouse();
+  GetMainWindow()->GetGLWidget()->SetMousePos(pos);
 }
 
 ////////////////
@@ -127,7 +127,8 @@ Run() {
   // Setup MP Variables
   StatClass* stats = this->GetMPProblem()->GetStatClass();
 
-  stats->StartClock("RRT Generation");
+  GetVizmo().StartClock("IRRT Strategy");
+  stats->StartClock("RRT Generation MP");
 
   CfgType dir;
   bool mapPassedEvaluation = false;
@@ -173,11 +174,10 @@ Run() {
     usleep(10000);
   }
 
-  stats->StopClock("RRT Generation");
-  if(this->m_debug) {
-    stats->PrintClock("RRT Generation", cout);
+  GetVizmo().StopClock("IRRT Strategy");
+  stats->StopClock("RRT Generation MP");
+  if(this->m_debug)
     cout << "\nEnd Running IRRTStrategy::" << endl;
-  }
 }
 
 /////////////////////
@@ -187,12 +187,56 @@ template<class MPTraits>
 void
 IRRTStrategy<MPTraits>::
 Finalize() {
+  //setup variables
+  StatClass* stats = this->GetMPProblem()->GetStatClass();
+  string basename = this->GetBaseFilename();
+
+  //print info to console
+  cout << "\nFinalizing BasicRRTStrategy::" << endl;
+  GetVizmo().PrintClock("IRRT Strategy", cout);
+  stats->PrintClock("RRT Generation MP", cout);
+
+  //disable avatar
   GetVizmo().GetEnv()->GetAvatar()->Disable();
 
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
 
-  BasicRRTStrategy<MPTraits>::Finalize();
+  //perform query if query was given as input
+  if(this->m_query) {
+    this->m_query->SetPathFile(basename + ".path");
+    if(this->m_evaluateGoal) {
+      if(this->m_query->PerformQuery(this->GetMPProblem()->GetRoadmap()) &&
+          this->m_debug)
+        cout << "Query successful!" << endl;
+      else if(this->m_debug)
+        cout << "Query unsuccessful." << endl;
+    }
+  }
+
+  //output final map
+  ofstream osMap((basename + ".map").c_str());
+  this->GetMPProblem()->GetRoadmap()->Write(osMap,
+      this->GetMPProblem()->GetEnvironment());
+  osMap.close();
+
+  //output stats
+  ofstream osStat((basename + ".stat").c_str());
+  osStat << "NodeGen+Connection Stats" << endl;
+  stats->PrintAllStats(osStat, this->GetMPProblem()->GetRoadmap());
+  GetVizmo().PrintClock("IRRT Strategy", osStat);
+  stats->PrintClock("RRT Generation MP", osStat);
+  osStat.close();
+
+  //show results pop-up
+  ostringstream results;
+  results << "Planning Complete!" << endl;
+  GetVizmo().PrintClock("IRRT Strategy", results);
+  stats->PrintClock("RRT Generation MP", results);
+  GetMainWindow()->AlertUser(results.str());
+
+  if(this->m_debug)
+    cout << "\nEnd Finalizing BasicRRTStrategy" << endl;
 }
 
 template<class MPTraits>

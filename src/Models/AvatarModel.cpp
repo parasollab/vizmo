@@ -70,13 +70,3 @@ UpdatePosition(Point3d _p) {
     copy(_p.begin(), _p.end(), data.begin());
   this->SetCfg(data);
 }
-
-void
-AvatarModel::
-SummonMouse() {
-  //pull cursor to avatar position
-  Point3d localScreenPos = ProjectToWindow(this->GetPoint());
-  QPoint globalScreenPos = GetMainWindow()->GetGLWidget()->
-      mapToGlobal(QPoint(localScreenPos[0], localScreenPos[1]));
-  QCursor::setPos(globalScreenPos);
-}

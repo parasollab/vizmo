@@ -23,6 +23,9 @@
 
 bool SHIFT_CLICK = false;
 
+Q_DECLARE_METATYPE(Point3d);
+int bs = qRegisterMetaType<Point3d>("Point3d");
+
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
 
@@ -41,6 +44,9 @@ GLWidget(QWidget* _parent, MainWindow* _mainWindow) : QGLWidget(_parent),
   m_showFrameRate = false;
   m_doubleClick = false;
   m_recording = false;
+
+  connect(this, SIGNAL(SetMouse(Point3d)),
+      this, SLOT(SetMousePosImpl(Point3d)));
 }
 
 void
@@ -521,4 +527,12 @@ DrawAxis() {
 
     glMatrixMode(GL_MODELVIEW);
   }
+}
+
+void
+GLWidget::
+SetMousePosImpl(Point3d _p) {
+  Point3d screenPos = ProjectToWindow(_p);
+  QPoint globalPos = this->mapToGlobal(QPoint(screenPos[0], g_height - screenPos[1]));
+  QCursor::setPos(globalPos);
 }

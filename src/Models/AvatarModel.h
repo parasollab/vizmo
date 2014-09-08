@@ -28,7 +28,6 @@ class AvatarModel : public CfgModel {
     void Enable() {m_tracking = true;}
     void Disable() {m_tracking = false;}
     void UpdatePosition(Point3d _p);
-    void SummonMouse();
 
     //Model functions
     void DrawRender();

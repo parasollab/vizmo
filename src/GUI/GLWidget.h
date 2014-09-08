@@ -33,6 +33,7 @@ class GLWidget : public QGLWidget {
     Camera* GetCurrentCamera();
     Point2d GetMouse() const {return m_mouse;}
     Point3d GetMouseW() const {return m_mouseW;}
+    void SetMousePos(Point3d& _p) {emit SetMouse(_p);}
 
     void SetRecording(bool _b) {m_recording = _b;}
 
@@ -60,12 +61,14 @@ class GLWidget : public QGLWidget {
     void clickByLMB();
     void MRbyGLI();
     void Record();
+    void SetMouse(Point3d _p);
 
   private slots:
     void ShowAxis();
     void ShowFrameRate();
     void ToggleSelectionSlot();
     void SimulateMouseUpSlot();
+    void SetMousePosImpl(Point3d _p);
 
   private:
 
