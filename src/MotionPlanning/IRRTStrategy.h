@@ -244,10 +244,12 @@ typename IRRTStrategy<MPTraits>::CfgType
 IRRTStrategy<MPTraits>::
 SelectDirection() {
   double r = DRand();
-  if(r <= m_beta)
-    return AvatarBiasedDirection();
-  else
-    return BasicRRTStrategy<MPTraits>::SelectDirection();
+  if(r <= m_beta) {
+    CfgType dir = AvatarBiasedDirection();
+    if(dir != this->GetMPProblem()->GetRoadmap()->GetGraph()->GetVertex(*this->m_currentTree->begin()))
+      return AvatarBiasedDirection();
+  }
+  return BasicRRTStrategy<MPTraits>::SelectDirection();
 }
 
 template<class MPTraits>
