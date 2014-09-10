@@ -207,7 +207,8 @@ InitPMPL() {
 
     //add I-RRT strategy
     VizmoProblem::MPStrategyPointer irrt(
-        new IRRTStrategy<VizmoTraits>(query));
+        new IRRTStrategy<VizmoTraits>(query->GetQuery().front(),
+            query->GetQuery().back()));
     problem->AddMPStrategy(irrt, "IRRT");
   }
 

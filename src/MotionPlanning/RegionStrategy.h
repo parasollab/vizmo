@@ -57,33 +57,35 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
 
     string m_regionSamplerLabel;
     string m_regionConnectorLabel;
+
+    Query<MPTraits>* m_query;
 };
 
 template<class MPTraits>
 RegionStrategy<MPTraits>::
 RegionStrategy() : MPStrategyMethod<MPTraits>(),
-  m_connectorLabel("BFNF"), m_lpLabel("sl"), m_samplerLabel("PQP_SOLID"),
-  m_vcLabel("PQP_SOLID"), m_regionSamplerLabel("RegionSampler"),
-  m_regionConnectorLabel("RegionConnector") {
-    this->SetName("RegionStrategy");
-  }
+    m_connectorLabel("BFNF"), m_lpLabel("sl"), m_samplerLabel("PQP_SOLID"),
+    m_vcLabel("PQP_SOLID"), m_regionSamplerLabel("RegionSampler"),
+    m_regionConnectorLabel("RegionConnector"), m_query(NULL) {
+  this->SetName("RegionStrategy");
+}
 
 template<class MPTraits>
 RegionStrategy<MPTraits>::
 RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node) :
-  MPStrategyMethod<MPTraits>(_problem, _node),
-  m_regionSamplerLabel("RegionSampler"),
-  m_regionConnectorLabel("RegionConnector") {
-    this->SetName("RegionStrategy");
-    m_connectorLabel = _node.stringXMLParameter("connectionLabel", false,
-        "BFNF", "Connection Strategy");
-    m_lpLabel = _node.stringXMLParameter("lpLabel", false,
-        "sl", "Local Planner");
-    m_samplerLabel = _node.stringXMLParameter("samplerLabel", false,
-        "uniform", "Sampler Strategy");
-    m_vcLabel = _node.stringXMLParameter("vcLabel", false,
-        "cd4", "Validity Checker");
-  }
+    MPStrategyMethod<MPTraits>(_problem, _node),
+    m_regionSamplerLabel("RegionSampler"),
+    m_regionConnectorLabel("RegionConnector"), m_query(NULL) {
+  this->SetName("RegionStrategy");
+  m_connectorLabel = _node.stringXMLParameter("connectionLabel", false,
+      "BFNF", "Connection Strategy");
+  m_lpLabel = _node.stringXMLParameter("lpLabel", false,
+      "sl", "Local Planner");
+  m_samplerLabel = _node.stringXMLParameter("samplerLabel", false,
+      "uniform", "Sampler Strategy");
+  m_vcLabel = _node.stringXMLParameter("vcLabel", false,
+      "PQP_SOLID", "Validity Checker");
+}
 
 template<class MPTraits>
 void
@@ -126,8 +128,10 @@ SetupTools() {
 
   if(GetVizmo().IsQueryLoaded()) {
     //setup region query evaluator
-    typename MPProblemType::MapEvaluatorPointer rq(new Query<MPTraits>(
-          GetVizmo().GetQryFileName(), vector<string>(1, m_regionConnectorLabel)));
+    m_query = new Query<MPTraits>(GetVizmo().GetQryFileName(),
+        vector<string>(1, m_regionConnectorLabel));
+    m_query->SetPathFile(this->GetBaseFilename() + ".path");
+    typename MPProblemType::MapEvaluatorPointer rq(m_query);
     this->GetMPProblem()->AddMapEvaluator(rq, "RegionQuery");
 
     //set up bounded region query evaluator
@@ -212,21 +216,21 @@ template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
 Finalize() {
+  //set up variables
+  StatClass* stats = this->GetMPProblem()->GetStatClass();
+  string basename = this->GetBaseFilename();
+
   cout << "Finalizing Region Strategy." << endl;
 
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
 
-  //base filename
-  string basename = this->GetBaseFilename();
-
-  //print clocks + output a stat class
-  StatClass* stats = this->GetMPProblem()->GetStatClass();
+  //print clocks
   GetVizmo().PrintClock("Pre-regions", cout);
   GetVizmo().PrintClock("RegionStrategy", cout);
-  //stats->PrintClock("Pre-regions", cout);
   stats->PrintClock("RegionStrategyMP", cout);
 
+  //output stat class
   ofstream ostats((basename + ".stats").c_str());
 
   ostats << "NodeGen+Connection Stats" << endl;
@@ -234,20 +238,23 @@ Finalize() {
 
   GetVizmo().PrintClock("Pre-regions", ostats);
   GetVizmo().PrintClock("RegionStrategy", ostats);
-  //stats->PrintClock("Pre-regions", ostats);
   stats->PrintClock("RegionStrategyMP", ostats);
 
+  //output roadmap
+  ofstream ofs((basename + ".map").c_str());
+  this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
+
+  //output a path file
+  if(GetVizmo().IsQueryLoaded())
+    m_query->PerformQuery(this->GetMPProblem()->GetRoadmap());
+
+  //show results pop-up
   ostringstream results;
   results << "Planning Complete!" << endl;
   GetVizmo().PrintClock("Pre-regions", results);
   GetVizmo().PrintClock("RegionStrategy", results);
 
   GetMainWindow()->AlertUser(results.str());
-
-  //output roadmap
-  ofstream ofs((basename + ".map").c_str());
-
-  this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
 
   //Make things selectable again
   GetVizmo().GetMap()->SetSelectable(true);
@@ -488,7 +495,7 @@ EvaluateMap() {
   //loaded.
   vector<string> evalLabel;
   if(GetVizmo().IsQueryLoaded())
-    evalLabel.push_back("RegionQuery");
+    evalLabel.push_back("BoundedRegionQuery");
   else
     evalLabel.push_back("NodesEval");
 
