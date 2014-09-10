@@ -37,14 +37,14 @@ VizmoProblem*& GetVizmoProblem() {return vizmoProblem;}
 ////////////////////////////////////////////////////////////////////////////////
 Vizmo::
 Vizmo() :
-    m_envModel(NULL),
-    m_robotModel(NULL),
-    m_manager(NULL),
-    m_mapModel(NULL),
-    m_queryModel(NULL),
-    m_pathModel(NULL),
-    m_debugModel(NULL) {
-}
+  m_envModel(NULL),
+  m_robotModel(NULL),
+  m_manager(NULL),
+  m_mapModel(NULL),
+  m_queryModel(NULL),
+  m_pathModel(NULL),
+  m_debugModel(NULL) {
+  }
 
 Vizmo::
 ~Vizmo() {
@@ -493,11 +493,17 @@ Solve(const string& _strategy) {
   // If the xml file is loaded, GetModelDataDir will be empty
   // and the vizmo debug file should be made in the same
   // directory as the xml file
-  if(GetEnv()->GetModelDataDir() != "") {
-    oss << GetEnv()->GetModelDataDir() << "/" << mps->GetBaseFilename() << ".vd";
-  }
-  else
-    oss << name << "." << GetSeed() << ".vd";
+
+  stringstream mySeed;
+  mySeed << GetSeed();
+
+  string baseFilename;
+  if(!GetEnv()->GetModelDataDir().empty())
+    baseFilename = GetEnv()->GetModelDataDir() + "/";
+
+  baseFilename += _strategy + "." + mySeed.str();
+  mps->SetBaseFilename(baseFilename);
+  oss << mps->GetBaseFilename() << ".vd";
 
   // Initialize Vizmo Debug
   VDInit(oss.str());
