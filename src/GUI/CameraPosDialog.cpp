@@ -126,8 +126,8 @@ LoadCameraPosition() {
     string filename = fn.toStdString();
     ifstream ifs;
     ifs.open(filename.c_str());
-    char fileHeader[30];
-    ifs.getline(fileHeader, 30);
+    string fileHeader;
+    getline(ifs, fileHeader);
     double x,y,z;
     ifs >> x >> y >> z;
     Vector3d eye(x, y, z);
