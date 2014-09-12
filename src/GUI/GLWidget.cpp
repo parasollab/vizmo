@@ -7,11 +7,15 @@
 #include <GL/glu.h>
 
 #include "MainWindow.h"
+
+#include "Models/AvatarModel.h"
 #include "Models/EnvModel.h"
 #include "Models/RegionModel.h"
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
+
 #include "PHANToM/Manager.h"
+
 #include "Utilities/Camera.h"
 #include "Utilities/Font.h"
 #include "Utilities/GLUtils.h"
@@ -19,42 +23,54 @@
 
 bool SHIFT_CLICK = false;
 
+Q_DECLARE_METATYPE(Point3d);
+int bs = qRegisterMetaType<Point3d>("Point3d");
+
 ///////////////////////////////////////////////////////////////////////////////
 //This class handle opengl features
 
-GLWidget::GLWidget(QWidget* _parent, MainWindow* _mainWindow)
-  : QGLWidget(_parent), m_transformTool(m_cameraFactory.GetCurrentCamera()), m_currentRegion(NULL), m_currentUserPath(NULL) {
-    m_mainWindow = _mainWindow;
-    setMinimumSize(271, 211); //original size: 400 x 600
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    setFocusPolicy(Qt::StrongFocus);
-    setMouseTracking(true);
+GLWidget::
+GLWidget(QWidget* _parent, MainWindow* _mainWindow) : QGLWidget(_parent),
+    m_transformTool(m_cameraFactory.GetCurrentCamera()), m_currentRegion(NULL),
+    m_currentUserPath(NULL) {
+  m_mainWindow = _mainWindow;
+  setMinimumSize(271, 211); //original size: 400 x 600
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+  setFocusPolicy(Qt::StrongFocus);
+  setMouseTracking(true);
 
-    m_takingSnapShot=false;
-    m_showAxis = true;
-    m_showFrameRate = false;
-    m_doubleClick = false;
-    m_recording = false;
+  m_takingSnapShot=false;
+  m_showAxis = true;
+  m_showFrameRate = false;
+  m_doubleClick = false;
+  m_recording = false;
+
+  connect(this, SIGNAL(SetMouse(Point3d)),
+      this, SLOT(SetMousePosImpl(Point3d)));
 }
 
 void
-GLWidget::ToggleSelectionSlot(){
+GLWidget::
+ToggleSelectionSlot() {
   m_takingSnapShot = !m_takingSnapShot;
 }
 
 void
-GLWidget::ResetCamera(){
+GLWidget::
+ResetCamera() {
   EnvModel* e = GetVizmo().GetEnv();
   GetCurrentCamera()->Set(Point3d(0, 0, 2*(e ? e->GetRadius() : 100)), Point3d(0,0,0));
 }
 
 Camera*
-GLWidget::GetCurrentCamera() {
+GLWidget::
+GetCurrentCamera() {
   return m_cameraFactory.GetCurrentCamera();
 }
 
 void
-GLWidget::initializeGL(){
+GLWidget::
+initializeGL() {
   //Setup light and material properties
   SetLight();
 
@@ -69,7 +85,8 @@ GLWidget::initializeGL(){
 }
 
 void
-GLWidget::resizeGL(int _w, int _h) {
+GLWidget::
+resizeGL(int _w, int _h) {
   g_width = _w;
   g_height = _h;
   m_transformTool.ProjectToWindow();
@@ -81,8 +98,8 @@ GLWidget::resizeGL(int _w, int _h) {
 }
 
 void
-GLWidget::paintGL(){
-
+GLWidget::
+paintGL() {
   //start clock
   clock_t startTime = clock();
 
@@ -137,8 +154,8 @@ GLWidget::paintGL(){
 }
 
 void
-GLWidget::SetLight(){
-
+GLWidget::
+SetLight() {
   //glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
   glEnable(GL_COLOR_MATERIAL);
 
@@ -151,7 +168,8 @@ GLWidget::SetLight(){
 }
 
 void
-GLWidget::SetLightPos() {
+GLWidget::
+SetLightPos() {
   static GLfloat lightPosition[] = { 250.0f, 250.0f, 250.0f, 1.0f };
   glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
   static GLfloat lightPosition2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
@@ -159,7 +177,8 @@ GLWidget::SetLightPos() {
 }
 
 void
-GLWidget::mousePressEvent(QMouseEvent* _e){
+GLWidget::
+mousePressEvent(QMouseEvent* _e) {
 
   SHIFT_CLICK = _e->modifiers() == Qt::ShiftModifier;
 
@@ -180,13 +199,14 @@ GLWidget::mousePressEvent(QMouseEvent* _e){
 }
 
 void
-GLWidget::mouseDoubleClickEvent(QMouseEvent* _e) {
+GLWidget::
+mouseDoubleClickEvent(QMouseEvent* _e) {
   m_doubleClick = true;
 }
 
 void
-GLWidget::SimulateMouseUpSlot(){
-
+GLWidget::
+SimulateMouseUpSlot() {
   //simulate pick mouse up
   m_pickBox.MouseReleased(NULL);
 
@@ -194,7 +214,8 @@ GLWidget::SimulateMouseUpSlot(){
 }
 
 void
-GLWidget::mouseReleaseEvent(QMouseEvent* _e){
+GLWidget::
+mouseReleaseEvent(QMouseEvent* _e) {
   bool handled = false;
   if(GetCurrentCamera()->MouseReleased(_e)) {
     m_transformTool.CameraMotion();
@@ -312,7 +333,12 @@ GLWidget::mouseReleaseEvent(QMouseEvent* _e){
 }
 
 void
-GLWidget::mouseMoveEvent(QMouseEvent* _e) {
+GLWidget::
+mouseMoveEvent(QMouseEvent* _e) {
+  //handle avatar
+  if(GetVizmo().GetEnv())
+    GetVizmo().GetEnv()->GetAvatar()->PassiveMouseMotion(_e, GetCurrentCamera());
+
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion
     if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e, GetCurrentCamera()))
@@ -340,32 +366,36 @@ GLWidget::mouseMoveEvent(QMouseEvent* _e) {
 }
 
 void
-GLWidget::keyPressEvent(QKeyEvent* _e) {
+GLWidget::
+keyPressEvent(QKeyEvent* _e) {
   //check for haptic toggle switch
   if(Haptics::UsingPhantom() && _e->key() == Qt::Key_QuoteLeft)
     GetVizmo().GetManager()->ToggleForceOutput();
   //check camera then transform tool
   else if(!GetCurrentCamera()->KeyPressed(_e) &&
       !m_transformTool.KeyPressed(_e) &&
-      GetCurrentUserPath() && !GetCurrentUserPath()->KeyPressed(_e))
+      (!m_currentUserPath || !m_currentUserPath->KeyPressed(_e)))
     _e->ignore(); //not handled
   updateGL();
 }
 
 void
-GLWidget::ShowAxis(){
+GLWidget::
+ShowAxis() {
   m_showAxis = !m_showAxis;
   updateGL();
 }
 
 void
-GLWidget::ShowFrameRate(){
+GLWidget::
+ShowFrameRate() {
   m_showFrameRate = !m_showFrameRate;
   updateGL();
 }
 
 void
-GLWidget::ResetTransTool(){
+GLWidget::
+ResetTransTool() {
   m_transformTool.ResetSelectedObj();
 }
 
@@ -373,7 +403,8 @@ GLWidget::ResetTransTool(){
 //Note: filename must have appropriate extension for QImage::save or no file
 //will be written
 void
-GLWidget::SaveImage(QString _filename, bool _crop){
+GLWidget::
+SaveImage(QString _filename, bool _crop) {
   //grab the gl scene. Copy into new QImage with size of imageRect. This will
   //crop the image appropriately.
   QRect imageRect = GetImageRect(_crop);
@@ -384,7 +415,8 @@ GLWidget::SaveImage(QString _filename, bool _crop){
 //Grab the size of image for saving. If crop is true, use the cropBox to
 //size the image down.
 QRect
-GLWidget::GetImageRect(bool _crop){
+GLWidget::
+GetImageRect(bool _crop) {
   if(_crop) {
     // handle all the ways the pick box can be drawn
     const Box& box = m_pickBox.GetBox();
@@ -400,7 +432,8 @@ GLWidget::GetImageRect(bool _crop){
 }
 
 void
-GLWidget::DrawFrameRate(double _frameRate){
+GLWidget::
+DrawFrameRate(double _frameRate) {
   glMatrixMode(GL_PROJECTION); //change to Ortho view
   glPushMatrix();
   glLoadIdentity();
@@ -422,7 +455,8 @@ GLWidget::DrawFrameRate(double _frameRate){
 }
 
 void
-GLWidget::DrawAxis() {
+GLWidget::
+DrawAxis() {
   if(m_showAxis) {
     static GLuint gid = -1;
     if(gid == (GLuint)-1) { //no gid is created
@@ -488,4 +522,12 @@ GLWidget::DrawAxis() {
 
     glMatrixMode(GL_MODELVIEW);
   }
+}
+
+void
+GLWidget::
+SetMousePosImpl(Point3d _p) {
+  Point3d screenPos = ProjectToWindow(_p);
+  QPoint globalPos = this->mapToGlobal(QPoint(screenPos[0], g_height - screenPos[1]));
+  QCursor::setPos(globalPos);
 }

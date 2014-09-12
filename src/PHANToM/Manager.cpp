@@ -41,7 +41,6 @@ Manager::
 void
 Manager::HapticRender() {
   glDisable(GL_CULL_FACE);
-  hlBeginFrame();
 
   //Get all state variables
   GetState();

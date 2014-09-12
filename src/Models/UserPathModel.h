@@ -3,7 +3,6 @@
 
 #include "Model.h"
 #include "Vizmo.h"
-#include "TempObjsModel.h"
 
 class MainWindow;
 
@@ -11,7 +10,7 @@ class UserPathModel : public Model {
 
   public:
     //specify input type
-    enum InputType {Mouse, Haptic, CameraPath};
+    enum InputType {Mouse, CameraPath, Haptic};
 
     UserPathModel(MainWindow* _mainWindow, InputType _t = Mouse);
 
@@ -59,7 +58,6 @@ class UserPathModel : public Model {
     bool m_finished, m_valid;
     CfgModel m_oldPos, m_newPos;
     vector<Point3d> m_userPath;
-    TempObjsModel m_avatar;
 };
 
 #endif

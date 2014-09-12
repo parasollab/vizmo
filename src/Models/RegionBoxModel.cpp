@@ -325,7 +325,6 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
-  GetCameraVectors(_c);
 
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
@@ -411,7 +410,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
         Vector3d deltaWorld;
         vector<Vector3d> axisCtrlDir(3);
 
-        MapControls(deltaMouse, deltaWorld, axisCtrlDir);
+        MapControls(_c, deltaMouse, deltaWorld, axisCtrlDir);
         ApplyTransform(deltaWorld);
       }
       //translation in camera x/y
@@ -433,7 +432,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //then multiply by the unit vector pointing from the camera to the
     //center to get delta
     Vector3d delta = (m_center - _c->GetEye()).normalize() *
-      ((m - c) * m_cameraY);
+      ((m - c) * _c->GetWindowY());
     //translate region according to delta
     ApplyTransform(delta);
 
@@ -577,82 +576,88 @@ FindCenter() {
 
 void
 RegionBoxModel::
-MapControls(const Vector3d& _deltaMouse,
+MapControls(Camera* _c, const Vector3d& _deltaMouse,
     Vector3d& _deltaWorld, vector<Vector3d>& _axisCtrlDir) {
   double score, xScore, yScore, zScore;
+  //define unit vectors of the world coordinate system
   Vector3d xHat(1, 0, 0);
   Vector3d yHat(0, 1, 0);
   Vector3d zHat(0, 0, 1);
 
-  //find the world axis Q closest to m_cameraX and
-  //set _delta[Q] = change in m_cameraX
-  xScore = fabs(m_cameraX * xHat);
-  yScore = fabs(m_cameraX * yHat);
-  zScore = fabs(m_cameraX * zHat);
+  //define unit vectors in the camera's coordinate system
+  Vector3d cameraX = -_c->GetWindowX();
+  Vector3d cameraY = _c->GetWindowY();
+  Vector3d cameraZ = -_c->GetWindowZ();
+
+  //find the world axis Q closest to cameraX and
+  //set _delta[Q] = change in cameraX
+  xScore = fabs(cameraX * xHat);
+  yScore = fabs(cameraX * yHat);
+  zScore = fabs(cameraX * zHat);
   score = max(xScore, yScore);
   score = max(score, zScore);
   if(score == xScore) {
-    //m_cameraX is nearest the X direction
-    _deltaWorld[0] = _deltaMouse.proj(m_cameraX) * xHat;
-    _axisCtrlDir[0] = m_cameraX;
+    //cameraX is nearest the X direction
+    _deltaWorld[0] = _deltaMouse.proj(cameraX) * xHat;
+    _axisCtrlDir[0] = cameraX;
   }
   else if(score == yScore) {
-    //m_cameraX is nearest the Y direction
-    _deltaWorld[1] = _deltaMouse.proj(m_cameraX) * yHat;
-    _axisCtrlDir[1] = m_cameraX;
+    //cameraX is nearest the Y direction
+    _deltaWorld[1] = _deltaMouse.proj(cameraX) * yHat;
+    _axisCtrlDir[1] = cameraX;
   }
   else if(score == zScore) {
-    //m_cameraX is nearest the Z direction
-    _deltaWorld[2] = _deltaMouse.proj(m_cameraX) * zHat;
-    _axisCtrlDir[2] = m_cameraX;
+    //cameraX is nearest the Z direction
+    _deltaWorld[2] = _deltaMouse.proj(cameraX) * zHat;
+    _axisCtrlDir[2] = cameraX;
   }
 
-  //find the world axis Q closest to m_cameraY and
-  //set _delta[Q] = change in m_cameraY. Store -m_cameraY
-  //as controller for correct remapping to m_cameraZ
-  xScore = fabs(m_cameraY * xHat);
-  yScore = fabs(m_cameraY * yHat);
-  zScore = fabs(m_cameraY * zHat);
+  //find the world axis Q closest to cameraY and
+  //set _delta[Q] = change in cameraY. Store -cameraY
+  //as controller for correct remapping to cameraZ
+  xScore = fabs(cameraY * xHat);
+  yScore = fabs(cameraY * yHat);
+  zScore = fabs(cameraY * zHat);
   score = max(xScore, yScore);
   score = max(score, zScore);
   if(score == xScore) {
-    //m_cameraY is nearest the X direction
-    _deltaWorld[0] = _deltaMouse.proj(m_cameraY) * xHat;
-    _axisCtrlDir[0] = -m_cameraY;
+    //cameraY is nearest the X direction
+    _deltaWorld[0] = _deltaMouse.proj(cameraY) * xHat;
+    _axisCtrlDir[0] = -cameraY;
   }
   else if(score == yScore) {
-    //m_cameraY _camDir is nearest the Y direction
-    _deltaWorld[1] = _deltaMouse.proj(m_cameraY) * yHat;
-    _axisCtrlDir[1] = -m_cameraY;
+    //cameraY _camDir is nearest the Y direction
+    _deltaWorld[1] = _deltaMouse.proj(cameraY) * yHat;
+    _axisCtrlDir[1] = -cameraY;
   }
   else if(score == zScore) {
-    //m_cameraY _camDir is nearest the Z direction
-    _deltaWorld[2] = _deltaMouse.proj(m_cameraY) * zHat;
-    _axisCtrlDir[2] = -m_cameraY;
+    //cameraY _camDir is nearest the Z direction
+    _deltaWorld[2] = _deltaMouse.proj(cameraY) * zHat;
+    _axisCtrlDir[2] = -cameraY;
   }
 
   //if mouse x or y is not used for resizing the highlighted part,
-  //assign it to control the unused (m_cameraZ) axis.
+  //assign it to control the unused (cameraZ) axis.
   if((m_highlightedPart & (TOP + BOTTOM)) &&
       (m_highlightedPart & (RIGHT + LEFT)) && _deltaWorld[2]) {
     if(!_deltaWorld[0])
-      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[2]) * (m_cameraZ * xHat);
+      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[2]) * (cameraZ * xHat);
     if(!_deltaWorld[1])
-      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[2]) * (m_cameraZ * yHat);
+      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[2]) * (cameraZ * yHat);
   }
   if((m_highlightedPart & (TOP + BOTTOM)) &&
       (m_highlightedPart & (FRONT + BACK)) && _deltaWorld[0]) {
     if(!_deltaWorld[1])
-      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[0]) * (m_cameraZ * yHat);
+      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[0]) * (cameraZ * yHat);
     if(!_deltaWorld[2])
-      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[0]) * (m_cameraZ * zHat);
+      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[0]) * (cameraZ * zHat);
   }
   if((m_highlightedPart & (RIGHT + LEFT)) &&
       (m_highlightedPart & (FRONT + BACK)) && _deltaWorld[1]) {
     if(!_deltaWorld[2])
-      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[1]) * (m_cameraZ * zHat);
+      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[1]) * (cameraZ * zHat);
     if(!_deltaWorld[0])
-      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[1]) * (m_cameraZ * xHat);
+      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[1]) * (cameraZ * xHat);
   }
 }
 

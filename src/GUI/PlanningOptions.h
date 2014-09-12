@@ -15,6 +15,8 @@ class PlanningOptions : public OptionsBase {
 
     QThread* GetMPThread() {return m_threadDone ? NULL : m_thread;}
 
+    void ResetRegionTimer() {m_regionsStarted = false;}
+
   private slots:
     //Region functions
     void AddRegionSphere();

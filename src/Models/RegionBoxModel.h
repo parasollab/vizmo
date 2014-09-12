@@ -50,7 +50,7 @@ class RegionBoxModel : public RegionModel {
   protected:
     //helper functions
     void FindCenter();
-    void MapControls(const Vector3d& _deltaMouse,
+    void MapControls(Camera* _c, const Vector3d& _deltaMouse,
         Vector3d& _deltaWorld, vector<Vector3d>& _axisCtrlDir);
     void ApplyTransform(const Vector3d& _delta);
 

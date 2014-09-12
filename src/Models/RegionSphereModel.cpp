@@ -142,7 +142,6 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
-  GetCameraVectors(_c);
 
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
@@ -212,7 +211,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     Point3d c = ProjectToWorld(0, m_clicked.y(),
         m_center, -_c->GetDir());
     Vector3d delta = (m_centerOrig - _c->GetEye()).normalize() *
-      ((m - c) * m_cameraY);
+      ((m - c) * _c->GetWindowY());
     m_center = m_centerOrig + delta;
     return true;
   }
