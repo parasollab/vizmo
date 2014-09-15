@@ -1,5 +1,6 @@
 #include "PlanningOptions.h"
 
+#include "ChangePlannerDialog.h"
 #include "GLWidget.h"
 #include "MainMenu.h"
 #include "MainWindow.h"
@@ -48,6 +49,7 @@ void
 PlanningOptions::
 CreateActions() {
   // 1, Create Actions and add them to the map
+
   m_actions["addRegionSphere"] = new QAction(QPixmap(addsphereregion),
       tr("Add Spherical Region"), this);
   m_actions["addRegionBox"] = new QAction(QPixmap(addboxregion),
@@ -75,13 +77,8 @@ CreateActions() {
       tr("Delete User Path"), this);
   m_actions["printUserPath"] = new QAction(QPixmap(printuserpath),
       tr("Print User Path"), this);
-
-  m_actions["RegionStrategy"] = new QAction(QPixmap(mapenv),
-      tr("Execute Region Steering"), this);
-  m_actions["PathStrategy"] = new QAction(QPixmap(mapenv),
-      tr("Execute Path Steering"), this);
-  m_actions["IRRT"] = new QAction(QPixmap(mapenv),
-      tr("Execute IRRT"), this);
+  m_actions["mapEnvironment"] = new QAction(QPixmap(mapenv), 
+      tr("Map Environment"), this);
 
   // 2. Set other specifications
   m_actions["addRegionSphere"]->setEnabled(false);
@@ -90,9 +87,7 @@ CreateActions() {
   m_actions["makeRegionAttract"]->setEnabled(false);
   m_actions["makeRegionAvoid"]->setEnabled(false);
   m_actions["duplicateRegion"]->setEnabled(false);
-  m_actions["RegionStrategy"]->setEnabled(false);
-  m_actions["PathStrategy"]->setEnabled(false);
-  m_actions["IRRT"]->setEnabled(false);
+  m_actions["mapEnvironment"]->setEnabled(false);
   m_actions["addUserPathMouse"]->setEnabled(false);
   m_actions["addUserPathCamera"]->setEnabled(false);
   m_actions["addUserPathHaptic"]->setEnabled(false);
@@ -118,11 +113,7 @@ CreateActions() {
       this, SLOT(LoadRegion()));
   connect(m_actions["duplicateRegion"], SIGNAL(triggered()),
       this, SLOT(DuplicateRegion()));
-  connect(m_actions["RegionStrategy"], SIGNAL(triggered()),
-      this, SLOT(MapEnvironment()));
-  connect(m_actions["PathStrategy"], SIGNAL(triggered()),
-      this, SLOT(MapEnvironment()));
-  connect(m_actions["IRRT"], SIGNAL(triggered()),
+  connect(m_actions["mapEnvironment"], SIGNAL(triggered()),
       this, SLOT(MapEnvironment()));
   connect(m_actions["addUserPathMouse"], SIGNAL(triggered()),
       this, SLOT(AddUserPath()));
@@ -156,9 +147,7 @@ SetUpCustomSubmenu() {
   m_submenu->addAction(m_actions["saveRegion"]);
   m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
-  m_submenu->addAction(m_actions["RegionStrategy"]);
-  m_submenu->addAction(m_actions["PathStrategy"]);
-  m_submenu->addAction(m_actions["IRRT"]);
+  m_submenu->addAction(m_actions["MapEvironment"]);
 
   m_pathsMenu = new QMenu("User Paths", this);
   m_pathsMenu->addAction(m_actions["addUserPathMouse"]);
@@ -213,9 +202,7 @@ SetUpToolTab() {
 
   buttonList.push_back("_separator_");
 
-  buttonList.push_back("RegionStrategy");
-  buttonList.push_back("PathStrategy");
-  buttonList.push_back("IRRT");
+  buttonList.push_back("mapEnvironment");
 
   CreateToolTab(buttonList);
 }
@@ -229,9 +216,7 @@ Reset() {
   m_actions["makeRegionAttract"]->setEnabled(true);
   m_actions["makeRegionAvoid"]->setEnabled(true);
   m_actions["duplicateRegion"]->setEnabled(true);
-  m_actions["RegionStrategy"]->setEnabled(true);
-  m_actions["PathStrategy"]->setEnabled(true);
-  m_actions["IRRT"]->setEnabled(true);
+  m_actions["mapEnvironment"]->setEnabled(true);
   m_actions["addUserPathMouse"]->setEnabled(true);
   m_actions["addUserPathCamera"]->setEnabled(true);
   if(Haptics::UsingPhantom())
@@ -249,18 +234,20 @@ Reset() {
 void
 PlanningOptions::
 SetHelpTips() {
-  m_actions["RegionStrategy"]->setWhatsThis(
-      tr("Map an environment using Region Strategy."));
-  m_actions["PathStrategy"]->setWhatsThis(
-      tr("Map an environment using Path Strategy."));
-  m_actions["IRRT"]->setWhatsThis(tr("Map an environment using IRRT."));
+  m_actions["mapEnvironment"]->setWhatsThis(
+      tr("Map an environment using selected Strategy"));
   m_actions["addRegionSphere"]->setWhatsThis(
       tr("Add a spherical region to aid planner"));
-  m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));
-  m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
-  m_actions["makeRegionAttract"]->setWhatsThis(tr("Change a region to attract"));
-  m_actions["makeRegionAvoid"]->setWhatsThis(tr("Change a region to avoid"));
-  m_actions["duplicateRegion"]->setWhatsThis(tr("Copy of a selected region"));
+  m_actions["addRegionBox"]->setWhatsThis(
+      tr("Add a box region to aid planner"));
+  m_actions["deleteRegion"]->setWhatsThis(
+      tr("Remove a region from the scene"));
+  m_actions["makeRegionAttract"]->setWhatsThis(
+      tr("Change a region to attract"));
+  m_actions["makeRegionAvoid"]->setWhatsThis(
+      tr("Change a region to avoid"));
+  m_actions["duplicateRegion"]->setWhatsThis(
+      tr("Copy of a selected region"));
   m_actions["addUserPathMouse"]->setWhatsThis(
       tr("Add an approximate path to aid planner"));
   m_actions["addUserPathCamera"]->setWhatsThis(
@@ -438,32 +425,29 @@ void
 PlanningOptions::
 MapEnvironment() {
   if(m_threadDone) {
-    // Stop timer for before regions
-    if(!m_regionsStarted)
-      // start-stop when no regions were created
-      GetVizmo().StartClock("Pre-regions");
-    GetVizmo().StopClock("Pre-regions");
+    
+    ChangePlannerDialog cpDialog(m_mainWindow);
 
-    // Before thread starts, make sure map model exists
+    if(!cpDialog.exec())
+      return;
+
+    string slabel = cpDialog.GetPlanner();
+
+    //Stop timer for before regions
+    if(!m_regionsStarted)
+      //start-stop when no regions were created
+      GetVizmo().StartClock("Pre-Regions");
+    GetVizmo().StopClock("Pre-Regions");
+    
+    //Verify that map model exist
     GetVizmo().SetPMPLMap();
     m_mainWindow->m_mainMenu->CallReset();
-
-    // Get name of calling action to determine which strategy to run
-    string strategyLabel;
-    QAction* strategy = static_cast<QAction*>(sender());
-    for(typename map<string, QAction*>::iterator mit = m_actions.begin();
-        mit != m_actions.end(); ++mit) {
-      if(mit->second == strategy) {
-        strategyLabel = mit->first;
-        break;
-      }
-    }
-
-    // Set up thread for mapping the environment
+    
+    //Set up thread for execution
     m_threadDone = false;
     m_thread = new QThread;
     MapEnvironmentWorker* mpsw;
-    mpsw = new MapEnvironmentWorker(strategyLabel);
+    mpsw = new MapEnvironmentWorker(slabel); 
     mpsw->moveToThread(m_thread);
     m_thread->start();
     connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));

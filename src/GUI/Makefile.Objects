@@ -8,6 +8,7 @@ OBJECTS += \
 	   GUI/CameraPosDialog.o \
 	   GUI/CaptureOptions.o \
 	   GUI/ChangeBoundaryDialog.o \
+	   GUI/ChangePlannerDialog.o \
 	   GUI/CustomizePathDialog.o \
 	   GUI/EdgeEditDialog.o \
 	   GUI/EditRobotDialog.o \
