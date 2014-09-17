@@ -1,5 +1,5 @@
-#ifndef REGIONMODEL_H_
-#define REGIONMODEL_H_
+#ifndef REGION_MODEL_H_
+#define REGION_MODEL_H_
 
 #include "boost/shared_ptr.hpp"
 using boost::shared_ptr;
@@ -21,6 +21,7 @@ class RegionModel : public Model {
       m_shape(_shape), m_sampler(""), m_processed(false), m_created(-1) {
         SetColor(Color4(0, 0, 1, 0.8));
       }
+
     virtual ~RegionModel() {}
 
     Type GetType() const {return m_type;}
@@ -28,6 +29,7 @@ class RegionModel : public Model {
     bool IsProcessed() const {return m_processed;}
     void Processed() {m_processed = true;}
     virtual shared_ptr<Boundary> GetBoundary() const = 0;
+    const Point3d& GetCenter() const {return m_center;}
 
     Shape GetShape() const {return m_shape;}
     string GetSampler() const {return m_sampler;}
@@ -98,35 +100,10 @@ class RegionModel : public Model {
     bool m_processed; //check if rejection region has been processed or not
 
     size_t m_created;
-    Vector3d m_cameraX;
-    Vector3d m_cameraY;
-    Vector3d m_cameraZ;
+    Point3d m_center;
 
     // Functions
     void SetShape(Shape _s) {m_shape = _s;}
 };
-
-inline vector<Vector3d>
-RegionModel::
-GetCameraVectors(Camera* _c) {
-  //project start and end points to the world to find the cameraX direction
-  Vector3d s = ProjectToWorld(0, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  Vector3d e = ProjectToWorld(1, 0, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  m_cameraX = (e - s).normalize();
-
-  //project a new end point to find the cameraY direction
-  e = ProjectToWorld(0, 1, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
-  m_cameraY = (e - s).normalize();
-
-  //get cameraZ from _c->GetDir()
-  m_cameraZ = (-_c->GetDir()).normalize();
-
-  //collect directions and return
-  vector<Vector3d> v;
-  v.push_back(m_cameraX);
-  v.push_back(m_cameraY);
-  v.push_back(m_cameraZ);
-  return v;
-}
 
 #endif

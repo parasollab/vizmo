@@ -10,7 +10,7 @@ class UserPathModel : public Model {
 
   public:
     //specify input type
-    enum InputType {Mouse, Haptic, CameraPath};
+    enum InputType {Mouse, CameraPath, Haptic};
 
     UserPathModel(MainWindow* _mainWindow, InputType _t = Mouse);
 
@@ -35,6 +35,7 @@ class UserPathModel : public Model {
     InputType GetInputType() {return m_type;}
     shared_ptr< vector<CfgModel> > GetCfgs();
     void SendToPath(const Point3d& _p);
+    const vector<Point3d>& GetPath() {return m_userPath;}
 
     bool m_checkCollision;
 

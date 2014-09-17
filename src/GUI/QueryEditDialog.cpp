@@ -2,15 +2,16 @@
 
 #include <iostream>
 
-#include "MainWindow.h"
 #include "GLWidget.h"
+#include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 #include "NodeEditDialog.h"
+
 #include "Models/Vizmo.h"
 
 QueryEditDialog::
-QueryEditDialog(MainWindow* _mainWindow, QueryModel* _queryModel)
-    : QDialog(_mainWindow), m_queryModel(_queryModel), m_mainWindow(_mainWindow) {
+QueryEditDialog(MainWindow* _mainWindow, QueryModel* _queryModel) :
+    QDialog(_mainWindow), m_queryModel(_queryModel), m_mainWindow(_mainWindow) {
   setFixedSize(200, 310);
   setWindowTitle("Edit Query");
   SetUpDialog();

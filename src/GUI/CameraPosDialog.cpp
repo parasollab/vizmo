@@ -74,11 +74,12 @@ SetCamera(Camera* _camera) {
   m_camera = _camera;
   const Vector3d& eye = m_camera->GetEye();
   Vector3d at = m_camera->GetAt();
-  for(size_t i=0; i<3; i++){
+  for(size_t i=0; i<3; i++) {
     m_lineEye[i]->setText(QString::number(eye[i]));
     m_lineAt[i]->setText(QString::number(at[i]));
   }
 }
+
 void
 CameraPosDialog::
 AcceptData() {
@@ -103,10 +104,9 @@ SaveCameraPosition() {
       filename += ".camera";
     ofstream ofs;
     ofs.open(filename.c_str());
-    ofs<< "CameraTest" <<endl;
-    ofs<< m_camera->GetName() <<"\n";
-    ofs<< m_camera->GetEye()  <<"\n";
-    ofs<< m_camera->GetDir()  <<"\n";
+    ofs << "Camera Configuration: Eye, At" << endl
+        << m_camera->GetEye() << endl
+        << m_camera->GetAt();
     ofs.close();
 
     accept();
@@ -126,15 +126,14 @@ LoadCameraPosition() {
     string filename = fn.toStdString();
     ifstream ifs;
     ifs.open(filename.c_str());
-    string obj;
-    ifs >> obj;
-    ifs >> obj;
+    string fileHeader;
+    getline(ifs, fileHeader);
     double x,y,z;
     ifs >> x >> y >> z;
     Vector3d eye(x, y, z);
     ifs >> x >> y >> z;
-    Vector3d dir(x, y, z);
-    m_camera->Set(eye, dir);
+    Vector3d at(x, y, z);
+    m_camera->Set(eye, at);
 
     ifs.close();
     accept();

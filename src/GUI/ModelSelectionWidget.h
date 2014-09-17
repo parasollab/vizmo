@@ -1,3 +1,6 @@
+#ifndef MODEL_SELECTION_WIDGET_H_
+#define MODEL_SELECTION_WIDGET_H_
+
 // TO DO: rethink the way the configuraiotns are updated
 // i think we can just call the updateConfiger(int) and make it control all motions
 // TO DO: Set up the slider values initially. When loaded, signal slider
@@ -16,15 +19,21 @@ class ModelSelectionWidget : public QTreeWidget {
 
   public:
     struct ListViewItem : public QTreeWidgetItem {
-      ListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
-      ListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent), m_model(NULL) {}
+      ListViewItem(QTreeWidget* _parent) : QTreeWidgetItem(_parent),
+          m_model(NULL) {}
+      ListViewItem(QTreeWidgetItem* _parent) : QTreeWidgetItem(_parent),
+          m_model(NULL) {}
       Model* m_model;
     };
     ModelSelectionWidget(GLWidget* _glWidget, QWidget* _parent = NULL);
 
+    void CallResetLists();
+
   signals:
+    void ResetSignal();
     void CallUpdate();
     void UpdateTextWidget();
+    void ResetListsFromMPSig();
 
   public slots:
     void ResetLists();
@@ -39,3 +48,5 @@ class ModelSelectionWidget : public QTreeWidget {
     vector<ListViewItem*> m_items;
     GLWidget* m_glWidget;
 };
+
+#endif

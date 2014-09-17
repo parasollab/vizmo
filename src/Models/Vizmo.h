@@ -107,6 +107,7 @@ class Vizmo {
     void PrintClock(const string& _c, ostream& _os);
     void SetPMPLMap();
     void Solve(const string& _strategy);
+    double GetMaxEnvDist();
 
   private:
     //Parse the Hit Buffer. Store selected obj into m_selectedModels.
@@ -120,7 +121,7 @@ class Vizmo {
     EnvModel* m_envModel;
     string m_envFilename;
 
-    //robot
+    //robot & avatar
     RobotModel* m_robotModel;
 
     //PHANToM manager

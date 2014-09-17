@@ -49,22 +49,23 @@ main(int _argc, char** _argv) {
   QApplication::setColorSpec(QApplication::CustomColor);
   QApplication app(_argc, _argv);
 
-  MainWindow window;
-  if(!window.Init()) {
+  MainWindow*& window = GetMainWindow();
+  window = new MainWindow();
+  if(!window->Init()) {
     cerr << "Error: vizmo++ could not intialize main window." << endl;
     return 1;
   }
 
   if(!filename.empty()) {
     // Directly open file dialog
-    window.ResetDialogs();
-    window.GetArgs().clear();
-    window.GetArgs() = filename;
-    window.SetVizmoInit(false);
+    window->ResetDialogs();
+    window->GetArgs().clear();
+    window->GetArgs() = filename;
+    window->SetVizmoInit(false);
   }
 
   //execute main window and application
-  window.show();
+  window->show();
   app.exec();
   return 0;
 }

@@ -1,41 +1,47 @@
-#include "Vizmo.h"
-#include "EnvModel.h"
 #include "RegionBoxModel.h"
 
 #include <QtGui>
+
+#include "Models/EnvModel.h"
+#include "Models/Vizmo.h"
 #include "MPProblem/BoundingBox.h"
-#include "Utilities/GLUtils.h"
 #include "Utilities/Camera.h"
+#include "Utilities/GLUtils.h"
 #include "Utilities/IO.h"
 
 RegionBoxModel::
-RegionBoxModel() : RegionModel("Box Region", BOX), m_lmb(false), m_rmb(false), m_firstClick(true), m_highlightedPart(NONE),
-  m_boxVertices(8), m_prevPos(8), m_winVertices(8), m_min(0, 0, 0), m_max(0, 0, 0) {}
+RegionBoxModel() : RegionModel("Box Region", BOX),
+    m_lmb(false), m_rmb(false), m_firstClick(true), m_highlightedPart(NONE),
+    m_boxVertices(8), m_prevPos(8), m_winVertices(8),
+    m_min(0, 0, 0), m_max(0, 0, 0), m_crosshair() {}
 
 RegionBoxModel::
-RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange, pair<double, double> _zRange) :
-  RegionModel("Box Region", BOX), m_lmb(false), m_rmb(false), m_firstClick(false), m_highlightedPart(NONE), m_boxVertices(8),
-  m_prevPos(8), m_winVertices(8), m_min(_xRange.first, _yRange.first, _zRange.first),
-  m_max(_xRange.second, _yRange.second, _zRange.second) {
-    m_boxVertices[0] = Point3d(m_min[0], m_max[1], m_max[2]);
-    m_boxVertices[1] = Point3d(m_min[0], m_min[1], m_max[2]);
-    m_boxVertices[2] = Point3d(m_max[0], m_min[1], m_max[2]);
-    m_boxVertices[3] = Point3d(m_max[0], m_max[1], m_max[2]);
-    m_boxVertices[4] = Point3d(m_min[0], m_max[1], m_min[2]);
-    m_boxVertices[5] = Point3d(m_min[0], m_min[1], m_min[2]);
-    m_boxVertices[6] = Point3d(m_max[0], m_min[1], m_min[2]);
-    m_boxVertices[7] = Point3d(m_max[0], m_max[1], m_min[2]);
+RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange,
+    pair<double, double> _zRange) : RegionModel("Box Region", BOX),
+    m_lmb(false), m_rmb(false), m_firstClick(false), m_highlightedPart(NONE),
+    m_boxVertices(8), m_prevPos(8), m_winVertices(8),
+    m_min(_xRange.first, _yRange.first, _zRange.first),
+    m_max(_xRange.second, _yRange.second, _zRange.second),
+    m_crosshair() {
+  m_boxVertices[0] = Point3d(m_min[0], m_max[1], m_max[2]);
+  m_boxVertices[1] = Point3d(m_min[0], m_min[1], m_max[2]);
+  m_boxVertices[2] = Point3d(m_max[0], m_min[1], m_max[2]);
+  m_boxVertices[3] = Point3d(m_max[0], m_max[1], m_max[2]);
+  m_boxVertices[4] = Point3d(m_min[0], m_max[1], m_min[2]);
+  m_boxVertices[5] = Point3d(m_min[0], m_min[1], m_min[2]);
+  m_boxVertices[6] = Point3d(m_max[0], m_min[1], m_min[2]);
+  m_boxVertices[7] = Point3d(m_max[0], m_max[1], m_min[2]);
 
-    m_prevPos = m_boxVertices;
-  }
+  m_prevPos = m_boxVertices;
+}
 
 shared_ptr<Boundary>
 RegionBoxModel::
 GetBoundary() const {
   return shared_ptr<Boundary>(new BoundingBox(
-        make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
-        make_pair(m_boxVertices[1][1], m_boxVertices[0][1]),
-        make_pair(m_boxVertices[4][2], m_boxVertices[0][2])));
+      make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
+      make_pair(m_boxVertices[1][1], m_boxVertices[0][1]),
+      make_pair(m_boxVertices[4][2], m_boxVertices[0][2])));
 }
 
 //initialization of gl models
@@ -56,7 +62,7 @@ bool
 RegionBoxModel::
 operator==(const RegionModel& _other) const {
   if(_other.GetShape() == this->GetShape()) {
-    const RegionBoxModel* myModel = dynamic_cast<const RegionBoxModel*>(&_other);
+    const RegionBoxModel* myModel = static_cast<const RegionBoxModel*>(&_other);
     if(GetType() == myModel->GetType()) {
       bool result = true;
       for(unsigned int i = 0; i < myModel->m_boxVertices.size(); i++) {
@@ -176,9 +182,11 @@ DrawRender() {
   //change mouse cursor if highlighted
   if(m_highlightedPart == ALL)
     QApplication::setOverrideCursor(Qt::SizeAllCursor);
-  else if(m_highlightedPart == (LEFT | TOP) || m_highlightedPart == (RIGHT | BOTTOM))
+  else if(m_highlightedPart == (LEFT | TOP) ||
+      m_highlightedPart == (RIGHT | BOTTOM))
     QApplication::setOverrideCursor(Qt::SizeFDiagCursor);
-  else if(m_highlightedPart == (LEFT | BOTTOM) || m_highlightedPart == (RIGHT | TOP))
+  else if(m_highlightedPart == (LEFT | BOTTOM) ||
+      m_highlightedPart == (RIGHT | TOP))
     QApplication::setOverrideCursor(Qt::SizeBDiagCursor);
   else if(m_highlightedPart & (LEFT | RIGHT))
     QApplication::setOverrideCursor(Qt::SizeHorCursor);
@@ -186,6 +194,10 @@ DrawRender() {
     QApplication::setOverrideCursor(Qt::SizeVerCursor);
   else
     QApplication::setOverrideCursor(Qt::ArrowCursor);
+
+  //draw crosshair during manipulation
+  if(m_lmb || m_rmb)
+    m_crosshair.DrawRender();
 }
 
 void
@@ -298,7 +310,13 @@ Print(ostream& _os) const {
 void
 RegionBoxModel::
 OutputDebugInfo(ostream& _os) const {
-  _os << m_type << " BOX" << " " << m_prevPos[0][0] << " " << m_prevPos[1][1] << " " << m_prevPos[4][2] << " " << m_prevPos[2][0] << " " << m_prevPos[0][1] << " " << m_prevPos[0][2] << endl;
+  _os << m_type << " BOX" << " "
+      << m_prevPos[0][0] << " "
+      << m_prevPos[1][1] << " "
+      << m_prevPos[4][2] << " "
+      << m_prevPos[2][0] << " "
+      << m_prevPos[0][1] << " "
+      << m_prevPos[0][2] << endl;
 }
 
 bool
@@ -307,13 +325,21 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
-  GetCameraVectors(_c);
+
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
+    //if first click, set m_center for crosshair
+    if(m_firstClick) {
+      double disp = GetVizmo().GetMaxEnvDist() / 3.;
+      m_center = ProjectToWorld(m_clicked.x(), m_clicked.y(),
+          _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
+      m_crosshair.SetPos(m_center);
+    }
     m_lmb = true;
     return true;
   }
-  if(_e->buttons() == Qt::RightButton && !m_firstClick && m_highlightedPart > NONE) {
+  if(_e->buttons() == Qt::RightButton && !m_firstClick &&
+      m_highlightedPart > NONE) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_rmb = true;
     return true;
@@ -333,7 +359,6 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
     m_rmb = false;
     m_firstClick = false;
     m_prevPos = m_boxVertices;
-    FindCenter();
     VDAddRegion(this);
     return true;
   }
@@ -354,10 +379,11 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //handle creation
     if(m_firstClick) {
       //create box: start from top left and draw CCW about vector (0, 0, 1)
+      double disp = GetVizmo().GetMaxEnvDist() / 3.;
       c = ProjectToWorld(m_clicked.x(), m_clicked.y(),
-          _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
+          _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
       m = ProjectToWorld(mousePos.x(), mousePos.y(),
-          _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
+          _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
       m_min[0] = min(c[0], m[0]), m_max[0] = max(c[0], m[0]);
       m_min[1] = min(c[1], m[1]), m_max[1] = max(c[1], m[1]);
       m_min[2] = min(c[2], m[2]), m_max[2] = max(c[2], m[2]);
@@ -384,7 +410,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
         Vector3d deltaWorld;
         vector<Vector3d> axisCtrlDir(3);
 
-        MapControls(deltaMouse, deltaWorld, axisCtrlDir);
+        MapControls(_c, deltaMouse, deltaWorld, axisCtrlDir);
         ApplyTransform(deltaWorld);
       }
       //translation in camera x/y
@@ -394,6 +420,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //reset feedback values
     ClearNodeCount();
     ClearFACount();
+    FindCenter();
     return true;
   }
   //translation in ~camera z
@@ -405,13 +432,14 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //then multiply by the unit vector pointing from the camera to the
     //center to get delta
     Vector3d delta = (m_center - _c->GetEye()).normalize() *
-      ((m - c) * m_cameraY);
+      ((m - c) * _c->GetWindowY());
     //translate region according to delta
     ApplyTransform(delta);
 
     //reset feedback values
     ClearNodeCount();
     ClearFACount();
+    FindCenter();
     return true;
   }
 
@@ -548,82 +576,88 @@ FindCenter() {
 
 void
 RegionBoxModel::
-MapControls(const Vector3d& _deltaMouse,
+MapControls(Camera* _c, const Vector3d& _deltaMouse,
     Vector3d& _deltaWorld, vector<Vector3d>& _axisCtrlDir) {
   double score, xScore, yScore, zScore;
+  //define unit vectors of the world coordinate system
   Vector3d xHat(1, 0, 0);
   Vector3d yHat(0, 1, 0);
   Vector3d zHat(0, 0, 1);
 
-  //find the world axis Q closest to m_cameraX and
-  //set _delta[Q] = change in m_cameraX
-  xScore = fabs(m_cameraX * xHat);
-  yScore = fabs(m_cameraX * yHat);
-  zScore = fabs(m_cameraX * zHat);
+  //define unit vectors in the camera's coordinate system
+  Vector3d cameraX = -_c->GetWindowX();
+  Vector3d cameraY = _c->GetWindowY();
+  Vector3d cameraZ = -_c->GetWindowZ();
+
+  //find the world axis Q closest to cameraX and
+  //set _delta[Q] = change in cameraX
+  xScore = fabs(cameraX * xHat);
+  yScore = fabs(cameraX * yHat);
+  zScore = fabs(cameraX * zHat);
   score = max(xScore, yScore);
   score = max(score, zScore);
   if(score == xScore) {
-    //m_cameraX is nearest the X direction
-    _deltaWorld[0] = _deltaMouse.proj(m_cameraX) * xHat;
-    _axisCtrlDir[0] = m_cameraX;
+    //cameraX is nearest the X direction
+    _deltaWorld[0] = _deltaMouse.proj(cameraX) * xHat;
+    _axisCtrlDir[0] = cameraX;
   }
   else if(score == yScore) {
-    //m_cameraX is nearest the Y direction
-    _deltaWorld[1] = _deltaMouse.proj(m_cameraX) * yHat;
-    _axisCtrlDir[1] = m_cameraX;
+    //cameraX is nearest the Y direction
+    _deltaWorld[1] = _deltaMouse.proj(cameraX) * yHat;
+    _axisCtrlDir[1] = cameraX;
   }
   else if(score == zScore) {
-    //m_cameraX is nearest the Z direction
-    _deltaWorld[2] = _deltaMouse.proj(m_cameraX) * zHat;
-    _axisCtrlDir[2] = m_cameraX;
+    //cameraX is nearest the Z direction
+    _deltaWorld[2] = _deltaMouse.proj(cameraX) * zHat;
+    _axisCtrlDir[2] = cameraX;
   }
 
-  //find the world axis Q closest to m_cameraY and
-  //set _delta[Q] = change in m_cameraY. Store -m_cameraY
-  //as controller for correct remapping to m_cameraZ
-  xScore = fabs(m_cameraY * xHat);
-  yScore = fabs(m_cameraY * yHat);
-  zScore = fabs(m_cameraY * zHat);
+  //find the world axis Q closest to cameraY and
+  //set _delta[Q] = change in cameraY. Store -cameraY
+  //as controller for correct remapping to cameraZ
+  xScore = fabs(cameraY * xHat);
+  yScore = fabs(cameraY * yHat);
+  zScore = fabs(cameraY * zHat);
   score = max(xScore, yScore);
   score = max(score, zScore);
   if(score == xScore) {
-    //m_cameraY is nearest the X direction
-    _deltaWorld[0] = _deltaMouse.proj(m_cameraY) * xHat;
-    _axisCtrlDir[0] = -m_cameraY;
+    //cameraY is nearest the X direction
+    _deltaWorld[0] = _deltaMouse.proj(cameraY) * xHat;
+    _axisCtrlDir[0] = -cameraY;
   }
   else if(score == yScore) {
-    //m_cameraY _camDir is nearest the Y direction
-    _deltaWorld[1] = _deltaMouse.proj(m_cameraY) * yHat;
-    _axisCtrlDir[1] = -m_cameraY;
+    //cameraY _camDir is nearest the Y direction
+    _deltaWorld[1] = _deltaMouse.proj(cameraY) * yHat;
+    _axisCtrlDir[1] = -cameraY;
   }
   else if(score == zScore) {
-    //m_cameraY _camDir is nearest the Z direction
-    _deltaWorld[2] = _deltaMouse.proj(m_cameraY) * zHat;
-    _axisCtrlDir[2] = -m_cameraY;
+    //cameraY _camDir is nearest the Z direction
+    _deltaWorld[2] = _deltaMouse.proj(cameraY) * zHat;
+    _axisCtrlDir[2] = -cameraY;
   }
 
   //if mouse x or y is not used for resizing the highlighted part,
-  //assign it to control the unused (m_cameraZ) axis.
+  //assign it to control the unused (cameraZ) axis.
   if((m_highlightedPart & (TOP + BOTTOM)) &&
       (m_highlightedPart & (RIGHT + LEFT)) && _deltaWorld[2]) {
     if(!_deltaWorld[0])
-      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[2]) * (m_cameraZ * xHat);
+      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[2]) * (cameraZ * xHat);
     if(!_deltaWorld[1])
-      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[2]) * (m_cameraZ * yHat);
+      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[2]) * (cameraZ * yHat);
   }
   if((m_highlightedPart & (TOP + BOTTOM)) &&
       (m_highlightedPart & (FRONT + BACK)) && _deltaWorld[0]) {
     if(!_deltaWorld[1])
-      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[0]) * (m_cameraZ * yHat);
+      _deltaWorld[1] = _deltaMouse.comp(_axisCtrlDir[0]) * (cameraZ * yHat);
     if(!_deltaWorld[2])
-      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[0]) * (m_cameraZ * zHat);
+      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[0]) * (cameraZ * zHat);
   }
   if((m_highlightedPart & (RIGHT + LEFT)) &&
       (m_highlightedPart & (FRONT + BACK)) && _deltaWorld[1]) {
     if(!_deltaWorld[2])
-      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[1]) * (m_cameraZ * zHat);
+      _deltaWorld[2] = _deltaMouse.comp(_axisCtrlDir[1]) * (cameraZ * zHat);
     if(!_deltaWorld[0])
-      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[1]) * (m_cameraZ * xHat);
+      _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[1]) * (cameraZ * xHat);
   }
 }
 

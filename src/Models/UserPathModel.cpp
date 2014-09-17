@@ -10,6 +10,7 @@
 
 #include "GUI/MainWindow.h"
 
+#include "Models/AvatarModel.h"
 #include "Models/CfgModel.h"
 #include "Models/EnvModel.h"
 #include "Models/MultiBodyModel.h"
@@ -22,11 +23,9 @@
 class Camera;
 
 UserPathModel::
-UserPathModel(MainWindow* _mainWindow, InputType _t) :
-    Model("User Path"), m_checkCollision(false), m_mainWindow(_mainWindow), m_type(_t),
+UserPathModel(MainWindow* _mainWindow, InputType _t) : Model("User Path"),
+    m_checkCollision(false), m_mainWindow(_mainWindow), m_type(_t),
     m_finished(false), m_valid(true), m_oldPos(), m_newPos(), m_userPath() {
-  if(m_type == Haptic)
-    UpdatePositions(GetVizmo().GetManager()->GetWorldPos());
 }
 
 void
@@ -48,13 +47,12 @@ DrawRender() {
   for(vector<Point3d>::iterator it = m_userPath.begin(); it != m_userPath.end(); ++it)
     glVertex3dv(*it);
   glEnd();
- }
+}
 
 void
 UserPathModel::
 DrawSelect() {
   glLineWidth(4);
-  glBegin(GL_LINE_STRIP);
   for(vector<Point3d>::iterator it = m_userPath.begin(); it != m_userPath.end(); ++it)
     glVertex3dv(*it);
   glEnd();
@@ -114,6 +112,10 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
         Point3d(), Vector3d(0, 0, 1));
     UpdatePositions(p);
     SendToPath(p);
+    AvatarModel* avatar = GetVizmo().GetEnv()->GetAvatar();
+    avatar->UpdatePosition(p);
+    avatar->SetInputType(AvatarModel::Mouse);
+    avatar->Enable();
     return true;
   }
 
@@ -125,6 +127,7 @@ UserPathModel::
 MouseReleased(QMouseEvent* _e, Camera* _c) {
   if(m_type == Mouse && !m_finished && (m_userPath.begin() != m_userPath.end())) {
     m_finished = true;
+    GetVizmo().GetEnv()->GetAvatar()->Disable();
     return true;
   }
 
@@ -169,8 +172,8 @@ UpdatePositions(const Point3d& _p) {
 void
 UserPathModel::
 UpdateValidity() {
-  GetVizmo().CollisionCheck(m_newPos);
-  if(!m_newPos.IsValid())
+  //pair<bool, double> result = GetVizmo().VisibilityCheck(m_newPos, m_oldPos);}
+  if(!GetVizmo().CollisionCheck(m_newPos))
     m_valid = false;
 }
 

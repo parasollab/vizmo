@@ -4,21 +4,26 @@
 
 #include <QtGui>
 
-#include "Utilities/Camera.h"
+#include "Models/Vizmo.h"
 #include "MPProblem/BoundingSphere.h"
+#include "Utilities/Camera.h"
 #include "Utilities/GLUtils.h"
 #include "Utilities/IO.h"
 
 RegionSphereModel::
 RegionSphereModel(const Point3d& _center, double _radius, bool _firstClick) :
-  RegionModel("Sphere Region", SPHERE),
-  m_center(_center), m_centerOrig(_center), m_radius(_radius), m_radiusOrig(_radius),
-  m_lmb(false), m_rmb(false), m_firstClick(_firstClick), m_highlightedPart(NONE) {}
+    RegionModel("Sphere Region", SPHERE), m_centerOrig(_center),
+    m_radius(_radius), m_radiusOrig(_radius), m_lmb(false), m_rmb(false),
+    m_firstClick(_firstClick), m_highlightedPart(NONE) {
+  m_center = _center;
+  m_crosshair.SetPos(m_center);
+}
 
-  shared_ptr<Boundary>
-  RegionSphereModel::GetBoundary() const {
-    return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
-  }
+shared_ptr<Boundary>
+RegionSphereModel::
+GetBoundary() const {
+  return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
+}
 
 //initialization of gl models
 void
@@ -38,7 +43,7 @@ bool
 RegionSphereModel::
 operator==(const RegionModel& _other) const {
   if(_other.GetShape() == this->GetShape()) {
-    const RegionSphereModel* myModel = dynamic_cast<const RegionSphereModel*>(&_other);
+    const RegionSphereModel* myModel = static_cast<const RegionSphereModel*>(&_other);
     if(GetType() == myModel->GetType()) {
       bool result = true;
       result &= (m_centerOrig == myModel->m_centerOrig);
@@ -87,6 +92,10 @@ DrawRender() {
     QApplication::setOverrideCursor(Qt::SizeAllCursor);
   else if(m_highlightedPart == PERIMETER)
     QApplication::setOverrideCursor(Qt::SizeHorCursor);
+
+  //draw crosshair during manipulation
+  if(m_lmb || m_rmb)
+    m_crosshair.DrawRender();
 }
 
 void
@@ -133,14 +142,17 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
-  GetCameraVectors(_c);
+
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
     m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
     m_lmb = true;
     if(m_firstClick) {
       //set center and click spot
       int x = m_clicked.x(), y = m_clicked.y();
-      m_center = ProjectToWorld(x, y, _c->GetEye() + 2.*(_c->GetDir()), -_c->GetDir());
+      //set forward displacement of region from camera
+      double disp = GetVizmo().GetMaxEnvDist() / 3.;
+      m_center = ProjectToWorld(x, y, _c->GetEye() + disp * (_c->GetDir()),
+          -_c->GetDir());
     }
     return true;
   }
@@ -199,7 +211,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     Point3d c = ProjectToWorld(0, m_clicked.y(),
         m_center, -_c->GetDir());
     Vector3d delta = (m_centerOrig - _c->GetEye()).normalize() *
-      ((m - c) * m_cameraY);
+      ((m - c) * _c->GetWindowY());
     m_center = m_centerOrig + delta;
     return true;
   }

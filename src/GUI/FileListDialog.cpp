@@ -1,10 +1,11 @@
 #include "FileListDialog.h"
 
+#include "MainWindow.h"
+
 #include "Models/Vizmo.h"
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
 #include "Models/MapModel.h"
-#include "Utilities/AlertUser.h"
 
 #include "Icons/Folder.xpm"
 #include "Icons/Vizmo.xpm"
@@ -310,7 +311,7 @@ Accept() {
     accept();
   }
   else
-    AlertUser("No Environment File Loaded.");
+    GetMainWindow()->AlertUser("No Environment File Loaded.");
 }
 
 void

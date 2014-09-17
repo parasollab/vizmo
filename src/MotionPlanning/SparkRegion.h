@@ -56,11 +56,12 @@ Initialize() {
 
     string basename = this->GetBaseFilename();
 
+  this->SetupTools();
+
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
   GetVizmo().GetRobot()->SetSelectable(false);
-
 }
 
 template<class MPTraits>
@@ -75,26 +76,32 @@ Run() {
 
   size_t iter = 0;
   while(!this->EvaluateMap()) {
-    size_t index = this-> SelectRegion();
+
+    size_t index = this->SelectRegion();
 
     vector<CfgType> samples;
-    this-> SampleRegion(index, samples);
+    this->SampleRegion(index, samples);
 
-    this-> RejectSamples(samples);
+    if(samples.size() > 0 && index != 0)
+    {
+      this->DeleteRegion(index);
+    }
+
+    this->ProcessAvoidRegions();
 
     vector<VID> vids;
-    this-> AddToRoadmap(samples, vids);
+    this->AddToRoadmap(samples, vids);
 
-    this-> Connect(vids, iter);
+    this->Connect(vids, iter);
 
-    if(samples.size() && index <  GetVizmo().GetEnv()->GetAttractRegions().size()) {
+    if(samples.size() && index != GetVizmo().GetEnv()->GetAttractRegions().size()) {
       ConstructRRT(vids);
       GetVizmo().GetMap()->RefreshMap();
     }
 
     if(iter > 1000) {
       //recommend regions based upon vids
-      this-> RecommendRegions(vids, iter);
+      this->RecommendRegions(vids, iter);
     }
 
     if(++iter % 20 == 0) {
@@ -159,7 +166,6 @@ template<class MPTraits>
 bool
 SparkRegion<MPTraits>::
 ConstructRRT(vector<VID>& _vids) {
-
   typedef typename vector<VID>::iterator VIT;
   for(VIT vit = _vids.begin(); vit != _vids.end(); ++vit) {
     this->CheckNarrowPassageSample(*vit);
@@ -167,4 +173,3 @@ ConstructRRT(vector<VID>& _vids) {
   return false;
 }
 #endif
-

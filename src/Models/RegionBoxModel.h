@@ -1,17 +1,20 @@
-#ifndef REGIONBOXMODEL_H_
-#define REGIONBOXMODEL_H_
+#ifndef REGION_BOX_MODEL_H_
+#define REGION_BOX_MODEL_H_
 
 #include "RegionModel.h"
+
+#include "Models/CrosshairModel.h"
 
 class Camera;
 
 class RegionBoxModel : public RegionModel {
   public:
-    enum Highlight {NONE = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8, FRONT = 16,
-      BACK = 32, ALL = 63};
+    enum Highlight {NONE = 0, LEFT = 1, RIGHT = 2, TOP = 4, BOTTOM = 8,
+      FRONT = 16, BACK = 32, ALL = 63};
 
     RegionBoxModel();
-    RegionBoxModel(pair<double, double>, pair<double, double>, pair<double, double>);
+    RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange,
+        pair<double, double> _zRange);
 
     shared_ptr<Boundary> GetBoundary() const;
 
@@ -47,7 +50,7 @@ class RegionBoxModel : public RegionModel {
   protected:
     //helper functions
     void FindCenter();
-    void MapControls(const Vector3d& _deltaMouse,
+    void MapControls(Camera* _c, const Vector3d& _deltaMouse,
         Vector3d& _deltaWorld, vector<Vector3d>& _axisCtrlDir);
     void ApplyTransform(const Vector3d& _delta);
 
@@ -61,12 +64,13 @@ class RegionBoxModel : public RegionModel {
     vector<Vector3d> m_boxVertices;
     vector<Vector3d> m_prevPos;
     vector<Vector2d> m_winVertices;
-    Point3d m_center;
 
     // More efficient saving of position
     // min and max are two points
     Point3d m_min;
     Point3d m_max;
+
+    CrosshairModel m_crosshair;
 };
 
 #endif

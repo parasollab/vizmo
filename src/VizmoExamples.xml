@@ -1,6 +1,3 @@
-<!--XML with support for SparkRegion and RegionRRT/-->
-<!--Place in environment folder to test /-->
-
 <?xml version='1.0' encoding='UTF-8'?>
 <MotionPlanning>
   <MPProblem>
@@ -67,7 +64,7 @@
     </NeighborhoodFinders>
 
     <Samplers>
-      <UniformRandomSampler label="UniformRandom" vcLabel="alwaysTrue"/>
+      <!-- UniformRandomSampler label="UniformRandom" vcLabel="alwaysTrue"/-->
       <UniformRandomSampler label="UniformRandomFree" vcLabel="cd1"/>
       <UniformRandomSampler label="UniformRandomFreePQP" vcLabel="cd4"/>
       <ObstacleBasedSampler label="OBPRM" vcLabel="cd1" useBBX="false" pointSelection="cspace"
@@ -88,7 +85,7 @@
         <Sampler label="UniformRandomFree" p="0.8"/>
         <Sampler label="UniformRandom" p="0.2"/>
       </MixSampler-->
-      <UniformObstacleBasedSampler label="UOBPRM" vcLabel="cd1" useBBX="false" dmLabel="euclidean" d="0.02" />
+      <!--UniformObstacleBasedSampler label="UOBPRM" vcLabel="cd1" useBBX="false" dmLabel="euclidean" d="0.02" /-->
       <!--UniformMedialAxisSampler label="UMAPRM" vcLabel="cd4" useBBX="true" dmLabel="euclidean" d="2.00" t="10"
         clearanceType="exact" penetrationType="exact" debug="false" positional="true"/-->
     </Samplers>
@@ -217,7 +214,7 @@
         lpLabel="sl" debug="false" recordKeep="true" pmLabel="ShortcuttingPathModifier">
         <NodeConnectionMethod method="Closest"/>
       </Query>
-      <LazyQuery label="LazyQuery" queryFile="s.query" pathFile="Basic.path"
+      <LazyQuery label="LazyQuery" queryFile="narrow.query" pathFile="Basic.path"
         lpLabel="sl" dmLabel="euclidean" vcMethod="cd1" graphSearchAlg="astar"
         intermediateFiles="false" deleteNodes="false" debug="false" recordKeep="true"
         numEnhance="10" d="0.5" pmLabel="">
@@ -226,7 +223,7 @@
         <Resolution mult="16"/>
         <Resolution mult="1"/>
       </LazyQuery>
-      <LazyToggleQuery label="LazyToggleQuery" queryFile="s.query" pathFile="Basic.path"
+      <LazyToggleQuery label="LazyToggleQuery" queryFile="narrow.query" pathFile="Basic.path"
         lpLabel="sl" dmLabel="euclidean" vcMethod="cd1" graphSearchAlg="astar" intermediateFiles="false"
         deleteNodes="false" iterative="true" debug="false" recordKeep="true" pmLabel="">
         <NodeConnectionMethod method="ClosestAlwaysTrue"/>
@@ -240,12 +237,12 @@
       <ConditionalEvaluator label="EdgesEval" metric_method="NumEdges" value="10000" operator=">"/>
       <ConditionalEvaluator label="FreqNodeEval" metric_method="NumNodes" value="50" operator="%"/>
       <NegateEvaluator label="Neg" evalLabel="NodesEval"/>
-      <ComposeEvaluator label="Com1" operator="or">
+      <ComposeEvaluator label="Compose1" operator="or">
         <Evaluator label="NodesEval"/>
         <Evaluator label="Query"/>
       </ComposeEvaluator>
       <ComposeEvaluator label="Com2" operator="and">
-        <Evaluator label="Com1"/>
+        <Evaluator label="Compose1"/>
         <Evaluator label="PrintMap"/>
       </ComposeEvaluator>
       <ComposeEvaluator label="ModQuery" operator="and">
@@ -330,7 +327,7 @@
       <!-- If optimal connection is wanted, the correct connector needs to be selected -->
       <BasicRRTStrategy label="RRG" delta="10.0" minDist="0.001"
         numRoots="1" m="1" growthFocus="0.01" lpLabel="sl" dmLabel="euclidean"
-        nfLabel="Nearest" vcLabel="cd1" query="s.query" extenderLabel="BERO"
+        nfLabel="Nearest" vcLabel="cd1" query="narrow.query" extenderLabel="BERO"
         connectorLabel="OptimalConnector" gtype="UNDIRECTED_GRAPH">
         <Evaluator label="NodesEval"/>
       </BasicRRTStrategy>
@@ -339,7 +336,7 @@
       <!-- The connector needs to be OptimalRewire for RRT* -->
       <BasicRRTStrategy label="RRTstar" delta="10.0" minDist="0.001"
         numRoots="1" m="1" growthFocus="0.01" lpLabel="sl" dmLabel="euclidean"
-        nfLabel="Nearest" vcLabel="cd1" query="s.query" extenderLabel="BERO"
+        nfLabel="Nearest" vcLabel="cd1" query="narrow.query" extenderLabel="BERO"
         connectorLabel="OptimalRewire" gtype="UNDIRECTED_GRAPH">
         <Evaluator label="NodesEval"/>
       </BasicRRTStrategy>
@@ -347,7 +344,7 @@
       <!-- SRTStrategy -->
       <SRTStrategy label="SRT" delta="5" minDist="0.01"
         lpLabel="sl" dmLabel="euclidean" nfLabel="Nearest" vcLabel="cd1" eLabel="BERO"
-        query="s.query" gtype="UNDIRECTED_GRAPH" debug="true" recordKeep="true"
+        query="narrow.query" gtype="UNDIRECTED_GRAPH" debug="true" recordKeep="true"
         samples="5" expansions="10" closeCent="1" randCent="2" closePairs="2" connIter="5">
         <Evaluator label="ModQuery"/>
       </SRTStrategy>
@@ -357,7 +354,7 @@
       <BasicRRTStrategy label="OBRRT" delta="10.0" minDist="0.001"
         numRoots="1" m="1" growthFocus="0.01" lpLabel="sl" dmLabel="euclidean"
         nfLabel="Nearest" vcLabel="cd1" connectorLabel="Closest"
-        query="s.query" gtype="UNDIRECTED_TREE" debug="false"
+        query="narrow.query" gtype="UNDIRECTED_TREE" debug="false"
         evaluateGoal="true" growGoals = "true" extenderLabel="ME">
         <Evaluator label="NodesEval"/>
       </BasicRRTStrategy>
@@ -365,7 +362,7 @@
       <!-- MedialAxisRRT -->
       <MedialAxisRRT label="MARRT"
         delta="10.0" minDist="0.001" numRoots="1" growthFocus="0.00" lpLabel="sl" dmLabel="euclidean"
-        nfLabel="Nearest" vcLabel="cd2" query="s.query" gtype="UNDIRECTED_TREE"
+        nfLabel="Nearest" vcLabel="cd2" query="narrow.query" gtype="UNDIRECTED_TREE"
         clearanceType="exact" penetrationType="exact" useBBX="true"
         positional="true" epsilon="0.1" historyLength="20" debug="false"
         extendDist="1.0" maxIntermediates="10">
@@ -375,7 +372,7 @@
       <!-- Adaptive RRT -->
       <AdaptiveRRT label="AdaptiveRRT" delta="10.0" minDist="0.001"
         numRoots="1" growthFocus="0.01" lpLabel="sl" dmLabel="euclidean"
-        nfLabel="BFNF" vcLabel="cd1" query="s.query"
+        nfLabel="BFNF" vcLabel="cd1" query="narrow.query"
         gtype="UNDIRECTED_TREE" gamma="0.1" cost="reward" debug="true">
         <Evaluator label="NodesEval"/>
         <GrowthSet threshold="0.0">
@@ -424,7 +421,7 @@
       </Compare>
 
       <!-- EvaluateMapStrategy -->
-      <EvaluateMapStrategy label="EvaluateMapStrategy" mapFilename="zigzag.map">
+      <EvaluateMapStrategy label="EvaluateMapStrategy" mapFilename="narrow.map">
         <Evaluator label="NodesEval"/>
       </EvaluateMapStrategy>
 
@@ -465,8 +462,8 @@
         <Evaluator methodLabel="ModQuery"/>
       </TogglePRMStrategyWithRRT>
 
-      <BasicPRMWithRRT label="SparkUniform" maxNPCCSize="2" initSamples="2" maxRRTSize="100" attemptRatio="10"
-        delta="5" minDist="0.01" vcLabel="cd1" nfLabel="BFNF" nfVertexLabel="Nearest" trimDepth="2"
+      <BasicPRMWithRRT label="SparkUniform" maxNPCCSize="2" initSamples="10" maxRRTSize="100" attemptRatio="10"
+        delta="5" minDist="0.1" vcLabel="cd1" nfLabel="BFNF" nfVertexLabel="Nearest" trimDepth="2"
         dmLabel="euclidean" cLabel="SparkPRMConnector" eLabel="BERO" growthFocus="0.25"
         checkEdgeCases="true" checkImportant="true" trimAll="true" biasConnect="true" recordKeep="true" rrtDebug="false">
         <node_generation_method Method="UniformRandomFree" Number="10" Attempts="10"/>
@@ -484,27 +481,25 @@
       <!-- Paths Strategy -->
       <PathsStrategy label="PathsStrategy"/>
 
-      <!-- Spark Region Strategy -->
-      <SparkRegionWithRRT label="SparkRegion" samplerLabel="UniformRandomFreePQP" connectionLabel="Closest"   
-        maxNPCCSize="2" initSamples="0" maxRRTSize="100" attemptRatio="10"
-        delta="5" minDist="0.01" vcLabel="cd1" nfLabel="BFNF" nfVertexLabel="Nearest" trimDepth="2"
-        dmLabel="euclidean" cLabel="SparkPRMConnector" eLabel="BERO" growthFocus="0.5"
-        checkEdgeCases="true" checkImportant="true" trimAll="true" biasConnect="true" recordKeep="true" rrtDebug="false">
-        <node_generation_method Method="UniformRandomFree" Number="10" Attempts="10"/>
-        <node_connection_method Method="Closest"/>
-        <evaluation_method Method="ModQuery"/>
-      </SparkRegionWithRRT>
-
-      <!-- BasicRRT -->
-      <RegionRRT label="RegionRRT" connectionLabel="Closest" delta="0.25" minDist="0.001" 
-        numRoots="1" m="1" growthFocus="0.01" lpLabel="sl" dmLabel="euclidean" nfLabel="Nearest" 
-        vcLabel="cd1" connectorLabel="Closest" query="s.query" gtype="UNDIRECTED_TREE" 
-        debug="false" evaluateGoal="true" growGoals = "false" extenderLabel="BERO">
-        <Evaluator label="NodesEval"/>
+      <!-- Region RRT -->
+      <RegionRRT label="RegionRRT" vcLabel="cd1" nfLabel="Nearest" dmLabel="euclidean" lpLabel="sl"
+        gtype="UNDIRECTED_GRAPH" extenderLabel="BERO" connectionLabel="">
+        <Evaluator label="Query"/>
       </RegionRRT>
+
+      <RegionRRT label="RegionRRT" delta="10.0" minDist="0.001"
+        numRoots="1" m="1" growthFocus="0.01" lpLabel="sl" dmLabel="euclidean"
+        nfLabel="Nearest" vcLabel="cd1" query="narrow.query" extenderLabel="BERO"
+        connectorLabel="OptimalConnector" gtype="UNDIRECTED_GRAPH" connectionLabel="Closest">
+        <Evaluator label="Query"/>
+      </RegionRRT>
+
+
+      <!-- SparkRRT -->
+      <SparkRegion label="SparkRegion" samplerLabel="UniformRandomFreePQP" connectionLabel="Closest"/>
     </MPStrategies>
 
-    <Solver mpStrategyLabel="RegionRRT" seed="123456789"  baseFilename="Basic" vizmoDebug="true"/>
+    <Solver mpStrategyLabel="BasicPRM1" seed="12345678"  baseFilename="Basic" vizmoDebug="true"/>
     <!-- MPProblem allows multiple solvers to be specified and executed. -->
     <!--Solver mpStrategyLabel="BasicPRM2" seed="12345678" baseFilename="Basic2" vizmoDebug="true"/-->
 

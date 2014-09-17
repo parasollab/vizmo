@@ -22,6 +22,11 @@ Manager& GetManager(){
   return manager;
 }
 
+bool
+UsingPhantom() {
+  return GetVizmo().GetManager();
+}
+
 Manager::
 Manager() : m_hhd(HD_INVALID_HANDLE), m_hhlrc(NULL) {
   Initialize();
@@ -36,7 +41,6 @@ Manager::
 void
 Manager::HapticRender() {
   glDisable(GL_CULL_FACE);
-  hlBeginFrame();
 
   //Get all state variables
   GetState();

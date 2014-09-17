@@ -54,7 +54,6 @@ GetColorFromComment(istream& _is) {
 }
 
 void VDAddRegion(RegionModel* _region) {
-
   if(vdo != NULL) {
     (*vdo) << "AddRegion ";
     _region->OutputDebugInfo(*vdo);
@@ -62,7 +61,6 @@ void VDAddRegion(RegionModel* _region) {
 }
 
 void VDRemoveRegion(RegionModel* _region) {
-
   if(vdo != NULL) {
     (*vdo) << "RemoveRegion ";
     _region->OutputDebugInfo(*vdo);

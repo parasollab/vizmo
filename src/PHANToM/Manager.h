@@ -18,7 +18,7 @@ namespace Haptics {
 class Manager;
 Manager& GetManager();
 
-inline const bool UsingPhantom() {return true;}
+bool UsingPhantom();
 
 class Manager {
   public:
@@ -74,7 +74,7 @@ using namespace mathtool;
 
 namespace Haptics {
 
-inline const bool UsingPhantom() {return false;}
+inline bool UsingPhantom() {return false;}
 
 class Manager {
   public:
@@ -84,6 +84,7 @@ class Manager {
 
     //state access functions
     Point3d GetWorldPos() {return Point3d();}
+    Point3d GetWorldRot() {return Point3d();}
 
     //control functions
     void ToggleForceOutput() {}

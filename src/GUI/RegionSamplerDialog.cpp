@@ -4,7 +4,6 @@
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
 #include "Models/MapModel.h"
-#include "Utilities/AlertUser.h"
 
 RegionSamplerDialog::
 RegionSamplerDialog(const vector<string>& _samplers, QWidget* _parent, Qt::WFlags _f) :
@@ -20,11 +19,13 @@ SetUpSubwidgets(const vector<string>& _samplers) {
   setLayout(layout);
 
   QPushButton* setButton = new QPushButton("Set", this);
-  //QPushButton* cancelButton = new QPushButton("Cancel", this);
 
   for(vector<string>::const_iterator citer = _samplers.begin(); citer != _samplers.end(); ++citer) {
+
+cout << "Sampler: " << *citer << endl << flush;
     m_samplerRadioButtons.push_back(new QRadioButton(this));
     m_nameAndLabels.push_back(new QLabel(GetVizmo().GetSamplerNameAndLabel((*citer).c_str()).c_str(), this));
+
     m_samplerLabels.push_back((*citer).c_str());
   }
 
@@ -38,12 +39,9 @@ SetUpSubwidgets(const vector<string>& _samplers) {
     connect(m_samplerRadioButtons[i], SIGNAL(clicked()), this, SLOT(ChangeSampler()));
   }
 
-  //setButton->setFixedWidth(cancelButton->width());
   layout->addWidget(setButton, _samplers.size(), 1);
-  //layout->addWidget(cancelButton, _samplers.size(), 2);
 
   connect(setButton, SIGNAL(clicked()), this, SLOT(Accept()));
-  //connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
 }
 
 void

@@ -9,7 +9,6 @@
 #include "Models/ConnectionModel.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
-#include "Utilities/AlertUser.h"
 
 #define DEFAULT_COLOR Color4(0.0,0.0,0.0,1)
 #define DEFAULT_BASE_CONF "  FIXED  0 0 0 0 0 0 \n"
@@ -473,7 +472,7 @@ EditRobotDialog::SaveBase() {
     RefreshVizmo();
   }
   else{
-    AlertUser("No base selected");
+    GetMainWindow()->AlertUser("No base selected");
     return;
   }
 }
@@ -507,7 +506,7 @@ EditRobotDialog::SaveJoint(){
   int bodyNum = m_jointConnectionsLine1->text().toInt();
   int bodyNum2 = m_jointConnectionsLine2->text().toInt();
   if(bodyNum >= bodyCount || bodyNum < 0 || bodyNum == bodyNum2){
-    AlertUser("Invalid body number specified");
+    GetMainWindow()->AlertUser("Invalid body number specified");
     return;
   }
   else {
@@ -682,7 +681,7 @@ EditRobotDialog::AddJoint() {
     }
   }
   else
-    AlertUser("No base selected");
+    GetMainWindow()->AlertUser("No base selected");
 }
 
 void
@@ -723,7 +722,7 @@ EditRobotDialog::DeleteJoint(){
     RefreshVizmo();
   }
   else
-    AlertUser("No joint selected");
+    GetMainWindow()->AlertUser("No joint selected");
 }
 
 void
@@ -756,7 +755,7 @@ EditRobotDialog::DeleteBase() {
     RefreshVizmo();
   }
   else
-    AlertUser("No Base selected");
+    GetMainWindow()->AlertUser("No Base selected");
 }
 
 void

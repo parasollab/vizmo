@@ -12,7 +12,9 @@
 
 //validity checker includes
 #include "ValidityCheckers/AlwaysTrueValidity.h"
+#include "AvoidRegionValidity.h"
 #include "ValidityCheckers/CollisionDetectionValidity.h"
+#include "ValidityCheckers/ComposeValidity.h"
 
 //neighborhood finder includes
 #include "NeighborhoodFinders/BruteForceNF.h"
@@ -50,6 +52,7 @@
 #include "MPStrategies/BasicRRTStrategy.h"
 #include "MPStrategies/BasicPRM.h"
 #include "MPStrategies/SparkPRM.h"
+#include "IRRTStrategy.h"
 #include "PathStrategy.h"
 #include "RegionStrategy.h"
 #include "RegionRRT.h"
@@ -71,8 +74,9 @@ struct VizmoTraits {
 
   //types of validity checkers available in our world
   typedef boost::mpl::list<
-    AlwaysTrueValidity<VizmoTraits>,
-    CollisionDetectionValidity<VizmoTraits>
+    AvoidRegionValidity<VizmoTraits>,
+    CollisionDetectionValidity<VizmoTraits>,
+    ComposeValidity<VizmoTraits>
       > ValidityCheckerMethodList;
 
   //types of neighborhood finders available in our world
@@ -127,9 +131,11 @@ struct VizmoTraits {
   typedef boost::mpl::list<
     BasicPRM<VizmoTraits>,
     BasicRRTStrategy<VizmoTraits>,
+    IRRTStrategy<VizmoTraits>,
     PathStrategy<VizmoTraits>,
     RegionRRT<VizmoTraits>,
     RegionStrategy<VizmoTraits>,
+    SparkRegion<VizmoTraits>,
     SparkPRM<VizmoTraits, SparkRegion>
     > MPStrategyMethodList;
 

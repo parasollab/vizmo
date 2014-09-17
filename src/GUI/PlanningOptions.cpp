@@ -1,12 +1,12 @@
 #include "PlanningOptions.h"
 
+#include "ChangePlannerDialog.h"
 #include "GLWidget.h"
 #include "MainMenu.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 #include "RegionSamplerDialog.h"
 
-#include "Utilities/AlertUser.h"
 #include "Utilities/IO.h"
 
 #include "Models/EnvModel.h"
@@ -40,7 +40,6 @@ PlanningOptions::
 PlanningOptions(QWidget* _parent, MainWindow* _mainWindow) :
   OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
   m_threadDone(true), m_thread(NULL), m_userPathCount(0) {
-
     CreateActions();
     SetUpCustomSubmenu();
     SetUpToolTab();
@@ -51,28 +50,27 @@ void
 PlanningOptions::
 CreateActions() {
   // 1, Create Actions and add them to the map
-  QAction* addRegionSphere = new QAction(QPixmap(addsphereregion), tr("Add Spherical Region"), this);
-  m_actions["addRegionSphere"] = addRegionSphere;
-  QAction* addRegionBox = new QAction(QPixmap(addboxregion), tr("Add Box Region"), this);
-  m_actions["addRegionBox"] = addRegionBox;
-  QAction* deleteRegion = new QAction(QPixmap(deleteregion), tr("Delete Region"), this);
-  m_actions["deleteRegion"] = deleteRegion;
-  QAction* makeRegionAttract = new QAction(QPixmap(attractregion), tr("Make Attract Region"), this);
-  m_actions["makeRegionAttract"] = makeRegionAttract;
-  QAction* makeRegionAvoid = new QAction(QPixmap(avoidregion), tr("Make Avoid Region"), this);
-  m_actions["makeRegionAvoid"] = makeRegionAvoid;
-  QAction* duplicateRegion = new QAction(QPixmap(duplicateregion), tr("Duplicate Region"), this);
-  m_actions["duplicateRegion"] = duplicateRegion;
-  QAction* mapEnv = new QAction(QPixmap(mapenv), tr("Map Environment or Path"), this);
-  m_actions["mapEnv"] = mapEnv;
-  QAction* saveRegion = new QAction(QPixmap(saveregion), tr("Save Region"), this);
-  m_actions["saveRegion"] = saveRegion;
-  QAction* loadRegion = new QAction(QPixmap(loadregion), tr("Load Region"), this);
-  m_actions["loadRegion"] = loadRegion;
   QAction* regionRRT = new QAction(QPixmap(mapenv), tr("Region RRT"), this);
   m_actions["regionRRT"] = regionRRT;
   QAction* sparkRegion = new QAction(QPixmap(mapenv), tr("Spark Region PRM"), this);
   m_actions["sparkRegion"] = sparkRegion;
+
+  m_actions["addRegionSphere"] = new QAction(QPixmap(addsphereregion),
+      tr("Add Spherical Region"), this);
+  m_actions["addRegionBox"] = new QAction(QPixmap(addboxregion),
+      tr("Add Box Region"), this);
+  m_actions["deleteRegion"] = new QAction(QPixmap(deleteregion),
+      tr("Delete Region"), this);
+  m_actions["makeRegionAttract"] = new QAction(QPixmap(attractregion),
+      tr("Make Attract Region"), this);
+  m_actions["makeRegionAvoid"] = new QAction(QPixmap(avoidregion),
+      tr("Make Avoid Region"), this);
+  m_actions["duplicateRegion"] = new QAction(QPixmap(duplicateregion),
+      tr("Duplicate Region"), this);
+  m_actions["saveRegion"] = new QAction(QPixmap(saveregion),
+      tr("Save Region"), this);
+  m_actions["loadRegion"] = new QAction(QPixmap(loadregion),
+      tr("Load Region"), this);
 
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
@@ -84,6 +82,8 @@ CreateActions() {
       tr("Delete User Path"), this);
   m_actions["printUserPath"] = new QAction(QPixmap(printuserpath),
       tr("Print User Path"), this);
+  m_actions["mapEnvironment"] = new QAction(QPixmap(mapenv),
+      tr("Map Environment"), this);
 
   // 2. Set other specifications
   m_actions["addRegionSphere"]->setEnabled(false);
@@ -92,7 +92,7 @@ CreateActions() {
   m_actions["makeRegionAttract"]->setEnabled(false);
   m_actions["makeRegionAvoid"]->setEnabled(false);
   m_actions["duplicateRegion"]->setEnabled(false);
-  m_actions["mapEnv"]->setEnabled(false);
+  m_actions["mapEnvironment"]->setEnabled(false);
   m_actions["addUserPathMouse"]->setEnabled(false);
   m_actions["addUserPathCamera"]->setEnabled(false);
   m_actions["addUserPathHaptic"]->setEnabled(false);
@@ -104,16 +104,23 @@ CreateActions() {
   m_actions["sparkRegion"]->setEnabled(false);
 
   // 3. Make connections
-  connect(m_actions["addRegionSphere"], SIGNAL(triggered()), this, SLOT(AddRegionSphere()));
-  connect(m_actions["addRegionBox"], SIGNAL(triggered()), this, SLOT(AddRegionBox()));
-  connect(m_actions["deleteRegion"], SIGNAL(triggered()), this, SLOT(DeleteRegion()));
-  connect(m_actions["makeRegionAttract"], SIGNAL(triggered()), this, SLOT(MakeRegionAttract()));
-  connect(m_actions["makeRegionAvoid"], SIGNAL(triggered()), this, SLOT(MakeRegionAvoid()));
-  connect(m_actions["saveRegion"], SIGNAL(triggered()), this, SLOT(SaveRegion()));
-  connect(m_actions["loadRegion"], SIGNAL(triggered()), this, SLOT(LoadRegion()));
-  connect(m_actions["duplicateRegion"], SIGNAL(triggered()), this, SLOT(DuplicateRegion()));
-  connect(m_actions["regionRRT"], SIGNAL(triggered()), this, SLOT(RegionRRT()));
-  connect(m_actions["mapEnv"], SIGNAL(triggered()),
+  connect(m_actions["addRegionSphere"], SIGNAL(triggered()),
+      this, SLOT(AddRegionSphere()));
+  connect(m_actions["addRegionBox"], SIGNAL(triggered()),
+      this, SLOT(AddRegionBox()));
+  connect(m_actions["deleteRegion"], SIGNAL(triggered()),
+      this, SLOT(DeleteRegion()));
+  connect(m_actions["makeRegionAttract"], SIGNAL(triggered()),
+      this, SLOT(MakeRegionAttract()));
+  connect(m_actions["makeRegionAvoid"], SIGNAL(triggered()),
+      this, SLOT(MakeRegionAvoid()));
+  connect(m_actions["saveRegion"], SIGNAL(triggered()),
+      this, SLOT(SaveRegion()));
+  connect(m_actions["loadRegion"], SIGNAL(triggered()),
+      this, SLOT(LoadRegion()));
+  connect(m_actions["duplicateRegion"], SIGNAL(triggered()),
+      this, SLOT(DuplicateRegion()));
+  connect(m_actions["mapEnvironment"], SIGNAL(triggered()),
       this, SLOT(MapEnvironment()));
   connect(m_actions["addUserPathMouse"], SIGNAL(triggered()),
       this, SLOT(AddUserPath()));
@@ -126,6 +133,8 @@ CreateActions() {
   connect(m_actions["printUserPath"], SIGNAL(triggered()),
       this, SLOT(PrintUserPath()));
   connect(m_actions["sparkRegion"], SIGNAL(triggered()),
+      this, SLOT(SparkRegion()));
+  connect(m_actions["regionRRT"], SIGNAL(triggered()),
       this, SLOT(SparkRegion()));
 }
 
@@ -150,7 +159,7 @@ SetUpCustomSubmenu() {
   m_submenu->addAction(m_actions["saveRegion"]);
   m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
-  m_submenu->addAction(m_actions["mapEnv"]);
+  m_submenu->addAction(m_actions["MapEvironment"]);
   m_submenu->addAction(m_actions["regionRRT"]);
   m_submenu->addAction(m_actions["sparkRegion"]);
 
@@ -196,7 +205,6 @@ SetUpToolTab() {
 
   buttonList.push_back("addRegionBox");
   buttonList.push_back("addRegionSphere");
-  buttonList.push_back("deleteRegion");
   buttonList.push_back("duplicateRegion");
   buttonList.push_back("saveRegion");
   buttonList.push_back("loadRegion");
@@ -204,13 +212,13 @@ SetUpToolTab() {
 
   buttonList.push_back("makeRegionAttract");
   buttonList.push_back("makeRegionAvoid");
+  buttonList.push_back("deleteRegion");
 
   buttonList.push_back("_separator_");
 
-  buttonList.push_back("mapEnv");
+  buttonList.push_back("mapEnvironment");
   buttonList.push_back("regionRRT");
   buttonList.push_back("sparkRegion");
-
 
   CreateToolTab(buttonList);
 }
@@ -224,7 +232,7 @@ Reset() {
   m_actions["makeRegionAttract"]->setEnabled(true);
   m_actions["makeRegionAvoid"]->setEnabled(true);
   m_actions["duplicateRegion"]->setEnabled(true);
-  m_actions["mapEnv"]->setEnabled(true);
+  m_actions["mapEnvironment"]->setEnabled(true);
   m_actions["regionRRT"]->setEnabled(true);
   m_actions["addUserPathMouse"]->setEnabled(true);
   m_actions["addUserPathCamera"]->setEnabled(true);
@@ -244,20 +252,34 @@ Reset() {
 void
 PlanningOptions::
 SetHelpTips() {
-  m_actions["mapEnv"]->setWhatsThis(tr("Map an environment using region strategy, or the current path using path strategy"));
-  m_actions["addRegionSphere"]->setWhatsThis(tr("Add a spherical region to aid planner"));
-  m_actions["addRegionBox"]->setWhatsThis(tr("Add a box region to aid planner"));
-  m_actions["deleteRegion"]->setWhatsThis(tr("Remove a region from the scene"));
-  m_actions["makeRegionAttract"]->setWhatsThis(tr("Change a region to attract"));
-  m_actions["makeRegionAvoid"]->setWhatsThis(tr("Change a region to avoid"));
-  m_actions["duplicateRegion"]->setWhatsThis(tr("Copy of a selected region"));
-  m_actions["addUserPathMouse"]->setWhatsThis(tr("Add an approximate path to aid planner"));
-  m_actions["addUserPathCamera"]->setWhatsThis(tr("Add an approximate path to aid planner"));
-  m_actions["addUserPathHaptic"]->setWhatsThis(tr("Add an approximate path to aid planner"));
-  m_actions["deleteUserPath"]->setWhatsThis(tr("Remove an approximate path from the scene"));
-  m_actions["printUserPath"]->setWhatsThis(tr("Print selected user path to file"));
-  m_actions["saveRegion"]->setWhatsThis(tr("Saves the regions drawn in the scene"));
-  m_actions["loadRegion"]->setWhatsThis(tr("Loads saved regions to the scene"));
+  m_actions["mapEnvironment"]->setWhatsThis(
+      tr("Map an environment using selected Strategy"));
+  m_actions["addRegionSphere"]->setWhatsThis(
+      tr("Add a spherical region to aid planner"));
+  m_actions["addRegionBox"]->setWhatsThis(
+      tr("Add a box region to aid planner"));
+  m_actions["deleteRegion"]->setWhatsThis(
+      tr("Remove a region from the scene"));
+  m_actions["makeRegionAttract"]->setWhatsThis(
+      tr("Change a region to attract"));
+  m_actions["makeRegionAvoid"]->setWhatsThis(
+      tr("Change a region to avoid"));
+  m_actions["duplicateRegion"]->setWhatsThis(
+      tr("Copy of a selected region"));
+  m_actions["addUserPathMouse"]->setWhatsThis(
+      tr("Add an approximate path to aid planner"));
+  m_actions["addUserPathCamera"]->setWhatsThis(
+      tr("Add an approximate path to aid planner"));
+  m_actions["addUserPathHaptic"]->setWhatsThis(
+      tr("Add an approximate path to aid planner"));
+  m_actions["deleteUserPath"]->setWhatsThis(
+      tr("Remove an approximate path from the scene"));
+  m_actions["printUserPath"]->setWhatsThis(
+      tr("Print selected user path to file"));
+  m_actions["saveRegion"]->setWhatsThis(
+      tr("Saves the regions drawn in the scene"));
+  m_actions["loadRegion"]->setWhatsThis(
+      tr("Loads saved regions to the scene"));
   m_actions["regionRRT"]->setWhatsThis(tr("Region RRT"));
   m_actions["sparkRegion"]->setWhatsThis(tr("Spark Region PRM"));
 
@@ -300,7 +322,6 @@ AddRegionSphere() {
     GetVizmo().StartClock("Pre-regions");
     m_regionsStarted = true;
   }
-
   // Create new sphere region
   RegionModel* r;
 
@@ -387,23 +408,23 @@ DuplicateRegion() {
       double dist;
       RegionModel::Shape shape = ((RegionModel*)(*sit))->GetShape();
       if(shape == RegionModel::BOX) {
-        r = new RegionBoxModel(*dynamic_cast<RegionBoxModel*>(*sit));
+        r = new RegionBoxModel(*static_cast<RegionBoxModel*>(*sit));
       }
       else if(shape == RegionModel::BOX2D) {
-        r = new RegionBox2DModel(*dynamic_cast<RegionBox2DModel*>(*sit));
+        r = new RegionBox2DModel(*static_cast<RegionBox2DModel*>(*sit));
       }
       else if(shape == RegionModel::SPHERE ) {
-        r = new RegionSphereModel(*dynamic_cast<RegionSphereModel*>(*sit));
+        r = new RegionSphereModel(*static_cast<RegionSphereModel*>(*sit));
       }
       else if(shape == RegionModel::SPHERE2D) {
-        r = new RegionSphere2DModel(*dynamic_cast<RegionSphere2DModel*>(*sit));
+        r = new RegionSphere2DModel(*static_cast<RegionSphere2DModel*>(*sit));
       }
       if(r) {
         regionFound = true;
         dist = r->GetLongLength();
         r->SetType(RegionModel::NONCOMMIT);
-        vector<Vector3d> dir = r->GetCameraVectors(m_mainWindow->GetGLWidget()->GetCurrentCamera());
-        Vector3d delta = dir[0] - dir[1] + dir[2];
+        Camera* c = m_mainWindow->GetGLWidget()->GetCurrentCamera();
+        Vector3d delta = -(c->GetWindowX() + c->GetWindowY() + c->GetWindowZ());
         delta.selfNormalize();
         delta *= dist/3;
         r->ApplyOffset(delta);
@@ -416,24 +437,14 @@ DuplicateRegion() {
     }
   }
   if(!regionFound)
-    AlertUser("Region not selected");
-}
-
-void
-PlanningOptions::
-HandleTimer() {
-  m_mainWindow->GetGLWidget()->updateGL();
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+    GetMainWindow()->AlertUser("Region not selected");
 }
 
 void
 PlanningOptions::
 ThreadDone() {
   m_threadDone = true;
-
-  // Disconnect and delete timer
-  disconnect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
-  delete m_timer;
+  m_regionsStarted = false;
 
   // Refresh scene + GUI
   m_mainWindow->GetGLWidget()->updateGL();
@@ -445,26 +456,29 @@ void
 PlanningOptions::
 MapEnvironment() {
   if(m_threadDone) {
-    // Stop timer for before regions
-    GetVizmo().StopClock("Pre-regions");
 
-    // Before thread starts, make sure map model exists
+    ChangePlannerDialog cpDialog(m_mainWindow);
+
+    if(!cpDialog.exec())
+      return;
+
+    string slabel = cpDialog.GetPlanner();
+
+    //Stop timer for before regions
+    if(!m_regionsStarted)
+      //start-stop when no regions were created
+      GetVizmo().StartClock("Pre-Regions");
+    GetVizmo().StopClock("Pre-Regions");
+
+    //Verify that map model exist
     GetVizmo().SetPMPLMap();
     m_mainWindow->m_mainMenu->CallReset();
 
-    // Set up timer to redraw and refresh GUI
-    m_timer = new QTimer(this);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
-    m_timer->start(200);
-
-    // Set up thread for mapping the environment
+    //Set up thread for execution
     m_threadDone = false;
     m_thread = new QThread;
     MapEnvironmentWorker* mpsw;
-    if(m_mainWindow->GetGLWidget()->GetCurrentUserPath())
-      mpsw = new MapEnvironmentWorker("PathsStrategy");
-    else
-      mpsw = new MapEnvironmentWorker("RegionStrategy");
+    mpsw = new MapEnvironmentWorker(slabel);
     mpsw->moveToThread(m_thread);
     m_thread->start();
     connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
@@ -478,7 +492,8 @@ MapEnvironment() {
 void
 PlanningOptions::
 AddUserPath() {
-  QAction* callee = dynamic_cast<QAction*>(sender());
+  //this slot must be connected to a QAction
+  QAction* callee = static_cast<QAction*>(sender());
   UserPathModel* p;
 
   if(callee->text().toStdString() == "Add User Path with Haptics") {
@@ -695,8 +710,7 @@ LoadRegion() {
 }
 
 MapEnvironmentWorker::
-MapEnvironmentWorker(string _strategyLabel) : QObject(),
-  m_strategyLabel(_strategyLabel) {}
+MapEnvironmentWorker(string _strategyLabel) : QObject(), m_strategyLabel(_strategyLabel) {}
 
 void
 MapEnvironmentWorker::
@@ -708,18 +722,13 @@ Solve() {
 void
 PlanningOptions::
 SparkRegion() {
-if(m_threadDone) {
+  if(m_threadDone) {
     // Stop timer for before regions
     GetVizmo().StopClock("Pre-regions");
 
     // Before thread starts, make sure map model exists
     GetVizmo().SetPMPLMap();
     m_mainWindow->m_mainMenu->CallReset();
-
-    // Set up timer to redraw and refresh GUI
-    m_timer = new QTimer(this);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
-    m_timer->start(200);
 
     // Set up thread for mapping the environment
     m_threadDone = false;
@@ -731,6 +740,7 @@ if(m_threadDone) {
     connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
     connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
     connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
+
     connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
     connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
   }
@@ -746,11 +756,6 @@ RegionRRT() {
     // Before thread starts, make sure map model exists
     GetVizmo().SetPMPLMap();
     m_mainWindow->m_mainMenu->CallReset();
-
-    // Set up timer to redraw and refresh GUI
-    m_timer = new QTimer(this);
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(HandleTimer()));
-    m_timer->start(200);
 
     // Set up thread for mapping the environment
     m_threadDone = false;

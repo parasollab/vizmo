@@ -58,6 +58,9 @@ class CfgModel : public Model, public Cfg {
     void DrawSelected();
     void Print(ostream& _os) const;
 
+  protected:
+    bool m_isValid; //For collision detection
+
   private:
     static double m_defaultDOF;
     static bool m_isPlanarRobot;
@@ -66,7 +69,6 @@ class CfgModel : public Model, public Cfg {
     static Shape m_shape;
     static float m_pointScale;
 
-    bool m_isValid; //For collision detection
     bool m_isQuery;
     size_t m_index;
     CCModel<CfgModel, EdgeModel>* m_cc;

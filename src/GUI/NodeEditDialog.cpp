@@ -5,6 +5,7 @@
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
+
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
 #include "Models/CfgModel.h"
@@ -12,7 +13,6 @@
 #include "Models/QueryModel.h"
 #include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
-#include "Utilities/AlertUser.h"
 
 QValidator::State
 NodeEditValidator::
@@ -381,7 +381,7 @@ FinalizeNodeEdit(int _accepted) {
       }
     }
     else
-      AlertUser("Invalid configuration!");
+      GetMainWindow()->AlertUser("Invalid configuration!");
 
     if(map)
       map->RefreshMap();

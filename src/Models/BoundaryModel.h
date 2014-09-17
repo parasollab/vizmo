@@ -1,5 +1,5 @@
-#ifndef BOUNDARYMODEL_H_
-#define BOUNDARYMODEL_H_
+#ifndef BOUNDARY_MODEL_H_
+#define BOUNDARY_MODEL_H_
 
 #include "Model.h"
 #include <string>

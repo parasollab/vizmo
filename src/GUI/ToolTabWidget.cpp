@@ -41,7 +41,9 @@ ToolTabWidget(MainWindow* _mainWindow) : QTabWidget() {
 void
 ToolTabWidget::
 ToggleTab() {
-  string name = dynamic_cast<QAction*>(sender())->text().toStdString();
+  //this slot must be connected to a QAction
+  QAction* toggle = static_cast<QAction*>(sender());
+  string name = toggle->text().toStdString();
   int index = indexOf(m_tabs[name].second);
   //if tab is not visible, add it to ToolTabWidget
   if(index == -1) {

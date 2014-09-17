@@ -5,7 +5,6 @@
 #include "MovieSaveDialog.h"
 #include "AnimationWidget.h"
 #include "Models/Vizmo.h"
-#include "Utilities/AlertUser.h"
 #include "Utilities/ImageFilters.h"
 
 #include "Icons/Crop.xpm"
@@ -200,7 +199,7 @@ StartLiveRecording() {
     m_mainWindow->GetGLWidget()->SetRecording(true);
   }
   else
-    AlertUser("Recording aborted.");
+    GetMainWindow()->AlertUser("Recording aborted.");
 }
 
 void

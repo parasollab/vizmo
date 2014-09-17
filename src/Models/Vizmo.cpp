@@ -3,6 +3,7 @@
 #include <iostream>
 using namespace std;
 
+#include "AvatarModel.h"
 #include "CfgModel.h"
 #include "DebugModel.h"
 #include "EnvModel.h"
@@ -10,8 +11,13 @@ using namespace std;
 #include "PathModel.h"
 #include "QueryModel.h"
 #include "RobotModel.h"
+
+#include "GUI/MainWindow.h"
+
 #include "MotionPlanning/VizmoTraits.h"
+
 #include "PHANToM/Manager.h"
+
 #include "Utilities/PickBox.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,10 +146,10 @@ InitPMPL() {
 
   //add uniform sampler
   VizmoProblem::SamplerPointer sp(new UniformRandomSampler<VizmoTraits>("PQP_SOLID"));
-  problem->AddSampler(sp, "uniform");
+  problem->AddSampler(sp, "Uniform");
 
   // Set Sampler Labels
-  m_loadedSamplers.push_back("uniform");
+  m_loadedSamplers.push_back("Uniform");
 
   //add distance metric
   VizmoProblem::DistanceMetricPointer dm(new EuclideanDistance<VizmoTraits>());
@@ -157,9 +163,13 @@ InitPMPL() {
   VizmoProblem::NeighborhoodFinderPointer nfp(new BruteForceNF<VizmoTraits>("euclidean", false, 10));
   problem->AddNeighborhoodFinder(nfp, "BFNF");
 
+  // add extender
+  VizmoProblem::ExtenderPointer extp(new BasicExtender<VizmoTraits>("euclidean", "PQP_SOLID", 10.0));
+  problem->AddExtender(extp, "BERO");
+
   //add connector
   VizmoProblem::ConnectorPointer cp(new NeighborhoodConnector<VizmoTraits>("BFNF", "sl"));
-  problem->AddConnector(cp, "Neighborhood Connector");
+  problem->AddConnector(cp, "kClosest");
 
   //add num nodes metric for evaluator
   VizmoProblem::MetricPointer mp(new NumNodesMetric<VizmoTraits>());
@@ -176,7 +186,10 @@ InitPMPL() {
 
   //set up query evaluators
   if(m_queryModel) {
-    VizmoProblem::MapEvaluatorPointer mep(new Query<VizmoTraits>(m_queryFilename, vector<string>(1, "Neighborhood Connector")));
+    //setup standard query evaluator
+    Query<VizmoTraits>* query = new Query<VizmoTraits>(m_queryFilename,
+        vector<string>(1, "kClosest"));
+    VizmoProblem::MapEvaluatorPointer mep(query);
     problem->AddMapEvaluator(mep, "Query");
 
     //setup debugging evaluator
@@ -190,8 +203,20 @@ InitPMPL() {
     evals.clear();
     evals.push_back("NodesEval");
     evals.push_back("Query");
-    VizmoProblem::MapEvaluatorPointer bqe(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
-    problem->AddMapEvaluator(bqe, "Com1");
+    VizmoProblem::MapEvaluatorPointer bqe(new
+        ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
+    problem->AddMapEvaluator(bqe, "BoundedQuery");
+
+    //add basic extender for I-RRT
+    VizmoProblem::ExtenderPointer bero(new BasicExtender<VizmoTraits>(
+          "euclidean", "PQP_SOLID", 10., true));
+    problem->AddExtender(bero, "BERO");
+
+    //add I-RRT strategy
+    VizmoProblem::MPStrategyPointer irrt(
+        new IRRTStrategy<VizmoTraits>(query->GetQuery().front(),
+            query->GetQuery().back()));
+    problem->AddMPStrategy(irrt, "IRRT");
   }
 
   //add region strategy
@@ -200,7 +225,7 @@ InitPMPL() {
 
   //add path strategy
   VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());
-  problem->AddMPStrategy(ps, "PathsStrategy");
+  problem->AddMPStrategy(ps, "PathStrategy");
 
   VizmoProblem::MPStrategyPointer rr(new RegionRRT<VizmoTraits>());
   problem->AddMPStrategy(rr, "RegionRRT");
@@ -368,6 +393,8 @@ PlaceRobot() {
       m_robotModel->Configure(cfg);
       m_robotModel->SetInitialCfg(cfg);
     }
+
+    GetEnv()->GetAvatar()->SetCfg(cfg);
   }
 }
 
@@ -437,7 +464,7 @@ SearchSelectedItems(int _hit, void* _buffer, bool _all) {
 void
 Vizmo::
 StartClock(const string& _c) {
-  m_timers[_c].first.start();
+  m_timers[_c].first.restart();
   //GetVizmoProblem()->GetStatClass()->StartClock(_c);
 }
 
@@ -483,11 +510,17 @@ Solve(const string& _strategy) {
   // If the xml file is loaded, GetModelDataDir will be empty
   // and the vizmo debug file should be made in the same
   // directory as the xml file
-  if(GetEnv()->GetModelDataDir() != "") {
-    oss << GetEnv()->GetModelDataDir() << "/" << mps->GetBaseFilename() << ".vd";
-  }
-  else
-    oss << name << "." << GetSeed() << ".vd";
+
+  stringstream mySeed;
+  mySeed << GetSeed();
+
+  string baseFilename;
+  if(!GetEnv()->GetModelDataDir().empty())
+    baseFilename = GetEnv()->GetModelDataDir() + "/";
+
+  baseFilename += _strategy + "." + mySeed.str();
+  mps->SetBaseFilename(baseFilename);
+  oss << mps->GetBaseFilename() << ".vd";
 
   // Initialize Vizmo Debug
   VDInit(oss.str());
@@ -509,4 +542,10 @@ string
 Vizmo::
 GetSamplerNameAndLabel(string _label) {
   return GetVizmoProblem()->GetSampler(_label)->GetNameAndLabel();
+}
+
+double
+Vizmo::
+GetMaxEnvDist() {
+  return GetVizmo().GetEnv()->GetEnvironment()->GetBoundary()->GetMaxDist();
 }

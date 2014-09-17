@@ -30,6 +30,7 @@ class OptionsBase : public QWidget {
     QMenu* GetSubMenu() {return m_submenu;}
     QToolBar* GetToolbar() {return m_toolbar;}
     QWidget* GetToolTab() {return m_toolTab;}
+    void ResetRegionTimer() {}
 
   protected:
     MainWindow* m_mainWindow;
