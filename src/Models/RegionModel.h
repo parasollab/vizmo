@@ -16,10 +16,12 @@ class RegionModel : public Model {
     enum Shape {DEFAULT, BOX, BOX2D, SPHERE, SPHERE2D}; // DEFAULT is currently used only for vizmo debug
 
     RegionModel(const string& _name, const Shape _shape) :
-        Model(_name), m_successfulAttempts(0), m_failedAttempts(0), m_numCCs(0),
-        m_type(NONCOMMIT), m_shape(_shape), m_processed(false), m_created(-1) {
-      SetColor(Color4(0, 0, 1, 0.8));
-    }
+      Model(_name), m_successfulAttempts(0),
+      m_failedAttempts(0), m_numCCs(0), m_type(NONCOMMIT),
+      m_shape(_shape), m_sampler(""), m_processed(false), m_created(-1) {
+        SetColor(Color4(0, 0, 1, 0.8));
+      }
+
     virtual ~RegionModel() {}
 
     Type GetType() const {return m_type;}
@@ -30,6 +32,7 @@ class RegionModel : public Model {
     const Point3d& GetCenter() const {return m_center;}
 
     Shape GetShape() const {return m_shape;}
+    string GetSampler() const {return m_sampler;}
     virtual void ApplyOffset(const Vector3d& _v) = 0;
     virtual double GetShortLength() const = 0;
     virtual double GetLongLength() const = 0;
@@ -85,11 +88,14 @@ class RegionModel : public Model {
         SetColor(Color4(0.5, 0.5, 0.5, 0.8));
     }
 
+    void SetSampler(string _s) {m_sampler = _s;}
+
   protected:
     size_t m_successfulAttempts, m_failedAttempts, m_numCCs;
 
     Type m_type;
     Shape m_shape;
+    string m_sampler;
     bool m_processed; //check if rejection region has been processed or not
 
     size_t m_created;

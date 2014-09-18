@@ -4,8 +4,8 @@
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
-ChangePlannerDialog:: 
-ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow), 
+ChangePlannerDialog::
+ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
   m_radioGroup(NULL) {
 
   //initialize dialog values
@@ -16,12 +16,16 @@ ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
   QRadioButton* regionStrategyButton = new QRadioButton("RegionStrategy", this);
   QRadioButton* pathStrategyButton = new QRadioButton("PathStrategy", this);
   QRadioButton* irrtStrategyButton = new QRadioButton("IRRT", this);
+  QRadioButton* regionRRTButton = new QRadioButton("RegionRRT", this);
+  QRadioButton* sparkRegionButton = new QRadioButton("SparkRegion", this);
 
   m_radioGroup = new QButtonGroup;
   m_radioGroup->setExclusive(true);
   m_radioGroup->addButton(regionStrategyButton);
   m_radioGroup->addButton(pathStrategyButton);
   m_radioGroup->addButton(irrtStrategyButton);
+  m_radioGroup->addButton(regionRRTButton);
+  m_radioGroup->addButton(sparkRegionButton);
 
   //make default selection
   regionStrategyButton->setChecked(true);
@@ -31,13 +35,15 @@ ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
 
   connect(okCancel, SIGNAL(accepted()), this, SLOT(accept()));
   connect(okCancel, SIGNAL(rejected()), this, SLOT(close()));
-  
+
   QVBoxLayout* layout = new QVBoxLayout;
   setLayout(layout);
 
   layout->addWidget(regionStrategyButton);
   layout->addWidget(pathStrategyButton);
   layout->addWidget(irrtStrategyButton);
+  layout->addWidget(regionRRTButton);
+  layout->addWidget(sparkRegionButton);
   layout->addWidget(okCancel);
 }
 
@@ -48,5 +54,5 @@ GetPlanner() {
 }
 
 //Also, look for other ok, cancel options
-//in "ok" slot, call accept 
+//in "ok" slot, call accept
 //FUTURE: strategies should not be hard coded

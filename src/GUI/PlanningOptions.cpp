@@ -5,6 +5,7 @@
 #include "MainMenu.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
+#include "RegionSamplerDialog.h"
 
 #include "Utilities/IO.h"
 
@@ -37,19 +38,18 @@
 
 PlanningOptions::
 PlanningOptions(QWidget* _parent, MainWindow* _mainWindow) :
-    OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
-    m_threadDone(true), m_thread(NULL), m_userPathCount(0) {
-  CreateActions();
-  SetUpCustomSubmenu();
-  SetUpToolTab();
-  SetHelpTips();
-}
+  OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
+  m_threadDone(true), m_thread(NULL), m_userPathCount(0) {
+    CreateActions();
+    SetUpCustomSubmenu();
+    SetUpToolTab();
+    SetHelpTips();
+  }
 
 void
 PlanningOptions::
 CreateActions() {
   // 1, Create Actions and add them to the map
-
   m_actions["addRegionSphere"] = new QAction(QPixmap(addsphereregion),
       tr("Add Spherical Region"), this);
   m_actions["addRegionBox"] = new QAction(QPixmap(addboxregion),
@@ -77,7 +77,7 @@ CreateActions() {
       tr("Delete User Path"), this);
   m_actions["printUserPath"] = new QAction(QPixmap(printuserpath),
       tr("Print User Path"), this);
-  m_actions["mapEnvironment"] = new QAction(QPixmap(mapenv), 
+  m_actions["mapEnvironment"] = new QAction(QPixmap(mapenv),
       tr("Map Environment"), this);
 
   // 2. Set other specifications
@@ -128,7 +128,8 @@ CreateActions() {
 }
 
 // Sets up toolbar
-void PlanningOptions::
+void
+PlanningOptions::
 SetUpCustomSubmenu() {
 
   m_submenu = new QMenu("Planning", this);
@@ -178,7 +179,6 @@ SetUpToolbar() {
 void
 PlanningOptions::
 SetUpToolTab() {
-
   vector<string> buttonList;
 
   buttonList.push_back("addUserPathMouse");
@@ -297,12 +297,10 @@ AddRegionBox() {
 void
 PlanningOptions::
 AddRegionSphere() {
-
   if(!m_regionsStarted) {
     GetVizmo().StartClock("Pre-regions");
     m_regionsStarted = true;
   }
-
   // Create new sphere region
   RegionModel* r;
 
@@ -338,8 +336,21 @@ DeleteRegion() {
 
 void
 PlanningOptions::
+ChooseSamplerStrategy() {
+  const vector<string>& samplers = GetVizmo().GetLoadedSamplers();
+
+  RegionSamplerDialog rsDialog(samplers, m_mainWindow);
+
+  //TODO allow canceling from region sampler dialog.
+  if(rsDialog.exec() != QDialog::Accepted)
+    cout << "The Dialog Doesnt work" << endl << flush;
+}
+
+void
+PlanningOptions::
 MakeRegionAttract() {
   ChangeRegionType(true);
+  ChooseSamplerStrategy();
 }
 
 void
@@ -425,7 +436,7 @@ void
 PlanningOptions::
 MapEnvironment() {
   if(m_threadDone) {
-    
+
     ChangePlannerDialog cpDialog(m_mainWindow);
 
     if(!cpDialog.exec())
@@ -438,16 +449,16 @@ MapEnvironment() {
       //start-stop when no regions were created
       GetVizmo().StartClock("Pre-Regions");
     GetVizmo().StopClock("Pre-Regions");
-    
+
     //Verify that map model exist
     GetVizmo().SetPMPLMap();
     m_mainWindow->m_mainMenu->CallReset();
-    
+
     //Set up thread for execution
     m_threadDone = false;
     m_thread = new QThread;
     MapEnvironmentWorker* mpsw;
-    mpsw = new MapEnvironmentWorker(slabel); 
+    mpsw = new MapEnvironmentWorker(slabel);
     mpsw->moveToThread(m_thread);
     m_thread->start();
     connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
@@ -679,8 +690,7 @@ LoadRegion() {
 }
 
 MapEnvironmentWorker::
-MapEnvironmentWorker(string _strategyLabel) : QObject(),
-  m_strategyLabel(_strategyLabel) {}
+MapEnvironmentWorker(string _strategyLabel) : QObject(), m_strategyLabel(_strategyLabel) {}
 
 void
 MapEnvironmentWorker::

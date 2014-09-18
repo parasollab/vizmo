@@ -77,14 +77,10 @@ RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node) :
     m_regionSamplerLabel("RegionSampler"),
     m_regionConnectorLabel("RegionConnector"), m_query(NULL) {
   this->SetName("RegionStrategy");
-  m_connectorLabel = _node.stringXMLParameter("connectionLabel", false,
-      "BFNF", "Connection Strategy");
-  m_lpLabel = _node.stringXMLParameter("lpLabel", false,
-      "sl", "Local Planner");
-  m_samplerLabel = _node.stringXMLParameter("samplerLabel", false,
-      "uniform", "Sampler Strategy");
-  m_vcLabel = _node.stringXMLParameter("vcLabel", false,
-      "PQP_SOLID", "Validity Checker");
+  m_connectorLabel = _node.stringXMLParameter("connectionLabel", false, "", "Connection Strategy");
+  m_lpLabel = _node.stringXMLParameter("lpLabel", false, "", "Local Planner");
+  m_samplerLabel = _node.stringXMLParameter("samplerLabel", false, "", "Sampler Strategy");
+  m_vcLabel = _node.stringXMLParameter("vcLabel", false, "", "Validity Checker");
 }
 
 template<class MPTraits>
@@ -98,6 +94,7 @@ template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
 SetupTools() {
+
   //set up supporting tools for region strategy
   typename MPProblemType::ValidityCheckerPointer arv(
       new AvoidRegionValidity<MPTraits>());
@@ -132,13 +129,13 @@ SetupTools() {
         vector<string>(1, m_regionConnectorLabel));
     m_query->SetPathFile(this->GetBaseFilename() + ".path");
     typename MPProblemType::MapEvaluatorPointer rq(m_query);
-    this->GetMPProblem()->AddMapEvaluator(rq, "RegionQuery");
+    this->GetMPProblem()->AddMapEvaluator(rq, "regionQuery");
 
     //set up bounded region query evaluator
     vector<string> evals;
     evals.clear();
     evals.push_back("NodesEval");
-    evals.push_back("RegionQuery");
+    evals.push_back("regionQuery");
     typename MPProblemType::MapEvaluatorPointer brq(
         new ComposeEvaluator<MPTraits>(ComposeEvaluator<MPTraits>::OR, evals));
     this->GetMPProblem()->AddMapEvaluator(brq, "BoundedRegionQuery");
@@ -293,6 +290,7 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
   else {
     m_samplingRegion = regions[_index];
     samplingBoundary = m_samplingRegion->GetBoundary();
+    sp = this->GetMPProblem()->GetSampler(regions[_index]->GetSampler());
   }
 
   //attempt to sample the region. track failures in col for density calculation.

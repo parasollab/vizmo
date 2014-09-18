@@ -92,6 +92,13 @@ class Vizmo {
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
+    const vector<string>& GetLoadedSamplers() {return m_loadedSamplers;}
+    void SetLoadedSamplers(const vector<string>& _samplers) {m_loadedSamplers = _samplers;}
+
+    // Get the sampler name and strategy
+    // located here to keep vizmo problem contained in Vizmo.cpp
+    string GetSamplerNameAndLabel(string _label);
+
     // Motion planning related functions
     void SetSeed(long _l) {m_seed = _l;}
     long GetSeed() {return m_seed;}
@@ -103,7 +110,6 @@ class Vizmo {
     double GetMaxEnvDist();
 
   private:
-
     //Parse the Hit Buffer. Store selected obj into m_selectedModels.
     //hit is the number of hit by this selection
     //buffer is the hit buffer
@@ -142,6 +148,7 @@ class Vizmo {
 
     typedef vector<Model*>::iterator MIT;
     vector<Model*> m_loadedModels, m_selectedModels;
+    vector<string> m_loadedSamplers;
 
     long m_seed;
     map<string, pair<QTime, double> > m_timers;

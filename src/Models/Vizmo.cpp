@@ -146,7 +146,10 @@ InitPMPL() {
 
   //add uniform sampler
   VizmoProblem::SamplerPointer sp(new UniformRandomSampler<VizmoTraits>("PQP_SOLID"));
-  problem->AddSampler(sp, "uniform");
+  problem->AddSampler(sp, "Uniform");
+
+  // Set Sampler Labels
+  m_loadedSamplers.push_back("Uniform");
 
   //add distance metric
   VizmoProblem::DistanceMetricPointer dm(new EuclideanDistance<VizmoTraits>());
@@ -208,8 +211,14 @@ InitPMPL() {
     //add I-RRT strategy
     VizmoProblem::MPStrategyPointer irrt(
         new IRRTStrategy<VizmoTraits>(query->GetQuery().front(),
-            query->GetQuery().back()));
+          query->GetQuery().back()));
     problem->AddMPStrategy(irrt, "IRRT");
+
+    VizmoProblem::MPStrategyPointer rr(
+        new RegionRRT<VizmoTraits>(query->GetQuery().front(),
+          query->GetQuery().back()));
+    problem->AddMPStrategy(rr, "RegionRRT");
+
   }
 
   //add region strategy
@@ -219,6 +228,11 @@ InitPMPL() {
   //add path strategy
   VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());
   problem->AddMPStrategy(ps, "PathStrategy");
+
+  //add spark region strategy
+  VizmoProblem::
+    MPStrategyPointer sr(new SparkPRM<VizmoTraits, SparkRegion>());
+  problem->AddMPStrategy(sr, "SparkRegion");
 
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();
@@ -522,9 +536,14 @@ Solve(const string& _strategy) {
   GetVizmo().GetMap()->RefreshMap();
 }
 
+string
+Vizmo::
+GetSamplerNameAndLabel(string _label) {
+  return GetVizmoProblem()->GetSampler(_label)->GetNameAndLabel();
+}
+
 double
 Vizmo::
 GetMaxEnvDist() {
-  return GetVizmo().GetEnv()->GetEnvironment()->GetBoundary()->
-    GetMaxDist();
+  return GetVizmo().GetEnv()->GetEnvironment()->GetBoundary()->GetMaxDist();
 }
