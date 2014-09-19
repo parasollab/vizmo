@@ -76,6 +76,11 @@ void
 RegionRRT<MPTraits>::
 Initialize() {
   BasicRRTStrategy<MPTraits>::Initialize();
+
+  //Make non-user objects non-selectable while PathStrategy is running
+  GetVizmo().GetMap()->SetSelectable(false);
+  GetVizmo().GetEnv()->SetSelectable(false);
+  GetVizmo().GetRobot()->SetSelectable(false);
 }
 
 template<class MPTraits>
@@ -165,6 +170,7 @@ Finalize() {
 
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
+  GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //perform query if query was given as input
   if(this->m_query) {
@@ -198,6 +204,11 @@ Finalize() {
   GetVizmo().PrintClock("RegionRRT", results);
   stats->PrintClock("RRT Generation MP", results);
   GetMainWindow()->AlertUser(results.str());
+
+  //Make things selectable again
+  GetVizmo().GetMap()->SetSelectable(true);
+  GetVizmo().GetEnv()->SetSelectable(true);
+  GetVizmo().GetRobot()->SetSelectable(true);
 
   if(this->m_debug)
     cout << "\nEnd Finalizing BasicRRTStrategy" << endl;

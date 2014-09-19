@@ -197,11 +197,10 @@ RegionStrategy<MPTraits>::Run() {
     ProcessAvoidRegions();
 
     //refresh map and selection widget
-    if(++iter % 20 == 0) {
+    //if(++iter % 20 == 0) {
       GetVizmo().GetMap()->RefreshMap();
-      GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
-    }
-    usleep(10000);
+    //}
+    //usleep(10000);
   }
 
   //stop clock
@@ -221,6 +220,7 @@ Finalize() {
 
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
+  GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //print clocks
   GetVizmo().PrintClock("Pre-regions", cout);
@@ -365,26 +365,20 @@ ProcessAvoidRegions() {
   }
 
   //handle deletion of invalid edges and vertices
-  {
-    QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-    for(typename vector<EID>::iterator eit = edgesToDel.begin();
-        eit != edgesToDel.end(); ++eit)
-      g->delete_edge(*eit);
-    for(typename vector<VID>::iterator vit = verticesToDel.begin();
-        vit != verticesToDel.end(); ++vit)
-      g->delete_vertex(*vit);
-  }
+  for(typename vector<EID>::iterator eit = edgesToDel.begin();
+      eit != edgesToDel.end(); ++eit)
+    g->delete_edge(*eit);
+  for(typename vector<VID>::iterator vit = verticesToDel.begin();
+      vit != verticesToDel.end(); ++vit)
+    g->delete_vertex(*vit);
+
   GetVizmo().GetMap()->RefreshMap();
-  GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 }
 
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
 AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
-  //lock map data
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-
   //add nodes in _samples to graph. store VID's in _vids for connecting
   _vids.clear();
   for(typename vector<CfgType>::iterator cit = _samples.begin();
@@ -398,9 +392,7 @@ template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
 Connect(vector<VID>& _vids, size_t _i) {
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-  stapl::sequential::
-    vector_property_map<typename GraphType::GRAPH, size_t> cMap;
+  stapl::sequential::vector_property_map<typename GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
     this->GetMPProblem()->GetConnector(m_regionConnectorLabel);
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
@@ -497,7 +489,6 @@ EvaluateMap() {
   else
     evalLabel.push_back("NodesEval");
 
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   bool eval = MPStrategyMethod<MPTraits>::EvaluateMap(evalLabel);
   return eval;
 }

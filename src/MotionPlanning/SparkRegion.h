@@ -109,6 +109,7 @@ Finalize() {
   cout << "Finalizing Spark Region Strategy." << endl;
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
+  GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //base filename
   string basename = this->GetBaseFilename();

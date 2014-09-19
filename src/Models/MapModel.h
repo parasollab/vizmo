@@ -30,7 +30,7 @@ class MapModel : public LoadableModel {
     typedef CCModel<CFG, WEIGHT> CCM;
     typedef typename vector<CCM*>::iterator CCIT;
     typedef RoadmapGraph<CFG, WEIGHT> RGraph;
-    typedef stapl::sequential::graph<stapl::DIRECTED, stapl::NONMULTIEDGES, CFG, WEIGHT> Graph;
+    typedef typename RGraph::GRAPH  Graph;
     typedef typename Graph::vertex_descriptor VID;
     typedef typename Graph::vertex_iterator VI;
     typedef typename Graph::edge_descriptor EID;
@@ -151,7 +151,6 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::
 Write(const string& _filename) {
-  QMutexLocker lock(&m_lock);
   ofstream outfile(_filename.c_str());
 
   outfile << "#####ENVFILESTART##### \n";
@@ -165,7 +164,6 @@ template <class CFG, class WEIGHT>
 typename MapModel<CFG, WEIGHT>::VID
 MapModel<CFG, WEIGHT>::
 Cfg2VID(const CFG& _target) {
-  QMutexLocker lock(&m_lock);
   for(VI vi = m_graph->begin(); vi != m_graph->end(); vi++)
     if(_target == vi->property())
       return vi->descriptor();
@@ -260,7 +258,7 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::
 GetChildren(list<Model*>& _models) {
-  //QMutexLocker lock(&m_lock);
+  QMutexLocker lock(&m_lock);
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     _models.push_back(*ic);
 }

@@ -29,6 +29,7 @@ include Makefile.VizmoDefaults
 # macros
 INCL = $(VIZMO_INCL)
 LIBS = $(VIZMO_LIBS)
+DEFS += -DVIZMO
 
 default_target: vizmo++
 

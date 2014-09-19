@@ -111,6 +111,11 @@ Initialize() {
   avatar->SetInputType(AvatarModel::Mouse);
   avatar->Enable();
   GetMainWindow()->GetGLWidget()->SetMousePos(pos);
+
+  //Make non-user objects non-selectable while PathStrategy is running
+  GetVizmo().GetMap()->SetSelectable(false);
+  GetVizmo().GetEnv()->SetSelectable(false);
+  GetVizmo().GetRobot()->SetSelectable(false);
 }
 
 ////////////////
@@ -166,10 +171,8 @@ Run() {
     else
       mapPassedEvaluation = false;
 
-    if(++iter % 20 == 0) {
+    if(++iter % 20 == 0)
       GetVizmo().GetMap()->RefreshMap();
-      GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
-    }
     usleep(10000);
   }
 
@@ -200,6 +203,7 @@ Finalize() {
 
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
+  GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //perform query if query was given as input
   if(this->m_query) {
@@ -234,6 +238,11 @@ Finalize() {
   stats->PrintClock("RRT Generation MP", results);
   GetMainWindow()->AlertUser(results.str());
 
+  //Make things selectable again
+  GetVizmo().GetMap()->SetSelectable(true);
+  GetVizmo().GetEnv()->SetSelectable(true);
+  GetVizmo().GetRobot()->SetSelectable(true);
+
   if(this->m_debug)
     cout << "\nEnd Finalizing BasicRRTStrategy" << endl;
 }
@@ -255,7 +264,6 @@ template<class MPTraits>
 typename IRRTStrategy<MPTraits>::VID
 IRRTStrategy<MPTraits>::
 ExpandTree(CfgType& _dir) {
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   return BasicRRTStrategy<MPTraits>::ExpandTree(_dir);
 }
 
@@ -263,7 +271,6 @@ template<class MPTraits>
 void
 IRRTStrategy<MPTraits>::
 ConnectTrees(VID _recentlyGrown) {
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   return BasicRRTStrategy<MPTraits>::ConnectTrees(_recentlyGrown);
 }
 
@@ -271,7 +278,6 @@ template<class MPTraits>
 void
 IRRTStrategy<MPTraits>::
 EvaluateGoals() {
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   BasicRRTStrategy<MPTraits>::EvaluateGoals();
 }
 
@@ -292,12 +298,9 @@ AvatarBiasedDirection() {
 
   //now get the average of the nearest k neighbors
   CfgType barycenter;
-  {
-    QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-    for(typename vector<pair<VID, double> >::iterator it = kClosest.begin();
-        it != kClosest.end(); ++it)
-      barycenter += rdmp->GetGraph()->GetVertex(it->first);
-  }
+  for(typename vector<pair<VID, double> >::iterator it = kClosest.begin();
+      it != kClosest.end(); ++it)
+    barycenter += rdmp->GetGraph()->GetVertex(it->first);
   barycenter /= kClosest.size();
   //now find the pseudoforce vector from the avatar to the average
   CfgType forceAlgo = barycenter - newPos;

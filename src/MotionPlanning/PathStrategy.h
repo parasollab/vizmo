@@ -144,9 +144,6 @@ template<class MPTraits>
 void
 PathStrategy<MPTraits>::
 AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
-  //lock map data
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-
   //add nodes in _samples to graph. store VID's in _vids for connecting
   _vids.clear();
   for(typename vector<CfgType>::iterator cit = _samples.begin();
@@ -160,9 +157,7 @@ template<class MPTraits>
 void
 PathStrategy<MPTraits>::
 Connect(vector<VID>& _vids) {
-  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
-  stapl::sequential::
-    vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
+  stapl::sequential::vector_property_map<typename MPProblemType::GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
     this->GetMPProblem()->GetConnector("kClosest");
   cp->Connect(this->GetMPProblem()->GetRoadmap(),
