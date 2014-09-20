@@ -31,7 +31,7 @@ int bs = qRegisterMetaType<Point3d>("Point3d");
 
 GLWidget::
 GLWidget(QWidget* _parent, MainWindow* _mainWindow) : QGLWidget(_parent),
-    m_transformTool(m_cameraFactory.GetCurrentCamera()), m_currentRegion(NULL),
+    m_transformTool(m_cameraFactory.GetCurrentCamera()), m_currentRegion(),
     m_currentUserPath(NULL) {
   m_mainWindow = _mainWindow;
   setMinimumSize(271, 211); //original size: 400 x 600

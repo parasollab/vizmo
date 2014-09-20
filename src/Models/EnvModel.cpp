@@ -38,13 +38,6 @@ EnvModel::
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
     delete *mit;
-  typedef vector<RegionModel*>::const_iterator RIT;
-  for(RIT rit = m_attractRegions.begin(); rit != m_attractRegions.end(); ++rit)
-    delete *rit;
-  for(RIT rit = m_avoidRegions.begin(); rit!=m_avoidRegions.end(); ++rit)
-    delete *rit;
-  for(RIT rit = m_nonCommitRegions.begin(); rit!=m_nonCommitRegions.end(); ++rit)
-    delete *rit;
   typedef vector<UserPathModel*>::iterator PIT;
   for(PIT pit = m_userPaths.begin(); pit != m_userPaths.end(); ++pit)
     delete *pit;
@@ -52,38 +45,38 @@ EnvModel::
 
 bool
 EnvModel::
-IsNonCommitRegion(RegionModel* _r) const {
+IsNonCommitRegion(RegionModelPtr _r) const {
   return find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r)
     != m_nonCommitRegions.end();
 }
 
 void
 EnvModel::
-AddAttractRegion(RegionModel* _r) {
+AddAttractRegion(RegionModelPtr _r) {
   _r->SetColor(Color4(0, 1, 0, 0.5));
   m_attractRegions.push_back(_r);
-  VDAddRegion(_r);
+  VDAddRegion(_r.get());
 }
 
 void
 EnvModel::
-AddAvoidRegion(RegionModel* _r) {
+AddAvoidRegion(RegionModelPtr _r) {
   _r->SetColor(Color4(0, 0, 0, 0.5));
   m_avoidRegions.push_back(_r);
-  VDAddRegion(_r);
+  VDAddRegion(_r.get());
 }
 
 void
 EnvModel::
-AddNonCommitRegion(RegionModel* _r) {
+AddNonCommitRegion(RegionModelPtr _r) {
   _r->SetColor(Color4(0, 0, 1, 0.8));
   m_nonCommitRegions.push_back(_r);
 }
 
 void
 EnvModel::
-ChangeRegionType(RegionModel* _r, bool _attract) {
-  vector<RegionModel*>::iterator rit;
+ChangeRegionType(RegionModelPtr _r, bool _attract) {
+  vector<RegionModelPtr>::iterator rit;
   rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
   if(rit != m_nonCommitRegions.end()) {
     m_nonCommitRegions.erase(rit);
@@ -96,30 +89,47 @@ ChangeRegionType(RegionModel* _r, bool _attract) {
 
 void
 EnvModel::
-DeleteRegion(RegionModel* _r) {
+DeleteRegion(RegionModelPtr _r) {
 
-  VDRemoveRegion(_r);
+  VDRemoveRegion(_r.get());
 
-  vector<RegionModel*>::iterator rit;
+  vector<RegionModelPtr>::iterator rit;
   rit = find(m_attractRegions.begin(), m_attractRegions.end(), _r);
   if(rit != m_attractRegions.end()) {
-    delete *rit;
     m_attractRegions.erase(rit);
   }
   else {
     rit = find(m_avoidRegions.begin(), m_avoidRegions.end(), _r);
     if(rit != m_avoidRegions.end()) {
-      delete *rit;
       m_avoidRegions.erase(rit);
     }
     else {
       rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
       if(rit != m_nonCommitRegions.end()) {
-        delete *rit;
         m_nonCommitRegions.erase(rit);
       }
     }
   }
+}
+
+EnvModel::RegionModelPtr
+EnvModel::GetRegion(Model* _model) {
+  if(_model->Name() == "Sphere Region" || _model->Name() == "Box Region" ||
+      _model->Name() == "Sphere Region 2D" || _model->Name() == "Box Region 2D" ) {
+    RegionModel* rm = (RegionModel*)_model;
+
+    vector<RegionModelPtr>::iterator rit;
+    for(rit = m_attractRegions.begin(); rit != m_attractRegions.end(); ++rit)
+      if(rit->get() == rm)
+        return *rit;
+    for(rit = m_avoidRegions.begin(); rit != m_avoidRegions.end(); ++rit)
+      if(rit->get() == rm)
+        return *rit;
+    for(rit = m_nonCommitRegions.begin(); rit != m_nonCommitRegions.end(); ++rit)
+      if(rit->get() == rm)
+        return *rit;
+  }
+  return RegionModelPtr();
 }
 
 void
@@ -387,13 +397,13 @@ GetChildren(list<Model*>& _models) {
   for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
     if(!(*i)->IsActive())
       _models.push_back(*i);
-  typedef vector<RegionModel*>::iterator RIT;
+  typedef vector<RegionModelPtr>::iterator RIT;
   for(RIT i = m_attractRegions.begin(); i != m_attractRegions.end(); ++i)
-    _models.push_back(*i);
+    _models.push_back(i->get());
   for(RIT i = m_avoidRegions.begin(); i != m_avoidRegions.end(); ++i)
-    _models.push_back(*i);
+    _models.push_back(i->get());
   for(RIT i = m_nonCommitRegions.begin(); i != m_nonCommitRegions.end(); ++i)
-    _models.push_back(*i);
+    _models.push_back(i->get());
   typedef vector<UserPathModel*>::iterator PIT;
   for(PIT i = m_userPaths.begin(); i != m_userPaths.end(); ++i)
     _models.push_back(*i);

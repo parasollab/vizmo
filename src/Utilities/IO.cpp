@@ -53,16 +53,14 @@ GetColorFromComment(istream& _is) {
   return Color4();
 }
 
-void VDAddRegion(RegionModel* _region) {
-
+void VDAddRegion(RegionModel const* _region) {
   if(vdo != NULL) {
     (*vdo) << "AddRegion ";
     _region->OutputDebugInfo(*vdo);
   }
 }
 
-void VDRemoveRegion(RegionModel* _region) {
-
+void VDRemoveRegion(RegionModel const* _region) {
   if(vdo != NULL) {
     (*vdo) << "RemoveRegion ";
     _region->OutputDebugInfo(*vdo);
@@ -71,15 +69,17 @@ void VDRemoveRegion(RegionModel* _region) {
 
 void AddInitialRegions() {
   if(vdo != NULL) {
-    const vector<RegionModel*>& attractRegions = GetVizmo().GetEnv()->GetAttractRegions();
-    const vector<RegionModel*>& avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
-    const vector<RegionModel*>& nonCommitRegions = GetVizmo().GetEnv()->GetNonCommitRegions();
+    typedef vector<shared_ptr<RegionModel> > VecRM;
+    typedef VecRM::const_iterator CRIT;
+    const VecRM& attractRegions = GetVizmo().GetEnv()->GetAttractRegions();
+    const VecRM& avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+    const VecRM& nonCommitRegions = GetVizmo().GetEnv()->GetNonCommitRegions();
 
-    for(vector<RegionModel*>::const_iterator i = attractRegions.begin(); i != attractRegions.end(); ++i)
-      VDAddRegion(*i);
-    for(vector<RegionModel*>::const_iterator i = avoidRegions.begin(); i != avoidRegions.end(); ++i)
-      VDAddRegion(*i);
-    for(vector<RegionModel*>::const_iterator i = nonCommitRegions.begin(); i != nonCommitRegions.end(); ++i)
-      VDAddRegion(*i);
+    for(CRIT i = attractRegions.begin(); i != attractRegions.end(); ++i)
+      VDAddRegion(i->get());
+    for(CRIT i = avoidRegions.begin(); i != avoidRegions.end(); ++i)
+      VDAddRegion(i->get());
+    for(CRIT i = nonCommitRegions.begin(); i != nonCommitRegions.end(); ++i)
+      VDAddRegion(i->get());
   }
 }

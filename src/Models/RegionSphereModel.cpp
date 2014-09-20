@@ -79,8 +79,9 @@ GetLongLength() const {
 void
 RegionSphereModel::
 DrawRender() {
-  if(m_radius < 0)
+  if(m_renderMode == INVISIBLE_MODE || m_radius < 0)
     return;
+
   glColor4fv(m_color);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
@@ -101,8 +102,9 @@ DrawRender() {
 void
 RegionSphereModel::
 DrawSelect() {
-  if(m_radius < 0)
+  if(m_renderMode == INVISIBLE_MODE || m_radius < 0)
     return;
+
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
   glutSolidSphere(m_radius, 20, 20);
@@ -113,8 +115,9 @@ DrawSelect() {
 void
 RegionSphereModel::
 DrawSelected() {
-  if(m_radius < 0)
+  if(m_renderMode == INVISIBLE_MODE || m_radius < 0)
     return;
+
   glLineWidth(4);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);

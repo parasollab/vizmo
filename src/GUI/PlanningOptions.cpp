@@ -274,14 +274,14 @@ AddRegionBox() {
   }
 
   // Create new box region
-  RegionModel* r;
+  RegionModelPtr r;
 
   // Check if robot is 2D or 3D, set region to same
   RobotModel* robot = GetVizmo().GetRobot();
   if(robot->IsPlanar())
-    r = new RegionBox2DModel();
+    r = RegionModelPtr(new RegionBox2DModel());
   else
-    r = new RegionBoxModel();
+    r = RegionModelPtr(new RegionBoxModel());
 
   // Add region to environment
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
@@ -290,7 +290,7 @@ AddRegionBox() {
   m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   GetVizmo().GetSelectedModels().clear();
-  GetVizmo().GetSelectedModels().push_back(r);
+  GetVizmo().GetSelectedModels().push_back(r.get());
   m_mainWindow->GetModelSelectionWidget()->Select();
 }
 
@@ -302,14 +302,14 @@ AddRegionSphere() {
     m_regionsStarted = true;
   }
   // Create new sphere region
-  RegionModel* r;
+  RegionModelPtr r;
 
   // Check to see if robot is 2D or 3D, set region to the same
   RobotModel* robot = GetVizmo().GetRobot();
   if(robot->IsPlanar())
-    r = new RegionSphere2DModel();
+    r = RegionModelPtr(new RegionSphere2DModel());
   else
-    r = new RegionSphereModel();
+    r = RegionModelPtr(new RegionSphereModel());
 
   // Add region to environment
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
@@ -318,19 +318,20 @@ AddRegionSphere() {
   m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   GetVizmo().GetSelectedModels().clear();
-  GetVizmo().GetSelectedModels().push_back(r);
+  GetVizmo().GetSelectedModels().push_back(r.get());
   m_mainWindow->GetModelSelectionWidget()->Select();
 }
 
 void
 PlanningOptions::
 DeleteRegion() {
-  RegionModel* r = m_mainWindow->GetGLWidget()->GetCurrentRegion();
+  RegionModelPtr r = m_mainWindow->GetGLWidget()->GetCurrentRegion();
   if(r) {
+    r->SetRenderMode(INVISIBLE_MODE);
     GetVizmo().GetEnv()->DeleteRegion(r);
     GetVizmo().GetSelectedModels().clear();
     m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLWidget()->SetCurrentRegion(NULL);
+    m_mainWindow->GetGLWidget()->SetCurrentRegion();
   }
 }
 
@@ -366,9 +367,9 @@ ChangeRegionType(bool _attract) {
   // Alert that only the boundry model should be selected
   if(sel.size() == 1 && (sel[0]->Name() == "Box Region" || sel[0]->Name() == "Sphere Region"
         || sel[0]->Name() == "Box Region 2D" || sel[0]->Name() == "Sphere Region 2D")) {
-    RegionModel* r = (RegionModel*)sel[0];
+    RegionModelPtr r = GetVizmo().GetEnv()->GetRegion(sel[0]);
     if(GetVizmo().GetEnv()->IsNonCommitRegion(r)) {
-      VDRemoveRegion(r);
+      VDRemoveRegion(r.get());
       r->SetType(_attract ? RegionModel::ATTRACT : RegionModel::AVOID);
       GetVizmo().GetEnv()->ChangeRegionType(r, _attract);
     }
@@ -384,21 +385,17 @@ DuplicateRegion() {
   for(SIT sit = sel.begin(); sit != sel.end(); ++sit) {
     if((*sit)->Name().find("Region")) {
 
-      RegionModel* r = NULL;
+      RegionModelPtr r;
       double dist;
       RegionModel::Shape shape = ((RegionModel*)(*sit))->GetShape();
-      if(shape == RegionModel::BOX) {
-        r = new RegionBoxModel(*static_cast<RegionBoxModel*>(*sit));
-      }
-      else if(shape == RegionModel::BOX2D) {
-        r = new RegionBox2DModel(*static_cast<RegionBox2DModel*>(*sit));
-      }
-      else if(shape == RegionModel::SPHERE ) {
-        r = new RegionSphereModel(*static_cast<RegionSphereModel*>(*sit));
-      }
-      else if(shape == RegionModel::SPHERE2D) {
-        r = new RegionSphere2DModel(*static_cast<RegionSphere2DModel*>(*sit));
-      }
+      if(shape == RegionModel::BOX)
+        r = RegionModelPtr(new RegionBoxModel(*static_cast<RegionBoxModel*>(*sit)));
+      else if(shape == RegionModel::BOX2D)
+        r = RegionModelPtr(new RegionBox2DModel(*static_cast<RegionBox2DModel*>(*sit)));
+      else if(shape == RegionModel::SPHERE)
+        r = RegionModelPtr(new RegionSphereModel(*static_cast<RegionSphereModel*>(*sit)));
+      else if(shape == RegionModel::SPHERE2D)
+        r = RegionModelPtr(new RegionSphere2DModel(*static_cast<RegionSphere2DModel*>(*sit)));
       if(r) {
         regionFound = true;
         dist = r->GetLongLength();
@@ -409,9 +406,11 @@ DuplicateRegion() {
         delta *= dist/3;
         r->ApplyOffset(delta);
         GetVizmo().GetEnv()->AddNonCommitRegion(r);
+        m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
         m_mainWindow->GetModelSelectionWidget()->ResetLists();
         sel.clear();
-        sel.push_back(r);
+        sel.push_back(r.get());
+        m_mainWindow->GetModelSelectionWidget()->Select();
         break;
       }
     }
@@ -570,11 +569,11 @@ SaveRegion() {
     ofstream ofs(filename.c_str());
     ofs << "#####RegionFile#####" << endl;
 
-    const vector<RegionModel*>& nonCommit = GetVizmo().GetEnv()->GetNonCommitRegions();
-    const vector<RegionModel*>& attractRegion = GetVizmo().GetEnv()->GetAttractRegions();
-    const vector<RegionModel*>& avoidRegion = GetVizmo().GetEnv()->GetAvoidRegions();
+    const vector<RegionModelPtr>& nonCommit = GetVizmo().GetEnv()->GetNonCommitRegions();
+    const vector<RegionModelPtr>& attractRegion = GetVizmo().GetEnv()->GetAttractRegions();
+    const vector<RegionModelPtr>& avoidRegion = GetVizmo().GetEnv()->GetAvoidRegions();
 
-    typedef vector<RegionModel*>::const_iterator CRIT;
+    typedef vector<RegionModelPtr>::const_iterator CRIT;
     for(CRIT crit = nonCommit.begin(); crit != nonCommit.end(); ++crit)
       (*crit)->OutputDebugInfo(ofs);
     for(CRIT crit = attractRegion.begin(); crit != attractRegion.end(); ++crit)
@@ -603,7 +602,7 @@ LoadRegion() {
 
       istringstream iss(line);
 
-      RegionModel* _mod = NULL;
+      RegionModelPtr _mod;
 
       int tempType;
       iss >> tempType;
@@ -622,7 +621,7 @@ LoadRegion() {
         pair<double, double> yPair(min[1], max[1]);
         pair<double, double> zPair(min[2], max[2]);
 
-        _mod = new RegionBoxModel(xPair, yPair, zPair);
+        _mod = RegionModelPtr(new RegionBoxModel(xPair, yPair, zPair));
         _mod->SetType(modelType);
         _mod->ChangeColor();
       }
@@ -634,7 +633,7 @@ LoadRegion() {
         pair<double, double> xPair(min[0], max[0]);
         pair<double, double> yPair(min[1], max[1]);
 
-        _mod = new RegionBox2DModel(xPair, yPair);
+        _mod = RegionModelPtr(new RegionBox2DModel(xPair, yPair));
         _mod->SetType(modelType);
         _mod->ChangeColor();
 
@@ -647,7 +646,7 @@ LoadRegion() {
         double radius = -1;
         iss >> radius;
 
-        _mod = new RegionSphereModel(tempCenter, radius);
+        _mod = RegionModelPtr(new RegionSphereModel(tempCenter, radius));
         _mod->SetType(modelType);
         _mod->ChangeColor();
       }
@@ -659,7 +658,7 @@ LoadRegion() {
         double radius = -1;
         iss >> radius;
 
-        _mod = new RegionSphere2DModel(tempCenter, radius);
+        _mod = RegionModelPtr(new RegionSphere2DModel(tempCenter, radius));
         _mod->SetType(modelType);
         _mod->ChangeColor();
       }
@@ -676,16 +675,12 @@ LoadRegion() {
           GetVizmo().GetEnv()->AddNonCommitRegion(_mod);
         }
       }
-      m_mainWindow->GetGLWidget()->SetCurrentRegion(_mod);
-      m_mainWindow->GetModelSelectionWidget()->ResetLists();
-      GetVizmo().GetSelectedModels().clear();
-      GetVizmo().GetSelectedModels().push_back(_mod);
-      m_mainWindow->GetModelSelectionWidget()->Select();
     }
   }
   else{
     m_mainWindow->statusBar()->showMessage("Loading aborted", 2000);
   }
+  m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->GetGLWidget()->updateGL();
 }
 

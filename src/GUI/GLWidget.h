@@ -7,6 +7,8 @@
 
 #include <deque>
 
+#include <boost/shared_ptr.hpp>
+
 #include <QtGui>
 
 #include "Utilities/Camera.h"
@@ -46,8 +48,8 @@ class GLWidget : public QGLWidget {
     //will be written
     void SaveImage(QString _filename, bool _crop);
 
-    RegionModel* GetCurrentRegion() { return m_currentRegion;}
-    void SetCurrentRegion(RegionModel* _r) {m_currentRegion = _r;}
+    boost::shared_ptr<RegionModel> GetCurrentRegion() { return m_currentRegion;}
+    void SetCurrentRegion(boost::shared_ptr<RegionModel> _r = boost::shared_ptr<RegionModel>()) {m_currentRegion = _r;}
 
     UserPathModel* GetCurrentUserPath() {return m_currentUserPath;}
     void SetCurrentUserPath(UserPathModel* _p) {m_currentUserPath = _p;}
@@ -106,7 +108,7 @@ class GLWidget : public QGLWidget {
     TransformTool m_transformTool;
     PickBox m_pickBox;
 
-    RegionModel* m_currentRegion;
+    boost::shared_ptr<RegionModel> m_currentRegion;
     UserPathModel* m_currentUserPath;
 };
 

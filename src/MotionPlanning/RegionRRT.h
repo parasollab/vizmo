@@ -21,6 +21,8 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
     typedef typename MPProblemType::DistanceMetricPointer DistanceMetricPointer;
     typedef typename MPProblemType::NeighborhoodFinderPointer NeighborhoodFinderPointer;
 
+    typedef EnvModel::RegionModelPtr RegionModelPtr;
+
     //Non-XML constructor w/ Query (by label)
     RegionRRT(const CfgType& _start = CfgType(),
         const CfgType& _goal = CfgType(), string _lp = "sl",
@@ -47,7 +49,7 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
 
     void DeleteRegion(size_t _index);
 
-    RegionModel* m_samplingRegion;
+    RegionModelPtr m_samplingRegion;
     CfgType m_qNew;
 };
 
@@ -139,7 +141,7 @@ Run() {
       shared_ptr<Boundary> boundary = m_samplingRegion->GetBoundary();
       if(this->GetMPProblem()->GetEnvironment()->InBounds(m_qNew, boundary)) {
         GetVizmo().GetSelectedModels().clear();
-        GetMainWindow()->GetGLWidget()->SetCurrentRegion(NULL);
+        GetMainWindow()->GetGLWidget()->SetCurrentRegion();
         GetVizmo().GetEnv()->DeleteRegion(m_samplingRegion);
       }
     }
@@ -219,7 +221,7 @@ typename RegionRRT<MPTraits>::CfgType
 RegionRRT<MPTraits>::
 SelectDirection() {
   shared_ptr<Boundary> samplingBoundary;
-  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetAttractRegions();
+  const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   Environment* env = this->GetMPProblem()->GetEnvironment();
 
   size_t _index = rand() % (regions.size() + 1);
@@ -227,7 +229,7 @@ SelectDirection() {
   vector<CfgType> col;
 
   if(_index == regions.size()) {
-    m_samplingRegion = NULL;
+    m_samplingRegion.reset();
     samplingBoundary = this->GetMPProblem()->GetEnvironment()->GetBoundary();
   }
   else {
@@ -392,9 +394,9 @@ template<class MPTraits>
 void
 RegionRRT<MPTraits>::
 DeleteRegion(size_t _index) {
-  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetAttractRegions();
+  const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   GetVizmo().GetSelectedModels().clear();
-  GetMainWindow()->GetGLWidget()->SetCurrentRegion(NULL);
+  GetMainWindow()->GetGLWidget()->SetCurrentRegion();
   GetVizmo().GetEnv()->DeleteRegion(regions[_index-1]);
 }
 

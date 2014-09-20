@@ -40,13 +40,13 @@ AvoidRegionValidity<MPTraits>::
 IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName) {
   //get environment, avoid regions, and robot
   Environment* env = this->GetMPProblem()->GetEnvironment();
-  vector<RegionModel*> avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+  vector<EnvModel::RegionModelPtr> avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
   shared_ptr<MultiBody> robot = env->GetMultiBody(_cfg.GetRobotIndex());
 
   _cfg.ConfigEnvironment(env); // Config the robot in the environment.
 
   //check each region to ensure _cfg does not enter it
-  for(typename vector<RegionModel*>::iterator rit = avoidRegions.begin();
+  for(typename vector<EnvModel::RegionModelPtr>::iterator rit = avoidRegions.begin();
       rit != avoidRegions.end(); ++rit) {
     shared_ptr<Boundary> b = (*rit)->GetBoundary();
 

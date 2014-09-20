@@ -3,6 +3,7 @@
 #include "GLWidget.h"
 
 #include "Models/CCModel.h"
+#include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
 ModelSelectionWidget::
@@ -94,10 +95,8 @@ SelectionChanged() {
   for(IIT i = m_items.begin(); i != m_items.end(); i++){
     if((*i)->isSelected()){
       sel.push_back((*i)->m_model);
-      if((*i)->m_model->Name() == "Sphere Region" || (*i)->m_model->Name() == "Box Region" ||
-          (*i)->m_model->Name() == "Sphere Region 2D" || (*i)->m_model->Name() == "Box Region 2D" )
-        m_glWidget->SetCurrentRegion((RegionModel*)(*i)->m_model);
-      else if((*i)->m_model->Name() == "User Path")
+      m_glWidget->SetCurrentRegion(GetVizmo().GetEnv()->GetRegion((*i)->m_model));
+      if((*i)->m_model->Name() == "User Path")
         m_glWidget->SetCurrentUserPath((UserPathModel*)(*i)->m_model);
       for(int j = 0; j < (*i)->childCount(); j++){ //Select all subcomponents as well
         ListViewItem* child = (ListViewItem*)(*i)->child(j);
@@ -129,7 +128,7 @@ Select() {
 
   //Find selected
   vector<ListViewItem*> selected;
-  m_glWidget->SetCurrentRegion(NULL);
+  m_glWidget->SetCurrentRegion();
   m_glWidget->SetCurrentUserPath(NULL);
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   typedef vector<Model*>::iterator MIT;
@@ -145,10 +144,8 @@ Select() {
           (*i)->setSelected(false);
           m_glWidget->SetDoubleClickStatus(false);
         }
-        if((*mit)->Name() == "Sphere Region" || (*mit)->Name() == "Box Region" ||
-            (*mit)->Name() == "Sphere Region 2D" || (*mit)->Name() == "Box Region 2D" )
-          m_glWidget->SetCurrentRegion((RegionModel*)(*mit));
-        else if((*mit)->Name() == "User Path")
+        m_glWidget->SetCurrentRegion(GetVizmo().GetEnv()->GetRegion(*mit));
+        if((*mit)->Name() == "User Path")
           m_glWidget->SetCurrentUserPath((UserPathModel*)(*mit));
       }
     }

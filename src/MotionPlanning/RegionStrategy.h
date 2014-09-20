@@ -24,6 +24,8 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     typedef typename GraphType::VI VI;
     typedef typename GraphType::EID EID;
 
+    typedef EnvModel::RegionModelPtr RegionModelPtr;
+
     RegionStrategy();
     RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node);
 
@@ -47,7 +49,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     void SetupTools();
 
   private:
-    RegionModel* m_samplingRegion;
+    RegionModelPtr m_samplingRegion;
     vector<VID> m_toDel;
 
     string m_connectorLabel;
@@ -264,7 +266,7 @@ size_t
 RegionStrategy<MPTraits>::
 SelectRegion() {
   //get regions from vizmo
-  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetAttractRegions();
+  const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
 
   //randomly choose a region
   return rand() % (regions.size() + 1);
@@ -276,15 +278,14 @@ RegionStrategy<MPTraits>::
 SampleRegion(size_t _index, vector<CfgType>& _samples) {
   //setup access pointers
   shared_ptr<Boundary> samplingBoundary;
-  const vector<RegionModel*>& regions =
-    GetVizmo().GetEnv()->GetAttractRegions();
+  const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   typename MPProblemType::SamplerPointer sp =
     this->GetMPProblem()->GetSampler(m_regionSamplerLabel);
 
   //check if the selected region is a region or the environment boundary.  if it
   //is the env boundary, set m_samplingRegion to null
   if(_index == regions.size()) {
-    m_samplingRegion = NULL;
+    m_samplingRegion.reset();
     samplingBoundary = this->GetMPProblem()->GetEnvironment()->GetBoundary();
   }
   else {
@@ -323,11 +324,11 @@ void
 RegionStrategy<MPTraits>::
 ProcessAvoidRegions() {
   //get avoid regions and graph
-  vector<RegionModel*> avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+  const vector<RegionModelPtr>& avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
 
   //check that some avoid region needs processing
   bool skipCheck = true;
-  for(typename vector<RegionModel*>::iterator rit = avoidRegions.begin();
+  for(typename vector<RegionModelPtr>::const_iterator rit = avoidRegions.begin();
       rit != avoidRegions.end(); ++rit) {
     if(!(*rit)->IsProcessed()) {
       skipCheck = false;
@@ -413,13 +414,13 @@ RecommendRegions(vector<VID>& _vids, size_t _i) {
       if(g->get_degree(*vit) < 1) {
         //node is not connected to anything
         //recommend a region
-        RegionModel* r;
+        RegionModelPtr r;
         if(GetVizmo().GetRobot()->IsPlanar())
-          r = new RegionSphere2DModel(g->find_vertex(*vit)->property().GetPoint(),
-              this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100, false);
+          r = RegionModelPtr(new RegionSphere2DModel(g->GetVertex(*vit).GetPoint(),
+              this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100, false));
         else
-          r = new RegionSphereModel(g->find_vertex(*vit)->property().GetPoint(),
-              this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100, false);
+          r = RegionModelPtr(new RegionSphereModel(g->GetVertex(*vit).GetPoint(),
+              this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100, false));
         r->SetCreationIter(_i);
         GetVizmo().GetEnv()->AddNonCommitRegion(r);
       }
@@ -464,8 +465,8 @@ UpdateRegionColor(size_t _i) {
     //double densityRatio = 1 - exp(-sqr(m_samplingRegion->CCDensity()));
     m_samplingRegion->SetColor(Color4(1 - densityRatio, densityRatio, 0., 0.5));
   }
-  typedef vector<RegionModel*>::const_iterator RIT;
-  vector<RegionModel*> nonCommit = GetVizmo().GetEnv()->GetNonCommitRegions();
+  typedef vector<RegionModelPtr>::const_iterator RIT;
+  vector<RegionModelPtr> nonCommit = GetVizmo().GetEnv()->GetNonCommitRegions();
   for(RIT rit = nonCommit.begin(); rit != nonCommit.end(); ++rit) {
     if((*rit)->GetCreationIter() != size_t(-1)) {
       double iterCount = 1000 - _i + (*rit)->GetCreationIter();

@@ -115,6 +115,9 @@ ApplyOffset(const Vector3d& _v) {
 void
 RegionBoxModel::
 DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
   //configure gl modes
   glColor4fv(m_color);
 
@@ -203,6 +206,9 @@ DrawRender() {
 void
 RegionBoxModel::
 DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
   //create model
   glBegin(GL_QUADS);
 
@@ -268,6 +274,9 @@ DrawSelect() {
 void
 RegionBoxModel::
 DrawSelected() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
   //configure gl modes
   glLineWidth(4);
   glColor3f(.9, .9, 0.);

@@ -76,7 +76,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
 void
 RegionSphere2DModel::
 DrawRender() {
-  if(m_radius < 0)
+  if(m_renderMode == INVISIBLE_MODE || m_radius < 0)
     return;
 
   glColor4fv(m_color);
@@ -95,7 +95,7 @@ DrawRender() {
 void
 RegionSphere2DModel::
 DrawSelect() {
-  if(m_radius < 0)
+  if(m_renderMode == INVISIBLE_MODE || m_radius < 0)
     return;
 
   glPushMatrix();
@@ -108,8 +108,9 @@ DrawSelect() {
 void
 RegionSphere2DModel::
 DrawSelected() {
-  if(m_radius < 0)
+  if(m_renderMode == INVISIBLE_MODE || m_radius < 0)
     return;
+
   glLineWidth(4);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);

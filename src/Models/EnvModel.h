@@ -37,15 +37,17 @@ class EnvModel : public LoadableModel {
     AvatarModel* GetAvatar() {return m_avatar;}
 
     //Regions
-    bool IsNonCommitRegion(RegionModel* _r) const;
-    const vector<RegionModel*>& GetAttractRegions() const {return m_attractRegions;}
-    const vector<RegionModel*>& GetAvoidRegions() const {return m_avoidRegions;}
-    const vector<RegionModel*>& GetNonCommitRegions() const {return m_nonCommitRegions;}
-    void AddAttractRegion(RegionModel* _r);
-    void AddAvoidRegion(RegionModel* _r);
-    void AddNonCommitRegion(RegionModel* _r);
-    void ChangeRegionType(RegionModel* _r, bool _attract);
-    void DeleteRegion(RegionModel* _r);
+    typedef shared_ptr<RegionModel> RegionModelPtr;
+    bool IsNonCommitRegion(RegionModelPtr _r) const;
+    const vector<RegionModelPtr>& GetAttractRegions() const {return m_attractRegions;}
+    const vector<RegionModelPtr>& GetAvoidRegions() const {return m_avoidRegions;}
+    const vector<RegionModelPtr>& GetNonCommitRegions() const {return m_nonCommitRegions;}
+    void AddAttractRegion(RegionModelPtr _r);
+    void AddAvoidRegion(RegionModelPtr _r);
+    void AddNonCommitRegion(RegionModelPtr _r);
+    void ChangeRegionType(RegionModelPtr _r, bool _attract);
+    void DeleteRegion(RegionModelPtr _r);
+    RegionModelPtr GetRegion(Model* _model);
 
     //Paths
     const vector<UserPathModel*>& GetUserPaths() const {return m_userPaths;}
@@ -96,7 +98,7 @@ class EnvModel : public LoadableModel {
 
     AvatarModel* m_avatar;
 
-    vector<RegionModel*> m_attractRegions, m_avoidRegions, m_nonCommitRegions;
+    vector<RegionModelPtr> m_attractRegions, m_avoidRegions, m_nonCommitRegions;
 
     vector<UserPathModel*> m_userPaths;
     vector<TempObjsModel*> m_tempObjs;

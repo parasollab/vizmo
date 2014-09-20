@@ -258,7 +258,7 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::
 GetChildren(list<Model*>& _models) {
-  QMutexLocker lock(&m_lock);
+  //QMutexLocker lock(&m_lock);
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     _models.push_back(*ic);
 }

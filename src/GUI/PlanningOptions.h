@@ -2,8 +2,7 @@
 #define PLANNING_OPTIONS_H_
 
 #include "OptionsBase.h"
-
-using namespace std;
+#include "Models/EnvModel.h"
 
 //This class provides access to the user-guided planning tools
 class PlanningOptions : public OptionsBase {
@@ -11,6 +10,9 @@ class PlanningOptions : public OptionsBase {
   Q_OBJECT
 
   public:
+
+    typedef EnvModel::RegionModelPtr RegionModelPtr;
+
     PlanningOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
 
     QThread* GetMPThread() {return m_threadDone ? NULL : m_thread;}

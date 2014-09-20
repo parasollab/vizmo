@@ -101,6 +101,9 @@ GetLongLength() const {
 void
 RegionBox2DModel::
 DrawRender() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
   //configure gl modes
   glColor4fv(m_color);
 
@@ -136,6 +139,9 @@ DrawRender() {
 void
 RegionBox2DModel::
 DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
   //draw box
   glBegin(GL_QUADS);
   for(int i = 0; i < 4; ++i)
@@ -154,6 +160,9 @@ DrawSelect() {
 void
 RegionBox2DModel::
 DrawSelected() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
   //configure gl modes
   glLineWidth(4);
   glColor3f(.9, .9, 0.);

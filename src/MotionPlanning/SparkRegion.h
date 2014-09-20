@@ -20,6 +20,8 @@ class SparkRegion : public RegionStrategy<MPTraits> {
     typedef typename MPProblemType::RoadmapType::VID VID;
     typedef typename MPProblemType::GraphType GraphType;
 
+    typedef EnvModel::RegionModelPtr RegionModelPtr;
+
     SparkRegion();
     SparkRegion(MPProblemType* _problem, XMLNodeReader& _node);
 
@@ -154,9 +156,9 @@ template<class MPTraits>
 void
 SparkRegion<MPTraits>::
 DeleteRegion(size_t _index) {
-  const vector<RegionModel*>& regions = GetVizmo().GetEnv()->GetAttractRegions();
+  const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   GetVizmo().GetSelectedModels().clear();
-  GetMainWindow()->GetGLWidget()->SetCurrentRegion(NULL);
+  GetMainWindow()->GetGLWidget()->SetCurrentRegion();
   GetVizmo().GetEnv()->DeleteRegion(regions[_index-1]);
 }
 

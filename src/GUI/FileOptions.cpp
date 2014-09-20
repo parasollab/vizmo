@@ -116,7 +116,7 @@ LoadFile() {
     m_mainWindow->statusBar()->showMessage("Loading aborted");
 
   m_mainWindow->GetGLWidget()->ResetTransTool();
-  m_mainWindow->GetGLWidget()->SetCurrentRegion(NULL);
+  m_mainWindow->GetGLWidget()->SetCurrentRegion();
   m_mainWindow->GetGLWidget()->updateGL();
 }
 
@@ -137,7 +137,7 @@ UpdateFiles() {
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
   m_mainWindow->m_mainMenu->CallReset();
   m_mainWindow->GetGLWidget()->ResetTransTool();
-  m_mainWindow->GetGLWidget()->SetCurrentRegion(NULL);
+  m_mainWindow->GetGLWidget()->SetCurrentRegion();
 }
 
 void
