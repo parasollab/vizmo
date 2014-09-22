@@ -12,7 +12,7 @@ use List::Util qw(min max);
 $outputdir = "/tmp/vizmo_nightly_logs";
 $cron_machine = "zenigata.cse.tamu.edu";
 #$MAILTO = "OBPRM\@listserv.tamu.edu";
-$MAILTO = "jorydenny\@tamu.edu,nicolevioletj\@neo.tamu.edu,readamus\@cse.tamu.edu";
+$MAILTO = "joryldenny\@gmail.com,greatwall1001\@tamu.edu,readamus\@tamu.edu";
 $ENV{'PATH'}    = '/usr/local/bin/:/usr/X11R6/bin/:'.$ENV{'PATH'};
 $ENV{'DISPLAY'} = '';
 
