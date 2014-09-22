@@ -148,7 +148,7 @@ SetUpCustomSubmenu() {
   m_submenu->addAction(m_actions["saveRegion"]);
   m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
-  m_submenu->addAction(m_actions["MapEvironment"]);
+  m_submenu->addAction(m_actions["mapEnvironment"]);
 
   m_pathsMenu = new QMenu("User Paths", this);
   m_pathsMenu->addAction(m_actions["addUserPathMouse"]);
