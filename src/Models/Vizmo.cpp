@@ -485,6 +485,18 @@ PrintClock(const string& _c, ostream& _os) {
 
 void
 Vizmo::
+AdjustClock(const string& _c1, const string& _c2, const string& _op) {
+  //adjusts clock _c1 by +/- _c2.second
+  if(_op == "-")
+    m_timers[_c1].first = m_timers[_c1].first.addMSecs(m_timers[_c2].second * 1000);
+  else if (_op == "+")
+    m_timers[_c1].first = m_timers[_c1].first.addMSecs(-m_timers[_c2].second * 1000);
+  else
+    throw PMPLException("ClockError", WHERE, "unknown clock adjustment operation.");
+}
+
+void
+Vizmo::
 SetPMPLMap() {
   if(GetVizmo().IsRoadMapLoaded()) {
     vector<Model*>::iterator mit = find(m_loadedModels.begin(), m_loadedModels.end(), m_mapModel);

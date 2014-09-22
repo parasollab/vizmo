@@ -82,10 +82,14 @@ DrawRender() {
   if(m_renderMode == INVISIBLE_MODE || m_radius < 0)
     return;
 
-  glColor4fv(m_color);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
+  glColor4fv(m_color);
   glutSolidSphere(m_radius, 20, 20);
+  glColor4f(.2, .2, .2, .5);
+  DrawArc(m_radius, 0, 2 * PI, Vector3d(1., 0., 0.), Vector3d(0., 1., 0.));
+  DrawArc(m_radius, 0, 2 * PI, Vector3d(0., 1., 0.), Vector3d(0., 0., 1.));
+  DrawArc(m_radius, 0, 2 * PI, Vector3d(0., 0., 1.), Vector3d(1., 0., 0.));
   glPopMatrix();
 
   //change cursor based on highlight

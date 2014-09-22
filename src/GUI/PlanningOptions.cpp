@@ -340,11 +340,14 @@ PlanningOptions::
 ChooseSamplerStrategy() {
   const vector<string>& samplers = GetVizmo().GetLoadedSamplers();
 
-  RegionSamplerDialog rsDialog(samplers, m_mainWindow);
+  if(samplers.size() == 1)
+    GetMainWindow()->GetGLWidget()->GetCurrentRegion()->SetSampler(samplers.front());
+  else {
+    RegionSamplerDialog rsDialog(samplers, m_mainWindow);
 
-  //TODO allow canceling from region sampler dialog.
-  if(rsDialog.exec() != QDialog::Accepted)
-    cout << "The Dialog Doesnt work" << endl << flush;
+    if(rsDialog.exec() != QDialog::Accepted)
+      cout << "Sampler selection dialog aborted." << endl << flush;
+  }
 }
 
 void
@@ -364,9 +367,7 @@ void
 PlanningOptions::
 ChangeRegionType(bool _attract) {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  // Alert that only the boundry model should be selected
-  if(sel.size() == 1 && (sel[0]->Name() == "Box Region" || sel[0]->Name() == "Sphere Region"
-        || sel[0]->Name() == "Box Region 2D" || sel[0]->Name() == "Sphere Region 2D")) {
+  if(sel.size() == 1 && sel[0]->Name().find("Region") != string::npos) {
     RegionModelPtr r = GetVizmo().GetEnv()->GetRegion(sel[0]);
     if(GetVizmo().GetEnv()->IsNonCommitRegion(r)) {
       VDRemoveRegion(r.get());
@@ -436,18 +437,22 @@ PlanningOptions::
 MapEnvironment() {
   if(m_threadDone) {
 
-    ChangePlannerDialog cpDialog(m_mainWindow);
-
-    if(!cpDialog.exec())
-      return;
-
-    string slabel = cpDialog.GetPlanner();
-
-    //Stop timer for before regions
+    //Stop pre-planning region timer.
     if(!m_regionsStarted)
       //start-stop when no regions were created
-      GetVizmo().StartClock("Pre-Regions");
-    GetVizmo().StopClock("Pre-Regions");
+      GetVizmo().StartClock("Pre-regions");
+    GetVizmo().StopClock("Pre-regions");
+
+    GetVizmo().StartClock("StrategySelection");
+    ChangePlannerDialog cpDialog(m_mainWindow);
+
+    if(!cpDialog.exec()) {
+      GetVizmo().StopClock("StrategySelection");
+      GetVizmo().AdjustClock("Pre-regions", "StrategySelection", "-");
+      return;
+    }
+
+    string slabel = cpDialog.GetPlanner();
 
     //Verify that map model exist
     GetVizmo().SetPMPLMap();

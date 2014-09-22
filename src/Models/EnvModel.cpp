@@ -114,8 +114,7 @@ DeleteRegion(RegionModelPtr _r) {
 
 EnvModel::RegionModelPtr
 EnvModel::GetRegion(Model* _model) {
-  if(_model->Name() == "Sphere Region" || _model->Name() == "Box Region" ||
-      _model->Name() == "Sphere Region 2D" || _model->Name() == "Box Region 2D" ) {
+  if(_model->Name().find("Region") != string::npos) {
     RegionModel* rm = (RegionModel*)_model;
 
     vector<RegionModelPtr>::iterator rit;

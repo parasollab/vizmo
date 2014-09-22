@@ -54,6 +54,7 @@ CreateActions() {
   m_actions["openFile"]->setStatusTip(tr("Open a file"));
   m_actions["updateFile"]->setShortcut(tr("CTRL+U"));
   m_actions["quit"]->setShortcut(tr("CTRL+Q"));
+
   m_actions["updateFile"]->setEnabled(false);
   m_actions["saveFile"]->setEnabled(false);
   m_actions["saveQuery"]->setEnabled(false);
@@ -116,7 +117,6 @@ LoadFile() {
     m_mainWindow->statusBar()->showMessage("Loading aborted");
 
   m_mainWindow->GetGLWidget()->ResetTransTool();
-  m_mainWindow->GetGLWidget()->SetCurrentRegion();
   m_mainWindow->GetGLWidget()->updateGL();
 }
 

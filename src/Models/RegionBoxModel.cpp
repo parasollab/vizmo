@@ -159,7 +159,7 @@ DrawRender() {
 
   //create outline
   glLineWidth(2);
-  glColor3f(.9, .9, .9);
+  glColor4f(.2, .2, .2, .5);
   glBegin(GL_LINE_LOOP);
   for(int i = 0; i < 4; ++i)
     glVertex3dv(m_boxVertices[i]);
