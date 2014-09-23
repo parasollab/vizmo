@@ -123,7 +123,7 @@ Finalize() {
   //stats->PrintClock("Pre-regions", cout);
   stats->PrintClock("SparkRegionMP", cout);
 
-  ofstream ostats((basename + ".stats").c_str());
+  ofstream ostats((basename + ".stat").c_str());
   ostats << "NodeGen+Connection Stats" << endl;
   stats->PrintAllStats(ostats, this->GetMPProblem()->GetRoadmap());
   GetVizmo().PrintClock("Pre-regions", ostats);

@@ -230,7 +230,7 @@ Finalize() {
   stats->PrintClock("RegionStrategyMP", cout);
 
   //output stat class
-  ofstream ostats((basename + ".stats").c_str());
+  ofstream ostats((basename + ".stat").c_str());
 
   ostats << "NodeGen+Connection Stats" << endl;
   stats->PrintAllStats(ostats, this->GetMPProblem()->GetRoadmap());
