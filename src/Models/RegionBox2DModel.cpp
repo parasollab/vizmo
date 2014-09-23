@@ -132,8 +132,6 @@ DrawRender() {
     QApplication::setOverrideCursor(Qt::SizeHorCursor);
   else if(m_highlightedPart & (TOP | BOTTOM))
     QApplication::setOverrideCursor(Qt::SizeVerCursor);
-  else
-    QApplication::setOverrideCursor(Qt::ArrowCursor);
 }
 
 void
@@ -314,12 +312,8 @@ PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
 
   //check for select all
   if(!m_highlightedPart) {
-    //q is a vector pointing from box center to m
-    //d is a vector pointing from box center to a corner
-    Vector3d center = ProjectToWindow(m_center);
-    Vector2d q(m[0] - center[0], m[1] - center[1]);
-    Vector2d d(m_winVertices[0][0] - center[0], m_winVertices[0][1] - center[1]);
-    if(q.norm() < d.norm() * .5)
+    if(m[0] >= m_winVertices[0][0] + 3 && m[0] <= m_winVertices[2][0] - 3 &&
+        m[1] >= m_winVertices[1][1] + 3 && m[1] <= m_winVertices[0][1])
       m_highlightedPart = ALL;
   }
 

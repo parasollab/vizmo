@@ -195,8 +195,6 @@ DrawRender() {
     QApplication::setOverrideCursor(Qt::SizeHorCursor);
   else if(m_highlightedPart & (TOP | BOTTOM))
     QApplication::setOverrideCursor(Qt::SizeVerCursor);
-  else
-    QApplication::setOverrideCursor(Qt::ArrowCursor);
 
   //draw crosshair during manipulation
   if(m_lmb || m_rmb)
