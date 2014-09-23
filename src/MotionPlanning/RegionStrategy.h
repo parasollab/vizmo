@@ -308,8 +308,7 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
   }
   //catch Boundary too small exception
   catch(PMPLException _e) {
-    //static size_t numE = 0;
-    //cout << _e.what() << endl << numE++ << endl;
+    m_samplingRegion->IncreaseFACount(1000000);
     return;
   }
   //catch all others and exit

@@ -30,7 +30,7 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
         string _nc = "kClosest", string _gt = "UNDIRECTED_TREE",
         string _extenderLabel = "BERO",
         vector<string> _evaluators = vector<string>(), double _delta = 10.0,
-        double _minDist = 0.01, double _growthFocus = 0.05,
+        double _minDist = 0.001, double _growthFocus = 0.05,
         bool _evaluateGoal = true, size_t _numRoots = 1,
         size_t _numDirections = 1, size_t _maxTrial = 3,
         bool _growGoals = false);
@@ -119,11 +119,11 @@ Run() {
       this->ConnectTrees(recent);
       //see if tree is connected to goals
       if(this->m_evaluateGoal)
-        this->EvaluateGoals();
+        this->EvaluateGoals(recent);
 
       //evaluate the roadmap
       bool evalMap = this->EvaluateMap(this->m_evaluators);
-      if(!this -> m_growGoals) {
+      if(!this->m_growGoals) {
         mapPassedEvaluation = this->m_trees.size() == 1 && evalMap &&
           ((this->m_evaluateGoal && this->m_goalsNotFound.size()==0) || !this->m_evaluateGoal);
         if(this->m_debug && this->m_goalsNotFound.size()==0)
@@ -135,8 +135,7 @@ Run() {
     else
       mapPassedEvaluation = false;
 
-
-    if(m_samplingRegion != NULL) {
+    /*if(m_samplingRegion != NULL) {
       //Delete region if q_new is in it
       shared_ptr<Boundary> boundary = m_samplingRegion->GetBoundary();
       if(this->GetMPProblem()->GetEnvironment()->InBounds(m_qNew, boundary)) {
@@ -144,7 +143,7 @@ Run() {
         GetMainWindow()->GetGLWidget()->SetCurrentRegion();
         GetVizmo().GetEnv()->DeleteRegion(m_samplingRegion);
       }
-    }
+    }*/
 
     GetVizmo().GetMap()->RefreshMap();
     usleep(10000);
@@ -225,8 +224,6 @@ SelectDirection() {
   Environment* env = this->GetMPProblem()->GetEnvironment();
 
   size_t _index = rand() % (regions.size() + 1);
-  //size_t _index = rand() % (regions.size());
-  vector<CfgType> col;
 
   if(_index == regions.size()) {
     m_samplingRegion.reset();
@@ -238,19 +235,17 @@ SelectDirection() {
   }
 
   try {
-    //vector<CfgType> mySample;
     CfgType mySample;
     mySample.GetRandomCfg(env,samplingBoundary);
-    //if this region is not the environment boundary, update failure count
-    if(m_samplingRegion != NULL) {
-      m_samplingRegion->IncreaseFACount(col.size());
-    }
+    if(m_samplingRegion != NULL)
+      m_samplingRegion->SetColor(Color4(0, 1, 0, 0.5));
     return mySample;
   }
   //catch Boundary too small exception
   catch(PMPLException _e) {
+    m_samplingRegion->SetColor(Color4(1, 0, 0, 1));
     CfgType mySample;
-    mySample.GetRandomCfg(env,samplingBoundary);
+    mySample.GetRandomCfg(env);
     return mySample;
   }
   //catch all others and exit

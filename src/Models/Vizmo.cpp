@@ -177,7 +177,7 @@ InitPMPL() {
   problem->AddMapEvaluator(pme, "PrintMap");
 
   //add NumNodes eval
-  VizmoProblem::MapEvaluatorPointer mep(new ConditionalEvaluator<VizmoTraits>(ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 10000));
+  VizmoProblem::MapEvaluatorPointer mep(new ConditionalEvaluator<VizmoTraits>(ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 7500));
   problem->AddMapEvaluator(mep, "NodesEval");
 
   //set up query evaluators
@@ -237,6 +237,8 @@ InitPMPL() {
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();
   problem->BuildCDStructures();
+  problem->GetEnvironment()->SetPositionRes(0.8);
+  problem->GetEnvironment()->SetOrientationRes(0.2);
 }
 
 void

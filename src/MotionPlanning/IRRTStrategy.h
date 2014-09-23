@@ -37,8 +37,6 @@ class IRRTStrategy : public BasicRRTStrategy<MPTraits> {
     //XML Constructor
     IRRTStrategy(MPProblemType* _problem, XMLNodeReader& _node);
 
-    ~IRRTStrategy();
-
     virtual void Initialize();
     virtual void Run();
     virtual void Finalize();
@@ -47,9 +45,6 @@ class IRRTStrategy : public BasicRRTStrategy<MPTraits> {
   protected:
     // Helper functions
     virtual CfgType SelectDirection();
-    virtual VID ExpandTree(CfgType& _dir);
-    void ConnectTrees(VID _recentlyGrown);
-    void EvaluateGoals();
 
     CfgType AvatarBiasedDirection();
 
@@ -81,10 +76,6 @@ IRRTStrategy(MPProblemType* _problem, XMLNodeReader& _node) :
   m_sigma = _node.numberXMLParameter("sigma", false, 0.5, 0.0, 1.0, "Sigma");
   m_beta = _node.numberXMLParameter("beta", false, 0.5, 0.0, 1.0, "Beta");
   _node.warnUnrequestedAttributes();
-}
-
-template<class MPTraits>
-IRRTStrategy<MPTraits>::~IRRTStrategy() {
 }
 
 template<class MPTraits>
@@ -152,10 +143,10 @@ Run() {
     VID recent = this->ExpandTree(dir);
     if(recent != INVALID_VID) {
       //connect various trees together
-      ConnectTrees(recent);
+      this->ConnectTrees(recent);
       //see if tree is connected to goals
       if(this->m_evaluateGoal)
-        EvaluateGoals();
+        this->EvaluateGoals(recent);
 
       //evaluate the roadmap
       bool evalMap = this->EvaluateMap(this->m_evaluators);
@@ -258,27 +249,6 @@ SelectDirection() {
       return AvatarBiasedDirection();
   }
   return BasicRRTStrategy<MPTraits>::SelectDirection();
-}
-
-template<class MPTraits>
-typename IRRTStrategy<MPTraits>::VID
-IRRTStrategy<MPTraits>::
-ExpandTree(CfgType& _dir) {
-  return BasicRRTStrategy<MPTraits>::ExpandTree(_dir);
-}
-
-template<class MPTraits>
-void
-IRRTStrategy<MPTraits>::
-ConnectTrees(VID _recentlyGrown) {
-  return BasicRRTStrategy<MPTraits>::ConnectTrees(_recentlyGrown);
-}
-
-template<class MPTraits>
-void
-IRRTStrategy<MPTraits>::
-EvaluateGoals() {
-  BasicRRTStrategy<MPTraits>::EvaluateGoals();
 }
 
 template<class MPTraits>
