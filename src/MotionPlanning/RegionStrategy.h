@@ -366,6 +366,7 @@ ProcessAvoidRegions() {
   }
 
   //handle deletion of invalid edges and vertices
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
   for(typename vector<EID>::iterator eit = edgesToDel.begin();
       eit != edgesToDel.end(); ++eit)
     g->delete_edge(*eit);
@@ -373,7 +374,7 @@ ProcessAvoidRegions() {
       vit != verticesToDel.end(); ++vit)
     g->delete_vertex(*vit);
 
-  GetVizmo().GetMap()->RefreshMap();
+  GetVizmo().GetMap()->RefreshMap(false);
 }
 
 template<class MPTraits>

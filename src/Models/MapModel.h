@@ -70,7 +70,10 @@ class MapModel : public LoadableModel {
 
     //Modification functions
     void RandomizeCCColors();
-    void RefreshMap();
+    //Variable lock by default is always on. Meaning locking mutex should occur.
+    //Only pass in false if you know better, e.g., directly after deleting nodes
+    //and edges.
+    void RefreshMap(bool lock = true);
     void ClearTempItems();
 
     QMutex& AcquireMutex() {return m_lock;}
@@ -176,8 +179,6 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::
 Build() {
-  QMutexLocker lock(&m_lock);
-
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     delete *ic;
   m_ccModels.clear();
@@ -188,8 +189,10 @@ Build() {
   ColorMap colorMap;
   get_cc_stats(*m_graph, colorMap, ccs);
   m_ccModels.reserve(ccs.size());
-  for(CIT ic = ccs.begin(); ic != ccs.end(); ic++)
+  for(CIT ic = ccs.begin(); ic != ccs.end(); ic++) {
     m_ccModels.push_back(new CCM(ic-ccs.begin(), ic->second, m_graph));
+    m_ccModels.back()->SetRenderMode(m_renderMode);
+  }
 }
 
 template <class CFG, class WEIGHT>
@@ -303,9 +306,12 @@ RandomizeCCColors() {
 template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::
-RefreshMap() {
+RefreshMap(bool lock) {
+  QMutexLocker* locker = NULL;
+  if(lock)
+    locker = new QMutexLocker(&m_lock);
   Build();
-  SetRenderMode(m_renderMode);
+  delete locker;
 }
 
 template <class CFG, class WEIGHT>
