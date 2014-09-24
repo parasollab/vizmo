@@ -325,13 +325,19 @@ AddRegionSphere() {
 void
 PlanningOptions::
 DeleteRegion() {
-  RegionModelPtr r = m_mainWindow->GetGLWidget()->GetCurrentRegion();
-  if(r) {
-    r->SetRenderMode(INVISIBLE_MODE);
-    GetVizmo().GetEnv()->DeleteRegion(r);
-    GetVizmo().GetSelectedModels().clear();
-    m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLWidget()->SetCurrentRegion();
+  if((m_mainWindow->GetGLWidget()->GetCurrentRegion() == NULL) || (GetVizmo().GetSelectedModels().size() != 1)) {
+    GetMainWindow()->AlertUser("You must select a single region for this to work.");
+    return;
+  }
+  else {
+    RegionModelPtr r = m_mainWindow->GetGLWidget()->GetCurrentRegion();
+    if(r) {
+      r->SetRenderMode(INVISIBLE_MODE);
+      GetVizmo().GetEnv()->DeleteRegion(r);
+      GetVizmo().GetSelectedModels().clear();
+      m_mainWindow->GetModelSelectionWidget()->ResetLists();
+      m_mainWindow->GetGLWidget()->SetCurrentRegion();
+    }
   }
 }
 
@@ -348,24 +354,37 @@ ChooseSamplerStrategy() {
     if(rsDialog.exec() != QDialog::Accepted)
       cout << "Sampler selection dialog aborted." << endl << flush;
   }
+
 }
 
 void
 PlanningOptions::
 MakeRegionAttract() {
-  ChangeRegionType(true);
-  ChooseSamplerStrategy();
+  if((m_mainWindow->GetGLWidget()->GetCurrentRegion() == NULL) || (GetVizmo().GetSelectedModels().size() != 1)) {
+    GetMainWindow()->AlertUser("You must select a single region for this to work.");
+    return;
+  }
+  else {
+    ChangeRegionType(true);
+    ChooseSamplerStrategy();
+  }
 }
 
 void
 PlanningOptions::
 MakeRegionAvoid() {
-  ChangeRegionType(false);
+  if((m_mainWindow->GetGLWidget()->GetCurrentRegion() == NULL) || (GetVizmo().GetSelectedModels().size() != 1)) {
+    GetMainWindow()->AlertUser("You must select a single region for this to work.");
+    return;
+  }
+  else
+    ChangeRegionType(false);
 }
 
 void
 PlanningOptions::
 ChangeRegionType(bool _attract) {
+
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   if(sel.size() == 1 && sel[0]->Name().find("Region") != string::npos) {
     RegionModelPtr r = GetVizmo().GetEnv()->GetRegion(sel[0]);
@@ -380,44 +399,51 @@ ChangeRegionType(bool _attract) {
 void
 PlanningOptions::
 DuplicateRegion() {
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  bool regionFound = false;
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit) {
-    if((*sit)->Name().find("Region")) {
 
-      RegionModelPtr r;
-      double dist;
-      RegionModel::Shape shape = ((RegionModel*)(*sit))->GetShape();
-      if(shape == RegionModel::BOX)
-        r = RegionModelPtr(new RegionBoxModel(*static_cast<RegionBoxModel*>(*sit)));
-      else if(shape == RegionModel::BOX2D)
-        r = RegionModelPtr(new RegionBox2DModel(*static_cast<RegionBox2DModel*>(*sit)));
-      else if(shape == RegionModel::SPHERE)
-        r = RegionModelPtr(new RegionSphereModel(*static_cast<RegionSphereModel*>(*sit)));
-      else if(shape == RegionModel::SPHERE2D)
-        r = RegionModelPtr(new RegionSphere2DModel(*static_cast<RegionSphere2DModel*>(*sit)));
-      if(r) {
-        regionFound = true;
-        dist = r->GetLongLength();
-        r->SetType(RegionModel::NONCOMMIT);
-        Camera* c = m_mainWindow->GetGLWidget()->GetCurrentCamera();
-        Vector3d delta = -(c->GetWindowX() + c->GetWindowY() + c->GetWindowZ());
-        delta.selfNormalize();
-        delta *= dist/3;
-        r->ApplyOffset(delta);
-        GetVizmo().GetEnv()->AddNonCommitRegion(r);
-        m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
-        m_mainWindow->GetModelSelectionWidget()->ResetLists();
-        sel.clear();
-        sel.push_back(r.get());
-        m_mainWindow->GetModelSelectionWidget()->Select();
-        break;
+  if((m_mainWindow->GetGLWidget()->GetCurrentRegion() == NULL) || (GetVizmo().GetSelectedModels().size() != 1)) {
+    GetMainWindow()->AlertUser("You must select a single region for this to work.");
+    return;
+  }
+  else {
+    vector<Model*>& sel = GetVizmo().GetSelectedModels();
+    bool regionFound = false;
+    typedef vector<Model*>::iterator SIT;
+    for(SIT sit = sel.begin(); sit != sel.end(); ++sit) {
+      if((*sit)->Name().find("Region")) {
+
+        RegionModelPtr r;
+        double dist;
+        RegionModel::Shape shape = ((RegionModel*)(*sit))->GetShape();
+        if(shape == RegionModel::BOX)
+          r = RegionModelPtr(new RegionBoxModel(*static_cast<RegionBoxModel*>(*sit)));
+        else if(shape == RegionModel::BOX2D)
+          r = RegionModelPtr(new RegionBox2DModel(*static_cast<RegionBox2DModel*>(*sit)));
+        else if(shape == RegionModel::SPHERE)
+          r = RegionModelPtr(new RegionSphereModel(*static_cast<RegionSphereModel*>(*sit)));
+        else if(shape == RegionModel::SPHERE2D)
+          r = RegionModelPtr(new RegionSphere2DModel(*static_cast<RegionSphere2DModel*>(*sit)));
+        if(r) {
+          regionFound = true;
+          dist = r->GetLongLength();
+          r->SetType(RegionModel::NONCOMMIT);
+          Camera* c = m_mainWindow->GetGLWidget()->GetCurrentCamera();
+          Vector3d delta = -(c->GetWindowX() + c->GetWindowY() + c->GetWindowZ());
+          delta.selfNormalize();
+          delta *= dist/3;
+          r->ApplyOffset(delta);
+          GetVizmo().GetEnv()->AddNonCommitRegion(r);
+          m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
+          m_mainWindow->GetModelSelectionWidget()->ResetLists();
+          sel.clear();
+          sel.push_back(r.get());
+          m_mainWindow->GetModelSelectionWidget()->Select();
+          break;
+        }
       }
     }
+    if(!regionFound)
+      GetMainWindow()->AlertUser("Region not selected");
   }
-  if(!regionFound)
-    GetMainWindow()->AlertUser("Region not selected");
 }
 
 void
