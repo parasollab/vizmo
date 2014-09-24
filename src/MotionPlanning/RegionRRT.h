@@ -46,9 +46,6 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
     VID ExpandTree(CfgType& _dir);
 
   private:
-
-    void DeleteRegion(size_t _index);
-
     RegionModelPtr m_samplingRegion;
     CfgType m_qNew;
 };
@@ -383,16 +380,6 @@ ExpandTree(CfgType& _dir) {
   }
 
   return recentVID;
-}
-
-template<class MPTraits>
-void
-RegionRRT<MPTraits>::
-DeleteRegion(size_t _index) {
-  const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
-  GetVizmo().GetSelectedModels().clear();
-  GetMainWindow()->GetGLWidget()->SetCurrentRegion();
-  GetVizmo().GetEnv()->DeleteRegion(regions[_index-1]);
 }
 
 #endif

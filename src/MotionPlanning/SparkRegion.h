@@ -1,13 +1,5 @@
-#ifndef SPARKREGION_H_
-#define SPARKREGION_H_
-
-#include "MPStrategies/MPStrategyMethod.h"
-#include "MPStrategies/SparkPRM.h"
-
-#include "Models/RegionModel.h"
-#include "Models/RegionSphereModel.h"
-#include "Models/RegionSphere2DModel.h"
-#include "Models/Vizmo.h"
+#ifndef SPARK_REGION_H_
+#define SPARK_REGION_H_
 
 #include "RegionStrategy.h"
 
@@ -30,8 +22,7 @@ class SparkRegion : public RegionStrategy<MPTraits> {
     void Finalize();
 
   protected:
-    //helper functions
-    bool ConstructRRT(vector<VID>& _vids);
+    void ConstructRRT(vector<VID>& _vids);
     void DeleteRegion(size_t _index);
 };
 
@@ -94,9 +85,9 @@ Run() {
       GetVizmo().GetMap()->RefreshMap();
     }
 
-    if(++iter % 20 == 0)
+    //if(++iter % 20 == 0)
       GetVizmo().GetMap()->RefreshMap();
-    usleep(10000);
+    //usleep(10000);
   }
 
   //stop clock
@@ -142,14 +133,12 @@ Finalize() {
 }
 
 template<class MPTraits>
-bool
+void
 SparkRegion<MPTraits>::
 ConstructRRT(vector<VID>& _vids) {
   typedef typename vector<VID>::iterator VIT;
-  for(VIT vit = _vids.begin(); vit != _vids.end(); ++vit) {
+  for(VIT vit = _vids.begin(); vit != _vids.end(); ++vit)
     this->CheckNarrowPassageSample(*vit);
-  }
-  return false;
 }
 
 template<class MPTraits>
@@ -159,7 +148,7 @@ DeleteRegion(size_t _index) {
   const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   GetVizmo().GetSelectedModels().clear();
   GetMainWindow()->GetGLWidget()->SetCurrentRegion();
-  GetVizmo().GetEnv()->DeleteRegion(regions[_index-1]);
+  GetVizmo().GetEnv()->DeleteRegion(regions[_index]);
 }
 
 #endif
