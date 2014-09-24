@@ -22,7 +22,6 @@ class SparkRegion : public RegionStrategy<MPTraits> {
     void Finalize();
 
   protected:
-    void ConstructRRT(vector<VID>& _vids);
     void DeleteRegion(size_t _index);
 };
 
@@ -80,9 +79,10 @@ Run() {
     this->Connect(vids, iter);
 
     if(samples.size() && index != GetVizmo().GetEnv()->GetAttractRegions().size()) {
-      ConstructRRT(vids);
-      DeleteRegion(index);
-      GetVizmo().GetMap()->RefreshMap();
+      typedef typename vector<VID>::iterator VIT;
+      for(VIT vit = vids.begin(); vit != vids.end(); ++vit)
+        this->CheckNarrowPassageSample(*vit);
+      //DeleteRegion(index);
     }
 
     //if(++iter % 20 == 0)
@@ -111,7 +111,6 @@ Finalize() {
   StatClass* stats = this->GetMPProblem()->GetStatClass();
   GetVizmo().PrintClock("Pre-regions", cout);
   GetVizmo().PrintClock("SparkRegion", cout);
-  //stats->PrintClock("Pre-regions", cout);
   stats->PrintClock("SparkRegionMP", cout);
 
   ofstream ostats((basename + ".stat").c_str());
@@ -119,26 +118,24 @@ Finalize() {
   stats->PrintAllStats(ostats, this->GetMPProblem()->GetRoadmap());
   GetVizmo().PrintClock("Pre-regions", ostats);
   GetVizmo().PrintClock("SparkRegion", ostats);
-  //stats->PrintClock("Pre-regions", ostats);
   stats->PrintClock("SparkRegionMP", ostats);
 
   //output roadmap
   ofstream ofs((basename + ".map").c_str());
   this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
 
+  //show results pop-up
+  ostringstream results;
+  results << "Planning Complete!" << endl;
+  GetVizmo().PrintClock("Pre-regions", results);
+  GetVizmo().PrintClock("SparkRegion", results);
+
+  GetMainWindow()->AlertUser(results.str());
+
   //Make things selectable again
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
   GetVizmo().GetRobot()->SetSelectable(true);
-}
-
-template<class MPTraits>
-void
-SparkRegion<MPTraits>::
-ConstructRRT(vector<VID>& _vids) {
-  typedef typename vector<VID>::iterator VIT;
-  for(VIT vit = _vids.begin(); vit != _vids.end(); ++vit)
-    this->CheckNarrowPassageSample(*vit);
 }
 
 template<class MPTraits>
