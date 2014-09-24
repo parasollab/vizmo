@@ -46,8 +46,6 @@ Initialize() {
 
     string basename = this->GetBaseFilename();
 
-  this->SetupTools();
-
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);

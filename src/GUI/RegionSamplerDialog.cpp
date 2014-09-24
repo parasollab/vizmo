@@ -6,52 +6,36 @@
 #include "Models/MapModel.h"
 
 RegionSamplerDialog::
-RegionSamplerDialog(const vector<string>& _samplers, QWidget* _parent, Qt::WFlags _f) :
-  QDialog(_parent, _f), m_samplerLabel("") {
-    SetUpSubwidgets(_samplers);
+RegionSamplerDialog(const vector<string>& _samplers, QWidget* _parent) :
+    QDialog(_parent), m_samplerLabel("") {
+  //create widget layout
+  QVBoxLayout* layout = new QVBoxLayout(this);
+
+  //create radio buttons
+  for(vector<string>::const_iterator citer = _samplers.begin();
+      citer != _samplers.end(); ++citer) {
+    QRadioButton* button = new QRadioButton((*citer).c_str(), this);
+    connect(button, SIGNAL(clicked()), this, SLOT(ChangeSampler()));
+    layout->addWidget(button);
+    //set first button checked by default
+    if(citer == _samplers.begin())
+      button->setChecked(true);
   }
 
-void
-RegionSamplerDialog::
-SetUpSubwidgets(const vector<string>& _samplers) {
-
-  QGridLayout* layout = new QGridLayout;
-  setLayout(layout);
-
+  //create accept button
   QPushButton* setButton = new QPushButton("Set", this);
-
-  for(vector<string>::const_iterator citer = _samplers.begin(); citer != _samplers.end(); ++citer) {
-
-cout << "Sampler: " << *citer << endl << flush;
-    m_samplerRadioButtons.push_back(new QRadioButton(this));
-    m_nameAndLabels.push_back(new QLabel(GetVizmo().GetSamplerNameAndLabel((*citer).c_str()).c_str(), this));
-
-    m_samplerLabels.push_back((*citer).c_str());
-  }
-
-  m_samplerRadioButtons[0]->setChecked(true);
-  m_samplerLabel = m_samplerLabels[0];
-
-  for(size_t i = 0; i < _samplers.size(); ++i) {
-    layout->addWidget(m_samplerRadioButtons[i], i, 0);
-    layout->addWidget(m_nameAndLabels[i], i, 1);
-
-    connect(m_samplerRadioButtons[i], SIGNAL(clicked()), this, SLOT(ChangeSampler()));
-  }
-
-  layout->addWidget(setButton, _samplers.size(), 1);
-
   connect(setButton, SIGNAL(clicked()), this, SLOT(Accept()));
+  layout->addWidget(setButton);
+
+  //apply the layout
+  setLayout(layout);
 }
 
 void
 RegionSamplerDialog::
 ChangeSampler() {
-  for(size_t i = 0; i < m_samplerRadioButtons.size(); ++i) {
-    if(m_samplerRadioButtons[i]->isChecked()) {
-      m_samplerLabel = m_samplerLabels[i];
-    }
-  }
+  QRadioButton* button = static_cast<QRadioButton*>(sender());
+  m_samplerLabel = button->text().toStdString();
 }
 
 void
@@ -62,5 +46,6 @@ Accept() {
 
   RegionModel* r = (RegionModel*)sel[0];
   r->SetSampler(m_samplerLabel);
+
   accept();
 }

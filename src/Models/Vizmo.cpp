@@ -148,9 +148,6 @@ InitPMPL() {
   VizmoProblem::SamplerPointer sp(new UniformRandomSampler<VizmoTraits>("PQP_SOLID"));
   problem->AddSampler(sp, "Uniform");
 
-  // Set Sampler Labels
-  m_loadedSamplers.push_back("Uniform");
-
   //add distance metric
   VizmoProblem::DistanceMetricPointer dm(new EuclideanDistance<VizmoTraits>());
   problem->AddDistanceMetric(dm, "euclidean");
@@ -230,9 +227,51 @@ InitPMPL() {
   problem->AddMPStrategy(ps, "PathStrategy");
 
   //add spark region strategy
-  VizmoProblem::
-    MPStrategyPointer sr(new SparkPRM<VizmoTraits, SparkRegion>());
+  VizmoProblem::MPStrategyPointer sr(new SparkPRM<VizmoTraits, SparkRegion>());
   problem->AddMPStrategy(sr, "SparkRegion");
+
+  // <:::::::}xxx@  set up supporting tools for region strategies  @xxx{:::::::>
+
+  //avoid-region validity checker
+  VizmoProblem::ValidityCheckerPointer arv(
+      new AvoidRegionValidity<VizmoTraits>());
+  problem->AddValidityChecker(arv, "AvoidRegionValidity");
+
+  //avoid-region (only) local planner
+  VizmoProblem::LocalPlannerPointer arsl(
+      new StraightLine<VizmoTraits>("AvoidRegionValidity", true));
+  problem->AddLocalPlanner(arsl, "AvoidRegionSL");
+
+  //avoid-region + PQP_SOLID validity checker
+  vector<string> vcList;
+  vcList.push_back("PQP_SOLID");
+  vcList.push_back("AvoidRegionValidity");
+  VizmoProblem::ValidityCheckerPointer rv(new ComposeValidity<VizmoTraits>(
+      ComposeValidity<VizmoTraits>::AND, vcList));
+  problem->AddValidityChecker(rv, "RegionValidity");
+
+  //avoid-region + PQP_SOLID local planner
+  VizmoProblem::LocalPlannerPointer rsl(
+      new StraightLine<VizmoTraits>("RegionValidity", true));
+  problem->AddLocalPlanner(rsl, "RegionSL");
+
+  //region uniform random sampler
+  VizmoProblem::SamplerPointer rus(
+      new UniformRandomSampler<VizmoTraits>("RegionValidity"));
+  problem->AddSampler(rus, "RegionUniformSampler");
+  m_loadedSamplers.push_back("RegionUniformSampler");
+
+  //region obstacle-based sampler
+  VizmoProblem::SamplerPointer robs(
+      new ObstacleBasedSampler<VizmoTraits>(problem->GetEnvironment(),
+      "RegionValidity", "euclidean"));
+  problem->AddSampler(robs, "RegionObstacleSampler");
+  m_loadedSamplers.push_back("RegionObstacleSampler");
+
+  //region neighborhood connector
+  VizmoProblem::ConnectorPointer rc(
+      new NeighborhoodConnector<VizmoTraits>("BFNF", "RegionSL"));
+  problem->AddConnector(rc, "RegionBFNFConnector");
 
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();

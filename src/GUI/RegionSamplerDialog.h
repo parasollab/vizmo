@@ -10,19 +10,13 @@ class RegionSamplerDialog : public QDialog {
   Q_OBJECT
 
   public:
-    RegionSamplerDialog(const vector<string>& _samplers, QWidget* _parent, Qt::WFlags _f = 0);
+    RegionSamplerDialog(const vector<string>& _samplers, QWidget* _parent);
 
   private slots:
     void ChangeSampler();
     void Accept();
 
   private:
-    void SetUpSubwidgets(const vector<string>& _samplers);
-
-    vector<QRadioButton*> m_samplerRadioButtons;
-    vector<QLabel*> m_nameAndLabels;
-    vector<string> m_samplerLabels;
-
     string m_samplerLabel;
 };
 

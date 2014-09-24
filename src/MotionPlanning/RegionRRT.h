@@ -125,7 +125,7 @@ Run() {
           ((this->m_evaluateGoal && this->m_goalsNotFound.size()==0) || !this->m_evaluateGoal);
         if(this->m_debug && this->m_goalsNotFound.size()==0)
           cout << "RRT FOUND ALL GOALS" << endl;
-        if(this->m_trees.begin()->size() >= 7500)
+        if(this->m_trees.begin()->size() >= 15000)
           mapPassedEvaluation = true;
       }
       else
