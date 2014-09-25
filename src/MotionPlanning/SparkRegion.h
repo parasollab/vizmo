@@ -42,9 +42,10 @@ void
 SparkRegion<MPTraits>::
 Initialize() {
   cout << "Initializing Spark Region Strategy." << endl;
-  if(GetVizmo().IsQueryLoaded())
-
+  if(GetVizmo().IsQueryLoaded()) {
     string basename = this->GetBaseFilename();
+    this->SetQuery();
+  }
 
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);

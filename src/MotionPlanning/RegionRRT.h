@@ -57,17 +57,20 @@ RegionRRT(const CfgType& _start, const CfgType& _goal, string _lp, string _dm,
     vector<string> _evaluators, double _delta, double _minDist,
     double _growthFocus, bool _evaluateGoal, size_t _numRoots,
     size_t _numDirections, size_t _maxTrial, bool _growGoals) :
-  BasicRRTStrategy<MPTraits>(_lp, _dm, _nf, _vc, _nc, _gt, _extenderLabel,
-      _evaluators, _delta, _minDist, _growthFocus, _evaluateGoal,
-      _start, _goal, _numRoots, _numDirections, _maxTrial, _growGoals) {
-    this->SetName("RegionRRT");
-  }
+    BasicRRTStrategy<MPTraits>(_lp, _dm, _nf, _vc, _nc, _gt, _extenderLabel,
+        _evaluators, _delta, _minDist, _growthFocus, _evaluateGoal,
+        _start, _goal, _numRoots, _numDirections, _maxTrial, _growGoals) {
+  this->SetName("RegionRRT");
+  this->m_delta = MAX_DBL;
+}
 
 
 template<class MPTraits>
 RegionRRT<MPTraits>::
-RegionRRT(MPProblemType* _problem, XMLNodeReader& _node) : BasicRRTStrategy<MPTraits>(_problem, _node) {
+RegionRRT(MPProblemType* _problem, XMLNodeReader& _node) :
+    BasicRRTStrategy<MPTraits>(_problem, _node) {
   this->SetName("RegionRRT");
+  this->m_delta = MAX_DBL;
 }
 
 template<class MPTraits>
