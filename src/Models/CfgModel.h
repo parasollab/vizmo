@@ -37,7 +37,11 @@ class CfgModel : public Model, public Cfg {
     static Shape GetShape() { return m_shape; }
     static float GetPointSize() { return m_pointScale; }
 
-    static void SetDOF(size_t _d) { m_dof = _d; }
+    void SetDOF(size_t _d) {
+      /*m_dof[m_robotIndex] = _d;*/
+      //Temporary fix for PMPL Compile to avoid seg fault for regular vizmo use.
+      m_dof.push_back(_d);
+    }
     static void SetIsPlanarRobot(bool _b) { m_isPlanarRobot = _b; }
     static void SetIsVolumetricRobot(bool _b) { m_isVolumetricRobot = _b; }
     static void SetIsRotationalRobot(bool _b) { m_isRotationalRobot = _b; }

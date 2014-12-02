@@ -6,7 +6,7 @@
 #include "Vizmo.h"
 #include "Utilities/VizmoExceptions.h"
 
-RobotModel::RobotModel(EnvModel* _env) : Model("Robot"), m_envModel(_env), m_initCfg(Cfg::DOF()) {
+RobotModel::RobotModel(EnvModel* _env) : Model("Robot"), m_envModel(_env), m_initCfg(Cfg().DOF()) {
   Build();
 }
 

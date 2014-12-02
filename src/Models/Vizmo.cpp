@@ -423,7 +423,7 @@ PlaceRobot() {
     else if(m_pathModel)
       cfg = m_pathModel->GetConfiguration(0).GetData();
     else
-      cfg = vector<double>(CfgModel::DOF());
+      cfg = vector<double>(CfgModel().DOF());
     if(m_debugModel || (m_mapModel && !(m_pathModel || m_queryModel)))
       m_robotModel->SetRenderMode(INVISIBLE_MODE);
 

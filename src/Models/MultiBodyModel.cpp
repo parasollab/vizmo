@@ -346,7 +346,7 @@ MultiBodyModel::BuildRobotStructure() {
     m_robots.push_back(make_pair(base, jm));
   }
 
-  CfgModel::SetDOF(m_dof);
+  CfgModel().SetDOF(m_dof);
   CfgModel::SetIsPlanarRobot(m_robots[0].first->IsBasePlanar() ? true : false);
   CfgModel::SetIsVolumetricRobot(m_robots[0].first->IsBaseVolumetric() ? true : false);
   CfgModel::SetIsRotationalRobot(m_robots[0].first->IsBaseRotational() ? true : false);
@@ -354,6 +354,6 @@ MultiBodyModel::BuildRobotStructure() {
 
 void
 MultiBodyModel::ChangeDOF(int _dof){
-  m_dof=_dof;
-  CfgModel::SetDOF(m_dof);
+  m_dof = _dof;
+  CfgModel().SetDOF(m_dof);
 }

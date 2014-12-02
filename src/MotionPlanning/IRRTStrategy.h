@@ -292,7 +292,7 @@ AvatarBiasedDirection() {
   CfgType forceResult = forceUser + forceAlgo;
 
   double stdDev = 0.5;
-  for(size_t i = 0; i < CfgType::DOF(); ++i)
+  for(size_t i = 0; i < CfgType().DOF(); ++i)
     forceResult[i] = GaussianDistribution(forceResult[i], stdDev);
 
   return newPos + forceResult;
