@@ -24,7 +24,6 @@ MainWindow(QWidget* _parent) : QMainWindow(_parent), m_vizmoInit(false) {
   setWindowTitle("Vizmo++");
   m_gl = NULL;
   m_animationWidget = NULL;
-  move(0,0);
   m_setQS = false;
   m_setQG = false;
   m_command = "";
@@ -45,9 +44,7 @@ Init() {
     return false;
 
   // Create Other GUI
-  if(CreateGUI() == false)
-    return false;
-
+  CreateGUI();
   SetUpLayout();
   statusBar()->showMessage("Ready");
   return true;
@@ -89,14 +86,13 @@ InitVizmo() {
 void
 MainWindow::
 closeEvent(QCloseEvent* _event) {
-  QThread* thread = ((PlanningOptions*)m_mainMenu->m_planningOptions)->GetMPThread();
-  if(thread)
-    delete thread;
+  /// Executes clean-up prior to closing the application.
+  static_cast<PlanningOptions*>(m_mainMenu->m_planningOptions)->HaltMPThread();
   GetVizmo().Clean();
   QMainWindow::closeEvent(_event);
 }
 
-bool
+void
 MainWindow::
 CreateGUI() {
   m_animationWidget = new AnimationWidget("Animation", this);
@@ -122,7 +118,6 @@ CreateGUI() {
   connect(m_gl, SIGNAL(clickByLMB()), m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_textWidget, SLOT(SetText()));
   connect(this, SIGNAL(Alert(QString)), this, SLOT(ShowAlert(QString)));
-  return true;
 }
 
 void
@@ -182,6 +177,8 @@ SetUpLayout() {
 void
 MainWindow::
 keyPressEvent(QKeyEvent* _e) {
+  /// Currently, the only available command is \c esc, which terminates the
+  /// application.
   switch(_e->key()){
     case Qt::Key_Escape: qApp->quit();
   }
@@ -196,7 +193,8 @@ UpdateScreen() {
 void
 MainWindow::
 HideDialogDock() {
-  //this slot must be connected to a QDialog
+  /// This slot must be connected to a QDialog. If the dialog to be hidden is
+  /// the only visible dialog, the dock will be hidden as well.
   QDialog* dialog = static_cast<QDialog*>(sender());
   QTabWidget* tabs = static_cast<QTabWidget*>(m_dialogDock->widget());
   int index = tabs->indexOf(dialog);
@@ -205,7 +203,6 @@ HideDialogDock() {
     m_dialogDock->hide();
 }
 
-//Display a dialog in the tabbed dialog dock
 void
 MainWindow::
 ShowDialog(QDialog* _dialog) {
@@ -230,6 +227,9 @@ ResetDialogs() {
 void
 MainWindow::
 AlertUser(string _s) {
+  /// This method emits a signal to MainWindow::ShowAlert, which actually
+  /// displays the pop-up. This implementation allows clients to request a
+  /// pop-up from outside the GUI thread.
   emit Alert(QString(_s.c_str()));
 }
 

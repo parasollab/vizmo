@@ -12,10 +12,10 @@
 
 FileListDialog::
 FileListDialog(const vector<string>& _filename, QWidget* _parent, Qt::WFlags _f) :
-  QDialog(_parent, _f), m_xmlMode(false), m_setupWidgets(false) {
-    setWindowIcon(QPixmap(vizmoIcon));
-    GetAssociatedFiles(_filename);
-  }
+    QDialog(_parent, _f), m_xmlMode(false), m_setupWidgets(false) {
+  setWindowIcon(QPixmap(vizmoIcon));
+  GetAssociatedFiles(_filename);
+}
 
 void
 FileListDialog::
@@ -47,7 +47,8 @@ GetAssociatedFiles(const vector<string>& _filename) {
   }
   //grab new files
   else {
-    for(vector<string>::const_iterator myIter = _filename.begin(); myIter != _filename.end(); ++myIter) {
+    for(vector<string>::const_iterator myIter = _filename.begin();
+        myIter != _filename.end(); ++myIter) {
       string name = (*myIter).substr(0, (*myIter).rfind('.'));
       string envname = name + ".env";
       string mapname = name + ".map";
@@ -177,8 +178,10 @@ SetUpSubwidgets() {
     connect(queryButton, SIGNAL(clicked()), this, SLOT(ChangeQuery()));
     connect(loadButton, SIGNAL(clicked()), this, SLOT(Accept()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(m_pathCheckBox, SIGNAL(stateChanged(int)), this, SLOT(PathChecked()));
-    connect(m_debugCheckBox, SIGNAL(stateChanged(int)), this, SLOT(DebugChecked()));
+    connect(m_pathCheckBox, SIGNAL(stateChanged(int)),
+        this, SLOT(PathChecked()));
+    connect(m_debugCheckBox, SIGNAL(stateChanged(int)),
+        this, SLOT(DebugChecked()));
   }
   else {
     m_xmlCheckBox = new QCheckBox(this);
@@ -207,65 +210,77 @@ SetUpSubwidgets() {
 void
 FileListDialog::
 ChangeEnv() {
-  QString fn = QFileDialog::getOpenFileName(this,
-      "Choose an environment file", QString::null,"Env File (*.env)");
+  QString fn = QFileDialog::getOpenFileName(this, "Choose an environment file",
+      GetMainWindow()->GetLastDir(), "Env File (*.env)");
   if(!fn.isEmpty()) {
     m_envFilename->setText(fn);
     m_envCheckBox->setChecked(true);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
   }
 }
 
 void
 FileListDialog::
 ChangeMap() {
-  QString fn = QFileDialog::getOpenFileName(this,
-      "Choose a map file", QString::null,"Map File (*.map)");
+  QString fn = QFileDialog::getOpenFileName(this, "Choose a map file",
+      GetMainWindow()->GetLastDir(), "Map File (*.map)");
   if(!fn.isEmpty()) {
     m_mapFilename->setText(fn);
     m_mapCheckBox->setChecked(true);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
   }
 }
 
 void
 FileListDialog::
 ChangeQuery() {
-  QString fn = QFileDialog::getOpenFileName(this,
-      "Choose a query file", QString::null,"Query File (*.query)");
+  QString fn = QFileDialog::getOpenFileName(this, "Choose a query file",
+      GetMainWindow()->GetLastDir(),"Query File (*.query)");
   if(!fn.isEmpty()) {
     m_queryFilename->setText(fn);
     m_queryCheckBox->setChecked(true);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
   }
 }
 
 void
 FileListDialog::
 ChangePath() {
-  QString fn = QFileDialog::getOpenFileName(this,
-      "Choose a path file", QString::null,"Path File (*.path)");
+  QString fn = QFileDialog::getOpenFileName(this, "Choose a path file",
+      GetMainWindow()->GetLastDir(), "Path File (*.path)");
   if(!fn.isEmpty()) {
     m_pathFilename->setText(fn);
     m_pathCheckBox->setChecked(true);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
   }
 }
 
 void
 FileListDialog::
 ChangeDebug() {
-  QString fn = QFileDialog::getOpenFileName(this,
-      "Choose a debug file", QString::null,"Debug File (*.vd)");
+  QString fn = QFileDialog::getOpenFileName(this, "Choose a debug file",
+      GetMainWindow()->GetLastDir(), "Debug File (*.vd)");
   if(!fn.isEmpty()) {
     m_debugFilename->setText(fn);
     m_debugCheckBox->setChecked(true);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
   }
 }
 
 void FileListDialog::
 ChangeXML() {
-  QString fn = QFileDialog::getOpenFileName(this,
-      "Choose a xml file", QString::null, "XML File (*.xml)");
+  QString fn = QFileDialog::getOpenFileName(this, "Choose a xml file",
+      GetMainWindow()->GetLastDir(), "XML File (*.xml)");
   if(!fn.isEmpty()) {
     m_xmlFilename->setText(fn);
     m_xmlCheckBox->setChecked(true);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
   }
 }
 
@@ -274,19 +289,20 @@ FileListDialog::
 Accept() {
   if(m_xmlMode) {
     GetVizmo().SetXMLFileName(m_xmlFilename->text().toStdString());
-    m_envFilename->setText(SearchXML(m_xmlFilename->text().toStdString(), "Environment").c_str());
-    m_queryFilename->setText(SearchXML(m_xmlFilename->text().toStdString(), "Query").c_str());
+    m_envFilename->setText(
+        SearchXML(m_xmlFilename->text().toStdString(), "Environment").c_str());
+    m_queryFilename->setText(
+        SearchXML(m_xmlFilename->text().toStdString(), "Query").c_str());
 
-    if(!m_envFilename->text().toStdString().empty()) {
+    if(!m_envFilename->text().toStdString().empty())
       GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
-    }
 
-    if(!m_queryFilename->text().toStdString().empty()) {
+    if(!m_queryFilename->text().toStdString().empty())
       GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
-    }
 
     // Pass list of sampler strategies read in from xml to Vizmo.
-    GetVizmo().SetLoadedSamplers(LoadXMLSamplers(m_xmlFilename->text().toStdString()));
+    GetVizmo().SetLoadedSamplers(LoadXMLSamplers(
+        m_xmlFilename->text().toStdString()));
 
     accept();
   }
@@ -340,23 +356,28 @@ SearchXML(string _filename, string _key) {
   if(loadOkay) {
     // read in the motion planning node
     XMLNodeReader mpNode(_filename, doc, "MotionPlanning");
-    for(XMLNodeReader::childiterator prob = mpNode.children_begin(); prob != mpNode.children_end(); ++prob) {
+    for(XMLNodeReader::childiterator prob = mpNode.children_begin();
+        prob != mpNode.children_end(); ++prob) {
       // Read in the MPPRoblem node
       if(prob->getName() == "MPProblem") {
-        for(XMLNodeReader::childiterator citr = (*prob).children_begin(); citr != (*prob).children_end(); ++ citr) {
+        for(XMLNodeReader::childiterator citr = (*prob).children_begin();
+            citr != (*prob).children_end(); ++ citr) {
           // If the child node is the key, something likd Environment
           if(citr->getName() == _key) {
             // Handle Environment case
             if(_key == "Environment") {
-              filename = (*citr).stringXMLParameter("filename", false, "", "env filename");
+              filename = (*citr).stringXMLParameter("filename", false, "",
+                  "env filename");
             }
           }
           // Handle all other specific cases
           else if(_key == "Query") {
             if(citr->getName() == "MapEvaluators") {
-              for(XMLNodeReader::childiterator query = (*citr).children_begin(); query != (*citr).children_end(); ++query) {
+              for(XMLNodeReader::childiterator query = (*citr).children_begin();
+                  query != (*citr).children_end(); ++query) {
                 if(query->getName() == _key) {
-                  filename = (*query).stringXMLParameter("queryFile", false, "", "query filename");
+                  filename = (*query).stringXMLParameter("queryFile", false, "",
+                      "query filename");
                 }
               }
             }
@@ -380,13 +401,17 @@ LoadXMLSamplers(string _filename) {
   if(loadOkay) {
     // Read in the motion planning node
     XMLNodeReader mpNode(_filename, doc, "MotionPlanning");
-    for(XMLNodeReader::childiterator prob = mpNode.children_begin(); prob != mpNode.children_end(); ++prob) {
+    for(XMLNodeReader::childiterator prob = mpNode.children_begin();
+        prob != mpNode.children_end(); ++prob) {
       // Read in MPProblem node
       if(prob->getName() == "MPProblem") {
-        for(XMLNodeReader::childiterator citr = (*prob).children_begin(); citr != (*prob).children_end(); ++citr) {
+        for(XMLNodeReader::childiterator citr = (*prob).children_begin();
+            citr != (*prob).children_end(); ++citr) {
           if(citr->getName() == "Samplers") {
-            for(XMLNodeReader::childiterator sampler = (*citr).children_begin(); sampler != (*citr).children_end(); ++sampler) {
-              samplers.push_back((*sampler).stringXMLParameter("label", "false", "", "sampler name"));
+            for(XMLNodeReader::childiterator sampler = (*citr).children_begin();
+                sampler != (*citr).children_end(); ++sampler) {
+              samplers.push_back((*sampler).stringXMLParameter("label", "false",
+                    "", "sampler name"));
             }
           }
         }

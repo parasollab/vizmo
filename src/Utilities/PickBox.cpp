@@ -7,8 +7,13 @@
 #include <GL/glut.h>
 
 void
-PickBox::Draw() {
-  if(m_leftMouseButton) {
+PickBox::
+Draw() {
+  /// Rendering is done in a 2D ortho view that is defined in window
+  /// coordinates, where X ranges from [0, window width] and Y ranges from
+  /// [0, window height]. Also changes the cursor to reflect the current
+  /// highlighted part for resize/move operations.
+  if(m_picking) {
     //change to Ortho view
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -36,17 +41,17 @@ PickBox::Draw() {
     glPopMatrix();
 
     //change mouse cursor if highlighted
-    if(m_highlightedPart == ALL)
+    if(m_highlightedPart == All)
       QApplication::setOverrideCursor(Qt::SizeAllCursor);
-    else if(m_highlightedPart == (LEFT | TOP) ||
-        m_highlightedPart == (RIGHT | BOTTOM))
-      QApplication::setOverrideCursor(Qt::SizeBDiagCursor);
-    else if(m_highlightedPart == (LEFT | BOTTOM) ||
-        m_highlightedPart == (RIGHT | TOP))
+    else if(m_highlightedPart == (Left | Top) ||
+        m_highlightedPart == (Right | Bottom))
       QApplication::setOverrideCursor(Qt::SizeFDiagCursor);
-    else if(m_highlightedPart & (LEFT | RIGHT))
+    else if(m_highlightedPart == (Left | Bottom) ||
+        m_highlightedPart == (Right | Top))
+      QApplication::setOverrideCursor(Qt::SizeBDiagCursor);
+    else if(m_highlightedPart & (Left | Right))
       QApplication::setOverrideCursor(Qt::SizeHorCursor);
-    else if(m_highlightedPart & (TOP | BOTTOM))
+    else if(m_highlightedPart & (Top | Bottom))
       QApplication::setOverrideCursor(Qt::SizeVerCursor);
     else
       QApplication::setOverrideCursor(Qt::ArrowCursor);
@@ -59,13 +64,16 @@ PickBox::Draw() {
 }
 
 void
-PickBox::MousePressed(QMouseEvent* _e) {
+PickBox::
+MousePressed(QMouseEvent* _e) {
   if(_e->button() == Qt::LeftButton) {
-    if(m_leftMouseButton) {
-      if(m_highlightedPart != ALL && m_highlightedPart != NONE) {
+    if(m_picking) {
+      //resizing
+      if(m_highlightedPart != All && m_highlightedPart != None) {
         m_resizing = true;
         m_translating = false;
       }
+      //translating
       else {
         m_origBox = m_pickBox;
         m_clicked = _e->pos();
@@ -73,10 +81,11 @@ PickBox::MousePressed(QMouseEvent* _e) {
         m_resizing = false;
       }
     }
+    //initial drawing
     else {
-      m_leftMouseButton = true;
+      m_picking = true;
       m_resizing = true;
-      m_highlightedPart = TOP | RIGHT;
+      m_highlightedPart = Top | Right;
       m_pickBox.m_right = m_pickBox.m_left = _e->pos().x();
       m_pickBox.m_bottom = m_pickBox.m_top = g_height - _e->pos().y();
     }
@@ -84,70 +93,88 @@ PickBox::MousePressed(QMouseEvent* _e) {
 }
 
 void
-PickBox::MouseReleased(QMouseEvent* _e) {
-  m_leftMouseButton = false;
+PickBox::
+MouseReleased(QMouseEvent* _e) {
+  m_picking = false;
   m_resizing = false;
   m_translating = false;
   QApplication::setOverrideCursor(Qt::ArrowCursor);
 }
 
 void
-PickBox::MouseMotion(QMouseEvent* _e) {
-  if(m_leftMouseButton) {
+PickBox::
+MouseMotion(QMouseEvent* _e) {
+  if(m_picking) {
     if(m_translating) {
       QPoint diff(_e->pos().x() - m_clicked.x(), m_clicked.y() - _e->pos().y());
       m_pickBox.m_left = max(1., m_origBox.m_left + diff.x());
       m_pickBox.m_right = min(double(g_width), m_origBox.m_right + diff.x());
-      m_pickBox.m_top = max(1., m_origBox.m_top + diff.y());
-      m_pickBox.m_bottom = min(double(g_height), m_origBox.m_bottom + diff.y());
+      m_pickBox.m_bottom = max(1., m_origBox.m_bottom + diff.y());
+      m_pickBox.m_top = min(double(g_height), m_origBox.m_top + diff.y());
     }
     else if(m_resizing) {
-      if(m_highlightedPart & LEFT)
+      if(m_highlightedPart & Left)
         m_pickBox.m_left = max(1, _e->pos().x());
-      if(m_highlightedPart & RIGHT)
+      if(m_highlightedPart & Right)
         m_pickBox.m_right = min(g_width, _e->pos().x());
-      if(m_highlightedPart & TOP)
-        m_pickBox.m_top = max(1, g_height - _e->pos().y());
-      if(m_highlightedPart & BOTTOM)
-        m_pickBox.m_bottom = min(g_height, g_height - _e->pos().y());
+      if(m_highlightedPart & Bottom)
+        m_pickBox.m_bottom = max(1, g_height - _e->pos().y());
+      if(m_highlightedPart & Top)
+        m_pickBox.m_top = min(g_height, g_height - _e->pos().y());
     }
 
     //ensure the top and left are the true top/left
     //if not swap the values and fix m_highlightedPart
-    if(m_pickBox.m_bottom < m_pickBox.m_top) {
+    if(m_pickBox.m_bottom > m_pickBox.m_top) {
       swap(m_pickBox.m_bottom, m_pickBox.m_top);
       if(m_resizing)
-        m_highlightedPart = m_highlightedPart ^ TOP ^ BOTTOM;
+        m_highlightedPart = m_highlightedPart ^ Top ^ Bottom;
     }
     if(m_pickBox.m_left > m_pickBox.m_right) {
       swap(m_pickBox.m_left, m_pickBox.m_right);
       if(m_resizing)
-        m_highlightedPart = m_highlightedPart ^ LEFT ^ RIGHT;
+        m_highlightedPart = m_highlightedPart ^ Left ^ Right;
     }
   }
 }
 
 bool
-PickBox::PassiveMouseMotion(QMouseEvent* _e) {
-  if(m_leftMouseButton) {
-    m_highlightedPart = NONE;
+PickBox::
+PassiveMouseMotion(QMouseEvent* _e) {
+  if(m_picking) {
+    //clear highlighted part and get mouse position.
+    m_highlightedPart = None;
     int x = _e->pos().x(), y = g_height - _e->pos().y();
-    int bottom = min(m_pickBox.m_bottom, m_pickBox.m_top) - 3;
-    int top = max(m_pickBox.m_bottom, m_pickBox.m_top) + 3;
-    int left = min(m_pickBox.m_left, m_pickBox.m_right) - 3;
-    int right = max(m_pickBox.m_left, m_pickBox.m_right) + 3;
 
-    if(x > left + 6 && x < right - 6 && y > bottom + 6 && y < top - 6)
-      m_highlightedPart = ALL;
+    //define a pixle threshold. the cursor is considered to be touching a box
+    //border if it is within pT of the border.
+    int pT = 4;
+
+    //inflate the borders by the pixle threshold. this ensures that corners can
+    //be selected easily.
+    int bottom = m_pickBox.m_bottom - pT;
+    int top = m_pickBox.m_top + pT;
+    int left = m_pickBox.m_left - pT;
+    int right = m_pickBox.m_right + pT;
+
+    //check for cursor in the center
+    if(x > left + 2*pT && x < right - 2*pT && y > bottom + 2*pT && y < top - 2*pT)
+      m_highlightedPart = All;
     else {
-      if(abs(x - m_pickBox.m_left) < 3 && y >= bottom && y <= top)
-        m_highlightedPart |= LEFT;
-      else if(abs(x - m_pickBox.m_right) < 3 && y >= bottom && y <= top)
-        m_highlightedPart |= RIGHT;
-      if(abs(y - m_pickBox.m_top) < 3 && x >= left && x <= right)
-        m_highlightedPart |= TOP;
-      else if(abs(y - m_pickBox.m_bottom) < 3 && x >= left && x <= right)
-        m_highlightedPart |= BOTTOM;
+      if(y >= bottom && y <= top) {
+        //if cursor is within y bounds, check for left/right border selection
+        if(abs(x - m_pickBox.m_left) < pT)
+          m_highlightedPart |= Left;
+        else if(abs(x - m_pickBox.m_right) < pT)
+          m_highlightedPart |= Right;
+      }
+      if(x >= left && x <= right) {
+        //if cursor is within x bounds, check for top/bottom border selection
+        if(abs(y - m_pickBox.m_top) < pT)
+          m_highlightedPart |= Top;
+        else if(abs(y - m_pickBox.m_bottom) < pT)
+          m_highlightedPart |= Bottom;
+      }
     }
 
     return true;

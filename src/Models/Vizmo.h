@@ -22,28 +22,34 @@ namespace Haptics {class Manager;}
 class Vizmo;
 Vizmo& GetVizmo();
 
-/* Vizmo
- *
- * Main class that handles event from gui and
- * contains objects for data loaded in.
- */
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Vizmo is the main class that manages interface with PMPL and owns the
+/// data for this problem instance.
+////////////////////////////////////////////////////////////////////////////////
 class Vizmo {
 
   public:
+
     Vizmo();
     ~Vizmo();
 
-    //Create VizmoObj.
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Create the Vizmo components.
+    /// \return A \c bool indicating whether the initialization succeeded.
     bool InitModels();
-    //initialize PMPL data structures for collision checking
-    void InitPMPL();
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Initialize PMPL structures from an XML input file.
+    /// \param[in] _xmlFilename The input XML filename.
     void InitPMPL(string _xmlFilename);
-    void Clean();
+    void InitPMPL(); ///< Initialize PMPL structures with no input file.
+    void Clean();    ///< Clear all models and data.
 
-    //Display OpenGL Scene
-    void Draw();
+    void Draw();     ///< Display the OpenGL scene.
 
-    //Select Objects in OpenGL Scene
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Select all objects in the OpenGL scene that lie within the
+    /// cropped window area defined by \c _box.
+    /// \param[in] _box The cropped window area from which to select objects.
     void Select(const Box& _box);
 
     // Environment Related Functions
@@ -53,8 +59,7 @@ class Vizmo {
 
     // Robot Related Functions
     RobotModel* GetRobot() const {return m_robotModel;}
-    //Put robot in start configuration if possible
-    void PlaceRobot();
+    void PlaceRobot(); ///< Position the robot in the Environment.
 
     Haptics::Manager* GetManager() const {return m_manager;}
 
@@ -86,73 +91,111 @@ class Vizmo {
     void SetXMLFileName(const string& _name) {m_xmlFilename = _name;}
 
     // Collision Detection Related Functions
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Check a configuration for collision with the environment.
+    /// \param[in] _c The configuration to check.
     bool CollisionCheck(CfgModel& _c1);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Check for a valid local plan from one configuration to another.
+    /// \param[in] _c1 The start configuration.
+    /// \param[in] _c2 The end configuration.
+    /// \return A \c pair indicating validity and edge weight.
     pair<bool, double> VisibilityCheck(CfgModel& _c1, CfgModel& _c2);
 
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
     const vector<string>& GetLoadedSamplers() {return m_loadedSamplers;}
-    void SetLoadedSamplers(const vector<string>& _samplers) {m_loadedSamplers = _samplers;}
+    void SetLoadedSamplers(const vector<string>& _samplers) {
+      m_loadedSamplers = _samplers;
+    }
 
-    // Get the sampler name and strategy
-    // located here to keep vizmo problem contained in Vizmo.cpp
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the name and label of a sampler from its label.
+    /// \param[in] \c _label The sampler's label.
     string GetSamplerNameAndLabel(string _label);
 
     // Motion planning related functions
     void SetSeed(long _l) {m_seed = _l;}
     long GetSeed() {return m_seed;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Start a timer.
+    /// \param[in] _c The label of the timer to start.
     void StartClock(const string& _c);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Stop a timer.
+    /// \param[in] _c The label of the timer to stop.
     void StopClock(const string& _c);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Print the last interval measured by a timer.
+    /// \param[in] _c The label of the timer to print.
+    /// \param[in] _os The ostream to print to.
     void PrintClock(const string& _c, ostream& _os);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Offset a timer by the last measured interval of another timer.
+    /// \param[in] _c1 The label of the timer to adjust.
+    /// \param[in] _c2 The label of the reference timer to adjust by.
+    /// \param[in] _op The adjustment operation (either \c '+' or \c '-').
     void AdjustClock(const string& _c1, const string& _c2, const string& _op);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Set the Vizmo MapModel to use the current PMPL RoadmapGraph.
     void SetPMPLMap();
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Execute an interactive or PMPL strategy.
+    /// \param[in] _strategy The label of the strategy to use.
     void Solve(const string& _strategy);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the largest distance realized in the current environment.
+    /// \return The maximum distance.
     double GetMaxEnvDist();
 
   private:
-    //Parse the Hit Buffer. Store selected obj into m_selectedModels.
-    //hit is the number of hit by this selection
-    //buffer is the hit buffer
-    //if all, all obj select will be put into m_selectedItems,
-    //otherwise only the closest will be selected.
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Parse the hit buffer and store selected objects into
+    /// \ref m_selectedModels.
+    /// \param[in] _hit The number of objects in the selection.
+    /// \param[in] _buffer The hit buffer.
+    /// \param[in] _all Determines whether all objects or only the closest
+    ///                 object will be stored in the hit buffer.
     void SearchSelectedItems(int _hit, void* _buffer, bool _all);
 
     //environment
-    EnvModel* m_envModel;
-    string m_envFilename;
+    EnvModel* m_envModel;   ///< The current environment model.
+    string m_envFilename;   ///< The current environment filename.
 
     //robot & avatar
-    RobotModel* m_robotModel;
+    RobotModel* m_robotModel;  ///< The current robot model.
 
     //PHANToM manager
-    Haptics::Manager* m_manager;
+    Haptics::Manager* m_manager;  ///< The PHANToM manager.
 
     //map
-    MapModel<CfgModel, EdgeModel>* m_mapModel;
-    string m_mapFilename;
+    MapModel<CfgModel, EdgeModel>* m_mapModel;  ///< The current map model.
+    string m_mapFilename;                       ///< The current map filename.
 
     //query
-    QueryModel* m_queryModel;
-    string m_queryFilename;
+    QueryModel* m_queryModel;   ///< The current query model.
+    string m_queryFilename;     ///< The current query filename.
 
     //path
-    PathModel* m_pathModel;
-    string m_pathFilename;
+    PathModel* m_pathModel;     ///< The current path model.
+    string m_pathFilename;      ///< The current path filename.
 
     //debug
-    DebugModel* m_debugModel;
-    string m_debugFilename;
+    DebugModel* m_debugModel;   ///< The current debug model.
+    string m_debugFilename;     ///< The current debug filename.
 
-    // XML File
-    string m_xmlFilename;
+    //XML File
+    string m_xmlFilename;       ///< The current XML filename.
 
-    typedef vector<Model*>::iterator MIT;
-    vector<Model*> m_loadedModels, m_selectedModels;
-    vector<string> m_loadedSamplers;
+    vector<Model*> m_loadedModels;    ///< The currently loaded models.
+    vector<Model*> m_selectedModels;  ///< The currently selected models.
+    vector<string> m_loadedSamplers;  ///< The labels for the available samplers.
 
-    long m_seed;
-    map<string, pair<QTime, double> > m_timers;
+    long m_seed;    ///< The program's random seed.
+    map<string, pair<QTime, double> > m_timers; ///< A set of timers for stop-
+                                                ///< watch like functionality.
 };
 
 #endif
