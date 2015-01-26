@@ -14,11 +14,12 @@
 #define DEFAULT_BASE_CONF "  FIXED  0 0 0 0 0 0 \n"
 #define DEFAULT_JOINT_CONF "0 1  REVOLUTE -1:1\n0 0 0 0 0 0  0 0 0 0  0 0 0 0 0 0\n"
 
-EditRobotDialog::EditRobotDialog(MainWindow* _mainWindow) : QDialog(_mainWindow) {
 
+EditRobotDialog::
+EditRobotDialog(MainWindow* _mainWindow) : QDialog(_mainWindow) {
   vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
   typedef vector<MultiBodyModel*>::const_iterator MIT;
-  for(MIT mit = mBody.begin(); mit<mBody.end(); mit++)
+  for(MIT mit = mBody.begin(); mit < mBody.end(); mit++)
     if((*mit)->IsActive())
       m_robotBody = *mit;
 
@@ -36,12 +37,12 @@ EditRobotDialog::EditRobotDialog(MainWindow* _mainWindow) : QDialog(_mainWindow)
 }
 
 void
-EditRobotDialog::SetUpDialog(){
-
+EditRobotDialog::
+SetUpDialog() {
   setWindowTitle("Edit Robot");
   setFixedSize(200, 570);
-  setStyleSheet("QLabel { font:8pt } QLineEdit { font:8pt } QListWidget { font:8pt }"
-                "QPushButton { font:8pt } QCheckBox { font:8pt } ");
+  setStyleSheet("QLabel { font:8pt } QLineEdit { font:8pt } QListWidget { "
+                "font:8pt } QPushButton { font:8pt } QCheckBox { font:8pt } ");
 
   //Initialize objects
   QPushButton* addBaseButton = new QPushButton("Add...", this);
@@ -65,10 +66,10 @@ EditRobotDialog::SetUpDialog(){
   m_jointNonActuatedCheck = new QCheckBox("Non Actuated", this);
   m_jointRevoluteCheck = new QCheckBox("Revolute", this);
   m_jointSphericalCheck = new QCheckBox("Spherical", this);
-  for(int j=0; j<2; j++){
-    for(int i=0; i<2; i++)
+  for(int j = 0; j < 2; j++) {
+    for(int i = 0; i < 2; i++)
       m_jointLimits[j][i] = new QDoubleSpinBox(this);
-    for(int i=0; i<6; i++)
+    for(int i = 0; i < 6; i++)
       m_jointPos[j][i] = new QDoubleSpinBox(this);
   }
   m_jointAlphaLine = new QLineEdit(this);
@@ -151,13 +152,15 @@ EditRobotDialog::SetUpDialog(){
   jointAttributes->addWidget(m_jointSphericalCheck, 4, 2, 1, 3);
   jointAttributes->addItem(new QSpacerItem(190, 12), 5, 1, 1, 4);
 
-  jointAttributes->addWidget(new QLabel("<b>Connects bodies:<\b>", this), 6, 1, 1, 4);
+  jointAttributes->addWidget(
+      new QLabel("<b>Connects bodies:<\b>", this), 6, 1, 1, 4);
   jointAttributes->addWidget(m_jointConnectionsLine1, 7, 2);
   jointAttributes->addWidget(m_jointConnectionsLine2, 7, 4);
   jointAttributes->addItem(new QSpacerItem(190, 15), 8, 1, 1, 4);
 
   m_jointConnectionsLine2->setReadOnly(true);
-  m_jointConnectionsLine1->setValidator(new QIntValidator(0, numeric_limits<size_t>::max(), this));
+  m_jointConnectionsLine1->setValidator(
+      new QIntValidator(0, numeric_limits<size_t>::max(), this));
 
 
   jointAttributes->addWidget(new QLabel("<b>Limits:<\b>", this), 9, 1, 1, 4);
@@ -169,14 +172,15 @@ EditRobotDialog::SetUpDialog(){
   jointAttributes->addWidget(m_jointLimits[1][1], 11, 4);
   jointAttributes->addItem(new QSpacerItem(190, 15), 12, 1, 1, 4);
 
-  for(size_t i = 0; i<2; ++i) {
-    for(size_t j = 0; j<2; ++j) {
+  for(size_t i = 0; i < 2; ++i) {
+    for(size_t j = 0; j < 2; ++j) {
       m_jointLimits[i][j]->setRange(-1, 1);
       m_jointLimits[i][j]->setSingleStep(0.1);
     }
   }
 
-  jointAttributes->addWidget(new QLabel("<b>Transform to DH Frame:<\b>", this), 13, 1, 1, 4);
+  jointAttributes->addWidget(
+      new QLabel("<b>Transform to DH Frame:<\b>", this), 13, 1, 1, 4);
   jointAttributes->addWidget(new QLabel("X", this), 14, 1);
   jointAttributes->addWidget(new QLabel("Y", this), 15, 1);
   jointAttributes->addWidget(new QLabel("Z", this), 16, 1);
@@ -191,7 +195,8 @@ EditRobotDialog::SetUpDialog(){
   jointAttributes->addWidget(m_jointPos[0][5], 16, 4);
   jointAttributes->addItem(new QSpacerItem(190, 15), 17, 1, 1, 4);
 
-  jointAttributes->addWidget(new QLabel("<b>DH Parameters:<\b>", this), 18, 1, 1, 4);
+  jointAttributes->addWidget(
+      new QLabel("<b>DH Parameters:<\b>", this), 18, 1, 1, 4);
   jointAttributes->addWidget(new QLabel(QChar(0x03B1),this), 19, 1);
   jointAttributes->addWidget(new QLabel("a",this), 19, 3);
   jointAttributes->addWidget(new QLabel("d",this), 20, 1);
@@ -207,7 +212,8 @@ EditRobotDialog::SetUpDialog(){
   m_jointDLine->setValidator(new QDoubleValidator(this));
   m_jointThetaLine->setValidator(new QDoubleValidator(this));
 
-  jointAttributes->addWidget(new QLabel("<b>Transform to Body 2:<\b>", this), 22, 1, 1, 4);
+  jointAttributes->addWidget(
+      new QLabel("<b>Transform to Body 2:<\b>", this), 22, 1, 1, 4);
   jointAttributes->addWidget(new QLabel("X", this), 23, 1);
   jointAttributes->addWidget(new QLabel("Y", this), 24, 1);
   jointAttributes->addWidget(new QLabel("Z", this), 25, 1);
@@ -238,45 +244,67 @@ EditRobotDialog::SetUpDialog(){
 
   //Make connections
   connect(okButton, SIGNAL(clicked()), this, SLOT(Accept()));
-  connect(m_baseList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(ShowBase()));
-  connect(m_jointList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(ShowJoint()));
-  connect(m_baseFixedCheck, SIGNAL(clicked()), this, SLOT(BaseFixedChecked()));
-  connect(m_basePlanarCheck, SIGNAL(clicked()), this, SLOT(BasePlanarChecked()));
-  connect(m_baseVolumetricCheck, SIGNAL(clicked()), this, SLOT(BaseVolumetricChecked()));
-  connect(m_baseRotationalCheck, SIGNAL(clicked()), this, SLOT(BaseRotationalChecked()));
-  connect(m_baseTranslationalCheck, SIGNAL(clicked()), this, SLOT(BaseTranslationalChecked()));
+  connect(m_baseList, SIGNAL(itemClicked(QListWidgetItem*)),
+      this, SLOT(ShowBase()));
+  connect(m_jointList, SIGNAL(itemClicked(QListWidgetItem*)),
+      this, SLOT(ShowJoint()));
+  connect(m_baseFixedCheck, SIGNAL(clicked()),
+      this, SLOT(BaseFixedChecked()));
+  connect(m_basePlanarCheck, SIGNAL(clicked()),
+      this, SLOT(BasePlanarChecked()));
+  connect(m_baseVolumetricCheck, SIGNAL(clicked()),
+      this, SLOT(BaseVolumetricChecked()));
+  connect(m_baseRotationalCheck, SIGNAL(clicked()),
+      this, SLOT(BaseRotationalChecked()));
+  connect(m_baseTranslationalCheck, SIGNAL(clicked()),
+      this, SLOT(BaseTranslationalChecked()));
   connect(deleteBaseButton, SIGNAL(clicked()), this, SLOT(DeleteBase()));
   connect(addBaseButton, SIGNAL(clicked()), this, SLOT(AddBase()));
   connect(newRobotButton, SIGNAL(clicked()), this, SLOT(CreateNewRobot()));
-  connect(m_jointNonActuatedCheck, SIGNAL(clicked()), this, SLOT(JointNonActuatedChecked()));
-  connect(m_jointSphericalCheck, SIGNAL(clicked()), this, SLOT(JointSphericalChecked()));
-  connect(m_jointRevoluteCheck, SIGNAL(clicked()), this, SLOT(JointRevoluteChecked()));
+  connect(m_jointNonActuatedCheck, SIGNAL(clicked()),
+      this, SLOT(JointNonActuatedChecked()));
+  connect(m_jointSphericalCheck, SIGNAL(clicked()),
+      this, SLOT(JointSphericalChecked()));
+  connect(m_jointRevoluteCheck, SIGNAL(clicked()),
+      this, SLOT(JointRevoluteChecked()));
   connect(deleteJointButton, SIGNAL(clicked()), this, SLOT(DeleteJoint()));
   connect(addJointButton, SIGNAL(clicked()), this, SLOT(AddJoint()));
-  connect(m_jointConnectionsLine1, SIGNAL(editingFinished()), this, SLOT(UpdateJoint()));
-  connect(m_jointAlphaLine, SIGNAL(editingFinished()), this, SLOT(UpdateJoint()));
+  connect(m_jointConnectionsLine1, SIGNAL(editingFinished()),
+      this, SLOT(UpdateJoint()));
+  connect(m_jointAlphaLine, SIGNAL(editingFinished()),
+      this, SLOT(UpdateJoint()));
   connect(m_jointALine, SIGNAL(editingFinished()), this, SLOT(UpdateJoint()));
   connect(m_jointDLine, SIGNAL(editingFinished()), this, SLOT(UpdateJoint()));
-  connect(m_jointThetaLine, SIGNAL(editingFinished()), this, SLOT(UpdateJoint()));
-  for(int j=0; j<2; j++){
-    for(int i=0; i<2; i++)
-      connect(m_jointLimits[j][i], SIGNAL(valueChanged(double)), this, SLOT(UpdateJoint()));
-    for(int i=0; i<6; i++)
-      connect(m_jointPos[j][i], SIGNAL(valueChanged(double)), this, SLOT(UpdateJoint()));
+  connect(m_jointThetaLine, SIGNAL(editingFinished()),
+      this, SLOT(UpdateJoint()));
+  for(int j = 0; j < 2; j++) {
+    for(int i = 0; i < 2; i++) {
+      connect(m_jointLimits[j][i], SIGNAL(valueChanged(double)),
+          this, SLOT(UpdateJoint()));
+    }
+    for(int i = 0; i < 6; i++) {
+      connect(m_jointPos[j][i], SIGNAL(valueChanged(double)),
+          this, SLOT(UpdateJoint()));
+    }
   }
-  connect(m_jointSphericalCheck, SIGNAL(clicked(bool)), this, SLOT(UpdateJoint(bool)));
-  connect(m_jointRevoluteCheck, SIGNAL(clicked(bool)), this, SLOT(UpdateJoint(bool)));
-  connect(m_jointNonActuatedCheck, SIGNAL(clicked(bool)), this, SLOT(UpdateJoint(bool)));
+  connect(m_jointSphericalCheck, SIGNAL(clicked(bool)),
+      this, SLOT(UpdateJoint(bool)));
+  connect(m_jointRevoluteCheck, SIGNAL(clicked(bool)),
+      this, SLOT(UpdateJoint(bool)));
+  connect(m_jointNonActuatedCheck, SIGNAL(clicked(bool)),
+      this, SLOT(UpdateJoint(bool)));
 }
 
 void
-EditRobotDialog::DisplayHideJointAttributes(bool _visible){
-  m_jointIsInit=_visible;
+EditRobotDialog::
+DisplayHideJointAttributes(bool _visible) {
+  m_jointIsInit = _visible;
   m_jointWidget->setVisible(_visible);
 }
 
 void
-EditRobotDialog::JointNonActuatedChecked(){
+EditRobotDialog::
+JointNonActuatedChecked() {
   m_jointSphericalCheck->setChecked(false);
   m_jointRevoluteCheck->setChecked(false);
   m_jointNonActuatedCheck->setChecked(true);
@@ -287,7 +315,8 @@ EditRobotDialog::JointNonActuatedChecked(){
 }
 
 void
-EditRobotDialog::JointSphericalChecked(){
+EditRobotDialog::
+JointSphericalChecked() {
   m_jointSphericalCheck->setChecked(true);
   m_jointRevoluteCheck->setChecked(false);
   m_jointNonActuatedCheck->setChecked(false);
@@ -298,7 +327,8 @@ EditRobotDialog::JointSphericalChecked(){
 }
 
 void
-EditRobotDialog::JointRevoluteChecked(){
+EditRobotDialog::
+JointRevoluteChecked() {
   m_jointSphericalCheck->setChecked(false);
   m_jointRevoluteCheck->setChecked(true);
   m_jointNonActuatedCheck->setChecked(false);
@@ -309,19 +339,22 @@ EditRobotDialog::JointRevoluteChecked(){
 }
 
 void
-EditRobotDialog::DisplayHideBaseAttributes(bool _visible){
-  m_baseIsInit=_visible;
+EditRobotDialog::
+DisplayHideBaseAttributes(bool _visible) {
+  m_baseIsInit = _visible;
   m_baseWidget->setVisible(_visible);
 }
 
 void
-EditRobotDialog::Accept(){
+EditRobotDialog::
+Accept() {
   RefreshVizmo();
   accept();
 }
 
 void
-EditRobotDialog::ShowJoint(){
+EditRobotDialog::
+ShowJoint() {
   if(m_baseList->currentItem()) {
     m_jointIsInit = false;
     DisplayHideBaseAttributes(false);
@@ -332,7 +365,8 @@ EditRobotDialog::ShowJoint(){
 
     int bodyCount = 0;
     typedef MultiBodyModel::Robots::const_iterator RIT;
-    for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.begin() + indexBase; rit++)
+    for(RIT rit = m_newRobotModel.begin();
+        rit != m_newRobotModel.begin() + indexBase; rit++)
       bodyCount += rit->second.size() + 1;
     bodyCount += indexJoint;
 
@@ -344,20 +378,20 @@ EditRobotDialog::ShowJoint(){
     transform2 << conn->TransformToBody2();
     istringstream splitTransform1(transform1.str());
     istringstream splitTransform2(transform2.str());
-    string splittedTransform[2][6]={{"","","","","",""},{"","","","","",""}};
-    int j=0;
-    do{
-      splitTransform1>>splittedTransform[0][j];
+    string splittedTransform[2][6] = {{"","","","","",""}, {"","","","","",""}};
+    int j = 0;
+    do {
+      splitTransform1 >> splittedTransform[0][j];
       j++;
-    }while(splitTransform1);
-    j=0;
-    do{
-      splitTransform2>>splittedTransform[1][j];
+    } while(splitTransform1);
+    j = 0;
+    do {
+      splitTransform2 >> splittedTransform[1][j];
       j++;
-    }while(splitTransform2);
+    } while(splitTransform2);
     if(conn->IsNonActuated())
       JointNonActuatedChecked();
-    else{
+    else {
       if(conn->IsRevolute()) {
         JointRevoluteChecked();
         m_jointLimits[0][0]->setValue(jointLimits[0].first);
@@ -367,7 +401,7 @@ EditRobotDialog::ShowJoint(){
       }
       else{
         JointSphericalChecked();
-        for(int i=0; i<2; i++){
+        for(int i=0; i<2; i++) {
           m_jointLimits[i][0]->setValue(jointLimits[i].first);
           m_jointLimits[i][1]->setValue(jointLimits[i].second);
         }
@@ -375,7 +409,7 @@ EditRobotDialog::ShowJoint(){
     }
     m_jointConnectionsLine1->setText(QString::number(conn->GetPreviousIndex()));
     m_jointConnectionsLine2->setText(QString::number(conn->GetNextIndex()));
-    for(int j=0; j<2; j++){
+    for(int j=0; j<2; j++) {
       for(int i=0; i<3; i++)
         m_jointPos[j][i]->setValue(atof(splittedTransform[j][i].c_str()));
       for(int i=0; i<3; i++)
@@ -391,7 +425,8 @@ EditRobotDialog::ShowJoint(){
 }
 
 void
-EditRobotDialog::ShowBase(){
+EditRobotDialog::
+ShowBase() {
   if(m_baseList->currentItem()) {
     m_baseIsInit = false;
     DisplayHideJointAttributes(false);
@@ -400,7 +435,8 @@ EditRobotDialog::ShowBase(){
 
     int bodyCount = 0;
     typedef MultiBodyModel::Robots::const_iterator RIT;
-    for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.begin() + index; rit++)
+    for(RIT rit = m_newRobotModel.begin();
+        rit != m_newRobotModel.begin() + index; rit++)
       bodyCount += rit->second.size() + 1;
 
     m_bodyNumberLine->setText(QString::number(bodyCount));
@@ -411,7 +447,8 @@ EditRobotDialog::ShowBase(){
     for(MIT mit = m_newRobotModel[index].second.begin();
         mit != m_newRobotModel[index].second.end(); ++mit) {
       i++;
-      m_jointList->addItem(m_robotBody->GetBodies()[bodyCount+i]->GetFilename().c_str());
+      m_jointList->addItem(
+          m_robotBody->GetBodies()[bodyCount+i]->GetFilename().c_str());
     }
 
     BodyModel* body = m_newRobotModel[index].first;
@@ -436,7 +473,8 @@ EditRobotDialog::ShowBase(){
 }
 
 void
-EditRobotDialog::SaveBase() {
+EditRobotDialog::
+SaveBase() {
   if(m_baseList->currentItem()) {
     int index = m_baseList->row(m_baseList->currentItem());
     ostringstream properties;
@@ -457,15 +495,17 @@ EditRobotDialog::SaveBase() {
     else
       properties << "FIXED 0 0 0 0 0 0" << endl;
 
+    QFileInfo fi(QString(body->GetModelFilename().c_str()));
+
     istringstream streamProperties(properties.str());
-    string modelFilename = body->GetModelFilename();
-    size_t s = modelFilename.rfind('/');
-    string modelDirectory = s == string::npos ? "" : modelFilename.substr(0, s);
-    body->ParseActiveBody(streamProperties, modelDirectory, DEFAULT_COLOR);
+    body->ParseActiveBody(streamProperties, fi.absolutePath().toStdString(),
+        DEFAULT_COLOR);
+
     int bodyCount = 0;
     typedef Joints::const_iterator MIT;
     typedef MultiBodyModel::Robots::const_iterator RIT;
-    for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.begin() + index; ++rit)
+    for(RIT rit = m_newRobotModel.begin();
+        rit != m_newRobotModel.begin() + index; ++rit)
       bodyCount += rit->second.size() + 1;
     m_robotBody->DeleteBody(bodyCount);
     m_robotBody->AddBody(body, bodyCount);
@@ -478,22 +518,26 @@ EditRobotDialog::SaveBase() {
 }
 
 void
-EditRobotDialog::UpdateBase(){
+EditRobotDialog::
+UpdateBase() {
   if(m_baseIsInit)
     SaveBase();
 }
 
 void
-EditRobotDialog::UpdateJoint(bool _clicked){
+EditRobotDialog::
+UpdateJoint(bool _clicked) {
   if(_clicked && m_jointIsInit)
     SaveJoint();
 }
 
 void
-EditRobotDialog::SaveJoint(){
+EditRobotDialog::
+SaveJoint() {
   int indexBase = m_baseList->row(m_baseList->currentItem());
   int indexJoint = m_jointList->row(m_jointList->currentItem());
-  int previousBodyIndex = m_newRobotModel[indexBase].second[indexJoint]->GetPreviousIndex();
+  int previousBodyIndex = m_newRobotModel[indexBase].second[indexJoint]->
+      GetPreviousIndex();
   int bodyCount = 0;
 
   stringstream properties;
@@ -505,22 +549,22 @@ EditRobotDialog::SaveJoint(){
 
   int bodyNum = m_jointConnectionsLine1->text().toInt();
   int bodyNum2 = m_jointConnectionsLine2->text().toInt();
-  if(bodyNum >= bodyCount || bodyNum < 0 || bodyNum == bodyNum2){
+  if(bodyNum >= bodyCount || bodyNum < 0 || bodyNum == bodyNum2) {
     GetMainWindow()->AlertUser("Invalid body number specified");
     return;
   }
   else {
     properties << bodyNum << " " << bodyNum2 << " ";
-    double jointLim0min = m_jointLimits[0][0]->value(), jointLim0max = m_jointLimits[0][1]->value(),
-           jointLim1min = m_jointLimits[1][0]->value(), jointLim1max = m_jointLimits[1][1]->value();
+    double jointLim0min = m_jointLimits[0][0]->value(),
+           jointLim0max = m_jointLimits[0][1]->value(),
+           jointLim1min = m_jointLimits[1][0]->value(),
+           jointLim1max = m_jointLimits[1][1]->value();
 
     if(m_jointSphericalCheck->isChecked())
-      properties << "Spherical "
-        << jointLim0min << ":" << jointLim0max
-        << " " << jointLim1min << ":" << jointLim1max << endl;
+      properties << "Spherical " << jointLim0min << ":" << jointLim0max
+                 << " " << jointLim1min << ":" << jointLim1max << endl;
     else if(m_jointRevoluteCheck->isChecked())
-      properties << "Revolute "
-        << jointLim0min << ":" << jointLim0max << endl;
+      properties << "Revolute " << jointLim0min << ":" << jointLim0max << endl;
     else
       properties << "NonActuated" << endl;
 
@@ -528,9 +572,9 @@ EditRobotDialog::SaveJoint(){
       properties << m_jointPos[0][i]->value() << " ";
 
     properties << m_jointAlphaLine->text().toStdString() << " "
-      << m_jointALine->text().toStdString() << " "
-      << m_jointDLine->text().toStdString() << " "
-      << m_jointThetaLine->text().toStdString() << " ";
+               << m_jointALine->text().toStdString() << " "
+               << m_jointDLine->text().toStdString() << " "
+               << m_jointThetaLine->text().toStdString() << " ";
 
     for(int i=0; i<6; i++)
       properties << m_jointPos[1][i]->value() << " ";
@@ -539,9 +583,11 @@ EditRobotDialog::SaveJoint(){
   }
 
   if(previousBodyIndex != bodyNum) {
-    m_robotBody->GetBodies()[previousBodyIndex]->DeleteConnection(m_newRobotModel[indexBase].second[indexJoint]);
+    m_robotBody->GetBodies()[previousBodyIndex]->
+        DeleteConnection(m_newRobotModel[indexBase].second[indexJoint]);
     properties >> *m_newRobotModel[indexBase].second[indexJoint];
-    m_robotBody->GetBodies()[bodyNum]->AddConnection(m_newRobotModel[indexBase].second[indexJoint]);
+    m_robotBody->GetBodies()[bodyNum]->
+        AddConnection(m_newRobotModel[indexBase].second[indexJoint]);
   }
   else
     properties >> *m_newRobotModel[indexBase].second[indexJoint];
@@ -550,7 +596,8 @@ EditRobotDialog::SaveJoint(){
 }
 
 void
-EditRobotDialog::BaseFixedChecked(){
+EditRobotDialog::
+BaseFixedChecked() {
   m_baseFixedCheck->setChecked(true);
   m_basePlanarCheck->setChecked(false);
   m_baseVolumetricCheck->setChecked(false);
@@ -562,21 +609,24 @@ EditRobotDialog::BaseFixedChecked(){
 }
 
 void
-EditRobotDialog::BasePlanarChecked(){
+EditRobotDialog::
+BasePlanarChecked() {
   BaseNotFixedChecked();
   m_basePlanarCheck->setChecked(true);
   m_baseVolumetricCheck->setChecked(false);
 }
 
 void
-EditRobotDialog::BaseVolumetricChecked(){
+EditRobotDialog::
+BaseVolumetricChecked() {
   BaseNotFixedChecked();
   m_basePlanarCheck->setChecked(false);
   m_baseVolumetricCheck->setChecked(true);
 }
 
 void
-EditRobotDialog::BaseNotFixedChecked(){
+EditRobotDialog::
+BaseNotFixedChecked() {
   m_baseFixedCheck->setChecked(false);
   m_baseTranslationalCheck->setChecked(false);
   m_baseTranslationalCheck->setEnabled(false);
@@ -587,38 +637,45 @@ EditRobotDialog::BaseNotFixedChecked(){
 }
 
 void
-EditRobotDialog::BaseTranslationalChecked(){
+EditRobotDialog::
+BaseTranslationalChecked() {
   m_baseTranslationalCheck->setChecked(true);
   m_baseRotationalCheck->setChecked(false);
   UpdateBase();
 }
 
 void
-EditRobotDialog::BaseRotationalChecked(){
+EditRobotDialog::
+BaseRotationalChecked() {
   m_baseTranslationalCheck->setChecked(false);
   m_baseRotationalCheck->setChecked(true);
   UpdateBase();
 }
 
 void
-EditRobotDialog::AddBase(){
+EditRobotDialog::
+AddBase() {
+  //get a base filename to load
   QString fn = QFileDialog::getOpenFileName(this, "Choose a base to load",
-      QString::null, "Files (*.g *.obj)");
+      m_mainWindow->GetLastDir(), "Files (*.g *.obj)");
+
   if(!fn.isEmpty()) {
-    string newBaseFilename = fn.toStdString();
-    size_t s = newBaseFilename.rfind('/');
-    string modelDirectory = s == string::npos ? "" : newBaseFilename.substr(0, s);
-    string newBaseName = s == string::npos ? newBaseFilename : newBaseFilename.substr(s+1);
+    //get file info
+    QFileInfo fi(fn);
 
-    BodyModel* newBase= new BodyModel();
+    //store last used directory
+    m_mainWindow->SetLastDir(fi.absolutePath());
 
+    //get base properties
     ostringstream properties;
-    properties << newBaseName<<DEFAULT_BASE_CONF;
-
+    properties << fi.fileName().toStdString() << DEFAULT_BASE_CONF;
     istringstream streamProperties(properties.str());
-    newBase->ParseActiveBody(streamProperties, modelDirectory, DEFAULT_COLOR);
 
-    typedef Joints::const_iterator MIT;
+    //create new base
+    BodyModel* newBase= new BodyModel();
+    newBase->ParseActiveBody(streamProperties, fi.absolutePath().toStdString(),
+        DEFAULT_COLOR);
+
     int bodyCount = 0;
     typedef MultiBodyModel::Robots::const_iterator RIT;
     for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end(); rit++)
@@ -633,35 +690,43 @@ EditRobotDialog::AddBase(){
 }
 
 void
-EditRobotDialog::AddJoint() {
+EditRobotDialog::
+AddJoint() {
   if(m_baseList->currentItem()) {
     QString fn = QFileDialog::getOpenFileName(this, "Choose a joint to load",
-        QString::null, "Files (*.g *.obj)");
+        m_mainWindow->GetLastDir(), "Files (*.g *.obj)");
+
     if(!fn.isEmpty()) {
-      string newJointFilename = fn.toStdString();
-      size_t s = newJointFilename.rfind('/');
-      string modelDirectory = s == string::npos ? "" : newJointFilename.substr(0, s);
-      string newJointName = s == string::npos ? newJointFilename : newJointFilename.substr(s+1);
+      //get file info
+      QFileInfo fi(fn);
 
-      BodyModel* newJoint= new BodyModel();
+      //store last directory
+      m_mainWindow->SetLastDir(fi.absolutePath());
+
+      //get joint properties
       ostringstream properties;
-      properties << newJointName << " Joint";
+      properties << fi.fileName().toStdString() << " Joint";
 
+      //create new joint
+      BodyModel* newJoint= new BodyModel();
       istringstream streamProperties(properties.str());
-      newJoint->ParseActiveBody(streamProperties, modelDirectory, DEFAULT_COLOR);
+      newJoint->ParseActiveBody(streamProperties, fi.absolutePath().toStdString(),
+          DEFAULT_COLOR);
 
       int indexBase = m_baseList->row(m_baseList->currentItem());
-      typedef Joints::const_iterator MIT;
       int bodyCount = 0, baseCount = 0, jointCount = 0;
       typedef MultiBodyModel::Robots::const_iterator RIT;
-      for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end(); ++rit){
+      for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end();
+          ++rit) {
         if(baseCount <= indexBase) {
           bodyCount += rit->second.size() + 1;
           jointCount = rit->second.size();
         }
-        else
+        else {
+          typedef Joints::const_iterator MIT;
           for(MIT mit = rit->second.begin(); mit != rit->second.end(); ++mit)
             (*mit)->ChangeIndex(1);
+        }
         baseCount++;
       }
 
@@ -669,9 +734,9 @@ EditRobotDialog::AddJoint() {
       ConnectionModel* c = new ConnectionModel();
       istringstream defProperties(DEFAULT_JOINT_CONF);
       defProperties >> *c;
-      c->ChangeIndex(bodyCount-1);
-      c->SetGlobalIndex(bodyCount-indexBase-1);
-      m_robotBody->GetBodies()[bodyCount-1]->AddConnection(c);
+      c->ChangeIndex(bodyCount - 1);
+      c->SetGlobalIndex(bodyCount - indexBase - 1);
+      m_robotBody->GetBodies()[bodyCount - 1]->AddConnection(c);
       m_newRobotModel[indexBase].second.push_back(c);
       m_robotBody->AddJoint(c, indexBase, jointCount, bodyCount);
       m_newRobotModel = m_robotBody->GetRobots();
@@ -685,7 +750,8 @@ EditRobotDialog::AddJoint() {
 }
 
 void
-EditRobotDialog::DeleteJoint(){
+EditRobotDialog::
+DeleteJoint() {
   if(m_jointList->currentItem()) {
     int indexBase = m_baseList->row(m_baseList->currentItem());
     int indexJoint = m_jointList->row(m_jointList->currentItem());
@@ -696,8 +762,9 @@ EditRobotDialog::DeleteJoint(){
     for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end(); ++rit) {
       if(baseCount == indexBase) {
         for(MIT mit = rit->second.begin(); mit != rit->second.end(); ++mit) {
-          if(bodyNumber == bodyCount){
-            m_robotBody->GetBodies()[(*mit)->GetPreviousIndex()]->DeleteConnection(*mit);
+          if(bodyNumber == bodyCount) {
+            m_robotBody->GetBodies()[(*mit)->GetPreviousIndex()]->
+                DeleteConnection(*mit);
             (*mit)->ChangeIndex(-1);
           }
           else if(bodyNumber < bodyCount)
@@ -706,7 +773,7 @@ EditRobotDialog::DeleteJoint(){
         }
       }
       else if(baseCount > indexBase) {
-        for(MIT mit = rit->second.begin(); mit != rit->second.end(); ++mit){
+        for(MIT mit = rit->second.begin(); mit != rit->second.end(); ++mit) {
           (*mit)->ChangeIndex(-1);
           bodyCount++;
         }
@@ -726,7 +793,8 @@ EditRobotDialog::DeleteJoint(){
 }
 
 void
-EditRobotDialog::DeleteBase() {
+EditRobotDialog::
+DeleteBase() {
   if(m_baseList->currentItem()) {
     int index = m_baseList->row(m_baseList->currentItem());
     size_t bodyCount = 0;
@@ -759,7 +827,8 @@ EditRobotDialog::DeleteBase() {
 }
 
 void
-EditRobotDialog::CreateNewRobot(){
+EditRobotDialog::
+CreateNewRobot() {
   AddBase();
   DeleteAllExceptLastBase();
   m_jointList->clear();
@@ -771,14 +840,16 @@ EditRobotDialog::CreateNewRobot(){
 }
 
 void
-EditRobotDialog::DisplayBases() {
+EditRobotDialog::
+DisplayBases() {
   typedef MultiBodyModel::Robots::const_iterator RIT;
   for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end(); ++rit)
     m_baseList->addItem(rit->first->GetFilename().c_str());
 }
 
 void
-EditRobotDialog::DeleteAllExceptLastBase() {
+EditRobotDialog::
+DeleteAllExceptLastBase() {
   typedef Joints::const_iterator MIT;
   typedef MultiBodyModel::Robots::const_iterator RIT;
   for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end()-1; ++rit) {
@@ -790,7 +861,8 @@ EditRobotDialog::DeleteAllExceptLastBase() {
 }
 
 void
-EditRobotDialog::SaveJointsNames(){
+EditRobotDialog::
+SaveJointsNames() {
   typedef Joints::const_iterator JIT;
   size_t bodyCount = 0;
   typedef MultiBodyModel::Robots::const_iterator RIT;
@@ -806,51 +878,55 @@ EditRobotDialog::SaveJointsNames(){
 }
 
 void
-EditRobotDialog::ChangeDOF(){
+EditRobotDialog::
+ChangeDOF() {
   size_t dof = 0;
   typedef Joints::const_iterator JIT;
   typedef MultiBodyModel::Robots::const_iterator RIT;
-  for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end(); rit++){
-    if(rit->first->IsBasePlanar()){
-      dof+=2;
+  for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end(); rit++) {
+    if(rit->first->IsBasePlanar()) {
+      dof += 2;
       if(rit->first->IsBaseRotational())
-        dof+=1;
+        dof += 1;
     }
-    else if(rit->first->IsBaseVolumetric()){
-      dof+=3;
+    else if(rit->first->IsBaseVolumetric()) {
+      dof += 3;
       if(rit->first->IsBaseRotational())
-        dof+=3;
+        dof += 3;
     }
-    for(JIT jit = rit->second.begin(); jit != rit->second.end(); ++jit){
+    for(JIT jit = rit->second.begin(); jit != rit->second.end(); ++jit) {
       if((*jit)->GetJointType() == ConnectionModel::REVOLUTE)
-        dof+=1;
+        dof += 1;
       else if((*jit)->GetJointType() == ConnectionModel::SPHERICAL)
-        dof+=2;
+        dof += 2;
     }
   }
   m_robotBody->ChangeDOF(dof);
 }
 
 void
-EditRobotDialog::RefreshVizmo(){
+EditRobotDialog::
+RefreshVizmo() {
   ChangeDOF();
   GetVizmo().PlaceRobot();
   m_mainWindow->GetGLWidget()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }
 
-VerticalScrollArea::VerticalScrollArea(QWidget* _parent)
-: QScrollArea(_parent) {
+/*-------------------------- VerticalScrollArea ------------------------------*/
+
+VerticalScrollArea::
+VerticalScrollArea(QWidget* _parent) : QScrollArea(_parent) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
 bool
-VerticalScrollArea::eventFilter(QObject* _o, QEvent* _e){
-
+VerticalScrollArea::
+eventFilter(QObject* _o, QEvent* _e) {
   if(_o && _o == widget() && _e->type() == QEvent::Resize)
     setMinimumWidth(widget()->minimumSizeHint().width() +
-      verticalScrollBar()->width());
+        verticalScrollBar()->width());
 
   return QScrollArea::eventFilter(_o, _e);
 }

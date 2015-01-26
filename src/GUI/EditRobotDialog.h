@@ -1,5 +1,5 @@
-#ifndef EDITROBOTDIALOG_H_
-#define EDITROBOTDIALOG_H_
+#ifndef EDIT_ROBOT_DIALOG_H_
+#define EDIT_ROBOT_DIALOG_H_
 
 using namespace std;
 
@@ -9,11 +9,15 @@ using namespace std;
 
 class MainWindow;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief This class provides a dialog for modifying the robot.
+////////////////////////////////////////////////////////////////////////////////
 class EditRobotDialog : public QDialog {
 
   Q_OBJECT
 
   public:
+
     typedef MultiBodyModel::Joints Joints;
     typedef MultiBodyModel::Robot Robot;
     typedef MultiBodyModel::Robots Robots;
@@ -21,6 +25,7 @@ class EditRobotDialog : public QDialog {
     EditRobotDialog(MainWindow* _mainWindow);
 
   public slots:
+
     void ShowBase();
     void ShowJoint();
     void BaseFixedChecked();
@@ -43,7 +48,7 @@ class EditRobotDialog : public QDialog {
     void Accept();
 
   private:
-    //Functions
+
     void SetUpDialog();
     void DisplayBases();
     void BaseNotFixedChecked();
@@ -56,7 +61,6 @@ class EditRobotDialog : public QDialog {
     bool JointParamChecked();
     string SaveMultiBody();
 
-    //Variables
     Robots m_newRobotModel, m_oldRobotModel;
     MultiBodyModel* m_robotBody;
     MainWindow* m_mainWindow;
@@ -65,7 +69,6 @@ class EditRobotDialog : public QDialog {
     bool m_jointIsInit;
     bool m_baseIsInit;
 
-    //Qt Variables
     QLabel* m_directory;
     QListWidget* m_baseList;
     QListWidget* m_jointList;
@@ -91,14 +94,19 @@ class EditRobotDialog : public QDialog {
     QLineEdit* m_jointConnectionsLine2;
 };
 
-//What it takes to make the layout size properly
-class VerticalScrollArea : public QScrollArea{
+////////////////////////////////////////////////////////////////////////////////
+/// \brief VerticalScrollArea provides a specialized version of QScrollArea with
+/// custom resize-event handling. This is needed to resize the dialog properly
+/// within the dialog dock.
+////////////////////////////////////////////////////////////////////////////////
+class VerticalScrollArea : public QScrollArea {
 
   Q_OBJECT
 
   public:
+
     VerticalScrollArea(QWidget* _parent = 0);
-    //override
+
     virtual bool eventFilter(QObject* _o, QEvent* _e);
 };
 
