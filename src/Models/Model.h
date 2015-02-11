@@ -19,8 +19,12 @@ using namespace mathtool;
 enum RenderMode {INVISIBLE_MODE, WIRE_MODE, SOLID_MODE};
 
 class Model {
+
   public:
-    Model(const string& _name) : m_name(_name), m_renderMode(SOLID_MODE), m_selectable(true), m_showNormals(false) {}
+
+    //construction
+    Model(const string& _name) : m_name(_name), m_renderMode(SOLID_MODE),
+        m_selectable(true), m_showNormals(false) {}
     virtual ~Model() {
       for(vector<Model*>::iterator cit = m_allChildren.begin();
           cit != m_allChildren.end(); ++cit)
@@ -42,7 +46,8 @@ class Model {
 
     //GetChildren for compatability until model constructors intantiate children
     virtual void GetChildren(list<Model*>& _models) {};
-    const vector<Model*>& SelectableChildren() const {return m_selectableChildren;}
+    const vector<Model*>& SelectableChildren() const
+        {return m_selectableChildren;}
     const vector<Model*>& AllChildren() const {return m_allChildren;}
 
     //initialization of model
@@ -64,10 +69,12 @@ class Model {
     virtual bool MousePressed(QMouseEvent* _e, Camera* _c = NULL) {return false;}
     virtual bool MouseReleased(QMouseEvent* _e, Camera* _c = NULL) {return false;}
     virtual bool MouseMotion(QMouseEvent* _e, Camera* _c = NULL) {return false;}
-    virtual bool PassiveMouseMotion(QMouseEvent* _e, Camera* _c = NULL) {return false;}
+    virtual bool PassiveMouseMotion(QMouseEvent* _e, Camera* _c = NULL)
+        {return false;}
     virtual bool KeyPressed(QKeyEvent* _e) {return false;}
 
   protected:
+
     string m_name;
     RenderMode m_renderMode;
     Color4 m_color;
@@ -90,8 +97,11 @@ class LoadableModel : public Model {
     string m_filename;
 };
 
+
 class TransformableModel : public Model {
+
   public:
+
     TransformableModel(const string& _name) : Model(_name), m_scale(1, 1, 1) {}
 
     void Transform() {
@@ -123,6 +133,7 @@ class TransformableModel : public Model {
     const Vector3d& Scale() const {return m_scale;}
 
   protected:
+
     Vector3d m_pos, m_scale;
     Vector3d m_rot;
     Quaternion m_rotQ; //Rotation

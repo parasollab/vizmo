@@ -544,17 +544,17 @@ AddUserPath() {
   UserPathModel* p;
 
   if(callee->text().toStdString() == "Add User Path with Haptics") {
-    p = new UserPathModel(m_mainWindow, UserPathModel::Haptic);
+    p = new UserPathModel(UserPathModel::Haptic);
     connect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
         this, SLOT(HapticPathCapture()));
   }
   if(callee->text().toStdString() == "Add User Path with Camera") {
-    p = new UserPathModel(m_mainWindow, UserPathModel::CameraPath);
+    p = new UserPathModel(UserPathModel::CameraPath);
     connect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
         this, SLOT(CameraPathCapture()));
   }
   else
-    p = new UserPathModel(m_mainWindow, UserPathModel::Mouse);
+    p = new UserPathModel(UserPathModel::Mouse);
   GetVizmo().GetEnv()->AddUserPath(p);
 
   // set mouse events to current path for GLWidget
@@ -627,7 +627,7 @@ CameraPathCapture() {
   if(p) {
     if(!p->IsFinished()) {
       p->SendToPath(camera->GetEye());
-      if (p->m_checkCollision && !p->GetNewPos().IsValid()) {
+      if(!p->GetNewPos().IsValid()) {
         p->RewindPos();
         camera->Set(p->GetOldPos().GetPoint(), camera->GetDir());
       }

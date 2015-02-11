@@ -1,11 +1,3 @@
-
-/*
- *  This method provides a tool for capturing approximate paths in two
- *  dimensions. The path is entered with the mouse by click-and-drag. Collision
- *  detection on the mouse position is provided by creating a square robot with
- *  side length = environment resolution.
- */
-
 #include "UserPathModel.h"
 
 #include "GUI/MainWindow.h"
@@ -22,11 +14,12 @@
 
 class Camera;
 
+
 UserPathModel::
-UserPathModel(MainWindow* _mainWindow, InputType _t) : Model("User Path"),
-    m_checkCollision(false), m_mainWindow(_mainWindow), m_type(_t),
-    m_finished(false), m_valid(true), m_oldPos(), m_newPos(), m_userPath() {
-}
+UserPathModel(InputType _t) : Model("User Path"),
+    m_type(_t), m_finished(false), m_valid(true),
+    m_oldPos(), m_newPos(), m_userPath() { }
+
 
 void
 UserPathModel::
@@ -35,6 +28,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     _sel.push_back(this);
 }
 
+
 void
 UserPathModel::
 DrawRender() {
@@ -42,32 +36,44 @@ DrawRender() {
     glColor3f(0, 1, 0);
   else
     glColor3f(1, 0, 0);
+
   glLineWidth(4);
+
   glBegin(GL_LINE_STRIP);
-  for(vector<Point3d>::iterator it = m_userPath.begin(); it != m_userPath.end(); ++it)
+  for(vector<Point3d>::iterator it = m_userPath.begin();
+      it != m_userPath.end(); ++it)
     glVertex3dv(*it);
   glEnd();
 }
+
 
 void
 UserPathModel::
 DrawSelect() {
   glLineWidth(4);
-  for(vector<Point3d>::iterator it = m_userPath.begin(); it != m_userPath.end(); ++it)
+
+  glBegin(GL_LINE_STRIP);
+  for(vector<Point3d>::iterator it = m_userPath.begin();
+      it != m_userPath.end(); ++it)
     glVertex3dv(*it);
   glEnd();
 }
+
 
 void
 UserPathModel::
 DrawSelected() {
   glLineWidth(8);
+
   glBegin(GL_LINE_STRIP);
-  for(vector<Point3d>::iterator it = m_userPath.begin(); it != m_userPath.end(); ++it)
+  for(vector<Point3d>::iterator it = m_userPath.begin();
+      it != m_userPath.end(); ++it)
     glVertex3dv(*it);
   glEnd();
+
   DrawRender();
 }
+
 
 void
 UserPathModel::
@@ -75,6 +81,7 @@ Print(ostream& _os) const {
   _os << Name() << endl;
   PrintPath(_os);
 }
+
 
 void
 UserPathModel::
@@ -86,17 +93,32 @@ PrintPath(ostream& _os) const {
   _os << flush;
 }
 
+
+void
+UserPathModel::
+SendToPath(const Point3d& _p) {
+  /// Consecutive repeats are ignored so that leaving the input device still
+  /// creates only one position.
+  if(m_userPath.empty() || _p != m_userPath.back()) {
+    UpdatePositions(_p);
+    UpdateValidity();
+    m_userPath.push_back(_p);
+  }
+}
+
+
 shared_ptr< vector<CfgModel> >
 UserPathModel::
-GetCfgs() {
+GetCfgs(bool _randomize) const {
   shared_ptr< vector<CfgModel> > cfgs(new vector<CfgModel>(m_userPath.size()));
   if(m_finished) {
-    size_t count = 0;
-    for(vector<Point3d>::const_iterator it = m_userPath.begin();
-        it != m_userPath.end(); ++it) {
-      (*cfgs)[count] = CfgModel();
-      (*cfgs)[count].SetCfg(Point3dToVector(*it));
-      count++;
+    //iterate through each path point and generate a cfg there
+    vector<CfgModel>::iterator cit = cfgs->begin();
+    vector<Point3d>::const_iterator pit = m_userPath.begin();
+    for(;cit != cfgs->end() && pit != m_userPath.end(); ++cit, ++pit) {
+      if(_randomize)
+        cit->GetRandomCfg(GetVizmo().GetEnv()->GetEnvironment());
+      SetCfgPosition(*cit, *pit);
     }
   }
   return cfgs;
@@ -118,9 +140,9 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
     avatar->Enable();
     return true;
   }
-
   return false;
 }
+
 
 bool
 UserPathModel::
@@ -130,9 +152,9 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
     GetVizmo().GetEnv()->GetAvatar()->Disable();
     return true;
   }
-
   return false;
 }
+
 
 bool
 UserPathModel::
@@ -148,6 +170,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
   return false;
 }
 
+
 bool
 UserPathModel::
 KeyPressed(QKeyEvent* _e) {
@@ -162,37 +185,27 @@ KeyPressed(QKeyEvent* _e) {
   return false;
 }
 
+
 void
 UserPathModel::
 UpdatePositions(const Point3d& _p) {
   m_oldPos = m_newPos;
-  m_newPos.SetCfg(Point3dToVector(_p));
+  SetCfgPosition(m_newPos, _p);
 }
+
 
 void
 UserPathModel::
 UpdateValidity() {
-  //pair<bool, double> result = GetVizmo().VisibilityCheck(m_newPos, m_oldPos);}
   if(!GetVizmo().CollisionCheck(m_newPos))
     m_valid = false;
 }
 
+
 void
 UserPathModel::
-SendToPath(const Point3d& _p) {
-  //check that this position is new
-  if(m_userPath.empty() || _p != m_userPath.back()) {
-    UpdatePositions(_p);
-    UpdateValidity();
-    m_userPath.push_back(_p);
-  }
+SetCfgPosition(CfgModel& _cfg, const Point3d& _p) const {
+  //copy data from the point to the cfg data until the end of either is reached
+  for(size_t i = 0; i < _cfg.PosDOF() && i < 3; ++i)
+    _cfg[i] = _p[i];
 }
-
-vector<double>
-UserPathModel::
-Point3dToVector(const Point3d& _p) {
-  vector<double> data(m_newPos.DOF(), 0.);
-  copy(_p.begin(), _p.end(), data.begin());
-  return data;
-}
-

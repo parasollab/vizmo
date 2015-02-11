@@ -282,8 +282,6 @@ InitPMPL() {
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();
   problem->BuildCDStructures();
-  problem->GetEnvironment()->SetPositionRes(0.8);
-  problem->GetEnvironment()->SetOrientationRes(0.2);
 }
 
 void
