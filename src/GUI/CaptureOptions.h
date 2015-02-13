@@ -7,7 +7,6 @@
 /// \brief CaptureOptions provides the crop box, screen shot, and movie making
 /// tools.
 ////////////////////////////////////////////////////////////////////////////////
-
 class CaptureOptions : public OptionsBase {
 
   Q_OBJECT
@@ -41,6 +40,7 @@ class CaptureOptions : public OptionsBase {
     void SetUpToolbar();         ///< Create menu.
     void SetHelpTips();          ///< Set help messages for actions.
     void Reset();                ///< Reset actions to their enabled state.
+
     bool m_cropBox;              ///< Indicates whether the crop box is in use.
 
     //for live recording

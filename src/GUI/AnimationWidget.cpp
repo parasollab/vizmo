@@ -13,10 +13,10 @@
 #include "Icons/BackPlay.xpm"
 #include "Icons/Pause.xpm"
 
-/////////////////////////////////////////////////////////////////////////////////
-
-AnimationWidget::AnimationWidget(QString _title, QWidget* _parent)
-  : QToolBar(_title, _parent), m_name("") {
+AnimationWidget::
+AnimationWidget(QString _title, QWidget* _parent) :
+  QToolBar(_title, _parent),
+  m_name(""), m_frame(0), m_maxFrame(0), m_stepSize(5), m_forward(true) {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     CreateGUI();
     setEnabled(false);
@@ -24,46 +24,144 @@ AnimationWidget::AnimationWidget(QString _title, QWidget* _parent)
     // Initialize the timer
     m_timer = new QTimer(this);
     connect(m_timer, SIGNAL(timeout()), this, SLOT(Timeout()));
-    m_stepSize = 1;
-    m_forwardDirection = true;
-    m_maxValue = 0;
-    m_curValue = 0;
   }
 
 void
-AnimationWidget::Reset(){
+AnimationWidget::
+Reset() {
   PauseAnimate();
 
-  if(GetVizmo().GetPathFileName()!="") {
+  if(!GetVizmo().GetPathFileName().empty()) {
     m_name = "Path";
-    m_maxValue = GetVizmo().GetPath()->GetSize();
+    m_maxFrame = GetVizmo().GetPath()->GetSize();
   }
-  else if(GetVizmo().GetDebugFileName()!="") {
+  else if(!GetVizmo().GetDebugFileName().empty()) {
     m_name = "Debug";
-    m_maxValue = GetVizmo().GetDebug()->GetSize();
+    m_maxFrame = GetVizmo().GetDebug()->GetSize();
   }
   else {
     m_name = "";
-    m_maxValue = 0;
+    m_maxFrame = 0;
   }
 
-  m_curValue=0;
-  m_slider->setRange(0, m_maxValue-1);
-  m_slider->setValue(0);
-  m_slider->setTickInterval(10);
-  m_totalSteps->setNum(m_maxValue);
+  m_frame = 0;
+  m_slider->setRange(1, m_maxFrame);
+  m_slider->setValue(m_frame + 1);
+  m_slider->setTickInterval(m_stepSize);
+  m_totalSteps->setNum(m_maxFrame);
+  m_stepValidator->setRange(1, m_maxFrame);
+  m_frameValidator->setRange(1, m_maxFrame);
 
   //disable/enable this toolbar
-  if(m_maxValue == 0)
+  if(m_maxFrame == 0)
     setEnabled(false);
   else
     setEnabled(true);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-bool
-AnimationWidget::CreateGUI(){
+void
+AnimationWidget::
+GoToFrame(int _frame) {
+  //update frame value
+  m_frame = _frame;
+  if(m_frame >= m_maxFrame)
+    m_frame -= m_maxFrame;
+  else if(m_frame < 0)
+    m_frame += m_maxFrame;
 
+  //update slider and frame display
+  m_slider->blockSignals(true);
+  m_slider->setValue(m_frame + 1);
+  m_slider->blockSignals(false);
+  m_frameField->setText(QString::number(m_frame + 1)); //reset the number
+
+  //update GUI
+  if(m_name == "Path") {
+    const vector<double>& cfg = GetVizmo().GetPath()->GetConfiguration(m_frame).GetData();
+    GetVizmo().GetRobot()->Configure(cfg);
+  }
+  else if(m_name == "Debug")
+    GetVizmo().GetDebug()->ConfigureFrame(m_frame);
+  emit CallUpdate();
+}
+
+void
+AnimationWidget::
+BackAnimate() {
+  m_forward = false;
+  m_timer->start(100);
+}
+
+void
+AnimationWidget::
+Animate() {
+  m_forward = true;
+  m_timer->start(100);
+}
+
+void
+AnimationWidget::
+PauseAnimate() {
+  m_timer->stop();
+}
+
+void
+AnimationWidget::
+PreviousFrame() {
+  m_forward = false;
+  GoToFrame(m_frame - m_stepSize);
+}
+
+void
+AnimationWidget::
+NextFrame() {
+  m_forward = true;
+  GoToFrame(m_frame + m_stepSize);
+}
+
+void
+AnimationWidget::
+GoToFirst() {
+  GoToFrame(0);
+}
+
+void
+AnimationWidget::
+GoToLast() {
+  GoToFrame(m_maxFrame-1);
+}
+
+void
+AnimationWidget::
+SliderMoved(int _frame) {
+  GoToFrame(_frame);
+}
+
+void
+AnimationWidget::
+UpdateStepSize() {
+  m_stepSize = m_stepField->text().toInt();
+  m_slider->setTickInterval(m_stepSize);
+}
+
+void
+AnimationWidget::
+UpdateFrame() {
+  GoToFrame(m_frameField->text().toInt() - 1);
+}
+
+void
+AnimationWidget::
+Timeout() {
+  if(m_forward)
+    GoToFrame(m_frame + m_stepSize);
+  else
+    GoToFrame(m_frame - m_stepSize);
+}
+
+void
+AnimationWidget::
+CreateGUI() {
   CreateActions();
   addSeparator();
   CreateSlider();
@@ -71,42 +169,11 @@ AnimationWidget::CreateGUI(){
   CreateStepInput();
   addSeparator();
   CreateFrameInput();
-
-  return true;
 }
 
 void
-AnimationWidget::CreateFrameInput(){
-
-  m_frameField = new QLineEdit(this);             // delete this on cleaning
-  m_frameField->setText("0");
-  m_frameField->setMaximumSize(55,22);
-  m_frameField->setValidator(new QIntValidator(m_frameField));
-  connect(m_frameField, SIGNAL(returnPressed()), SLOT(GoToFrame()));
-  m_totalSteps = new QLabel("",this);
-  m_totalSteps->setNum(0);
-
-  this->addWidget(new QLabel("Frame = ", this));
-  this->addWidget(m_frameField);
-  this->addWidget(new QLabel(" / ", this));
-  this->addWidget(m_totalSteps);
-  this->addWidget(new QLabel(" frames ", this));
-}
-
-void
-AnimationWidget::CreateStepInput(){
-
-  m_stepField = new QLineEdit(this);
-  m_stepField->setText("1");
-  m_stepField->setMaximumSize(55,22);
-  m_stepField->setValidator(new QIntValidator(m_stepField));
-  connect(m_stepField,SIGNAL(returnPressed()),SLOT(UpdateStepSize()));
-
-  this->addWidget(new QLabel("Step = ", this));
-  this->addWidget(m_stepField);
-}
-
-bool AnimationWidget::CreateActions(){
+AnimationWidget::
+CreateActions() {
 
   QAction* playPathAction = new QAction(QIcon(QPixmap(play)), tr("Play"), this);
   connect(playPathAction, SIGNAL(triggered()), SLOT(Animate()));
@@ -129,155 +196,56 @@ bool AnimationWidget::CreateActions(){
   QAction* lastFrame= new QAction(QIcon(QPixmap(last)), tr("last"),this);
   connect(lastFrame, SIGNAL(triggered()), SLOT(GoToLast()));
 
-  this->addAction(playPathAction);
-  this->addAction(playBackAction);
-  this->addAction(pausePathAction);
-  this->addAction(nextFrameAction);
-  this->addAction(previousFrameAction);
-  this->addAction(firstFrame);
-  this->addAction(lastFrame);
-
-  return true;
+  addAction(playPathAction);
+  addAction(playBackAction);
+  addAction(pausePathAction);
+  addAction(nextFrameAction);
+  addAction(previousFrameAction);
+  addAction(firstFrame);
+  addAction(lastFrame);
 }
 
 void
-AnimationWidget::UpdateFrameCounter(int _newValue){
-
-  QString result;
-  result=result.setNum(_newValue);
-  m_frameField->setText(result);
-}
-
-void
-AnimationWidget::CreateSlider(){
-
-  m_slider = new QSlider(Qt::Horizontal,this);
-  m_slider->setRange(0,0);
-  m_slider->setFixedSize(300,22);
+AnimationWidget::
+CreateSlider() {
+  m_slider = new QSlider(Qt::Horizontal, this);
+  m_slider->setRange(1, m_maxFrame);
+  m_slider->setFixedSize(300, 22);
   m_slider->setTickPosition(QSlider::TicksBelow);
 
   connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(SliderMoved(int)));
-  connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(UpdateFrameCounter(int)));
 
   this->addWidget(m_slider);
 }
 
 void
-AnimationWidget::PauseAnimate(){
-
-  m_timer->stop();
+AnimationWidget::
+CreateStepInput() {
+  m_stepField = new QLineEdit(this);
+  m_stepField->setText(QString::number(m_stepSize));
+  m_stepField->setMaximumSize(55, 22);
+  m_stepValidator = new QIntValidator(1, m_maxFrame, m_stepField);
+  m_stepField->setValidator(m_stepValidator);
+  connect(m_stepField, SIGNAL(returnPressed()), SLOT(UpdateStepSize()));
+  addWidget(new QLabel("Step = ", this));
+  addWidget(m_stepField);
 }
 
 void
-AnimationWidget::BackAnimate(){
+AnimationWidget::
+CreateFrameInput() {
+  m_frameField = new QLineEdit(this);             // delete this on cleaning
+  m_frameField->setText(QString::number(m_frame + 1));
+  m_frameField->setMaximumSize(55, 22);
+  m_frameValidator = new QIntValidator(1, m_maxFrame, m_frameField);
+  m_frameField->setValidator(m_frameValidator);
+  connect(m_frameField, SIGNAL(returnPressed()), SLOT(UpdateFrame()));
 
-  UpdateStepSize();
-  m_forwardDirection=false;
-  m_timer->start(100);
-}
+  m_totalSteps = new QLabel(QString::number(m_maxFrame), this);
 
-void
-AnimationWidget::Animate(){
-
-  // first update step size
-  UpdateStepSize();
-  m_forwardDirection = true;
-  m_timer->start(100);
-}
-
-void
-AnimationWidget::UpdateCurValue(int _value){
-
-  m_curValue = _value;
-  if(m_curValue >= m_maxValue)
-    m_curValue = 0;
-  else if(m_curValue < 0)
-    m_curValue = m_maxValue-1;
-}
-
-void
-AnimationWidget::UpdateStepSize(){
-
-  QString newValue;
-  int newValueint;
-  bool conv;
-  newValue = m_stepField->text();
-  newValueint = newValue.toInt(&conv, 10);
-  if(newValueint <= 1) newValueint = 1;
-  m_stepField->setText(newValue.setNum(newValueint));
-  m_stepSize = newValueint;
-  m_slider->setTickInterval(m_stepSize);
-}
-
-void
-AnimationWidget::GetStepSize(int& _size){
-  _size = m_stepSize;
-}
-
-void
-AnimationWidget::GoToFrame(){
-  // Get the number from the frameCoutner
-  bool conv;
-  QString frame = m_frameField->text();
-  int frameInt = frame.toInt(&conv, 10);
-  UpdateFrame(frameInt);
-}
-
-void
-AnimationWidget::UpdateFrame(int _frame){
-  // the silde will send the slider moved signal and
-  // the robot will update position automatically
-  UpdateCurValue(_frame);
-  m_slider->setValue(m_curValue);
-  QString text;
-  m_frameField->setText(text.setNum(m_curValue)); //reset the number
-}
-
-void
-AnimationWidget::GoToFirst(){
-  UpdateCurValue(0);
-  m_slider->setValue(m_curValue);
-}
-
-void
-AnimationWidget::GoToLast(){
-  UpdateCurValue(m_maxValue-1);
-  m_slider->setValue(m_curValue);
-}
-
-void
-AnimationWidget::NextFrame(){
-  m_curValue += m_stepSize;
-  UpdateCurValue(m_curValue);
-  m_slider->setValue(m_curValue);
-}
-
-void
-AnimationWidget::PreviousFrame(){
-  m_curValue -= m_stepSize;
-  UpdateCurValue(m_curValue);
-  m_slider->setValue(m_curValue);
-}
-
-void
-AnimationWidget::SliderMoved(int _newValue){
-  UpdateCurValue(_newValue);
-  if(m_name == "Path") {
-    const vector<double>& dCfg = GetVizmo().GetPath()->GetConfiguration(_newValue).GetData();
-    GetVizmo().GetRobot()->Configure(dCfg);
-  }
-  else if(m_name == "Debug")
-    GetVizmo().GetDebug()->ConfigureFrame(_newValue);
-  emit CallUpdate();
-}
-
-void
-AnimationWidget::Timeout(){
-
-  if(m_forwardDirection)
-    m_curValue += m_stepSize;
-  else
-    m_curValue -= m_stepSize;
-  UpdateCurValue(m_curValue);
-  m_slider->setValue(m_curValue);
+  addWidget(new QLabel("Frame = ", this));
+  addWidget(m_frameField);
+  addWidget(new QLabel(" / ", this));
+  addWidget(m_totalSteps);
+  addWidget(new QLabel(" frames ", this));
 }

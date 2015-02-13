@@ -64,7 +64,7 @@ CreateActions() {
   connect(this, SIGNAL(CallUpdate()),
       m_mainWindow, SLOT(UpdateScreen()));
   connect(this, SIGNAL(UpdateFrame(int)),
-      m_mainWindow->GetAnimationWidget(), SLOT(UpdateFrame(int)));
+      m_mainWindow->GetAnimationWidget(), SLOT(GoToFrame(int)));
   connect(m_mainWindow->GetGLWidget(), SIGNAL(Record()),
       this, SLOT(Record()));
 }
