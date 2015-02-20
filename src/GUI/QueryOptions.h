@@ -1,7 +1,3 @@
-/*****************************************************************
- * Class for the "Path" submenu and associated action buttons
- *****************************************************************/
-
 #ifndef QUERY_OPTIONS_H_
 #define QUERY_OPTIONS_H_
 
@@ -9,26 +5,32 @@
 
 class QueryEditDialog;
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Provides the "Query" submenu and associated action buttons.
+////////////////////////////////////////////////////////////////////////////////
 class QueryOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    QueryOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+
+    QueryOptions(QWidget* _parent);
 
   private slots:
-    void ShowHideQuery();
-    void EditQuery();
+
+    //query functions
+    void ShowHideQuery();   ///< Toggle query display on or off.
+    void EditQuery();       ///< Open the query edit dialog.
 
   private:
-    void CreateActions();
-    void SetUpCustomSubmenu(); //like RoadmapOptions
-    void SetUpToolbar();       //show/hide path and show/hide start/goal
-    void SetUpToolTab();
-    void Reset();
-    void SetHelpTips();
 
-    QPointer<QueryEditDialog> m_queryEditDialog;
+    //gui management
+    void CreateActions();
+    void SetHelpTips();
+    void Reset();
+
+    QPointer<QueryEditDialog> m_queryEditDialog; ///< The query edit dialog.
 };
 
 #endif

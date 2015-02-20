@@ -100,7 +100,7 @@ CreateGUI() {
   m_mainMenu = new MainMenu(this);  //also creates the toolbars
   m_textWidget = new TextWidget(this);
   m_toolTabWidget = new ToolTabWidget(this); //depends on main menu
-  m_mainMenu->m_toolTabOptions->Init(); //initialize the tool tab menu
+  m_mainMenu->ConfigureToolTabMenu(); //initialize the tool tab menu
   m_dialogDock = new QDockWidget(this);
 
   // Set up timer to redraw and refresh GUI

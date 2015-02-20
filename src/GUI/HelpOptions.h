@@ -1,29 +1,33 @@
-/****************************************************************
- * Class for the "What's This?" utility.
- * A QWhatsThis is added as an action to the single-button
- * "menubar" in this class.
- * **************************************************************/
-
-#ifndef HELPOPTIONS_H_
-#define HELPOPTIONS_H_
+#ifndef HELP_OPTIONS_H_
+#define HELP_OPTIONS_H_
 
 #include "OptionsBase.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Provides the "What's This?" utility.
+/// \details Help tips from other options classes are used in the WhatsThis
+/// defined here.
+////////////////////////////////////////////////////////////////////////////////
 class HelpOptions : public OptionsBase {
 
     Q_OBJECT
 
     public:
-      HelpOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+
+      HelpOptions(QWidget* _parent);
 
     private:
+
+      //gui management
       void CreateActions();
+      void SetHelpTips() { }
       void SetUpToolbar();
-      void Reset();           //Just a placeholder in this case
-      void SetHelpTips();     //Of course, this is NOT implemented here
+      void Reset() { }
 
     private slots:
-      void ShowAboutBox(); //Pop up the "About" window
+
+      //help functions
+      void ShowAboutBox();    ///< Pop up the "About" window.
 };
 
 #endif

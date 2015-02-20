@@ -1,25 +1,35 @@
-#ifndef TOOLTABOPTIONS_H_
-#define TOOLTABOPTIONS_H_
+#ifndef TOOL_TAB_OPTIONS_H_
+#define TOOL_TAB_OPTIONS_H_
 
 #include <QtGui>
 #include "OptionsBase.h"
 
-class MainWindow;
-class ToolTabWidget;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Provides the drop-down menu that allows for enabling/disabling
+/// specific tool tabs.
+////////////////////////////////////////////////////////////////////////////////
 class ToolTabOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
-    ToolTabOptions(QWidget* _parent, MainWindow* _mainWindow = 0);
+
+    ToolTabOptions(QWidget* _parent) : OptionsBase(_parent, "Tool Tabs") { }
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Provides a public interface to calling CreateActions. This is
+    /// needed because the ToolTabOptions are created before the tool tabs. Init
+    /// must be called after the tabs have been constructed.
     void Init() {CreateActions();}
-    void Reset() {}
 
   private:
+
+    //gui management
     void CreateActions();
+    void SetHelpTips() {}
     void SetUpToolbar() {}
-    void SetHelpTips();
+    void Reset() {}
 };
 
 #endif

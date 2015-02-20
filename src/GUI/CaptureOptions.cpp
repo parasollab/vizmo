@@ -1,36 +1,37 @@
 #include "CaptureOptions.h"
 
-#include "MainWindow.h"
-#include "GLWidget.h"
-#include "MovieSaveDialog.h"
 #include "AnimationWidget.h"
+#include "GLWidget.h"
+#include "MainWindow.h"
+#include "MovieSaveDialog.h"
+
 #include "Models/Vizmo.h"
+
 #include "Utilities/ImageFilters.h"
 
 #include "Icons/Crop.xpm"
 #include "Icons/Camera.xpm"
 #include "Icons/Camcorder.xpm"
 
+
 CaptureOptions::
-CaptureOptions(QWidget* _parent, MainWindow* _mainWindow)
-    : OptionsBase(_parent, _mainWindow) {
+CaptureOptions(QWidget* _parent) : OptionsBase(_parent, "Capture"),
+    m_cropBox(false) {
   CreateActions();
-  SetUpSubmenu("Capture");
+  SetUpSubmenu();
   SetUpToolbar();
   SetHelpTips();
-  m_cropBox = false;
 }
+
+/*------------------------------ GUI Management ------------------------------*/
 
 void
 CaptureOptions::
 CreateActions() {
   //1. Create actions and add them to map
-  m_actions["crop"] = new QAction(QPixmap(cropIcon),
-      tr("Crop"), this);
-  m_actions["picture"] = new QAction(QPixmap(cameraIcon),
-      tr("Picture"), this);
-  m_actions["movie"] = new QAction(QPixmap(camcorderIcon),
-      tr("Movie"), this);
+  m_actions["crop"] = new QAction(QPixmap(cropIcon), tr("Crop"), this);
+  m_actions["picture"] = new QAction(QPixmap(cameraIcon), tr("Picture"), this);
+  m_actions["movie"] = new QAction(QPixmap(camcorderIcon), tr("Movie"), this);
   m_actions["startLiveRecording"] = new QAction(QPixmap(camcorderIcon),
       tr("StartLiveRecording"), this);
   m_actions["stopLiveRecording"] = new QAction(QPixmap(camcorderIcon),
@@ -58,27 +59,17 @@ CreateActions() {
 
   //4. Make external connections
   connect(this, SIGNAL(ToggleSelectionSignal()),
-      m_mainWindow->GetGLWidget(), SLOT(ToggleSelectionSlot()));
+      GetMainWindow()->GetGLWidget(), SLOT(ToggleSelectionSlot()));
   connect(this, SIGNAL(SimulateMouseUp()),
-      m_mainWindow->GetGLWidget(), SLOT(SimulateMouseUpSlot()));
+      GetMainWindow()->GetGLWidget(), SLOT(SimulateMouseUpSlot()));
   connect(this, SIGNAL(CallUpdate()),
-      m_mainWindow, SLOT(UpdateScreen()));
+      GetMainWindow(), SLOT(UpdateScreen()));
   connect(this, SIGNAL(UpdateFrame(int)),
-      m_mainWindow->GetAnimationWidget(), SLOT(GoToFrame(int)));
-  connect(m_mainWindow->GetGLWidget(), SIGNAL(Record()),
+      GetMainWindow()->GetAnimationWidget(), SLOT(GoToFrame(int)));
+  connect(GetMainWindow()->GetGLWidget(), SIGNAL(Record()),
       this, SLOT(Record()));
 }
 
-void
-CaptureOptions::
-SetUpToolbar() {
-  m_toolbar = new QToolBar(m_mainWindow);
-  m_toolbar->addAction(m_actions["crop"]);
-  m_toolbar->addAction(m_actions["picture"]);
-  m_toolbar->addAction(m_actions["movie"]);
-  m_toolbar->addAction(m_actions["startLiveRecording"]);
-  m_toolbar->addAction(m_actions["stopLiveRecording"]);
-}
 
 void
 CaptureOptions::
@@ -106,6 +97,7 @@ SetHelpTips() {
         " recording the GL scene"));
 }
 
+
 void
 CaptureOptions::
 Reset() {
@@ -115,6 +107,8 @@ Reset() {
   m_actions["startLiveRecording"]->setEnabled(true);
   m_actions["stopLiveRecording"]->setEnabled(true);
 }
+
+/*--------------------------- Capture Functions ------------------------------*/
 
 void
 CaptureOptions::
@@ -128,12 +122,13 @@ CropRegion() {
   emit ToggleSelectionSignal();
 }
 
+
 void
 CaptureOptions::
 CapturePicture() {
   /// If the crop box is in use, only the area within its borders will be saved.
   //Set up the file dialog to select image filename
-  QFileDialog fd(m_mainWindow, "Choose a name", m_mainWindow->GetLastDir());
+  QFileDialog fd(GetMainWindow(), "Choose a name", GetMainWindow()->GetLastDir());
   fd.setFileMode(QFileDialog::AnyFile);
   fd.setFilters(imageFilters);
   fd.setAcceptMode(QFileDialog::AcceptSave);
@@ -143,19 +138,20 @@ CapturePicture() {
     QStringList files = fd.selectedFiles();
     if(!files.empty()) {
       QString filename = GrabFilename(files[0], fd.selectedFilter());
-      m_mainWindow->GetGLWidget()->SaveImage(filename, m_cropBox);
+      GetMainWindow()->GetGLWidget()->SaveImage(filename, m_cropBox);
       QFileInfo fi(filename);
-      m_mainWindow->SetLastDir(fi.absolutePath());
+      GetMainWindow()->SetLastDir(fi.absolutePath());
     }
   }
 }
+
 
 void
 CaptureOptions::
 CaptureMovie() {
   /// Requires either a Path or VizmoDebug file be loaded as input.
   //Pop up a MovieSaveDialog
-  MovieSaveDialog msd(m_mainWindow, Qt::Dialog);
+  MovieSaveDialog msd(GetMainWindow(), Qt::Dialog);
   if(msd.exec() == QDialog::Accepted){
     size_t digits = max(double(msd.m_frameDigits),
         log10(msd.m_endFrame/msd.m_stepSize) + 2);
@@ -190,10 +186,11 @@ CaptureMovie() {
       filename.replace(msd.m_frameDigitStart, msd.m_frameDigits, num.c_str());
 
       //save the image
-      m_mainWindow->GetGLWidget()->SaveImage(filename, m_cropBox);
+      GetMainWindow()->GetGLWidget()->SaveImage(filename, m_cropBox);
     }
   }
 }
+
 
 void
 CaptureOptions::
@@ -202,7 +199,7 @@ StartLiveRecording() {
   /// to \c this whenever it renders. That signal is connected to Record(), which
   /// saves the current scene each time it receives a signal.
   //Set up the file dialog to select image filename
-  QFileDialog fd(m_mainWindow, "Choose a name", m_mainWindow->GetLastDir());
+  QFileDialog fd(GetMainWindow(), "Choose a name", GetMainWindow()->GetLastDir());
   fd.setFileMode(QFileDialog::AnyFile);
   fd.setFilters(imageFilters);
   fd.setAcceptMode(QFileDialog::AcceptSave);
@@ -213,24 +210,25 @@ StartLiveRecording() {
     if(!files.isEmpty()) {
       m_filename = GrabFilename(files[0], fd.selectedFilter());
       QFileInfo fi(m_filename);
-      m_mainWindow->SetLastDir(fi.absolutePath());
+      GetMainWindow()->SetLastDir(fi.absolutePath());
 
       //find digit
       int f = m_filename.indexOf('#');
       int l = m_filename.lastIndexOf('#');
       m_frameDigits = l - f + 1;
       m_frameDigitStart = f;
-      if(m_frameDigitStart == size_t(-1)){
+      if(m_frameDigitStart == size_t(-1)) {
         m_frameDigits = 0;
         m_frameDigitStart = m_filename.lastIndexOf('.');
       }
     }
     m_frame = 0;
-    m_mainWindow->GetGLWidget()->SetRecording(true);
+    GetMainWindow()->GetGLWidget()->SetRecording(true);
   }
   else
     GetMainWindow()->AlertUser("Recording aborted.");
 }
+
 
 void
 CaptureOptions::
@@ -252,13 +250,14 @@ Record() {
   filename.replace(m_frameDigitStart, m_frameDigits, num.c_str());
 
   //save the image
-  m_mainWindow->GetGLWidget()->SaveImage(filename, m_cropBox);
+  GetMainWindow()->GetGLWidget()->SaveImage(filename, m_cropBox);
 }
+
 
 void
 CaptureOptions::
 StopLiveRecording() {
   /// Instructs the GLWidget to cease sending record signals to \c this, which
   /// stops live recording.
-  m_mainWindow->GetGLWidget()->SetRecording(false);
+  GetMainWindow()->GetGLWidget()->SetRecording(false);
 }

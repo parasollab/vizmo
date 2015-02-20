@@ -8,9 +8,12 @@
 #include "CameraPosDialog.h"
 #include "GLWidget.h"
 #include "MainWindow.h"
+
 #include "Models/EnvModel.h"
+#include "Models/MapModel.h"
 #include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
+
 #include "Utilities/Camera.h"
 
 #include "Icons/Axis.xpm"
@@ -26,16 +29,16 @@
 #include "Icons/ShowNormals.xpm"
 
 
-
 GLWidgetOptions::
-GLWidgetOptions(QWidget* _parent, MainWindow* _mainWindow)
-  : OptionsBase(_parent, _mainWindow), m_cameraPosDialog(NULL) {
-    CreateActions();
-    SetUpCustomSubmenu();
-    //SetUpToolbar(); currently using tool tabs
-    SetUpToolTab();
-    SetHelpTips();
-  }
+GLWidgetOptions(QWidget* _parent) : OptionsBase(_parent, "Display"),
+    m_cameraPosDialog(NULL) {
+  CreateActions();
+  SetHelpTips();
+  SetUpSubmenu();
+  SetUpToolTab();
+}
+
+/*----------------------------- GUI Management -------------------------------*/
 
 void
 GLWidgetOptions::
@@ -55,107 +58,118 @@ CreateActions() {
       tr("load camera position"), this);
   m_actions["changeBGColor"] = new QAction(QPixmap(bgColor),
       tr("Change background color"), this);
-
-  QAction* makeSolid = new QAction(QPixmap(makeSolidIcon), tr("Make Solid"), this);
-  m_actions["makeSolid"] = makeSolid;
-  QAction* makeWired = new QAction(QPixmap(makeWiredIcon), tr("Make Wired"), this);
-  m_actions["makeWired"] = makeWired;
-  QAction* makeInvisible = new QAction(QPixmap(makeInvisibleIcon), tr("Make Invisible"), this);
-  m_actions["makeInvisible"] = makeInvisible;
-
-  m_actions["changeObjectColor"] = new QAction(QPixmap(pallet), tr("Change Color"), this);
-
-  m_actions["showObjectNormals"] = new QAction(QPixmap(showNormals), tr("Show Normals"), this);
+  m_actions["makeSolid"] = new QAction(QPixmap(makeSolidIcon),
+      tr("Make Solid"), this);
+  m_actions["makeWired"] = new QAction(QPixmap(makeWiredIcon),
+      tr("Make Wired"), this);
+  m_actions["makeInvisible"] = new QAction(QPixmap(makeInvisibleIcon),
+      tr("Make Invisible"), this);
+  m_actions["changeObjectColor"] = new QAction(QPixmap(pallet),
+      tr("Change Color"), this);
+  m_actions["showObjectNormals"] = new QAction(QPixmap(showNormals),
+      tr("Show Normals"), this);
 
   //2. Set other specifications as necessary
   m_actions["showAxis"]->setCheckable(true);
   m_actions["showAxis"]->setChecked(true);
   m_actions["showFrameRate"]->setCheckable(true);
   m_actions["resetCamera"]->setEnabled(false);
-  m_actions["resetCamera"]->setStatusTip(tr("Reset the camera position"));
   m_actions["changeBGColor"]->setEnabled(false);
-  m_actions["changeBGColor"]->setStatusTip(tr("Change the color of the background"));
   m_actions["saveCameraPosition"]->setEnabled(false);
   m_actions["loadCameraPosition"]->setEnabled(false);
-
   m_actions["makeSolid"]->setShortcut(tr("CTRL+F"));
   m_actions["makeSolid"]->setEnabled(false);
-  m_actions["makeSolid"]->setStatusTip(tr("Change to solid displacy mode"));
-
   m_actions["makeWired"]->setShortcut(tr("CTRL+W"));
   m_actions["makeWired"]->setEnabled(false);
-  m_actions["makeWired"]->setStatusTip(tr("Change to wired displacy mode"));
-
   m_actions["makeInvisible"]->setShortcut(tr("CTRL+N"));
   m_actions["makeInvisible"]->setEnabled(false);
-  m_actions["makeInvisible"]->setStatusTip(tr("Change to invisible"));
-
   m_actions["changeObjectColor"]->setEnabled(false);
-  m_actions["changeObjectColor"]->setStatusTip(tr("Change object color"));
   m_actions["showObjectNormals"]->setEnabled(false);
-  m_actions["showObjectNormals"]->setStatusTip(tr("Show model normals"));
-
 
   //3. Make connections
-  connect(m_actions["showAxis"], SIGNAL(triggered()),
-      m_mainWindow->GetGLWidget(), SLOT(ShowAxis()));
-  connect(m_actions["showFrameRate"], SIGNAL(triggered()),
-      m_mainWindow->GetGLWidget(), SLOT(ShowFrameRate()));
-
-
   connect(m_actions["resetCamera"], SIGNAL(triggered()),
       this, SLOT(ResetCamera()));
   connect(m_actions["setCameraPosition"], SIGNAL(triggered()),
       this, SLOT(SetCameraPosition()));
   connect(m_actions["saveCameraPosition"], SIGNAL(triggered()),
       this, SLOT(SaveCameraPosition()));
-
   connect(m_actions["loadCameraPosition"], SIGNAL(triggered()),
       this, SLOT(LoadCameraPosition()));
   connect(m_actions["changeBGColor"], SIGNAL(triggered()),
       this, SLOT(ChangeBGColor()));
-
-  connect(m_mainWindow->GetGLWidget(), SIGNAL(clickByRMB()), this, SLOT(ShowGeneralContextMenu()));
   connect(m_actions["makeSolid"], SIGNAL(triggered()), this, SLOT(MakeSolid()));
   connect(m_actions["makeWired"], SIGNAL(triggered()), this, SLOT(MakeWired()));
-  connect(m_actions["makeInvisible"], SIGNAL(triggered()), this, SLOT(MakeInvisible()));
-  connect(m_actions["changeObjectColor"], SIGNAL(triggered()), this, SLOT(ChangeObjectColor()));
-  connect(m_actions["showObjectNormals"], SIGNAL(triggered()), this, SLOT(ShowObjectNormals()));
+  connect(m_actions["makeInvisible"], SIGNAL(triggered()),
+      this, SLOT(MakeInvisible()));
+  connect(m_actions["changeObjectColor"], SIGNAL(triggered()),
+      this, SLOT(ChangeObjectColor()));
+  connect(m_actions["showObjectNormals"], SIGNAL(triggered()),
+      this, SLOT(ShowObjectNormals()));
+  connect(m_actions["showAxis"], SIGNAL(triggered()),
+      GetMainWindow()->GetGLWidget(), SLOT(ShowAxis()));
+  connect(m_actions["showFrameRate"], SIGNAL(triggered()),
+      GetMainWindow()->GetGLWidget(), SLOT(ShowFrameRate()));
+  connect(GetMainWindow()->GetGLWidget(), SIGNAL(clickByRMB()),
+      this, SLOT(ShowGeneralContextMenu()));
 }
+
 
 void
 GLWidgetOptions::
-SetUpCustomSubmenu() {
-  m_submenu = new QMenu("Display", this);
+SetHelpTips() {
+  m_actions["changeBGColor"]->setStatusTip(tr("Change the background color"));
+  m_actions["changeBGColor"]->setWhatsThis(tr("Click this button to"
+        " change the <b>background</b> color in the scene."));
 
+  m_actions["changeObjectColor"]->setStatusTip(tr("Change object color"));
+  m_actions["changeObjectColor"]->setWhatsThis(tr("Click this button to change"
+        " the color of a selected item."));
+
+  m_actions["showObjectNormals"]->setStatusTip(tr("Show model normals"));
+  m_actions["showObjectNormals"]->setWhatsThis(tr("Click this button to show"
+        " the normals within a model of a selected item."));
+
+  m_actions["resetCamera"]->setStatusTip(tr("Reset the camera position"));
+  m_actions["resetCamera"]->setWhatsThis(tr("Click this button to"
+        " restore the default camera position. You can also manually specify"
+        " a camera position with the <b>Set Camera Position</b> menu option."));
+
+  m_actions["makeSolid"]->setStatusTip(tr("Change to solid displacy mode"));
+  m_actions["makeSolid"]->setWhatsThis(tr("Click this button to display a"
+        " selected item in <b>Solid</b> mode."));
+
+  m_actions["makeWired"]->setStatusTip(tr("Change to wired displacy mode"));
+  m_actions["makeWired"]->setWhatsThis(tr("Click this button to display a"
+        " selected item in <b>Wire</n> mode."));
+
+  m_actions["makeInvisible"]->setStatusTip(tr("Change to invisible"));
+  m_actions["makeInvisible"]->setWhatsThis(tr("Click this button to make a"
+        " selected item invisible."));
+
+  m_actions["saveCameraPosition"]->setWhatsThis(tr("Click this button Save the "
+        " camera position."));
+
+  m_actions["loadCameraPosition"]->setWhatsThis(tr("Click this button load the "
+        " camera position."));
+}
+
+
+void
+GLWidgetOptions::
+SetUpSubmenu() {
   m_modifySelected = new QMenu("Modify Selected Item", this);
   m_modifySelected->addAction(m_actions["makeSolid"]);
   m_modifySelected->addAction(m_actions["makeWired"]);
   m_modifySelected->addAction(m_actions["makeInvisible"]);
+  m_modifySelected->setEnabled(false);
+  m_submenu = new QMenu(m_label, this);
   m_submenu->addMenu(m_modifySelected);
-
   m_submenu->addAction(m_actions["changeObjectColor"]);
   m_submenu->addAction(m_actions["showObjectNormals"]);
-
   m_submenu->addAction(m_actions["resetCamera"]);
   m_submenu->addAction(m_actions["changeBGColor"]);
-
-  m_modifySelected->setEnabled(false);
 }
 
-void
-GLWidgetOptions::
-SetUpToolbar() {
-  m_toolbar = new QToolBar(m_mainWindow);
-
-  m_toolbar->addAction(m_actions["makeSolid"]);
-  m_toolbar->addAction(m_actions["makeWired"]);
-  m_toolbar->addAction(m_actions["makeInvisible"]);
-  m_toolbar->addAction(m_actions["changeObjectColor"]);
-  m_toolbar->addAction(m_actions["showObjectNormals"]);
-  m_toolbar->addAction(m_actions["resetCamera"]);
-  m_toolbar->addAction(m_actions["changeBGColor"]);
-}
 
 void
 GLWidgetOptions::
@@ -176,6 +190,7 @@ SetUpToolTab() {
   CreateToolTab(buttonList);
 }
 
+
 void
 GLWidgetOptions::
 Reset() {
@@ -192,83 +207,62 @@ Reset() {
 
 }
 
-void
-GLWidgetOptions::
-SetHelpTips() {
-  m_actions["changeBGColor"]->setWhatsThis(tr("Click this button to"
-        " change the <b>background</b> color in the scene."));
-  m_actions["changeObjectColor"]->setWhatsThis(tr("Click this button to change"
-        " the color of a selected item."));
-  m_actions["showObjectNormals"]->setWhatsThis(tr("Click this button to show"
-        " the normals within a model of a selected item."));
-  m_actions["resetCamera"]->setWhatsThis(tr("Click this button to"
-        " restore the default camera position. You can also manually specify"
-        " a camera position with the <b>Set Camera Position</b> menu option."));
-
-  m_actions["makeSolid"]->setWhatsThis(tr("Click this button to display a"
-        " selected item in <b>Solid</b> mode."));
-  m_actions["makeWired"]->setWhatsThis(tr("Click this button to display a"
-        " selected item in <b>Wire</n> mode."));
-  m_actions["makeInvisible"]->setWhatsThis(tr("Click this button to make a"
-        " selected item invisible."));
-  m_actions["saveCameraPosition"]->setWhatsThis(tr("Click this button Save the "
-        " camera position."));
-  m_actions["loadCameraPosition"]->setWhatsThis(tr("Click this button load the "
-        " camera position."));
-
-
-}
-
-//Slots
+/*----------------------------- GL Functions ---------------------------------*/
 
 void
 GLWidgetOptions::
 ResetCamera() {
-  m_mainWindow->GetGLWidget()->ResetCamera();
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetGLWidget()->ResetCamera();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 GLWidgetOptions::
 SetCameraPosition() {
   if(m_cameraPosDialog == NULL && GetVizmo().GetEnv() != NULL) {
-    m_cameraPosDialog = new CameraPosDialog(m_mainWindow,
-        m_mainWindow->GetGLWidget()->GetCurrentCamera());
-    m_mainWindow->ShowDialog(m_cameraPosDialog);
+    m_cameraPosDialog = new CameraPosDialog(GetMainWindow(),
+        GetMainWindow()->GetGLWidget()->GetCurrentCamera());
+    GetMainWindow()->ShowDialog(m_cameraPosDialog);
   }
 }
+
 
 void
 GLWidgetOptions::
 SaveCameraPosition() {
   if(m_cameraPosDialog == NULL && GetVizmo().GetEnv() != NULL) {
-    m_cameraPosDialog = new CameraPosDialog(m_mainWindow,
-        m_mainWindow->GetGLWidget()->GetCurrentCamera());
+    m_cameraPosDialog = new CameraPosDialog(GetMainWindow(),
+        GetMainWindow()->GetGLWidget()->GetCurrentCamera());
     m_cameraPosDialog->SaveCameraPosition();
   }
 }
+
 
 void
 GLWidgetOptions::
 LoadCameraPosition() {
   if(m_cameraPosDialog == NULL && GetVizmo().GetEnv() != NULL) {
-    m_cameraPosDialog = new CameraPosDialog(m_mainWindow,
-        m_mainWindow->GetGLWidget()->GetCurrentCamera());
+    m_cameraPosDialog = new CameraPosDialog(GetMainWindow(),
+        GetMainWindow()->GetGLWidget()->GetCurrentCamera());
     m_cameraPosDialog->LoadCameraPosition();
   }
 }
+
+
 void
 GLWidgetOptions::
 ChangeBGColor() {
   QColor color = QColorDialog::getColor(Qt::white, this);
   if (color.isValid()){
-    m_mainWindow->GetGLWidget()->SetClearColor(
+    GetMainWindow()->GetGLWidget()->SetClearColor(
         (double)(color.red()) / 255.0,
         (double)(color.green()) / 255.0,
         (double)(color.blue()) / 255.0);
-    m_mainWindow->GetGLWidget()->updateGL();
+    GetMainWindow()->GetGLWidget()->updateGL();
   }
 }
+
 
 void
 GLWidgetOptions::
@@ -282,8 +276,9 @@ ShowGeneralContextMenu() {
   cm.addAction(m_actions["showFrameRate"]);
 
   if(cm.exec(QCursor::pos()) != 0)
-    m_mainWindow->GetGLWidget()->updateGL();
+    GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 GLWidgetOptions::
@@ -291,8 +286,9 @@ MakeSolid() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(SOLID_MODE);
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 GLWidgetOptions::
@@ -300,8 +296,9 @@ MakeWired() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(WIRE_MODE);
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 GLWidgetOptions::
@@ -309,13 +306,13 @@ MakeInvisible() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(MIT i = sel.begin(); i!= sel.end(); i++)
     (*i)->SetRenderMode(INVISIBLE_MODE);
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 GLWidgetOptions::
 ChangeObjectColor() {
-
   QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
   double r, g, b;
   if(color.isValid()) {
@@ -337,6 +334,7 @@ ChangeObjectColor() {
       model->SetColor(Color4(r, g, b, 1));
   }
 }
+
 
 void
 GLWidgetOptions::

@@ -7,8 +7,6 @@
 #include "ModelSelectionWidget.h"
 #include "RegionSamplerDialog.h"
 
-#include "Utilities/IO.h"
-
 #include "Models/EnvModel.h"
 #include "Models/RegionBoxModel.h"
 #include "Models/RegionBox2DModel.h"
@@ -21,6 +19,8 @@
 #include "Models/Vizmo.h"
 
 #include "PHANToM/Manager.h"
+
+#include "Utilities/IO.h"
 
 #include "Icons/AddSphereRegion.xpm"
 #include "Icons/AddBoxRegion.xpm"
@@ -36,20 +36,22 @@
 #include "Icons/UserPath.xpm"
 #include "Icons/RecordPath.xpm"
 
+
 PlanningOptions::
-PlanningOptions(QWidget* _parent, MainWindow* _mainWindow) :
-    OptionsBase(_parent, _mainWindow), m_regionsStarted(false),
-    m_thread(NULL) {
+PlanningOptions(QWidget* _parent) : OptionsBase(_parent, "Planning"),
+    m_regionsStarted(false), m_thread(NULL) {
   CreateActions();
-  SetUpCustomSubmenu();
-  SetUpToolTab();
   SetHelpTips();
+  SetUpSubmenu();
+  SetUpToolTab();
 }
+
 
 PlanningOptions::
 ~PlanningOptions() {
   HaltMPThread();
 }
+
 
 void
 PlanningOptions::
@@ -66,6 +68,8 @@ HaltMPThread() {
     m_thread = NULL;
   }
 }
+
+/*----------------------------- GUI Management -------------------------------*/
 
 void
 PlanningOptions::
@@ -148,105 +152,6 @@ CreateActions() {
       this, SLOT(PrintUserPath()));
 }
 
-void
-PlanningOptions::
-SetUpCustomSubmenu() {
-  m_submenu = new QMenu("Planning", this);
-
-  m_addRegionMenu = new QMenu("Add Region", this);
-  m_addRegionMenu->addAction(m_actions["addRegionSphere"]);
-  m_addRegionMenu->addAction(m_actions["addRegionBox"]);
-  m_submenu->addMenu(m_addRegionMenu);
-
-  m_regionPropertiesMenu = new QMenu("Region Properties", this);
-  m_regionPropertiesMenu->addAction(m_actions["makeRegionAttract"]);
-  m_regionPropertiesMenu->addAction(m_actions["makeRegionAvoid"]);
-  m_regionPropertiesMenu->addAction(m_actions["duplicateRegion"]);
-  m_submenu->addMenu(m_regionPropertiesMenu);
-
-  m_submenu->addAction(m_actions["saveRegion"]);
-  m_submenu->addAction(m_actions["loadRegion"]);
-  m_submenu->addAction(m_actions["deleteRegion"]);
-  m_submenu->addAction(m_actions["mapEnvironment"]);
-
-  m_pathsMenu = new QMenu("User Paths", this);
-  m_pathsMenu->addAction(m_actions["addUserPathMouse"]);
-  m_pathsMenu->addAction(m_actions["addUserPathCamera"]);
-  m_pathsMenu->addAction(m_actions["addUserPathHaptic"]);
-  m_pathsMenu->addAction(m_actions["deleteUserPath"]);
-  m_pathsMenu->addAction(m_actions["printUserPath"]);
-  m_submenu->addMenu(m_pathsMenu);
-
-  m_pathsMenu->setEnabled(false);
-  m_addRegionMenu->setEnabled(false);
-  m_regionPropertiesMenu->setEnabled(false);
-}
-
-void
-PlanningOptions::
-SetUpToolbar() {
-  m_toolbar = new QToolBar(m_mainWindow);
-  m_toolbar->addAction(m_actions["addUserPathMouse"]);
-  m_toolbar->addAction(m_actions["addUserPathCamera"]);
-  m_toolbar->addAction(m_actions["addUserPathHaptic"]);
-  m_toolbar->addAction(m_actions["deleteUserPath"]);
-  m_toolbar->addAction(m_actions["printUserPath"]);
-
-}
-
-void
-PlanningOptions::
-SetUpToolTab() {
-  vector<string> buttonList;
-
-  buttonList.push_back("addUserPathMouse");
-  buttonList.push_back("addUserPathCamera");
-  buttonList.push_back("addUserPathHaptic");
-  buttonList.push_back("deleteUserPath");
-  buttonList.push_back("printUserPath");
-
-  buttonList.push_back("_separator_");
-
-  buttonList.push_back("addRegionBox");
-  buttonList.push_back("addRegionSphere");
-  buttonList.push_back("duplicateRegion");
-
-  buttonList.push_back("makeRegionAttract");
-  buttonList.push_back("makeRegionAvoid");
-  buttonList.push_back("deleteRegion");
-
-  buttonList.push_back("saveRegion");
-  buttonList.push_back("loadRegion");
-
-  buttonList.push_back("_separator_");
-
-  buttonList.push_back("mapEnvironment");
-
-  CreateToolTab(buttonList);
-}
-
-void
-PlanningOptions::
-Reset() {
-  m_actions["addRegionSphere"]->setEnabled(true);
-  m_actions["addRegionBox"]->setEnabled(true);
-  m_actions["deleteRegion"]->setEnabled(true);
-  m_actions["makeRegionAttract"]->setEnabled(true);
-  m_actions["makeRegionAvoid"]->setEnabled(true);
-  m_actions["duplicateRegion"]->setEnabled(true);
-  m_actions["mapEnvironment"]->setEnabled(true);
-  m_actions["addUserPathMouse"]->setEnabled(true);
-  m_actions["addUserPathCamera"]->setEnabled(true);
-  if(Haptics::UsingPhantom())
-    m_actions["addUserPathHaptic"]->setEnabled(true);
-  m_actions["deleteUserPath"]->setEnabled(true);
-  m_actions["printUserPath"]->setEnabled(true);
-  m_actions["saveRegion"]->setEnabled(true);
-  m_actions["loadRegion"]->setEnabled(true);
-  m_pathsMenu->setEnabled(true);
-  m_addRegionMenu->setEnabled(true);
-  m_regionPropertiesMenu->setEnabled(true);
-}
 
 void
 PlanningOptions::
@@ -281,6 +186,99 @@ SetHelpTips() {
       tr("Loads saved regions to the scene"));
 }
 
+
+void
+PlanningOptions::
+SetUpSubmenu() {
+  m_submenu = new QMenu(m_label, this);
+
+  m_addRegionMenu = new QMenu("Add Region", this);
+  m_addRegionMenu->addAction(m_actions["addRegionSphere"]);
+  m_addRegionMenu->addAction(m_actions["addRegionBox"]);
+  m_submenu->addMenu(m_addRegionMenu);
+
+  m_regionPropertiesMenu = new QMenu("Region Properties", this);
+  m_regionPropertiesMenu->addAction(m_actions["makeRegionAttract"]);
+  m_regionPropertiesMenu->addAction(m_actions["makeRegionAvoid"]);
+  m_regionPropertiesMenu->addAction(m_actions["duplicateRegion"]);
+  m_submenu->addMenu(m_regionPropertiesMenu);
+
+  m_submenu->addAction(m_actions["saveRegion"]);
+  m_submenu->addAction(m_actions["loadRegion"]);
+  m_submenu->addAction(m_actions["deleteRegion"]);
+  m_submenu->addAction(m_actions["mapEnvironment"]);
+
+  m_pathsMenu = new QMenu("User Paths", this);
+  m_pathsMenu->addAction(m_actions["addUserPathMouse"]);
+  m_pathsMenu->addAction(m_actions["addUserPathCamera"]);
+  m_pathsMenu->addAction(m_actions["addUserPathHaptic"]);
+  m_pathsMenu->addAction(m_actions["deleteUserPath"]);
+  m_pathsMenu->addAction(m_actions["printUserPath"]);
+  m_submenu->addMenu(m_pathsMenu);
+
+  m_pathsMenu->setEnabled(false);
+  m_addRegionMenu->setEnabled(false);
+  m_regionPropertiesMenu->setEnabled(false);
+}
+
+
+void
+PlanningOptions::
+SetUpToolTab() {
+  vector<string> buttonList;
+
+  buttonList.push_back("addUserPathMouse");
+  buttonList.push_back("addUserPathCamera");
+  buttonList.push_back("addUserPathHaptic");
+  buttonList.push_back("deleteUserPath");
+  buttonList.push_back("printUserPath");
+
+  buttonList.push_back("_separator_");
+
+  buttonList.push_back("addRegionBox");
+  buttonList.push_back("addRegionSphere");
+  buttonList.push_back("duplicateRegion");
+
+  buttonList.push_back("makeRegionAttract");
+  buttonList.push_back("makeRegionAvoid");
+  buttonList.push_back("deleteRegion");
+
+  buttonList.push_back("saveRegion");
+  buttonList.push_back("loadRegion");
+
+  buttonList.push_back("_separator_");
+
+  buttonList.push_back("mapEnvironment");
+
+  CreateToolTab(buttonList);
+}
+
+
+void
+PlanningOptions::
+Reset() {
+  m_actions["addRegionSphere"]->setEnabled(true);
+  m_actions["addRegionBox"]->setEnabled(true);
+  m_actions["deleteRegion"]->setEnabled(true);
+  m_actions["makeRegionAttract"]->setEnabled(true);
+  m_actions["makeRegionAvoid"]->setEnabled(true);
+  m_actions["duplicateRegion"]->setEnabled(true);
+  m_actions["mapEnvironment"]->setEnabled(true);
+  m_actions["addUserPathMouse"]->setEnabled(true);
+  m_actions["addUserPathCamera"]->setEnabled(true);
+  if(Haptics::UsingPhantom())
+    m_actions["addUserPathHaptic"]->setEnabled(true);
+  m_actions["deleteUserPath"]->setEnabled(true);
+  m_actions["printUserPath"]->setEnabled(true);
+  m_actions["saveRegion"]->setEnabled(true);
+  m_actions["loadRegion"]->setEnabled(true);
+  m_pathsMenu->setEnabled(true);
+  m_addRegionMenu->setEnabled(true);
+  m_regionPropertiesMenu->setEnabled(true);
+}
+
+/*-------------------------- Region Functions --------------------------------*/
+
 void
 PlanningOptions::
 AddRegionBox() {
@@ -306,12 +304,13 @@ AddRegionBox() {
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   // Set mouse events to current region for GLWidget
-  m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  GetMainWindow()->GetGLWidget()->SetCurrentRegion(r);
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetVizmo().GetSelectedModels().clear();
   GetVizmo().GetSelectedModels().push_back(r.get());
-  m_mainWindow->GetModelSelectionWidget()->Select();
+  GetMainWindow()->GetModelSelectionWidget()->Select();
 }
+
 
 void
 PlanningOptions::
@@ -337,96 +336,13 @@ AddRegionSphere() {
   GetVizmo().GetEnv()->AddNonCommitRegion(r);
 
   // Set mouse events to current region for GLWidget
-  m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
+  GetMainWindow()->GetGLWidget()->SetCurrentRegion(r);
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetVizmo().GetSelectedModels().clear();
   GetVizmo().GetSelectedModels().push_back(r.get());
-  m_mainWindow->GetModelSelectionWidget()->Select();
+  GetMainWindow()->GetModelSelectionWidget()->Select();
 }
 
-bool
-PlanningOptions::
-SingleRegionSelected() {
-  if(m_mainWindow->GetGLWidget()->GetCurrentRegion() == NULL) {
-    GetMainWindow()->AlertUser("Error: non-region selected!");
-    return false;
-  }
-  if(GetVizmo().GetSelectedModels().size() != 1) {
-    GetMainWindow()->AlertUser("Error: multiple objects selected!");
-    return false;
-  }
-  return true;
-}
-
-void
-PlanningOptions::
-DeleteRegion() {
-  /// Requires that a single region is selected.
-  if(SingleRegionSelected()) {
-    RegionModelPtr r = m_mainWindow->GetGLWidget()->GetCurrentRegion();
-    if(r) {
-      r->SetRenderMode(INVISIBLE_MODE);
-      GetVizmo().GetEnv()->DeleteRegion(r);
-      GetVizmo().GetSelectedModels().clear();
-      m_mainWindow->GetModelSelectionWidget()->ResetLists();
-      m_mainWindow->GetGLWidget()->SetCurrentRegion();
-    }
-  }
-}
-
-void
-PlanningOptions::
-ChooseSamplerStrategy() {
-  /// Requires that a single region is selected.
-  if(SingleRegionSelected()) {
-    const vector<string>& samplers = GetVizmo().GetLoadedSamplers();
-
-    if(samplers.size() == 1)
-      GetMainWindow()->GetGLWidget()->GetCurrentRegion()->
-        SetSampler(samplers.front());
-    else {
-      RegionSamplerDialog rsDialog(samplers, m_mainWindow);
-
-      if(rsDialog.exec() != QDialog::Accepted)
-        cout << "Sampler selection dialog aborted." << endl << flush;
-    }
-  }
-}
-
-void
-PlanningOptions::
-MakeRegionAttract() {
-  /// Requires that a single non-commit region is selected.
-  if(SingleRegionSelected()) {
-    ChangeRegionType(true);
-    ChooseSamplerStrategy();
-  }
-}
-
-void
-PlanningOptions::
-MakeRegionAvoid() {
-  /// Requires that a single non-commit region is selected.
-  if(SingleRegionSelected())
-    ChangeRegionType(false);
-}
-
-void
-PlanningOptions::
-ChangeRegionType(bool _attract) {
-  /// Requires that a single region is selected. Can only change the type of
-  /// \a non-commit regions to either \a attract or \a avoid.
-  if(SingleRegionSelected()) {
-    vector<Model*>& sel = GetVizmo().GetSelectedModels();
-    EnvModel* env = GetVizmo().GetEnv();
-    RegionModelPtr r = env->GetRegion(sel[0]);
-    if(env->IsNonCommitRegion(r)) {
-      VDRemoveRegion(r.get());
-      r->SetType(_attract ? RegionModel::ATTRACT : RegionModel::AVOID);
-      env->ChangeRegionType(r, _attract);
-    }
-  }
-}
 
 void
 PlanningOptions::
@@ -459,17 +375,17 @@ DuplicateRegion() {
           regionFound = true;
           dist = r->GetLongLength();
           r->SetType(RegionModel::NONCOMMIT);
-          Camera* c = m_mainWindow->GetGLWidget()->GetCurrentCamera();
+          Camera* c = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
           Vector3d delta = -(c->GetWindowX() + c->GetWindowY() + c->GetWindowZ());
           delta.selfNormalize();
           delta *= dist/3;
           r->ApplyOffset(delta);
           GetVizmo().GetEnv()->AddNonCommitRegion(r);
-          m_mainWindow->GetGLWidget()->SetCurrentRegion(r);
-          m_mainWindow->GetModelSelectionWidget()->ResetLists();
+          GetMainWindow()->GetGLWidget()->SetCurrentRegion(r);
+          GetMainWindow()->GetModelSelectionWidget()->ResetLists();
           sel.clear();
           sel.push_back(r.get());
-          m_mainWindow->GetModelSelectionWidget()->Select();
+          GetMainWindow()->GetModelSelectionWidget()->Select();
           break;
         }
       }
@@ -479,171 +395,68 @@ DuplicateRegion() {
   }
 }
 
-void
-PlanningOptions::
-ThreadDone() {
-  /// Should be connected to the finish signal of \ref m_thread before executing
-  /// a mapping strategy.
-  m_thread = NULL;
-  m_regionsStarted = false;
-
-  // Refresh scene + GUI
-  m_mainWindow->GetGLWidget()->updateGL();
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->m_mainMenu->CallReset();
-}
 
 void
 PlanningOptions::
-MapEnvironment() {
-  /// The execution of the strategy will be moved to another thread, and only
-  /// one such mapping thread can be running at any time.
-  if(!m_thread) {
-
-    //Stop pre-planning region timer.
-    if(!m_regionsStarted)
-      //start-stop when no regions were created
-      GetVizmo().StartClock("Pre-regions");
-    GetVizmo().StopClock("Pre-regions");
-
-    GetVizmo().StartClock("StrategySelection");
-    ChangePlannerDialog cpDialog(m_mainWindow);
-
-    if(!cpDialog.exec()) {
-      GetVizmo().StopClock("StrategySelection");
-      GetVizmo().AdjustClock("Pre-regions", "StrategySelection", "-");
-      return;
+DeleteRegion() {
+  /// Requires that a single region is selected.
+  if(SingleRegionSelected()) {
+    RegionModelPtr r = GetMainWindow()->GetGLWidget()->GetCurrentRegion();
+    if(r) {
+      r->SetRenderMode(INVISIBLE_MODE);
+      GetVizmo().GetEnv()->DeleteRegion(r);
+      GetVizmo().GetSelectedModels().clear();
+      GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+      GetMainWindow()->GetGLWidget()->SetCurrentRegion();
     }
-
-    string slabel = cpDialog.GetPlanner();
-
-    //Verify that map model exist
-    GetVizmo().SetPMPLMap();
-    m_mainWindow->m_mainMenu->CallReset();
-
-    //Set up thread for execution
-    m_thread = new QThread;
-    MapEnvironmentWorker* mpsw = new MapEnvironmentWorker(slabel);
-    mpsw->moveToThread(m_thread);
-    connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
-    connect(m_thread, SIGNAL(finished()), mpsw, SLOT(deleteLater()));
-    connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
-    connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
-    connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
-    m_thread->start();
   }
 }
 
-void
-PlanningOptions::
-AddUserPath() {
-  /// This slot must be connected to a QAction in order to determine the
-  /// appropriate path capture method: the sender's text() is used for this
-  /// purpose. Unrecognized text() defaults to mouse input.
-  QAction* callee = static_cast<QAction*>(sender());
-  UserPathModel* p;
-
-  if(callee->text().toStdString() == "Add User Path with Haptics") {
-    p = new UserPathModel(UserPathModel::Haptic);
-    connect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
-        this, SLOT(HapticPathCapture()));
-  }
-  if(callee->text().toStdString() == "Add User Path with Camera") {
-    p = new UserPathModel(UserPathModel::CameraPath);
-    connect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
-        this, SLOT(CameraPathCapture()));
-  }
-  else
-    p = new UserPathModel(UserPathModel::Mouse);
-  GetVizmo().GetEnv()->AddUserPath(p);
-
-  // set mouse events to current path for GLWidget
-  m_mainWindow->GetGLWidget()->SetCurrentUserPath(p);
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  GetVizmo().GetSelectedModels().clear();
-  GetVizmo().GetSelectedModels().push_back(p);
-  m_mainWindow->GetModelSelectionWidget()->Select();
-}
 
 void
 PlanningOptions::
-DeleteUserPath() {
-  UserPathModel* p = m_mainWindow->GetGLWidget()->GetCurrentUserPath();
-  if(p) {
-    GetVizmo().GetEnv()->DeleteUserPath(p);
-    GetVizmo().GetSelectedModels().clear();
-    m_mainWindow->GetModelSelectionWidget()->ResetLists();
-    m_mainWindow->GetGLWidget()->SetCurrentUserPath(NULL);
+MakeRegionAttract() {
+  /// Requires that a single non-commit region is selected.
+  if(SingleRegionSelected()) {
+    ChangeRegionType(true);
+    ChooseSamplerStrategy();
   }
 }
 
-void
-PlanningOptions::
-PrintUserPath() {
-  /// The output file will be named <tt>(base name).(x).userpath</tt>, where
-  /// <tt>(base name)</tt> is the Environment base name and \c (x) is a count of
-  /// the number of printed paths.
-  static short userPathCount = 0;
-  UserPathModel* p = m_mainWindow->GetGLWidget()->GetCurrentUserPath();
-  if(p) {
-    ++userPathCount;
-    string base = GetVizmo().GetEnvFileName();
-    ostringstream fileName;
-    fileName << base.substr(0, base.size() - 4) << "."
-      << userPathCount << ".userpath";
-    ofstream pos(fileName.str().c_str());
-    pos << "Workspace Path" << endl << "1" << endl;
-    p->PrintPath(pos);
-    pos.close();
-  }
-}
 
 void
 PlanningOptions::
-HapticPathCapture() {
-  /// The position is acquired on each tick of main clock at
-  /// MainWindow::GetMainClock(). The UserPathModel handles ending input by
-  /// returning false from IsFinished(). Once input collection is ended, this
-  /// slot disconnects itself from the main clock on the next call.
-  UserPathModel* p = m_mainWindow->GetGLWidget()->GetCurrentUserPath();
-  if(p) {
-    if(!p->IsFinished())
-      p->SendToPath(GetVizmo().GetManager()->GetWorldPos());
-    else
-      disconnect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
-          this, SLOT(HapticPathCapture()));
-  }
+MakeRegionAvoid() {
+  /// Requires that a single non-commit region is selected.
+  if(SingleRegionSelected())
+    ChangeRegionType(false);
 }
+
 
 void
 PlanningOptions::
-CameraPathCapture() {
-  /// The camera position is acquired on each tick of main clock at
-  /// MainWindow::GetMainClock(). The UserPathModel handles ending input by
-  /// returning false from IsFinished(). Once input collection is ended, this
-  /// slot disconnects itself from the main clock on the next call.
-  UserPathModel* p = m_mainWindow->GetGLWidget()->GetCurrentUserPath();
-  Camera* camera = m_mainWindow->GetGLWidget()->GetCurrentCamera();
-  if(p) {
-    if(!p->IsFinished()) {
-      p->SendToPath(camera->GetEye());
-      if(!p->GetNewPos().IsValid()) {
-        p->RewindPos();
-        camera->Set(p->GetOldPos().GetPoint(), camera->GetDir());
-      }
+ChangeRegionType(bool _attract) {
+  /// Requires that a single region is selected. Can only change the type of
+  /// \a non-commit regions to either \a attract or \a avoid.
+  if(SingleRegionSelected()) {
+    vector<Model*>& sel = GetVizmo().GetSelectedModels();
+    EnvModel* env = GetVizmo().GetEnv();
+    RegionModelPtr r = env->GetRegion(sel[0]);
+    if(env->IsNonCommitRegion(r)) {
+      VDRemoveRegion(r.get());
+      r->SetType(_attract ? RegionModel::ATTRACT : RegionModel::AVOID);
+      env->ChangeRegionType(r, _attract);
     }
-    else
-      disconnect(m_mainWindow->GetMainClock(), SIGNAL(timeout()),
-          this, SLOT(CameraPathCapture()));
   }
 }
+
 
 void
 PlanningOptions::
 SaveRegion() {
   /// The output file extension will be <tt>.regions</tt>.
   QString fn = QFileDialog::getSaveFileName(this, "Choose an region file",
-      m_mainWindow->GetLastDir(), "Region File (*.regions)");
+      GetMainWindow()->GetLastDir(), "Region File (*.regions)");
 
   if(!fn.isEmpty()) {
     string filename = fn.toStdString();
@@ -664,17 +477,18 @@ SaveRegion() {
       (*crit)->OutputDebugInfo(ofs);
 
     QFileInfo fi(fn);
-    m_mainWindow->SetLastDir(fi.absolutePath());
+    GetMainWindow()->SetLastDir(fi.absolutePath());
   }
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 PlanningOptions::
 LoadRegion() {
   /// The input file extension must be <tt>.regions</tt>.
   QString fn = QFileDialog::getOpenFileName(this, "Choose an region file",
-      m_mainWindow->GetLastDir(), "Region File (*.regions)");
+      GetMainWindow()->GetLastDir(), "Region File (*.regions)");
 
   if(!fn.isEmpty()) {
 
@@ -761,12 +575,215 @@ LoadRegion() {
       }
     }
     QFileInfo fi(fn);
-    m_mainWindow->SetLastDir(fi.absolutePath());
+    GetMainWindow()->SetLastDir(fi.absolutePath());
   }
   else
-    m_mainWindow->statusBar()->showMessage("Loading aborted", 2000);
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLWidget()->updateGL();
+    GetMainWindow()->statusBar()->showMessage("Loading aborted", 2000);
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  GetMainWindow()->GetGLWidget()->updateGL();
+}
+
+
+void
+PlanningOptions::
+ChooseSamplerStrategy() {
+  /// Requires that a single region is selected.
+  if(SingleRegionSelected()) {
+    const vector<string>& samplers = GetVizmo().GetLoadedSamplers();
+
+    if(samplers.size() == 1)
+      GetMainWindow()->GetGLWidget()->GetCurrentRegion()->
+        SetSampler(samplers.front());
+    else {
+      RegionSamplerDialog rsDialog(samplers, GetMainWindow());
+
+      if(rsDialog.exec() != QDialog::Accepted)
+        cout << "Sampler selection dialog aborted." << endl << flush;
+    }
+  }
+}
+
+
+bool
+PlanningOptions::
+SingleRegionSelected() {
+  if(GetMainWindow()->GetGLWidget()->GetCurrentRegion() == NULL) {
+    GetMainWindow()->AlertUser("Error: non-region selected!");
+    return false;
+  }
+  if(GetVizmo().GetSelectedModels().size() != 1) {
+    GetMainWindow()->AlertUser("Error: multiple objects selected!");
+    return false;
+  }
+  return true;
+}
+
+/*------------------------ User Path Functions -------------------------------*/
+
+void
+PlanningOptions::
+AddUserPath() {
+  /// This slot must be connected to a QAction in order to determine the
+  /// appropriate path capture method: the sender's text() is used for this
+  /// purpose. Unrecognized text() defaults to mouse input.
+  QAction* callee = static_cast<QAction*>(sender());
+  UserPathModel* p;
+
+  if(callee->text().toStdString() == "Add User Path with Haptics") {
+    p = new UserPathModel(UserPathModel::Haptic);
+    connect(GetMainWindow()->GetMainClock(), SIGNAL(timeout()),
+        this, SLOT(HapticPathCapture()));
+  }
+  if(callee->text().toStdString() == "Add User Path with Camera") {
+    p = new UserPathModel(UserPathModel::CameraPath);
+    connect(GetMainWindow()->GetMainClock(), SIGNAL(timeout()),
+        this, SLOT(CameraPathCapture()));
+  }
+  else
+    p = new UserPathModel(UserPathModel::Mouse);
+  GetVizmo().GetEnv()->AddUserPath(p);
+
+  // set mouse events to current path for GLWidget
+  GetMainWindow()->GetGLWidget()->SetCurrentUserPath(p);
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  GetVizmo().GetSelectedModels().clear();
+  GetVizmo().GetSelectedModels().push_back(p);
+  GetMainWindow()->GetModelSelectionWidget()->Select();
+}
+
+
+void
+PlanningOptions::
+DeleteUserPath() {
+  UserPathModel* p = GetMainWindow()->GetGLWidget()->GetCurrentUserPath();
+  if(p) {
+    GetVizmo().GetEnv()->DeleteUserPath(p);
+    GetVizmo().GetSelectedModels().clear();
+    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+    GetMainWindow()->GetGLWidget()->SetCurrentUserPath(NULL);
+  }
+}
+
+
+void
+PlanningOptions::
+PrintUserPath() {
+  /// The output file will be named <tt>(base name).(x).userpath</tt>, where
+  /// <tt>(base name)</tt> is the Environment base name and \c (x) is a count of
+  /// the number of printed paths.
+  static short userPathCount = 0;
+  UserPathModel* p = GetMainWindow()->GetGLWidget()->GetCurrentUserPath();
+  if(p) {
+    ++userPathCount;
+    string base = GetVizmo().GetEnvFileName();
+    ostringstream fileName;
+    fileName << base.substr(0, base.size() - 4) << "."
+      << userPathCount << ".userpath";
+    ofstream pos(fileName.str().c_str());
+    pos << "Workspace Path" << endl << "1" << endl;
+    p->PrintPath(pos);
+    pos.close();
+  }
+}
+
+
+void
+PlanningOptions::
+HapticPathCapture() {
+  /// The position is acquired on each tick of main clock at
+  /// MainWindow::GetMainClock(). The UserPathModel handles ending input by
+  /// returning false from IsFinished(). Once input collection is ended, this
+  /// slot disconnects itself from the main clock on the next call.
+  UserPathModel* p = GetMainWindow()->GetGLWidget()->GetCurrentUserPath();
+  if(p) {
+    if(!p->IsFinished())
+      p->SendToPath(GetVizmo().GetManager()->GetWorldPos());
+    else
+      disconnect(GetMainWindow()->GetMainClock(), SIGNAL(timeout()),
+          this, SLOT(HapticPathCapture()));
+  }
+}
+
+
+void
+PlanningOptions::
+CameraPathCapture() {
+  /// The camera position is acquired on each tick of main clock at
+  /// MainWindow::GetMainClock(). The UserPathModel handles ending input by
+  /// returning false from IsFinished(). Once input collection is ended, this
+  /// slot disconnects itself from the main clock on the next call.
+  UserPathModel* p = GetMainWindow()->GetGLWidget()->GetCurrentUserPath();
+  Camera* camera = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
+  if(p) {
+    if(!p->IsFinished()) {
+      p->SendToPath(camera->GetEye());
+      if(!p->GetNewPos().IsValid()) {
+        p->RewindPos();
+        camera->Set(p->GetOldPos().GetPoint(), camera->GetDir());
+      }
+    }
+    else
+      disconnect(GetMainWindow()->GetMainClock(), SIGNAL(timeout()),
+          this, SLOT(CameraPathCapture()));
+  }
+}
+
+/*-------------------------- Common Planning Functions -----------------------*/
+
+void
+PlanningOptions::
+ThreadDone() {
+  /// Should be connected to the finish signal of \ref m_thread before executing
+  /// a mapping strategy.
+  m_thread = NULL;
+  m_regionsStarted = false;
+
+  // Refresh scene + GUI
+  GetMainWindow()->GetGLWidget()->updateGL();
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  GetMainWindow()->m_mainMenu->CallReset();
+}
+
+
+void
+PlanningOptions::
+MapEnvironment() {
+  /// The execution of the strategy will be moved to another thread, and only
+  /// one such mapping thread can be running at any time.
+  if(!m_thread) {
+
+    //Stop pre-planning region timer.
+    if(!m_regionsStarted)
+      //start-stop when no regions were created
+      GetVizmo().StartClock("Pre-regions");
+    GetVizmo().StopClock("Pre-regions");
+
+    GetVizmo().StartClock("StrategySelection");
+    ChangePlannerDialog cpDialog(GetMainWindow());
+
+    if(!cpDialog.exec()) {
+      GetVizmo().StopClock("StrategySelection");
+      GetVizmo().AdjustClock("Pre-regions", "StrategySelection", "-");
+      return;
+    }
+
+    string slabel = cpDialog.GetPlanner();
+
+    //Verify that map model exist
+    GetVizmo().SetPMPLMap();
+    GetMainWindow()->m_mainMenu->CallReset();
+
+    //Set up thread for execution
+    m_thread = new QThread;
+    MapEnvironmentWorker* mpsw = new MapEnvironmentWorker(slabel);
+    mpsw->moveToThread(m_thread);
+    connect(m_thread, SIGNAL(started()), mpsw, SLOT(Solve()));
+    connect(m_thread, SIGNAL(finished()), mpsw, SLOT(deleteLater()));
+    connect(m_thread, SIGNAL(finished()), this, SLOT(ThreadDone()));
+    connect(mpsw, SIGNAL(Finished()), mpsw, SLOT(deleteLater()));
+    connect(mpsw, SIGNAL(destroyed()), m_thread, SLOT(quit()));
+    m_thread->start();
+  }
 }
 
 /*----------------------------MapEnvironmentWorker----------------------------*/
@@ -774,6 +791,7 @@ LoadRegion() {
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel)
     : QObject(), m_strategyLabel(_strategyLabel) {}
+
 
 void
 MapEnvironmentWorker::

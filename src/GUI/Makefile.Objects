@@ -31,7 +31,6 @@ OBJECTS += \
 	   GUI/QueryOptions.o \
 	   GUI/RegionSamplerDialog.o \
 	   GUI/RoadmapOptions.o \
-	   GUI/RobotOptions.o \
 	   GUI/SliderDialog.o \
 	   GUI/TextWidget.o \
 	   GUI/ToolTabOptions.o \

@@ -4,6 +4,7 @@
 #include "OptionsBase.h"
 #include "Models/EnvModel.h"
 
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief This class provides access to the user-guided planning tools.
 ////////////////////////////////////////////////////////////////////////////////
@@ -15,9 +16,10 @@ class PlanningOptions : public OptionsBase {
 
     typedef EnvModel::RegionModelPtr RegionModelPtr;
 
-    PlanningOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+    PlanningOptions(QWidget* _parent);
     ~PlanningOptions();
 
+    //planning thread access
     QThread* GetMPThread() {return m_thread ? m_thread : NULL;}
     void HaltMPThread(); ///< Deletes the current mapping thread if one exists.
 
@@ -28,10 +30,10 @@ class PlanningOptions : public OptionsBase {
     //Region functions
     void AddRegionSphere();   ///< Add a new sphere region to the workspace.
     void AddRegionBox();      ///< Add a new box region to the workspace.
+    void DuplicateRegion();   ///< Create a noncommit copy of the selected region.
     void DeleteRegion();      ///< Delete the selected region.
     void MakeRegionAttract(); ///< Set the selected region to attract.
     void MakeRegionAvoid();   ///< Set the selected region to avoid.
-    void DuplicateRegion();   ///< Create a noncommit copy of the selected region.
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Change the type of the currently selected non-commit region to
     /// \a attract or \a avoid.
@@ -40,10 +42,6 @@ class PlanningOptions : public OptionsBase {
     void SaveRegion();        ///< Save all regions to a file.
     void LoadRegion();        ///< Load one or more regions from a file.
 
-    //Thread and timer functions
-    void MapEnvironment();    ///< Start a mapping thread to run an MPStrategy.
-    void ThreadDone();        ///< Clean-up after mapping thread finishes.
-
     //User Path functions
     void AddUserPath();       ///< Create a user path.
     void DeleteUserPath();    ///< Delete the selected user path.
@@ -51,15 +49,18 @@ class PlanningOptions : public OptionsBase {
     void HapticPathCapture(); ///< Build a user path from the haptic cursor.
     void CameraPathCapture(); ///< Build a user path from the camera position.
 
+    //Common planning functions
+    void MapEnvironment();    ///< Start a mapping thread to run an MPStrategy.
+    void ThreadDone();        ///< Clean-up after mapping thread finishes.
+
   private:
 
     //gui management
-    void CreateActions();      ///< Create and connect actions.
-    void SetUpCustomSubmenu(); ///< Create a menu.
-    void SetUpToolbar();       ///< Create a toolbar.
-    void SetUpToolTab();       ///< Create a tool tab.
-    void Reset();              ///< Reset actions to their enabled state.
-    void SetHelpTips();        ///< Set help messages for actions.
+    void CreateActions();
+    void SetUpSubmenu();
+    void SetUpToolTab();
+    void Reset();
+    void SetHelpTips();
 
     //region helpers
     ///////////////////////////////////////////////////////////////////////////
@@ -77,6 +78,7 @@ class PlanningOptions : public OptionsBase {
     QMenu* m_regionPropertiesMenu; ///< Menu for modifying regions.
     QMenu* m_pathsMenu;            ///< Menu for working with user paths.
 };
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief This class launches interactive strategies.

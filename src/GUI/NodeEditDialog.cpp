@@ -14,10 +14,12 @@
 #include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
+
+/*-------------------------- Node Edit Validator -----------------------------*/
+
 QValidator::State
 NodeEditValidator::
 validate(QString& _s, int& _i) const {
-
   if(_s.isEmpty() || _s == "-" || _s == "." || _s == "-.")
     return QValidator::Intermediate;
 
@@ -30,9 +32,10 @@ validate(QString& _s, int& _i) const {
     return QValidator::Invalid;
 }
 
+/*---------------------------- Node Edit Slider ------------------------------*/
+
 NodeEditSlider::
 NodeEditSlider(QWidget* _parent, string _label) : QWidget(_parent) {
-
   setStyleSheet("QLabel { font:8pt } QLineEdit { font:8pt }");
 
   QGridLayout* layout = new QGridLayout();
@@ -53,44 +56,42 @@ NodeEditSlider(QWidget* _parent, string _label) : QWidget(_parent) {
   connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(UpdateDOFLabel(int)));
 }
 
+
 void
 NodeEditSlider::
 UpdateDOFLabel(int _newVal) {
-
   ostringstream oss;
   oss << (double)_newVal/100000.0;
   QString qs(oss.str().c_str());
   m_dofValue->setCursorPosition(0);
   m_dofValue->setText(qs);
-  m_dofValue->setCursorPosition(0);
 }
+
 
 void
 NodeEditSlider::
 MoveSlider(QString _inputVal) {
-
  m_slider->setSliderPosition(_inputVal.toDouble() * 100000.0);
 }
+
 
 bool
 NodeEditSlider::
 eventFilter(QObject* _target, QEvent* _event) {
-
-  if(_target == m_slider && _event->type() == QEvent::Wheel){
+  if(_target == m_slider && _event->type() == QEvent::Wheel) {
     _event->ignore(); //Prevent mouse wheel from moving sliders
     return true;
   }
   return false;
 }
 
-//Edit node constructor
+/*---------------------------- Node Edit Dialog ------------------------------*/
+
 NodeEditDialog::
 NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
-    EdgeModel* _parentEdge)
-    : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
+    EdgeModel* _parentEdge) : QDialog(_mainWindow), m_title(_title),
     m_tempNode(NULL), m_originalNode(_originalNode),
-    m_nodesToConnect(), m_nodesToDelete(), m_tempObjs(),
-    m_glScene(_mainWindow->GetGLWidget()) {
+    m_nodesToConnect(), m_nodesToDelete(), m_tempObjs() {
   //Set temporary objects
   if(_parentEdge == NULL) {
     //No parent edge, this is not an intermediate cfg.
@@ -148,13 +149,13 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
   connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeNodeEdit(int)));
 }
 
+
 //Add new node constructor
 NodeEditDialog::
 NodeEditDialog(MainWindow* _mainWindow, string _title)
-    : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
+    : QDialog(_mainWindow), m_title(_title),
     m_tempNode(NULL), m_originalNode(NULL),
-    m_nodesToConnect(), m_nodesToDelete(), m_tempObjs(),
-    m_glScene(_mainWindow->GetGLWidget()) {
+    m_nodesToConnect(), m_nodesToDelete(), m_tempObjs() {
   //Set temporary cfg for editing
   m_tempNode = new CfgModel();
   m_tempObjs.AddCfg(m_tempNode);
@@ -166,14 +167,14 @@ NodeEditDialog(MainWindow* _mainWindow, string _title)
   connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeNodeAdd(int)));
 }
 
+
 //Merge nodes constructor
 NodeEditDialog::
 NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _tempNode,
     vector<VID> _toConnect, vector<VID> _toDelete)
-    : QDialog(_mainWindow), m_mainWindow(_mainWindow), m_title(_title),
+    : QDialog(_mainWindow), m_title(_title),
     m_tempNode(_tempNode), m_originalNode(NULL),
-    m_nodesToConnect(_toConnect), m_nodesToDelete(_toDelete), m_tempObjs(),
-    m_glScene(_mainWindow->GetGLWidget()) {
+    m_nodesToConnect(_toConnect), m_nodesToDelete(_toDelete), m_tempObjs() {
   //Set temporary cfg for editing
   m_tempObjs.AddCfg(m_tempNode);
 
@@ -194,8 +195,6 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _tempNode,
   connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeNodeMerge(int)));
 }
 
-NodeEditDialog::
-~NodeEditDialog() {}
 
 void
 NodeEditDialog::
@@ -240,15 +239,15 @@ Init() {
   setAttribute(Qt::WA_DeleteOnClose);
 }
 
+
 void
 NodeEditDialog::
 SetUpSliders(vector<NodeEditSlider*>& _sliders) {
-
   vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
   QSignalMapper* sliderMapper = new QSignalMapper(this);
   connect(sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
 
-  for(size_t i = 0; i < dofInfo.size(); i++){
+  for(size_t i = 0; i < dofInfo.size(); i++) {
     NodeEditSlider* s = new NodeEditSlider(this, dofInfo[i].m_name);
     QSlider* actualSlider = s->GetSlider();
     QLineEdit* dofValue = s->GetDOFValue();
@@ -259,17 +258,19 @@ SetUpSliders(vector<NodeEditSlider*>& _sliders) {
     dofValue->setValidator(new NodeEditValidator(minVal, maxVal, 5, dofValue));
 
     connect(actualSlider, SIGNAL(valueChanged(int)), sliderMapper, SLOT(map()));
-    connect(dofValue, SIGNAL(textEdited(const QString&)), s, SLOT(MoveSlider(QString)));
+    connect(dofValue, SIGNAL(textEdited(const QString&)),
+        s, SLOT(MoveSlider(QString)));
 
     sliderMapper->setMapping(actualSlider, i);
     _sliders.push_back(s);
   }
 }
 
+
 void
 NodeEditDialog::
 InitSliderValues(const vector<double>& _vals) {
-  for(size_t i = 0; i < m_sliders.size(); i++){
+  for(size_t i = 0; i < m_sliders.size(); i++) {
     (m_sliders[i])->GetSlider()->setSliderPosition(100000*_vals[i]);
     ostringstream oss;
     oss << _vals[i];
@@ -277,6 +278,7 @@ InitSliderValues(const vector<double>& _vals) {
     (m_sliders[i])->GetDOFValue()->setText(qValLabel);
   }
 }
+
 
 void
 NodeEditDialog::
@@ -286,63 +288,67 @@ UpdateDOF(int _id) {
 
   ValidityCheck();
 
-  if(m_tempNode->IsQuery()){
+  if(m_tempNode->IsQuery()) {
     GetVizmo().GetQry()->Build();
     GetVizmo().PlaceRobot();
   }
-  m_glScene->updateGL();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 NodeEditDialog::
 ValidityCheck() {
-
   vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
   bool collFound = false; //new or existing
-  for(size_t i = 0; i < dofInfo.size(); i++){
+  for(size_t i = 0; i < dofInfo.size(); i++) {
     if(((*m_tempNode)[i] <= dofInfo[i].m_minVal) ||
-        ((*m_tempNode)[i] >= dofInfo[i].m_maxVal)){
+        ((*m_tempNode)[i] >= dofInfo[i].m_maxVal)) {
       m_tempNode->SetValidity(false);
       collFound = true;
     }
   }
-  if(collFound == false){
+  if(collFound == false) {
     m_tempNode->SetValidity(true);
     GetVizmo().CollisionCheck(*m_tempNode);
   }
 
-  if(m_tempObjs.GetEdges().size() > 0){
+  if(m_tempObjs.GetEdges().size() > 0) {
     typedef vector<EdgeModel*>::iterator EIT;
     typedef vector<CfgModel>::iterator IIT;
 
     for(EIT eit = m_tempObjs.GetEdges().begin();
-        eit != m_tempObjs.GetEdges().end(); eit++){
+        eit != m_tempObjs.GetEdges().end(); eit++) {
       //If no intermediates, just check start and end
       double weight = 0.0;
       vector<CfgModel>& intermediates = (*eit)->GetIntermediates();
 
-      if(intermediates.empty()){
-        pair<bool, double> visibility = GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), *(*eit)->GetEndCfg());
+      if(intermediates.empty()) {
+        pair<bool, double> visibility = GetVizmo().VisibilityCheck(
+            *(*eit)->GetStartCfg(), *(*eit)->GetEndCfg());
         (*eit)->SetValidity(visibility.first);
         weight = visibility.second;
       }
 
-      else{
+      else {
         //Check boundary intermediates
-        pair<bool, double> startVis = GetVizmo().VisibilityCheck(*(*eit)->GetStartCfg(), intermediates[0]);
+        pair<bool, double> startVis = GetVizmo().VisibilityCheck(
+            *(*eit)->GetStartCfg(), intermediates[0]);
         (*eit)->SetValidity(startVis.first);
         if(!startVis.first)
           break;
         weight += startVis.second;
 
-        pair<bool, double> endVis = GetVizmo().VisibilityCheck(intermediates[intermediates.size() - 1], *(*eit)->GetEndCfg());
+        pair<bool, double> endVis = GetVizmo().VisibilityCheck(
+            intermediates[intermediates.size() - 1], *(*eit)->GetEndCfg());
         (*eit)->SetValidity(endVis.first);
         if(!endVis.first)
           break;
         weight += endVis.second;
 
         //Check intermediates in between
-        for(IIT it = intermediates.begin(), it2 = it+1; it2 != intermediates.end(); it++, it2++){
+        for(IIT it = intermediates.begin(), it2 = it + 1;
+            it2 != intermediates.end(); it++, it2++) {
           pair<bool, double> betweenVis = GetVizmo().VisibilityCheck(*it, *it2);
           (*eit)->SetValidity(betweenVis.first);
           if(!betweenVis.first)
@@ -356,12 +362,13 @@ ValidityCheck() {
   }
 }
 
+
 void
 NodeEditDialog::
 FinalizeNodeEdit(int _accepted) {
   Map* map = GetVizmo().GetMap();
 
-  if(_accepted == 1){  //user pressed okay
+  if(_accepted == 1) {  //user pressed okay
     if(m_tempNode->IsValid()) {
       //set data for original node to match temp
       m_originalNode->SetCfg(m_tempNode->GetDataCfg());
@@ -391,9 +398,10 @@ FinalizeNodeEdit(int _accepted) {
       GetVizmo().PlaceRobot();
     }
   }
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 NodeEditDialog::
@@ -411,9 +419,10 @@ FinalizeNodeAdd(int _accepted) {
     else
       QMessageBox::about(this, "", "Cannot add invalid node!");
   }
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 NodeEditDialog::
@@ -445,6 +454,6 @@ FinalizeNodeMerge(int _accepted) {
     else
       QMessageBox::about(this, "", "Invalid merge!");
   }
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }

@@ -9,187 +9,37 @@
 #include "ObstaclePosDialog.h"
 
 #include "Models/EnvModel.h"
+#include "Models/QueryModel.h"
 #include "Models/RegionBoxModel.h"
 #include "Models/RegionBox2DModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
 #include "Models/RobotModel.h"
-#include "Models/QueryModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/AddObstacle.xpm"
-#include "Icons/DeleteObstacle.xpm"
-#include "Icons/MoveObstacle.xpm"
-#include "Icons/DuplicateObstacle.xpm"
 #include "Icons/ChangeBoundary.xpm"
+#include "Icons/DeleteObstacle.xpm"
+#include "Icons/DuplicateObstacle.xpm"
 #include "Icons/EditRobot.xpm"
-#include "Icons/RefreshEnv.xpm"
+#include "Icons/MoveObstacle.xpm"
 #include "Icons/RandEnv.xpm"
+#include "Icons/RefreshEnv.xpm"
 
-#include "Icons/RobotMode.xpm"
 #include "Icons/PointMode.xpm"
+#include "Icons/RobotMode.xpm"
+
 
 EnvironmentOptions::
-EnvironmentOptions(QWidget* _parent, MainWindow* _mainWindow) :
-    OptionsBase(_parent, _mainWindow), m_editRobotDialog(NULL),
-    m_changeBoundaryDialog(NULL) {
+EnvironmentOptions(QWidget* _parent) : OptionsBase(_parent, "Environment"),
+    m_changeBoundaryDialog(NULL), m_editRobotDialog(NULL) {
   CreateActions();
-  SetUpCustomSubmenu();
-  SetUpToolTab();
   SetHelpTips();
+  SetUpSubmenu();
+  SetUpToolTab();
 }
 
-void
-EnvironmentOptions::
-RefreshEnv() {
-  GetVizmo().GetEnv()->SetRenderMode(SOLID_MODE);
-  m_mainWindow->GetModelSelectionWidget()->reset();
-  m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLWidget()->updateGL();
-}
-
-void
-EnvironmentOptions::
-AddObstacle() {
-  //get the name of an obstacle file
-  QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
-      m_mainWindow->GetLastDir(), "Files  (*.g *.obj)");
-
-  if(!fn.isEmpty()) {
-    //save last directory
-    QFileInfo fi(fn);
-    m_mainWindow->SetLastDir(fi.absolutePath());
-
-    //create a new obstacle
-    MultiBodyModel* m = new MultiBodyModel(GetVizmo().GetEnv(),
-        fi.absolutePath().toStdString(), fi.fileName().toStdString(),
-        Transformation());
-
-    //add the new obstacle to the environment and select it
-    GetVizmo().GetEnv()->AddMBModel(m);
-    GetVizmo().GetSelectedModels().clear();
-    GetVizmo().GetSelectedModels().push_back(m);
-    RefreshEnv();
-
-    //open the obstacle position dialog for the new obstacle
-    vector<MultiBodyModel*> v(1, m);
-    ObstaclePosDialog* opd = new ObstaclePosDialog(m_mainWindow, v);
-    m_mainWindow->ShowDialog(opd);
-  }
-  else
-    m_mainWindow->statusBar()->showMessage("Loading aborted");
-}
-
-void
-EnvironmentOptions::
-DeleteObstacle() {
-  vector<MultiBodyModel*> toDel;
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-
-  //grab the bodies from the selected vector
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toDel.push_back((MultiBodyModel*)*sit);
-
-  //alert that only non-active multibodies can be selected
-  if(toDel.empty() || toDel.size() != sel.size())
-    GetMainWindow()->AlertUser(
-        "Must select one or more non-active multibodies only.");
-
-  //successful selection, delete obstacle(s)
-  else {
-    typedef vector<MultiBodyModel*>::iterator MIT;
-    for(MIT mit = toDel.begin(); mit != toDel.end(); ++mit)
-      GetVizmo().GetEnv()->DeleteMBModel(*mit);
-
-    GetVizmo().GetSelectedModels().clear();
-    RefreshEnv();
-  }
-}
-
-void
-EnvironmentOptions::
-MoveObstacle() {
-  vector<MultiBodyModel*> toMove;
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-
-  //grab the bodies from the selected vector
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toMove.push_back((MultiBodyModel*)*sit);
-
-  //alert that only non-active multibodies can be selected
-  if(toMove.empty() || toMove.size() != sel.size())
-    GetMainWindow()->AlertUser(
-        "Must select one or more non-active multibodies only.");
-
-  //successful selection, show ObstaclePosDialog
-  else {
-    ObstaclePosDialog* opd = new ObstaclePosDialog(m_mainWindow, toMove);
-    m_mainWindow->ShowDialog(opd);
-  }
-}
-
-void
-EnvironmentOptions::
-DuplicateObstacles() {
-  vector<MultiBodyModel*> toCopy;
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toCopy.push_back((MultiBodyModel*)(*sit));
-
-  //alert that only non-active multibodies can be selected
-  if(toCopy.empty() || toCopy.size() != sel.size())
-    GetMainWindow()->AlertUser(
-        "Must select one or more non-active multibodies only.");
-
-  //successful selection, copy and show ObstaclePosDialog
-  else {
-    vector<MultiBodyModel*> copies;
-    typedef vector<MultiBodyModel*>::iterator MIT;
-    for(MIT mit = toCopy.begin(); mit != toCopy.end(); ++mit) {
-      MultiBodyModel* m = new MultiBodyModel(**mit);
-      copies.push_back(m);
-      GetVizmo().GetEnv()->AddMBModel(m);
-    }
-    sel.clear();
-    copy(copies.begin(), copies.end(), back_inserter(sel));
-
-    ObstaclePosDialog* opd = new ObstaclePosDialog(m_mainWindow, copies);
-    m_mainWindow->ShowDialog(opd);
-  }
-}
-
-void
-EnvironmentOptions::
-ChangeBoundaryForm() {
-  if(m_changeBoundaryDialog == NULL) {
-    vector<Model*>& sel = GetVizmo().GetSelectedModels();
-    //alert that only the boundary should be selected
-    if(sel.size() != 1 || !(sel[0]->Name() == "Bounding Box" ||
-          sel[0]->Name() == "Bounding Sphere")) {
-      GetMainWindow()->AlertUser("Must select only the boundary.");
-    }
-    //successful selection, show ChangeBoundaryDialog
-    else {
-      m_changeBoundaryDialog = new ChangeBoundaryDialog(m_mainWindow);
-      m_mainWindow->ShowDialog(m_changeBoundaryDialog);
-    }
-  }
-}
-
-void
-EnvironmentOptions::
-EditRobot() {
-  if(m_editRobotDialog == NULL) {
-    m_editRobotDialog = new EditRobotDialog(m_mainWindow);
-    m_mainWindow->ShowDialog(m_editRobotDialog);
-  }
-}
+/*------------------------- GUI Management -----------------------------------*/
 
 void
 EnvironmentOptions::
@@ -249,10 +99,35 @@ CreateActions() {
       this, SLOT(EditRobot()));
 }
 
+
 void
 EnvironmentOptions::
-SetUpCustomSubmenu() {
-  m_submenu = new QMenu("Environment", this);
+SetHelpTips() {
+  m_actions["robotView"]->setStatusTip(tr("Display nodes in robot mode"));
+  m_actions["robotView"]->setWhatsThis(tr("Click this button to vizualize"
+        " the nodes in <b>Robot</b> mode."));
+
+  m_actions["pointView"]->setStatusTip(tr("Display nodes in point mode"));
+  m_actions["pointView"]->setWhatsThis(tr("Click this button to vizualize"
+        " the nodes in <b>Point</b> mode."));
+
+  m_actions["randEnvColors"]->setStatusTip(tr("Randomize environment colors"));
+  m_actions["randEnvColors"]->setWhatsThis(tr("Click this button to"
+        " randomize the colors of the environment objects."));
+
+  m_actions["addObstacle"]->setWhatsThis(tr("Add obstacle button"));
+  m_actions["deleteObstacle"]->setWhatsThis(tr("Delete obstacle button"));
+  m_actions["moveObstacle"]->setWhatsThis(tr("Move obstacle button"));
+  m_actions["duplicateObstacle"]->setWhatsThis(tr("duplicate obstacle button"));
+  m_actions["changeBoundary"]->setWhatsThis(tr("Change the boundary"));
+  m_actions["editRobot"]->setWhatsThis(tr("Edit the robot"));
+}
+
+
+void
+EnvironmentOptions::
+SetUpSubmenu() {
+  m_submenu = new QMenu(m_label, this);
 
   m_submenu->addAction(m_actions["refreshEnv"]);
 
@@ -274,15 +149,6 @@ SetUpCustomSubmenu() {
   m_nodeShape->setEnabled(false);
 }
 
-void
-EnvironmentOptions::
-SetUpToolbar() {
-  m_toolbar = new QToolBar(m_mainWindow);
-  m_toolbar->addAction(m_actions["robotView"]);
-  m_toolbar->addAction(m_actions["pointView"]);
-  m_toolbar->addAction(m_actions["randEnvColors"]);
-  m_toolbar->addSeparator();
-}
 
 void
 EnvironmentOptions::
@@ -309,6 +175,7 @@ SetUpToolTab() {
   CreateToolTab(buttonList);
 }
 
+
 void
 EnvironmentOptions::
 Reset() {
@@ -329,26 +196,167 @@ Reset() {
   m_obstacleMenu->setEnabled(true);
 }
 
+/*----------------------- Environment Editing --------------------------------*/
+
 void
 EnvironmentOptions::
-SetHelpTips() {
-  m_actions["robotView"]->setStatusTip(tr("Display nodes in robot mode"));
-  m_actions["pointView"]->setStatusTip(tr("Display nodes in point mode"));
-  m_actions["randEnvColors"]->setStatusTip(tr("Randomize environment colors"));
+AddObstacle() {
+  //get the name of an obstacle file
+  QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
+      GetMainWindow()->GetLastDir(), "Files  (*.g *.obj)");
 
-  m_actions["robotView"]->setWhatsThis(tr("Click this button to vizualize"
-        " the nodes in <b>Robot</b> mode."));
-  m_actions["pointView"]->setWhatsThis(tr("Click this button to vizualize"
-        " the nodes in <b>Point</b> mode."));
-  m_actions["randEnvColors"]->setWhatsThis(tr("Click this button to"
-        " randomize the colors of the environment objects."));
-  m_actions["addObstacle"]->setWhatsThis(tr("Add obstacle button"));
-  m_actions["deleteObstacle"]->setWhatsThis(tr("Delete obstacle button"));
-  m_actions["moveObstacle"]->setWhatsThis(tr("Move obstacle button"));
-  m_actions["duplicateObstacle"]->setWhatsThis(tr("duplicate obstacle button"));
-  m_actions["changeBoundary"]->setWhatsThis(tr("Change the boundary"));
-  m_actions["editRobot"]->setWhatsThis(tr("Edit the robot"));
+  if(!fn.isEmpty()) {
+    //save last directory
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+
+    //create a new obstacle
+    MultiBodyModel* m = new MultiBodyModel(GetVizmo().GetEnv(),
+        fi.absolutePath().toStdString(), fi.fileName().toStdString(),
+        Transformation());
+
+    //add the new obstacle to the environment and select it
+    GetVizmo().GetEnv()->AddMBModel(m);
+    GetVizmo().GetSelectedModels().clear();
+    GetVizmo().GetSelectedModels().push_back(m);
+    RefreshEnv();
+
+    //open the obstacle position dialog for the new obstacle
+    vector<MultiBodyModel*> v(1, m);
+    ObstaclePosDialog* opd = new ObstaclePosDialog(GetMainWindow(), v);
+    GetMainWindow()->ShowDialog(opd);
+  }
+  else
+    GetMainWindow()->statusBar()->showMessage("Loading aborted");
 }
+
+
+void
+EnvironmentOptions::
+DeleteObstacle() {
+  vector<MultiBodyModel*> toDel;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+
+  //grab the bodies from the selected vector
+  typedef vector<Model*>::iterator SIT;
+  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
+    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
+      toDel.push_back((MultiBodyModel*)*sit);
+
+  //alert that only non-active multibodies can be selected
+  if(toDel.empty() || toDel.size() != sel.size())
+    GetMainWindow()->AlertUser(
+        "Must select one or more non-active multibodies only.");
+
+  //successful selection, delete obstacle(s)
+  else {
+    typedef vector<MultiBodyModel*>::iterator MIT;
+    for(MIT mit = toDel.begin(); mit != toDel.end(); ++mit)
+      GetVizmo().GetEnv()->DeleteMBModel(*mit);
+
+    GetVizmo().GetSelectedModels().clear();
+    RefreshEnv();
+  }
+}
+
+
+void
+EnvironmentOptions::
+MoveObstacle() {
+  vector<MultiBodyModel*> toMove;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+
+  //grab the bodies from the selected vector
+  typedef vector<Model*>::iterator SIT;
+  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
+    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
+      toMove.push_back((MultiBodyModel*)*sit);
+
+  //alert that only non-active multibodies can be selected
+  if(toMove.empty() || toMove.size() != sel.size())
+    GetMainWindow()->AlertUser(
+        "Must select one or more non-active multibodies only.");
+
+  //successful selection, show ObstaclePosDialog
+  else {
+    ObstaclePosDialog* opd = new ObstaclePosDialog(GetMainWindow(), toMove);
+    GetMainWindow()->ShowDialog(opd);
+  }
+}
+
+
+void
+EnvironmentOptions::
+DuplicateObstacles() {
+  vector<MultiBodyModel*> toCopy;
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  typedef vector<Model*>::iterator SIT;
+  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
+    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
+      toCopy.push_back((MultiBodyModel*)(*sit));
+
+  //alert that only non-active multibodies can be selected
+  if(toCopy.empty() || toCopy.size() != sel.size())
+    GetMainWindow()->AlertUser(
+        "Must select one or more non-active multibodies only.");
+
+  //successful selection, copy and show ObstaclePosDialog
+  else {
+    vector<MultiBodyModel*> copies;
+    typedef vector<MultiBodyModel*>::iterator MIT;
+    for(MIT mit = toCopy.begin(); mit != toCopy.end(); ++mit) {
+      MultiBodyModel* m = new MultiBodyModel(**mit);
+      copies.push_back(m);
+      GetVizmo().GetEnv()->AddMBModel(m);
+    }
+    sel.clear();
+    copy(copies.begin(), copies.end(), back_inserter(sel));
+
+    ObstaclePosDialog* opd = new ObstaclePosDialog(GetMainWindow(), copies);
+    GetMainWindow()->ShowDialog(opd);
+  }
+}
+
+
+void
+EnvironmentOptions::
+ChangeBoundaryForm() {
+  if(m_changeBoundaryDialog == NULL) {
+    vector<Model*>& sel = GetVizmo().GetSelectedModels();
+    //alert that only the boundary should be selected
+    if(sel.size() != 1 || !(sel[0]->Name() == "Bounding Box" ||
+          sel[0]->Name() == "Bounding Sphere")) {
+      GetMainWindow()->AlertUser("Must select only the boundary.");
+    }
+    //successful selection, show ChangeBoundaryDialog
+    else {
+      m_changeBoundaryDialog = new ChangeBoundaryDialog(GetMainWindow());
+      GetMainWindow()->ShowDialog(m_changeBoundaryDialog);
+    }
+  }
+}
+
+
+void
+EnvironmentOptions::
+EditRobot() {
+  if(m_editRobotDialog == NULL) {
+    m_editRobotDialog = new EditRobotDialog(GetMainWindow());
+    GetMainWindow()->ShowDialog(m_editRobotDialog);
+  }
+}
+
+/*----------------------- Environment Display --------------------------------*/
+
+void
+EnvironmentOptions::
+RefreshEnv() {
+  GetVizmo().GetEnv()->SetRenderMode(SOLID_MODE);
+  GetMainWindow()->GetModelSelectionWidget()->reset();
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  GetMainWindow()->GetGLWidget()->updateGL();
+}
+
 
 void
 EnvironmentOptions::
@@ -356,8 +364,9 @@ ClickRobot() {
   CfgModel::SetShape(CfgModel::Robot);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 EnvironmentOptions::
@@ -365,12 +374,13 @@ ClickPoint() {
   CfgModel::SetShape(CfgModel::Point);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
+
 
 void
 EnvironmentOptions::
 RandomizeEnvColors() {
   GetVizmo().GetEnv()->ChangeColor();
-  m_mainWindow->GetGLWidget()->updateGL();
+  GetMainWindow()->GetGLWidget()->updateGL();
 }

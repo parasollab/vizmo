@@ -3,6 +3,7 @@
 
 #include "OptionsBase.h"
 
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief This class provides the 'File' menu and its related actions.
 ////////////////////////////////////////////////////////////////////////////////
@@ -12,10 +13,11 @@ class FileOptions : public OptionsBase {
 
   public:
 
-    FileOptions(QWidget* _parent = 0, MainWindow* _mainWindow = 0);
+    FileOptions(QWidget* _parent);
 
   private slots:
 
+    //file functions
     void LoadFile();       ///< Load a file.
     void UpdateFiles();    ///< Reload currently loaded files.
     void SaveEnv();        ///< Save the current environment to a file.
@@ -25,10 +27,11 @@ class FileOptions : public OptionsBase {
 
   private:
 
-    void CreateActions();  ///< Create and connect actions.
-    void SetUpToolbar();   ///< Create a tool bar.
-    void Reset();          ///< Reset actions to their enabled state.
-    void SetHelpTips();    ///< Set help messages for actions.
+    //gui management
+    void CreateActions();
+    void SetUpToolbar();
+    void Reset();
+    void SetHelpTips();
 };
 
 #endif

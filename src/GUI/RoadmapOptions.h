@@ -1,7 +1,3 @@
-/****************************************************************
- * Class for the "Roadmap" submenu and associated toolbars
- * *************************************************************/
-
 #ifndef ROAD_MAP_OPTIONS_H_
 #define ROAD_MAP_OPTIONS_H_
 
@@ -9,16 +5,18 @@
 #include "Models/MapModel.h"
 #include "Models/Vizmo.h"
 
-class QPushButton;
 class SliderDialog;
-class EdgeEditDialog;
-class NodeEditDialog;
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Provides the "Roadmap" submenu and associated actions.
+////////////////////////////////////////////////////////////////////////////////
 class RoadmapOptions : public OptionsBase {
 
   Q_OBJECT
 
   public:
+
     typedef MapModel<CfgModel, EdgeModel> Map;
     typedef Map::Graph Graph;
     typedef Map::EI EI;
@@ -27,36 +25,38 @@ class RoadmapOptions : public OptionsBase {
     typedef Map::EID EID;
     typedef vector<Model*>::iterator MIT;
 
-    RoadmapOptions(QWidget* _parent, MainWindow* _mainWindow);
+    RoadmapOptions(QWidget* _parent);
 
   private slots:
-    void ShowRoadmap();
-    void ShowNodeSizeDialog();
-    void ScaleNodes();
-    void ShowEdgeThicknessDialog();
-    void ChangeEdgeThickness();
-    void ShowNodeEditDialog();
-    void ShowEdgeEditDialog();
-    void AddNode();
-    void AddStraightLineEdge();
-    void DeleteSelectedItems();
-    void MergeSelectedNodes();
-    void RandomizeCCColors();
-    void MakeCCsOneColor();
-    void ShowObjectContextMenu();
+
+    //roadmap functions
+    void ShowRoadmap();         ///< Toggle roadmap display on or off.
+    void ShowNodeSizeDialog();  ///< Show dialog for node size.
+    void ScaleNodes();          ///< Change the rendering size of nodes.
+    void ShowEdgeThicknessDialog(); ///< Show dialog for edge thickness.
+    void ChangeEdgeThickness(); ///< Change the rendering thickness of edges.
+    void ShowNodeEditDialog();  ///< Show the node edit dialog.
+    void ShowEdgeEditDialog();  ///< Show the edge edit dialog.
+    void AddNode();             ///< Add a new node to the roadmap.
+    void AddStraightLineEdge(); ///< Add a new edge to the roadmap.
+    void DeleteSelectedItems(); ///< Delete selected nodes and edges.
+    void MergeSelectedNodes();  ///< Merge multiple nodes into a super node.
+    void RandomizeCCColors();   ///< Randomly set the CC display color.
+    void MakeCCsOneColor();     ///< Unify all CC colors.
 
   private:
+
+    //gui management
     void CreateActions();
-    void SetUpCustomSubmenu(); //submenu has its own submenus and cannot be set up with simple loop through m_actions
-    void SetUpToolbar();       //a lot of toolbar functionalities for this class
+    void SetHelpTips();
+    void SetUpSubmenu();
     void SetUpToolTab();
     void Reset();
-    void SetHelpTips();
 
-    QMenu* m_modifyCCs;
+    QMenu* m_modifyCCs;   ///< Submenu for CC display options.
 
-    SliderDialog* m_nodeSizeDialog; //Provides slider to scale nodes
-    SliderDialog* m_edgeThicknessDialog; //Slider to scale the edges
+    SliderDialog* m_nodeSizeDialog;      ///< Slider for scaling nodes.
+    SliderDialog* m_edgeThicknessDialog; ///< Slider for scaling edges.
 };
 
 #endif

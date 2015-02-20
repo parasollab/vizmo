@@ -35,7 +35,6 @@ MainWindow*& GetMainWindow();
 /// some aspects of the GUI (such as the dialog dock, alert pop-up, and main
 /// timer) and resetting/reinitializing the system with new input.
 ////////////////////////////////////////////////////////////////////////////////
-
 class MainWindow : public QMainWindow {
 
   Q_OBJECT
@@ -124,5 +123,4 @@ class MainWindow : public QMainWindow {
     QString m_lastDir; ///< The last directory used in a load/save operation.
 };
 
-#endif /*_MAIN_WIN_H_*/
-
+#endif

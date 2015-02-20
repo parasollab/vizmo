@@ -2,45 +2,50 @@
 #define GL_WIDGET_OPTIONS_H_
 
 #include "OptionsBase.h"
-#include "Models/MapModel.h"
-
 
 class CameraPosDialog;
+class Model;
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Provides functions related to the OpenGL scene.
+////////////////////////////////////////////////////////////////////////////////
 class GLWidgetOptions : public OptionsBase {
 
   Q_OBJECT
 
+  typedef vector<Model*>::iterator MIT;
+
   public:
 
-    typedef vector<Model*>::iterator MIT;
-
-    GLWidgetOptions(QWidget* _parent, MainWindow* _mainWindow);
+    GLWidgetOptions(QWidget* _parent);
 
   private slots:
-    void ResetCamera();
-    void SetCameraPosition();
-    void ChangeBGColor();
-    void ChangeObjectColor();
-    void ShowGeneralContextMenu(); //right-click generated menu when NOT on an object
-    void MakeSolid();
-    void MakeWired();
-    void MakeInvisible();
-    void ShowObjectNormals();
-    void SaveCameraPosition();
-    void LoadCameraPosition();
+
+    //gl functions
+    void ResetCamera();           ///< Return the camera to its starting position.
+    void SetCameraPosition();     ///< Set the camera position.
+    void ChangeBGColor();         ///< Change the background color.
+    void ChangeObjectColor();     ///< Change the selected models' colors.
+    void ShowGeneralContextMenu();///< Display the right-click menu.
+    void MakeSolid();             ///< Render the selected object in solid mode.
+    void MakeWired();             ///< Render the selected object in wire mode.
+    void MakeInvisible();         ///< Don't render the selected object.
+    void ShowObjectNormals();     ///< Display normals of the selected model.
+    void SaveCameraPosition();    ///< Save the current viewing perspective.
+    void LoadCameraPosition();    ///< Load a viewing perspective from file.
 
   private:
+
+    //gui management
     void CreateActions();
-    void SetUpToolbar(); //two buttons: Reset camera and change BG color
+    void SetHelpTips();
+    void SetUpSubmenu();
     void SetUpToolTab();
     void Reset();
-    void SetHelpTips();
-    void SetUpCustomSubmenu();
 
-    QPointer<CameraPosDialog> m_cameraPosDialog;
-
-    QMenu* m_modifySelected;
+    QPointer<CameraPosDialog> m_cameraPosDialog; ///< The camera position dialog.
+    QMenu* m_modifySelected;                  ///< Submenu for rendering options.
 };
 
 #endif
