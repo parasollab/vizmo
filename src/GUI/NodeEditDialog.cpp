@@ -366,6 +366,7 @@ ValidityCheck() {
 void
 NodeEditDialog::
 FinalizeNodeEdit(int _accepted) {
+
   Map* map = GetVizmo().GetMap();
 
   if(_accepted == 1) {  //user pressed okay
@@ -407,20 +408,21 @@ void
 NodeEditDialog::
 FinalizeNodeAdd(int _accepted) {
   Map* map = GetVizmo().GetMap();
-  Graph* graph = map->GetGraph();
-
-  if(_accepted == 1) {
-    if(m_tempNode->IsValid()) {
-      CfgModel newNode = *m_tempNode;
-      newNode.SetRenderMode(SOLID_MODE);
-      graph->add_vertex(newNode);
-      map->RefreshMap();
+  if(map) {
+    Graph* graph = map->GetGraph();
+    if(_accepted == 1) {
+      if(m_tempNode->IsValid()) {
+        CfgModel newNode = *m_tempNode;
+        newNode.SetRenderMode(SOLID_MODE);
+        graph->add_vertex(newNode);
+        map->RefreshMap();
+      }
+      else
+        QMessageBox::about(this, "", "Cannot add invalid node!");
     }
-    else
-      QMessageBox::about(this, "", "Cannot add invalid node!");
+    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+    GetMainWindow()->GetGLWidget()->updateGL();
   }
-  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 

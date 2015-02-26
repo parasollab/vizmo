@@ -5,6 +5,7 @@
 #include "MainMenu.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
+#include "NodeEditDialog.h"
 #include "RegionSamplerDialog.h"
 
 #include "Models/EnvModel.h"
@@ -24,6 +25,7 @@
 
 #include "Icons/AddSphereRegion.xpm"
 #include "Icons/AddBoxRegion.xpm"
+#include "Icons/AddNode.xpm"
 #include "Icons/AttractRegion.xpm"
 #include "Icons/AvoidRegion.xpm"
 #include "Icons/DeleteRegion.xpm"
@@ -39,7 +41,7 @@
 
 PlanningOptions::
 PlanningOptions(QWidget* _parent) : OptionsBase(_parent, "Planning"),
-    m_regionsStarted(false), m_thread(NULL) {
+    m_regionsStarted(false), m_cfgStarted(false), m_thread(NULL) {
   CreateActions();
   SetHelpTips();
   SetUpSubmenu();
@@ -91,6 +93,8 @@ CreateActions() {
       tr("Save Region"), this);
   m_actions["loadRegion"] = new QAction(QPixmap(loadregion),
       tr("Load Region"), this);
+  m_actions["placeCfgs"] = new QAction(QPixmap(addnode),
+      tr("Place Cfgs"), this);
 
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
@@ -120,6 +124,7 @@ CreateActions() {
   m_actions["printUserPath"]->setEnabled(false);
   m_actions["saveRegion"]->setEnabled(false);
   m_actions["loadRegion"]->setEnabled(false);
+  m_actions["placeCfgs"]->setEnabled(false);
 
   // 3. Make connections
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()),
@@ -136,6 +141,8 @@ CreateActions() {
       this, SLOT(SaveRegion()));
   connect(m_actions["loadRegion"], SIGNAL(triggered()),
       this, SLOT(LoadRegion()));
+  connect(m_actions["placeCfgs"], SIGNAL(triggered()),
+      this, SLOT(PlaceCfg()));
   connect(m_actions["duplicateRegion"], SIGNAL(triggered()),
       this, SLOT(DuplicateRegion()));
   connect(m_actions["mapEnvironment"], SIGNAL(triggered()),
@@ -203,6 +210,8 @@ SetUpSubmenu() {
   m_regionPropertiesMenu->addAction(m_actions["duplicateRegion"]);
   m_submenu->addMenu(m_regionPropertiesMenu);
 
+  m_submenu->addAction(m_actions["placeCfgs"]);
+
   m_submenu->addAction(m_actions["saveRegion"]);
   m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
@@ -245,6 +254,7 @@ SetUpToolTab() {
 
   buttonList.push_back("saveRegion");
   buttonList.push_back("loadRegion");
+  buttonList.push_back("placeCfgs");
 
   buttonList.push_back("_separator_");
 
@@ -272,11 +282,11 @@ Reset() {
   m_actions["printUserPath"]->setEnabled(true);
   m_actions["saveRegion"]->setEnabled(true);
   m_actions["loadRegion"]->setEnabled(true);
+  m_actions["placeCfgs"]->setEnabled(true);
   m_pathsMenu->setEnabled(true);
   m_addRegionMenu->setEnabled(true);
   m_regionPropertiesMenu->setEnabled(true);
 }
-
 /*-------------------------- Region Functions --------------------------------*/
 
 void
@@ -343,6 +353,19 @@ AddRegionSphere() {
   GetMainWindow()->GetModelSelectionWidget()->Select();
 }
 
+void
+PlanningOptions::
+PlaceCfg() {
+  if(!m_cfgStarted) {
+    GetVizmo().StartClock("Pre-cfgs");
+    m_cfgStarted = true;
+  }
+
+  GetVizmo().SetPMPLMap();
+
+  NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Node");
+  GetMainWindow()->ShowDialog(ned);
+}
 
 void
 PlanningOptions::
@@ -394,7 +417,6 @@ DuplicateRegion() {
       GetMainWindow()->AlertUser("Region not selected");
   }
 }
-
 
 void
 PlanningOptions::

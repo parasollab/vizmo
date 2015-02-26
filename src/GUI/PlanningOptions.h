@@ -30,6 +30,7 @@ class PlanningOptions : public OptionsBase {
     //Region functions
     void AddRegionSphere();   ///< Add a new sphere region to the workspace.
     void AddRegionBox();      ///< Add a new box region to the workspace.
+    void PlaceCfg();          ///< Place any cfgs that will be used in the planer
     void DuplicateRegion();   ///< Create a noncommit copy of the selected region.
     void DeleteRegion();      ///< Delete the selected region.
     void MakeRegionAttract(); ///< Set the selected region to attract.
@@ -72,8 +73,9 @@ class PlanningOptions : public OptionsBase {
     /// \return A \c bool indicating whether the test passed.
     bool SingleRegionSelected();
 
-    bool m_regionsStarted; ///< Tracks whether pre-regions timer is running.
-    QThread* m_thread;     ///< Points to the current mapping thread.
+    bool m_regionsStarted;         ///< Tracks whether pre-regions timer is running.
+    bool m_cfgStarted;             ///< Tracks whether pre-cfg timer is running.
+    QThread* m_thread;             ///< Points to the current mapping thread.
     QMenu* m_addRegionMenu;        ///< Menu for adding new regions.
     QMenu* m_regionPropertiesMenu; ///< Menu for modifying regions.
     QMenu* m_pathsMenu;            ///< Menu for working with user paths.

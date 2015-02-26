@@ -184,7 +184,7 @@ Reset() {
   m_actions["pointView"]->setEnabled(true);
   m_actions["randEnvColors"]->setEnabled(true);
 
-  ClickPoint();
+  ClickRobot();
 
   m_actions["refreshEnv"]->setEnabled(true);
   m_actions["addObstacle"]->setEnabled(true);
