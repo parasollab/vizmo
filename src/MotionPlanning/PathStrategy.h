@@ -173,7 +173,7 @@ Initialize() {
   //if a vizmo query is loaded, add the query cfgs to the map and set the map
   //evaluator to bounded query
   if(GetVizmo().IsQueryLoaded()) {
-    m_query = &*(boost::static_pointer_cast<Query<MPTraits> >(
+    m_query = &*(static_pointer_cast<Query<MPTraits> >(
         this->GetMPProblem()->GetMapEvaluator("Query")));
     AddToRoadmap(m_query->GetQuery(), m_endPoints); //store vids with path ends
   }

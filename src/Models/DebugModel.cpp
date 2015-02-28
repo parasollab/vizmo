@@ -1,5 +1,7 @@
 #include "DebugModel.h"
 
+#include <containers/sequential/graph/algorithms/dijkstra.h>
+
 #include "EnvModel.h"
 #include "RegionBoxModel.h"
 #include "RegionBox2DModel.h"
@@ -279,7 +281,7 @@ BuildForward() {
     if(ins->m_name == "AddNode") {
       //add vertex specified by instruction to the graph
       AddNode* an = static_cast<AddNode*>(ins);
-      m_mapModel->GetGraph()->add_vertex(an->m_cfg);
+      m_mapModel->GetGraph()->AddVertex(an->m_cfg);
     }
     else if(ins->m_name == "AddEdge") {
       AddEdge* ae = static_cast<AddEdge*>(ins);
@@ -604,7 +606,7 @@ BuildBackward() {
     else if(ins->m_name == "RemoveNode") {
       //undo removal of node
       RemoveNode* rn = static_cast<RemoveNode*>(ins);
-      m_mapModel->GetGraph()->add_vertex(rn->m_cfg);
+      m_mapModel->GetGraph()->AddVertex(rn->m_cfg);
     }
     else if(ins->m_name == "RemoveEdge") {
       //undo removal of edge

@@ -1,5 +1,5 @@
 /* XPM */
-static const char* next[] = {
+static const char* next1[] = {
 /* columns rows colors chars-per-pixel */
 (char*)"300 300 62 1 ",
 (char*)"  c #000000",

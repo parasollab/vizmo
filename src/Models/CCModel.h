@@ -2,8 +2,9 @@
 #define CCMODEL_H_
 
 #include <iostream>
-#include <vector>
 #include <map>
+#include <sstream>
+#include <vector>
 using namespace std;
 
 #include "Model.h"

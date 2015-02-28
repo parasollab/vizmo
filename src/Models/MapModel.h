@@ -1,9 +1,11 @@
 #ifndef MAP_MODEL_H_
 #define MAP_MODEL_H_
 
-#include "boost/shared_ptr.hpp"
-using boost::shared_ptr;
 #include "MPProblem/RoadmapGraph.h"
+
+#include <containers/sequential/graph/graph.h>
+#include <containers/sequential/graph/algorithms/connected_components.h>
+#include <containers/sequential/graph/algorithms/graph_input_output.h>
 
 #include <QMutex>
 #include <QMutexLocker>

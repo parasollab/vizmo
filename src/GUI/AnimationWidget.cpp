@@ -184,7 +184,7 @@ CreateActions() {
   QAction* pausePathAction = new QAction(QIcon(QPixmap(pauseIcon)), tr("Pause"),this);
   connect(pausePathAction, SIGNAL(triggered()), SLOT(PauseAnimate()));
 
-  QAction* nextFrameAction = new QAction(QIcon(QPixmap(next)), tr("NextFrame"),this);
+  QAction* nextFrameAction = new QAction(QIcon(QPixmap(next1)), tr("NextFrame"),this);
   connect(nextFrameAction, SIGNAL(triggered()), SLOT(NextFrame()));
 
   QAction* previousFrameAction = new QAction(QIcon(QPixmap(previous)), tr("PreviousFrame"),this);

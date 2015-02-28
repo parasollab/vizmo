@@ -127,7 +127,7 @@ Initialize() {
   string basename = this->GetBaseFilename();
 
   if(GetVizmo().IsQueryLoaded())
-    boost::static_pointer_cast<Query<MPTraits> >(this->GetMPProblem()->
+    static_pointer_cast<Query<MPTraits> >(this->GetMPProblem()->
         GetMapEvaluator("Query"))->SetPathFile(basename + ".path");
 
   //Make non-region objects non-selectable

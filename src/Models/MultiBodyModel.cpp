@@ -1,7 +1,5 @@
 #include "MultiBodyModel.h"
 
-#include <GraphAlgo.h>
-
 #include "BodyModel.h"
 #include "BoundingBoxModel.h"
 #include "BoundaryModel.h"
@@ -11,6 +9,8 @@
 #include "EnvModel.h"
 #include "Vizmo.h"
 #include "Utilities/IO.h"
+
+#include <containers/sequential/graph/algorithms/connected_components.h>
 
 vector<MultiBodyModel::DOFInfo> MultiBodyModel::m_dofInfo = vector<MultiBodyModel::DOFInfo>();
 
@@ -237,7 +237,7 @@ MultiBodyModel::DeleteRobot(int _index){
 
 void
 MultiBodyModel::AddBase(BodyModel* _newBase){
-  m_robots.push_back(make_pair(_newBase, NULL));
+  m_robots.push_back(make_pair(_newBase, vector<ConnectionModel*>()));
 }
 
 void

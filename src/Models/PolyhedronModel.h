@@ -1,9 +1,9 @@
 #ifndef POLYHEDRONMODEL_H_
 #define POLYHEDRONMODEL_H_
 
-#include "Graph.h"
-
 #include "Model.h"
+
+#include <containers/sequential/graph/graph.h>
 
 class PolyhedronModel : public Model {
   public:

@@ -6,8 +6,7 @@
 #define GLWIDGET_H_
 
 #include <deque>
-
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <QtGui>
 
@@ -48,8 +47,8 @@ class GLWidget : public QGLWidget {
     //will be written
     void SaveImage(QString _filename, bool _crop);
 
-    boost::shared_ptr<RegionModel> GetCurrentRegion() { return m_currentRegion;}
-    void SetCurrentRegion(boost::shared_ptr<RegionModel> _r = boost::shared_ptr<RegionModel>()) {m_currentRegion = _r;}
+    shared_ptr<RegionModel> GetCurrentRegion() { return m_currentRegion;}
+    void SetCurrentRegion(shared_ptr<RegionModel> _r = shared_ptr<RegionModel>()) {m_currentRegion = _r;}
 
     UserPathModel* GetCurrentUserPath() {return m_currentUserPath;}
     void SetCurrentUserPath(UserPathModel* _p) {m_currentUserPath = _p;}
@@ -108,7 +107,7 @@ class GLWidget : public QGLWidget {
     TransformTool m_transformTool;
     PickBox m_pickBox;
 
-    boost::shared_ptr<RegionModel> m_currentRegion;
+    shared_ptr<RegionModel> m_currentRegion;
     UserPathModel* m_currentUserPath;
 };
 

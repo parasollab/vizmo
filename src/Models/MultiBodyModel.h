@@ -1,7 +1,8 @@
 #ifndef MULTIBODYMODEL_H_
 #define MULTIBODYMODEL_H_
 
-#include <include/Graph.h>
+#include <algorithm>
+#include <containers/sequential/graph/graph.h>
 
 #include <Transformation.h>
 using namespace mathtool;
