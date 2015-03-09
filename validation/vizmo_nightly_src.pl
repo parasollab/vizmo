@@ -3,6 +3,8 @@
 use Getopt::Std;
 getopts('c:d:');
 
+my $startRun = time();
+
 #
 # configuration
 #
@@ -26,13 +28,11 @@ $DEBUG = $opt_d;
 # setup shell variables
 #
 if ($opt_c eq "LINUX_gcc") {
-  $GCC_PATH = "/usr/lib64/ccache";
-  $MYENV    = "/usr/local/bin:$GCC_PATH:/usr/bin:/usr/X11R6/bin";
+  $ENV{'PATH'} = "/usr/lib64/ccache:".$ENV{'PATH'};
 }
 else {
   die "no suitable combination found";
 }
-$ENV{'PATH'} = $MYENV.":".$ENV{'PATH'};
 
 #
 # figure out time and date
@@ -46,18 +46,44 @@ $year     = 1900 + $yearOffset;
 $fulldate = "$day-$month-$dayOfMonth-$year";
 
 #
-# check out code, compile and run tests
+# start log file
 #
-$vizmodir = "vizmo-$opt_c-$opt_d";
+$OUTPUT = "$fulldate\nplatform = $PLATFORM / debug = $DEBUG\n";
+
+#
+# go to working dir, remove old directories, and check out new copy
+# (if necessary)
+#
 chdir $workdir or die "Can't cd to $workdir $!\n";
-$OUTPUT = "platform = $PLATFORM / debug = $DEBUG\n";
-$OUTPUT = $OUTPUT.`rm -rf $vizmodir 2>&1`;
-$OUTPUT = $OUTPUT.`svn --quiet checkout svn+ssh://parasol-svn.cs.tamu.edu/research/parasol-svn/svnrepository/vizmo/trunk $vizmodir 2>&1`;
-chdir "$workdir/$vizmodir/src";
-$ENV{'PWD'} = "$workdir/$vizmodir/src";
+$vizmodir = "$fulldate";
+opendir(DIR, $workdir) or die $!;
+while(my $file = readdir(DIR)) {
+  if(!($file eq $vizmodir) && !($file eq ".") && !($file eq "..")) {
+    $OUTPUT = $OUTPUT."Removing directory $file\n".`rm -rf $file 2>&1`;
+  }
+}
+closedir(DIR);
+if(!-e "$vizmodir") {
+  $OUTPUT = $OUTPUT."Checking out repository.\n";
+  while(!-e "$vizmodir") {
+    $OUTPUT = $OUTPUT.`svn --quiet checkout svn+ssh://parasol-svn.cs.tamu.edu/research/parasol-svn/svnrepository/vizmo/trunk $vizmodir 2>&1`;
+  }
+}
+else {
+  $OUTPUT = $OUTPUT."Repository already checked out, continuing compilation.\n";
+}
+
+#
+# print system details
+#
+chdir "$vizmodir/src";
 $OUTPUT = $OUTPUT."Started at ".`date 2>&1`;
 $OUTPUT = $OUTPUT."g++ path: ".`which g++ 2>&1`;
 $OUTPUT = $OUTPUT."g++ details:\n".`g++ -c -v 2>&1`;
+
+#
+#compile
+#
 $OUTPUT = $OUTPUT.`make platform=$PLATFORM debug=$DEBUG reallyreallyclean 2>&1`;
 $OUTPUT = $OUTPUT.`make platform=$PLATFORM debug=$DEBUG -j4 2>&1`;
 if (-e "$workdir/$vizmodir/src/vizmo++") {
@@ -65,14 +91,19 @@ if (-e "$workdir/$vizmodir/src/vizmo++") {
 } else {
   $OUTPUT = $OUTPUT."=====\nFailed: vizmo compilation\n=====\n";
 }
+
+#
+# Timing stats
+#
+my $endRun = time();
+my $runTime = $endRun - $startRun;
+$OUTPUT = $OUTPUT."\n\nTest took $runTime seconds.\n";
+
 $OUTPUT = $OUTPUT."Done at ".`date 2>&1`;
 
 #
 # output log to /tmp
 #
-$ENV{'PATH'} = '/usr/local/bin/:/usr/X11R6/bin/:'.$ENV{'PATH'};
-$ENV{'DISPLAY'} = '';
-
 if (!-e "$outputdir") {
   `mkdir $outputdir`;
 }
@@ -83,10 +114,6 @@ $outfile = "$outputdir/$fulldate/vizmo.$opt_c.debug$opt_d.out";
 open(OUT, ">$outfile" || die "error, could not open $outfile for reading: $!");
 print OUT $OUTPUT;
 close(OUT);
-
-#
-# copy the output to the webserver
-#
 
 #
 # send mail
