@@ -53,9 +53,9 @@ CreateActions() {
   m_actions["setCameraPosition"] = new QAction(QPixmap(setcameraposition),
       tr("Set camera position"), this);
   m_actions["saveCameraPosition"] = new QAction(QPixmap(savecameraposition),
-      tr("save camera position"), this);
+      tr("Save camera position"), this);
   m_actions["loadCameraPosition"] = new QAction(QPixmap(savecameraposition),
-      tr("load camera position"), this);
+      tr("Load camera position"), this);
   m_actions["changeBGColor"] = new QAction(QPixmap(bgColor),
       tr("Change background color"), this);
   m_actions["makeSolid"] = new QAction(QPixmap(makeSolidIcon),
@@ -74,6 +74,7 @@ CreateActions() {
   m_actions["showAxis"]->setChecked(true);
   m_actions["showFrameRate"]->setCheckable(true);
   m_actions["resetCamera"]->setEnabled(false);
+  m_actions["setCameraPosition"]->setEnabled(false);
   m_actions["changeBGColor"]->setEnabled(false);
   m_actions["saveCameraPosition"]->setEnabled(false);
   m_actions["loadCameraPosition"]->setEnabled(false);
@@ -110,6 +111,8 @@ CreateActions() {
   connect(m_actions["showFrameRate"], SIGNAL(triggered()),
       GetMainWindow()->GetGLWidget(), SLOT(ShowFrameRate()));
   connect(GetMainWindow()->GetGLWidget(), SIGNAL(clickByRMB()),
+      this, SLOT(ShowGeneralContextMenu()));
+  connect(GetMainWindow()->GetGLWidget(), SIGNAL(selectByRMB()),
       this, SLOT(ShowGeneralContextMenu()));
 }
 
@@ -195,6 +198,7 @@ void
 GLWidgetOptions::
 Reset() {
   m_actions["resetCamera"]->setEnabled(true);
+  m_actions["setCameraPosition"]->setEnabled(true);
   m_actions["changeBGColor"]->setEnabled(true);
   m_actions["changeObjectColor"]->setEnabled(true);
   m_modifySelected->setEnabled(true);
@@ -267,46 +271,66 @@ ChangeBGColor() {
 void
 GLWidgetOptions::
 ShowGeneralContextMenu() {
+  //create context menu
   QMenu cm(this);
-  cm.addAction(m_actions["changeBGColor"]);
-  cm.addAction(m_actions["resetCamera"]);
-  cm.addAction(m_actions["saveCameraPosition"]);
-  cm.addAction(m_actions["setCameraPosition"]);
-  cm.addAction(m_actions["showAxis"]);
-  cm.addAction(m_actions["showFrameRate"]);
 
-  if(cm.exec(QCursor::pos()) != 0)
-    GetMainWindow()->GetGLWidget()->updateGL();
+  //get selected models
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  if(sel.empty()) {
+    //show general display options when no models are selected
+    cm.addAction(m_actions["showAxis"]);
+    cm.addAction(m_actions["showFrameRate"]);
+    cm.addAction(m_actions["changeBGColor"]);
+    cm.addSeparator();
+    cm.addAction(m_actions["resetCamera"]);
+    cm.addAction(m_actions["loadCameraPosition"]);
+    cm.addAction(m_actions["saveCameraPosition"]);
+    cm.addAction(m_actions["setCameraPosition"]);
+  }
+  else {
+    //determine whether cfgs or other models are selected
+    bool cfgsSelected = false;
+    bool otherSelected = false;
+    for(auto i : sel) {
+      if(i->Name().find("Node") != string::npos ||
+          i->Name().find("Edge") != string::npos)
+        cfgsSelected = true;
+      else
+        otherSelected = true;
+    }
+    if(!cfgsSelected && otherSelected) {
+      cm.addAction(m_actions["makeSolid"]);
+      cm.addAction(m_actions["makeWired"]);
+      cm.addAction(m_actions["makeInvisible"]);
+    }
+  }
+
+  //show menu
+  cm.exec(QCursor::pos());
 }
 
 
 void
 GLWidgetOptions::
 MakeSolid() {
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  for(MIT i = sel.begin(); i!= sel.end(); i++)
-    (*i)->SetRenderMode(SOLID_MODE);
-  GetMainWindow()->GetGLWidget()->updateGL();
+  for(auto i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(SOLID_MODE);
 }
 
 
 void
 GLWidgetOptions::
 MakeWired() {
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  for(MIT i = sel.begin(); i!= sel.end(); i++)
-    (*i)->SetRenderMode(WIRE_MODE);
-  GetMainWindow()->GetGLWidget()->updateGL();
+  for(auto i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(WIRE_MODE);
 }
 
 
 void
 GLWidgetOptions::
 MakeInvisible() {
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  for(MIT i = sel.begin(); i!= sel.end(); i++)
-    (*i)->SetRenderMode(INVISIBLE_MODE);
-  GetMainWindow()->GetGLWidget()->updateGL();
+  for(auto i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(INVISIBLE_MODE);
 }
 
 
