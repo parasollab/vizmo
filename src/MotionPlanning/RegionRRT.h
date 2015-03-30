@@ -262,17 +262,15 @@ typename RegionRRT<MPTraits>::VID
 RegionRRT<MPTraits>::
 ExpandTree(CfgType& _dir) {
   // Setup MP Variables
-  DistanceMetricPointer dm = this->GetMPProblem()->GetDistanceMetric(this->m_dm);
-  NeighborhoodFinderPointer nf = this->GetMPProblem()->GetNeighborhoodFinder(this->m_nf);
-  LocalPlannerPointer lp = this->GetMPProblem()->GetLocalPlanner(this->m_lp);
-  LPOutput<MPTraits> lpOutput;
+  DistanceMetricPointer dm = this->GetDistanceMetric(this->m_dm);
+  NeighborhoodFinderPointer nf = this->GetNeighborhoodFinder(this->m_nf);
   VID recentVID = INVALID_VID;
   CDInfo  cdInfo;
   // Find closest Cfg in map
-  vector<pair<VID, double> > kClosest;
+  vector<pair<VID, double>> kClosest;
   vector<CfgType> cfgs;
 
-  GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
+  GraphType* g = this->GetRoadmap()->GetGraph();
 
   int numRoadmapVertex  = g->get_num_vertices();
   typedef typename vector<vector<VID> >::iterator TRIT;
@@ -306,22 +304,21 @@ ExpandTree(CfgType& _dir) {
     this->m_currentTree = this->m_trees.begin();
   }
 
-  StatClass* kcloseStatClass = this->GetMPProblem()->GetStatClass();
+  StatClass* kcloseStatClass = this->GetStatClass();
   string kcloseClockName = "kclosest time ";
   kcloseStatClass->StartClock(kcloseClockName);
-  nf->FindNeighbors(this->GetMPProblem()->GetRoadmap(), this->m_currentTree->begin(), this->m_currentTree->end(), _dir, back_inserter(kClosest));
+  nf->FindNeighbors(this->GetRoadmap(), this->m_currentTree->begin(), this->m_currentTree->end(), _dir, back_inserter(kClosest));
   kcloseStatClass->StopClock(kcloseClockName);
 
-  CfgType nearest = this->GetMPProblem()->GetRoadmap()->GetGraph()->GetVertex(kClosest[0].first);
+  CfgType nearest = g->GetVertex(kClosest[0].first);
   CfgType newCfg;
-  int weight = 0;
 
-  StatClass* expandStatClass = this->GetMPProblem()->GetStatClass();
+  StatClass* expandStatClass = this->GetStatClass();
   string expandClockName = "RRTExpand time ";
   expandStatClass->StartClock(expandClockName);
 
-  vector<CfgType> intermediateNodes;
-  if(!this->GetMPProblem()->GetExtender(this->m_extenderLabel)->Extend(nearest, _dir, newCfg, intermediateNodes)) {
+  LPOutput<MPTraits> lpOut;
+  if(!this->GetExtender(this->m_extenderLabel)->Extend(nearest, _dir, newCfg, lpOut)) {
     if(this->m_debug) cout << "RRT could not expand!" << endl;
     return recentVID;
   }
@@ -332,19 +329,18 @@ ExpandTree(CfgType& _dir) {
 
   // If good to go, add to roadmap
   if(dm->Distance(newCfg, nearest) >= this->m_minDist ) {
-    recentVID = this->GetMPProblem()->GetRoadmap()->GetGraph()->AddVertex(newCfg);
+    recentVID = g->AddVertex(newCfg);
 
     // Store q_new to check if it is in region later
     m_qNew = newCfg;
 
     this->m_currentTree->push_back(recentVID);
     if(std::string::npos != this->m_gt.find("UNDIRECTED")){
-      pair<WeightType, WeightType> weights = make_pair(WeightType("RRTExpand", weight), WeightType("RRTExpand", weight));
-      this->GetMPProblem()->GetRoadmap()->GetGraph()->AddEdge(kClosest[0].first, recentVID, weights);
+      g->AddEdge(kClosest[0].first, recentVID, lpOut.m_edge);
     }
     else
-      this->GetMPProblem()->GetRoadmap()->GetGraph()->AddEdge(kClosest[0].first, recentVID, WeightType("RRTExpand", weight));
-    this->GetMPProblem()->GetRoadmap()->GetGraph()->GetVertex(recentVID).SetStat("Parent", kClosest[0].first);
+      g->AddEdge(kClosest[0].first, recentVID, lpOut.m_edge.first);
+    g->GetVertex(recentVID).SetStat("Parent", kClosest[0].first);
 
 
     if(std::string::npos != this->m_gt.find("GRAPH")){
@@ -354,11 +350,12 @@ ExpandTree(CfgType& _dir) {
     for( size_t i = 2; i <= this->m_numDirections; i++){//expansion to other m-1 directions
       CfgType randdir = this->SelectDispersedDirection(kClosest[0].first);
       expandStatClass->StartClock(expandClockName);
-      bool expandFlag = this->GetMPProblem()->GetExtender(this->m_extenderLabel)
-        ->Extend(nearest, randdir, newCfg, intermediateNodes);
+      LPOutput<MPTraits> lpOut;
+      bool expandFlag = this->GetExtender(this->m_extenderLabel)
+        ->Extend(nearest, randdir, newCfg, lpOut);
 
       expandStatClass->StopClock(expandClockName);
-      StatClass* conStatClass = this->GetMPProblem()->GetStatClass();
+      StatClass* conStatClass = this->GetStatClass();
       string conClockName = "Connection time ";
       conStatClass->StartClock(conClockName);
 
@@ -366,18 +363,17 @@ ExpandTree(CfgType& _dir) {
         if(this->m_debug) cout << "RRT could not expand to additional directions!" << endl;
       }
       else if(dm->Distance(newCfg, nearest) >= this->m_minDist ) {
-        VID otherVID = this->GetMPProblem()->GetRoadmap()->GetGraph()->AddVertex(newCfg);
+        VID otherVID = g->AddVertex(newCfg);
         this->m_currentTree->push_back(otherVID);
         if(std::string::npos != this->m_gt.find("UNDIRECTED")) {
-          pair<WeightType, WeightType> weights = make_pair(WeightType("RRTExpand", weight), WeightType("RRTExpand", weight));
-          this->GetMPProblem()->GetRoadmap()->GetGraph()->AddEdge(kClosest[0].first, otherVID, weights);
+          g->AddEdge(kClosest[0].first, otherVID, lpOut.m_edge);
         }
         else
-          this->GetMPProblem()->GetRoadmap()->GetGraph()->AddEdge(kClosest[0].first, otherVID, WeightType("RRTExpand", weight));
-        this->GetMPProblem()->GetRoadmap()->GetGraph()->GetVertex(otherVID).SetStat("Parent", kClosest[0].first);
+          g->AddEdge(kClosest[0].first, otherVID, lpOut.m_edge.first);
+        g->GetVertex(otherVID).SetStat("Parent", kClosest[0].first);
 
         if(std::string::npos != this->m_gt.find("GRAPH")){
-          this->ConnectNeighbors( otherVID, kClosest[0].first);
+          this->ConnectNeighbors(otherVID, kClosest[0].first);
         }
       }
       conStatClass->StopClock(conClockName);
