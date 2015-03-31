@@ -163,7 +163,7 @@ void
 RegionRRT<MPTraits>::
 Finalize() {
   //setup variables
-  StatClass* stats = this->GetMPProblem()->GetStatClass();
+  StatClass* stats = this->GetStatClass();
   string basename = this->GetBaseFilename();
 
   //print info to console
@@ -179,8 +179,7 @@ Finalize() {
   if(this->m_query) {
     this->m_query->SetPathFile(basename + ".path");
     if(this->m_evaluateGoal) {
-      if(this->m_query->PerformQuery(this->GetMPProblem()->GetRoadmap()) &&
-          this->m_debug)
+      if(this->m_query->PerformQuery(this->GetRoadmap()) && this->m_debug)
         cout << "Query successful!" << endl;
       else if(this->m_debug)
         cout << "Query unsuccessful." << endl;
@@ -188,15 +187,12 @@ Finalize() {
   }
 
   //output final map
-  ofstream osMap((basename + ".map").c_str());
-  this->GetMPProblem()->GetRoadmap()->Write(osMap,
-      this->GetMPProblem()->GetEnvironment());
-  osMap.close();
+  this->GetRoadmap()->Write(basename + ".map", this->GetEnvironment());
 
   //output stats
   ofstream osStat((basename + ".stat").c_str());
   osStat << "NodeGen+Connection Stats" << endl;
-  stats->PrintAllStats(osStat, this->GetMPProblem()->GetRoadmap());
+  stats->PrintAllStats(osStat, this->GetRoadmap());
   GetVizmo().PrintClock("RegionRRT", osStat);
   stats->PrintClock("RRT Generation MP", osStat);
   osStat.close();

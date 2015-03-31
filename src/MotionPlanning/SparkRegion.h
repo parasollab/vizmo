@@ -107,21 +107,20 @@ Finalize() {
   string basename = this->GetBaseFilename();
 
   //print clocks + output a stat class
-  StatClass* stats = this->GetMPProblem()->GetStatClass();
+  StatClass* stats = this->GetStatClass();
   GetVizmo().PrintClock("Pre-regions", cout);
   GetVizmo().PrintClock("SparkRegion", cout);
   stats->PrintClock("SparkRegionMP", cout);
 
   ofstream ostats((basename + ".stat").c_str());
   ostats << "NodeGen+Connection Stats" << endl;
-  stats->PrintAllStats(ostats, this->GetMPProblem()->GetRoadmap());
+  stats->PrintAllStats(ostats, this->GetRoadmap());
   GetVizmo().PrintClock("Pre-regions", ostats);
   GetVizmo().PrintClock("SparkRegion", ostats);
   stats->PrintClock("SparkRegionMP", ostats);
 
   //output roadmap
-  ofstream ofs((basename + ".map").c_str());
-  this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
+  this->GetRoadmap()->Write(basename + ".map", this->GetEnvironment());
 
   //show results pop-up
   ostringstream results;

@@ -185,7 +185,7 @@ void
 RegionStrategy<MPTraits>::
 Finalize() {
   //set up variables
-  StatClass* stats = this->GetMPProblem()->GetStatClass();
+  StatClass* stats = this->GetStatClass();
   string basename = this->GetBaseFilename();
 
   cout << "Finalizing Region Strategy." << endl;
@@ -203,19 +203,18 @@ Finalize() {
   ofstream ostats((basename + ".stat").c_str());
 
   ostats << "NodeGen+Connection Stats" << endl;
-  stats->PrintAllStats(ostats, this->GetMPProblem()->GetRoadmap());
+  stats->PrintAllStats(ostats, this->GetRoadmap());
 
   GetVizmo().PrintClock("Pre-regions", ostats);
   GetVizmo().PrintClock("RegionStrategy", ostats);
   stats->PrintClock("RegionStrategyMP", ostats);
 
   //output roadmap
-  ofstream ofs((basename + ".map").c_str());
-  this->GetMPProblem()->GetRoadmap()->Write(ofs, this->GetMPProblem()->GetEnvironment());
+  this->GetRoadmap()->Write(basename + ".map", this->GetEnvironment());
 
   //output a path file
   if(GetVizmo().IsQueryLoaded())
-    m_query->PerformQuery(this->GetMPProblem()->GetRoadmap());
+    m_query->PerformQuery(this->GetRoadmap());
 
   //show results pop-up
   ostringstream results;

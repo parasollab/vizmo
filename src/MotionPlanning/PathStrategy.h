@@ -256,8 +256,7 @@ Finalize() {
   m_stats->PrintClock("PathStrategyMP", ostats);
 
   //output roadmap
-  ofstream ofs((basename + ".map").c_str());
-  m_map->Write(ofs, m_env);
+  m_map->Write(basename + ".map", m_env);
 
   //output a path file if a query was loaded
   ostringstream results;
