@@ -340,7 +340,7 @@ ExpandTree(CfgType& _dir) {
 
 
     if(std::string::npos != this->m_gt.find("GRAPH")){
-      this->ConnectNeighbors(recentVID, kClosest[0].first);
+      this->ConnectNeighbors(recentVID);
     }
 
     for( size_t i = 2; i <= this->m_numDirections; i++){//expansion to other m-1 directions
@@ -369,7 +369,7 @@ ExpandTree(CfgType& _dir) {
         g->GetVertex(otherVID).SetStat("Parent", kClosest[0].first);
 
         if(std::string::npos != this->m_gt.find("GRAPH")){
-          this->ConnectNeighbors(otherVID, kClosest[0].first);
+          this->ConnectNeighbors(otherVID);
         }
       }
       conStatClass->StopClock(conClockName);
