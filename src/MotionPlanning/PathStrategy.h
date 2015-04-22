@@ -218,7 +218,8 @@ Run() {
   }
 
   //try to connect all endpoints
-  Connect(m_endPoints);
+  m_connector->Connect(m_map, m_endPoints.begin(), m_endPoints.end(),
+      m_endPoints.begin(), m_endPoints.end());
 }
 
 
@@ -358,16 +359,5 @@ ConnectPath(const vector<VID>& _vids) {
     }
   }
 }
-
-
-template<class MPTraits>
-void
-PathStrategy<MPTraits>::
-Connect(vector<VID>& _vids) {
-  stapl::sequential::vector_property_map<typename GraphType::GRAPH, size_t> cMap;
-  m_connector->Connect(m_map, *m_stats, cMap, _vids.begin(), _vids.end(),
-      _vids.begin(), _vids.end());
-}
-
 
 #endif

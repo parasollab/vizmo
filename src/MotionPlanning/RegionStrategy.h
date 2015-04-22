@@ -361,11 +361,9 @@ template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
 Connect(vector<VID>& _vids, size_t _i) {
-  stapl::sequential::vector_property_map<typename GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
       this->GetConnector("RegionBFNFConnector");
-  cp->Connect(this->GetRoadmap(),
-      *(this->GetStatClass()), cMap, _vids.begin(), _vids.end());
+  cp->Connect(this->GetRoadmap(), _vids.begin(), _vids.end());
 
   UpdateRegionStats();
   UpdateRegionColor(_i);
