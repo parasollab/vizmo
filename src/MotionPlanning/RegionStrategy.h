@@ -127,7 +127,7 @@ Initialize() {
   string basename = this->GetBaseFilename();
 
   if(GetVizmo().IsQueryLoaded())
-    static_pointer_cast<Query<MPTraits> >(this->GetMPProblem()->
+    static_pointer_cast<Query<MPTraits> >(this->
         GetMapEvaluator("Query"))->SetPathFile(basename + ".path");
 
   //Make non-region objects non-selectable
@@ -143,7 +143,7 @@ RegionStrategy<MPTraits>::Run() {
 
   //start clock
   GetVizmo().StartClock("RegionStrategy");
-  this->GetMPProblem()->GetStatClass()->StartClock("RegionStrategyMP");
+  this->GetStatClass()->StartClock("RegionStrategyMP");
 
   size_t iter = 0;
   while(!EvaluateMap()) {
@@ -177,7 +177,7 @@ RegionStrategy<MPTraits>::Run() {
 
   //stop clock
   GetVizmo().StopClock("RegionStrategy");
-  this->GetMPProblem()->GetStatClass()->StopClock("RegionStrategyMP");
+  this->GetStatClass()->StopClock("RegionStrategyMP");
 }
 
 template<class MPTraits>
@@ -249,26 +249,25 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
   shared_ptr<Boundary> samplingBoundary;
   const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   typename MPProblemType::SamplerPointer sp =
-    this->GetMPProblem()->GetSampler(m_samplerLabel);
+    this->GetSampler(m_samplerLabel);
 
   //check if the selected region is a region or the environment boundary.  if it
   //is the env boundary, set m_samplingRegion to null
   if(_index == regions.size()) {
     m_samplingRegion.reset();
-    samplingBoundary = this->GetMPProblem()->GetEnvironment()->GetBoundary();
+    samplingBoundary = this->GetEnvironment()->GetBoundary();
   }
   else {
     m_samplingRegion = regions[_index];
     samplingBoundary = m_samplingRegion->GetBoundary();
-    sp = this->GetMPProblem()->GetSampler(regions[_index]->GetSampler());
+    sp = this->GetSampler(regions[_index]->GetSampler());
   }
 
   //attempt to sample the region. track failures in col for density calculation.
   try {
     //track failures in col for density calculation
     vector<CfgType> col;
-    sp->Sample(this->GetMPProblem()->GetEnvironment(), samplingBoundary,
-        *this->GetMPProblem()->GetStatClass(), 1, 10,
+    sp->Sample(1, 10, samplingBoundary,
         back_inserter(_samples), back_inserter(col));
 
     //if this region is not the environment boundary, update failure count
@@ -307,12 +306,12 @@ ProcessAvoidRegions() {
     return;
 
   //check is needed. get env, graph, vc, and lp
-  GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
-  Environment* env = this->GetMPProblem()->GetEnvironment();
+  GraphType* g = this->GetRoadmap()->GetGraph();
+  Environment* env = this->GetEnvironment();
   typename MPProblemType::ValidityCheckerPointer vc =
-    this->GetMPProblem()->GetValidityChecker("AvoidRegionValidity");
+    this->GetValidityChecker("AvoidRegionValidity");
   typename MPProblemType::LocalPlannerPointer lp =
-    this->GetMPProblem()->GetLocalPlanner("AvoidRegionSL");
+    this->GetLocalPlanner("AvoidRegionSL");
 
   vector<VID> verticesToDel;
   vector<EID> edgesToDel;
@@ -353,7 +352,7 @@ AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
   _vids.clear();
   for(typename vector<CfgType>::iterator cit = _samples.begin();
       cit != _samples.end(); cit++) {
-    VID addedNode = this->GetMPProblem()->GetRoadmap()->GetGraph()->AddVertex(*cit);
+    VID addedNode = this->GetRoadmap()->GetGraph()->AddVertex(*cit);
     _vids.push_back(addedNode);
   }
 }
@@ -364,9 +363,9 @@ RegionStrategy<MPTraits>::
 Connect(vector<VID>& _vids, size_t _i) {
   stapl::sequential::vector_property_map<typename GraphType::GRAPH, size_t> cMap;
   typename MPProblemType::ConnectorPointer cp =
-      this->GetMPProblem()->GetConnector("RegionBFNFConnector");
-  cp->Connect(this->GetMPProblem()->GetRoadmap(),
-      *(this->GetMPProblem()->GetStatClass()), cMap, _vids.begin(), _vids.end());
+      this->GetConnector("RegionBFNFConnector");
+  cp->Connect(this->GetRoadmap(),
+      *(this->GetStatClass()), cMap, _vids.begin(), _vids.end());
 
   UpdateRegionStats();
   UpdateRegionColor(_i);
@@ -377,7 +376,7 @@ void
 RegionStrategy<MPTraits>::
 RecommendRegions(vector<VID>& _vids, size_t _i) {
   if(!m_samplingRegion) {
-    GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
+    GraphType* g = this->GetRoadmap()->GetGraph();
     typedef typename vector<VID>::iterator VIT;
     for(VIT vit = _vids.begin(); vit != _vids.end(); ++vit) {
       if(g->get_degree(*vit) < 1) {
@@ -386,10 +385,10 @@ RecommendRegions(vector<VID>& _vids, size_t _i) {
         RegionModelPtr r;
         if(GetVizmo().GetRobot()->IsPlanar())
           r = RegionModelPtr(new RegionSphere2DModel(g->GetVertex(*vit).GetPoint(),
-              this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100, false));
+              this->GetEnvironment()->GetPositionRes() * 100, false));
         else
           r = RegionModelPtr(new RegionSphereModel(g->GetVertex(*vit).GetPoint(),
-              this->GetMPProblem()->GetEnvironment()->GetPositionRes() * 100, false));
+              this->GetEnvironment()->GetPositionRes() * 100, false));
         r->SetCreationIter(_i);
         GetVizmo().GetEnv()->AddNonCommitRegion(r);
       }
@@ -403,8 +402,8 @@ RegionStrategy<MPTraits>::
 UpdateRegionStats() {
   if(m_samplingRegion) {
     //set up access pointers
-    Environment* ep = this->GetMPProblem()->GetEnvironment();
-    GraphType* g = this->GetMPProblem()->GetRoadmap()->GetGraph();
+    Environment* ep = this->GetEnvironment();
+    GraphType* g = this->GetRoadmap()->GetGraph();
     shared_ptr<Boundary> bbx = m_samplingRegion->GetBoundary();
 
     //clear m_numVertices

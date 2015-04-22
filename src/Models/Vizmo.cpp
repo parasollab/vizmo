@@ -269,8 +269,7 @@ InitPMPL() {
 
   //region obstacle-based sampler
   VizmoProblem::SamplerPointer robs(
-      new ObstacleBasedSampler<VizmoTraits>(problem->GetEnvironment(),
-      "RegionValidity", "euclidean"));
+      new ObstacleBasedSampler<VizmoTraits>("RegionValidity", "euclidean"));
   problem->AddSampler(robs, "RegionObstacleSampler");
   m_loadedSamplers.push_back("RegionObstacleSampler");
 
