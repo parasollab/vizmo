@@ -47,9 +47,10 @@ chdir "$vizmodir/docs";
 #doxygen
 chdir "Doxygen";
 $OUTPUT = $OUTPUT.`make 2>&1`;
+$OUTPUT = $OUTPUT.`rm -rf /research/www/groups/amatogroup/intranet/VizmoDocs/Internal`;
+$OUTPUT = $OUTPUT.`rm -rf /research/www/groups/amatogroup/intranet/VizmoDocs/Release`;
 $OUTPUT = $OUTPUT.`cp -r Internal Release /research/www/groups/amatogroup/intranet/VizmoDocs`;
-$OUTPUT = $OUTPUT.`chmod -R 775 /research/www/groups/amatogroup/intranet/VizmoDocs/Internal`;
-$OUTPUT = $OUTPUT.`chmod -R 775 /research/www/groups/amatogroup/intranet/VizmoDocs/Release`;
+$OUTPUT = $OUTPUT.`update-www -r /research/www/groups/amatogroup/intranet/VizmoDocs`;
 
 #
 # Timing stats
