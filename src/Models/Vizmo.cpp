@@ -576,8 +576,8 @@ Solve(const string& _strategy) {
     baseFilename = GetEnv()->GetModelDataDir() + "/";
 
   baseFilename += _strategy + "." + mySeed.str();
-  mps->SetBaseFilename(baseFilename);
-  oss << mps->GetBaseFilename() << ".vd";
+  GetVizmoProblem()->SetBaseFilename(baseFilename);
+  oss << GetVizmoProblem()->GetBaseFilename() << ".vd";
 
   //Initialize Vizmo Debug
   VDInit(oss.str());

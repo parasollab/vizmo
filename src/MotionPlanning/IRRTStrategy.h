@@ -198,7 +198,6 @@ Finalize() {
 
   //perform query if query was given as input
   if(this->m_query) {
-    this->m_query->SetPathFile(basename + ".path");
     if(this->m_evaluateGoal) {
       if(this->m_query->PerformQuery(this->GetRoadmap()) && this->m_debug)
         cout << "Query successful!" << endl;

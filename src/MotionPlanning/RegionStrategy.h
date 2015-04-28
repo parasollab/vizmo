@@ -92,7 +92,6 @@ SetQuery() {
     //setup region query evaluator
     m_query = new Query<MPTraits>(
         GetVizmo().GetQryFileName(), vector<string>(1, "RegionBFNFConnector"));
-    m_query->SetPathFile(this->GetBaseFilename() + ".path");
     typename MPProblemType::MapEvaluatorPointer rq(m_query);
     this->GetMPProblem()->AddMapEvaluator(rq, "RegionQuery");
 
@@ -123,12 +122,6 @@ Initialize() {
   cout << "Initializing Region Strategy." << endl;
 
   SetQuery();
-
-  string basename = this->GetBaseFilename();
-
-  if(GetVizmo().IsQueryLoaded())
-    static_pointer_cast<Query<MPTraits> >(this->
-        GetMapEvaluator("Query"))->SetPathFile(basename + ".path");
 
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);

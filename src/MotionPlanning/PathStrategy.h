@@ -262,7 +262,6 @@ Finalize() {
   //output a path file if a query was loaded
   ostringstream results;
   if(m_query != NULL) {
-    m_query->SetPathFile(basename + ".path");
     if(!m_query->PerformQuery(m_map))
       results << "Planning Failed!" << endl;
     else
