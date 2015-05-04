@@ -13,6 +13,11 @@ ifndef phantom
   phantom = 0
 endif
 
+# set SpaceMouse compile
+ifndef spacemouse
+  spacemouse = 0
+endif
+
 # set directory paths
 ifndef VIZMO_DIR
   VIZMO_DIR = .

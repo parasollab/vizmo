@@ -592,9 +592,9 @@ MapControls(Camera* _c, const Vector3d& _deltaMouse,
   Vector3d zHat(0, 0, 1);
 
   //define unit vectors in the camera's coordinate system
-  Vector3d cameraX = -_c->GetWindowX();
+  Vector3d cameraX = _c->GetWindowX();
   Vector3d cameraY = _c->GetWindowY();
-  Vector3d cameraZ = -_c->GetWindowZ();
+  Vector3d cameraZ = _c->GetWindowZ();
 
   //find the world axis Q closest to cameraX and
   //set _delta[Q] = change in cameraX

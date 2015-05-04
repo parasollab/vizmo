@@ -19,11 +19,13 @@
 #include "Icons/Axis.xpm"
 #include "Icons/BgColor.xpm"
 #include "Icons/FrameRate.xpm"
+#include "Icons/FreeFloatingCamera.xpm"
 #include "Icons/MakeInvisible.xpm"
 #include "Icons/MakeSolid.xpm"
 #include "Icons/MakeWired.xpm"
 #include "Icons/Pallet.xpm"
 #include "Icons/ResetCamera.xpm"
+#include "Icons/ResetCameraUp.xpm"
 #include "Icons/SaveCameraPosition.xpm"
 #include "Icons/SetCameraPosition.xpm"
 #include "Icons/ShowNormals.xpm"
@@ -56,6 +58,10 @@ CreateActions() {
       tr("Save camera position"), this);
   m_actions["loadCameraPosition"] = new QAction(QPixmap(savecameraposition),
       tr("Load camera position"), this);
+  m_actions["toggleCameraFree"] = new QAction(QPixmap(freeFloatingCamera),
+      tr("Toggle free-floating camera."), this);
+  m_actions["resetCameraUp"] = new QAction(QPixmap(resetCameraUp),
+      tr("Reset camera up direction."), this);
   m_actions["changeBGColor"] = new QAction(QPixmap(bgColor),
       tr("Change background color"), this);
   m_actions["makeSolid"] = new QAction(QPixmap(makeSolidIcon),
@@ -78,6 +84,9 @@ CreateActions() {
   m_actions["changeBGColor"]->setEnabled(false);
   m_actions["saveCameraPosition"]->setEnabled(false);
   m_actions["loadCameraPosition"]->setEnabled(false);
+  m_actions["toggleCameraFree"]->setEnabled(false);
+  m_actions["toggleCameraFree"]->setCheckable(true);
+  m_actions["resetCameraUp"]->setEnabled(false);
   m_actions["makeSolid"]->setShortcut(tr("CTRL+F"));
   m_actions["makeSolid"]->setEnabled(false);
   m_actions["makeWired"]->setShortcut(tr("CTRL+W"));
@@ -96,6 +105,10 @@ CreateActions() {
       this, SLOT(SaveCameraPosition()));
   connect(m_actions["loadCameraPosition"], SIGNAL(triggered()),
       this, SLOT(LoadCameraPosition()));
+  connect(m_actions["toggleCameraFree"], SIGNAL(triggered()),
+      this, SLOT(ToggleCameraFree()));
+  connect(m_actions["resetCameraUp"], SIGNAL(triggered()),
+      this, SLOT(ResetCameraUp()));
   connect(m_actions["changeBGColor"], SIGNAL(triggered()),
       this, SLOT(ChangeBGColor()));
   connect(m_actions["makeSolid"], SIGNAL(triggered()), this, SLOT(MakeSolid()));
@@ -154,6 +167,11 @@ SetHelpTips() {
 
   m_actions["loadCameraPosition"]->setWhatsThis(tr("Click this button load the "
         " camera position."));
+
+  m_actions["toggleCameraFree"]->setWhatsThis(tr("Switch between free-floating "
+        "and restricted camera control."));
+
+  m_actions["resetCameraUp"]->setWhatsThis(tr("Reset the camera up direction"));
 }
 
 
@@ -181,14 +199,18 @@ SetUpToolTab() {
   buttonList.push_back("setCameraPosition");
   buttonList.push_back("saveCameraPosition");
   buttonList.push_back("loadCameraPosition");
-  buttonList.push_back("showAxis");
-  buttonList.push_back("showFrameRate");
+  buttonList.push_back("resetCamera");
+  buttonList.push_back("resetCameraUp");
+  buttonList.push_back("toggleCameraFree");
+  buttonList.push_back("_separator_");
   buttonList.push_back("makeSolid");
   buttonList.push_back("makeWired");
   buttonList.push_back("makeInvisible");
   buttonList.push_back("changeObjectColor");
   buttonList.push_back("changeBGColor");
-  buttonList.push_back("resetCamera");
+  buttonList.push_back("_separator_");
+  buttonList.push_back("showAxis");
+  buttonList.push_back("showFrameRate");
   buttonList.push_back("showObjectNormals");
   CreateToolTab(buttonList);
 }
@@ -208,7 +230,8 @@ Reset() {
   m_actions["showObjectNormals"]->setEnabled(true);
   m_actions["saveCameraPosition"]->setEnabled(true);
   m_actions["loadCameraPosition"]->setEnabled(true);
-
+  m_actions["resetCameraUp"]->setEnabled(true);
+  m_actions["toggleCameraFree"]->setEnabled(true);
 }
 
 /*----------------------------- GL Functions ---------------------------------*/
@@ -251,6 +274,20 @@ LoadCameraPosition() {
         GetMainWindow()->GetGLWidget()->GetCurrentCamera());
     m_cameraPosDialog->LoadCameraPosition();
   }
+}
+
+
+void
+GLWidgetOptions::
+ResetCameraUp() {
+  GetMainWindow()->GetGLWidget()->GetCurrentCamera()->ResetUp();
+}
+
+
+void
+GLWidgetOptions::
+ToggleCameraFree() {
+  GetMainWindow()->GetGLWidget()->GetCurrentCamera()->ToggleFreeFloat();
 }
 
 

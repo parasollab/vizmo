@@ -31,7 +31,8 @@ int bs = qRegisterMetaType<Point3d>("Point3d");
 
 GLWidget::
 GLWidget(QWidget* _parent, MainWindow* _mainWindow) : QGLWidget(_parent),
-    m_transformTool(m_cameraFactory.GetCurrentCamera()), m_currentRegion(),
+    m_camera(Point3d(0, 0, 500), Vector3d(0, 0, 0)),
+    m_transformTool(GetCurrentCamera()), m_currentRegion(),
     m_currentUserPath(NULL) {
   m_mainWindow = _mainWindow;
   setMinimumSize(271, 211); //original size: 400 x 600
@@ -59,13 +60,14 @@ void
 GLWidget::
 ResetCamera() {
   EnvModel* e = GetVizmo().GetEnv();
-  GetCurrentCamera()->Set(Point3d(0, 0, 2*(e ? e->GetRadius() : 100)), Point3d(0,0,0));
+  GetCurrentCamera()->Set(Point3d(0, 0, 2*(e ? e->GetRadius() : 100)),
+      Point3d(0,0,0), Vector3d(0, 1, 0));
 }
 
 Camera*
 GLWidget::
 GetCurrentCamera() {
-  return m_cameraFactory.GetCurrentCamera();
+  return &m_camera;
 }
 
 void
@@ -105,7 +107,7 @@ paintGL() {
 
   //Render haptics!
   if(Haptics::UsingPhantom())
-    GetVizmo().GetManager()->HapticRender();
+    GetVizmo().GetPhantomManager()->HapticRender();
 
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -135,7 +137,7 @@ paintGL() {
 
   //Render haptics!
   if(Haptics::UsingPhantom())
-    GetVizmo().GetManager()->DrawRender();
+    GetVizmo().GetPhantomManager()->DrawRender();
 
   if(m_recording)
     emit Record();
@@ -370,7 +372,7 @@ GLWidget::
 keyPressEvent(QKeyEvent* _e) {
   //check for haptic toggle switch
   if(Haptics::UsingPhantom() && _e->key() == Qt::Key_QuoteLeft)
-    GetVizmo().GetManager()->ToggleForceOutput();
+    GetVizmo().GetPhantomManager()->ToggleForceOutput();
   //check camera then transform tool
   else if(!GetCurrentCamera()->KeyPressed(_e) &&
       !m_transformTool.KeyPressed(_e) &&

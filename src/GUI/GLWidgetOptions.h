@@ -34,6 +34,8 @@ class GLWidgetOptions : public OptionsBase {
     void ShowObjectNormals();     ///< Display normals of the selected model.
     void SaveCameraPosition();    ///< Save the current viewing perspective.
     void LoadCameraPosition();    ///< Load a viewing perspective from file.
+    void ToggleCameraFree();      ///< Toggle camera free-floating mode.
+    void ResetCameraUp();         ///< Reset the camera's up direction.
 
   private:
 

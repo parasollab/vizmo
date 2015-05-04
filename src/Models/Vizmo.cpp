@@ -17,6 +17,7 @@ using namespace std;
 #include "MotionPlanning/VizmoTraits.h"
 
 #include "PHANToM/Manager.h"
+#include "SpaceMouse/SpaceMouseManager.h"
 
 #include "Utilities/PickBox.h"
 
@@ -39,7 +40,8 @@ Vizmo::
 Vizmo() :
     m_envModel(NULL),
     m_robotModel(NULL),
-    m_manager(NULL),
+    m_phantomManager(NULL),
+    m_spaceMouseManager(NULL),
     m_mapModel(NULL),
     m_queryModel(NULL),
     m_pathModel(NULL),
@@ -73,7 +75,12 @@ InitModels() {
     cout << "Load Environment File : "<< m_envFilename << endl;
 
     //try to initialize PHANToM
-    m_manager = new Haptics::Manager();
+    m_phantomManager = new Haptics::Manager();
+
+    //try to initialize space mouse
+    m_spaceMouseManager = new SpaceMouseManager();
+    m_spaceMouseManager->Enable();
+    m_spaceMouseManager->EnableCamera();
 
     //Create map
     if(!m_mapFilename.empty()) {
@@ -288,14 +295,16 @@ Vizmo::
 Clean() {
   delete m_envModel;
   delete m_robotModel;
-  delete m_manager;
+  delete m_phantomManager;
+  delete m_spaceMouseManager;
   delete m_mapModel;
   delete m_queryModel;
   delete m_pathModel;
   delete m_debugModel;
   m_envModel = NULL;
   m_robotModel = NULL;
-  m_manager = NULL;
+  m_phantomManager = NULL;
+  m_spaceMouseManager = NULL;
   m_mapModel = NULL;
   m_queryModel = NULL;
   m_pathModel = NULL;

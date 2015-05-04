@@ -77,7 +77,7 @@ TranslationTool::MousePressed(QMouseEvent* _e) {
     m_objPosCatchPrj = m_objPosPrj;
     m_hitX = _e->pos().x();
     m_hitY = g_height - _e->pos().y();
-    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch, m_currentCamera->GetWindowZ());
+    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch, m_currentCamera->GetDir());
     return true;
   }
   return false;
@@ -99,7 +99,7 @@ TranslationTool::MouseMotion(QMouseEvent* _e) {
   int x = _e->pos().x();
   int y = g_height - _e->pos().y();
 
-  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch, m_currentCamera->GetWindowZ());
+  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch, m_currentCamera->GetDir());
   Vector3d v = curPos - m_hitUnPrj;
 
   switch(m_movementType) {
@@ -262,7 +262,7 @@ RotationTool::SetSelectedObj(TransformableModel* _obj) {
 
 void
 RotationTool::ComputeArcs() {
-  Vector3d v = m_currentCamera->GetWindowZ();
+  Vector3d v = m_currentCamera->GetDir();
   ComputeArcs(m_arcs[0], m_localAxis[0], m_localAxis[1], m_localAxis[2], v);
   ComputeArcs(m_arcs[1], m_localAxis[1], m_localAxis[2], m_localAxis[0], v);
   ComputeArcs(m_arcs[2], m_localAxis[2], m_localAxis[0], m_localAxis[1], v);
@@ -298,8 +298,8 @@ RotationTool::MousePressed(QMouseEvent* _e) {
       v2 = m_localAxisCatch[1];
       break;
     case VIEW_PLANE:
-      axis = m_currentCamera->GetWindowZ();
-      v1 = m_currentCamera->GetWindowX();
+      axis = m_currentCamera->GetDir();
+      v1 = -m_currentCamera->GetWindowX();
       v2 = m_currentCamera->GetWindowY();
       break;
     default:
@@ -347,8 +347,8 @@ RotationTool::MouseMotion(QMouseEvent* _e) {
       v2 = m_localAxisCatch[1];
       break;
     case VIEW_PLANE:
-      axis = m_currentCamera->GetWindowZ();
-      v1 = m_currentCamera->GetWindowX();
+      axis = m_currentCamera->GetDir();
+      v1 = -m_currentCamera->GetWindowX();
       v2 = m_currentCamera->GetWindowY();
       break;
     default:
@@ -412,7 +412,7 @@ RotationTool::Draw(bool _selected) {
         v2 = m_localAxisCatch[1];
         break;
       case VIEW_PLANE:
-        v1 = m_currentCamera->GetWindowX();
+        v1 = -m_currentCamera->GetWindowX();
         v2 = m_currentCamera->GetWindowY();
         break;
       default:
@@ -565,7 +565,7 @@ ScaleTool::MousePressed(QMouseEvent* _e) {
     m_objPosCatchPrj = m_objPosPrj;
     m_hitX = x;
     m_hitY = y;
-    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch, m_currentCamera->GetWindowZ());
+    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch, m_currentCamera->GetDir());
     m_origScale = m_obj->Scale();
     return true;
   }
@@ -589,7 +589,7 @@ ScaleTool::MouseMotion(QMouseEvent* _e) {
   int x = _e->pos().x();
   int y = g_height - _e->pos().y();
 
-  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch, m_currentCamera->GetWindowZ());
+  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch, m_currentCamera->GetDir());
   Vector3d v = (curPos-m_hitUnPrj)/10;
 
   switch(m_movementType) {

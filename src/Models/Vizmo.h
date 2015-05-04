@@ -17,6 +17,7 @@ class PathModel;
 class QueryModel;
 class RobotModel;
 namespace Haptics {class Manager;}
+class SpaceMouseManager;
 
 //Define singleton
 class Vizmo;
@@ -61,7 +62,9 @@ class Vizmo {
     RobotModel* GetRobot() const {return m_robotModel;}
     void PlaceRobot(); ///< Position the robot in the Environment.
 
-    Haptics::Manager* GetManager() const {return m_manager;}
+    // Input device manager access
+    Haptics::Manager* GetPhantomManager() const {return m_phantomManager;}
+    SpaceMouseManager* GetSpaceMouseManager() const {return m_spaceMouseManager;}
 
     // Roadmap Related Functions
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
@@ -167,8 +170,9 @@ class Vizmo {
     //robot & avatar
     RobotModel* m_robotModel;  ///< The current robot model.
 
-    //PHANToM manager
-    Haptics::Manager* m_manager;  ///< The PHANToM manager.
+    //input device managers
+    Haptics::Manager* m_phantomManager;     ///< The PHANToM manager.
+    SpaceMouseManager* m_spaceMouseManager; ///< The space mouse manager.
 
     //map
     MapModel<CfgModel, EdgeModel>* m_mapModel;  ///< The current map model.

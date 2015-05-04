@@ -103,7 +103,7 @@ class GLWidget : public QGLWidget {
 
     deque<double> m_frameTimes;
 
-    CameraFactory m_cameraFactory;
+    Camera m_camera;
     TransformTool m_transformTool;
     PickBox m_pickBox;
 

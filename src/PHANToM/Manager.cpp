@@ -24,7 +24,7 @@ Manager& GetManager(){
 
 bool
 UsingPhantom() {
-  return GetVizmo().GetManager();
+  return GetVizmo().GetPhantomManager();
 }
 
 Manager::

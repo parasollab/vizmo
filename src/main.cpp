@@ -7,6 +7,7 @@ using namespace std;
 
 #include "GUI/MainWindow.h"
 #include "Models/Vizmo.h"
+#include "Vector.h"
 
 int
 main(int _argc, char** _argv) {
@@ -48,6 +49,7 @@ main(int _argc, char** _argv) {
 
   QApplication::setColorSpec(QApplication::CustomColor);
   QApplication app(_argc, _argv);
+  qRegisterMetaType<mathtool::Vector3d>("Vector3d");
 
   MainWindow*& window = GetMainWindow();
   window = new MainWindow();

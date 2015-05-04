@@ -399,7 +399,7 @@ DuplicateRegion() {
           dist = r->GetLongLength();
           r->SetType(RegionModel::NONCOMMIT);
           Camera* c = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
-          Vector3d delta = -(c->GetWindowX() + c->GetWindowY() + c->GetWindowZ());
+          Vector3d delta = c->GetWindowX() - c->GetWindowY() + c->GetWindowZ();
           delta.selfNormalize();
           delta *= dist/3;
           r->ApplyOffset(delta);
@@ -719,7 +719,7 @@ HapticPathCapture() {
   UserPathModel* p = GetMainWindow()->GetGLWidget()->GetCurrentUserPath();
   if(p) {
     if(!p->IsFinished())
-      p->SendToPath(GetVizmo().GetManager()->GetWorldPos());
+      p->SendToPath(GetVizmo().GetPhantomManager()->GetWorldPos());
     else
       disconnect(GetMainWindow()->GetMainClock(), SIGNAL(timeout()),
           this, SLOT(HapticPathCapture()));

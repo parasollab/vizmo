@@ -1,7 +1,7 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
-#include<Vector.h>
+#include <Vector.h>
 using namespace mathtool;
 
 #include <string>
@@ -12,22 +12,27 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A gluLookAt camera that is controllable with Qt input events.
 ////////////////////////////////////////////////////////////////////////////////
-class Camera {
+class Camera : public QObject {
+
+  Q_OBJECT
 
   public:
 
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Default constructor.
-    /// \param[in] _name The camera name.
     /// \param[in] _eye  The camera's initial position.
     /// \param[in] _at   The camera's initial viewing target.
-    Camera(const string& _name, const Point3d& _eye, const Point3d& _at);
+    /// \param[in] _up   The camera's initial up-direction.
+    Camera(const Point3d& _eye, const Point3d& _at,
+        const Vector3d& _up = Vector3d(0, 1, 0));
 
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Set the camera position and viewing target.
     /// \param[in] _eye The new position.
     /// \param[in] _at  The new viewing target.
-    void Set(const Vector3d& _eye, const Vector3d& _at);
+    /// \param[in] _up  The new up direction.
+    void Set(const Vector3d& _eye, const Vector3d& _at,
+        const Vector3d& _up = Vector3d(0, 1, 0));
 
     void Draw(); ///< Apply the camera's viewpoint to the GL scene.
 
@@ -57,61 +62,55 @@ class Camera {
     /// \return A \c bool indicating whether the event was handled or ignored.
     bool KeyPressed(QKeyEvent* _e);
 
-    //get the name, position, viewing direction, and viewing target
-    const string& GetName() const {return m_name;}
-    const Vector3d& GetEye() const {return m_currEye;}
-    const Vector3d& GetDir() const {return m_currDir;}
-    Vector3d GetAt() const {return m_currEye + m_currDir;}
+    //get the position, viewing direction, up direction, and viewing target
+    const Vector3d& GetEye() const {return m_eye;}
+    const Vector3d& GetDir() const {return m_dir;}
+    const Vector3d& GetUp() const {return m_up;}
+    Vector3d GetAt() const {return m_eye + m_dir;}
 
     //get the viewing coordinate frame
-    Vector3d GetWindowX() const; ///< Get the screen-left direction.
+    Vector3d GetWindowX() const; ///< Get the screen-right direction.
     Vector3d GetWindowY() const; ///< Get the screen-up direction.
-    Vector3d GetWindowZ() const; ///< Get the viewing direction (screen-in).
+    Vector3d GetWindowZ() const; ///< Get the screen-out direction.
+
+    //controls for free-floating mode
+    void ToggleFreeFloat();      ///< Toggle free-floating mode.
+    void ResetUp();              ///< Reset up to default.
+
+  public slots:
+
+    // Slots for cross-thread camera control. Qt passes the parameters of these
+    // functions by reference for signals originating from the same thread, or
+    // by value for signals originating from another thread.
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Move the camera position and viewing target.
+    /// \param[in] _delta The desired displacement relative to the current
+    ///                   orientation.
+    void Translate(const Vector3d& _delta);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Rotate the camera view counter-clockwise about a reference axis.
+    /// \param[in] _axis  The axis of rotation relative to the current
+    ///                   orientation.
+    /// \param[in] _theta The angle of rotation in radians.
+    void Rotate(const Vector3d& _axis, double _theta);
 
   private:
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Rotate an input vector counter-clockwise about a reference axis.
-    /// \param[in,out] _vec   The vector to be rotated.
-    /// \param[in]     _axis  The axis of rotation.
-    /// \param[in]     _theta The angle of rotation in radians.
-    void Rotate(Vector3d& _vec, const Vector3d& _axis, double _theta);
+    // Position and orientation.
+    Point3d m_eye;       ///< The camera position.
+    Vector3d m_dir;      ///< The viewing direction.
+    Vector3d m_up;       ///< The screen-up direction.
 
-    string m_name;       ///< The camera name.
-
-    const Vector3d m_up; ///< Always the y-axis.
-    Point3d m_currEye,   ///< The position of the camera.
-            m_eye;       ///< Temporary position for camera control.
-    Vector3d m_currDir,  ///< The unit vector where camera is facing.
-             m_dir;      ///< Temporary facing vector for camera control.
-
+    // Speed.
     double m_speed;      ///< Speed of camera movement in relation to pixels.
 
+    // Mouse event tracking.
     QPoint m_pressedPt;  ///< Stores the mouse-click location currently in use.
     bool m_mousePressed; ///< Indicates whether a mouse event is in progress.
+
+    // Free-floating mode.
+    bool m_freeFloating;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-/// \brief A container class for managing multiple Camera objects.
-////////////////////////////////////////////////////////////////////////////////
-class CameraFactory {
-
-  public:
-
-    CameraFactory();
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Copy another Camera into this container.
-    /// \param[in] \c _camera The Camera to be copied.
-    void AddCamera(const Camera& _camera);
-
-    Camera* GetCurrentCamera() const {return m_currentCam;}
-    void SetCurrentCamera(const string& _name);
-
-  private:
-
-    map<string, Camera> m_cameras; ///< Storage for multiple Camera.
-    Camera* m_currentCam;          ///< A pointer to the Camera in use.
-};
 
 #endif
