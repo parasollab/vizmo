@@ -13,7 +13,7 @@ class AvoidRegionValidity : public ValidityCheckerMethod<MPTraits> {
     typedef typename MPTraits::CfgType CfgType;
 
     AvoidRegionValidity();
-    AvoidRegionValidity(MPProblemType* _problem, XMLNodeReader& _node);
+    AvoidRegionValidity(MPProblemType* _problem, XMLNode& _node);
 
   protected:
     bool IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName);
@@ -27,7 +27,7 @@ AvoidRegionValidity() : ValidityCheckerMethod<MPTraits>() {
 
 template<class MPTraits>
 AvoidRegionValidity<MPTraits>::
-AvoidRegionValidity(MPProblemType* _problem, XMLNodeReader& _node) :
+AvoidRegionValidity(MPProblemType* _problem, XMLNode& _node) :
     ValidityCheckerMethod<MPTraits>(_problem, _node) {
   this->m_name = "AvoidRegionValidity";
 }

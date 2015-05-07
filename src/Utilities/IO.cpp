@@ -83,3 +83,13 @@ void AddInitialRegions() {
       VDAddRegion(i->get());
   }
 }
+
+//read the string using above ReadField and tranform it to upper case
+string
+ReadFieldString(istream& _is, const string& _where, const string& _error, bool _toUpper) {
+  string s = ReadField<string>(_is, _where, _error);
+  if(_toUpper)
+    transform(s.begin(), s.end(), s.begin(), ::toupper);
+  return s;
+}
+

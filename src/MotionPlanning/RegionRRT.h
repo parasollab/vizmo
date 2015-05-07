@@ -35,7 +35,7 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
         size_t _numDirections = 1, size_t _maxTrial = 3,
         bool _growGoals = false);
 
-    RegionRRT(MPProblemType* _problem, XMLNodeReader& _node);
+    RegionRRT(MPProblemType* _problem, XMLNode& _node);
 
     void Initialize();
     void Run();
@@ -67,7 +67,7 @@ RegionRRT(const CfgType& _start, const CfgType& _goal, string _lp, string _dm,
 
 template<class MPTraits>
 RegionRRT<MPTraits>::
-RegionRRT(MPProblemType* _problem, XMLNodeReader& _node) :
+RegionRRT(MPProblemType* _problem, XMLNode& _node) :
     BasicRRTStrategy<MPTraits>(_problem, _node) {
   this->SetName("RegionRRT");
   this->m_delta = MAX_DBL;

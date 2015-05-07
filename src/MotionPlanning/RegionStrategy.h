@@ -27,7 +27,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     typedef EnvModel::RegionModelPtr RegionModelPtr;
 
     RegionStrategy();
-    RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node);
+    RegionStrategy(MPProblemType* _problem, XMLNode& _node);
 
     void Initialize();
     void Run();
@@ -71,16 +71,16 @@ RegionStrategy() : MPStrategyMethod<MPTraits>(),
 
 template<class MPTraits>
 RegionStrategy<MPTraits>::
-RegionStrategy(MPProblemType* _problem, XMLNodeReader& _node) :
+RegionStrategy(MPProblemType* _problem, XMLNode& _node) :
     MPStrategyMethod<MPTraits>(_problem, _node), m_query(NULL) {
   this->SetName("RegionStrategy");
-  m_connectorLabel = _node.stringXMLParameter("connectionLabel", false,
+  m_connectorLabel = _node.Read("connectionLabel", false,
       "RegionBFNFConnector", "Connection Strategy");
-  m_lpLabel = _node.stringXMLParameter("lpLabel", false,
+  m_lpLabel = _node.Read("lpLabel", false,
       "RegionSL", "Local Planner");
-  m_samplerLabel = _node.stringXMLParameter("samplerLabel", false,
+  m_samplerLabel = _node.Read("samplerLabel", false,
       "RegionUniformSampler", "Sampler Strategy");
-  m_vcLabel = _node.stringXMLParameter("vcLabel", false,
+  m_vcLabel = _node.Read("vcLabel", false,
       "RegionValidity", "Validity Checker");
 }
 

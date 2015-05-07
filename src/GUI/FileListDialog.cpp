@@ -59,7 +59,7 @@ GetAssociatedFiles(const vector<string>& _filename) {
 
       //test if files exist
       //first, if xml file, load that only
-      if(FileExists(xmlname, false)) {
+      if(FileExists(xmlname)) {
         m_xmlMode = true;
 
         SetUpSubwidgets();
@@ -73,7 +73,7 @@ GetAssociatedFiles(const vector<string>& _filename) {
         if(!m_setupWidgets)
           SetUpSubwidgets();
 
-        if(FileExists(mapname, false)) {
+        if(FileExists(mapname)) {
           m_mapFilename->setText(mapname.c_str());
           m_mapCheckBox->setChecked(true);
           envname = ParseMapHeader(mapname);
@@ -81,18 +81,18 @@ GetAssociatedFiles(const vector<string>& _filename) {
           cout << "EnvName::" << envname << endl;
         }
 
-        if(FileExists(envname, false)) {
+        if(FileExists(envname)) {
           m_envFilename->setText(envname.c_str());
           m_envCheckBox->setChecked(true);
         }
 
-        if(FileExists(queryname, false)) {
+        if(FileExists(queryname)) {
           m_queryFilename->setText(queryname.c_str());
           m_queryCheckBox->setChecked(true);
         }
 
-        bool p = FileExists(pathname, false);
-        bool d = FileExists(debugname, false);
+        bool p = FileExists(pathname);
+        bool d = FileExists(debugname);
         if(p)
           m_pathFilename->setText(pathname.c_str());
         if(d)
@@ -347,38 +347,28 @@ DebugChecked() {
 string
 FileListDialog::
 SearchXML(string _filename, string _key) {
-  TiXmlDocument doc(_filename);
-  bool loadOkay = doc.LoadFile();
-
   string filename = "";
 
-  // if file is loades sucessfully
-  if(loadOkay) {
-    // read in the motion planning node
-    XMLNodeReader mpNode(_filename, doc, "MotionPlanning");
-    for(XMLNodeReader::childiterator prob = mpNode.children_begin();
-        prob != mpNode.children_end(); ++prob) {
-      // Read in the MPPRoblem node
-      if(prob->getName() == "MPProblem") {
-        for(XMLNodeReader::childiterator citr = (*prob).children_begin();
-            citr != (*prob).children_end(); ++ citr) {
-          // If the child node is the key, something likd Environment
-          if(citr->getName() == _key) {
-            // Handle Environment case
-            if(_key == "Environment") {
-              filename = (*citr).stringXMLParameter("filename", false, "",
-                  "env filename");
-            }
+  // read in the motion planning node
+  XMLNode mpNode(_filename, "MotionPlanning");
+  for(auto& child1 : mpNode) {
+    // Read in the MPPRoblem node
+    if(child1.Name() == "MPProblem") {
+      for(auto& child2 : child1) {
+        // If the child node is the key, something likd Environment
+        if(child2.Name() == _key) {
+          // Handle Environment case
+          if(_key == "Environment") {
+            filename = child2.Read("filename", false, "", "env filename");
           }
-          // Handle all other specific cases
-          else if(_key == "Query") {
-            if(citr->getName() == "MapEvaluators") {
-              for(XMLNodeReader::childiterator query = (*citr).children_begin();
-                  query != (*citr).children_end(); ++query) {
-                if(query->getName() == _key) {
-                  filename = (*query).stringXMLParameter("queryFile", false, "",
-                      "query filename");
-                }
+        }
+        // Handle all other specific cases
+        else if(_key == "Query") {
+          if(child2.Name() == "MapEvaluators") {
+            for(auto& child3 : child2) {
+              if(child2.Name() == _key) {
+                filename = child3.Read("queryFile", false, "",
+                    "query filename");
               }
             }
           }
@@ -392,27 +382,18 @@ SearchXML(string _filename, string _key) {
 vector<string>
 FileListDialog::
 LoadXMLSamplers(string _filename) {
-  TiXmlDocument doc(_filename);
-  bool loadOkay = doc.LoadFile();
-
   vector<string> samplers;
 
-  // if file loads sucessfully
-  if(loadOkay) {
-    // Read in the motion planning node
-    XMLNodeReader mpNode(_filename, doc, "MotionPlanning");
-    for(XMLNodeReader::childiterator prob = mpNode.children_begin();
-        prob != mpNode.children_end(); ++prob) {
-      // Read in MPProblem node
-      if(prob->getName() == "MPProblem") {
-        for(XMLNodeReader::childiterator citr = (*prob).children_begin();
-            citr != (*prob).children_end(); ++citr) {
-          if(citr->getName() == "Samplers") {
-            for(XMLNodeReader::childiterator sampler = (*citr).children_begin();
-                sampler != (*citr).children_end(); ++sampler) {
-              samplers.push_back((*sampler).stringXMLParameter("label", "false",
-                    "", "sampler name"));
-            }
+  // Read in the motion planning node
+  XMLNode mpNode(_filename, "MotionPlanning");
+  for(auto& child : mpNode) {
+    // Read in MPProblem node
+    if(child.Name() == "MPProblem") {
+      for(auto& child2 : child) {
+        if(child2.Name() == "Samplers") {
+          for(auto& child3 : child2) {
+            samplers.push_back(
+                child3.Read("label", "false", "", "sampler name"));
           }
         }
       }

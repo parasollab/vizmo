@@ -35,7 +35,7 @@ class IRRTStrategy : public BasicRRTStrategy<MPTraits> {
         bool _growGoals = false);
 
     //XML Constructor
-    IRRTStrategy(MPProblemType* _problem, XMLNodeReader& _node);
+    IRRTStrategy(MPProblemType* _problem, XMLNode& _node);
 
     virtual void Initialize();
     virtual void Run();
@@ -69,13 +69,12 @@ IRRTStrategy(const CfgType& _start, const CfgType& _goal, string _lp, string _dm
 
 template<class MPTraits>
 IRRTStrategy<MPTraits>::
-IRRTStrategy(MPProblemType* _problem, XMLNodeReader& _node) :
-  BasicRRTStrategy<MPTraits>(_problem, _node, false, true) {
+IRRTStrategy(MPProblemType* _problem, XMLNode& _node) :
+  BasicRRTStrategy<MPTraits>(_problem, _node, true) {
   this->SetName("IRRTStrategy");
-  m_alpha = _node.numberXMLParameter("alpha", false, 0.5, 0.0, 1.0, "Alpha");
-  m_sigma = _node.numberXMLParameter("sigma", false, 0.5, 0.0, 1.0, "Sigma");
-  m_beta = _node.numberXMLParameter("beta", false, 0.5, 0.0, 1.0, "Beta");
-  _node.warnUnrequestedAttributes();
+  m_alpha = _node.Read("alpha", false, 0.5, 0.0, 1.0, "Alpha");
+  m_sigma = _node.Read("sigma", false, 0.5, 0.0, 1.0, "Sigma");
+  m_beta = _node.Read("beta", false, 0.5, 0.0, 1.0, "Beta");
 }
 
 template<class MPTraits>
@@ -120,7 +119,7 @@ Run() {
     cout << "\nRunning IRRTStrategy::" << endl;
 
   // Setup MP Variables
-  StatClass* stats = this->GetMPProblem()->GetStatClass();
+  StatClass* stats = this->GetStatClass();
 
   GetVizmo().StartClock("IRRT Strategy");
   stats->StartClock("RRT Generation MP");

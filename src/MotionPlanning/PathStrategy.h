@@ -47,7 +47,7 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
     /// \brief The XML constructor uses defaults if values are not provided.
     /// \param[in] _problem The current MPProblem.
     /// \param[in] _node The XML node reader.
-    PathStrategy(MPProblemType* _problem, XMLNodeReader& _node);
+    PathStrategy(MPProblemType* _problem, XMLNode& _node);
 
     void Initialize(); ///< Fetch data and start clocks.
     void Run();        ///< Execute path planning.
@@ -119,16 +119,16 @@ PathStrategy() :
 
 template<class MPTraits>
 PathStrategy<MPTraits>::
-PathStrategy (MPProblemType* _problem, XMLNodeReader& _node) :
+PathStrategy (MPProblemType* _problem, XMLNode& _node) :
     MPStrategyMethod<MPTraits>(_problem, _node) {
   this->SetName("PathStrategy");
-  m_vcLabel = _node.stringXMLParameter(
+  m_vcLabel = _node.Read(
       "vcLabel", false, "PQP_SOLID", "Validity Checker");
-  m_dmLabel = _node.stringXMLParameter(
+  m_dmLabel = _node.Read(
       "dmLabel", false, "euclidean", "Distance Metric");
-  m_lpLabel = _node.stringXMLParameter(
+  m_lpLabel = _node.Read(
       "lpLabel", false, "sl", "Local Planner");
-  m_connectorLabel = _node.stringXMLParameter(
+  m_connectorLabel = _node.Read(
       "connectionLabel", false, "kClosest", "Connector");
 }
 

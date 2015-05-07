@@ -15,7 +15,7 @@ class SparkRegion : public RegionStrategy<MPTraits> {
     typedef EnvModel::RegionModelPtr RegionModelPtr;
 
     SparkRegion();
-    SparkRegion(MPProblemType* _problem, XMLNodeReader& _node);
+    SparkRegion(MPProblemType* _problem, XMLNode& _node);
 
     void Initialize();
     void Run();
@@ -33,7 +33,7 @@ SparkRegion() {
 
 template<class MPTraits>
 SparkRegion<MPTraits>::
-SparkRegion(MPProblemType* _problem, XMLNodeReader& _node) : RegionStrategy<MPTraits>(_problem, _node) {
+SparkRegion(MPProblemType* _problem, XMLNode& _node) : RegionStrategy<MPTraits>(_problem, _node) {
   this->SetName("SparkRegion");
 }
 
