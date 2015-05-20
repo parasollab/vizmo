@@ -111,9 +111,10 @@ SaveCameraPosition() {
     ofs.open(filename.c_str());
 
     //write the camera data to the output file
-    ofs << "Camera Configuration: Eye, At" << endl
+    ofs << "Camera Configuration: Eye, At, Up" << endl
         << m_camera->GetEye() << endl
-        << m_camera->GetAt();
+        << m_camera->GetAt() << endl
+        << m_camera->GetUp();
 
     //close file and emit accept signal
     ofs.close();
@@ -150,9 +151,11 @@ LoadCameraPosition() {
     Vector3d eye(x, y, z);
     ifs >> x >> y >> z;
     Vector3d at(x, y, z);
+    ifs >> x >> y >> z;
+    Vector3d up(x, y, z);
 
     //set the camera from the input data
-    m_camera->Set(eye, at);
+    m_camera->Set(eye, at, up);
 
     //close file and emit accept signal
     ifs.close();
