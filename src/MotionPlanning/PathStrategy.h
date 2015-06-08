@@ -12,25 +12,26 @@
 #include "Utilities/GLUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief PathStrategy generates configurations near each user-generated path.
+/// \brief   PathStrategy generates configurations near each user-generated path.
 /// \details PathStrategy collects a set of workspace points along the
-/// user-generated paths and generates randomly oriented configurations using
-/// those points as the base position. Valid points are added to the map and
-/// connected in path order. Invalid points are pushed to the medial axis. If a
-/// connection between two path configurations \c c1 and \c c2 fails, an
-/// intermediate configuration cI is generated at their midpoint. If cI is
-/// invalid, it is also pushed to the medial axis. The path connection then
-/// recurses on the set (c1, cI, c2).
+///          user-generated paths and generates randomly oriented configurations
+///          at those points. Valid points are added to the map and connected in
+///          path order. Invalid points are pushed to the medial axis. If a
+///          connection between two path configurations \c c1 and \c c2 fails, an
+///          intermediate configuration cI is generated at their midpoint. If cI
+///          is invalid, it is also pushed to the medial axis. The path
+///          connection then recurses on the set (c1, cI, c2).
 ///
-/// \bug Medial-axis pushing is currently disabled due to erroneous trunk code.
-/// Once the fixes are checked in (from the MA planning journal branch), we can
-/// repair this functionality.
+/// \bug     Medial-axis pushing is currently disabled due to erroneous trunk
+///          code. Once the fixes are checked in (from the MA planning journal
+///          branch), we can repair this functionality.
 ////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class PathStrategy : public MPStrategyMethod<MPTraits> {
 
   public:
 
+    // Local types.
     typedef typename MPTraits::MPProblemType     MPProblemType;
     typedef typename MPTraits::CfgType           CfgType;
     typedef typename MPTraits::WeightType        WeightType;
@@ -40,8 +41,8 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
 
     ////////////////////////////////////////////////////////////////////////////
     /// \brief The default constructor uses pqp_solid collision checking,
-    /// uniform random sampling, straight-line local planning, k-closest
-    /// connector, and max nodes evaluation.
+    ///        uniform random sampling, straight-line local planning, k-closest
+    ///        connector, and max nodes evaluation.
     PathStrategy();
     ////////////////////////////////////////////////////////////////////////////
     /// \brief The XML constructor uses defaults if values are not provided.
@@ -56,7 +57,7 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Print name, label, and component information.
     /// \param[in] _os The ostream to print to.
-    virtual void Print(ostream& _os) const;
+    void Print(ostream& _os) const;
 
   protected:
 
@@ -89,9 +90,7 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
     //data objects
     vector<UserPathModel*> m_userPaths; ///< The set of all existing user paths.
     vector<VID>            m_endPoints; ///< The set of all path heads/tails.
-    Environment*           m_env;       ///< The PMPL Environment.
-    RoadmapType*           m_map;       ///< The PMPL Roadmap.
-    StatClass*             m_stats;     ///< The PMPL StatClass.
+    Query<MPTraits>*       m_query;     ///< The PMPL Query.
 
     //pmpl function object labels
     string m_vcLabel;                   ///< The ValidityChecker label.
@@ -100,11 +99,7 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
     string m_connectorLabel;            ///< The Connector label.
 
     //pmpl function objects
-    typename MPProblemType::ValidityCheckerPointer m_vc;
-    typename MPProblemType::LocalPlannerPointer    m_lp;
-    typename MPProblemType::ConnectorPointer       m_connector;
-    MedialAxisUtility<MPTraits>                    m_medialAxisUtility;
-    Query<MPTraits>*                               m_query;
+    MedialAxisUtility<MPTraits> m_medialAxisUtility; ///< For pushing to the MA.
 };
 
 
@@ -122,14 +117,11 @@ PathStrategy<MPTraits>::
 PathStrategy (MPProblemType* _problem, XMLNode& _node) :
     MPStrategyMethod<MPTraits>(_problem, _node) {
   this->SetName("PathStrategy");
-  m_vcLabel = _node.Read(
-      "vcLabel", false, "PQP_SOLID", "Validity Checker");
-  m_dmLabel = _node.Read(
-      "dmLabel", false, "euclidean", "Distance Metric");
-  m_lpLabel = _node.Read(
-      "lpLabel", false, "sl", "Local Planner");
-  m_connectorLabel = _node.Read(
-      "connectionLabel", false, "kClosest", "Connector");
+  m_vcLabel = _node.Read("vcLabel", false, "PQP_SOLID", "Validity Checker");
+  m_dmLabel = _node.Read("dmLabel", false, "euclidean", "Distance Metric");
+  m_lpLabel = _node.Read("lpLabel", false, "sl", "Local Planner");
+  m_connectorLabel = _node.Read("connectionLabel", false, "kClosest",
+      "Connector");
 }
 
 
@@ -157,15 +149,7 @@ Initialize() {
 
   cout << "Initializing Path Strategy." << endl;
 
-  //get data objects
-  m_env     = this->GetMPProblem()->GetEnvironment();
-  m_map     = this->GetMPProblem()->GetRoadmap();
-  m_stats   = this->GetMPProblem()->GetStatClass();
-
   //get function objects
-  m_vc        = this->GetMPProblem()->GetValidityChecker(m_vcLabel);
-  m_lp        = this->GetMPProblem()->GetLocalPlanner(m_lpLabel);
-  m_connector = this->GetMPProblem()->GetConnector(m_connectorLabel);
   m_query     = NULL;
   m_medialAxisUtility = MedialAxisUtility<MPTraits>(this->GetMPProblem(),
       m_vcLabel, m_dmLabel, false, false);
@@ -174,7 +158,7 @@ Initialize() {
   //evaluator to bounded query
   if(GetVizmo().IsQueryLoaded()) {
     m_query = &*(static_pointer_cast<Query<MPTraits> >(
-        this->GetMPProblem()->GetMapEvaluator("Query")));
+        this->GetMapEvaluator("Query")));
     AddToRoadmap(m_query->GetQuery(), m_endPoints); //store vids with path ends
   }
 
@@ -185,7 +169,7 @@ Initialize() {
 
   //start clocks
   GetVizmo().StartClock("PathStrategy");
-  m_stats->StartClock("PathStrategyMP");
+  this->GetStatClass()->StartClock("PathStrategyMP");
 }
 
 
@@ -218,7 +202,9 @@ Run() {
   }
 
   //try to connect all endpoints
-  m_connector->Connect(m_map, m_endPoints.begin(), m_endPoints.end(),
+  auto connector = this->GetConnector(m_connectorLabel);
+  auto map = this->GetRoadmap();
+  connector->Connect(map, m_endPoints.begin(), m_endPoints.end(),
       m_endPoints.begin(), m_endPoints.end());
 }
 
@@ -227,8 +213,7 @@ template<class MPTraits>
 void
 PathStrategy<MPTraits>::
 Finalize() {
-  /// If no paths exist, alert user that
-  /// planner did not run.
+  /// If no paths exist, alert user that planner did not run.
   if(m_userPaths.empty()) {
     GetMainWindow()->AlertUser("Error: no user-path exists!");
     return;
@@ -236,7 +221,8 @@ Finalize() {
 
   cout << "Finalizing Path Strategy." << endl;
   GetVizmo().StopClock("PathStrategy");
-  m_stats->StopClock("PathStrategyMP");
+  auto stats = this->GetStatClass();
+  stats->StopClock("PathStrategyMP");
 
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
@@ -244,7 +230,7 @@ Finalize() {
 
   //print clocks to terminal
   GetVizmo().PrintClock("PathStrategy", cout);
-  m_stats->PrintClock("PathStrategyMP", cout);
+  stats->PrintClock("PathStrategyMP", cout);
 
   //base filename
   string basename = this->GetBaseFilename();
@@ -252,17 +238,19 @@ Finalize() {
   //output stats
   ofstream ostats((basename + ".stat").c_str());
   ostats << "Sampling and Connection Stats:" << endl;
-  m_stats->PrintAllStats(ostats, m_map);
+  auto map = this->GetRoadmap();
+  stats->PrintAllStats(ostats, map);
   GetVizmo().PrintClock("PathStrategy", ostats);
-  m_stats->PrintClock("PathStrategyMP", ostats);
+  stats->PrintClock("PathStrategyMP", ostats);
 
   //output roadmap
-  m_map->Write(basename + ".map", m_env);
+  Environment* env = this->GetEnvironment();
+  map->Write(basename + ".map", env);
 
   //output a path file if a query was loaded
   ostringstream results;
   if(m_query != NULL) {
-    if(!m_query->PerformQuery(m_map))
+    if(!m_query->PerformQuery(map))
       results << "Planning Failed!" << endl;
     else
       results << "Planning Complete!" << endl;
@@ -286,19 +274,20 @@ bool
 PathStrategy<MPTraits>::
 ValidateCfg(CfgType& _cfg) {
   /// If the configuration is invalid, push it to the medial axis.
-
   /// \bug The current trunk version of MedialAxisUtility is not correct.
-  /// Medial-axis validation will be disabled until the medial-axis branch gets
-  /// merged into to the trunk.
-  if(!m_env->InBounds(_cfg))
+  ///      Medial-axis validation will be disabled until the medial-axis branch
+  ///      gets merged into to the trunk.
+  auto env = this->GetEnvironment();
+  if(!env->InBounds(_cfg))
     return false;
-  if(!m_vc->IsValid(_cfg, this->GetNameAndLabel())) {
+  auto vc = this->GetValidityChecker(m_vcLabel);
+  if(!vc->IsValid(_cfg, this->GetNameAndLabel())) {
 //assumes approximate MA push
 //    CfgType temp;
 //    bool fixed = false;
 //    while(!fixed) {
 //      temp = _cfg;
-//      fixed = m_medialAxisUtility.PushToMedialAxis(temp, m_env->GetBoundary());
+//      fixed = m_medialAxisUtility.PushToMedialAxis(temp, env->GetBoundary());
 //    }
 //    _cfg = temp;
     return false;
@@ -312,10 +301,10 @@ void
 PathStrategy<MPTraits>::
 AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
   _vids.clear();
-  for(typename vector<CfgType>::iterator cit = _samples.begin();
-      cit != _samples.end(); cit++) {
-    if(ValidateCfg(*cit)) {
-      VID addedNode = m_map->GetGraph()->AddVertex(*cit);
+  auto g = this->GetRoadmap()->GetGraph();
+  for(auto& cfg : _samples) {
+    if(ValidateCfg(cfg)) {
+      VID addedNode = g->AddVertex(cfg);
       _vids.push_back(addedNode);
     }
   }
@@ -329,7 +318,7 @@ ConnectPath(const vector<VID>& _vids) {
   /// If a connection fails, an intermediate configuration is created and pushed
   /// to the medial axis. Assumes that the VID's are in path order.
   LPOutput<MPTraits> lpOutput;
-  GraphType* g = m_map->GetGraph();
+  GraphType* g = this->GetRoadmap()->GetGraph();
 
   //iterate through the path configurations and try to connect them
   for(typename vector<VID>::const_iterator vit = _vids.begin();
@@ -340,8 +329,10 @@ ConnectPath(const vector<VID>& _vids) {
     const CfgType& c2 = g->GetVertex(v2);
 
     //if cfgs are connectable, add edge to map
-    if(m_lp->IsConnected(c1, c2, &lpOutput, m_env->GetPositionRes(),
-        m_env->GetOrientationRes()))
+    auto lp = this->GetLocalPlanner(m_lpLabel);
+    auto env = this->GetEnvironment();
+    if(lp->IsConnected(c1, c2, &lpOutput, env->GetPositionRes(),
+        env->GetOrientationRes()))
       g->AddEdge(v1, v2, lpOutput.m_edge);
     //if connection fails, generate midpoint, validate it, and recurse
     else {

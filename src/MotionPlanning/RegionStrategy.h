@@ -13,9 +13,19 @@
 
 #include "MotionPlanning/VizmoTraits.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief   The original user-guided region PRM. It uses attract regions as
+///          sub-problems and avoid regions as virtual obstacles.
+/// \details The paper reference is Denny, Sandstrom, Julian, Amato, "A
+///          Region-based Strategy for Collaborative Roadmap Construction",
+///          Algorithmic Foundations of Robotics XI (WAFR 2014).
+////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class RegionStrategy : public MPStrategyMethod<MPTraits> {
+
   public:
+
+    // Local types
     typedef typename MPTraits::MPProblemType MPProblemType;
     typedef typename MPTraits::CfgType CfgType;
     typedef typename MPTraits::WeightType WeightType;
@@ -23,42 +33,81 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     typedef typename MPProblemType::RoadmapType::GraphType GraphType;
     typedef typename GraphType::VI VI;
     typedef typename GraphType::EID EID;
-
     typedef EnvModel::RegionModelPtr RegionModelPtr;
 
+    // Construction
     RegionStrategy();
     RegionStrategy(MPProblemType* _problem, XMLNode& _node);
 
+    // Inherited functions
     void Initialize();
     void Run();
     void Finalize();
 
-    virtual void Print(ostream& _os) const;
-
   protected:
+
     //helper functions
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Selects an attract region or the entire environment with uniform
+    ///         probability.
+    /// \return The index of the selected region, or the number of regions if
+    ///         the entire environment was chosen.
     size_t SelectRegion();
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Sample the selected region, tracking failure information for
+    ///         usefulness feedback.
+    /// \param[in] _index    The index of the selected region.
+    /// \param[out] _samples The newly created samples.
     void SampleRegion(size_t _index, vector<CfgType>& _samples);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Re-validate the roadmap when new avoid regions are added.
+    ///         Samples lying within a new avoid region will be deleted.
     void ProcessAvoidRegions();
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Add a set of configurations to the roadmap.
+    /// \param[in] _samples The new configurations to add.
+    /// \param[out] _vids   The resulting VIDs of the new samples.
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Try to connect a set of nodes.
+    /// \param[in] _vids The VIDs of the nodes to connect.
+    /// \param[in] _i    The current iteration number. Used in updating region
+    ///                  colors.
     void Connect(vector<VID>& _vids, size_t _i);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Checks the VID list for unconnected nodes and recommends a
+    ///         region around them.
+    /// \param[in] _vids The list of nodes to check.
+    /// \param[in] _i    The current iteration number. Used for tracking the
+    ///                  region creation time.
     void RecommendRegions(vector<VID>& _vids, size_t _i);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Checks over the graph to re-validate the sample count within the
+    ///         current sampling region.
     void UpdateRegionStats();
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Updates the usefulness color of the current sampling region and
+    ///         deletes lingering recommended regions.
     void UpdateRegionColor(size_t _i);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Evaluates the map. Query is used if a query file was loaded;
+    ///         otherwise, nodes eval is used.
+    /// \return A bool indicating whether the map passed evaluation.
     bool EvaluateMap();
-    void SetQuery();
 
   private:
-    RegionModelPtr m_samplingRegion;
-    vector<VID> m_toDel;
 
-    string m_connectorLabel;
-    string m_lpLabel;
-    string m_samplerLabel;
-    string m_vcLabel;
+    RegionModelPtr m_samplingRegion;  ///< Points to the current sampling region.
+    vector<VID> m_toDel;  ///< Tracks Cfg's in avoid regions for later deletion.
 
-    Query<MPTraits>* m_query;
+    string m_connectorLabel; ///< The connector label. Default: "RegionConnector".
+    string m_lpLabel;        ///< The local planner label. Default: "RegionSL".
+    string m_samplerLabel;///< The sampler label. Default: "RegionUniformSampler".
+    string m_vcLabel;  ///< The validity checker label. Default: "RegionValidity".
+
+    Query<MPTraits>* m_query; ///< The PMPL query object.
 };
+
 
 template<class MPTraits>
 RegionStrategy<MPTraits>::
@@ -69,25 +118,28 @@ RegionStrategy() : MPStrategyMethod<MPTraits>(),
   this->SetName("RegionStrategy");
 }
 
+
 template<class MPTraits>
 RegionStrategy<MPTraits>::
 RegionStrategy(MPProblemType* _problem, XMLNode& _node) :
     MPStrategyMethod<MPTraits>(_problem, _node), m_query(NULL) {
   this->SetName("RegionStrategy");
-  m_connectorLabel = _node.Read("connectionLabel", false,
-      "RegionBFNFConnector", "Connection Strategy");
-  m_lpLabel = _node.Read("lpLabel", false,
-      "RegionSL", "Local Planner");
-  m_samplerLabel = _node.Read("samplerLabel", false,
-      "RegionUniformSampler", "Sampler Strategy");
-  m_vcLabel = _node.Read("vcLabel", false,
-      "RegionValidity", "Validity Checker");
+  m_connectorLabel = _node.Read("connectionLabel", false, "RegionBFNFConnector",
+      "Connection Strategy");
+  m_lpLabel = _node.Read("lpLabel", false, "RegionSL", "Local Planner");
+  m_samplerLabel = _node.Read("samplerLabel", false, "RegionUniformSampler",
+      "Sampler Strategy");
+  m_vcLabel = _node.Read("vcLabel", false, "RegionValidity", "Validity Checker");
 }
+
 
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
-SetQuery() {
+Initialize() {
+  cout << "Initializing " << this->GetNameAndLabel() << "." << endl;
+
+  // Set up query
   if(GetVizmo().IsQueryLoaded()) {
     //setup region query evaluator
     m_query = new Query<MPTraits>(
@@ -106,28 +158,13 @@ SetQuery() {
 
     this->GetMPProblem()->SetMPProblem();
   }
-}
-
-template<class MPTraits>
-void
-RegionStrategy<MPTraits>::
-Print(ostream& _os) const {
-  _os << this->GetNameAndLabel() << endl;
-}
-
-template<class MPTraits>
-void
-RegionStrategy<MPTraits>::
-Initialize() {
-  cout << "Initializing Region Strategy." << endl;
-
-  SetQuery();
 
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
   GetVizmo().GetRobot()->SetSelectable(false);
 }
+
 
 template<class MPTraits>
 void
@@ -172,6 +209,7 @@ RegionStrategy<MPTraits>::Run() {
   GetVizmo().StopClock("RegionStrategy");
   this->GetStatClass()->StopClock("RegionStrategyMP");
 }
+
 
 template<class MPTraits>
 void
@@ -223,6 +261,7 @@ Finalize() {
   GetVizmo().GetRobot()->SetSelectable(true);
 }
 
+
 template<class MPTraits>
 size_t
 RegionStrategy<MPTraits>::
@@ -233,6 +272,7 @@ SelectRegion() {
   //randomly choose a region
   return rand() % (regions.size() + 1);
 }
+
 
 template<class MPTraits>
 void
@@ -278,6 +318,7 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
     exit(1);
   }
 }
+
 
 template<class MPTraits>
 void
@@ -337,6 +378,7 @@ ProcessAvoidRegions() {
   GetVizmo().GetMap()->RefreshMap(false);
 }
 
+
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
@@ -350,6 +392,7 @@ AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
   }
 }
 
+
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
@@ -361,6 +404,7 @@ Connect(vector<VID>& _vids, size_t _i) {
   UpdateRegionStats();
   UpdateRegionColor(_i);
 }
+
 
 template<class MPTraits>
 void
@@ -386,6 +430,7 @@ RecommendRegions(vector<VID>& _vids, size_t _i) {
     }
   }
 }
+
 
 template<class MPTraits>
 void
@@ -414,6 +459,7 @@ UpdateRegionStats() {
   }
 }
 
+
 template<class MPTraits>
 void
 RegionStrategy<MPTraits>::
@@ -436,6 +482,7 @@ UpdateRegionColor(size_t _i) {
     }
   }
 }
+
 
 template<class MPTraits>
 bool

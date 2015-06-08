@@ -2,23 +2,26 @@
 #define CROSSHAIR_MODEL_H_
 
 #include "Model.h"
-//#include "Vector.h"
-//
-//using namespace mathtool;
-//using namespace std;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Implements a 3D crosshair to help users visualize depth when
+///        manipulating 3D objects.
+////////////////////////////////////////////////////////////////////////////////
 class CrosshairModel : public Model {
+
   public:
+
+    // Construction
     CrosshairModel(Point3d* _p = NULL);
 
-    //access functions
-    void SetPos(Point3d& _p) {m_worldPos = &_p;}
-    Point3d* GetPos() const {return m_worldPos;}
+    // Crosshair position access
+    void SetPos(Point3d& _p) {m_worldPos = &_p;} ///< Set the crosshair position.
+    Point3d* GetPos() const {return m_worldPos;} ///< Get the crosshair position.
 
-    //control functions
-    void Toggle() {m_enabled = !m_enabled;}
+    // Control functions
+    void Toggle() {m_enabled = !m_enabled;}    ///< Enable/disable the crosshair.
 
-    //Model functions
+    // Model functions
     void Build() {}
     void Select(GLuint* _index, vector<Model*>& _sel) {}
     void DrawRender();
@@ -26,14 +29,15 @@ class CrosshairModel : public Model {
     void DrawSelected() {}
     void Print(ostream& _os) const {}
 
-  protected:
+  private:
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Determines whether the crosshair is inside the environment limits.
     bool IsInsideBBX() const;
 
-  private:
-    Point3d* m_worldPos;
-    vector< pair<double, double> > m_worldRange;
-
-    bool m_enabled;
+    Point3d* m_worldPos;                         ///< Crosshair position.
+    vector< pair<double, double> > m_worldRange; ///< Environment limits.
+    bool m_enabled;       ///< Indicates whether the crosshair is in use.
 };
 
 #endif

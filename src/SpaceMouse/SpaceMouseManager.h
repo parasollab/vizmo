@@ -104,6 +104,7 @@ class SpaceMouseReader : public QObject {
 
 
 #else
+/*------------------------------- Dummy Manager ------------------------------*/
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Placeholder for space mouse manager when no device is in use.
@@ -117,20 +118,20 @@ class SpaceMouseManager {
     ~SpaceMouseManager() {}
 
     // Controls
-    void Enable() {}
-    void Disable() {}
-    void EnableCamera() {}
-    void DisableCamera() {}
+    void Enable() {}                  ///< No-op when no device is in use.
+    void Disable() {}                 ///< No-op when no device is in use.
+    void EnableCamera() {}            ///< No-op when no device is in use.
+    void DisableCamera() {}           ///< No-op when no device is in use.
 
     // Data access.
-    const bool IsEnabled() {return false;}
-    const bool IsEnabledCamera() {return false;}
-    const Vector3d GetPos() {return Vector3d();}
-    const Vector3d GetRot() {return Vector3d();}
+    const bool IsEnabled() {return false;}       ///< Return false for no device.
+    const bool IsEnabledCamera() {return false;} ///< Return false for no device.
+    const Vector3d GetPos() {return Vector3d();} ///< Return origin for no device.
+    const Vector3d GetRot() {return Vector3d();} ///< Return origin for no device.
 
     // Data feed.
-    void SetPos(const Vector3d&) {}
-    void SetRot(const Vector3d&) {}
+    void SetPos(const Vector3d&) {}   ///< No-op when no device is in use.
+    void SetRot(const Vector3d&) {}   ///< No-op when no device is in use.
 };
 
 

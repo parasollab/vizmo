@@ -9,17 +9,20 @@
 #include "RegionSphere2DModel.h"
 #include "Vizmo.h"
 
+using namespace DebugInstructions;
+
 DebugModel::
 DebugModel(const string& _filename) :
-  LoadableModel("Debug"),
-  m_index(-1),
-  m_mapModel(new MapModel<CfgModel, EdgeModel>()),
-  m_edgeNum(-1) {
-    SetFilename(_filename);
-    m_renderMode = INVISIBLE_MODE;
-    ParseFile();
-    Build();
-  }
+    LoadableModel("Debug"),
+    m_index(-1),
+    m_mapModel(new MapModel<CfgModel, EdgeModel>()),
+    m_edgeNum(-1) {
+  SetFilename(_filename);
+  m_renderMode = INVISIBLE_MODE;
+  ParseFile();
+  Build();
+}
+
 
 DebugModel::
 ~DebugModel() {
@@ -29,11 +32,13 @@ DebugModel::
     delete *iit;
 }
 
+
 vector<string>
 DebugModel::
 GetComments(){
   return m_index == -1 ? vector<string>() : m_comments;
 }
+
 
 void
 DebugModel::
@@ -58,18 +63,18 @@ ParseFile() {
     string name;
     iss>>name;
 
-    if(name=="AddNode"){
+    if(name == "AddNode"){
       CfgModel c;
       iss >> c;
       c.SetColor(Color4(drand48(), drand48(), drand48(), 1));
       m_instructions.push_back(new AddNode(c));
     }
-    else if(name=="AddEdge"){
+    else if(name == "AddEdge"){
       CfgModel s, t;
       iss >> s >> t;
       m_instructions.push_back(new AddEdge(s, t));
     }
-    else if(name=="AddTempCfg"){
+    else if(name == "AddTempCfg"){
       CfgModel c;
       bool valid;
       iss >> c >> valid;
@@ -77,40 +82,41 @@ ParseFile() {
       else c.SetColor(Color4(1, 0, 0, 0.25));
       m_instructions.push_back(new AddTempCfg(c, valid));
     }
-    else if(name=="AddTempRay"){
+    else if(name == "AddTempRay"){
       CfgModel c;
       iss >> c;
       m_instructions.push_back(new AddTempRay(c));
     }
-    else if(name=="AddTempEdge"){
+    else if(name == "AddTempEdge"){
       CfgModel s, t;
       iss >> s >> t;
       m_instructions.push_back(new AddTempEdge(s, t));
     }
-    else if(name=="ClearAll")
+    else if(name == "ClearAll")
       m_instructions.push_back(new ClearAll());
-    else if(name=="ClearLastTemp")
+    else if(name == "ClearLastTemp")
       m_instructions.push_back(new ClearLastTemp());
-    else if(name=="ClearComments")
+    else if(name == "ClearComments")
       m_instructions.push_back(new ClearComments());
-    else if(name=="RemoveNode"){
+    else if(name == "RemoveNode"){
       CfgModel c;
       iss >> c;
       m_instructions.push_back(new RemoveNode(c));
     }
-    else if(name=="RemoveEdge"){
+    else if(name == "RemoveEdge"){
       CfgModel s, t;
       iss >> s >> t;
       m_instructions.push_back(new RemoveEdge(s, t));
     }
-    else if(name=="Comment")
-      m_instructions.push_back(new Comment(iss.str().substr(8, iss.str().length())));
-    else if(name=="QueryInstruction"){
+    else if(name == "Comment")
+      m_instructions.push_back(new Comment(iss.str().substr(8,
+          iss.str().length())));
+    else if(name == "QueryInstruction"){
       CfgModel s, t;
       iss >> s >> t;
       m_instructions.push_back(new QueryInstruction(s, t));
     }
-    else if(name=="AddRegion") {
+    else if(name == "AddRegion") {
       RegionModel* mod;
 
       int tempType;
@@ -179,7 +185,7 @@ ParseFile() {
       }
       m_instructions.push_back(new AddRegion(mod));
     }
-    else if(name=="RemoveRegion") {
+    else if(name == "RemoveRegion") {
       RegionModel* mod;
 
       int tempType;
@@ -252,6 +258,7 @@ ParseFile() {
   }
 }
 
+
 void
 DebugModel::
 Build() {
@@ -263,6 +270,7 @@ Build() {
   m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
+
 
 void
 DebugModel::
@@ -464,7 +472,8 @@ BuildForward() {
     }
     else if(ins->m_name == "RemoveRegion") {
       RemoveRegion* rmv = static_cast<RemoveRegion*>(ins);
-      for(vector<RegionModel*>::iterator i = m_regions.begin(); i != m_regions.end(); i++) {
+      for(vector<RegionModel*>::iterator i = m_regions.begin();
+          i != m_regions.end(); i++) {
         if(*rmv->m_regionModel == **i) {
           m_regions.erase(i);
           break;
@@ -476,6 +485,7 @@ BuildForward() {
   m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
+
 
 void
 DebugModel::
@@ -633,8 +643,8 @@ BuildBackward() {
     else if(ins->m_name == "AddRegion") {
       AddRegion* add = static_cast<AddRegion*>(ins);
 
-      for(vector<RegionModel*>::iterator i = m_regions.begin(); i != m_regions.end(); i++) {
-
+      for(vector<RegionModel*>::iterator i = m_regions.begin();
+          i != m_regions.end(); i++) {
         if(*add->m_regionModel == **i) {
           m_regions.erase(i);
           break;
@@ -650,6 +660,7 @@ BuildBackward() {
   m_mapModel->Build();
   m_mapModel->SetRenderMode(SOLID_MODE);
 }
+
 
 void
 DebugModel::
@@ -697,12 +708,14 @@ DrawRender() {
   }
 }
 
+
 void
 DebugModel::
 Print(ostream& _os) const {
   _os << Name() << ": " << GetFilename() << endl
     << m_instructions.size() << " debug frames" << endl;
 }
+
 
 void
 DebugModel::

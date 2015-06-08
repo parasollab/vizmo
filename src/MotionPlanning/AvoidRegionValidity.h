@@ -6,9 +6,16 @@
 
 #include "ValidityCheckers/ValidityCheckerMethod.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Checks whether a configuration is completely outside of all avoid
+///        regions, returning false if any part of the robot lies within any
+///        avoid region.
+////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class AvoidRegionValidity : public ValidityCheckerMethod<MPTraits> {
+
   public:
+
     typedef typename MPTraits::MPProblemType MPProblemType;
     typedef typename MPTraits::CfgType CfgType;
 
@@ -16,14 +23,23 @@ class AvoidRegionValidity : public ValidityCheckerMethod<MPTraits> {
     AvoidRegionValidity(MPProblemType* _problem, XMLNode& _node);
 
   protected:
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief The implementation function for this method, which is called by
+    ///        the base class's IsValid method.
+    /// \param[in] _cfg      The configuration to check.
+    /// \param[out] _cdInfo  Required by base class but not used for this method.
+    /// \param[in] _callName The name of the calling method.
     bool IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName);
 };
+
 
 template<class MPTraits>
 AvoidRegionValidity<MPTraits>::
 AvoidRegionValidity() : ValidityCheckerMethod<MPTraits>() {
   this->m_name = "AvoidRegionValidity";
 }
+
 
 template<class MPTraits>
 AvoidRegionValidity<MPTraits>::
@@ -32,23 +48,22 @@ AvoidRegionValidity(MPProblemType* _problem, XMLNode& _node) :
   this->m_name = "AvoidRegionValidity";
 }
 
-//checks whether robot is completely outside of all avoid regions.
-//returns false if any part of the robot lies within any avoid region.
+
 template<class MPTraits>
 bool
 AvoidRegionValidity<MPTraits>::
 IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName) {
   //get environment, avoid regions, and robot
-  Environment* env = this->GetMPProblem()->GetEnvironment();
-  vector<EnvModel::RegionModelPtr> avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+  Environment* env = this->GetEnvironment();
+  vector<EnvModel::RegionModelPtr> avoidRegions = GetVizmo().GetEnv()->
+      GetAvoidRegions();
   shared_ptr<MultiBody> robot = env->GetMultiBody(_cfg.GetRobotIndex());
 
   _cfg.ConfigEnvironment(env); // Config the robot in the environment.
 
   //check each region to ensure _cfg does not enter it
-  for(typename vector<EnvModel::RegionModelPtr>::iterator rit = avoidRegions.begin();
-      rit != avoidRegions.end(); ++rit) {
-    shared_ptr<Boundary> b = (*rit)->GetBoundary();
+  for(auto& r : avoidRegions) {
+    shared_ptr<Boundary> b = r->GetBoundary();
 
     //first check if robot's center is within the boundary
     if(b->InBoundary(_cfg.GetRobotCenterPosition()))

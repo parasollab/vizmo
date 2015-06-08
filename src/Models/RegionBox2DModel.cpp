@@ -7,23 +7,25 @@
 #include "Utilities/Camera.h"
 #include "Utilities/IO.h"
 
+
 RegionBox2DModel::
-RegionBox2DModel() : RegionModel("Box Region 2D", BOX2D), m_lmb(false), m_firstClick(true),
-  m_highlightedPart(NONE), m_boxVertices(4), m_prevPos(4), m_winVertices(4),
-  m_min(0, 0), m_max(0, 0) {}
+RegionBox2DModel() : RegionModel("Box Region 2D", BOX2D), m_lmb(false),
+    m_firstClick(true), m_highlightedPart(NONE), m_boxVertices(4), m_prevPos(4),
+    m_winVertices(4), m_min(0, 0), m_max(0, 0) { }
+
 
 RegionBox2DModel::
 RegionBox2DModel(pair<double, double> _xRange, pair<double, double> _yRange) :
-  RegionModel("Box Region 2D", BOX2D), m_lmb(false), m_firstClick(false), m_highlightedPart(NONE),
-  m_boxVertices(4), m_prevPos(4), m_winVertices(4), m_min(_xRange.first, _yRange.first),
-  m_max(_xRange.second, _yRange.second) {
-    m_boxVertices[0] = Point3d(m_min[0], m_max[1], 0.);
-    m_boxVertices[1] = Point3d(m_min[0], m_min[1], 0.);
-    m_boxVertices[2] = Point3d(m_max[0], m_min[1], 0.);
-    m_boxVertices[3] = Point3d(m_max[0], m_max[1], 0.);
+    RegionModel("Box Region 2D", BOX2D), m_lmb(false), m_firstClick(false),
+    m_highlightedPart(NONE), m_boxVertices(4), m_prevPos(4), m_winVertices(4),
+    m_min(_xRange.first, _yRange.first), m_max(_xRange.second, _yRange.second) {
+  m_boxVertices[0] = Point3d(m_min[0], m_max[1], 0.);
+  m_boxVertices[1] = Point3d(m_min[0], m_min[1], 0.);
+  m_boxVertices[2] = Point3d(m_max[0], m_min[1], 0.);
+  m_boxVertices[3] = Point3d(m_max[0], m_max[1], 0.);
 
-    m_prevPos = m_boxVertices;
-  }
+  m_prevPos = m_boxVertices;
+}
 
 
 shared_ptr<Boundary>
@@ -34,11 +36,13 @@ GetBoundary() const {
         make_pair(m_boxVertices[1][1], m_boxVertices[0][1]) ));
 }
 
+
 //initialization of gl models
 void
 RegionBox2DModel::
 Build() {
 }
+
 
 //determing if _index is this GL model
 void
@@ -47,6 +51,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
   if(_index)
     _sel.push_back(this);
 }
+
 
 bool
 RegionBox2DModel::
@@ -64,6 +69,7 @@ operator==(const RegionModel& _other) const {
   return false;
 }
 
+
 void
 RegionBox2DModel::
 ApplyOffset(const Vector3d& _v) {
@@ -72,6 +78,7 @@ ApplyOffset(const Vector3d& _v) {
   m_prevPos = m_boxVertices;
   m_highlightedPart = NONE;
 }
+
 
 double
 RegionBox2DModel::
@@ -85,6 +92,7 @@ GetShortLength() const {
   return len;
 }
 
+
 double
 RegionBox2DModel::
 GetLongLength() const {
@@ -96,6 +104,7 @@ GetLongLength() const {
 
   return len;
 }
+
 
 //draw is called for the scene.
 void
@@ -134,6 +143,7 @@ DrawRender() {
     QApplication::setOverrideCursor(Qt::SizeVerCursor);
 }
 
+
 void
 RegionBox2DModel::
 DrawSelect() {
@@ -154,6 +164,7 @@ DrawSelect() {
   glEnd();
 }
 
+
 //DrawSelect is only called if item is selected
 void
 RegionBox2DModel::
@@ -172,6 +183,7 @@ DrawSelected() {
   glEnd();
 }
 
+
 //output model info
 void
 RegionBox2DModel::
@@ -182,12 +194,18 @@ Print(ostream& _os) const {
   _os << endl;
 }
 
+
 // output debug info
 void
 RegionBox2DModel::
 OutputDebugInfo(ostream& _os) const {
-  _os << m_type << " BOX2D" << " " << m_prevPos[0][0] << " " << m_prevPos[1][1] << " " << m_prevPos[2][0] << " " << m_prevPos[3][1] << endl;
+  _os << m_type << " BOX2D"
+      << " " << m_prevPos[0][0]
+      << " " << m_prevPos[1][1]
+      << " " << m_prevPos[2][0]
+      << " " << m_prevPos[3][1] << endl;
 }
+
 
 bool
 RegionBox2DModel::
@@ -196,12 +214,13 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
     return false;
 
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
-    m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
+    m_clicked = QPoint(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
     m_lmb = true;
     return true;
   }
   return false;
 }
+
 
 bool
 RegionBox2DModel::
@@ -222,6 +241,7 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
   return false;
 }
 
+
 bool
 RegionBox2DModel::
 MouseMotion(QMouseEvent* _e, Camera* _c) {
@@ -230,7 +250,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
 
   if(m_lmb) {
     //get mouse position
-    QPoint mousePos = QPoint(_e->pos().x(), g_height - _e->pos().y());
+    QPoint mousePos = QPoint(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
 
     Point3d c; //world click point
     Point3d m; //world mouse point
@@ -238,8 +258,8 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //handle creation
     if(m_firstClick) {
       //create box: start from top left and draw CCW about vector (0, 0, 1)
-      c = ProjectToWorld(m_clicked.x(), m_clicked.y(), Point3d(), Vector3d(0, 0, 1));
-      m = ProjectToWorld(mousePos.x(), mousePos.y(), Point3d(), Vector3d(0, 0, 1));
+      c = GLUtils::ProjectToWorld(m_clicked.x(), m_clicked.y());
+      m = GLUtils::ProjectToWorld(mousePos.x(), mousePos.y());
       m_min[0] = min(c[0], m[0]), m_max[0] = max(c[0], m[0]);
       m_min[1] = min(c[1], m[1]), m_max[1] = max(c[1], m[1]);
       m_boxVertices[0] = Point3d(m_min[0], m_max[1], 0.);
@@ -249,10 +269,11 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     }
     //handle resizing & translating
     else if(m_highlightedPart > NONE) {
-      c = ProjectToWorld(m_clicked.x(), m_clicked.y(), Point3d(), Vector3d(0, 0, 1));
-      m = ProjectToWorld(mousePos.x(), mousePos.y(), Point3d(), Vector3d(0, 0, 1));
+      c = GLUtils::ProjectToWorld(m_clicked.x(), m_clicked.y());
+      m = GLUtils::ProjectToWorld(mousePos.x(), mousePos.y());
       Vector3d deltaMouse = m - c;
-      Vector2d deltaWorld(deltaMouse * Vector3d(1, 0, 0), deltaMouse * Vector3d(0, 1, 0));
+      Vector2d deltaWorld(deltaMouse * Vector3d(1, 0, 0),
+          deltaMouse * Vector3d(0, 1, 0));
 
       ApplyTransform(deltaWorld);
     }
@@ -265,6 +286,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
   return false;
 }
 
+
 bool
 RegionBox2DModel::
 PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
@@ -275,11 +297,11 @@ PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   m_highlightedPart = NONE;
 
   //Get mouse position, store as vector
-  Vector2d m(_e->pos().x(), g_height - _e->pos().y());
+  Vector2d m(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
 
   //Project vertices to viewscreen
   for(size_t i = 0; i < m_winVertices.size(); ++i) {
-    Point3d p = ProjectToWindow(m_boxVertices[i]);
+    Point3d p = GLUtils::ProjectToWindow(m_boxVertices[i]);
     m_winVertices[i][0] = p[0];
     m_winVertices[i][1] = p[1];
   }
@@ -323,6 +345,7 @@ PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   return m_highlightedPart;
 }
 
+
 double
 RegionBox2DModel::
 WSpaceArea() const {
@@ -330,11 +353,13 @@ WSpaceArea() const {
     (m_boxVertices[0][1] - m_boxVertices[1][1]);
 }
 
+
 void
 RegionBox2DModel::
 FindCenter() {
   m_center = (m_boxVertices[0] + m_boxVertices[2])/2.;
 }
+
 
 void
 RegionBox2DModel::

@@ -1,5 +1,5 @@
-#ifndef REGIONRRT_H_
-#define REGIONRRT_H_
+#ifndef REGION_RRT_H_
+#define REGION_RRT_H_
 
 #include "MPStrategies/MPStrategyMethod.h"
 #include "MPStrategies/BasicRRTStrategy.h"
@@ -9,9 +9,17 @@
 #include "Models/RegionSphere2DModel.h"
 #include "Models/Vizmo.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  RegionRRT is a user-guided RRT that draws some of its samples q_rand
+///         from the user-created attract regions.
+/// \bug    Avoid regions are not yet supported.
+////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class RegionRRT : public BasicRRTStrategy<MPTraits> {
+
   public:
+
+    // Local Types
     typedef typename MPTraits::MPProblemType MPProblemType;
     typedef typename MPTraits::CfgType CfgType;
     typedef typename MPTraits::WeightType WeightType;
@@ -19,11 +27,11 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
     typedef typename MPProblemType::GraphType GraphType;
     typedef typename MPProblemType::LocalPlannerPointer LocalPlannerPointer;
     typedef typename MPProblemType::DistanceMetricPointer DistanceMetricPointer;
-    typedef typename MPProblemType::NeighborhoodFinderPointer NeighborhoodFinderPointer;
-
+    typedef typename MPProblemType::NeighborhoodFinderPointer
+        NeighborhoodFinderPointer;
     typedef EnvModel::RegionModelPtr RegionModelPtr;
 
-    //Non-XML constructor w/ Query (by label)
+    // Construction
     RegionRRT(const CfgType& _start = CfgType(),
         const CfgType& _goal = CfgType(), string _lp = "sl",
         string _dm = "euclidean", string _nf = "BFNF", string _vc = "PQP_SOLID",
@@ -34,21 +42,32 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
         bool _evaluateGoal = true, size_t _numRoots = 1,
         size_t _numDirections = 1, size_t _maxTrial = 3,
         bool _growGoals = false);
-
     RegionRRT(MPProblemType* _problem, XMLNode& _node);
 
+    // Inherited functions
     void Initialize();
     void Run();
     void Finalize();
-    CfgType SelectDirection();
-
-  protected:
-    VID ExpandTree(CfgType& _dir);
 
   private:
-    RegionModelPtr m_samplingRegion;
-    CfgType m_qNew;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Computes the growth direction for the RRT, choosing between the
+    ///         entire environment and each attract region with uniform
+    ///         probability to generate q_rand.
+    /// \return The resulting growth direction.
+    CfgType SelectDirection();
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Grows the tree in the input direction.
+    /// \param[in] _dir The growth direction.
+    /// \return         The VID of the new node.
+    VID ExpandTree(CfgType& _dir);
+
+    RegionModelPtr m_samplingRegion;  ///< Points to the current sampling region.
+    CfgType m_qNew;                   ///< Storage for checking avoid regions.
 };
+
 
 template<class MPTraits>
 RegionRRT<MPTraits>::
@@ -73,6 +92,7 @@ RegionRRT(MPProblemType* _problem, XMLNode& _node) :
   this->m_delta = MAX_DBL;
 }
 
+
 template<class MPTraits>
 void
 RegionRRT<MPTraits>::
@@ -84,6 +104,7 @@ Initialize() {
   GetVizmo().GetEnv()->SetSelectable(false);
   GetVizmo().GetRobot()->SetSelectable(false);
 }
+
 
 template<class MPTraits>
 void
@@ -123,16 +144,18 @@ Run() {
 
       //evaluate the roadmap
       bool evalMap = this->EvaluateMap(this->m_evaluators);
+      bool oneTree = this->m_trees.size() == 1;
       if(!this->m_growGoals) {
-        mapPassedEvaluation = this->m_trees.size() == 1 && evalMap &&
-          ((this->m_evaluateGoal && this->m_goalsNotFound.size()==0) || !this->m_evaluateGoal);
-        if(this->m_debug && this->m_goalsNotFound.size()==0)
+        bool useGoals = this->m_evaluateGoal;
+        bool allGoals = useGoals && this->m_goalsNotFound.size() == 0;
+        mapPassedEvaluation = evalMap && oneTree && (allGoals || !useGoals);
+        if(this->m_debug && allGoals)
           cout << "RRT FOUND ALL GOALS" << endl;
         if(this->m_trees.begin()->size() >= 15000)
           mapPassedEvaluation = true;
       }
       else
-        mapPassedEvaluation = (evalMap && this->m_trees.size()==1);
+        mapPassedEvaluation = evalMap && oneTree;
     }
     else
       mapPassedEvaluation = false;
@@ -157,6 +180,7 @@ Run() {
   if(this->m_debug)
     cout<<"\nEnd Running RegionRRT::Run" << endl;
 }
+
 
 template<class MPTraits>
 void
@@ -212,19 +236,20 @@ Finalize() {
     cout << "\nEnd Finalizing BasicRRTStrategy" << endl;
 }
 
+
 template<class MPTraits>
 typename RegionRRT<MPTraits>::CfgType
 RegionRRT<MPTraits>::
 SelectDirection() {
   shared_ptr<Boundary> samplingBoundary;
   const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
-  Environment* env = this->GetMPProblem()->GetEnvironment();
+  Environment* env = this->GetEnvironment();
 
   size_t _index = rand() % (regions.size() + 1);
 
   if(_index == regions.size()) {
     m_samplingRegion.reset();
-    samplingBoundary = this->GetMPProblem()->GetEnvironment()->GetBoundary();
+    samplingBoundary = this->GetEnvironment()->GetBoundary();
   }
   else {
     m_samplingRegion = regions[_index];
@@ -252,6 +277,7 @@ SelectDirection() {
   }
 }
 
+
 template<class MPTraits>
 typename RegionRRT<MPTraits>::VID
 RegionRRT<MPTraits>::
@@ -259,41 +285,41 @@ ExpandTree(CfgType& _dir) {
   // Setup MP Variables
   DistanceMetricPointer dm = this->GetDistanceMetric(this->m_dm);
   NeighborhoodFinderPointer nf = this->GetNeighborhoodFinder(this->m_nf);
+  GraphType* g = this->GetRoadmap()->GetGraph();
   VID recentVID = INVALID_VID;
-  CDInfo  cdInfo;
+  CDInfo cdInfo;
+
   // Find closest Cfg in map
   vector<pair<VID, double>> kClosest;
   vector<CfgType> cfgs;
 
-  GraphType* g = this->GetRoadmap()->GetGraph();
-
-  int numRoadmapVertex  = g->get_num_vertices();
-  typedef typename vector<vector<VID> >::iterator TRIT;
+  int numRoadmapVertex = g->get_num_vertices();
   int treeSize = 0;
-  for(TRIT trit = this->m_trees.begin(); trit!=this->m_trees.end(); ++trit){
-    treeSize += trit->size();
-  }
+  for(auto& tree : this->m_trees)
+    treeSize += tree.size();
+
   bool fixTree = false;
   if(treeSize > numRoadmapVertex)
     fixTree = true;
   else {
-    vector<pair<size_t, VID> > ccs;
+    vector<pair<size_t, VID>> ccs;
     stapl::sequential::vector_property_map<GraphType, size_t> cmap;
     get_cc_stats(*g, cmap, ccs);
     if(ccs.size() != this->m_trees.size())
       fixTree = true;
   }
-  if(fixTree) { //node deleted by dynamic environment, fix all trees
+
+  if(fixTree) {
+    //node deleted by dynamic environment, fix all trees
     this->m_trees.clear();
-    vector<pair<size_t, VID> > ccs;
+    vector<pair<size_t, VID>> ccs;
     stapl::sequential::vector_property_map<GraphType, size_t> cmap;
     get_cc_stats(*g, cmap, ccs);
     vector<VID> ccVIDs;
-    typename vector<pair<size_t, VID> >::const_iterator ccIt;
-    for(ccIt = ccs.begin(); ccIt != ccs.end(); ccIt++) {
+    for(const auto& cc : ccs) {
       cmap.reset();
       ccVIDs.clear();
-      get_cc(*g, cmap, ccIt->second, ccVIDs);
+      get_cc(*g, cmap, cc.second, ccVIDs);
       this->m_trees.push_back(ccVIDs);
     }
     this->m_currentTree = this->m_trees.begin();
@@ -302,7 +328,8 @@ ExpandTree(CfgType& _dir) {
   StatClass* kcloseStatClass = this->GetStatClass();
   string kcloseClockName = "kclosest time ";
   kcloseStatClass->StartClock(kcloseClockName);
-  nf->FindNeighbors(this->GetRoadmap(), this->m_currentTree->begin(), this->m_currentTree->end(), _dir, back_inserter(kClosest));
+  nf->FindNeighbors(this->GetRoadmap(), this->m_currentTree->begin(),
+      this->m_currentTree->end(), _dir, back_inserter(kClosest));
   kcloseStatClass->StopClock(kcloseClockName);
 
   CfgType nearest = g->GetVertex(kClosest[0].first);
@@ -313,14 +340,17 @@ ExpandTree(CfgType& _dir) {
   expandStatClass->StartClock(expandClockName);
 
   LPOutput<MPTraits> lpOut;
-  if(!this->GetExtender(this->m_extenderLabel)->Extend(nearest, _dir, newCfg, lpOut)) {
-    if(this->m_debug) cout << "RRT could not expand!" << endl;
+  auto extender = this->GetExtender(this->m_extenderLabel);
+  if(!extender->Extend(nearest, _dir, newCfg, lpOut)) {
+    if(this->m_debug)
+      cout << "RRT could not expand!" << endl;
     return recentVID;
   }
 
   expandStatClass->StopClock(expandClockName);
 
-  if(this->m_debug) cout << "RRT expanded to " << newCfg << endl;
+  if(this->m_debug)
+    cout << "RRT expanded to " << newCfg << endl;
 
   // If good to go, add to roadmap
   if(dm->Distance(newCfg, nearest) >= this->m_minDist ) {
@@ -338,16 +368,15 @@ ExpandTree(CfgType& _dir) {
     g->GetVertex(recentVID).SetStat("Parent", kClosest[0].first);
 
 
-    if(std::string::npos != this->m_gt.find("GRAPH")){
+    if(std::string::npos != this->m_gt.find("GRAPH"))
       this->ConnectNeighbors(recentVID);
-    }
 
-    for( size_t i = 2; i <= this->m_numDirections; i++){//expansion to other m-1 directions
+    for(size_t i = 2; i <= this->m_numDirections; i++) {
+      //expansion to other m-1 directions
       CfgType randdir = this->SelectDispersedDirection(kClosest[0].first);
       expandStatClass->StartClock(expandClockName);
       LPOutput<MPTraits> lpOut;
-      bool expandFlag = this->GetExtender(this->m_extenderLabel)
-        ->Extend(nearest, randdir, newCfg, lpOut);
+      bool expandFlag = extender->Extend(nearest, randdir, newCfg, lpOut);
 
       expandStatClass->StopClock(expandClockName);
       StatClass* conStatClass = this->GetStatClass();
@@ -355,7 +384,8 @@ ExpandTree(CfgType& _dir) {
       conStatClass->StartClock(conClockName);
 
       if(!expandFlag) {
-        if(this->m_debug) cout << "RRT could not expand to additional directions!" << endl;
+        if(this->m_debug)
+          cout << "RRT could not expand to additional directions!" << endl;
       }
       else if(dm->Distance(newCfg, nearest) >= this->m_minDist ) {
         VID otherVID = g->AddVertex(newCfg);

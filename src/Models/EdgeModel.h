@@ -1,5 +1,5 @@
-#ifndef EDGEMODEL_H_
-#define EDGEMODEL_H_
+#ifndef EDGE_MODEL_H_
+#define EDGE_MODEL_H_
 
 #include <iostream>
 #include <string>
@@ -16,23 +16,46 @@ using namespace std;
 
 class CfgModel;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief A drawable model for roadmap edges.
+////////////////////////////////////////////////////////////////////////////////
 class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
   public:
-    EdgeModel(string _lpLabel = "", double _weight = 1, const vector<CfgModel>& _intermediates = vector<CfgModel>());
+
+    // Construction
+    EdgeModel(string _lpLabel = "", double _weight = 1,
+        const vector<CfgModel>& _intermediates = vector<CfgModel>());
     EdgeModel(const DefaultWeight<CfgModel>& _e);
 
+
+    CfgModel* GetStartCfg() {return m_startCfg;} ///< Get the source vertex.
+    CfgModel* GetEndCfg() {return m_endCfg;}     ///< Get the target vertex.
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Set the name for this edge.
     void SetName();
-    size_t GetID() { return m_id; }
-    bool IsValid() { return m_isValid; }
-
-    CfgModel* GetStartCfg() { return m_startCfg; }
-    CfgModel* GetEndCfg() { return m_endCfg; }
-
-    void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
-    void SetValidity(bool _validity) { m_isValid = _validity; }
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Set the source and target configurations for this edge.
+    /// \param[in] _c1 The source configuration.
+    /// \param[in] _c1 The target configuration.
     void Set(CfgModel* _c1, CfgModel* _c2);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Set id, name, and source and target configurations for this edge.
+    /// \param[in] _c1 The source configuration.
+    /// \param[in] _c1 The target configuration.
+    void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the EID of this edge.
+    size_t GetID() {return m_id;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Set the validity of this edge.
+    void SetValidity(bool _validity) { m_isValid = _validity; }
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Query the validity of this edge.
+    bool IsValid() {return m_isValid;}
 
+    // Model functions
     void Build() {}
     void Select(GLuint* _index, vector<Model*>& _sel) {};
     void DrawRender();
@@ -42,12 +65,15 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
 
     void DrawRenderInCC();
 
-    static double m_edgeThickness;
+    // Class properties
+    static double m_edgeThickness; ///< Rendering thickness for edge lines.
 
   private:
-    CfgModel* m_startCfg, * m_endCfg;
-    size_t m_id;
-    bool m_isValid;
+
+    CfgModel* m_startCfg; ///< Points to the source vertex.
+    CfgModel* m_endCfg;   ///< Points to the target vertex.
+    size_t m_id;          ///< This edge's EID in the RoadmapGraph.
+    bool m_isValid;       ///< Indicates whether this edge is valid.
 };
 
 #endif

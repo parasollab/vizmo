@@ -2,7 +2,6 @@ OBJECTS += \
 	   Models/AvatarModel.o \
 	   Models/BodyModel.o \
 	   Models/BoundingBoxModel.o \
-	   Models/BoundingBoxesModel.o \
 	   Models/BoundaryModel.o \
 	   Models/BoundingSphereModel.o \
 	   Models/CfgModel.o \

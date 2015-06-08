@@ -11,11 +11,13 @@
 #include <QCursor>
 #include <QWidget>
 
+
 AvatarModel::
 AvatarModel(InputType _t, const CfgModel& _initialCfg) : CfgModel(_initialCfg),
     m_input(_t), m_tracking(false) {
   this->m_color = Color4(0., 1., 0., .8);
 }
+
 
 void
 AvatarModel::
@@ -41,6 +43,7 @@ DrawRender() {
   }
 }
 
+
 void
 AvatarModel::
 Print(ostream& _os) const {
@@ -48,17 +51,19 @@ Print(ostream& _os) const {
   CfgModel::Print(_os);
 }
 
+
 bool
 AvatarModel::
 PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_input == Mouse && m_tracking) {
-    Point3d worldPos = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
-        Point3d(), Vector3d(0, 0, 1));
+    Point3d worldPos = GLUtils::ProjectToWorld(_e->pos().x(),
+        GLUtils::windowHeight - _e->pos().y());
     UpdatePosition(worldPos);
     return true;
   }
   return false;
 }
+
 
 void
 AvatarModel::

@@ -7,25 +7,30 @@ class BoundingBoxWidget;
 class BoundingSphereWidget;
 class MainWindow;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief A dialog for changing the boundary type and properties.
+////////////////////////////////////////////////////////////////////////////////
 class ChangeBoundaryDialog : public QDialog {
 
   Q_OBJECT
 
   public:
+
     ChangeBoundaryDialog(MainWindow* _mainWindow);
 
   public slots:
-    void SetBoundary();
-    void ChangeToSphereDialog();
-    void ChangeToBoxDialog();
+
+    void SetBoundary();           ///< Accept input and modify the boundary.
+    void ChangeToSphereDialog();  ///< Load the bounding sphere widget.
+    void ChangeToBoxDialog();     ///< Load the bounding box widget.
 
   private:
-    void ShowCurrentValues();
+
+    void ShowCurrentValues();     ///< Load current values into the edit boxes.
 
     bool m_isBox;
-    BoundingBoxWidget* m_boxWidget;
-    BoundingSphereWidget* m_sphereWidget;
-    MainWindow* m_mainWindow;
+    BoundingBoxWidget*    m_boxWidget;    ///< Helper for modifying boxes.
+    BoundingSphereWidget* m_sphereWidget; ///< Helper for modifying spheres.
 };
 
 #endif

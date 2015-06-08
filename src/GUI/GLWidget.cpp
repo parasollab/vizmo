@@ -89,8 +89,8 @@ initializeGL() {
 void
 GLWidget::
 resizeGL(int _w, int _h) {
-  g_width = _w;
-  g_height = _h;
+  GLUtils::windowWidth  = _w;
+  GLUtils::windowHeight = _h;
   m_transformTool.ProjectToWindow();
 
   glViewport(0, 0, _w, _h);
@@ -334,6 +334,7 @@ mouseReleaseEvent(QMouseEvent* _e) {
   updateGL();
 }
 
+
 void
 GLWidget::
 mouseMoveEvent(QMouseEvent* _e) {
@@ -343,8 +344,10 @@ mouseMoveEvent(QMouseEvent* _e) {
 
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion
-    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e, GetCurrentCamera()))
-        && !(m_currentUserPath && m_currentUserPath->PassiveMouseMotion(_e, GetCurrentCamera())))
+    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e,
+        GetCurrentCamera())) &&
+        !(m_currentUserPath && m_currentUserPath->PassiveMouseMotion(_e,
+        GetCurrentCamera())))
       m_pickBox.PassiveMouseMotion(_e);
     updateGL();
   }
@@ -355,10 +358,12 @@ mouseMoveEvent(QMouseEvent* _e) {
       m_transformTool.CameraMotion();
     }
     else if(!m_transformTool.MouseMotion(_e)) {
-      if((m_currentRegion && !m_currentRegion->MouseMotion(_e, GetCurrentCamera()))
+      if((m_currentRegion
+          && !m_currentRegion->MouseMotion(_e, GetCurrentCamera()))
           || !m_currentRegion ) {
-        if((m_currentUserPath && !m_currentUserPath->MouseMotion(_e, GetCurrentCamera())) ||
-            !m_currentUserPath)
+        if((m_currentUserPath
+            && !m_currentUserPath->MouseMotion(_e, GetCurrentCamera()))
+            || !m_currentUserPath)
           m_pickBox.MouseMotion(_e);
       }
     }
@@ -366,6 +371,7 @@ mouseMoveEvent(QMouseEvent* _e) {
     updateGL();
   }
 }
+
 
 void
 GLWidget::
@@ -381,12 +387,14 @@ keyPressEvent(QKeyEvent* _e) {
   updateGL();
 }
 
+
 void
 GLWidget::
 ShowAxis() {
   m_showAxis = !m_showAxis;
   updateGL();
 }
+
 
 void
 GLWidget::
@@ -395,11 +403,13 @@ ShowFrameRate() {
   updateGL();
 }
 
+
 void
 GLWidget::
 ResetTransTool() {
   m_transformTool.ResetSelectedObj();
 }
+
 
 //save an image of the GL scene with the given filename
 //Note: filename must have appropriate extension for QImage::save or no file
@@ -413,6 +423,7 @@ SaveImage(QString _filename, bool _crop) {
   QImage crop = grabFrameBuffer().copy(imageRect);
   crop.save(_filename);
 }
+
 
 //Grab the size of image for saving. If crop is true, use the cropBox to
 //size the image down.
@@ -432,6 +443,7 @@ GetImageRect(bool _crop) {
   else
     return QRect(0, 0, width(), height());
 }
+
 
 void
 GLWidget::
@@ -455,6 +467,7 @@ DrawFrameRate(double _frameRate) {
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
 }
+
 
 void
 GLWidget::
@@ -526,10 +539,12 @@ DrawAxis() {
   }
 }
 
+
 void
 GLWidget::
 SetMousePosImpl(Point3d _p) {
-  Point3d screenPos = ProjectToWindow(_p);
-  QPoint globalPos = this->mapToGlobal(QPoint(screenPos[0], g_height - screenPos[1]));
+  Point3d screenPos = GLUtils::ProjectToWindow(_p);
+  QPoint globalPos = this->mapToGlobal(QPoint(screenPos[0],
+      GLUtils::windowHeight - screenPos[1]));
   QCursor::setPos(globalPos);
 }

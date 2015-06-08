@@ -1,9 +1,5 @@
-/*
- * This file defines class for the open gl scene of Vizmo.
- */
-
-#ifndef GLWIDGET_H_
-#define GLWIDGET_H_
+#ifndef GL_WIDGET_H_
+#define GL_WIDGET_H_
 
 #include <deque>
 #include <memory>
@@ -20,11 +16,15 @@ class MainWindow;
 class RegionModel;
 class UserPathModel;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  Creates and manages Vizmo's OpenGL scene.
+////////////////////////////////////////////////////////////////////////////////
 class GLWidget : public QGLWidget {
 
   Q_OBJECT
 
   public:
+
     GLWidget(QWidget* _parent, MainWindow* _mainWindow);
 
     bool GetDoubleClickStatus() const {return m_doubleClick;}
@@ -48,12 +48,15 @@ class GLWidget : public QGLWidget {
     void SaveImage(QString _filename, bool _crop);
 
     shared_ptr<RegionModel> GetCurrentRegion() { return m_currentRegion;}
-    void SetCurrentRegion(shared_ptr<RegionModel> _r = shared_ptr<RegionModel>()) {m_currentRegion = _r;}
+    void SetCurrentRegion(shared_ptr<RegionModel> _r = shared_ptr<RegionModel>()){
+      m_currentRegion = _r;
+    }
 
     UserPathModel* GetCurrentUserPath() {return m_currentUserPath;}
     void SetCurrentUserPath(UserPathModel* _p) {m_currentUserPath = _p;}
 
   signals:
+
     void selectByRMB();
     void clickByRMB();
     void selectByLMB();
@@ -63,6 +66,7 @@ class GLWidget : public QGLWidget {
     void SetMouse(Point3d _p);
 
   private slots:
+
     void ShowAxis();
     void ShowFrameRate();
     void ToggleSelectionSlot();

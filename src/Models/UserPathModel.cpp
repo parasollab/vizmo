@@ -40,9 +40,8 @@ DrawRender() {
   glLineWidth(4);
 
   glBegin(GL_LINE_STRIP);
-  for(vector<Point3d>::iterator it = m_userPath.begin();
-      it != m_userPath.end(); ++it)
-    glVertex3dv(*it);
+  for(auto& point: m_userPath)
+    glVertex3dv(point);
   glEnd();
 }
 
@@ -130,8 +129,8 @@ UserPathModel::
 MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == Mouse && _e->buttons() == Qt::LeftButton && !m_finished) {
     //start drawing path
-    Point3d p = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
-        Point3d(), Vector3d(0, 0, 1));
+    Point3d p = GLUtils::ProjectToWorld(_e->pos().x(),
+        GLUtils::windowHeight - _e->pos().y());
     UpdatePositions(p);
     SendToPath(p);
     AvatarModel* avatar = GetVizmo().GetEnv()->GetAvatar();
@@ -161,12 +160,11 @@ UserPathModel::
 MouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == Mouse && !m_finished) {
     //get current mouse position
-    Point3d p = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
-        Point3d(), Vector3d(0, 0, 1));
+    Point3d p = GLUtils::ProjectToWorld(_e->pos().x(),
+        GLUtils::windowHeight - _e->pos().y());
     SendToPath(p);
     return true;
   }
-
   return false;
 }
 

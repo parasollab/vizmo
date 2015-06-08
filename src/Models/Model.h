@@ -18,11 +18,14 @@ using namespace mathtool;
 
 enum RenderMode {INVISIBLE_MODE, WIRE_MODE, SOLID_MODE};
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Base class for all OpenGL models in Vizmo.
+////////////////////////////////////////////////////////////////////////////////
 class Model {
 
   public:
 
-    //construction
+    // Construction
     Model(const string& _name) : m_name(_name), m_renderMode(SOLID_MODE),
         m_selectable(true), m_showNormals(false) {}
     virtual ~Model() {
@@ -31,7 +34,7 @@ class Model {
         delete *cit;
     }
 
-    const string& Name() const {return m_name;}
+    const string& Name() const {return m_name;} ///< Get the model's name.
 
     RenderMode GetRenderMode() const {return m_renderMode;}
     virtual void SetRenderMode(RenderMode _mode) {m_renderMode = _mode;}
@@ -44,25 +47,32 @@ class Model {
 
     virtual void ToggleNormals() {m_showNormals = !m_showNormals;}
 
-    //GetChildren for compatability until model constructors intantiate children
+    //GetChildren for compatability until model constructors instantiate children
     virtual void GetChildren(list<Model*>& _models) {};
     const vector<Model*>& SelectableChildren() const
         {return m_selectableChildren;}
     const vector<Model*>& AllChildren() const {return m_allChildren;}
 
-    //initialization of model
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Initialize the model.
     virtual void Build() = 0;
-    //determing if _index is this GL model
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Determine if this GL model has been selected.
     virtual void Select(GLuint* _index, vector<Model*>& _sel) = 0;
-    //draw under GL_RENDER mode
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Render the model in the OpenGL scene.
     virtual void DrawRender() = 0;
-    //draw under GL_SELECT mode
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Render the model for selection.
     virtual void DrawSelect() = 0;
-    //DrawSelected is only called when model is selected
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Render the model as selected in the OpenGL scene.
     virtual void DrawSelected() = 0;
-    //Draw Haptics for PHANToM device
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Render the model's haptic surface for PHANToM device.
     virtual void DrawHaptics() {};
-    //output model info
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Print model info.
     virtual void Print(ostream& _os) const = 0;
 
     //mouse/keyboard event handling
@@ -75,17 +85,25 @@ class Model {
 
   protected:
 
-    string m_name;
-    RenderMode m_renderMode;
-    Color4 m_color;
-    vector<Model*> m_selectableChildren, m_allChildren;
-    bool m_selectable;
-    bool m_showNormals;
+    string m_name;                       ///< The model's name.
+    RenderMode m_renderMode;             ///< The rendering mode to use.
+    Color4 m_color;                      ///< The model's color.
+    vector<Model*> m_selectableChildren; ///< The model's selectable children.
+    vector<Model*> m_allChildren;        ///< The model's children.
+    bool m_selectable;            ///< Indicates whether the model is selectable.
+    bool m_showNormals;                  ///< Toggle display of normals.
 };
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Extends Model with file parsing features.
+////////////////////////////////////////////////////////////////////////////////
 class LoadableModel : public Model {
+
   public:
+
     LoadableModel(const string& _name) : Model(_name) {}
+    virtual ~LoadableModel() {}
 
     const string& GetFilename() const {return m_filename;}
     void SetFilename(const string& _filename) {m_filename = _filename;}
@@ -94,15 +112,20 @@ class LoadableModel : public Model {
     virtual void ParseFile() = 0;
 
   protected:
-    string m_filename;
+
+    string m_filename;  ///< The filename where the model is stored.
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Extends Model with transformation features.
+////////////////////////////////////////////////////////////////////////////////
 class TransformableModel : public Model {
 
   public:
 
     TransformableModel(const string& _name) : Model(_name), m_scale(1, 1, 1) {}
+    virtual ~TransformableModel() {}
 
     void Transform() {
       //translation applied last
@@ -134,7 +157,8 @@ class TransformableModel : public Model {
 
   protected:
 
-    Vector3d m_pos, m_scale;
+    Vector3d m_pos;
+    Vector3d m_scale;
     Vector3d m_rot;
     Quaternion m_rotQ; //Rotation
 };

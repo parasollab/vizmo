@@ -9,10 +9,11 @@ CrosshairModel(Point3d* _p) : Model("Crosshair"), m_worldPos(_p),
   m_worldRange = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
 }
 
+
 void
 CrosshairModel::
 DrawRender() {
-  if(IsInsideBBX()) {
+  if(m_enabled && IsInsideBBX()) {
     glPushMatrix();
     glTranslatef((*m_worldPos)[0], (*m_worldPos)[1], (*m_worldPos)[2]);
     glColor4f(.9, .9, .9, .2);
@@ -29,6 +30,7 @@ DrawRender() {
   }
 }
 
+
 bool
 CrosshairModel::
 IsInsideBBX() const {
@@ -37,6 +39,5 @@ IsInsideBBX() const {
         (*m_worldPos)[i] > m_worldRange[i].second)
       return false;
   }
-
   return true;
 }

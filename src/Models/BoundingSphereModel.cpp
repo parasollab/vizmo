@@ -3,35 +3,42 @@
 #include <limits>
 #include <sstream>
 
-BoundingSphereModel::BoundingSphereModel() :
-  BoundaryModel("Bounding Sphere"), m_radius(numeric_limits<double>::max()) {
-  }
+BoundingSphereModel::
+BoundingSphereModel() : BoundaryModel("Bounding Sphere"),
+    m_radius(numeric_limits<double>::max()) { }
 
-BoundingSphereModel::BoundingSphereModel(const Point3d& _c, double _r) :
-  BoundaryModel("Bounding Sphere"), m_center(_c), m_radius(_r) {
-    Build();
-  }
+
+BoundingSphereModel::
+BoundingSphereModel(const Point3d& _c, double _r) :
+    BoundaryModel("Bounding Sphere"), m_center(_c), m_radius(_r) {
+  Build();
+}
+
 
 vector<pair<double, double> >
-BoundingSphereModel::GetRanges(){
-
+BoundingSphereModel::
+GetRanges() {
   vector<pair<double, double> > ranges;
   for(int i=0; i<3; i++)
     ranges.push_back(make_pair(m_center[i] - m_radius, m_center[i] + m_radius));
   return ranges;
 }
 
+
 bool
-BoundingSphereModel::Parse(istream& _is) {
-  if(!(_is >> m_center >> m_radius)){
+BoundingSphereModel::
+Parse(istream& _is) {
+  if(!(_is >> m_center >> m_radius)) {
     cerr << "Error reading Bounding Sphere" << endl;
     return false;
   }
   return true;
 }
 
+
 void
-BoundingSphereModel::Build() {
+BoundingSphereModel::
+Build() {
   GLUquadricObj* quad =gluNewQuadric();
 
   m_displayID = glGenLists(1);
@@ -59,14 +66,18 @@ BoundingSphereModel::Build() {
   gluDeleteQuadric(quad);
 }
 
+
 void
-BoundingSphereModel::Print(ostream& _os) const {
+BoundingSphereModel::
+Print(ostream& _os) const {
   _os << Name() << endl
     << "[ " << m_center << " " << m_radius << " ]" << endl;
 }
 
+
 void
-BoundingSphereModel::Write(ostream& _os) const {
+BoundingSphereModel::
+Write(ostream& _os) const {
   _os << "Sphere " << m_center << " " << m_radius;
 }
 

@@ -4,7 +4,8 @@
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
-BoundingBoxWidget::BoundingBoxWidget(QWidget* _parent) : QWidget(_parent) {
+BoundingBoxWidget::
+BoundingBoxWidget(QWidget* _parent) : QWidget(_parent) {
   //construct objects
   setStyleSheet("QLineEdit { font: 9pt }");
   QLabel* labelX = new QLabel("<b>X<b>", this);
@@ -20,7 +21,7 @@ BoundingBoxWidget::BoundingBoxWidget(QWidget* _parent) : QWidget(_parent) {
 
   m_is2D = false;
   m_checkIs2D = new QCheckBox("2D", this);
-  connect(m_checkIs2D, SIGNAL(clicked()), this, SLOT(ChangeBoxTo2D()));
+  connect(m_checkIs2D, SIGNAL(clicked()), this, SLOT(Toggle2D()));
 
   m_lineXMin->setValidator(new QDoubleValidator(this));
   m_lineXMax->setValidator(new QDoubleValidator(this));
@@ -48,15 +49,19 @@ BoundingBoxWidget::BoundingBoxWidget(QWidget* _parent) : QWidget(_parent) {
   layout->addWidget(m_lineZMax, 3, 2);
 }
 
+
 void
-BoundingBoxWidget::ChangeBoxTo2D(){
+BoundingBoxWidget::
+Toggle2D(){
   m_is2D = m_checkIs2D->isChecked();
   m_lineZMin->setEnabled(!m_is2D);
   m_lineZMax->setEnabled(!m_is2D);
 }
 
+
 void
-BoundingBoxWidget::SetBoundary() {
+BoundingBoxWidget::
+SetBoundary() {
   EnvModel* env = GetVizmo().GetEnv();
   delete env->GetBoundary();
 
@@ -74,8 +79,10 @@ BoundingBoxWidget::SetBoundary() {
   env->SetBoundary(new BoundingBoxModel(ranges[0], ranges[1], ranges[2]));
 }
 
+
 void
-BoundingBoxWidget::ShowCurrentValues() {
+BoundingBoxWidget::
+ShowCurrentValues() {
   const string& name = GetVizmo().GetEnv()->GetBoundary()->Name();
   if(name == "Bounding Box") {
     BoundingBoxModel* bbx = (BoundingBoxModel*)GetVizmo().GetEnv()->GetBoundary();
@@ -91,4 +98,3 @@ BoundingBoxWidget::ShowCurrentValues() {
     }
   }
 }
-

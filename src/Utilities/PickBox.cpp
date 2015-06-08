@@ -18,7 +18,7 @@ Draw() {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0, g_width, 0, g_height);
+    gluOrtho2D(0, GLUtils::windowWidth, 0, GLUtils::windowHeight);
 
     glMatrixMode(GL_MODELVIEW);
 
@@ -87,10 +87,11 @@ MousePressed(QMouseEvent* _e) {
       m_resizing = true;
       m_highlightedPart = Top | Right;
       m_pickBox.m_right = m_pickBox.m_left = _e->pos().x();
-      m_pickBox.m_bottom = m_pickBox.m_top = g_height - _e->pos().y();
+      m_pickBox.m_bottom = m_pickBox.m_top = GLUtils::windowHeight - _e->pos().y();
     }
   }
 }
+
 
 void
 PickBox::
@@ -101,6 +102,7 @@ MouseReleased(QMouseEvent* _e) {
   QApplication::setOverrideCursor(Qt::ArrowCursor);
 }
 
+
 void
 PickBox::
 MouseMotion(QMouseEvent* _e) {
@@ -108,19 +110,22 @@ MouseMotion(QMouseEvent* _e) {
     if(m_translating) {
       QPoint diff(_e->pos().x() - m_clicked.x(), m_clicked.y() - _e->pos().y());
       m_pickBox.m_left = max(1., m_origBox.m_left + diff.x());
-      m_pickBox.m_right = min(double(g_width), m_origBox.m_right + diff.x());
+      m_pickBox.m_right = min(double(GLUtils::windowWidth),
+          m_origBox.m_right + diff.x());
       m_pickBox.m_bottom = max(1., m_origBox.m_bottom + diff.y());
-      m_pickBox.m_top = min(double(g_height), m_origBox.m_top + diff.y());
+      m_pickBox.m_top = min(double(GLUtils::windowHeight),
+          m_origBox.m_top + diff.y());
     }
     else if(m_resizing) {
       if(m_highlightedPart & Left)
         m_pickBox.m_left = max(1, _e->pos().x());
       if(m_highlightedPart & Right)
-        m_pickBox.m_right = min(g_width, _e->pos().x());
+        m_pickBox.m_right = min(GLUtils::windowWidth, _e->pos().x());
       if(m_highlightedPart & Bottom)
-        m_pickBox.m_bottom = max(1, g_height - _e->pos().y());
+        m_pickBox.m_bottom = max(1, GLUtils::windowHeight - _e->pos().y());
       if(m_highlightedPart & Top)
-        m_pickBox.m_top = min(g_height, g_height - _e->pos().y());
+        m_pickBox.m_top = min(GLUtils::windowHeight,
+            GLUtils::windowHeight - _e->pos().y());
     }
 
     //ensure the top and left are the true top/left
@@ -144,7 +149,7 @@ PassiveMouseMotion(QMouseEvent* _e) {
   if(m_picking) {
     //clear highlighted part and get mouse position.
     m_highlightedPart = None;
-    int x = _e->pos().x(), y = g_height - _e->pos().y();
+    int x = _e->pos().x(), y = GLUtils::windowHeight - _e->pos().y();
 
     //define a pixle threshold. the cursor is considered to be touching a box
     //border if it is within pT of the border.

@@ -1,5 +1,5 @@
-#ifndef CCMODEL_H_
-#define CCMODEL_H_
+#ifndef CC_MODEL_H_
+#define CC_MODEL_H_
 
 #include <iostream>
 #include <map>
@@ -13,10 +13,16 @@ using namespace std;
 template<typename, typename>
 class MapModel;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Provides a connected component model that is used to ensure all
+///        members of a CC are rendered with the same color.
+////////////////////////////////////////////////////////////////////////////////
 template <class CFG, class WEIGHT>
 class CCModel : public Model {
 
   public:
+
+    // Local types
     typedef MapModel<CFG, WEIGHT> MM;
     typedef typename MM::Graph Graph;
     typedef typename MM::VID VID;
@@ -25,11 +31,13 @@ class CCModel : public Model {
     typedef typename MM::EI EI;
     typedef typename MM::ColorMap ColorMap;
 
+    // Construction
     CCModel(size_t _id, VID _rep, Graph* _graph);
 
-    void SetName();
-    size_t GetID() const {return m_id;}
+    void SetName();                     ///< Set the name of this CC.
+    size_t GetID() const {return m_id;} ///< Get the ID of this CC.
 
+    // Model functions
     void Build();
     void Select(GLuint* _index, vector<Model*>& _sel);
     void DrawRender();
@@ -40,33 +48,40 @@ class CCModel : public Model {
     virtual void GetChildren(list<Model*>& _models);
 
   private:
+
     CFG& GetCfg(VID _v);
 
-    size_t m_id;
-    VID m_rep;
-    Graph* m_graph;
-    ColorMap m_colorMap;
-    vector<VID> m_nodes;
+    size_t m_id;         ///< The ID of this CC.
+    VID m_rep;           ///< The ID of a reference node in this CC.
+    Graph* m_graph;      ///< Pointer to the graph.
+    ColorMap m_colorMap; ///< Auxiliary structure for stapl graph.
+    vector<VID> m_nodes; ///< A list of the VIDs in this CC.
 
-    static map<VID, Color4> m_colorIndex;
+    static map<VID, Color4> m_colorIndex; ///< Cfg colors by VID.
 };
 
-template <class CFG, class WEIGHT>
-map<typename CCModel<CFG, WEIGHT>::VID, Color4> CCModel<CFG, WEIGHT>::m_colorIndex = map<VID, Color4>();
 
 template <class CFG, class WEIGHT>
-CCModel<CFG, WEIGHT>::CCModel(size_t _id, VID _rep, Graph* _graph) :
-  Model(""), m_id(_id), m_rep(_rep), m_graph(_graph) {
-    SetName();
-    m_renderMode = INVISIBLE_MODE;
+map<typename CCModel<CFG, WEIGHT>::VID, Color4>
+CCModel<CFG, WEIGHT>::
+m_colorIndex = map<VID, Color4>();
 
-    Build();
-  }
+
+template <class CFG, class WEIGHT>
+CCModel<CFG, WEIGHT>::
+CCModel(size_t _id, VID _rep, Graph* _graph) : Model(""), m_id(_id), m_rep(_rep),
+    m_graph(_graph) {
+  SetName();
+  m_renderMode = INVISIBLE_MODE;
+
+  Build();
+}
+
 
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::Build() {
-
+CCModel<CFG, WEIGHT>::
+Build() {
   //Set up CC nodes
   m_nodes.clear();
   m_colorMap.reset();
@@ -96,9 +111,11 @@ CCModel<CFG, WEIGHT>::Build() {
   SetColor(m_colorIndex[m_rep]);
 }
 
+
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
+CCModel<CFG, WEIGHT>::
+SetColor(const Color4& _c) {
   Model::SetColor(_c);
   m_colorIndex[m_rep] = _c;
 
@@ -116,9 +133,11 @@ CCModel<CFG, WEIGHT>::SetColor(const Color4& _c){
   }
 }
 
+
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
+CCModel<CFG, WEIGHT>::
+GetChildren(list<Model*>& _models) {
   typedef typename vector<VID>::iterator VIT;
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
     _models.push_back(&GetCfg(*vit));
@@ -133,8 +152,10 @@ CCModel<CFG, WEIGHT>::GetChildren(list<Model*>& _models){
   }
 }
 
+
 template <class CFG, class WEIGHT>
-void CCModel<CFG, WEIGHT>::DrawRender() {
+void CCModel<CFG, WEIGHT>::
+DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
@@ -181,8 +202,10 @@ void CCModel<CFG, WEIGHT>::DrawRender() {
   glEnd();
 }
 
+
 template <class CFG, class WEIGHT>
-void CCModel<CFG, WEIGHT>::DrawSelect() {
+void CCModel<CFG, WEIGHT>::
+DrawSelect() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
@@ -229,10 +252,12 @@ void CCModel<CFG, WEIGHT>::DrawSelect() {
   glPopName();
 }
 
+
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::DrawSelected(){
-  /*Disabled for now; later modifications likely*/
+CCModel<CFG, WEIGHT>::
+DrawSelected(){
+  /// \warning Disabled for now; later modifications likely.
   //if(m_edgeID == -1)
   //  DrawEdges();
 
@@ -241,9 +266,11 @@ CCModel<CFG, WEIGHT>::DrawSelected(){
   //glLineWidth(1);
 }
 
+
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
+CCModel<CFG, WEIGHT>::
+Select(GLuint* _index, vector<Model*>& _sel) {
   if(!m_selectable || _index == NULL)
     return;
 
@@ -257,25 +284,31 @@ CCModel<CFG, WEIGHT>::Select(GLuint* _index, vector<Model*>& _sel){
   }
 }
 
+
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::SetName() {
+CCModel<CFG, WEIGHT>::
+SetName() {
   ostringstream temp;
   temp << "CC " << m_id;
   m_name = temp.str();
 }
 
+
 template <class CFG, class WEIGHT>
 void
-CCModel<CFG, WEIGHT>::Print(ostream& _os) const {
-  //TODO Add in num edges again
+CCModel<CFG, WEIGHT>::
+Print(ostream& _os) const {
+  /// \todo Add in num edges again
   _os << Name() << endl
-    << m_nodes.size() << " nodes" << endl;
+      << m_nodes.size() << " nodes" << endl;
 }
+
 
 template<class CFG, class WEIGHT>
 CFG&
-CCModel<CFG, WEIGHT>::GetCfg(VID _v) {
+CCModel<CFG, WEIGHT>::
+GetCfg(VID _v) {
   return m_graph->find_vertex(_v)->property();
 }
 

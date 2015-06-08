@@ -4,7 +4,8 @@
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
-BoundingSphereWidget::BoundingSphereWidget(QWidget* _parent) : QWidget(_parent) {
+BoundingSphereWidget::
+BoundingSphereWidget(QWidget* _parent) : QWidget(_parent) {
   //construct objects
   setStyleSheet("QLineEdit { font: 9pt }");
   QLabel* labelX = new QLabel("<b>X<b>", this);
@@ -39,8 +40,10 @@ BoundingSphereWidget::BoundingSphereWidget(QWidget* _parent) : QWidget(_parent) 
   layout->addWidget(m_lineR, 3, 1);
 }
 
+
 void
-BoundingSphereWidget::SetBoundary() {
+BoundingSphereWidget::
+SetBoundary() {
   EnvModel* env = GetVizmo().GetEnv();
   delete env->GetBoundary();
 
@@ -54,11 +57,14 @@ BoundingSphereWidget::SetBoundary() {
   env->SetBoundary(new BoundingSphereModel(center, radius));
 }
 
+
 void
-BoundingSphereWidget::ShowCurrentValues() {
+BoundingSphereWidget::
+ShowCurrentValues() {
   const string& name = GetVizmo().GetEnv()->GetBoundary()->Name();
   if(name == "Bounding Sphere") {
-    BoundingSphereModel* bs = (BoundingSphereModel*)GetVizmo().GetEnv()->GetBoundary();
+    BoundingSphereModel* bs = (BoundingSphereModel*)GetVizmo().GetEnv()->
+        GetBoundary();
     const Point3d& c = bs->GetCenter();
     double r = bs->GetRadius();
 
@@ -68,4 +74,3 @@ BoundingSphereWidget::ShowCurrentValues() {
     m_lineR->setText(QString::number(r));
   }
 }
-

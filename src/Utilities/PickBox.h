@@ -7,9 +7,9 @@ using namespace std;
 #include <QtGui>
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief Defines an oriented 2D box.
+/// \brief   Defines an oriented 2D box.
 /// \details The box is defined by four doubles indicating the maximum and
-/// minimum x/y values.
+///          minimum x/y values.
 ////////////////////////////////////////////////////////////////////////////////
 struct Box{
 
@@ -24,7 +24,7 @@ struct Box{
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Creates a dashed-line box in the OpenGL scene to allow the user to
-/// select a specific area for screen capture.
+///        select a specific area for screen capture.
 ////////////////////////////////////////////////////////////////////////////////
 class PickBox {
 
@@ -35,8 +35,8 @@ class PickBox {
     /// currently under the user's influence.
     enum Highlight {None = 0, Left = 1, Right = 2, Top = 4, Bottom = 8, All = 16};
 
-    PickBox() : m_picking(false),
-    m_highlightedPart(0), m_resizing(false), m_translating(false) {}
+    PickBox() : m_picking(false), m_highlightedPart(0), m_resizing(false),
+        m_translating(false) { }
 
     void Draw(); ///< Render the pick box in the OpenGL scene.
 
@@ -63,8 +63,8 @@ class PickBox {
     bool PassiveMouseMotion(QMouseEvent* _e);
 
     //access
-    const Box& GetBox() const {return m_pickBox;}
-    bool IsPicking() const {return m_picking;}
+    const Box& GetBox() const {return m_pickBox;} ///< Get the current box.
+    bool IsPicking() const {return m_picking;}    ///< Get picking status.
 
   private:
 

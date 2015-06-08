@@ -1,8 +1,8 @@
-#ifndef TRANSFORMTOOL_H_
-#define TRANSFORMTOOL_H_
+#ifndef TRANSFORM_TOOL_H_
+#define TRANSFORM_TOOL_H_
 
-#include<Vector.h>
-#include<Quaternion.h>
+#include <Vector.h>
+#include <Quaternion.h>
 using namespace mathtool;
 
 #include <qgl.h>
@@ -10,12 +10,14 @@ using namespace mathtool;
 class Camera;
 class TransformableModel;
 
-///////////////////////////////////////////////////////////////////////////////
-// TransformToolBase
-///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief ?
+///////////////////////////////////////////////////////////////////////////////
 class TransformToolBase {
+
   public:
+
     TransformToolBase() {}
 
     static void SetCurrentCamera(Camera* _camera) {m_currentCamera = _camera;}
@@ -32,6 +34,7 @@ class TransformToolBase {
     virtual void Disable() {};  //called when this tool is unactivated
 
   protected:
+
     enum MovementType{NON, X_AXIS, Y_AXIS, Z_AXIS, VIEW_PLANE}; //move where?
 
     virtual void Draw(bool _selected) = 0;
@@ -43,40 +46,43 @@ class TransformToolBase {
     static int m_hitX, m_hitY;    //mouse hit on m_hitX, m_hitY (win coord)
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// TranslationTool
-///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief ?
+///////////////////////////////////////////////////////////////////////////////
 class TranslationTool : public TransformToolBase {
+
   public:
 
-    TranslationTool():TransformToolBase() {m_movementType = NON;}
+    TranslationTool() : TransformToolBase(), m_movementType(NON) { }
 
     bool MousePressed(QMouseEvent* _e);
     bool MouseReleased(QMouseEvent* _e);
     bool MouseMotion(QMouseEvent* _e);
 
   protected:
+
     void Draw(bool _selected);
     bool Select(int _x, int _y);
 
   private:
-    MovementType m_movementType; //which axis is selected
-    Vector3d m_deltaDis;         //displacement caused by user
-    Point3d m_hitUnPrj;          //unproject(m_w, m_h)
-    Point3d m_objPosCatch;       //catch for m_obj->pos
-    Point3d m_objPosCatchPrj;    //catch for m_objPosPrj
+
+    MovementType m_movementType; ///< which axis is selected
+    Vector3d m_deltaDis;         ///< displacement caused by user
+    Point3d m_hitUnPrj;          ///< unproject(m_w, m_h)
+    Point3d m_objPosCatch;       ///< catch for m_obj->pos
+    Point3d m_objPosCatchPrj;    ///< catch for m_objPosPrj
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// RotationTool
-///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief ?
+///////////////////////////////////////////////////////////////////////////////
 class RotationTool : public TransformToolBase {
+
   public:
 
-    RotationTool() :
-      TransformToolBase(), m_movementType(NON),
+    RotationTool() : TransformToolBase(), m_movementType(NON),
       m_hitAngle(0), m_curAngle(0), m_radius(50) {}
 
     void SetSelectedObj(TransformableModel* _obj);
@@ -94,26 +100,28 @@ class RotationTool : public TransformToolBase {
 
   private:
 
-    void ComputeArcs(double _angle[2], Vector3d& _n, Vector3d& _v1, Vector3d& _v2, Vector3d& _view);
+    void ComputeArcs(double _angle[2], Vector3d& _n, Vector3d& _v1, Vector3d& _v2,
+        Vector3d& _view);
     void ComputeLocalAxis();
     Point3d UnPrjToWorld(const Point3d& _ref, const Vector3d& _n, int _x, int _y);
 
-    MovementType m_movementType;  //which axis is selected
-    Vector3d m_localAxis[3];      //axis of object
-    Vector3d m_localAxisCatch[3]; //catch for m_localAxis[3]
-    double m_hitAngle;            //the angle when mouse clikced.
-    double m_curAngle;            //current angle of mouse point
-    Point3d m_objPosCatch;        //catch for m_obj->pos
-    Quaternion m_objQuatCatch;    //catch for m_obj->q
-    double m_radius;              //Radius of tool
-    double m_arcs[3][2];          //start/end of each arc
+    MovementType m_movementType;  ///< which axis is selected
+    Vector3d m_localAxis[3];      ///< axis of object
+    Vector3d m_localAxisCatch[3]; ///< catch for m_localAxis[3]
+    double m_hitAngle;            ///< the angle when mouse clikced.
+    double m_curAngle;            ///< current angle of mouse point
+    Point3d m_objPosCatch;        ///< catch for m_obj->pos
+    Quaternion m_objQuatCatch;    ///< catch for m_obj->q
+    double m_radius;              ///< Radius of tool
+    double m_arcs[3][2];          ///< start/end of each arc
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// ScaleTool
-///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief ?
+///////////////////////////////////////////////////////////////////////////////
 class ScaleTool : public TransformToolBase {
+
   public:
 
     ScaleTool() : TransformToolBase(), m_movementType(NON) {}
@@ -129,27 +137,32 @@ class ScaleTool : public TransformToolBase {
 
   private:
 
-    MovementType  m_movementType; //which axis is selected
-    Vector3d m_deltaDis;          //displacement caused by user
-    Point3d  m_hitUnPrj;          //unproject(m_w, m_h)
-    Point3d  m_objPosCatch;       //catch for m_obj->pos
-    Point3d  m_objPosCatchPrj;    //catch for m_objPosPrj
-    Vector3d m_origScale;         //old scale
+    MovementType  m_movementType; ///< which axis is selected
+    Vector3d m_deltaDis;          ///< displacement caused by user
+    Point3d  m_hitUnPrj;          ///< unproject(m_w, m_h)
+    Point3d  m_objPosCatch;       ///< catch for m_obj->pos
+    Point3d  m_objPosCatchPrj;    ///< catch for m_objPosPrj
+    Vector3d m_origScale;         ///< The previous scale.
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// TransformTool
-///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief ?
+///////////////////////////////////////////////////////////////////////////////
 class TransformTool {
+
   public:
+
     TransformTool(Camera* _camera) : m_tool(NULL) {
       TransformToolBase::SetCurrentCamera(_camera);
     }
 
     void CheckSelectObject();
     void ResetSelectedObj() {m_tool->ResetSelectedObj();}
-    void ProjectToWindow() {m_translationTool.ProjectToWindow(); m_scaleTool.ProjectToWindow();}
+    void ProjectToWindow() {
+      m_translationTool.ProjectToWindow();
+      m_scaleTool.ProjectToWindow();
+    }
 
     void Draw();
     bool MousePressed(QMouseEvent* _e);
@@ -159,10 +172,11 @@ class TransformTool {
     void CameraMotion();
 
   private:
-    TransformToolBase* m_tool; //current tool or NULL if none selected
-    TranslationTool m_translationTool;
-    RotationTool m_rotationTool;
-    ScaleTool m_scaleTool;
+
+    TransformToolBase* m_tool;  ///< The current tool or NULL if none selected.
+    TranslationTool m_translationTool; ///< The translation tool.
+    RotationTool m_rotationTool;       ///< The rotation tool.
+    ScaleTool m_scaleTool;             ///< The scaling tool.
 };
 
 #endif

@@ -63,10 +63,10 @@ class Camera : public QObject {
     bool KeyPressed(QKeyEvent* _e);
 
     //get the position, viewing direction, up direction, and viewing target
-    const Vector3d& GetEye() const {return m_eye;}
-    const Vector3d& GetDir() const {return m_dir;}
-    const Vector3d& GetUp() const {return m_up;}
-    Vector3d GetAt() const {return m_eye + m_dir;}
+    const Vector3d& GetEye() const {return m_eye;} ///< Get the camera position.
+    const Vector3d& GetDir() const {return m_dir;} ///< Get the viewing direction.
+    const Vector3d& GetUp() const {return m_up;}   ///< Get the up direction.
+    Vector3d GetAt() const {return m_eye + m_dir;} ///< Get the viewing target.
 
     //get the viewing coordinate frame
     Vector3d GetWindowX() const; ///< Get the screen-right direction.
@@ -109,7 +109,7 @@ class Camera : public QObject {
     bool m_mousePressed; ///< Indicates whether a mouse event is in progress.
 
     // Free-floating mode.
-    bool m_freeFloating;
+    bool m_freeFloating; ///< Indicates free-floating or classic mode.
 };
 
 

@@ -30,6 +30,7 @@ EnvModel(const string& _filename) : LoadableModel("Environment"),
   m_avatar = new AvatarModel(AvatarModel::None);
 }
 
+
 EnvModel::
 ~EnvModel() {
   delete m_boundary;
@@ -43,12 +44,14 @@ EnvModel::
     delete *pit;
 }
 
+
 bool
 EnvModel::
 IsNonCommitRegion(RegionModelPtr _r) const {
   return find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r)
     != m_nonCommitRegions.end();
 }
+
 
 void
 EnvModel::
@@ -58,6 +61,7 @@ AddAttractRegion(RegionModelPtr _r) {
   VDAddRegion(_r.get());
 }
 
+
 void
 EnvModel::
 AddAvoidRegion(RegionModelPtr _r) {
@@ -66,12 +70,14 @@ AddAvoidRegion(RegionModelPtr _r) {
   VDAddRegion(_r.get());
 }
 
+
 void
 EnvModel::
 AddNonCommitRegion(RegionModelPtr _r) {
   _r->SetColor(Color4(0, 0, 1, 0.8));
   m_nonCommitRegions.push_back(_r);
 }
+
 
 void
 EnvModel::
@@ -87,10 +93,10 @@ ChangeRegionType(RegionModelPtr _r, bool _attract) {
   }
 }
 
+
 void
 EnvModel::
 DeleteRegion(RegionModelPtr _r) {
-
   VDRemoveRegion(_r.get());
 
   vector<RegionModelPtr>::iterator rit;
@@ -112,8 +118,10 @@ DeleteRegion(RegionModelPtr _r) {
   }
 }
 
+
 EnvModel::RegionModelPtr
-EnvModel::GetRegion(Model* _model) {
+EnvModel::
+GetRegion(Model* _model) {
   if(_model->Name().find("Region") != string::npos) {
     RegionModel* rm = (RegionModel*)_model;
 
@@ -131,6 +139,7 @@ EnvModel::GetRegion(Model* _model) {
   return RegionModelPtr();
 }
 
+
 void
 EnvModel::
 DeleteUserPath(UserPathModel* _p) {
@@ -142,7 +151,7 @@ DeleteUserPath(UserPathModel* _p) {
   }
 }
 
-//////////TempObjs////////////
+
 void
 EnvModel::
 RemoveTempObjs(TempObjsModel* _t) {
@@ -156,7 +165,7 @@ RemoveTempObjs(TempObjsModel* _t) {
   }
 }
 
-//////////Load Functions//////////
+
 void
 EnvModel::
 ParseFile() {
@@ -195,12 +204,14 @@ ParseFile() {
   }
 }
 
+
 void
 EnvModel::
 SetModelDataDir(const string _modelDataDir) {
   m_modelDataDir = _modelDataDir;
-  cout<<"- Geo Dir   : "<< m_modelDataDir << endl;
+  cout << "- Geo Dir   : " << m_modelDataDir << endl;
 }
+
 
 void
 EnvModel::
@@ -212,11 +223,12 @@ ParseBoundary(ifstream& _ifs) {
   else if(type == "SPHERE")
     m_boundary = new BoundingSphereModel();
   else
-    throw ParseException(WHERE,
-        "Failed reading boundary type '" + type + "'. Choices are BOX or SPHERE.");
+    throw ParseException(WHERE, "Failed reading boundary type '" + type +
+        "'. Choices are BOX or SPHERE.");
 
   m_boundary->Parse(_ifs);
 }
+
 
 void
 EnvModel::
@@ -228,22 +240,22 @@ Build() {
 
   //Build each
   MultiBodyModel::ClearDOFInfo();
-  typedef vector<MultiBodyModel*>::const_iterator MIT;
-  for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit) {
-    (*mit)->Build();
-    m_dof += (*mit)->GetDOF();
-    m_centerOfMass += (*mit)->GetCOM();
+  for(const auto& mb : m_multibodies) {
+    mb->Build();
+    m_dof += mb->GetDOF();
+    m_centerOfMass += mb->GetCOM();
   }
 
   m_centerOfMass /= m_multibodies.size();
 
   //Compute radius
-  for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit) {
-    double dist = ((*mit)->GetCOM() - m_centerOfMass).norm() + (*mit)->GetRadius();
+  for(const auto& mb : m_multibodies) {
+    double dist = (mb->GetCOM() - m_centerOfMass).norm() + mb->GetRadius();
     if(m_radius < dist)
       m_radius = dist;
   }
 }
+
 
 void
 EnvModel::
@@ -255,9 +267,11 @@ Select(GLuint* _index, vector<Model*>& _sel) {
   size_t numPaths = m_userPaths.size();
 
   //unselect old one
-  if(!_index || *_index > numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions + numPaths) //input error
+  if(!_index || *_index > numMBs + numAttractRegions + numAvoidRegions
+      + numNonCommitRegions + numPaths) //input error
     return;
-  else if(*_index == numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions + numPaths)
+  else if(*_index == numMBs + numAttractRegions + numAvoidRegions
+      + numNonCommitRegions + numPaths)
     m_boundary->Select(_index+1, _sel);
   else if(*_index < numMBs)
     m_multibodies[*_index]->Select(_index+1, _sel);
@@ -265,12 +279,15 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     m_attractRegions[*_index - numMBs]->Select(_index+1, _sel);
   else if(*_index < numMBs + numAttractRegions + numAvoidRegions)
     m_avoidRegions[*_index - numMBs - numAttractRegions]->Select(_index+1, _sel);
-  else if(*_index < numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions)
-    m_nonCommitRegions[*_index - numMBs - numAttractRegions - numAvoidRegions]->Select(_index+1, _sel);
+  else if(*_index < numMBs + numAttractRegions + numAvoidRegions
+      + numNonCommitRegions)
+    m_nonCommitRegions[*_index - numMBs - numAttractRegions - numAvoidRegions]->
+        Select(_index+1, _sel);
   else
-    m_userPaths[*_index - numMBs - numAttractRegions - numAvoidRegions - numNonCommitRegions]->Select(_index+1, _sel);
-
+    m_userPaths[*_index - numMBs - numAttractRegions - numAvoidRegions
+        - numNonCommitRegions]->Select(_index+1, _sel);
 }
+
 
 void
 EnvModel::
@@ -310,6 +327,7 @@ DrawRender() {
   }
 }
 
+
 void
 EnvModel::
 DrawSelect() {
@@ -319,7 +337,8 @@ DrawSelect() {
   size_t numNonCommitRegions = m_nonCommitRegions.size();
   size_t numPaths = m_userPaths.size();
 
-  glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions + numPaths);
+  glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions
+      + numPaths);
   m_boundary->DrawSelect();
   glPopName();
 
@@ -351,7 +370,8 @@ DrawSelect() {
     glPopName();
   }
   for(size_t i = 0; i < numPaths; ++i) {
-    glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions + i);
+    glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions
+        + i);
     m_userPaths[i]->DrawSelect();
     glPopName();
   }
@@ -364,12 +384,14 @@ DrawSelect() {
   }
 }
 
+
 void
 EnvModel::
 Print(ostream& _os) const {
   _os << Name() << ": " << GetFilename() << endl
-    << m_multibodies.size() << " multibodies" << endl;
+      << m_multibodies.size() << " multibodies" << endl;
 }
+
 
 void
 EnvModel::
@@ -378,6 +400,7 @@ ChangeColor() {
   for(int i = 0; i < numMBs; i++)
     m_multibodies[i]->SetColor(Color4(drand48(), drand48(), drand48(), 1));
 }
+
 
 void
 EnvModel::
@@ -388,6 +411,7 @@ SetSelectable(bool _s) {
     (*i)->SetSelectable(_s);
   m_boundary->SetSelectable(_s);
 }
+
 
 void
 EnvModel::
@@ -409,6 +433,7 @@ GetChildren(list<Model*>& _models) {
   _models.push_back(m_boundary);
 }
 
+
 void
 EnvModel::
 DeleteMBModel(MultiBodyModel* _mbl) {
@@ -421,6 +446,7 @@ DeleteMBModel(MultiBodyModel* _mbl) {
   }
 }
 
+
 void
 EnvModel::
 AddMBModel(MultiBodyModel* _m) {
@@ -428,64 +454,66 @@ AddMBModel(MultiBodyModel* _m) {
   m_multibodies.push_back(_m);
 }
 
+
 bool
 EnvModel::
 SaveFile(const char* _filename) {
+  /// \warning This function is still experimental and has not yet been validated.
   ofstream envFile(_filename);
   if(!envFile.is_open()){
-    cout<<"Couldn't open the file"<<endl;
+    cout << "Couldn't open the file" << endl;
     return false;
   }
-  envFile<<"Boundary " << *m_boundary;
-  envFile<<"\n\n";
+  envFile << "Boundary " << *m_boundary;
+  envFile << "\n\n";
   int numMBs = m_multibodies.size();
-  envFile<<"Multibodies\n"<<numMBs<<"\n\n";
+  envFile << "Multibodies\n" << numMBs << "\n\n";
   vector<MultiBodyModel*> saveMB = GetMultiBodies();
   reverse(saveMB.begin(), saveMB.end());
   while(!saveMB.empty()){
     if(saveMB.back()->IsActive())
-      envFile<<"Active\n";
+      envFile << "Active\n";
     else if(saveMB.back()->IsSurface())
-      envFile<<"Surface\n";
+      envFile << "Surface\n";
     else
-      envFile<<"Passive\n";
+      envFile << "Passive\n";
     int nB = saveMB.back()->GetNbBodies();
     if(nB!= 0){
       if(saveMB.back()->IsActive())
-        envFile<<nB<<endl;
+        envFile << nB << endl;
       vector<BodyModel*> bodies = saveMB.back()->GetBodies();
       reverse(bodies.begin(),bodies.end());
-      envFile<<"#VIZMO_COLOR"<<" "<<bodies.back()->GetColor()[0]
-        <<" "<<bodies.back()->GetColor()[1]
-        <<" "<<bodies.back()->GetColor()[2]<<endl;
+      envFile << "#VIZMO_COLOR" << " " << bodies.back()->GetColor()[0]
+              << " " << bodies.back()->GetColor()[1]
+              << " " << bodies.back()->GetColor()[2] << endl;
       if(saveMB.back()->IsActive()){
         int nbJoints = 0;
         vector<ConnectionModel*> joints = saveMB.back()->GetJoints();
         reverse(joints.begin(),joints.end());
         while(!bodies.empty()){
-          envFile<<bodies.back()->GetFilename()<<" ";
-          if(bodies.back()->IsBaseVolumetric()||bodies.back()->IsBasePlanar()){
+          envFile << bodies.back()->GetFilename() << " ";
+          if(bodies.back()->IsBaseVolumetric() || bodies.back()->IsBasePlanar()) {
             string baseMovement = "Translational";
             if (bodies.back()->IsBaseRotational())
               baseMovement = "Rotational";
             if(bodies.back()->IsBaseVolumetric())
-              envFile<<"Volumetric "<<baseMovement<<endl;
+              envFile << "Volumetric " << baseMovement << endl;
             else
-              envFile<<"Planar "<<baseMovement<<endl;
+              envFile << "Planar " << baseMovement << endl;
           }
           else if(bodies.back()->IsBaseFixed()){
-            envFile<<"Fixed ";
+            envFile << "Fixed ";
             ostringstream transform;
-            transform<<bodies.back()->GetTransform();
-            envFile<<SetTransformRight(transform.str())<<endl;
+            transform << bodies.back()->GetTransform();
+            envFile << SetTransformRight(transform.str()) << endl;
           }
           else{
-            envFile<<"Joint"<<endl;
+            envFile << "Joint" << endl;
             nbJoints++;
           }
           bodies.pop_back();
         }
-        envFile<<"Connections"<<endl<<nbJoints<<endl;
+        envFile << "Connections" << endl << nbJoints << endl;
         if(nbJoints!=0){
           while(!joints.empty()){
             pair<double, double> jointLimits[2] = joints.back()->GetJointLimits();
@@ -493,37 +521,39 @@ SaveFile(const char* _filename) {
             string jointType = "NonActuated ";
             if(joints.back()->IsSpherical()){
               jointType = "Spherical ";
-              limits<<jointLimits[0].first<<":"<<jointLimits[0].second<<" "
-                <<jointLimits[1].first<<":"<<jointLimits[1].second;
+              limits << jointLimits[0].first << ":" << jointLimits[0].second
+                     << " " << jointLimits[1].first << ":"
+                     << jointLimits[1].second;
             }
             else if(joints.back()->IsRevolute()){
               jointType = "Revolute ";
-              limits<<jointLimits[0].first<<":"<<jointLimits[0].second<<" ";
+              limits << jointLimits[0].first << ":" << jointLimits[0].second
+                     << " ";
             }
-            envFile<<joints.back()->GetPreviousIndex()<<" "
-              <<joints.back()->GetNextIndex()<<"  "
-              <<jointType<<limits.str()<<endl;
+            envFile << joints.back()->GetPreviousIndex() << " "
+                    << joints.back()->GetNextIndex() << "  "
+                    << jointType << limits.str() << endl;
             ostringstream transform;
-            transform<<joints.back()->TransformToDHFrame();
-            envFile<<SetTransformRight(transform.str())<<"   ";
-            envFile<<joints.back()->GetAlpha()<<" "
-              <<joints.back()->GetA()<<" "<<joints.back()->GetD()<<" "
-              <<joints.back()->GetTheta()<<"   ";
+            transform << joints.back()->TransformToDHFrame();
+            envFile << SetTransformRight(transform.str()) << "   ";
+            envFile << joints.back()->GetAlpha() << " "
+                    << joints.back()->GetA() << " " << joints.back()->GetD()
+                    << " " << joints.back()->GetTheta() << "   ";
             ostringstream transform2;
-            transform2<<joints.back()->TransformToBody2();
-            envFile<<SetTransformRight(transform2.str())<<endl;
+            transform2 << joints.back()->TransformToBody2();
+            envFile << SetTransformRight(transform2.str()) << endl;
             joints.pop_back();
           }
         }
       }
       else{
-        envFile<<bodies.back()->GetFilename()<<"  ";
+        envFile << bodies.back()->GetFilename() << "  ";
         ostringstream transform;
-        transform<<bodies.back()->GetTransform();
-        envFile<<SetTransformRight(transform.str())<<endl;
+        transform << bodies.back()->GetTransform();
+        envFile << SetTransformRight(transform.str()) << endl;
       }
     }
-    envFile<<endl;
+    envFile << endl;
     saveMB.pop_back();
   }
   envFile.close();
@@ -534,19 +564,22 @@ SaveFile(const char* _filename) {
 string
 EnvModel::
 SetTransformRight(string _transformString) {
+  /// \todo This function appears to take a string of 6 numerals and swaps the
+  ///       4th and 6th elements. It's not clear why this is needed instead of
+  ///       just making the strings correctly in the first place. I think this
+  ///       can be improved/removed with a little extra thought.
   stringstream transform;
   istringstream splitTransform(_transformString);
-  string splittedTransform[6]={"","","","","",""};
-  int j=0;
-  do{
-    splitTransform>>splittedTransform[j];
+  string splittedTransform[6] = {"","","","","",""};
+  int j = 0;
+  do {
+    splitTransform >> splittedTransform[j];
     j++;
-  }while(splitTransform);
-  string temp;
-  temp=splittedTransform[3];
-  splittedTransform[3]=splittedTransform[5];
-  splittedTransform[5]=temp;
-  for(int i=0; i<6; i++)
-    transform<<splittedTransform[i]<<" ";
+  } while(splitTransform);
+  string temp = splittedTransform[3];
+  splittedTransform[3] = splittedTransform[5];
+  splittedTransform[5] = temp;
+  for(int i = 0; i < 6; ++i)
+    transform << splittedTransform[i] << " ";
   return transform.str();
 }

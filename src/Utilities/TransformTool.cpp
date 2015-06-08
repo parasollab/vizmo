@@ -14,9 +14,7 @@ using namespace mathtool;
 #include "Models/Model.h"
 #include "Models/Vizmo.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// TransformToolBase
-///////////////////////////////////////////////////////////////////////////////
+/*------------------------- Transform Tool Base ------------------------------*/
 
 TransformableModel* TransformToolBase::m_obj = NULL;
 Camera* TransformToolBase::m_currentCamera = NULL;
@@ -24,22 +22,29 @@ Point3d TransformToolBase::m_objPosPrj;
 Point3d TransformToolBase::m_xPrj;
 Point3d TransformToolBase::m_yPrj;
 Point3d TransformToolBase::m_zPrj;
-int TransformToolBase::m_hitX=0;
-int TransformToolBase::m_hitY=0;
+int TransformToolBase::m_hitX = 0;
+int TransformToolBase::m_hitY = 0;
+
 
 void
-TransformToolBase::SetSelectedObj(TransformableModel* _obj) {
+TransformToolBase::
+SetSelectedObj(TransformableModel* _obj) {
   m_obj = _obj;
   ProjectToWindow();
 }
 
+
 void
-TransformToolBase::ProjectToWindow() {
+TransformToolBase::
+ProjectToWindow() {
   if(m_obj) {
     const Vector3d& pos = m_obj->Translation();
 
-    Point3d pts[4] = {pos, pos + Point3d(0.1, 0, 0), pos + Point3d(0, 0.1, 0), pos + Point3d(0, 0, 0.1)};
-    ::ProjectToWindow(pts, 4);
+    Point3d pts[4] = {pos,
+                      pos + Point3d(0.1,   0,   0),
+                      pos + Point3d(  0, 0.1,   0),
+                      pos + Point3d(  0,   0, 0.1)};
+    GLUtils::ProjectToWindow(pts, 4);
     m_objPosPrj = pts[0];
     m_xPrj = pts[1];
     m_yPrj = pts[2];
@@ -47,14 +52,16 @@ TransformToolBase::ProjectToWindow() {
   }
 }
 
+
 void
-TransformToolBase::Draw() {
+TransformToolBase::
+Draw() {
   if(!m_obj) return;
 
   glMatrixMode(GL_PROJECTION); //change to Ortho view
   glPushMatrix();
   glLoadIdentity();
-  glOrtho(0, g_width, 0, g_height, -100, 100);
+  glOrtho(0, GLUtils::windowWidth, 0, GLUtils::windowHeight, -100, 100);
 
   Draw(false);
 
@@ -63,12 +70,11 @@ TransformToolBase::Draw() {
   glMatrixMode(GL_MODELVIEW);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// TranslationTool
-///////////////////////////////////////////////////////////////////////////////
+/*-------------------------- Translation Tool --------------------------------*/
 
 bool
-TranslationTool::MousePressed(QMouseEvent* _e) {
+TranslationTool::
+MousePressed(QMouseEvent* _e) {
   m_movementType = NON;
   //if object exists and left mouse button is pressed and selected
   if(m_obj && _e->button() == Qt::LeftButton &&
@@ -76,30 +82,36 @@ TranslationTool::MousePressed(QMouseEvent* _e) {
     m_objPosCatch = m_obj->Translation(); //store old pos
     m_objPosCatchPrj = m_objPosPrj;
     m_hitX = _e->pos().x();
-    m_hitY = g_height - _e->pos().y();
-    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch, m_currentCamera->GetDir());
+    m_hitY = GLUtils::windowHeight - _e->pos().y();
+    m_hitUnPrj = GLUtils::ProjectToWorld(m_hitX, m_hitY, m_objPosCatch,
+        m_currentCamera->GetDir());
     return true;
   }
   return false;
 }
 
+
 bool
-TranslationTool::MouseReleased(QMouseEvent* _e) {
+TranslationTool::
+MouseReleased(QMouseEvent* _e) {
   if(m_movementType == NON)
     return false; //nothing selected
   m_movementType = NON;
   return true;
 }
 
+
 bool
-TranslationTool::MouseMotion(QMouseEvent* _e) {
+TranslationTool::
+MouseMotion(QMouseEvent* _e) {
   if(m_movementType == NON)
     return false; //nothing selected
 
   int x = _e->pos().x();
-  int y = g_height - _e->pos().y();
+  int y = GLUtils::windowHeight - _e->pos().y();
 
-  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch, m_currentCamera->GetDir());
+  Point3d curPos = GLUtils::ProjectToWorld(x, y, m_objPosCatch,
+      m_currentCamera->GetDir());
   Vector3d v = curPos - m_hitUnPrj;
 
   switch(m_movementType) {
@@ -125,7 +137,8 @@ TranslationTool::MouseMotion(QMouseEvent* _e) {
 }
 
 void
-TranslationTool::Draw(bool _selected) {
+TranslationTool::
+Draw(bool _selected) {
 
   glDisable(GL_LIGHTING);
 
@@ -197,8 +210,9 @@ TranslationTool::Draw(bool _selected) {
 }
 
 bool
-TranslationTool::Select(int _x, int _y) {
-  _y = g_height - _y;
+TranslationTool::
+Select(int _x, int _y) {
+  _y = GLUtils::windowHeight - _y;
 
   //clicking on center box
   if(fabs(_x - m_objPosPrj[0]) < 10 &&
@@ -225,7 +239,7 @@ TranslationTool::Select(int _x, int _y) {
   glPushMatrix();
   glLoadIdentity();
   gluPickMatrix(_x, _y, 10, 10, viewport);
-  glOrtho(0, g_width, 0, g_height, -100, 100);
+  glOrtho(0, GLUtils::windowWidth, 0, GLUtils::windowHeight, -100, 100);
 
   Draw(true);
 
@@ -242,36 +256,39 @@ TranslationTool::Select(int _x, int _y) {
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// RotationTool
-///////////////////////////////////////////////////////////////////////////////
+/*---------------------------- Rotation Tool ---------------------------------*/
 
 //angle of _s about the normal to the plane _v1, _v2. That is to say the
 //angle between _s projected onto the plane of _v1, _v2 and _v2.
 inline double
-ComputeAngle(const Vector3d& _s, const Vector3d& _v1, const Vector3d& _v2){
+ComputeAngle(const Vector3d& _s, const Vector3d& _v1, const Vector3d& _v2) {
   return atan2(_s*_v2, _s*_v1);
 }
 
+
 void
-RotationTool::SetSelectedObj(TransformableModel* _obj) {
+RotationTool::
+SetSelectedObj(TransformableModel* _obj) {
   TransformToolBase::SetSelectedObj(_obj);
   ComputeLocalAxis();
   ComputeArcs();
 }
 
+
 void
-RotationTool::ComputeArcs() {
+RotationTool::
+ComputeArcs() {
   Vector3d v = m_currentCamera->GetDir();
   ComputeArcs(m_arcs[0], m_localAxis[0], m_localAxis[1], m_localAxis[2], v);
   ComputeArcs(m_arcs[1], m_localAxis[1], m_localAxis[2], m_localAxis[0], v);
   ComputeArcs(m_arcs[2], m_localAxis[2], m_localAxis[0], m_localAxis[1], v);
 }
 
-bool
-RotationTool::MousePressed(QMouseEvent* _e) {
 
-  int x = _e->pos().x(), y = g_height - _e->pos().y();
+bool
+RotationTool::
+MousePressed(QMouseEvent* _e) {
+  int x = _e->pos().x(), y = GLUtils::windowHeight - _e->pos().y();
   if(!m_obj || _e->button() != Qt::LeftButton || !Select(x, y))
     return false;
 
@@ -306,28 +323,31 @@ RotationTool::MousePressed(QMouseEvent* _e) {
       break;
   }
 
-  Point3d prj = ProjectToWorld(x, y, m_objPosCatch, axis);
+  Point3d prj = GLUtils::ProjectToWorld(x, y, m_objPosCatch, axis);
   m_curAngle = m_hitAngle = ComputeAngle(prj - m_objPosCatch, v1, v2);
 
   return true;
 }
 
+
 bool
-RotationTool::MouseReleased(QMouseEvent* _e) {
+RotationTool::
+MouseReleased(QMouseEvent* _e) {
   if(m_movementType == NON)
     return false; //nothing selected
   m_movementType = NON;
   return true;
 }
 
-bool
-RotationTool::MouseMotion(QMouseEvent* _e) {
 
+bool
+RotationTool::
+MouseMotion(QMouseEvent* _e) {
   if(m_movementType==NON)
     return false; //nothing selected
 
   int x = _e->pos().x();
-  int y = g_height - _e->pos().y();
+  int y = GLUtils::windowHeight - _e->pos().y();
 
   Vector3d axis, v1, v2; //rotation axis
   switch(m_movementType) {
@@ -355,7 +375,7 @@ RotationTool::MouseMotion(QMouseEvent* _e) {
       break;
   }
 
-  Point3d prj = ProjectToWorld(x, y, m_objPosCatch, axis);
+  Point3d prj = GLUtils::ProjectToWorld(x, y, m_objPosCatch, axis);
   m_curAngle = ComputeAngle(prj - m_objPosCatch, v1, v2);
 
   double a = m_curAngle - m_hitAngle; //displacement angle
@@ -375,15 +395,18 @@ RotationTool::MouseMotion(QMouseEvent* _e) {
   return true;
 }
 
+
 void
-RotationTool::Enable(){
+RotationTool::
+Enable() {
   ComputeLocalAxis();
   ComputeArcs();
 }
 
-void
-RotationTool::Draw(bool _selected) {
 
+void
+RotationTool::
+Draw(bool _selected) {
   //draw reference axis
   double x = m_objPosPrj[0], y = m_objPosPrj[1];
 
@@ -436,38 +459,42 @@ RotationTool::Draw(bool _selected) {
     glLoadName(X_AXIS);
   if(!_selected)
     glColor3f(1, 0, 0);
-  DrawArc(m_radius, m_arcs[0][0], m_arcs[0][1], m_localAxis[1], m_localAxis[2]);
+  GLUtils::DrawArc(m_radius, m_arcs[0][0], m_arcs[0][1], m_localAxis[1],
+      m_localAxis[2]);
 
   //draw y axis
   if(_selected)
     glLoadName(Y_AXIS);
   if(!_selected)
     glColor3f(0, 1, 0);
-  DrawArc(m_radius, m_arcs[1][0], m_arcs[1][1], m_localAxis[2], m_localAxis[0]);
+  GLUtils::DrawArc(m_radius, m_arcs[1][0], m_arcs[1][1], m_localAxis[2],
+      m_localAxis[0]);
 
   //draw z axis
   if(_selected)
     glLoadName(Z_AXIS);
   if(!_selected)
     glColor3f(0, 0, 1);
-  DrawArc(m_radius, m_arcs[2][0], m_arcs[2][1], m_localAxis[0], m_localAxis[1]);
+  GLUtils::DrawArc(m_radius, m_arcs[2][0], m_arcs[2][1], m_localAxis[0],
+      m_localAxis[1]);
 
   glPopMatrix(); //pop camera rotation
 
   //draw center
   if(!_selected) {
     glColor3f(0.9f, 0.9f, 0);
-    DrawCircle(m_radius + 5, false);
+    GLUtils::DrawCircle(m_radius + 5, false);
     glColor3f(0.6f, 0.6f, 0.6f);
-    DrawCircle(m_radius, false);
+    GLUtils::DrawCircle(m_radius, false);
   }
 
   glPopMatrix();
 }
 
-bool
-RotationTool::Select(int _x, int _y) {
 
+bool
+RotationTool::
+Select(int _x, int _y) {
   // get view port
   GLint viewport[4];
   glGetIntegerv( GL_VIEWPORT, viewport);
@@ -486,7 +513,7 @@ RotationTool::Select(int _x, int _y) {
   glPushMatrix();
   glLoadIdentity();
   gluPickMatrix(_x, _y, 10, 10, viewport);
-  glOrtho(0, g_width, 0, g_height, -100, 100);
+  glOrtho(0, GLUtils::windowWidth, 0, GLUtils::windowHeight, -100, 100);
 
   Draw(true);
 
@@ -510,8 +537,11 @@ RotationTool::Select(int _x, int _y) {
   return false;
 }
 
+
 void
-RotationTool::ComputeArcs(double angle[2], Vector3d& n, Vector3d& v1, Vector3d& v2, Vector3d& view) {
+RotationTool::
+ComputeArcs(double angle[2], Vector3d& n, Vector3d& v1, Vector3d& v2,
+    Vector3d& view) {
   Vector3d s = view % n;
   Vector3d e = n % view;
   angle[0] = ComputeAngle(s, v1, v2);
@@ -520,8 +550,10 @@ RotationTool::ComputeArcs(double angle[2], Vector3d& n, Vector3d& v1, Vector3d& 
     angle[1] += TWOPI;
 }
 
+
 void
-RotationTool::ComputeLocalAxis() {
+RotationTool::
+ComputeLocalAxis() {
   if(!m_obj)
     return;
 
@@ -535,8 +567,10 @@ RotationTool::ComputeLocalAxis() {
   m_localAxis[2] = (q*z*(-q)).imaginary();
 }
 
+
 Point3d
-RotationTool::UnPrjToWorld(const Point3d& ref, const Vector3d& n, int _x, int _y) {
+RotationTool::
+UnPrjToWorld(const Point3d& ref, const Vector3d& n, int _x, int _y) {
   GLint viewport[4];
   glGetIntegerv( GL_VIEWPORT, viewport);
 
@@ -544,52 +578,56 @@ RotationTool::UnPrjToWorld(const Point3d& ref, const Vector3d& n, int _x, int _y
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  glOrtho(0, g_width, 0, g_height, -100, 100);
-  Point3d p = ProjectToWorld(_x, _y, ref, n);
+  glOrtho(0, GLUtils::windowWidth, 0, GLUtils::windowHeight, -100, 100);
+  Point3d p = GLUtils::ProjectToWorld(_x, _y, ref, n);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   return p;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// ScaleTool
-///////////////////////////////////////////////////////////////////////////////
+/*-------------------------------- Scale Tool --------------------------------*/
 
 bool
-ScaleTool::MousePressed(QMouseEvent* _e) {
+ScaleTool::
+MousePressed(QMouseEvent* _e) {
   m_movementType = NON;
-  int x = _e->pos().x(), y = g_height - _e->pos().y();
+  int x = _e->pos().x(), y = GLUtils::windowHeight - _e->pos().y();
   if(m_obj && _e->button() == Qt::LeftButton && Select(x, y)) {
     m_objPosCatch = m_obj->Translation(); //store old pos
     m_objPosCatchPrj = m_objPosPrj;
     m_hitX = x;
     m_hitY = y;
-    m_hitUnPrj = ProjectToWorld(m_hitX, m_hitY, m_objPosCatch, m_currentCamera->GetDir());
+    m_hitUnPrj = GLUtils::ProjectToWorld(m_hitX, m_hitY, m_objPosCatch,
+        m_currentCamera->GetDir());
     m_origScale = m_obj->Scale();
     return true;
   }
   return false;
 }
 
+
 bool
-ScaleTool::MouseReleased(QMouseEvent* _e) {
+ScaleTool::
+MouseReleased(QMouseEvent* _e) {
   if(m_movementType == NON)
     return false; //nothing selected
   m_movementType = NON;
   return true;
 }
 
-bool
-ScaleTool::MouseMotion(QMouseEvent* _e) {
 
+bool
+ScaleTool::
+MouseMotion(QMouseEvent* _e) {
   if(m_movementType == NON)
     return false; //nothing selected
 
   int x = _e->pos().x();
-  int y = g_height - _e->pos().y();
+  int y = GLUtils::windowHeight - _e->pos().y();
 
-  Point3d curPos = ProjectToWorld(x, y, m_objPosCatch, m_currentCamera->GetDir());
+  Point3d curPos = GLUtils::ProjectToWorld(x, y, m_objPosCatch,
+      m_currentCamera->GetDir());
   Vector3d v = (curPos-m_hitUnPrj)/10;
 
   switch(m_movementType) {
@@ -622,8 +660,10 @@ ScaleTool::MouseMotion(QMouseEvent* _e) {
   return true;
 }
 
+
 void
-ScaleTool::Draw(bool _selected) {
+ScaleTool::
+Draw(bool _selected) {
   glDisable(GL_LIGHTING);
   //draw reference axis
   double x = m_objPosPrj[0], y = m_objPosPrj[1];
@@ -698,9 +738,10 @@ ScaleTool::Draw(bool _selected) {
   glPopMatrix();
 }
 
-bool
-ScaleTool::Select(int _x, int _y) {
 
+bool
+ScaleTool::
+Select(int _x, int _y) {
   if(fabs(_x - m_objPosPrj[0]) < 10 && fabs(_y - m_objPosPrj[1]) < 10) {
     m_movementType = VIEW_PLANE;
     return true;
@@ -724,7 +765,7 @@ ScaleTool::Select(int _x, int _y) {
   glPushMatrix();
   glLoadIdentity();
   gluPickMatrix(_x, _y, 10, 10, viewport);
-  glOrtho(0, g_width, 0, g_height, -100, 100);
+  glOrtho(0, GLUtils::windowWidth, 0, GLUtils::windowHeight, -100, 100);
 
   Draw(true);
 
@@ -740,12 +781,11 @@ ScaleTool::Select(int _x, int _y) {
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// class TransformTool
-///////////////////////////////////////////////////////////////////////////////
+/*-------------------------- Transform Tool ----------------------------------*/
 
 void
-TransformTool::CheckSelectObject() {
+TransformTool::
+CheckSelectObject() {
   m_rotationTool.ResetSelectedObj();
 
   //get selected objects
@@ -754,35 +794,45 @@ TransformTool::CheckSelectObject() {
     m_rotationTool.SetSelectedObj((TransformableModel*)objs.front());
 }
 
+
 void
-TransformTool::Draw() {
+TransformTool::
+Draw() {
   if(m_tool)
     m_tool->Draw();
 }
 
+
 bool
-TransformTool::MousePressed(QMouseEvent* _e) {
+TransformTool::
+MousePressed(QMouseEvent* _e) {
   if(m_tool)
     return m_tool->MousePressed(_e);
   return false;
 }
 
+
 bool
-TransformTool::MouseReleased(QMouseEvent* _e) {
+TransformTool::
+MouseReleased(QMouseEvent* _e) {
   if(m_tool)
     return m_tool->MouseReleased(_e);
   return false;
 }
 
+
 bool
-TransformTool::MouseMotion(QMouseEvent* _e) {
+TransformTool::
+MouseMotion(QMouseEvent* _e) {
   if(m_tool)
     return m_tool->MouseMotion(_e);
   return false;
 }
 
+
 bool
-TransformTool::KeyPressed(QKeyEvent* _e) {
+TransformTool::
+KeyPressed(QKeyEvent* _e) {
   switch(_e->key()) {
     case 'q': case 'Q':
       if(m_tool)
@@ -816,11 +866,12 @@ TransformTool::KeyPressed(QKeyEvent* _e) {
   }
 }
 
+
 void
-TransformTool::CameraMotion() {
+TransformTool::
+CameraMotion() {
   m_translationTool.ProjectToWindow();
   m_scaleTool.ProjectToWindow();
   if(m_tool == &m_rotationTool)
     m_rotationTool.ComputeArcs(); //view angle changed...
 }
-

@@ -11,18 +11,29 @@
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief   Implements the user-guided IRRT (interactive RRT).
+/// \details This algorithm is described in Taix, Flavigne, and Ferre, "Human
+///          Interaction with Motion Planning Algorithm", Journal of Intelligent
+///          Robot Systems 2012, vol 67 pg 285-306. It is essentially a
+///          user-guided RRT where the biasing direction is influenced by the
+///          continuous input of a user.
+////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class IRRTStrategy : public BasicRRTStrategy<MPTraits> {
+
   public:
+
     typedef typename MPTraits::CfgType CfgType;
     typedef typename MPTraits::WeightType WeightType;
     typedef typename MPTraits::MPProblemType MPProblemType;
     typedef typename MPProblemType::RoadmapType RoadmapType;
     typedef typename MPProblemType::VID VID;
     typedef typename MPProblemType::ValidityCheckerPointer ValidityCheckerPointer;
-    typedef typename MPProblemType::NeighborhoodFinderPointer NeighborhoodFinderPointer;
+    typedef typename MPProblemType::NeighborhoodFinderPointer
+        NeighborhoodFinderPointer;
 
-    //Non-XML constructor w/ Query (by label)
+    // Constructors
     IRRTStrategy(const CfgType& _start = CfgType(),
         const CfgType& _goal = CfgType(), string _lp = "sl",
         string _dm = "euclidean", string _nf = "BFNF", string _vc = "PQP_SOLID",
@@ -33,25 +44,32 @@ class IRRTStrategy : public BasicRRTStrategy<MPTraits> {
         bool _evaluateGoal = true, size_t _numRoots = 1,
         size_t _numDirections = 1, size_t _maxTrial = 3,
         bool _growGoals = false);
-
-    //XML Constructor
     IRRTStrategy(MPProblemType* _problem, XMLNode& _node);
 
+    // Inherited functions
     virtual void Initialize();
     virtual void Run();
     virtual void Finalize();
     virtual void Print(ostream& _os) const;
 
   protected:
-    // Helper functions
-    virtual CfgType SelectDirection();
 
+    // Helper functions
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Chooses between user bias and standard RRT bias with a ratio of
+    ///         \ref m_beta.
+    /// \return The selected biasing direction.
+    CfgType SelectDirection();
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief  Computes the user-influenced biasing direction.
+    /// \return The user-influenced biasing direction.
     CfgType AvatarBiasedDirection();
 
-    double m_alpha; //ratio of user force vs algo force on q_rand
-    double m_sigma; //variance of Gaussian Distribution around result force
-    double m_beta; //ratio of interactive sampling vs uniform sampling
+    double m_alpha; ///< Ratio of user force vs algo force on q_rand.
+    double m_sigma; ///< Variance of Gaussian Distribution around result force.
+    double m_beta;  ///< Ratio of interactive sampling vs uniform sampling.
 };
+
 
 template<class MPTraits>
 IRRTStrategy<MPTraits>::
@@ -67,6 +85,7 @@ IRRTStrategy(const CfgType& _start, const CfgType& _goal, string _lp, string _dm
   this->SetName("IRRTStrategy");
 }
 
+
 template<class MPTraits>
 IRRTStrategy<MPTraits>::
 IRRTStrategy(MPProblemType* _problem, XMLNode& _node) :
@@ -77,6 +96,7 @@ IRRTStrategy(MPProblemType* _problem, XMLNode& _node) :
   m_beta = _node.Read("beta", false, 0.5, 0.0, 1.0, "Beta");
 }
 
+
 template<class MPTraits>
 void
 IRRTStrategy<MPTraits>::
@@ -85,9 +105,7 @@ Print(ostream& _os) const {
   _os << "\talpha: " << m_alpha << endl;
 }
 
-//////////////////////
-//Initialization Phase
-/////////////////////
+
 template<class MPTraits>
 void
 IRRTStrategy<MPTraits>::
@@ -108,9 +126,7 @@ Initialize() {
   GetVizmo().GetRobot()->SetSelectable(false);
 }
 
-////////////////
-//Run/Start Phase
-////////////////
+
 template<class MPTraits>
 void
 IRRTStrategy<MPTraits>::
@@ -151,7 +167,8 @@ Run() {
       bool evalMap = this->EvaluateMap(this->m_evaluators);
       if(!this->m_growGoals) {
         mapPassedEvaluation = this->m_trees.size() == 1 && evalMap &&
-            ((this->m_evaluateGoal && this->m_goalsNotFound.size() == 0) || !this->m_evaluateGoal);
+            ((this->m_evaluateGoal && this->m_goalsNotFound.size() == 0) ||
+             !this->m_evaluateGoal);
         if(this->m_debug && this->m_goalsNotFound.size() == 0)
           cout << "RRT FOUND ALL GOALS" << endl;
       }
@@ -172,9 +189,7 @@ Run() {
     cout << "\nEnd Running IRRTStrategy::" << endl;
 }
 
-/////////////////////
-//Finalization phase
-////////////////////
+
 template<class MPTraits>
 void
 IRRTStrategy<MPTraits>::
@@ -232,6 +247,7 @@ Finalize() {
     cout << "\nEnd Finalizing BasicRRTStrategy" << endl;
 }
 
+
 template<class MPTraits>
 typename IRRTStrategy<MPTraits>::CfgType
 IRRTStrategy<MPTraits>::
@@ -239,11 +255,13 @@ SelectDirection() {
   double r = DRand();
   if(r <= m_beta) {
     CfgType dir = AvatarBiasedDirection();
-    if(dir != this->GetMPProblem()->GetRoadmap()->GetGraph()->GetVertex(*this->m_currentTree->begin()))
+    if(dir != this->GetRoadmap()->GetGraph()->
+        GetVertex(*this->m_currentTree->begin()))
       return AvatarBiasedDirection();
   }
   return BasicRRTStrategy<MPTraits>::SelectDirection();
 }
+
 
 template<class MPTraits>
 typename MPTraits::CfgType
@@ -252,20 +270,19 @@ AvatarBiasedDirection() {
   static CfgType oldPos;
   CfgType newPos = *GetVizmo().GetEnv()->GetAvatar();
 
-  RoadmapType* rdmp = this->GetMPProblem()->GetRoadmap();
+  RoadmapType* rdmp = this->GetRoadmap();
 
   //find the nearest k neighbors.
-  NeighborhoodFinderPointer nf = this->GetMPProblem()->GetNeighborhoodFinder("BFNF");
+  NeighborhoodFinderPointer nf = this->GetNeighborhoodFinder("BFNF");
   vector<pair<VID, double> > kClosest;
-
   nf->FindNeighbors(rdmp, newPos, back_inserter(kClosest));
 
   //now get the average of the nearest k neighbors
   CfgType barycenter;
-  for(typename vector<pair<VID, double> >::iterator it = kClosest.begin();
-      it != kClosest.end(); ++it)
-    barycenter += rdmp->GetGraph()->GetVertex(it->first);
+  for(auto& neighbor : kClosest)
+    barycenter += rdmp->GetGraph()->GetVertex(neighbor.first);
   barycenter /= kClosest.size();
+
   //now find the pseudoforce vector from the avatar to the average
   CfgType forceAlgo = barycenter - newPos;
 
@@ -274,8 +291,9 @@ AvatarBiasedDirection() {
   oldPos = newPos;
 
   //get the user pseudoforce
-  ValidityCheckerPointer vc = this->GetMPProblem()->GetValidityChecker(this->m_vc);
-  bool uVal = vc->IsValid(newPos, this->GetNameAndLabel() + "::AvatarBiasedDirection()");
+  ValidityCheckerPointer vc = this->GetValidityChecker(this->m_vc);
+  bool uVal = vc->IsValid(newPos,
+      this->GetNameAndLabel() + "::AvatarBiasedDirection()");
   CfgType forceUser = uVal ? forceDev : CfgType();
 
   //m_avatar->UpdatePos();
