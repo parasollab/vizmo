@@ -245,6 +245,18 @@ InitPMPL() {
   VizmoProblem::MPStrategyPointer sr(new SparkPRM<VizmoTraits, SparkRegion>());
   problem->AddMPStrategy(sr, "SparkRegion");
 
+  //add Cfg oracle
+  VizmoProblem::MPStrategyPointer co(new CfgOracle<VizmoTraits>());
+  problem->AddMPStrategy(co, "CfgOracle");
+
+  //add region oracle
+  VizmoProblem::MPStrategyPointer ro(new RegionOracle<VizmoTraits>());
+  problem->AddMPStrategy(ro, "RegionOracle");
+
+  //add path oracle
+  VizmoProblem::MPStrategyPointer po(new PathOracle<VizmoTraits>());
+  problem->AddMPStrategy(po, "PathOracle");
+
   //avoid-region validity checker
   VizmoProblem::ValidityCheckerPointer arv(
       new AvoidRegionValidity<VizmoTraits>());

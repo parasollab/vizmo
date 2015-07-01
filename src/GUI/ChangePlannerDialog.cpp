@@ -18,6 +18,9 @@ ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
   QRadioButton* irrtStrategyButton = new QRadioButton("IRRT", this);
   QRadioButton* regionRRTButton = new QRadioButton("RegionRRT", this);
   QRadioButton* sparkRegionButton = new QRadioButton("SparkRegion", this);
+  QRadioButton* cfgOracleButton = new QRadioButton("CfgOracle", this);
+  QRadioButton* regionOracleButton = new QRadioButton("RegionOracle", this);
+  QRadioButton* pathOracleButton = new QRadioButton("PathOracle", this);
 
   m_radioGroup = new QButtonGroup;
   m_radioGroup->setExclusive(true);
@@ -26,6 +29,9 @@ ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
   m_radioGroup->addButton(irrtStrategyButton);
   m_radioGroup->addButton(regionRRTButton);
   m_radioGroup->addButton(sparkRegionButton);
+  m_radioGroup->addButton(cfgOracleButton);
+  m_radioGroup->addButton(regionOracleButton);
+  m_radioGroup->addButton(pathOracleButton);
 
   //make default selection
   regionStrategyButton->setChecked(true);
@@ -44,6 +50,9 @@ ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
   layout->addWidget(irrtStrategyButton);
   layout->addWidget(regionRRTButton);
   layout->addWidget(sparkRegionButton);
+  layout->addWidget(cfgOracleButton);
+  layout->addWidget(regionOracleButton);
+  layout->addWidget(pathOracleButton);
   layout->addWidget(okCancel);
 }
 
