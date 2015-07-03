@@ -15,9 +15,6 @@ class BoundingSphereModel : public BoundaryModel {
     BoundingSphereModel(const Point3d& _c, double _r);
 
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Get the boundary center.
-    const Point3d& GetCenter() const {return m_center;}
-    ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the boundary radius.
     double GetRadius() const {return m_radius;}
 
@@ -35,8 +32,7 @@ class BoundingSphereModel : public BoundaryModel {
 
   private:
 
-    Vector3d m_center; ///< The center of the boundary.
-    double   m_radius; ///< The boundary radius.
+    double m_radius; ///< The boundary radius.
 };
 
 #endif

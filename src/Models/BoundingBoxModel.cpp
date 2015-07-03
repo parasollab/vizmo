@@ -62,6 +62,11 @@ Build() {
   double zmax = m_bbx[2].second == numeric_limits<double>::max() ?
        1 : m_bbx[2].second;
 
+  // Compute center
+  m_center[0] = (m_bbx[0].first + m_bbx[0].second) / 2.;
+  m_center[1] = (m_bbx[1].first + m_bbx[1].second) / 2.;
+  m_center[2] = (zmin + zmax) / 2.;
+
   GLdouble vertices[] = {
       m_bbx[0].first,  m_bbx[1].first,  zmin,
       m_bbx[0].second, m_bbx[1].first,  zmin,
