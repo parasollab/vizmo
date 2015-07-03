@@ -143,7 +143,7 @@ Run() {
         this->EvaluateGoals(recent);
 
       //evaluate the roadmap
-      bool evalMap = this->EvaluateMap(this->m_evaluators);
+      bool evalMap = this->EvaluateMap();
       bool oneTree = this->m_trees.size() == 1;
       if(!this->m_growGoals) {
         bool useGoals = this->m_evaluateGoal;

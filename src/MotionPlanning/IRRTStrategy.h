@@ -164,7 +164,7 @@ Run() {
         this->EvaluateGoals(recent);
 
       //evaluate the roadmap
-      bool evalMap = this->EvaluateMap(this->m_evaluators);
+      bool evalMap = this->EvaluateMap();
       if(!this->m_growGoals) {
         mapPassedEvaluation = this->m_trees.size() == 1 && evalMap &&
             ((this->m_evaluateGoal && this->m_goalsNotFound.size() == 0) ||
