@@ -4,12 +4,12 @@
 
 #include <QtGui>
 
+#include "Environment/BoundingSphere.h"
+
 #include "Models/Vizmo.h"
-#include "MPProblem/BoundingSphere.h"
 #include "Utilities/Camera.h"
 #include "Utilities/GLUtils.h"
 #include "Utilities/IO.h"
-
 
 RegionSphereModel::
 RegionSphereModel(const Point3d& _center, double _radius, bool _firstClick) :
@@ -20,13 +20,11 @@ RegionSphereModel(const Point3d& _center, double _radius, bool _firstClick) :
   m_crosshair.SetPos(m_center);
 }
 
-
 shared_ptr<Boundary>
 RegionSphereModel::
 GetBoundary() const {
   return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
 }
-
 
 //initialization of gl models
 void
