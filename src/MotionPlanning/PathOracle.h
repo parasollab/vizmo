@@ -65,7 +65,8 @@ Initialize() {
 
 template<class MPTraits>
 void
-PathOracle<MPTraits>::Run() {
+PathOracle<MPTraits>::
+Run() {
   cout << "Running PathOracle." << endl;
 
   GetVizmo().StartClock("PathOracle");

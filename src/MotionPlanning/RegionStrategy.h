@@ -31,6 +31,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     typedef typename MPTraits::WeightType WeightType;
     typedef typename MPProblemType::RoadmapType::VID VID;
     typedef typename MPProblemType::RoadmapType::GraphType GraphType;
+    typedef typename MPProblemType::MapEvaluatorPointer MapEvaluatorPointer;
     typedef typename GraphType::VI VI;
     typedef typename GraphType::EID EID;
     typedef EnvModel::RegionModelPtr RegionModelPtr;
@@ -89,11 +90,6 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     /// \brief  Updates the usefulness color of the current sampling region and
     ///         deletes lingering recommended regions.
     void UpdateRegionColor(size_t _i);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief  Evaluates the map. Query is used if a query file was loaded;
-    ///         otherwise, nodes eval is used.
-    /// \return A bool indicating whether the map passed evaluation.
-    bool EvaluateMap();
 
   private:
 
@@ -142,9 +138,9 @@ Initialize() {
   // Set up query
   if(GetVizmo().IsQueryLoaded()) {
     //setup region query evaluator
-    m_query = new Query<MPTraits>(
-        GetVizmo().GetQryFileName(), vector<string>(1, "RegionBFNFConnector"));
-    typename MPProblemType::MapEvaluatorPointer rq(m_query);
+    m_query = new Query<MPTraits>(GetVizmo().GetQryFileName(),
+        vector<string>(1, "RegionBFNFConnector"));
+    MapEvaluatorPointer rq(m_query);
     this->GetMPProblem()->AddMapEvaluator(rq, "RegionQuery");
 
     //set up bounded region query evaluator
@@ -152,12 +148,16 @@ Initialize() {
     evals.clear();
     evals.push_back("NodesEval");
     evals.push_back("RegionQuery");
-    typename MPProblemType::MapEvaluatorPointer brq(new ComposeEvaluator<MPTraits>(
-        ComposeEvaluator<MPTraits>::OR, evals));
+    MapEvaluatorPointer brq(new ComposeEvaluator<MPTraits>(
+          ComposeEvaluator<MPTraits>::OR, evals));
     this->GetMPProblem()->AddMapEvaluator(brq, "BoundedRegionQuery");
+    this->m_meLabels.push_back("BoundedRegionQuery");
 
     this->GetMPProblem()->SetMPProblem();
   }
+  else
+    // If no query loaded, use nodes eval
+    this->m_meLabels.push_back("NodesEval");
 
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
@@ -176,7 +176,7 @@ RegionStrategy<MPTraits>::Run() {
   this->GetStatClass()->StartClock("RegionStrategyMP");
 
   size_t iter = 0;
-  while(!EvaluateMap()) {
+  while(!this->EvaluateMap()) {
     //pick a region
     size_t index = SelectRegion();
 
@@ -481,23 +481,6 @@ UpdateRegionColor(size_t _i) {
         (*rit)->SetColor(Color4(0, 0, 1, iterCount/1250.));
     }
   }
-}
-
-
-template<class MPTraits>
-bool
-RegionStrategy<MPTraits>::
-EvaluateMap() {
-  //set up map evaluator. Currently, NodesEval is used unless a query file is
-  //loaded.
-  vector<string> evalLabel;
-  if(GetVizmo().IsQueryLoaded())
-    evalLabel.push_back("BoundedRegionQuery");
-  else
-    evalLabel.push_back("NodesEval");
-
-  bool eval = MPStrategyMethod<MPTraits>::EvaluateMap(evalLabel);
-  return eval;
 }
 
 #endif

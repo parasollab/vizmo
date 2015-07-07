@@ -1,6 +1,7 @@
 #ifndef CFG_ORACLE_H_
 #define CFG_ORACLE_H_
 
+#include "RegionStrategy.h"
 #include "MPStrategies/MPStrategyMethod.h"
 
 #include "GUI/MainWindow.h"
@@ -45,7 +46,7 @@ CfgOracle() : MPStrategyMethod<MPTraits>() {
 template<class MPTraits>
 CfgOracle<MPTraits>::
 CfgOracle(MPProblemType* _problem, XMLNode& _node) :
-    MPStrategyMethod<MPTraits>(_problem, _node) {
+  MPStrategyMethod<MPTraits>(_problem, _node) {
   this->SetName("CfgOracle");
 }
 
@@ -55,22 +56,29 @@ void
 CfgOracle<MPTraits>::
 Initialize() {
   cout << "Initializing " << this->GetNameAndLabel() << "." << endl;
-
+  
+  //if(GetVizmo().IsQueryLoaded()) { 
+  
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
   GetVizmo().GetRobot()->SetSelectable(false);
+  //}
 }
 
 
 template<class MPTraits>
 void
-CfgOracle<MPTraits>::Run() {
-  cout << "Running CfgOracle." << endl;
+CfgOracle<MPTraits>::
+Run() {
+  //cout << "Running CfgOracle." << endl;
 
   GetVizmo().StartClock("CfgOracle");
   this->GetStatClass()->StartClock("CfgOracleMP");
-
+  
+  cout<< "Running CfgOracle."<< endl;
+    
+  GetVizmo().GetMap()->RefreshMap(); 
   //stop clock
   GetVizmo().StopClock("CfgOracle");
   this->GetStatClass()->StopClock("CfgOracleMP");

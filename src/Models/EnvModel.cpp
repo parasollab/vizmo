@@ -24,7 +24,6 @@ EnvModel(const string& _filename) : LoadableModel("Environment"),
 
   m_environment = new Environment();
   m_environment->Read(_filename);
-  m_environment->ComputeResolution();
 
   //create avatar
   m_avatar = new AvatarModel(AvatarModel::None);

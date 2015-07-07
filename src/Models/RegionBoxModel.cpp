@@ -2,13 +2,13 @@
 
 #include <QtGui>
 
+#include "Environment/BoundingBox.h"
+
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
-#include "MPProblem/BoundingBox.h"
 #include "Utilities/Camera.h"
 #include "Utilities/GLUtils.h"
 #include "Utilities/IO.h"
-
 
 RegionBoxModel::
 RegionBoxModel() : RegionModel("Box Region", BOX),

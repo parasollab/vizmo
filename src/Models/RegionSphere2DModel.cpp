@@ -2,8 +2,9 @@
 
 #include <QtGui>
 
+#include "Environment/BoundingSphere.h"
+
 #include "Utilities/Camera.h"
-#include "MPProblem/BoundingSphere.h"
 #include "Utilities/GLUtils.h"
 #include "Utilities/IO.h"
 

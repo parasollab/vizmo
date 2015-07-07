@@ -2,7 +2,8 @@
 
 #include <QtGui>
 
-#include "MPProblem/BoundingBox.h"
+#include "Environment/BoundingBox.h"
+
 #include "Utilities/GLUtils.h"
 #include "Utilities/Camera.h"
 #include "Utilities/IO.h"

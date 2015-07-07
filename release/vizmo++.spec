@@ -65,6 +65,9 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Wed Jul 1 2015 Jory Denny <jdenny@cse.tamu.edu> 7-1jul2015
+- Version 0.2.1 - Region Steering methods, few interface bug fixed, no major
+  file version updates.
 * Thu May 29 2014 Jory Denny <jdenny@cse.tamu.edu> 5-29may2014
 - Version 0.2.0 - New user interface. All buttons moved to side of window. Text
   GUI located at the bottom. All dialogs are attached to pop up on the right of

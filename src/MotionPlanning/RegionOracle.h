@@ -65,7 +65,8 @@ Initialize() {
 
 template<class MPTraits>
 void
-RegionOracle<MPTraits>::Run() {
+RegionOracle<MPTraits>::
+Run() {
   cout << "Running RegionOracle." << endl;
 
   GetVizmo().StartClock("RegionOracle");
