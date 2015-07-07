@@ -32,6 +32,8 @@ class EdgeModel : public Model, public DefaultWeight<CfgModel> {
     CfgModel* GetStartCfg() {return m_startCfg;} ///< Get the source vertex.
     CfgModel* GetEndCfg() {return m_endCfg;}     ///< Get the target vertex.
 
+    vector<double> GetControl() {return vector<double>();}
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Set the name for this edge.
     void SetName();

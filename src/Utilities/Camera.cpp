@@ -118,15 +118,21 @@ MouseMotion(QMouseEvent* _e) {
     else if(_e->buttons() == Qt::LeftButton) {
       // If camera is not free-floating, use old azimuthal controls.
       if(!m_freeFloating) {
+        Vector3d temp;
+        const Vector3d& center = GetVizmo().GetEnv()->GetBoundary()->GetCenter();
         //rotate about y-axis by phi and
         double xRot = degToRad( dy * rotSpeed);
         if(abs(xRot) > .001) {
-          m_eye.rotate(GetWindowX(), xRot);
+          temp = m_eye - center;
+          temp.rotate(GetWindowX(), xRot);
+          m_eye = center + temp;
           m_dir.rotate(GetWindowX(), xRot);
         }
         double yRot = degToRad(-dx * rotSpeed);
         if(abs(yRot) > .001) {
-          m_eye.rotate(m_up, yRot);
+          temp = m_eye - center;
+          temp.rotate(m_up, yRot);
+          m_eye = center + temp;
           m_dir.rotateY(yRot).selfNormalize();
         }
       }

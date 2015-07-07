@@ -26,6 +26,7 @@ class BoundaryModel : public Model {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get minimums and maximums for this environment in X, Y, Z.
     virtual vector<pair<double, double> > GetRanges() = 0;
+    const Point3d& GetCenter() const {return m_center;} ///< Get the center point.
 
     // IO functions
     ////////////////////////////////////////////////////////////////////////////
@@ -45,10 +46,10 @@ class BoundaryModel : public Model {
     /// \brief Print boundary information.
     virtual void Write(ostream& _os) const = 0;
 
-  protected:
-
     size_t m_displayID; ///< This model's ID in the rendering call list.
     size_t m_linesID;   ///< This model's ID in the selection call list.
+
+    Point3d m_center;   ///< The center of the boundary.
 };
 
 #endif

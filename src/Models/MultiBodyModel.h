@@ -1,6 +1,7 @@
 #ifndef MULTIBODYMODEL_H_
 #define MULTIBODYMODEL_H_
 
+#include <memory>
 #include <algorithm>
 #include <containers/sequential/graph/graph.h>
 
@@ -11,6 +12,7 @@ using namespace mathtool;
 
 class BodyModel;
 class ConnectionModel;
+class ControlModel;
 class EnvModel;
 
 class MultiBodyModel : public Model {
@@ -97,6 +99,8 @@ class MultiBodyModel : public Model {
     static vector<DOFInfo> m_dofInfo;  //types/ranges of each DOF
     vector<BodyModel*> m_bodies;       //complete list of all bodies
     vector<ConnectionModel*> m_joints; //complete list of all joints
+    double m_maxLinearVel, m_maxAngularVel;
+    vector<shared_ptr<ControlModel>> m_controls;
 
     typedef stapl::sequential::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, size_t> RobotGraph;
     RobotGraph m_robotGraph;

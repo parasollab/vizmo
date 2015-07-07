@@ -194,6 +194,9 @@ ParseActiveBody(istream& _is, const string& _modelDataDir, const Color4 _color) 
 
   m_modelFilename += m_filename;
 
+  m_mass = ReadField<double>(_is, WHERE, "Failed reading body mass.");
+  cout << "Body: " << m_filename << " has mass " << m_mass << endl;
+
   //Read for Base Type. If Planar or Volumetric, read in two more strings
   //If Joint skip this stuff. If Fixed read in positions like an obstacle
   string baseTag = ReadFieldString(_is, WHERE,
@@ -210,7 +213,7 @@ ParseActiveBody(istream& _is, const string& _modelDataDir, const Color4 _color) 
         "Failed reading body transformation"));
   }
 
-  m_polyhedronModel = new PolyhedronModel(m_modelFilename);
+  m_polyhedronModel = new PolyhedronModel(m_modelFilename, m_mass);
 
   //Set color information
   SetColor(_color);
@@ -284,3 +287,4 @@ SetTransform(const Transformation& _t) {
 
   m_transformDone = true;
 }
+

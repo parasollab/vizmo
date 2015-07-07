@@ -5,19 +5,22 @@
 
 #include <containers/sequential/graph/graph.h>
 
+#include "Matrix.h"
+
 class PolyhedronModel : public Model {
   public:
     typedef Vector<int,  3> Tri;
     typedef vector<Point3d> PtVector;
     typedef vector<Tri> TriVector;
 
-    PolyhedronModel(const string& _filename, bool _isSurface = false);
+    PolyhedronModel(const string& _filename, double _mass = 1.0, bool _isSurface = false);
     PolyhedronModel(const PolyhedronModel& _p);
     ~PolyhedronModel();
 
     size_t GetNumVertices() const {return m_numVerts;}
     double GetRadius() const {return m_radius;}
     const Point3d& GetCOM() const {return m_com;}
+    const Matrix3x3& GetMoment() const {return m_moment;}
 
     void Build();
     void Select(GLuint* _index, vector<Model*>& sel) {}
@@ -37,6 +40,8 @@ class PolyhedronModel : public Model {
 
     //set m_com to center of mass of _points
     void COM(const PtVector& _points);
+    //set m_moment to moment of inertia
+    void Moment(const PtVector& _points, const TriVector& _tris);
     //set m_radius to distance furthest point in _points to m_com
     void Radius(const PtVector& _points);
 
@@ -52,6 +57,8 @@ class PolyhedronModel : public Model {
 
     double m_radius; //radius
     Point3d m_com; //Center of Mass
+    double m_mass; //Mass
+    Matrix3x3 m_moment; //Moment of Inertia
 
     typedef stapl::sequential::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, int, Vector<int, 2> > ModelGraph;
     ModelGraph m_modelGraph; //model graph for wired model

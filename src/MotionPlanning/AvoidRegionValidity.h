@@ -1,6 +1,8 @@
 #ifndef AVOID_REGION_VALIDITY_H_
 #define AVOID_REGION_VALIDITY_H_
 
+#include "Environment/ActiveMultiBody.h"
+
 #include "Models/RegionModel.h"
 #include "Models/Vizmo.h"
 
@@ -55,11 +57,11 @@ AvoidRegionValidity<MPTraits>::
 IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName) {
   //get environment, avoid regions, and robot
   Environment* env = this->GetEnvironment();
-  vector<EnvModel::RegionModelPtr> avoidRegions = GetVizmo().GetEnv()->
-      GetAvoidRegions();
-  shared_ptr<MultiBody> robot = env->GetMultiBody(_cfg.GetRobotIndex());
+  vector<EnvModel::RegionModelPtr> avoidRegions =
+    GetVizmo().GetEnv()->GetAvoidRegions();
+  shared_ptr<ActiveMultiBody> robot = env->GetRobot(_cfg.GetRobotIndex());
 
-  _cfg.ConfigEnvironment(env); // Config the robot in the environment.
+  _cfg.ConfigEnvironment(); // Config the robot in the environment.
 
   //check each region to ensure _cfg does not enter it
   for(auto& r : avoidRegions) {
@@ -71,7 +73,7 @@ IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName) {
 
     //if center is outside boundary, check each component of the robot to ensure
     //that none lie within the avoid region
-    for(int m = 0; m < robot->GetFreeBodyCount(); ++m) {
+    for(int m = 0; m < robot->NumFreeBody(); ++m) {
       typedef vector<Vector3d>::const_iterator VIT;
       Transformation& worldTransformation = robot->GetFreeBody(m)->
         WorldTransformation();

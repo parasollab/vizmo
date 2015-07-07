@@ -3,11 +3,11 @@
 
 #include <memory>
 
-#include "Utilities/Color.h"
-#include "MPProblem/Boundary.h"
-#include "Utilities/GLUtils.h"
+#include "Environment/Boundary.h"
 
 #include "Model.h"
+#include "Utilities/Color.h"
+#include "Utilities/GLUtils.h"
 
 class RegionModel : public Model {
   public:

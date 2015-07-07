@@ -10,7 +10,8 @@ BoundingSphereModel() : BoundaryModel("Bounding Sphere"),
 
 BoundingSphereModel::
 BoundingSphereModel(const Point3d& _c, double _r) :
-    BoundaryModel("Bounding Sphere"), m_center(_c), m_radius(_r) {
+    BoundaryModel("Bounding Sphere"), m_radius(_r) {
+  m_center = _c;
   Build();
 }
 
@@ -71,7 +72,7 @@ void
 BoundingSphereModel::
 Print(ostream& _os) const {
   _os << Name() << endl
-    << "[ " << m_center << " " << m_radius << " ]" << endl;
+      << "[ " << m_center << " " << m_radius << " ]" << endl;
 }
 
 

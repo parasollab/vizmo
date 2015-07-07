@@ -6,6 +6,7 @@
 #include "BoundingSphereModel.h"
 #include "CfgModel.h"
 #include "ConnectionModel.h"
+#include "ControlModel.h"
 #include "EnvModel.h"
 #include "Vizmo.h"
 #include "Utilities/IO.h"
@@ -149,12 +150,12 @@ MultiBodyModel::ParseMultiBody(istream& _is, const string& _modelDir) {
   string multibodyType = ReadFieldString(_is, WHERE,
       "Failed reading Multibody type.");
 
-  if(multibodyType == "ACTIVE")
+  if(multibodyType == "ACTIVE" || multibodyType == "NONHOLONOMIC")
     m_active = true;
   else if(multibodyType == "SURFACE")
     m_surface = true;
 
-  if(multibodyType == "ACTIVE") {
+  if(multibodyType == "ACTIVE" || multibodyType == "NONHOLONOMIC") {
     size_t numberOfBody = ReadField<size_t>(_is, WHERE,
         "Failed reading body count");
 
@@ -181,6 +182,49 @@ MultiBodyModel::ParseMultiBody(istream& _is, const string& _modelDir) {
         previousBody->AddConnection(c);
         m_joints.push_back(c);
       }
+    }
+
+    if(multibodyType == "NONHOLONOMIC") {
+      //first read velocity bounds
+      string velocityBoundsTag = ReadFieldString(_is, WHERE,
+          "Failed reading velocity bounds tag.");
+      if(velocityBoundsTag != "VELOCITYBOUNDS")
+        throw ParseException(WHERE,
+            "Unknwon controls tag '" + velocityBoundsTag + "'."
+            " Should read 'VelocityBounds'.");
+
+      m_maxLinearVel = ReadField<double>(_is, WHERE,
+          "Failed reading maximum linear velocity");
+      m_maxAngularVel = ReadField<double>(_is, WHERE,
+          "Failed reading maximum angular velocity");
+
+      cout << "Velocity bounds" << endl
+        << m_maxLinearVel << " " << m_maxAngularVel << endl;
+
+      //read available controls
+      string controlsTag = ReadFieldString(_is, WHERE,
+          "Failed reading controls tag.");
+      if(controlsTag != "CONTROLS")
+        throw ParseException(WHERE,
+            "Unknwon controls tag '" + controlsTag + "'."
+            " Should read 'Controls'.");
+      size_t controlsCount = ReadField<size_t>(_is, WHERE,
+          "Failed reading number of controls.");
+
+      //finish empty line of count
+      string tmp;
+      getline(_is, tmp);
+
+      m_controls.push_back(shared_ptr<ControlModel>(new ControlModel(this)));
+      for(size_t i = 0; i < controlsCount; ++i) {
+        shared_ptr<ControlModel> c(new ControlModel(this));
+        m_controls.push_back(c);
+        m_controls.back()->Read(_is);
+        cout << "Read control: " << *m_controls.back() << endl;
+      }
+
+      cout << "Moment: " << endl;
+      cout << m_bodies[0]->GetMoment() << endl;
     }
   }
   else if(multibodyType == "INTERNAL" ||

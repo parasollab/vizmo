@@ -60,8 +60,12 @@ void
 GLWidget::
 ResetCamera() {
   EnvModel* e = GetVizmo().GetEnv();
-  GetCurrentCamera()->Set(Point3d(0, 0, 2*(e ? e->GetRadius() : 100)),
-      Point3d(0,0,0), Vector3d(0, 1, 0));
+  if(e) {
+    const auto& center = e->GetBoundary()->GetCenter();
+    GetCurrentCamera()->Set(center + Point3d(0, 0, 2. * e->GetRadius()), center);
+  }
+  else
+    GetCurrentCamera()->Set(Vector3d(0, 0, 1), Vector3d());
 }
 
 Camera*

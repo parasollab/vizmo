@@ -75,6 +75,12 @@ class BodyModel : public TransformableModel {
     /// \brief Get this object's center of mass.
     const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
     ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get this object's mass.
+    const double GetMass() const {return m_mass;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get this object's moment of inertia.
+    const Matrix3x3& GetMoment() const {return m_polyhedronModel->GetMoment();}
+    ////////////////////////////////////////////////////////////////////////////
     /// \brief Get this object's radius.
     double GetRadius() const {return m_polyhedronModel->GetRadius();}
 
@@ -179,7 +185,6 @@ class BodyModel : public TransformableModel {
     friend ostream& operator<<(ostream& _os, const BodyModel& _b);
 
   private:
-
     string m_directory;                 ///< The file directory.
     string m_filename;                  ///< The filename.
     string m_modelFilename;             ///< The relative path.
@@ -195,6 +200,9 @@ class BodyModel : public TransformableModel {
     Transformation m_currentTransform;  ///< The current transformation.
     Transformation m_prevTransform;     ///< The previous transformation.
     bool m_transformDone; ///< Indicates whether transform info is current.
+
+    double m_mass;
+    Matrix3x3 m_moment;
 };
 
 #endif

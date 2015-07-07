@@ -8,9 +8,9 @@
 
 #include "Utilities/VizmoExceptions.h"
 
-PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
+PolyhedronModel::PolyhedronModel(const string& _filename, double _mass, bool _isSurface)
   : Model(_filename), m_filename(_filename), m_isSurface(_isSurface),
-  m_numVerts(0), m_solidID(-1), m_wiredID(-1), m_normalsID(-1) {
+  m_numVerts(0), m_solidID(-1), m_wiredID(-1), m_normalsID(-1), m_mass(_mass) {
     Build();
   }
 
@@ -253,6 +253,27 @@ PolyhedronModel::COM(const PtVector& _points) {
   m_com /= _points.size();
   if(m_isSurface)
     m_com[1] = 0;
+}
+
+void
+PolyhedronModel::
+Moment(const PtVector& _points, const TriVector& _tris) {
+  float massPerTriangle = m_mass/_tris.size();
+  for(const auto& tri : _tris) {
+
+    Vector3d com = (_points[tri[0]] + _points[tri[1]] + _points[tri[2]])/3.0;
+    Vector3d r = m_com - com;
+    m_moment[0][0] += massPerTriangle * (r[1]*r[1] + r[2]*r[2]);
+    m_moment[0][1] += massPerTriangle * -r[0] * r[1];
+    m_moment[0][2] += massPerTriangle * -r[0] * r[2];
+    m_moment[1][0] += massPerTriangle * -r[1] * r[0];
+    m_moment[1][1] += massPerTriangle * (r[0]*r[0] + r[2]*r[2]);
+    m_moment[1][2] += massPerTriangle * -r[1] * r[2];
+    m_moment[2][0] += massPerTriangle * -r[0] * r[2];
+    m_moment[2][1] += massPerTriangle * -r[1] * r[2];
+    m_moment[2][2] += massPerTriangle * (r[0]*r[0] + r[1]*r[1]);
+  }
+  m_moment = inverse(m_moment);
 }
 
 //set m_radius to distance furthest point in _points to m_com
