@@ -66,6 +66,9 @@ rm -rf %{buildroot}
 
 %changelog
 * Wed Jul 10 2015 Jory Denny <jdenny@cse.tamu.edu> 7-10jul2015
+- Version 0.3.1 - Fixing bug in env loading when no color option is specified
+  and -x translation is given.
+* Wed Jul 10 2015 Jory Denny <jdenny@cse.tamu.edu> 7-10jul2015
 - Version 0.3.0 - Merging Env data structures with PMPL counterparts.
   Temporarily disabled functionality to add, copy, and delete obstacles as well
   as editing robot. Env format is also being updated for boundaries and
