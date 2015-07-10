@@ -59,16 +59,20 @@ InitModels() {
   try {
     if(!m_xmlFilename.empty()) {
       InitPMPL(m_xmlFilename);
+      m_envModel = new EnvModel(GetVizmoProblem()->GetEnvironment());
     }
+    else {
+      size_t pos = m_envFilename.rfind('/');
+      string basename = pos == string::npos ? "" : m_envFilename.substr(0, pos+1);
+      MPProblemBase::SetPath(basename);
+      //Create environment first
+      if(m_envFilename.empty())
+        throw ParseException(WHERE, "Vizmo must load an environment file.");
 
-    //Create environment first
-    if(m_envFilename.empty())
-      throw ParseException(WHERE, "Vizmo must load an environment file.");
-
-    m_envModel = new EnvModel(m_envFilename);
+      m_envModel = new EnvModel(m_envFilename);
+    }
     m_loadedModels.push_back(m_envModel);
 
-    cout << "Load Environment File : "<< m_envFilename << endl;
 
     //try to initialize PHANToM
     m_phantomManager = new Haptics::Manager();
@@ -563,11 +567,7 @@ Solve(const string& _strategy) {
   stringstream mySeed;
   mySeed << GetSeed();
 
-  string baseFilename;
-  if(!GetEnv()->GetModelDataDir().empty())
-    baseFilename = GetEnv()->GetModelDataDir() + "/";
-
-  baseFilename += _strategy + "." + mySeed.str();
+  string baseFilename = MPProblemBase::GetPath(_strategy + "." + mySeed.str());
   GetVizmoProblem()->SetBaseFilename(baseFilename);
   oss << GetVizmoProblem()->GetBaseFilename() << ".vd";
 

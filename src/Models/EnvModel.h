@@ -28,17 +28,8 @@ class EnvModel : public Model {
 
     // Construction
     EnvModel(const string& _filename);
+    EnvModel(Environment* _env);
     ~EnvModel();
-
-    // IO functions
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Get the name of the directory from which the environment was
-    ///        loaded.
-    string GetModelDataDir() {return  m_modelDataDir;}
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Set the name of the directory from which the environment is
-    ///        loaded.
-    void SetModelDataDir(const string _modelDataDir);
 
     // Access functions
     ////////////////////////////////////////////////////////////////////////////
@@ -166,8 +157,6 @@ class EnvModel : public Model {
     void SaveFile(const string& _filename) const;
 
   private:
-
-    string m_modelDataDir;   ///< Stores the environment data directory.
 
     vector<shared_ptr<ActiveMultiBodyModel>> m_robots;    ///< All robots.
     vector<shared_ptr<StaticMultiBodyModel>> m_obstacles; ///< All obstacles.

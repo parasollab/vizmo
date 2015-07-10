@@ -108,7 +108,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
 template<class MPTraits>
 RegionStrategy<MPTraits>::
 RegionStrategy() : MPStrategyMethod<MPTraits>(),
-    m_connectorLabel("RegionConnector"), m_lpLabel("RegionSL"),
+    m_connectorLabel("RegionBFNFConnector"), m_lpLabel("RegionSL"),
     m_samplerLabel("RegionUniformSampler"), m_vcLabel("RegionValidity"),
     m_query(NULL) {
   this->SetName("RegionStrategy");
@@ -120,12 +120,11 @@ RegionStrategy<MPTraits>::
 RegionStrategy(MPProblemType* _problem, XMLNode& _node) :
     MPStrategyMethod<MPTraits>(_problem, _node), m_query(NULL) {
   this->SetName("RegionStrategy");
-  m_connectorLabel = _node.Read("connectionLabel", false, "RegionBFNFConnector",
-      "Connection Strategy");
-  m_lpLabel = _node.Read("lpLabel", false, "RegionSL", "Local Planner");
-  m_samplerLabel = _node.Read("samplerLabel", false, "RegionUniformSampler",
+  m_connectorLabel = _node.Read("cLabel", true, "", "Connection Strategy");
+  m_lpLabel = _node.Read("lpLabel", true, "", "Local Planner");
+  m_samplerLabel = _node.Read("sLabel", true, "",
       "Sampler Strategy");
-  m_vcLabel = _node.Read("vcLabel", false, "RegionValidity", "Validity Checker");
+  m_vcLabel = _node.Read("vcLabel", true, "", "Validity Checker");
 }
 
 
@@ -298,7 +297,7 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
   try {
     //track failures in col for density calculation
     vector<CfgType> col;
-    sp->Sample(1, 10, samplingBoundary,
+    sp->Sample(1, 1, samplingBoundary,
         back_inserter(_samples), back_inserter(col));
 
     //if this region is not the environment boundary, update failure count
@@ -383,9 +382,8 @@ RegionStrategy<MPTraits>::
 AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
   //add nodes in _samples to graph. store VID's in _vids for connecting
   _vids.clear();
-  for(typename vector<CfgType>::iterator cit = _samples.begin();
-      cit != _samples.end(); cit++) {
-    VID addedNode = this->GetRoadmap()->GetGraph()->AddVertex(*cit);
+  for(auto& cfg : _samples) {
+    VID addedNode = this->GetRoadmap()->GetGraph()->AddVertex(cfg);
     _vids.push_back(addedNode);
   }
 }
@@ -396,7 +394,7 @@ void
 RegionStrategy<MPTraits>::
 Connect(vector<VID>& _vids, size_t _i) {
   typename MPProblemType::ConnectorPointer cp =
-      this->GetConnector("RegionBFNFConnector");
+      this->GetConnector(m_connectorLabel);
   cp->Connect(this->GetRoadmap(), _vids.begin(), _vids.end());
 
   UpdateRegionStats();
