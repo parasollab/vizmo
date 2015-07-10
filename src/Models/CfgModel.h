@@ -24,25 +24,18 @@ class CfgModel : public Model, public Cfg {
   public:
 
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Supported rendering modes for configurations.
-    /// \arg <i>Robot</i> The entire robot is rendered.
-    /// \arg <i>Point</i> A point is rendered at the center of the robot's base.
-    enum Shape {Robot, Point};
+    /// @brief Supported rendering modes for configurations.
+    ////////////////////////////////////////////////////////////////////////////
+    enum Shape {
+      Robot, ///< Robot rendered at Cfg
+      Point  ///< Point rendered at center of robot's base
+    };
 
     // Construction
     CfgModel();
     CfgModel(const Cfg& _c);
 
     // DOF and validity info
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Set the number of degrees of freedom for this configuration.
-    /// \bug   The implementation in its current state doesn't make sense. Need
-    ///        to confirm with the cfg multi-robot team what is going on here.
-    void SetDOF(size_t _d) {
-      /*m_dof[m_robotIndex] = _d;*/
-      //Temporary fix for PMPL Compile to avoid seg fault for regular vizmo use.
-      m_dof.push_back(_d);
-    }
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Set new values for each DOF.
     void SetCfg(const vector<double>& _newCfg);
@@ -51,9 +44,7 @@ class CfgModel : public Model, public Cfg {
     vector<double> GetDataCfg() {return m_v;}
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the center of the robot's base.
-    Point3d GetPoint() const {
-      return Point3d(m_v[0], m_v[1], m_isVolumetricRobot ? m_v[2] : 0);
-    }
+    Point3d GetPoint() const;
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Label this cfg as valid or invalid.
     void SetValidity(bool _validity) {m_isValid = _validity;}
@@ -80,20 +71,6 @@ class CfgModel : public Model, public Cfg {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Set this configuration's VID and CC.
     void Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc);
-
-    // Class functions - robot information
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Label this robot as 2D.
-    static void SetIsPlanarRobot(bool _b) {m_isPlanarRobot = _b;}
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Label this robot as 3D.
-    static void SetIsVolumetricRobot(bool _b) {m_isVolumetricRobot = _b;}
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Indicates whether this is a 3D robot.
-    static bool GetIsVolumetricRobot() {return m_isVolumetricRobot;}
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Label this robot as rotatable.
-    static void SetIsRotationalRobot(bool _b) {m_isRotationalRobot = _b;}
 
     // Class functions - rendering
     ////////////////////////////////////////////////////////////////////////////
@@ -125,10 +102,6 @@ class CfgModel : public Model, public Cfg {
   private:
 
     // Class data
-    static double m_defaultDOF;      ///< The default DOFs for this problem.
-    static bool m_isPlanarRobot;     ///< Indicates whether the robot is 2D.
-    static bool m_isVolumetricRobot; ///< Indicates whether the robot is 3D.
-    static bool m_isRotationalRobot; ///< Indicates whether the robot can rotate.
     static Shape m_shape;            ///< The current CfgModel display mode.
     static float m_pointScale;       ///< The size for point mode display.
 

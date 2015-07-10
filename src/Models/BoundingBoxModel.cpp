@@ -1,81 +1,51 @@
+#include "BoundingBoxModel.h"
+
 #include <limits>
 #include <sstream>
 
-#include "BoundingBoxModel.h"
-
 #include <glut.h>
 
-BoundingBoxModel::
-BoundingBoxModel() : BoundaryModel("Bounding Box"), m_bbx(3,
-    make_pair(-numeric_limits<double>::max(), numeric_limits<double>::max())) { }
+#include "Environment/BoundingBox.h"
 
+BoundingBoxModel::
+BoundingBoxModel(shared_ptr<BoundingBox> _b) :
+  BoundaryModel("Bounding Box", _b),
+  m_boundingBox(_b) {
+    Build();
+  }
 
 BoundingBoxModel::
 BoundingBoxModel(const pair<double, double>& _x, const pair<double, double>& _y,
-    const pair<double, double>& _z) : BoundaryModel("Bounding Box") {
-  m_bbx.push_back(_x);
-  m_bbx.push_back(_y);
-  m_bbx.push_back(_z);
-  Build();
-}
-
-
-bool
-BoundingBoxModel::
-Parse(istream& _is) {
-  //read next three tokens
-  string line;
-  getline(_is, line);
-  istringstream iss(line);
-  for(size_t i = 0; i < 3; ++i) {
-    string tok;
-    if(iss >> tok){
-      size_t del = tok.find(":");
-      if(del == string::npos) {
-        cerr << "Error::Reading bounding box range " << i
-             << ". Should be delimited by ':'." << endl;
-        return false;
-      }
-      istringstream minVStr(tok.substr(0, del)),
-                    maxVStr(tok.substr(del+1, tok.length()));
-      double minV, maxV;
-      if((minVStr >> minV && maxVStr >> maxV) == false) {
-        cerr << "Error::Reading bounding box range " << i << "." << endl;
-        return false;
-      }
-      m_bbx[i] = make_pair(minV, maxV);
-    }
-    else if(i < 2) { //error. only 1 token provided.
-      cerr << "Error::Reading bounding box ranges. Only one provided." << endl;
-      return false;
-    }
+    const pair<double, double>& _z) :
+  BoundaryModel("Bounding Box", NULL) {
+    m_boundingBox = shared_ptr<BoundingBox>(new BoundingBox(_x, _y, _z));
+    m_boundary = m_boundingBox;
+    Build();
   }
-  return true;
-}
-
 
 void
 BoundingBoxModel::
 Build() {
-  double zmin = m_bbx[2].second == numeric_limits<double>::max() ?
-      -1 : m_bbx[2].first;
-  double zmax = m_bbx[2].second == numeric_limits<double>::max() ?
-       1 : m_bbx[2].second;
+  const pair<double, double>* const bbx = m_boundingBox->GetBox();
+  double zmin = bbx[2].second == numeric_limits<double>::max() ?
+    -1 : bbx[2].first;
+  double zmax = bbx[2].second == numeric_limits<double>::max() ?
+    1 : bbx[2].second;
 
   // Compute center
-  m_center[0] = (m_bbx[0].first + m_bbx[0].second) / 2.;
-  m_center[1] = (m_bbx[1].first + m_bbx[1].second) / 2.;
+  m_center[0] = (bbx[0].first + bbx[0].second) / 2.;
+  m_center[1] = (bbx[1].first + bbx[1].second) / 2.;
   m_center[2] = (zmin + zmax) / 2.;
 
   GLdouble vertices[] = {
-      m_bbx[0].first,  m_bbx[1].first,  zmin,
-      m_bbx[0].second, m_bbx[1].first,  zmin,
-      m_bbx[0].second, m_bbx[1].first,  zmax,
-      m_bbx[0].first,  m_bbx[1].first,  zmax,
-      m_bbx[0].first,  m_bbx[1].second, zmin,
-      m_bbx[0].second, m_bbx[1].second, zmin,
-      m_bbx[0].second, m_bbx[1].second, zmax,
-      m_bbx[0].first,  m_bbx[1].second, zmax
+    bbx[0].first,  bbx[1].first,  zmin,
+    bbx[0].second, bbx[1].first,  zmin,
+    bbx[0].second, bbx[1].first,  zmax,
+    bbx[0].first,  bbx[1].first,  zmax,
+    bbx[0].first,  bbx[1].second, zmin,
+    bbx[0].second, bbx[1].second, zmin,
+    bbx[0].second, bbx[1].second, zmax,
+    bbx[0].first,  bbx[1].second, zmax
   };
 
   //Face index
@@ -88,9 +58,9 @@ Build() {
 
   //line index
   GLubyte lineid[] = {
-      0, 1, 1, 2, 2, 3, 3, 0,
-      4, 5, 5, 6, 6, 7, 7, 4,
-      0, 4, 1, 5, 2, 6, 3, 7
+    0, 1, 1, 2, 2, 3, 3, 0,
+    4, 5, 5, 6, 6, 7, 7, 4,
+    0, 4, 1, 5, 2, 6, 3, 7
   };
 
   //set properties for this box
@@ -140,13 +110,12 @@ Build() {
 void
 BoundingBoxModel::
 DrawHaptics() {
+  const pair<double, double>* const bbx = m_boundingBox->GetBox();
   glPushMatrix();
-  glTranslatef( (m_bbx[0].first+m_bbx[0].second) / 2.,
-                (m_bbx[1].first+m_bbx[1].second) / 2.,
-                (m_bbx[2].first+m_bbx[2].second) / 2.);
-  glScalef( m_bbx[0].second - m_bbx[0].first,
-            m_bbx[1].second - m_bbx[1].first,
-            m_bbx[2].second - m_bbx[2].first);
+  glTranslatef(m_center[0], m_center[1], m_center[2]);
+  glScalef( bbx[0].second - bbx[0].first,
+      bbx[1].second - bbx[1].first,
+      bbx[2].second - bbx[2].first);
   glutSolidCube(1);
   glPopMatrix();
 }
@@ -155,19 +124,19 @@ DrawHaptics() {
 void
 BoundingBoxModel::
 Print(ostream& _os) const {
-  _os << Name() << endl << "[ ";
-  for(int i = 0; i < 3; ++i)
-    if(m_bbx[i].second != numeric_limits<double>::max())
-      _os << m_bbx[i].first << ":" << m_bbx[i].second << " ";
-  _os << "]" << endl;
+  _os << Name() << endl
+    << *m_boundingBox << endl;
 }
 
-
-void
+vector<pair<double, double> >
 BoundingBoxModel::
-Write(ostream& _os) const {
-  _os << "Box ";
-  for(size_t i = 0; i < 3; ++i)
-    if(m_bbx[i].second != numeric_limits<double>::max())
-      _os << m_bbx[i].first << ":" << m_bbx[i].second << " ";
+GetRanges() {
+  const pair<double, double>* const bbx = m_boundingBox->GetBox();
+  return vector<pair<double, double>>(bbx, bbx+3);
+}
+
+double
+BoundingBoxModel::
+GetMaxDist() {
+  return m_boundingBox->GetMaxDist();
 }

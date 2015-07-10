@@ -173,9 +173,7 @@ SaveEnv() {
 
   if(!fn.isEmpty()){
     string filename = fn.toStdString();
-    const char* f;
-    f = filename.c_str();
-    GetVizmo().GetEnv()->SaveFile(f);
+    GetVizmo().GetEnv()->SaveFile(filename);
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
   }

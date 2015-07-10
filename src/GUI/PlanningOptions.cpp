@@ -14,7 +14,6 @@
 #include "Models/RegionModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
-#include "Models/RobotModel.h"
 #include "Models/QueryModel.h"
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
@@ -304,8 +303,7 @@ AddRegionBox() {
   RegionModelPtr r;
 
   // Check if robot is 2D or 3D, set region to same
-  RobotModel* robot = GetVizmo().GetRobot();
-  if(robot->IsPlanar())
+  if(GetVizmo().GetEnv()->IsPlanar())
     r = RegionModelPtr(new RegionBox2DModel());
   else
     r = RegionModelPtr(new RegionBoxModel());
@@ -336,8 +334,7 @@ AddRegionSphere() {
   RegionModelPtr r;
 
   // Check to see if robot is 2D or 3D, set region to the same
-  RobotModel* robot = GetVizmo().GetRobot();
-  if(robot->IsPlanar())
+  if(GetVizmo().GetEnv()->IsPlanar())
     r = RegionModelPtr(new RegionSphere2DModel());
   else
     r = RegionModelPtr(new RegionSphereModel());

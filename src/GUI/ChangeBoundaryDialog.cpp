@@ -5,6 +5,7 @@
 #include "GUI/BoundingSphereWidget.h"
 #include "GUI/GLWidget.h"
 #include "GUI/MainWindow.h"
+#include "Models/BoundaryModel.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
@@ -63,7 +64,7 @@ SetBoundary() {
 
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   sel.clear();
-  sel.push_back(GetVizmo().GetEnv()->GetBoundary());
+  sel.push_back(GetVizmo().GetEnv()->GetBoundary().get());
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->GetGLWidget()->updateGL();
   accept();

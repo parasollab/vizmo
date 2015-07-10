@@ -1,13 +1,11 @@
-#ifndef PATHMODEL_H_
-#define PATHMODEL_H_
+#ifndef PATH_MODEL_H_
+#define PATH_MODEL_H_
 
 #include <Vector.h>
 using namespace mathtool;
 
 #include "CfgModel.h"
 #include "Utilities/Color.h"
-
-class RobotModel;
 
 class PathModel : public LoadableModel {
   public:

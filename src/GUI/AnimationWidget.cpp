@@ -1,8 +1,8 @@
 #include "AnimationWidget.h"
 
 #include "Models/DebugModel.h"
+#include "Models/EnvModel.h"
 #include "Models/PathModel.h"
-#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/First.xpm"
@@ -77,8 +77,8 @@ GoToFrame(int _frame) {
 
   //update GUI
   if(m_name == "Path") {
-    const vector<double>& cfg = GetVizmo().GetPath()->GetConfiguration(m_frame).GetData();
-    GetVizmo().GetRobot()->Configure(cfg);
+    const CfgModel& cfg = GetVizmo().GetPath()->GetConfiguration(m_frame);
+    GetVizmo().GetEnv()->Configure(cfg);
   }
   else if(m_name == "Debug")
     GetVizmo().GetDebug()->ConfigureFrame(m_frame);

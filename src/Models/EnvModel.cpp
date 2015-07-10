@@ -2,47 +2,110 @@
 
 #include <fstream>
 
+#include "Environment/BoundingBox.h"
+#include "Environment/BoundingSphere.h"
+#include "Environment/ActiveMultiBody.h"
+#include "Environment/StaticMultiBody.h"
+#include "Environment/SurfaceMultiBody.h"
+
+#include "ActiveMultiBodyModel.h"
 #include "AvatarModel.h"
 #include "BodyModel.h"
 #include "BoundingBoxModel.h"
 #include "BoundingSphereModel.h"
 #include "CfgModel.h"
-#include "ConnectionModel.h"
+#include "StaticMultiBodyModel.h"
+#include "SurfaceMultiBodyModel.h"
 #include "TempObjsModel.h"
 #include "UserPathModel.h"
 #include "Utilities/VizmoExceptions.h"
 
 EnvModel::
-EnvModel(const string& _filename) : LoadableModel("Environment"),
-    m_containsSurfaces(false), m_radius(0), m_boundary(NULL), m_tempObjs() {
-  SetFilename(_filename);
+EnvModel(const string& _filename) : Model("Environment"),
+    m_radius(0), m_boundary(NULL) {
   size_t sl = _filename.rfind('/');
   SetModelDataDir(_filename.substr(0, sl == string::npos ? 0 : sl));
 
-  ParseFile();
-  Build();
-
   m_environment = new Environment();
   m_environment->Read(_filename);
+
+  //construct boundary
+  if(shared_ptr<BoundingBox> b = dynamic_pointer_cast<BoundingBox>(m_environment->GetBoundary()))
+    m_boundary = shared_ptr<BoundingBoxModel>(new BoundingBoxModel(b));
+  else if(shared_ptr<BoundingSphere> b = dynamic_pointer_cast<BoundingSphere>(m_environment->GetBoundary()))
+    m_boundary = shared_ptr<BoundingSphereModel>(new BoundingSphereModel(b));
+  else
+    throw RunTimeException(WHERE, "Failed casting Boundary.");
+
+  //construct multibody model
+  for(size_t i = 0; i < m_environment->NumRobots(); ++i)
+    m_robots.emplace_back(
+        new ActiveMultiBodyModel(m_environment->GetRobot(i)));
+  for(size_t i = 0; i < m_environment->NumObstacles(); ++i)
+    m_obstacles.emplace_back(
+        new StaticMultiBodyModel(m_environment->GetObstacle(i)));
+  for(size_t i = 0; i < m_environment->NumSurfaces(); ++i)
+    m_surfaces.emplace_back(
+        new SurfaceMultiBodyModel(m_environment->GetSurface(i)));
+
+  Build();
 
   //create avatar
   m_avatar = new AvatarModel(AvatarModel::None);
 }
 
-
 EnvModel::
 ~EnvModel() {
-  delete m_boundary;
   delete m_avatar;
-  m_avatar = NULL;
-  typedef vector<MultiBodyModel*>::const_iterator MIT;
-  for(MIT mit = m_multibodies.begin(); mit!=m_multibodies.end(); ++mit)
-    delete *mit;
-  typedef vector<UserPathModel*>::iterator PIT;
-  for(PIT pit = m_userPaths.begin(); pit != m_userPaths.end(); ++pit)
-    delete *pit;
+  for(auto& p : m_userPaths)
+    delete p;
 }
 
+const Point3d&
+EnvModel::
+GetCenter() const {
+  return m_boundary->GetCenter();
+}
+
+bool
+EnvModel::
+IsPlanar() const {
+  for(auto& r : m_robots)
+    if(!r->IsPlanar())
+      return false;
+  return true;
+}
+
+void
+EnvModel::
+PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
+  for(auto& r : m_robots) {
+    vector<double> cfg(r->Dofs(), 0);
+    r->Configure(cfg);
+    r->SetInitialCfg(cfg);
+    if(_invisible)
+      r->SetRenderMode(INVISIBLE_MODE);
+    m_avatar->SetCfg(cfg);
+  }
+  for(const auto& cfg : _cfgs) {
+    m_robots[cfg.GetRobotIndex()]->Configure(cfg.GetData());
+    m_robots[cfg.GetRobotIndex()]->SetInitialCfg(cfg.GetData());
+    m_avatar->SetCfg(cfg.GetData());
+  }
+}
+
+void
+EnvModel::
+Configure(const CfgModel& _c) {
+  m_robots[_c.GetRobotIndex()]->Configure(_c.GetData());
+}
+
+void
+EnvModel::
+SetBoundary(shared_ptr<BoundaryModel> _b) {
+  m_boundary = _b;
+  m_environment->SetBoundary(m_boundary->GetBoundary());
+}
 
 bool
 EnvModel::
@@ -50,7 +113,6 @@ IsNonCommitRegion(RegionModelPtr _r) const {
   return find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r)
     != m_nonCommitRegions.end();
 }
-
 
 void
 EnvModel::
@@ -60,7 +122,6 @@ AddAttractRegion(RegionModelPtr _r) {
   VDAddRegion(_r.get());
 }
 
-
 void
 EnvModel::
 AddAvoidRegion(RegionModelPtr _r) {
@@ -69,14 +130,12 @@ AddAvoidRegion(RegionModelPtr _r) {
   VDAddRegion(_r.get());
 }
 
-
 void
 EnvModel::
 AddNonCommitRegion(RegionModelPtr _r) {
   _r->SetColor(Color4(0, 0, 1, 0.8));
   m_nonCommitRegions.push_back(_r);
 }
-
 
 void
 EnvModel::
@@ -91,7 +150,6 @@ ChangeRegionType(RegionModelPtr _r, bool _attract) {
       AddAvoidRegion(_r);
   }
 }
-
 
 void
 EnvModel::
@@ -117,7 +175,6 @@ DeleteRegion(RegionModelPtr _r) {
   }
 }
 
-
 EnvModel::RegionModelPtr
 EnvModel::
 GetRegion(Model* _model) {
@@ -125,19 +182,18 @@ GetRegion(Model* _model) {
     RegionModel* rm = (RegionModel*)_model;
 
     vector<RegionModelPtr>::iterator rit;
-    for(rit = m_attractRegions.begin(); rit != m_attractRegions.end(); ++rit)
-      if(rit->get() == rm)
-        return *rit;
-    for(rit = m_avoidRegions.begin(); rit != m_avoidRegions.end(); ++rit)
-      if(rit->get() == rm)
-        return *rit;
-    for(rit = m_nonCommitRegions.begin(); rit != m_nonCommitRegions.end(); ++rit)
-      if(rit->get() == rm)
-        return *rit;
+    for(auto& r : m_attractRegions)
+      if(r.get() == rm)
+        return r;
+    for(auto& r : m_avoidRegions)
+      if(r.get() == rm)
+        return r;
+    for(auto& r : m_nonCommitRegions)
+      if(r.get() == rm)
+        return r;
   }
   return RegionModelPtr();
 }
-
 
 void
 EnvModel::
@@ -149,7 +205,6 @@ DeleteUserPath(UserPathModel* _p) {
     m_userPaths.erase(pit);
   }
 }
-
 
 void
 EnvModel::
@@ -164,70 +219,12 @@ RemoveTempObjs(TempObjsModel* _t) {
   }
 }
 
-
-void
-EnvModel::
-ParseFile() {
-
-  if(!FileExists(GetFilename()))
-    throw ParseException(WHERE, "'" + GetFilename() + "' does not exist");
-
-  //Open file for reading data
-  ifstream ifs(GetFilename().c_str());
-
-  //Read boundary
-  string b = ReadFieldString(ifs, WHERE,
-      "Failed reading boundary tag.");
-
-  if(b != "BOUNDARY")
-    throw ParseException(WHERE,
-        "Failed reading boundary tag ' " + b + " '.");
-
-  ParseBoundary(ifs);
-
-  //Read number of multibodies
-  string mb = ReadFieldString(ifs, WHERE,
-      "Failed reading Multibodies tag");
-
-  if(mb != "MULTIBODIES")
-    throw ParseException(WHERE,
-        "Failed reading multibodies tag. Read " + mb + ".");
-
-  size_t numMultiBodies = ReadField<size_t>(ifs, WHERE,
-      "Failed reading number of Multibodies.");
-
-  for(size_t i = 0; i < numMultiBodies && ifs; i++) {
-    MultiBodyModel* m = new MultiBodyModel(this);
-    m->ParseMultiBody(ifs, m_modelDataDir);
-    m_multibodies.push_back(m);
-  }
-}
-
-
 void
 EnvModel::
 SetModelDataDir(const string _modelDataDir) {
   m_modelDataDir = _modelDataDir;
   cout << "- Geo Dir   : " << m_modelDataDir << endl;
 }
-
-
-void
-EnvModel::
-ParseBoundary(ifstream& _ifs) {
-  string type = ReadFieldString(_ifs, WHERE, "Failed reading Boundary type.");
-
-  if(type == "BOX")
-    m_boundary = new BoundingBoxModel();
-  else if(type == "SPHERE")
-    m_boundary = new BoundingSphereModel();
-  else
-    throw ParseException(WHERE, "Failed reading boundary type '" + type +
-        "'. Choices are BOX or SPHERE.");
-
-  m_boundary->Parse(_ifs);
-}
-
 
 void
 EnvModel::
@@ -238,53 +235,82 @@ Build() {
   m_boundary->Build();
 
   //Build each
-  MultiBodyModel::ClearDOFInfo();
-  for(const auto& mb : m_multibodies) {
-    mb->Build();
-    m_dof += mb->GetDOF();
-    m_centerOfMass += mb->GetCOM();
+  //MultiBodyModel::ClearDOFInfo();
+  for(auto& r : m_robots)
+    r->Build();
+  for(auto& o : m_obstacles) {
+    o->Build();
+    m_centerOfMass += o->GetCOM();
+  }
+  for(auto& s : m_surfaces) {
+    s->Build();
+    m_centerOfMass += s->GetCOM();
   }
 
-  m_centerOfMass /= m_multibodies.size();
+  m_centerOfMass /= m_obstacles.size() + m_surfaces.size();
 
   //Compute radius
-  for(const auto& mb : m_multibodies) {
-    double dist = (mb->GetCOM() - m_centerOfMass).norm() + mb->GetRadius();
-    if(m_radius < dist)
+  for(auto& o : m_obstacles) {
+    double dist = (o->GetCOM() - m_centerOfMass).norm() + o->GetRadius();
+    if(dist > m_radius)
       m_radius = dist;
   }
+  for(auto& s : m_surfaces) {
+    double dist = (s->GetCOM() - m_centerOfMass).norm() + s->GetRadius();
+    if(dist > m_radius)
+      m_radius = dist;
+  }
+  double dist = m_boundary->GetMaxDist() / 2;
+  if(dist > m_radius)
+    m_radius = dist;
 }
 
 
 void
 EnvModel::
 Select(GLuint* _index, vector<Model*>& _sel) {
-  size_t numMBs = m_multibodies.size();
-  size_t numAttractRegions = m_attractRegions.size();
-  size_t numAvoidRegions = m_avoidRegions.size();
-  size_t numNonCommitRegions = m_nonCommitRegions.size();
-  size_t numPaths = m_userPaths.size();
+  if(!_index)
+    return; //input error
 
-  //unselect old one
-  if(!_index || *_index > numMBs + numAttractRegions + numAvoidRegions
-      + numNonCommitRegions + numPaths) //input error
+  GLuint indx = *_index;
+
+  if(indx < m_robots.size()) {
+    m_robots[indx]->Select(_index+1, _sel);
     return;
-  else if(*_index == numMBs + numAttractRegions + numAvoidRegions
-      + numNonCommitRegions + numPaths)
+  }
+  indx -= m_robots.size();
+  if(indx < m_obstacles.size()) {
+    m_obstacles[indx]->Select(_index+1, _sel);
+    return;
+  }
+  indx -= m_obstacles.size();
+  if(indx < m_surfaces.size()) {
+    m_surfaces[indx]->Select(_index+1, _sel);
+    return;
+  }
+  indx -= m_surfaces.size();
+  if(indx < m_attractRegions.size()) {
+    m_attractRegions[indx]->Select(_index+1, _sel);
+    return;
+  }
+  indx -= m_attractRegions.size();
+  if(indx < m_avoidRegions.size()) {
+    m_avoidRegions[indx]->Select(_index+1, _sel);
+    return;
+  }
+  indx -= m_avoidRegions.size();
+  if(indx < m_nonCommitRegions.size()) {
+    m_nonCommitRegions[indx]->Select(_index+1, _sel);
+    return;
+  }
+  indx -= m_nonCommitRegions.size();
+  if(indx < m_userPaths.size()) {
+    m_userPaths[indx]->Select(_index+1, _sel);
+    return;
+  }
+  indx -= m_userPaths.size();
+  if(indx == 0)
     m_boundary->Select(_index+1, _sel);
-  else if(*_index < numMBs)
-    m_multibodies[*_index]->Select(_index+1, _sel);
-  else if(*_index < numMBs + numAttractRegions)
-    m_attractRegions[*_index - numMBs]->Select(_index+1, _sel);
-  else if(*_index < numMBs + numAttractRegions + numAvoidRegions)
-    m_avoidRegions[*_index - numMBs - numAttractRegions]->Select(_index+1, _sel);
-  else if(*_index < numMBs + numAttractRegions + numAvoidRegions
-      + numNonCommitRegions)
-    m_nonCommitRegions[*_index - numMBs - numAttractRegions - numAvoidRegions]->
-        Select(_index+1, _sel);
-  else
-    m_userPaths[*_index - numMBs - numAttractRegions - numAvoidRegions
-        - numNonCommitRegions]->Select(_index+1, _sel);
 }
 
 
@@ -293,111 +319,111 @@ EnvModel::
 DrawRender() {
   m_avatar->DrawRender();
 
-  size_t numMBs = m_multibodies.size();
-  size_t numAttractRegions = m_attractRegions.size();
-  size_t numAvoidRegions = m_avoidRegions.size();
-  size_t numNonCommitRegions = m_nonCommitRegions.size();
-  size_t numPaths = m_userPaths.size();
-
   m_boundary->DrawRender();
 
   glLineWidth(1);
-  for(size_t i = 0; i < numMBs; ++i)
-    if(!m_multibodies[i]->IsActive())
-      m_multibodies[i]->DrawRender();
+  for(auto& r : m_robots)
+      r->DrawRender();
+  for(auto& o : m_obstacles)
+      o->DrawRender();
+  for(auto& s : m_surfaces)
+      s->DrawRender();
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
-  for(size_t i = 0; i < numAttractRegions; ++i)
-    m_attractRegions[i]->DrawRender();
-  for(size_t i = 0; i < numAvoidRegions; ++i)
-    m_avoidRegions[i]->DrawRender();
-  for(size_t i = 0; i < numNonCommitRegions; ++i)
-    m_nonCommitRegions[i]->DrawRender();
-  for(size_t i = 0; i < numPaths; ++i)
-    m_userPaths[i]->DrawRender();
+  for(auto& r : m_attractRegions)
+    r->DrawRender();
+  for(auto& r : m_avoidRegions)
+    r->DrawRender();
+  for(auto& r : m_nonCommitRegions)
+    r->DrawRender();
+  for(auto& p : m_userPaths)
+    p->DrawRender();
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
 
-  for(vector<TempObjsModel*>::iterator tit = m_tempObjs.begin();
-      tit != m_tempObjs.end(); ++tit) {
-    (*tit)->DrawRender();
-  }
+  for(auto& t : m_tempObjs)
+    t->DrawRender();
 }
 
 
 void
 EnvModel::
 DrawSelect() {
-  size_t numMBs = m_multibodies.size();
-  size_t numAttractRegions = m_attractRegions.size();
-  size_t numAvoidRegions = m_avoidRegions.size();
-  size_t numNonCommitRegions = m_nonCommitRegions.size();
-  size_t numPaths = m_userPaths.size();
-
-  glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions
-      + numPaths);
-  m_boundary->DrawSelect();
-  glPopName();
+  size_t nameIndx = 0;
 
   glLineWidth(1);
-  for(size_t i = 0; i < numMBs; ++i){
-    if(!m_multibodies[i]->IsActive()){
-      glPushName(i);
-      m_multibodies[i]->DrawSelect();
-      glPopName();
-    }
+  for(auto& r : m_robots) {
+    glPushName(nameIndx++);
+    r->DrawSelect();
+    glPopName();
+  }
+  for(auto& o : m_obstacles) {
+    glPushName(nameIndx++);
+    o->DrawSelect();
+    glPopName();
+  }
+  for(auto& s : m_surfaces) {
+    glPushName(nameIndx++);
+    s->DrawSelect();
+    glPopName();
   }
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
-  for(size_t i = 0; i < numAttractRegions; ++i) {
-    glPushName(numMBs + i);
-    m_attractRegions[i]->DrawSelect();
+  for(auto& r : m_attractRegions) {
+    glPushName(nameIndx++);
+    r->DrawSelect();
     glPopName();
   }
-  for(size_t i = 0; i < numAvoidRegions; ++i) {
-    glPushName(numMBs + numAttractRegions + i);
-    m_avoidRegions[i]->DrawSelect();
+  for(auto& r : m_avoidRegions) {
+    glPushName(nameIndx++);
+    r->DrawSelect();
     glPopName();
   }
-  for(size_t i = 0; i < numNonCommitRegions; ++i) {
-    glPushName(numMBs + numAttractRegions + numAvoidRegions + i);
-    m_nonCommitRegions[i]->DrawSelect();
+  for(auto& r : m_nonCommitRegions) {
+    glPushName(nameIndx++);
+    r->DrawSelect();
     glPopName();
   }
-  for(size_t i = 0; i < numPaths; ++i) {
-    glPushName(numMBs + numAttractRegions + numAvoidRegions + numNonCommitRegions
-        + i);
-    m_userPaths[i]->DrawSelect();
+  for(auto& p : m_userPaths) {
+    glPushName(nameIndx++);
+    p->DrawSelect();
     glPopName();
   }
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
 
-  for(vector<TempObjsModel*>::iterator tit = m_tempObjs.begin();
-      tit != m_tempObjs.end(); ++tit) {
-    (*tit)->DrawSelect();
-  }
+  glPushName(nameIndx);
+  m_boundary->DrawSelect();
+  glPopName();
 }
 
 
 void
 EnvModel::
 Print(ostream& _os) const {
-  _os << Name() << ": " << GetFilename() << endl
-      << m_multibodies.size() << " multibodies" << endl;
+  _os << Name() << endl
+    << "\t" << m_environment->GetEnvFileName() << endl
+    << "\t" << m_robots.size() << " robots" << endl;
+  if(!m_obstacles.empty())
+    _os << "\t" << m_obstacles.size() << " obstacles" << endl;
+  if(!m_surfaces.empty())
+    _os << "\t" << m_surfaces.size() << " surfaces" << endl;
 }
 
 
 void
 EnvModel::
 ChangeColor() {
-  int numMBs = m_multibodies.size();
-  for(int i = 0; i < numMBs; i++)
-    m_multibodies[i]->SetColor(Color4(drand48(), drand48(), drand48(), 1));
+  for(const auto& r : m_robots)
+    r->SetColor(Color4(DRand(), DRand(), DRand(), 1));
+  for(const auto& o : m_obstacles)
+    o->SetColor(Color4(DRand(), DRand(), DRand(), 1));
+  for(const auto& s : m_surfaces)
+    s->SetColor(Color4(DRand(), DRand(), DRand(), 1));
 }
 
 
@@ -405,9 +431,12 @@ void
 EnvModel::
 SetSelectable(bool _s) {
   m_selectable = _s;
-  typedef vector<MultiBodyModel*>::iterator MIT;
-  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
-    (*i)->SetSelectable(_s);
+  for(const auto& r : m_robots)
+    r->SetSelectable(_s);
+  for(const auto& o : m_obstacles)
+    o->SetSelectable(_s);
+  for(const auto& s : m_surfaces)
+    s->SetSelectable(_s);
   m_boundary->SetSelectable(_s);
 }
 
@@ -415,25 +444,26 @@ SetSelectable(bool _s) {
 void
 EnvModel::
 GetChildren(list<Model*>& _models) {
-  typedef vector<MultiBodyModel*>::iterator MIT;
-  for(MIT i = m_multibodies.begin(); i != m_multibodies.end(); ++i)
-    if(!(*i)->IsActive())
-      _models.push_back(*i);
-  typedef vector<RegionModelPtr>::iterator RIT;
-  for(RIT i = m_attractRegions.begin(); i != m_attractRegions.end(); ++i)
-    _models.push_back(i->get());
-  for(RIT i = m_avoidRegions.begin(); i != m_avoidRegions.end(); ++i)
-    _models.push_back(i->get());
-  for(RIT i = m_nonCommitRegions.begin(); i != m_nonCommitRegions.end(); ++i)
-    _models.push_back(i->get());
+  for(const auto& r : m_robots)
+    _models.push_back(r.get());
+  for(const auto& o : m_obstacles)
+    _models.push_back(o.get());
+  for(const auto& s : m_surfaces)
+    _models.push_back(s.get());
+  for(const auto& r : m_attractRegions)
+    _models.push_back(r.get());
+  for(const auto& r : m_avoidRegions)
+    _models.push_back(r.get());
+  for(const auto& r : m_nonCommitRegions)
+    _models.push_back(r.get());
   typedef vector<UserPathModel*>::iterator PIT;
-  for(PIT i = m_userPaths.begin(); i != m_userPaths.end(); ++i)
-    _models.push_back(*i);
-  _models.push_back(m_boundary);
+  for(const auto& p : m_userPaths)
+    _models.push_back(p);
+  _models.push_back(m_boundary.get());
 }
 
 
-void
+/*void
 EnvModel::
 DeleteMBModel(MultiBodyModel* _mbl) {
   vector<MultiBodyModel*>::iterator mbit;
@@ -451,134 +481,11 @@ EnvModel::
 AddMBModel(MultiBodyModel* _m) {
   _m->Build();
   m_multibodies.push_back(_m);
-}
+}*/
 
-
-bool
+void
 EnvModel::
-SaveFile(const char* _filename) {
-  /// \warning This function is still experimental and has not yet been validated.
-  ofstream envFile(_filename);
-  if(!envFile.is_open()){
-    cout << "Couldn't open the file" << endl;
-    return false;
-  }
-  envFile << "Boundary " << *m_boundary;
-  envFile << "\n\n";
-  int numMBs = m_multibodies.size();
-  envFile << "Multibodies\n" << numMBs << "\n\n";
-  vector<MultiBodyModel*> saveMB = GetMultiBodies();
-  reverse(saveMB.begin(), saveMB.end());
-  while(!saveMB.empty()){
-    if(saveMB.back()->IsActive())
-      envFile << "Active\n";
-    else if(saveMB.back()->IsSurface())
-      envFile << "Surface\n";
-    else
-      envFile << "Passive\n";
-    int nB = saveMB.back()->GetNbBodies();
-    if(nB!= 0){
-      if(saveMB.back()->IsActive())
-        envFile << nB << endl;
-      vector<BodyModel*> bodies = saveMB.back()->GetBodies();
-      reverse(bodies.begin(),bodies.end());
-      envFile << "#VIZMO_COLOR" << " " << bodies.back()->GetColor()[0]
-              << " " << bodies.back()->GetColor()[1]
-              << " " << bodies.back()->GetColor()[2] << endl;
-      if(saveMB.back()->IsActive()){
-        int nbJoints = 0;
-        vector<ConnectionModel*> joints = saveMB.back()->GetJoints();
-        reverse(joints.begin(),joints.end());
-        while(!bodies.empty()){
-          envFile << bodies.back()->GetFilename() << " ";
-          if(bodies.back()->IsBaseVolumetric() || bodies.back()->IsBasePlanar()) {
-            string baseMovement = "Translational";
-            if (bodies.back()->IsBaseRotational())
-              baseMovement = "Rotational";
-            if(bodies.back()->IsBaseVolumetric())
-              envFile << "Volumetric " << baseMovement << endl;
-            else
-              envFile << "Planar " << baseMovement << endl;
-          }
-          else if(bodies.back()->IsBaseFixed()){
-            envFile << "Fixed ";
-            ostringstream transform;
-            transform << bodies.back()->GetTransform();
-            envFile << SetTransformRight(transform.str()) << endl;
-          }
-          else{
-            envFile << "Joint" << endl;
-            nbJoints++;
-          }
-          bodies.pop_back();
-        }
-        envFile << "Connections" << endl << nbJoints << endl;
-        if(nbJoints!=0){
-          while(!joints.empty()){
-            pair<double, double> jointLimits[2] = joints.back()->GetJointLimits();
-            ostringstream limits;
-            string jointType = "NonActuated ";
-            if(joints.back()->IsSpherical()){
-              jointType = "Spherical ";
-              limits << jointLimits[0].first << ":" << jointLimits[0].second
-                     << " " << jointLimits[1].first << ":"
-                     << jointLimits[1].second;
-            }
-            else if(joints.back()->IsRevolute()){
-              jointType = "Revolute ";
-              limits << jointLimits[0].first << ":" << jointLimits[0].second
-                     << " ";
-            }
-            envFile << joints.back()->GetPreviousIndex() << " "
-                    << joints.back()->GetNextIndex() << "  "
-                    << jointType << limits.str() << endl;
-            ostringstream transform;
-            transform << joints.back()->TransformToDHFrame();
-            envFile << SetTransformRight(transform.str()) << "   ";
-            envFile << joints.back()->GetAlpha() << " "
-                    << joints.back()->GetA() << " " << joints.back()->GetD()
-                    << " " << joints.back()->GetTheta() << "   ";
-            ostringstream transform2;
-            transform2 << joints.back()->TransformToBody2();
-            envFile << SetTransformRight(transform2.str()) << endl;
-            joints.pop_back();
-          }
-        }
-      }
-      else{
-        envFile << bodies.back()->GetFilename() << "  ";
-        ostringstream transform;
-        transform << bodies.back()->GetTransform();
-        envFile << SetTransformRight(transform.str()) << endl;
-      }
-    }
-    envFile << endl;
-    saveMB.pop_back();
-  }
-  envFile.close();
-  return true;
-}
-
-
-string
-EnvModel::
-SetTransformRight(string _transformString) {
-  /// \todo This function appears to take a string of 6 numerals and swaps the
-  ///       4th and 6th elements. It's not clear why this is needed instead of
-  ///       just making the strings correctly in the first place. I think this
-  ///       can be improved/removed with a little extra thought.
-  stringstream transform;
-  istringstream splitTransform(_transformString);
-  string splittedTransform[6] = {"","","","","",""};
-  int j = 0;
-  do {
-    splitTransform >> splittedTransform[j];
-    j++;
-  } while(splitTransform);
-  string temp = splittedTransform[3];
-  splittedTransform[3] = splittedTransform[5];
-  splittedTransform[5] = temp;
-  for(int i = 0; i < 6; ++i)
-    transform << splittedTransform[i] << " ";
-  return transform.str();
+SaveFile(const string& _filename) const {
+  ofstream ofs(_filename);
+  m_environment->Write(ofs);
 }

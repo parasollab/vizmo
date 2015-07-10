@@ -11,7 +11,6 @@
 
 #include "Models/DebugModel.h"
 #include "Models/QueryModel.h"
-#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/AddEdge.xpm"

@@ -1,8 +1,12 @@
 #ifndef BOUNDARY_MODEL_H_
 #define BOUNDARY_MODEL_H_
 
-#include "Model.h"
+#include <memory>
 #include <string>
+
+#include "Model.h"
+
+class Boundary;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Provides a base class for drawable environment boundaries.
@@ -12,7 +16,7 @@ class BoundaryModel : public Model {
   public:
 
     // Construction
-    BoundaryModel(const string& _name);
+    BoundaryModel(const string& _name, shared_ptr<Boundary> _b);
     virtual ~BoundaryModel();
 
     // Model functions
@@ -26,25 +30,17 @@ class BoundaryModel : public Model {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get minimums and maximums for this environment in X, Y, Z.
     virtual vector<pair<double, double> > GetRanges() = 0;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Get maximum distance length for boundary
+    virtual double GetMaxDist() = 0;
+
     const Point3d& GetCenter() const {return m_center;} ///< Get the center point.
 
-    // IO functions
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Parse an input file opened in the input file stream.
-    /// \param[in] _is The input file stream.
-    virtual bool Parse(istream& _is) = 0;
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Output helper for printing boundary information to out streams.
-    friend ostream& operator<<(ostream& _os, const BoundaryModel& _b) {
-      _b.Write(_os);
-      return _os;
-    }
+    shared_ptr<Boundary>& GetBoundary() {return m_boundary;}
 
   protected:
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Print boundary information.
-    virtual void Write(ostream& _os) const = 0;
+    shared_ptr<Boundary> m_boundary;
 
     size_t m_displayID; ///< This model's ID in the rendering call list.
     size_t m_linesID;   ///< This model's ID in the selection call list.

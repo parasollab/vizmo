@@ -119,7 +119,7 @@ MouseMotion(QMouseEvent* _e) {
       // If camera is not free-floating, use old azimuthal controls.
       if(!m_freeFloating) {
         Vector3d temp;
-        const Vector3d& center = GetVizmo().GetEnv()->GetBoundary()->GetCenter();
+        const Vector3d& center = GetVizmo().GetEnv()->GetCenter();
         //rotate about y-axis by phi and
         double xRot = degToRad( dy * rotSpeed);
         if(abs(xRot) > .001) {

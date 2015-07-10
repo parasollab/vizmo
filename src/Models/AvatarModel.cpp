@@ -1,6 +1,7 @@
 #include "AvatarModel.h"
 
-#include "Models/RobotModel.h"
+#include "Models/ActiveMultiBodyModel.h"
+#include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
 #include "GUI/GLWidget.h"
@@ -23,7 +24,7 @@ void
 AvatarModel::
 DrawRender() {
   if(m_tracking) {
-    RobotModel* robot = GetVizmo().GetRobot();
+    shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
     robot->BackUp();
 
     if(this->m_isValid) {
@@ -69,7 +70,7 @@ void
 AvatarModel::
 UpdatePosition(Point3d _p) {
   vector<double> data = this->GetDataCfg();
-  if(GetVizmo().GetRobot()->IsPlanar())
+  if(GetVizmo().GetEnv()->IsPlanar())
     copy(_p.begin(), _p.end() - 1, data.begin());
   else
     copy(_p.begin(), _p.end(), data.begin());
