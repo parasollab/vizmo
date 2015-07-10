@@ -162,7 +162,6 @@ Initialize() {
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
-  GetVizmo().GetRobot()->SetSelectable(false);
 }
 
 
@@ -258,7 +257,6 @@ Finalize() {
   //Make things selectable again
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
-  GetVizmo().GetRobot()->SetSelectable(true);
 }
 
 
@@ -418,7 +416,7 @@ RecommendRegions(vector<VID>& _vids, size_t _i) {
         //node is not connected to anything
         //recommend a region
         RegionModelPtr r;
-        if(GetVizmo().GetRobot()->IsPlanar())
+        if(GetVizmo().GetEnv()->IsPlanar())
           r = RegionModelPtr(new RegionSphere2DModel(g->GetVertex(*vit).GetPoint(),
               this->GetEnvironment()->GetPositionRes() * 100, false));
         else

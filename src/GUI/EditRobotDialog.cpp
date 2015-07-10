@@ -6,7 +6,6 @@
 #include "GLWidget.h"
 #include "ModelSelectionWidget.h"
 #include "Models/BodyModel.h"
-#include "Models/ConnectionModel.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
@@ -17,13 +16,13 @@
 
 EditRobotDialog::
 EditRobotDialog(MainWindow* _mainWindow) : QDialog(_mainWindow) {
-  vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
+  /*vector<MultiBodyModel*> mBody = GetVizmo().GetEnv()->GetMultiBodies();
   typedef vector<MultiBodyModel*>::const_iterator MIT;
   for(MIT mit = mBody.begin(); mit < mBody.end(); mit++)
     if((*mit)->IsActive())
       m_robotBody = *mit;
-
-  m_newRobotModel = m_robotBody->GetRobots();
+  */
+  //m_newRobotModel = m_robotBody->GetRobots();
   m_jointIsInit = false;
   m_baseIsInit = false;
   m_mainWindow = _mainWindow;
@@ -355,7 +354,7 @@ Accept() {
 void
 EditRobotDialog::
 ShowJoint() {
-  if(m_baseList->currentItem()) {
+  /*if(m_baseList->currentItem()) {
     m_jointIsInit = false;
     DisplayHideBaseAttributes(false);
 
@@ -421,13 +420,13 @@ ShowJoint() {
     m_jointThetaLine->setText(QString::number(conn->GetTheta()));
 
     DisplayHideJointAttributes(true);
-  }
+  }*/
 }
 
 void
 EditRobotDialog::
 ShowBase() {
-  if(m_baseList->currentItem()) {
+  /*if(m_baseList->currentItem()) {
     m_baseIsInit = false;
     DisplayHideJointAttributes(false);
 
@@ -469,13 +468,13 @@ ShowBase() {
     }
 
     DisplayHideBaseAttributes(true);
-  }
+  }*/
 }
 
 void
 EditRobotDialog::
 SaveBase() {
-  if(m_baseList->currentItem()) {
+  /*if(m_baseList->currentItem()) {
     int index = m_baseList->row(m_baseList->currentItem());
     ostringstream properties;
     BodyModel* body = m_newRobotModel[index].first;
@@ -514,7 +513,7 @@ SaveBase() {
   else{
     GetMainWindow()->AlertUser("No base selected");
     return;
-  }
+  }*/
 }
 
 void
@@ -534,7 +533,7 @@ UpdateJoint(bool _clicked) {
 void
 EditRobotDialog::
 SaveJoint() {
-  int indexBase = m_baseList->row(m_baseList->currentItem());
+  /*int indexBase = m_baseList->row(m_baseList->currentItem());
   int indexJoint = m_jointList->row(m_jointList->currentItem());
   int previousBodyIndex = m_newRobotModel[indexBase].second[indexJoint]->
       GetPreviousIndex();
@@ -592,7 +591,7 @@ SaveJoint() {
   else
     properties >> *m_newRobotModel[indexBase].second[indexJoint];
 
-  RefreshVizmo();
+  RefreshVizmo();*/
 }
 
 void
@@ -655,7 +654,7 @@ BaseRotationalChecked() {
 void
 EditRobotDialog::
 AddBase() {
-  //get a base filename to load
+  /*//get a base filename to load
   QString fn = QFileDialog::getOpenFileName(this, "Choose a base to load",
       m_mainWindow->GetLastDir(), "Files (*.g *.obj)");
 
@@ -686,13 +685,13 @@ AddBase() {
     m_baseList->clear();
     DisplayBases();
     RefreshVizmo();
-  }
+  }*/
 }
 
 void
 EditRobotDialog::
 AddJoint() {
-  if(m_baseList->currentItem()) {
+  /*if(m_baseList->currentItem()) {
     QString fn = QFileDialog::getOpenFileName(this, "Choose a joint to load",
         m_mainWindow->GetLastDir(), "Files (*.g *.obj)");
 
@@ -746,13 +745,13 @@ AddJoint() {
     }
   }
   else
-    GetMainWindow()->AlertUser("No base selected");
+    GetMainWindow()->AlertUser("No base selected");*/
 }
 
 void
 EditRobotDialog::
 DeleteJoint() {
-  if(m_jointList->currentItem()) {
+  /*if(m_jointList->currentItem()) {
     int indexBase = m_baseList->row(m_baseList->currentItem());
     int indexJoint = m_jointList->row(m_jointList->currentItem());
     int bodyNumber = m_bodyNumberLine->text().toInt();
@@ -789,13 +788,13 @@ DeleteJoint() {
     RefreshVizmo();
   }
   else
-    GetMainWindow()->AlertUser("No joint selected");
+    GetMainWindow()->AlertUser("No joint selected");*/
 }
 
 void
 EditRobotDialog::
 DeleteBase() {
-  if(m_baseList->currentItem()) {
+  /*if(m_baseList->currentItem()) {
     int index = m_baseList->row(m_baseList->currentItem());
     size_t bodyCount = 0;
     typedef Joints::const_iterator MIT;
@@ -823,47 +822,47 @@ DeleteBase() {
     RefreshVizmo();
   }
   else
-    GetMainWindow()->AlertUser("No Base selected");
+    GetMainWindow()->AlertUser("No Base selected");*/
 }
 
 void
 EditRobotDialog::
 CreateNewRobot() {
-  AddBase();
+  /*AddBase();
   DeleteAllExceptLastBase();
   m_jointList->clear();
   m_baseList->clear();
   DisplayHideJointAttributes(false);
   DisplayHideBaseAttributes(false);
   m_newRobotModel = m_robotBody->GetRobots();
-  DisplayBases();
+  DisplayBases();*/
 }
 
 void
 EditRobotDialog::
 DisplayBases() {
-  typedef MultiBodyModel::Robots::const_iterator RIT;
+  /*typedef MultiBodyModel::Robots::const_iterator RIT;
   for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end(); ++rit)
-    m_baseList->addItem(rit->first->GetFilename().c_str());
+    m_baseList->addItem(rit->first->GetFilename().c_str());*/
 }
 
 void
 EditRobotDialog::
 DeleteAllExceptLastBase() {
-  typedef Joints::const_iterator MIT;
+  /*typedef Joints::const_iterator MIT;
   typedef MultiBodyModel::Robots::const_iterator RIT;
   for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end()-1; ++rit) {
     for(size_t i = 0; i < rit->second.size(); ++i)
       m_robotBody->DeleteBody(0);
     m_robotBody->DeleteRobot(0);
   }
-  m_robotBody->DeleteJoints();
+  m_robotBody->DeleteJoints();*/
 }
 
 void
 EditRobotDialog::
 SaveJointsNames() {
-  typedef Joints::const_iterator JIT;
+  /*typedef Joints::const_iterator JIT;
   size_t bodyCount = 0;
   typedef MultiBodyModel::Robots::const_iterator RIT;
   vector<BodyModel*>& bodies = m_robotBody->GetBodies();
@@ -874,13 +873,13 @@ SaveJointsNames() {
       m_oldJointsDirectories.push_back(bodies[bodyCount]->GetDirectory());
     }
     bodyCount++;
-  }
+  }*/
 }
 
 void
 EditRobotDialog::
 ChangeDOF() {
-  size_t dof = 0;
+  /*size_t dof = 0;
   typedef Joints::const_iterator JIT;
   typedef MultiBodyModel::Robots::const_iterator RIT;
   for(RIT rit = m_newRobotModel.begin(); rit != m_newRobotModel.end(); rit++) {
@@ -901,14 +900,14 @@ ChangeDOF() {
         dof += 2;
     }
   }
-  m_robotBody->ChangeDOF(dof);
+  m_robotBody->ChangeDOF(dof);*/
 }
 
 void
 EditRobotDialog::
 RefreshVizmo() {
   ChangeDOF();
-  GetVizmo().PlaceRobot();
+  GetVizmo().PlaceRobots();
   m_mainWindow->GetGLWidget()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }

@@ -1,11 +1,11 @@
 OBJECTS += \
+	   Models/ActiveMultiBodyModel.o \
 	   Models/AvatarModel.o \
 	   Models/BodyModel.o \
 	   Models/BoundingBoxModel.o \
 	   Models/BoundaryModel.o \
 	   Models/BoundingSphereModel.o \
 	   Models/CfgModel.o \
-	   Models/ConnectionModel.o \
 	   Models/CrosshairModel.o \
 	   Models/DebugModel.o \
 	   Models/EdgeModel.o \
@@ -18,7 +18,8 @@ OBJECTS += \
 	   Models/RegionBox2DModel.o \
 	   Models/RegionSphereModel.o \
 	   Models/RegionSphere2DModel.o \
-	   Models/RobotModel.o \
+	   Models/StaticMultiBodyModel.o \
+	   Models/SurfaceMultiBodyModel.o \
 	   Models/TempObjsModel.o \
 	   Models/UserPathModel.o \
 	   Models/Vizmo.o

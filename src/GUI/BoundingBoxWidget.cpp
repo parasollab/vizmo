@@ -62,9 +62,6 @@ Toggle2D(){
 void
 BoundingBoxWidget::
 SetBoundary() {
-  EnvModel* env = GetVizmo().GetEnv();
-  delete env->GetBoundary();
-
   double maxd = numeric_limits<double>::max();
   vector<pair<double, double> > ranges(3, make_pair(-maxd, maxd));
   ranges[0].first = m_lineXMin->text().toDouble();
@@ -76,7 +73,8 @@ SetBoundary() {
       ranges[2].second = m_lineZMax->text().toDouble();
   }
 
-  env->SetBoundary(new BoundingBoxModel(ranges[0], ranges[1], ranges[2]));
+  GetVizmo().GetEnv()->SetBoundary(shared_ptr<BoundingBoxModel>(
+        new BoundingBoxModel(ranges[0], ranges[1], ranges[2])));
 }
 
 
@@ -85,7 +83,8 @@ BoundingBoxWidget::
 ShowCurrentValues() {
   const string& name = GetVizmo().GetEnv()->GetBoundary()->Name();
   if(name == "Bounding Box") {
-    BoundingBoxModel* bbx = (BoundingBoxModel*)GetVizmo().GetEnv()->GetBoundary();
+    shared_ptr<BoundingBoxModel> bbx = static_pointer_cast<BoundingBoxModel>(
+        GetVizmo().GetEnv()->GetBoundary());
     vector<pair<double, double> > ranges = bbx->GetRanges();
 
     m_lineXMin->setText(QString::number(ranges[0].first));

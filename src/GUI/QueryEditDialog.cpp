@@ -105,7 +105,7 @@ void
 QueryEditDialog::
 EditQuery() {
   if(m_listWidget->currentItem()!=NULL){
-    size_t numQuery=m_listWidget->row(m_listWidget->currentItem());
+    size_t numQuery = m_listWidget->row(m_listWidget->currentItem());
     CfgModel& qryCfg = m_queryModel->GetQueryCfg(numQuery);
     NodeEditDialog* ned = new NodeEditDialog(m_mainWindow, qryCfg.Name(), &qryCfg);
     m_mainWindow->ShowDialog(ned);
@@ -139,7 +139,7 @@ void
 QueryEditDialog::
 RefreshEnv() {
   m_queryModel->Build();
-  GetVizmo().PlaceRobot();
+  GetVizmo().PlaceRobots();
   m_mainWindow->GetGLWidget()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }

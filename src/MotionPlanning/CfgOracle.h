@@ -56,14 +56,10 @@ void
 CfgOracle<MPTraits>::
 Initialize() {
   cout << "Initializing " << this->GetNameAndLabel() << "." << endl;
-  
-  //if(GetVizmo().IsQueryLoaded()) { 
-  
+
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
-  GetVizmo().GetRobot()->SetSelectable(false);
-  //}
 }
 
 
@@ -75,10 +71,10 @@ Run() {
 
   GetVizmo().StartClock("CfgOracle");
   this->GetStatClass()->StartClock("CfgOracleMP");
-  
+
   cout<< "Running CfgOracle."<< endl;
-    
-  GetVizmo().GetMap()->RefreshMap(); 
+
+  GetVizmo().GetMap()->RefreshMap();
   //stop clock
   GetVizmo().StopClock("CfgOracle");
   this->GetStatClass()->StopClock("CfgOracleMP");
@@ -128,7 +124,6 @@ Finalize() {
   //Make things selectable again
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
-  GetVizmo().GetRobot()->SetSelectable(true);
 }
 
 #endif

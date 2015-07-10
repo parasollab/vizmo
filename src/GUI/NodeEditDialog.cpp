@@ -6,12 +6,13 @@
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 
+#include "Models/ActiveMultiBodyModel.h"
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
 #include "Models/CfgModel.h"
+#include "Models/EnvModel.h"
 #include "Models/MultiBodyModel.h"
 #include "Models/QueryModel.h"
-#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 
@@ -243,7 +244,8 @@ Init() {
 void
 NodeEditDialog::
 SetUpSliders(vector<NodeEditSlider*>& _sliders) {
-  vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
+  const vector<ActiveMultiBody::DOFInfo>& dofInfo =
+    GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->GetDOFInfo();
   QSignalMapper* sliderMapper = new QSignalMapper(this);
   connect(sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
 
@@ -290,7 +292,7 @@ UpdateDOF(int _id) {
 
   if(m_tempNode->IsQuery()) {
     GetVizmo().GetQry()->Build();
-    GetVizmo().PlaceRobot();
+    GetVizmo().PlaceRobots();
   }
   GetMainWindow()->GetGLWidget()->updateGL();
 }
@@ -299,16 +301,9 @@ UpdateDOF(int _id) {
 void
 NodeEditDialog::
 ValidityCheck() {
-  vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
-  bool collFound = false; //new or existing
-  for(size_t i = 0; i < dofInfo.size(); i++) {
-    if(((*m_tempNode)[i] <= dofInfo[i].m_minVal) ||
-        ((*m_tempNode)[i] >= dofInfo[i].m_maxVal)) {
-      m_tempNode->SetValidity(false);
-      collFound = true;
-    }
-  }
-  if(collFound == false) {
+  bool valid = GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->
+    InCSpace(m_tempNode->GetData());
+  if(valid) {
     m_tempNode->SetValidity(true);
     GetVizmo().CollisionCheck(*m_tempNode);
   }
@@ -396,7 +391,7 @@ FinalizeNodeEdit(int _accepted) {
 
     if(GetVizmo().GetQry()) {
       GetVizmo().GetQry()->Build();
-      GetVizmo().PlaceRobot();
+      GetVizmo().PlaceRobots();
     }
   }
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();

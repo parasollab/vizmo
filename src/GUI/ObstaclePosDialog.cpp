@@ -3,6 +3,8 @@
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "Transformation.h"
+#include "Models/BoundaryModel.h"
+#include "Models/MultiBodyModel.h"
 #include "Models/PolyhedronModel.h"
 #include "Models/Vizmo.h"
 #include "Models/EnvModel.h"
@@ -94,7 +96,7 @@ SetSlidersInit() {
       m_sliders[i]->setMaximum(180*100);
     }
 
-    const Transformation& t = (*m_multiBody[0]->Begin())->GetTransform();
+    const Transformation& t = (*m_multiBody[0]->begin())->GetTransform();
     const Vector3d& v = t.translation();
     EulerAngle e;
     convertFromMatrix(e, t.rotation().matrix());
@@ -115,7 +117,7 @@ SetSlidersInit() {
     //compute center
     typedef vector<MultiBodyModel*>::iterator MIT;
     for(MIT mit = m_multiBody.begin(); mit != m_multiBody.end(); mit++)
-      m_center += (*(*mit)->Begin())->GetTransform().translation();
+      m_center += (*(*mit)->begin())->GetTransform().translation();
     m_center /= m_multiBody.size();
 
     //set slider values
@@ -163,7 +165,7 @@ RefreshPosition() {
     double b = degToRad(m_posLines[4]->text().toDouble());
     double g = degToRad(m_posLines[5]->text().toDouble());
     Transformation t(Vector3d(x, y, z), Orientation(EulerAngle(a, b, g)));
-    (*m_multiBody[0]->Begin())->SetTransform(t);
+    (*m_multiBody[0]->begin())->SetTransform(t);
   }
   else {
     //compute difference from center
@@ -177,9 +179,9 @@ RefreshPosition() {
     //update transforms
     typedef vector<MultiBodyModel*>::iterator MIT;
     for(MIT mit = m_multiBody.begin(); mit != m_multiBody.end(); ++mit) {
-      Transformation t = (*(*mit)->Begin())->GetTransform();
+      Transformation t = (*(*mit)->begin())->GetTransform();
       t.translation() += diff;
-      (*(*mit)->Begin())->SetTransform(t);
+      (*(*mit)->begin())->SetTransform(t);
     }
   }
   m_mainWindow->GetGLWidget()->updateGL();
