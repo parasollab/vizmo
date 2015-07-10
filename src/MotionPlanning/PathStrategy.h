@@ -165,7 +165,6 @@ Initialize() {
   //Make non-user objects non-selectable while PathStrategy is running
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
-  GetVizmo().GetRobot()->SetSelectable(false);
 
   //start clocks
   GetVizmo().StartClock("PathStrategy");
@@ -265,7 +264,6 @@ Finalize() {
   //Make things selectable again
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
-  GetVizmo().GetRobot()->SetSelectable(true);
 }
 
 

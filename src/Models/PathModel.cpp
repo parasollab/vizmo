@@ -1,6 +1,5 @@
 #include "PathModel.h"
 
-#include "RobotModel.h"
 #include "Vizmo.h"
 #include "Utilities/IO.h"
 #include "Utilities/IOUtils.h"

@@ -1,15 +1,11 @@
 #include "CfgModel.h"
 
-#include "RobotModel.h"
+#include "ActiveMultiBodyModel.h"
+#include "EnvModel.h"
 #include "Vizmo.h"
 
-double CfgModel::m_defaultDOF = 0;
 CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
-bool CfgModel::m_isPlanarRobot = false;
-bool CfgModel::m_isVolumetricRobot = false;
-bool CfgModel::m_isRotationalRobot = false;
-
 
 CfgModel::
 CfgModel() : Model(""), Cfg() {
@@ -19,7 +15,6 @@ CfgModel() : Model(""), Cfg() {
   m_isQuery = false;
 }
 
-
 CfgModel::
 CfgModel(const Cfg& _c) : Model(""), Cfg(_c) {
   m_index = -1;
@@ -27,7 +22,6 @@ CfgModel(const Cfg& _c) : Model(""), Cfg(_c) {
   m_cc = NULL;
   m_isQuery = false;
 }
-
 
 void
 CfgModel::
@@ -37,13 +31,18 @@ SetName() {
   m_name = temp.str();
 }
 
-
 void
 CfgModel::
 SetCfg(const vector<double>& _newCfg) {
   m_v.assign(_newCfg.begin(), _newCfg.end());
 }
 
+Point3d
+CfgModel::
+GetPoint() const {
+  shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+  return Point3d(m_v[0], m_v[1], robot->IsPlanar() ? 0 : m_v[2]);
+}
 
 void
 CfgModel::
@@ -52,13 +51,11 @@ Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc) {
   SetCCModel(_cc);
 }
 
-
 void
 CfgModel::
 Scale(float _scale) {
   m_pointScale = _scale*10;
 }
-
 
 void
 CfgModel::
@@ -66,27 +63,24 @@ DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
-  RobotModel* robot = GetVizmo().GetRobot();
-  if(m_isValid) {
-    glColor4fv(m_color);
-    robot->SetColor(m_color);
-  }
-  else {
-    Color4 ic(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0);
-    glColor4fv(ic);
-    robot->SetColor(ic); //Invert colors. Black case?
-  }
+  Color4 c = m_isValid ? m_color :
+    Color4(1 - m_color[0], 1 - m_color[1], 1 - m_color[2], 1);
 
   switch(m_shape) {
     case Robot:
-      robot->BackUp();
-      robot->SetRenderMode(m_renderMode);
-      robot->Configure(m_v);
-      robot->DrawRender();
-      robot->Restore();
-      break;
+      {
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+        robot->SetColor(c);
+        robot->BackUp();
+        robot->SetRenderMode(m_renderMode);
+        robot->Configure(m_v);
+        robot->DrawRender();
+        robot->Restore();
+        break;
+      }
 
     case Point:
+      glColor4fv(c);
       glBegin(GL_POINTS);
       glVertex3dv(GetPoint());
       glEnd();
@@ -104,7 +98,7 @@ DrawSelect() {
   switch(m_shape) {
     case Robot:
       {
-        RobotModel* robot = GetVizmo().GetRobot();
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->BackUp();
         robot->SetRenderMode(m_renderMode);
         robot->Configure(m_v);
@@ -129,7 +123,7 @@ DrawSelected() {
   switch(m_shape) {
     case Robot:
       {
-        RobotModel* robot = GetVizmo().GetRobot();
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->BackUp();
         robot->SetRenderMode(WIRE_MODE);
         robot->Configure(m_v);
@@ -141,10 +135,7 @@ DrawSelected() {
       glPointSize(m_pointScale + 3);
       glDisable(GL_LIGHTING);
       glBegin(GL_POINTS);
-      if(m_isPlanarRobot)
-        glVertex3d(m_v[0], m_v[1], 0);
-      else if(m_isVolumetricRobot)
-        glVertex3d(m_v[0], m_v[1], m_v[2]);
+      glVertex3dv(GetPoint());
       glEnd();
       break;
   }

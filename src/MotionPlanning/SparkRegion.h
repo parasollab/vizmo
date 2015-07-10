@@ -131,7 +131,6 @@ Finalize() {
   //Make things selectable again
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
-  GetVizmo().GetRobot()->SetSelectable(true);
 }
 
 

@@ -11,7 +11,7 @@
 
 #include "Models/EnvModel.h"
 #include "Models/MapModel.h"
-#include "Models/RobotModel.h"
+#include "Models/ActiveMultiBodyModel.h"
 #include "Models/Vizmo.h"
 
 #include "Utilities/Camera.h"
@@ -350,7 +350,7 @@ ShowGeneralContextMenu() {
 void
 GLWidgetOptions::
 MakeSolid() {
-  for(auto i : GetVizmo().GetSelectedModels())
+  for(auto& i : GetVizmo().GetSelectedModels())
     i->SetRenderMode(SOLID_MODE);
 }
 
@@ -358,7 +358,7 @@ MakeSolid() {
 void
 GLWidgetOptions::
 MakeWired() {
-  for(auto i : GetVizmo().GetSelectedModels())
+  for(auto& i : GetVizmo().GetSelectedModels())
     i->SetRenderMode(WIRE_MODE);
 }
 
@@ -366,7 +366,7 @@ MakeWired() {
 void
 GLWidgetOptions::
 MakeInvisible() {
-  for(auto i : GetVizmo().GetSelectedModels())
+  for(auto& i : GetVizmo().GetSelectedModels())
     i->SetRenderMode(INVISIBLE_MODE);
 }
 
@@ -384,25 +384,14 @@ ChangeObjectColor() {
   else
     return;
 
-  vector<Model*>& selectedModels = GetVizmo().GetSelectedModels();
-  for(MIT mit = selectedModels.begin(); mit != selectedModels.end(); ++mit) {
-    Model* model = *mit;
-    if(model->Name() == "Robot") {
-      model->SetColor(Color4(r, g, b, 1));
-      ((RobotModel*)model)->BackUp();
-    }
-    else
-      model->SetColor(Color4(r, g, b, 1));
-  }
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetColor(Color4(r, g, b, 1));
 }
 
 
 void
 GLWidgetOptions::
 ShowObjectNormals() {
-  vector<Model*>& selectedModels = GetVizmo().GetSelectedModels();
-  for(MIT mit = selectedModels.begin(); mit != selectedModels.end(); ++mit) {
-    Model* model = *mit;
-    model->ToggleNormals();
-  }
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->ToggleNormals();
 }

@@ -1,5 +1,6 @@
 #include "CrosshairModel.h"
 
+#include "Models/BoundaryModel.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 

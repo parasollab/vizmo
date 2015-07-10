@@ -8,6 +8,7 @@ using namespace std;
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
 
+//class ActiveMultiBodyModel;
 class Box;
 class DebugModel;
 class EnvModel;
@@ -15,7 +16,6 @@ template<typename, typename> class MapModel;
 class Model;
 class PathModel;
 class QueryModel;
-class RobotModel;
 namespace Haptics {class Manager;}
 class SpaceMouseManager;
 
@@ -57,10 +57,7 @@ class Vizmo {
     EnvModel* GetEnv() const {return m_envModel;}
     const string& GetEnvFileName() const {return m_envFilename;}
     void SetEnvFileName(const string& _name) {m_envFilename = _name;}
-
-    // Robot Related Functions
-    RobotModel* GetRobot() const {return m_robotModel;}
-    void PlaceRobot(); ///< Position the robot in the Environment.
+    void PlaceRobots(); ///< Position the robot in the Environment.
 
     // Input device manager access
     Haptics::Manager* GetPhantomManager() const {return m_phantomManager;}
@@ -166,9 +163,6 @@ class Vizmo {
     //environment
     EnvModel* m_envModel;   ///< The current environment model.
     string m_envFilename;   ///< The current environment filename.
-
-    //robot & avatar
-    RobotModel* m_robotModel;  ///< The current robot model.
 
     //input device managers
     Haptics::Manager* m_phantomManager;     ///< The PHANToM manager.

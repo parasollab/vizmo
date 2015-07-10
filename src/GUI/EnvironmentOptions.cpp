@@ -14,7 +14,6 @@
 #include "Models/RegionBox2DModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
-#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/AddObstacle.xpm"
@@ -202,7 +201,7 @@ void
 EnvironmentOptions::
 AddObstacle() {
   //get the name of an obstacle file
-  QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
+  /*QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
       GetMainWindow()->GetLastDir(), "Files  (*.g *.obj)");
 
   if(!fn.isEmpty()) {
@@ -227,7 +226,7 @@ AddObstacle() {
     GetMainWindow()->ShowDialog(opd);
   }
   else
-    GetMainWindow()->statusBar()->showMessage("Loading aborted");
+    GetMainWindow()->statusBar()->showMessage("Loading aborted");*/
 }
 
 
@@ -238,10 +237,10 @@ DeleteObstacle() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
   //grab the bodies from the selected vector
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toDel.push_back((MultiBodyModel*)*sit);
+  for(auto& s : sel)
+    if(s->Name().find("MultiBody") != string::npos &&
+        s->Name() != "ActiveMultiBody")
+      toDel.push_back((MultiBodyModel*)s);
 
   //alert that only non-active multibodies can be selected
   if(toDel.empty() || toDel.size() != sel.size())
@@ -250,9 +249,9 @@ DeleteObstacle() {
 
   //successful selection, delete obstacle(s)
   else {
-    typedef vector<MultiBodyModel*>::iterator MIT;
+    /*typedef vector<MultiBodyModel*>::iterator MIT;
     for(MIT mit = toDel.begin(); mit != toDel.end(); ++mit)
-      GetVizmo().GetEnv()->DeleteMBModel(*mit);
+      GetVizmo().GetEnv()->DeleteMBModel(*mit);*/
 
     GetVizmo().GetSelectedModels().clear();
     RefreshEnv();
@@ -267,10 +266,10 @@ MoveObstacle() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
   //grab the bodies from the selected vector
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toMove.push_back((MultiBodyModel*)*sit);
+  for(auto& s : sel)
+    if(s->Name().find("MultiBody") != string::npos &&
+        s->Name() != "ActiveMultiBody")
+      toMove.push_back((MultiBodyModel*)s);
 
   //alert that only non-active multibodies can be selected
   if(toMove.empty() || toMove.size() != sel.size())
@@ -290,10 +289,10 @@ EnvironmentOptions::
 DuplicateObstacles() {
   vector<MultiBodyModel*> toCopy;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toCopy.push_back((MultiBodyModel*)(*sit));
+  for(auto& s : sel)
+    if(s->Name().find("MultiBody") != string::npos &&
+        s->Name() != "ActiveMultiBody")
+      toCopy.push_back((MultiBodyModel*)s);
 
   //alert that only non-active multibodies can be selected
   if(toCopy.empty() || toCopy.size() != sel.size())
@@ -303,12 +302,12 @@ DuplicateObstacles() {
   //successful selection, copy and show ObstaclePosDialog
   else {
     vector<MultiBodyModel*> copies;
-    typedef vector<MultiBodyModel*>::iterator MIT;
+    /*typedef vector<MultiBodyModel*>::iterator MIT;
     for(MIT mit = toCopy.begin(); mit != toCopy.end(); ++mit) {
       MultiBodyModel* m = new MultiBodyModel(**mit);
       copies.push_back(m);
       GetVizmo().GetEnv()->AddMBModel(m);
-    }
+    }*/
     sel.clear();
     copy(copies.begin(), copies.end(), back_inserter(sel));
 

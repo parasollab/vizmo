@@ -1,9 +1,12 @@
 #include "BoundaryModel.h"
 
+#include "Environment/Boundary.h"
+
 BoundaryModel::
-BoundaryModel(const string& _name) : Model(_name), m_displayID(-1),
-    m_linesID(-1) {
-}
+BoundaryModel(const string& _name, shared_ptr<Boundary> _b) :
+  Model(_name), m_boundary(_b),
+  m_displayID(-1), m_linesID(-1) {
+  }
 
 
 BoundaryModel::

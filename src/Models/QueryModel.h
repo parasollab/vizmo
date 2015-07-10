@@ -1,10 +1,8 @@
-#ifndef QUERYMODEL_H_
-#define QUERYMODEL_H_
+#ifndef QUERY_MODEL_H_
+#define QUERY_MODEL_H_
 
 #include "Model.h"
 #include "CfgModel.h"
-
-class RobotModel;
 
 class QueryModel : public LoadableModel {
   public:

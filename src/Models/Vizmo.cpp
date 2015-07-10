@@ -10,7 +10,7 @@ using namespace std;
 #include "Model.h"
 #include "PathModel.h"
 #include "QueryModel.h"
-#include "RobotModel.h"
+#include "ActiveMultiBodyModel.h"
 
 #include "GUI/MainWindow.h"
 
@@ -39,7 +39,6 @@ VizmoProblem*& GetVizmoProblem() {return vizmoProblem;}
 Vizmo::
 Vizmo() :
     m_envModel(NULL),
-    m_robotModel(NULL),
     m_phantomManager(NULL),
     m_spaceMouseManager(NULL),
     m_mapModel(NULL),
@@ -69,9 +68,6 @@ InitModels() {
     m_envModel = new EnvModel(m_envFilename);
     m_loadedModels.push_back(m_envModel);
 
-    //create robot
-    m_robotModel = new RobotModel(m_envModel);
-    m_loadedModels.push_back(m_robotModel);
     cout << "Load Environment File : "<< m_envFilename << endl;
 
     //try to initialize PHANToM
@@ -122,7 +118,7 @@ InitModels() {
   }
 
   //Put robot in start cfg, if availiable
-  PlaceRobot();
+  PlaceRobots();
 
   if(m_xmlFilename.empty())
     InitPMPL();
@@ -294,7 +290,6 @@ void
 Vizmo::
 Clean() {
   delete m_envModel;
-  delete m_robotModel;
   delete m_phantomManager;
   delete m_spaceMouseManager;
   delete m_mapModel;
@@ -302,7 +297,6 @@ Clean() {
   delete m_pathModel;
   delete m_debugModel;
   m_envModel = NULL;
-  m_robotModel = NULL;
   m_phantomManager = NULL;
   m_spaceMouseManager = NULL;
   m_mapModel = NULL;
@@ -430,26 +424,15 @@ VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
 
 void
 Vizmo::
-PlaceRobot() {
-  if(m_robotModel){
-    vector<double> cfg;
+PlaceRobots() {
+  if(m_envModel) {
+    vector<CfgModel> cfgs;
     if(m_queryModel)
-      cfg = m_queryModel->GetQueryCfg(0).GetData();
-    //cfg = m_queryModel->GetStartGoal(0);
+      cfgs.emplace_back(m_queryModel->GetQueryCfg(0));
     else if(m_pathModel)
-      cfg = m_pathModel->GetConfiguration(0).GetData();
-    else
-      cfg = vector<double>(CfgModel().DOF());
-    if(m_debugModel || (m_mapModel && !(m_pathModel || m_queryModel)))
-      m_robotModel->SetRenderMode(INVISIBLE_MODE);
-
-    if(!cfg.empty()) {
-      //copy initial cfg. to RobotModel
-      m_robotModel->Configure(cfg);
-      m_robotModel->SetInitialCfg(cfg);
-    }
-
-    GetEnv()->GetAvatar()->SetCfg(cfg);
+      cfgs.emplace_back(m_pathModel->GetConfiguration(0));
+    m_envModel->PlaceRobots(cfgs,
+        m_debugModel || (m_mapModel && !(m_pathModel || m_queryModel)));
   }
 }
 
