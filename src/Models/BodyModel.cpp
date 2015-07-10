@@ -6,7 +6,9 @@
 
 BodyModel::
 BodyModel(shared_ptr<Body> _b) : TransformableModel("Body"),
-  m_polyhedronModel(new PolyhedronModel(Body::m_modelDataDir + _b->GetFileName())) {
+  m_polyhedronModel(new PolyhedronModel(
+        (Body::m_modelDataDir == "/" ? "" : Body::m_modelDataDir) +
+        _b->GetFileName())) {
     SetTransform(_b->GetWorldTransformation());
   }
 
