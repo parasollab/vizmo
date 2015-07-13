@@ -60,7 +60,7 @@ class EnvModel : public Model {
     void PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible);
     ////////////////////////////////////////////////////////////////////////////
     /// @param _c CfgModel to position in environment
-    void Configure(const CfgModel& _c);
+    void ConfigureRender(const CfgModel& _c);
 
     // Multibodies
     ////////////////////////////////////////////////////////////////////////////

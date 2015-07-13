@@ -38,7 +38,7 @@ DrawRender() {
     }
 
     robot->SetRenderMode(WIRE_MODE);
-    robot->Configure(m_v);
+    robot->ConfigureRender(m_v);
     robot->DrawRender();
     robot->Restore();
   }

@@ -78,7 +78,7 @@ GoToFrame(int _frame) {
   //update GUI
   if(m_name == "Path") {
     const CfgModel& cfg = GetVizmo().GetPath()->GetConfiguration(m_frame);
-    GetVizmo().GetEnv()->Configure(cfg);
+    GetVizmo().GetEnv()->ConfigureRender(cfg);
   }
   else if(m_name == "Debug")
     GetVizmo().GetDebug()->ConfigureFrame(m_frame);

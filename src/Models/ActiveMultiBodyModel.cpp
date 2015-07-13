@@ -39,13 +39,13 @@ BackUp() {
 
 void
 ActiveMultiBodyModel::
-Configure(const vector<double>& _cfg) {
+ConfigureRender(const vector<double>& _cfg) {
   m_currCfg = _cfg;
-  m_activeMultiBody->Configure(_cfg);
+  m_activeMultiBody->ConfigureRender(_cfg);
 
   for(size_t i = 0; i < m_activeMultiBody->NumFreeBody(); ++i)
     GetBodies()[i]->SetTransform(
-        m_activeMultiBody->GetFreeBody(i)->GetWorldTransformation());
+        m_activeMultiBody->GetFreeBody(i)->RenderTransformation());
 }
 
 bool
@@ -60,7 +60,7 @@ Restore() {
   SetRenderMode(m_renderModeBackUp);
   for(size_t i = 0; i < m_bodies.size(); ++i)
     m_bodies[i]->SetColor(m_colorBackUp[i]);
-  Configure(m_initCfg);
+  ConfigureRender(m_initCfg);
 }
 
 void

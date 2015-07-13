@@ -70,14 +70,14 @@ EnvModel::
 PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
   for(auto& r : m_robots) {
     vector<double> cfg(r->Dofs(), 0);
-    r->Configure(cfg);
+    r->ConfigureRender(cfg);
     r->SetInitialCfg(cfg);
     if(_invisible)
       r->SetRenderMode(INVISIBLE_MODE);
     m_avatar->SetCfg(cfg);
   }
   for(const auto& cfg : _cfgs) {
-    m_robots[cfg.GetRobotIndex()]->Configure(cfg.GetData());
+    m_robots[cfg.GetRobotIndex()]->ConfigureRender(cfg.GetData());
     m_robots[cfg.GetRobotIndex()]->SetInitialCfg(cfg.GetData());
     m_avatar->SetCfg(cfg.GetData());
   }
@@ -85,8 +85,8 @@ PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
 
 void
 EnvModel::
-Configure(const CfgModel& _c) {
-  m_robots[_c.GetRobotIndex()]->Configure(_c.GetData());
+ConfigureRender(const CfgModel& _c) {
+  m_robots[_c.GetRobotIndex()]->ConfigureRender(_c.GetData());
 }
 
 void
