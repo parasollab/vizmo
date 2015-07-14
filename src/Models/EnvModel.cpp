@@ -70,14 +70,13 @@ EnvModel::
 PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
   for(auto& r : m_robots) {
     vector<double> cfg(r->Dofs(), 0);
-    r->ConfigureRender(cfg);
     r->SetInitialCfg(cfg);
     if(_invisible)
       r->SetRenderMode(INVISIBLE_MODE);
+    r->BackUp();
     m_avatar->SetCfg(cfg);
   }
   for(const auto& cfg : _cfgs) {
-    m_robots[cfg.GetRobotIndex()]->ConfigureRender(cfg.GetData());
     m_robots[cfg.GetRobotIndex()]->SetInitialCfg(cfg.GetData());
     m_avatar->SetCfg(cfg.GetData());
   }
@@ -323,12 +322,14 @@ DrawRender() {
   m_boundary->DrawRender();
 
   glLineWidth(1);
-  for(auto& r : m_robots)
-      r->DrawRender();
+  for(auto& r : m_robots) {
+    r->Restore();
+    r->DrawRender();
+  }
   for(auto& o : m_obstacles)
-      o->DrawRender();
+    o->DrawRender();
   for(auto& s : m_surfaces)
-      s->DrawRender();
+    s->DrawRender();
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
@@ -357,6 +358,7 @@ DrawSelect() {
   glLineWidth(1);
   for(auto& r : m_robots) {
     glPushName(nameIndx++);
+    r->Restore();
     r->DrawSelect();
     glPopName();
   }
@@ -465,24 +467,24 @@ GetChildren(list<Model*>& _models) {
 
 
 /*void
-EnvModel::
-DeleteMBModel(MultiBodyModel* _mbl) {
+  EnvModel::
+  DeleteMBModel(MultiBodyModel* _mbl) {
   vector<MultiBodyModel*>::iterator mbit;
   for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){
-    if((*mbit) == _mbl){
-      m_multibodies.erase(mbit);
-      break;
-    }
+  if((*mbit) == _mbl){
+  m_multibodies.erase(mbit);
+  break;
   }
-}
+  }
+  }
 
 
-void
-EnvModel::
-AddMBModel(MultiBodyModel* _m) {
+  void
+  EnvModel::
+  AddMBModel(MultiBodyModel* _m) {
   _m->Build();
   m_multibodies.push_back(_m);
-}*/
+  }*/
 
 void
 EnvModel::

@@ -56,10 +56,16 @@ InCSpace(const vector<double>& _cfg) {
 
 void
 ActiveMultiBodyModel::
-Restore() {
-  SetRenderMode(m_renderModeBackUp);
+RestoreColor() {
   for(size_t i = 0; i < m_bodies.size(); ++i)
     m_bodies[i]->SetColor(m_colorBackUp[i]);
+}
+
+void
+ActiveMultiBodyModel::
+Restore() {
+  SetRenderMode(m_renderModeBackUp);
+  RestoreColor();
   ConfigureRender(m_initCfg);
 }
 
@@ -74,6 +80,19 @@ ActiveMultiBodyModel::
 Build() {
   for(size_t i = 0; i < m_activeMultiBody->NumFreeBody(); ++i)
     m_bodies.emplace_back(new BodyModel(m_activeMultiBody->GetFreeBody(i)));
+}
+
+void
+ActiveMultiBodyModel::
+DrawSelected() {
+  Restore();
+  DrawSelectedImpl();
+}
+
+void
+ActiveMultiBodyModel::
+DrawSelectedImpl() {
+  MultiBodyModel::DrawSelected();
 }
 
 const vector<ActiveMultiBody::DOFInfo>&

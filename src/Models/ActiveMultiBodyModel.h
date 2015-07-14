@@ -19,11 +19,14 @@ class ActiveMultiBodyModel : public MultiBodyModel {
     void BackUp();
     void ConfigureRender(const vector<double>& _cfg);
     bool InCSpace(const vector<double>& _cfg);
+    void RestoreColor();
     void Restore();
 
     void Print(ostream& _os) const;
 
     virtual void Build();
+    virtual void DrawSelected();
+    void DrawSelectedImpl();
 
     const vector<ActiveMultiBody::DOFInfo>& GetDOFInfo() const;
 

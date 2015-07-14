@@ -437,7 +437,7 @@ PlaceRobots() {
     else if(m_pathModel)
       cfgs.emplace_back(m_pathModel->GetConfiguration(0));
     m_envModel->PlaceRobots(cfgs,
-        m_debugModel || (m_mapModel && !(m_pathModel || m_queryModel)));
+        m_pathModel || m_mapModel || m_queryModel || m_debugModel);
   }
 }
 
