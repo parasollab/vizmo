@@ -347,8 +347,6 @@ DebugChecked() {
 string
 FileListDialog::
 SearchXML(string _filename, string _key) {
-  string filename = "";
-
   // read in the motion planning node
   XMLNode mpNode(_filename, "MotionPlanning");
   for(auto& child1 : mpNode) {
@@ -358,25 +356,26 @@ SearchXML(string _filename, string _key) {
         // If the child node is the key, something likd Environment
         if(child2.Name() == _key) {
           // Handle Environment case
-          if(_key == "Environment") {
-            filename = child2.Read("filename", false, "", "env filename");
-          }
+          if(_key == "Environment")
+            return child2.Read("filename", false, "", "env filename");
         }
         // Handle all other specific cases
         else if(_key == "Query") {
           if(child2.Name() == "MapEvaluators") {
-            for(auto& child3 : child2) {
-              if(child2.Name() == _key) {
-                filename = child3.Read("queryFile", false, "",
-                    "query filename");
-              }
-            }
+            for(auto& child3 : child2)
+              if(child3.Name() == _key)
+                return child3.Read("queryFile", false, "", "query filename");
+          }
+          else if(child2.Name() == "MPStrategies") {
+            for(auto& child3 : child2)
+              if(child3.Name().find("RRT") != string::npos)
+                return child3.Read("query", false, "", "Query filename");
           }
         }
       }
     }
   }
-  return filename;
+  return "";
 }
 
 vector<string>

@@ -60,6 +60,7 @@ InitModels() {
     if(!m_xmlFilename.empty()) {
       InitPMPL(m_xmlFilename);
       m_envModel = new EnvModel(GetVizmoProblem()->GetEnvironment());
+      m_queryFilename = MPProblemBase::GetPath(m_queryFilename);
     }
     else {
       size_t pos = m_envFilename.rfind('/');
