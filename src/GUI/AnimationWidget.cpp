@@ -76,13 +76,10 @@ GoToFrame(int _frame) {
   m_frameField->setText(QString::number(m_frame + 1)); //reset the number
 
   //update GUI
-  if(m_name == "Path") {
-    const CfgModel& cfg = GetVizmo().GetPath()->GetConfiguration(m_frame);
-    GetVizmo().GetEnv()->Configure(cfg);
-  }
+  if(m_name == "Path")
+    GetVizmo().GetPath()->ConfigureFrame(m_frame);
   else if(m_name == "Debug")
     GetVizmo().GetDebug()->ConfigureFrame(m_frame);
-  emit CallUpdate();
 }
 
 void

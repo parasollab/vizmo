@@ -7,6 +7,8 @@
 #include <vector>
 using namespace std;
 
+#include "Utilities/MPUtils.h"
+
 #include "Model.h"
 #include "MapModel.h"
 
@@ -107,7 +109,7 @@ Build() {
 
   //If user changes a CC's color, color at associated index is changed
   if(m_colorIndex.find(m_rep) == m_colorIndex.end())
-    m_colorIndex[m_rep] = Color4(drand48(), drand48(), drand48(), 1);
+    m_colorIndex[m_rep] = Color4(DRand()/2.0 + 0.25, DRand()/2.0 + 0.25, DRand()/2.0 + 0.25, 1);
   SetColor(m_colorIndex[m_rep]);
 }
 

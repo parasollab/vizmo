@@ -22,37 +22,26 @@
 
 EnvModel::
 EnvModel(const string& _filename) : Model("Environment"),
-    m_radius(0), m_boundary(NULL) {
-  size_t sl = _filename.rfind('/');
-  SetModelDataDir(_filename.substr(0, sl == string::npos ? 0 : sl));
+  m_radius(0), m_boundary(NULL) {
 
-  m_environment = new Environment();
-  m_environment->Read(_filename);
+    m_environment = new Environment();
+    m_environment->Read(_filename);
 
-  //construct boundary
-  if(shared_ptr<BoundingBox> b = dynamic_pointer_cast<BoundingBox>(m_environment->GetBoundary()))
-    m_boundary = shared_ptr<BoundingBoxModel>(new BoundingBoxModel(b));
-  else if(shared_ptr<BoundingSphere> b = dynamic_pointer_cast<BoundingSphere>(m_environment->GetBoundary()))
-    m_boundary = shared_ptr<BoundingSphereModel>(new BoundingSphereModel(b));
-  else
-    throw RunTimeException(WHERE, "Failed casting Boundary.");
+    Build();
 
-  //construct multibody model
-  for(size_t i = 0; i < m_environment->NumRobots(); ++i)
-    m_robots.emplace_back(
-        new ActiveMultiBodyModel(m_environment->GetRobot(i)));
-  for(size_t i = 0; i < m_environment->NumObstacles(); ++i)
-    m_obstacles.emplace_back(
-        new StaticMultiBodyModel(m_environment->GetObstacle(i)));
-  for(size_t i = 0; i < m_environment->NumSurfaces(); ++i)
-    m_surfaces.emplace_back(
-        new SurfaceMultiBodyModel(m_environment->GetSurface(i)));
+    //create avatar
+    m_avatar = new AvatarModel(AvatarModel::None);
+  }
 
-  Build();
+EnvModel::
+EnvModel(Environment* _env) : Model("Environment"),
+  m_radius(0), m_boundary(NULL), m_environment(_env) {
 
-  //create avatar
-  m_avatar = new AvatarModel(AvatarModel::None);
-}
+    Build();
+
+    //create avatar
+    m_avatar = new AvatarModel(AvatarModel::None);
+  }
 
 EnvModel::
 ~EnvModel() {
@@ -81,14 +70,13 @@ EnvModel::
 PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
   for(auto& r : m_robots) {
     vector<double> cfg(r->Dofs(), 0);
-    r->Configure(cfg);
     r->SetInitialCfg(cfg);
     if(_invisible)
       r->SetRenderMode(INVISIBLE_MODE);
+    r->BackUp();
     m_avatar->SetCfg(cfg);
   }
   for(const auto& cfg : _cfgs) {
-    m_robots[cfg.GetRobotIndex()]->Configure(cfg.GetData());
     m_robots[cfg.GetRobotIndex()]->SetInitialCfg(cfg.GetData());
     m_avatar->SetCfg(cfg.GetData());
   }
@@ -96,8 +84,8 @@ PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
 
 void
 EnvModel::
-Configure(const CfgModel& _c) {
-  m_robots[_c.GetRobotIndex()]->Configure(_c.GetData());
+ConfigureRender(const CfgModel& _c) {
+  m_robots[_c.GetRobotIndex()]->ConfigureRender(_c.GetData());
 }
 
 void
@@ -221,14 +209,26 @@ RemoveTempObjs(TempObjsModel* _t) {
 
 void
 EnvModel::
-SetModelDataDir(const string _modelDataDir) {
-  m_modelDataDir = _modelDataDir;
-  cout << "- Geo Dir   : " << m_modelDataDir << endl;
-}
-
-void
-EnvModel::
 Build() {
+  //construct boundary
+  if(shared_ptr<BoundingBox> b = dynamic_pointer_cast<BoundingBox>(m_environment->GetBoundary()))
+    m_boundary = shared_ptr<BoundingBoxModel>(new BoundingBoxModel(b));
+  else if(shared_ptr<BoundingSphere> b = dynamic_pointer_cast<BoundingSphere>(m_environment->GetBoundary()))
+    m_boundary = shared_ptr<BoundingSphereModel>(new BoundingSphereModel(b));
+  else
+    throw RunTimeException(WHERE, "Failed casting Boundary.");
+
+  //construct multibody model
+  for(size_t i = 0; i < m_environment->NumRobots(); ++i)
+    m_robots.emplace_back(
+        new ActiveMultiBodyModel(m_environment->GetRobot(i)));
+  for(size_t i = 0; i < m_environment->NumObstacles(); ++i)
+    m_obstacles.emplace_back(
+        new StaticMultiBodyModel(m_environment->GetObstacle(i)));
+  for(size_t i = 0; i < m_environment->NumSurfaces(); ++i)
+    m_surfaces.emplace_back(
+        new SurfaceMultiBodyModel(m_environment->GetSurface(i)));
+
   //Build boundary model
   if(!m_boundary)
     throw BuildException(WHERE, "Boundary is NULL");
@@ -322,12 +322,14 @@ DrawRender() {
   m_boundary->DrawRender();
 
   glLineWidth(1);
-  for(auto& r : m_robots)
-      r->DrawRender();
+  for(auto& r : m_robots) {
+    r->Restore();
+    r->DrawRender();
+  }
   for(auto& o : m_obstacles)
-      o->DrawRender();
+    o->DrawRender();
   for(auto& s : m_surfaces)
-      s->DrawRender();
+    s->DrawRender();
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
@@ -356,6 +358,7 @@ DrawSelect() {
   glLineWidth(1);
   for(auto& r : m_robots) {
     glPushName(nameIndx++);
+    r->Restore();
     r->DrawSelect();
     glPopName();
   }
@@ -464,24 +467,24 @@ GetChildren(list<Model*>& _models) {
 
 
 /*void
-EnvModel::
-DeleteMBModel(MultiBodyModel* _mbl) {
+  EnvModel::
+  DeleteMBModel(MultiBodyModel* _mbl) {
   vector<MultiBodyModel*>::iterator mbit;
   for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){
-    if((*mbit) == _mbl){
-      m_multibodies.erase(mbit);
-      break;
-    }
+  if((*mbit) == _mbl){
+  m_multibodies.erase(mbit);
+  break;
   }
-}
+  }
+  }
 
 
-void
-EnvModel::
-AddMBModel(MultiBodyModel* _m) {
+  void
+  EnvModel::
+  AddMBModel(MultiBodyModel* _m) {
   _m->Build();
   m_multibodies.push_back(_m);
-}*/
+  }*/
 
 void
 EnvModel::

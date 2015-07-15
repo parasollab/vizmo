@@ -13,10 +13,12 @@ class PathModel : public LoadableModel {
 
     size_t GetSize() {return m_path.size();}
     vector<Color4>& GetGradientVector() {return m_stopColors;}
-    const CfgModel& GetConfiguration(size_t _i) const {return m_path[_i];}
 
     void SetLineWidth(float _width) {m_lineWidth = _width;}
     void SetDisplayInterval(int _disp) {m_displayInterval = _disp;}
+    const CfgModel& GetConfiguration(size_t _i) const {return m_path[_i];}
+
+    void ConfigureFrame(size_t _frame);
 
     void ParseFile();
     void Build();
@@ -32,6 +34,7 @@ class PathModel : public LoadableModel {
 
     vector<CfgModel> m_path; //path storage
     size_t m_glPathIndex; //Display list index
+    size_t m_frame;          ///< Frame for playing path
 
     //display options
     float m_lineWidth;

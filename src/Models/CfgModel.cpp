@@ -71,11 +71,9 @@ DrawRender() {
       {
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->SetColor(c);
-        robot->BackUp();
         robot->SetRenderMode(m_renderMode);
-        robot->Configure(m_v);
+        robot->ConfigureRender(m_v);
         robot->DrawRender();
-        robot->Restore();
         break;
       }
 
@@ -99,11 +97,9 @@ DrawSelect() {
     case Robot:
       {
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
-        robot->BackUp();
         robot->SetRenderMode(m_renderMode);
-        robot->Configure(m_v);
+        robot->ConfigureRender(m_v);
         robot->DrawSelect();
-        robot->Restore();
       }
       break;
 
@@ -124,11 +120,9 @@ DrawSelected() {
     case Robot:
       {
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
-        robot->BackUp();
         robot->SetRenderMode(WIRE_MODE);
-        robot->Configure(m_v);
-        robot->DrawSelected();
-        robot->Restore();
+        robot->ConfigureRender(m_v);
+        robot->DrawSelectedImpl();
       }
       break;
     case Point:
@@ -141,6 +135,15 @@ DrawSelected() {
   }
 }
 
+void
+CfgModel::
+DrawPathRobot() {
+  shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+  robot->RestoreColor();
+  robot->SetRenderMode(SOLID_MODE);
+  robot->ConfigureRender(m_v);
+  robot->DrawRender();
+}
 
 void
 CfgModel::
