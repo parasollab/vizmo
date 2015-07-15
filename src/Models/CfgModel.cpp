@@ -8,7 +8,7 @@ CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
 
 CfgModel::
-CfgModel() : Model(""), Cfg() {
+CfgModel() : Model(""), CfgType() {
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;
@@ -16,7 +16,7 @@ CfgModel() : Model(""), Cfg() {
 }
 
 CfgModel::
-CfgModel(const Cfg& _c) : Model(""), Cfg(_c) {
+CfgModel(const Cfg& _c) : Model(""), CfgType(_c) {
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;

@@ -8,7 +8,13 @@ using namespace std;
 #include <GL/gl.h>
 #include <GL/glut.h>
 
+#ifdef PMPCfg
 #include "Cfg/Cfg.h"
+typedef Cfg CfgType;
+#elif defined(PMPState)
+#include "Cfg/State.h"
+typedef State CfgType;
+#endif
 
 #include "EdgeModel.h"
 #include "Model.h"
@@ -19,7 +25,7 @@ class EdgeModel;
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A drawable configuration model.
 ////////////////////////////////////////////////////////////////////////////////
-class CfgModel : public Model, public Cfg {
+class CfgModel : public Model, public CfgType {
 
   public:
 

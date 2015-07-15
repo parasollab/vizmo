@@ -14,7 +14,11 @@ using namespace std;
 
 #include "GUI/MainWindow.h"
 
+#ifdef PMPCfg
 #include "MotionPlanning/VizmoTraits.h"
+#elif defined(PMPState)
+#include "MotionPlanning/VizmoStateTraits.h"
+#endif
 
 #include "PHANToM/Manager.h"
 #include "SpaceMouse/SpaceMouseManager.h"
@@ -194,10 +198,10 @@ InitPMPL() {
   //set up query evaluators
   if(m_queryModel) {
     //setup standard query evaluator
-    Query<VizmoTraits>* query = new Query<VizmoTraits>(m_queryFilename,
+    /*Query<VizmoTraits>* query = new Query<VizmoTraits>(m_queryFilename,
         vector<string>(1, "kClosest"));
     VizmoProblem::MapEvaluatorPointer mep(query);
-    problem->AddMapEvaluator(mep, "Query");
+    problem->AddMapEvaluator(mep, "Query");*/
 
     //setup debugging evaluator
     vector<string> evals;
@@ -222,7 +226,7 @@ InitPMPL() {
     problem->AddExtender(bero, "BERO");
 
     //add I-RRT strategy
-    VizmoProblem::MPStrategyPointer irrt(
+    /*VizmoProblem::MPStrategyPointer irrt(
         new IRRTStrategy<VizmoTraits>(query->GetQuery().front(),
           query->GetQuery().back()));
     problem->AddMPStrategy(irrt, "IRRT");
@@ -230,10 +234,10 @@ InitPMPL() {
     VizmoProblem::MPStrategyPointer rr(
         new RegionRRT<VizmoTraits>(query->GetQuery().front(),
           query->GetQuery().back()));
-    problem->AddMPStrategy(rr, "RegionRRT");
+    problem->AddMPStrategy(rr, "RegionRRT");*/
 
   }
-
+  /*
   //add region strategy
   VizmoProblem::MPStrategyPointer rs(new RegionStrategy<VizmoTraits>());
   problem->AddMPStrategy(rs, "RegionStrategy");
@@ -245,7 +249,7 @@ InitPMPL() {
   //add spark region strategy
   VizmoProblem::MPStrategyPointer sr(new SparkPRM<VizmoTraits, SparkRegion>());
   problem->AddMPStrategy(sr, "SparkRegion");
-
+  */
   //avoid-region validity checker
   VizmoProblem::ValidityCheckerPointer arv(
       new AvoidRegionValidity<VizmoTraits>());
@@ -276,10 +280,10 @@ InitPMPL() {
   m_loadedSamplers.push_back("RegionUniformSampler");
 
   //region obstacle-based sampler
-  VizmoProblem::SamplerPointer robs(
+  /*VizmoProblem::SamplerPointer robs(
       new ObstacleBasedSampler<VizmoTraits>("RegionValidity", "euclidean"));
   problem->AddSampler(robs, "RegionObstacleSampler");
-  m_loadedSamplers.push_back("RegionObstacleSampler");
+  m_loadedSamplers.push_back("RegionObstacleSampler");*/
 
   //region neighborhood connector
   VizmoProblem::ConnectorPointer rc(

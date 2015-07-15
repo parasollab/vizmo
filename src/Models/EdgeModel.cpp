@@ -11,14 +11,12 @@ double EdgeModel::m_edgeThickness = 1;
 EdgeModel::
 EdgeModel(string _lpLabel, double _weight,
     const vector<CfgModel>& _intermediates) : Model(""),
-    DefaultWeight<CfgModel>(_lpLabel, _weight, _intermediates),
+    EdgeType(_lpLabel, _weight, _intermediates),
     m_id(-1), m_isValid(true) { }
-
 
 EdgeModel::
 EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""),
-    DefaultWeight<CfgModel>(_e), m_id(-1), m_isValid(true) { }
-
+    EdgeType(_e), m_id(-1), m_isValid(true) { }
 
 void
 EdgeModel::
@@ -28,14 +26,12 @@ SetName() {
   m_name = temp.str();
 }
 
-
 void
 EdgeModel::
 Set(CfgModel* _c1, CfgModel* _c2) {
   m_startCfg = _c1;
   m_endCfg = _c2;
 }
-
 
 void
 EdgeModel::
@@ -44,7 +40,6 @@ Set(size_t _id, CfgModel* _c1, CfgModel* _c2) {
   Set(_c1, _c2);
   SetName();
 }
-
 
 void
 EdgeModel::
@@ -73,7 +68,6 @@ DrawRender() {
   }
 }
 
-
 void
 EdgeModel::
 DrawSelect() {
@@ -96,7 +90,6 @@ DrawSelect() {
   }
 }
 
-
 void
 EdgeModel::
 DrawSelected() {
@@ -109,7 +102,6 @@ DrawSelected() {
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
 }
-
 
 void
 EdgeModel::
@@ -126,7 +118,6 @@ Print(ostream& _os) const {
   if(!m_isValid)
     _os << "**** IS IN COLLISION!! ****" << endl;
 }
-
 
 void
 EdgeModel::

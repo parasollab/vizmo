@@ -9,17 +9,23 @@ using namespace std;
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#include "MPProblem/Weight.h"
-
 #include "CfgModel.h"
 #include "Model.h"
 
 class CfgModel;
 
+#ifdef PMPCfg
+#include "MPProblem/Weight.h"
+typedef DefaultWeight<CfgModel> EdgeType;
+#elif defined(PMPState)
+#include "Edges/StateEdge.h"
+typedef StateEdge<CfgModel> EdgeType;
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A drawable model for roadmap edges.
 ////////////////////////////////////////////////////////////////////////////////
-class EdgeModel : public Model, public DefaultWeight<CfgModel> {
+class EdgeModel : public Model, public EdgeType {
 
   public:
 
