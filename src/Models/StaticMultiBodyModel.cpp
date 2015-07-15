@@ -21,4 +21,6 @@ StaticMultiBodyModel::Build() {
   m_bodies.emplace_back(new BodyModel(body));
   if(body->IsColorLoaded())
     SetColor(body->GetColor());
+  if(m_staticMultiBody->IsInternal())
+    SetRenderMode(INVISIBLE_MODE);
 }
