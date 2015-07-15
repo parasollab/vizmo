@@ -106,17 +106,38 @@ DrawSelected() {
 void
 EdgeModel::
 Print(ostream& _os) const {
-  _os << "Edge ID= " << m_id << endl
-      << "Connects Nodes: " << m_startCfg->GetIndex() << " and "
-      << m_endCfg->GetIndex() << endl << "Intermediates: ";
+  if(m_id != (size_t)-1)
+    _os << "EID: " << m_id << endl;
 
+  if(m_startCfg->GetIndex() != (size_t)-1) {
+    _os << "Edge Connects: " << m_startCfg->GetIndex() << " to "
+      << m_endCfg->GetIndex() << endl;
+  }
+  else {
+    _os << "Edge Connects: " << endl;
+    m_startCfg->Print(_os);
+    _os << " to " << endl;
+    m_endCfg->Print(_os);
+  }
+
+  _os << "Weight: " << m_weight << endl;
+
+#ifdef PMPCfg
+  _os << "Intermediates: ";
   for(const auto& c : m_intermediates)
-    _os << c << " | ";
+    _os << "\t" << c << endl;
+#elif defined(PMPState)
+  _os << "Control: ";
+  cout << "m_Intermediates.size: " << m_intermediates.size() << endl;
+  for(const auto& c : m_control)
+    _os << c << " ";
+  _os << endl;
 
-  _os << endl << "Weight: " << m_weight << endl;
+  _os << "Time step: " << m_timeStep;
+#endif
 
   if(!m_isValid)
-    _os << "**** IS IN COLLISION!! ****" << endl;
+    _os << "**** Invalid! ****" << endl;
 }
 
 void
@@ -124,8 +145,6 @@ EdgeModel::
 DrawRenderInCC() {
   glVertex3dv(m_startCfg->GetPoint());
   for(const auto& c : m_intermediates) {
-    /// \todo Implementation appears to have a duplicated line - can anyone
-    ///       confirm that this is/isn't needed?
     glVertex3dv(c.GetPoint());
     glVertex3dv(c.GetPoint());
   }
