@@ -58,14 +58,6 @@ DrawRender() {
     glVertex3dv(c.GetPoint());
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
-
-  //draw intermediate configurations
-  if(CfgModel::GetShape() == CfgModel::Robot) {
-    for(auto& c : m_intermediates) {
-      c.SetRenderMode(WIRE_MODE);
-      c.DrawRender();
-    }
-  }
 }
 
 void
@@ -80,14 +72,6 @@ DrawSelect() {
     glVertex3dv(c.GetPoint());
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
-
-  //draw intermediate configurations
-  if(CfgModel::GetShape() == CfgModel::Robot) {
-    for(auto& c : m_intermediates) {
-      c.SetRenderMode(WIRE_MODE);
-      c.DrawSelect();
-    }
-  }
 }
 
 void
@@ -128,7 +112,6 @@ Print(ostream& _os) const {
     _os << "\t" << c << endl;
 #elif defined(PMPState)
   _os << "Control: ";
-  cout << "m_Intermediates.size: " << m_intermediates.size() << endl;
   for(const auto& c : m_control)
     _os << c << " ";
   _os << endl;
