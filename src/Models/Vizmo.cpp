@@ -221,9 +221,9 @@ InitPMPL() {
     problem->AddMapEvaluator(bqe, "BoundedQuery");
 
     //add basic extender for I-RRT
-    VizmoProblem::ExtenderPointer bero(new BasicExtender<VizmoTraits>(
+    /*VizmoProblem::ExtenderPointer bero(new BasicExtender<VizmoTraits>(
           "euclidean", "PQP_SOLID", 10., true));
-    problem->AddExtender(bero, "BERO");
+    problem->AddExtender(bero, "BERO");*/
 
     //add I-RRT strategy
     /*VizmoProblem::MPStrategyPointer irrt(

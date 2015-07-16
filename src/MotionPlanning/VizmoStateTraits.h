@@ -8,6 +8,7 @@
 
 //distance metric includes
 #include "DistanceMetrics/EuclideanDistance.h"
+#include "DistanceMetrics/WeightedEuclideanDistance.h"
 
 //validity checker includes
 #include "AvoidRegionValidity.h"
@@ -25,7 +26,7 @@
 #include "LocalPlanners/StraightLine.h"
 
 //extenders includes
-#include "Extenders/BasicExtender.h"
+#include "Extenders/KinodynamicExtender.h"
 
 //path smoothing includes
 #include "PathModifiers/ShortcuttingPathModifier.h"
@@ -44,7 +45,8 @@
 //#include "MapEvaluators/Query.h"
 
 //mp strategies includes
-#include "MPStrategies/KinodynamicRRTStrategy.h"
+//#include "MPStrategies/KinodynamicRRTStrategy.h"
+#include "KinodynamicRegionRRT.h"
 
 #include "MPProblem/MPProblem.h"
 
@@ -61,7 +63,8 @@ struct VizmoTraits {
 
   //types of distance metrics available in our world
   typedef boost::mpl::list<
-    EuclideanDistance<VizmoTraits>
+    EuclideanDistance<VizmoTraits>,
+    WeightedEuclideanDistance<VizmoTraits>
     > DistanceMetricMethodList;   ///< The available distance metrics.
 
   //types of validity checkers available in our world
@@ -89,7 +92,7 @@ struct VizmoTraits {
 
   //types of extenders avaible in our world
   typedef boost::mpl::list<
-    BasicExtender<VizmoTraits>
+    KinodynamicExtender<VizmoTraits>
     > ExtenderMethodList; ///< The available extenders.
 
   //types of path smoothing available in our world
@@ -118,7 +121,7 @@ struct VizmoTraits {
 
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
-    KinodynamicRRTStrategy<VizmoTraits>
+    KinodynamicRegionRRT<VizmoTraits>
     > MPStrategyMethodList; ///< The available strategies.
 
 };
