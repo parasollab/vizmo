@@ -32,6 +32,8 @@ BackUp() {
     shared_ptr<FreeBody> body = m_activeMultiBody->GetFreeBody(i);
     if(body->IsColorLoaded())
       m_colorBackUp.push_back(body->GetColor());
+    else if(body->IsTextureLoaded())
+      m_colorBackUp.push_back(Color4(1, 1, 1, 1));
     else
       m_colorBackUp.push_back(GetColor());
   }
@@ -78,8 +80,10 @@ Print(ostream& _os) const {
 void
 ActiveMultiBodyModel::
 Build() {
-  for(size_t i = 0; i < m_activeMultiBody->NumFreeBody(); ++i)
+  for(size_t i = 0; i < m_activeMultiBody->NumFreeBody(); ++i) {
     m_bodies.emplace_back(new BodyModel(m_activeMultiBody->GetFreeBody(i)));
+    m_bodies.back()->Build();
+  }
 }
 
 void

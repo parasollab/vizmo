@@ -19,6 +19,7 @@ void
 StaticMultiBodyModel::Build() {
   shared_ptr<FixedBody> body = m_staticMultiBody->GetFixedBody(0);
   m_bodies.emplace_back(new BodyModel(body));
+  m_bodies.back()->Build();
   if(body->IsColorLoaded())
     SetColor(body->GetColor());
   if(m_staticMultiBody->IsInternal())

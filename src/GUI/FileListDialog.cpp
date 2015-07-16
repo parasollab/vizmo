@@ -47,13 +47,21 @@ GetAssociatedFiles(const vector<string>& _filename) {
   }
   //grab new files
   else {
-    for(vector<string>::const_iterator myIter = _filename.begin();
-        myIter != _filename.end(); ++myIter) {
-      string name = (*myIter).substr(0, (*myIter).rfind('.'));
+    for(const auto& s : _filename) {
+      size_t pos = s.rfind('.');
+      string name = s.substr(0, pos);
+      if(s.substr(pos, s.length()) == ".path") {
+        size_t pos2 = name.rfind('.');
+        string subname = name.substr(pos2, name.length());
+        if(subname == ".full" || subname == ".rdmp")
+            name = name.substr(0, pos2);
+      }
       string envname = name + ".env";
       string mapname = name + ".map";
       string queryname = name + ".query";
       string pathname = name + ".path";
+      string path1name = name + ".full.path";
+      string path2name = name + ".rdmp.path";
       string debugname = name + ".vd";
       string xmlname = name + ".xml";
 
@@ -92,13 +100,19 @@ GetAssociatedFiles(const vector<string>& _filename) {
         }
 
         bool p = FileExists(pathname);
+        bool p1 = FileExists(path1name);
+        bool p2 = FileExists(path2name);
         bool d = FileExists(debugname);
         if(p)
           m_pathFilename->setText(pathname.c_str());
+        else if(p1)
+          m_pathFilename->setText(path1name.c_str());
+        else if(p2)
+          m_pathFilename->setText(path2name.c_str());
         if(d)
           m_debugFilename->setText(debugname.c_str());
-        m_pathCheckBox->setChecked(p && !d);
-        m_debugCheckBox->setChecked(d && !p);
+        m_pathCheckBox->setChecked(p || p1 || p2);
+        m_debugCheckBox->setChecked(d && !(p || p1 || p2));
       }
     }
   }

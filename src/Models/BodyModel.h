@@ -66,7 +66,7 @@ class BodyModel : public TransformableModel {
     void SetTransform(const Transformation& _t);
 
     // Model functions
-    void Build() {}
+    void Build();
     void Select(GLuint* _index, vector<Model*>& sel);
     void DrawRender();
     void DrawSelect();
@@ -78,6 +78,8 @@ class BodyModel : public TransformableModel {
     friend ostream& operator<<(ostream& _os, const BodyModel& _b);
 
   private:
+    shared_ptr<Body> m_body;            ///< PMPL Body
+
     string m_directory;                 ///< The file directory.
     string m_filename;                  ///< The filename.
     string m_modelFilename;             ///< The relative path.
@@ -88,6 +90,8 @@ class BodyModel : public TransformableModel {
 
     double m_mass;
     Matrix3x3 m_moment;
+
+    GLuint m_textureID;                 ///< GL context's ID for texture
 };
 
 #endif

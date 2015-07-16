@@ -1,20 +1,26 @@
 #include "BodyModel.h"
 
+#include <GL/glu.h>
+
 #include "Environment/Body.h"
+#include "MPProblem/MPProblemBase.h"
 
 #include "Models/PolyhedronModel.h"
+#include "Utilities/LoadTexture.h"
 
 BodyModel::
-BodyModel(shared_ptr<Body> _b) : TransformableModel("Body"),
+BodyModel(shared_ptr<Body> _b) : TransformableModel("Body"), m_body(_b),
   m_polyhedronModel(new PolyhedronModel(
         (Body::m_modelDataDir == "/" ? "" : Body::m_modelDataDir) +
-        _b->GetFileName())) {
+        _b->GetFileName())),
+  m_textureID(-1) {
     SetTransform(_b->GetWorldTransformation());
   }
 
 BodyModel::
 ~BodyModel() {
   delete m_polyhedronModel;
+  glDeleteTextures(1, &m_textureID);
 }
 
 void
@@ -60,10 +66,26 @@ Select(GLuint* _index, vector<Model*>& sel) {
 void
 BodyModel::
 DrawRender() {
-  glColor4fv(GetColor());
   glPushMatrix();
+
   Transform();
+
+  if(m_textureID != GLuint(-1)) {
+    glColor4fv(GetColor());
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+    glBindTexture(GL_TEXTURE_2D, m_textureID);
+  }
+  else
+    glColor4fv(GetColor());
+
   m_polyhedronModel->DrawRender();
+
+  if(m_body->IsTextureLoaded())
+    glDisable(GL_TEXTURE_2D);
+
+  m_polyhedronModel->DrawNormals();
+
   glPopMatrix();
 }
 
@@ -121,3 +143,11 @@ SetTransform(const Transformation& _t) {
   RotationQ() = qua;
 }
 
+void
+BodyModel::
+Build() {
+  if(m_body->IsTextureLoaded()) {
+    m_textureID = LoadTexture(MPProblemBase::GetPath(m_body->GetTexture()));
+    SetColor(Color4(1, 1, 1, 1));
+  }
+}
