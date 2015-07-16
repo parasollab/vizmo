@@ -60,7 +60,7 @@ class BodyModel : public TransformableModel {
     void SetTransform(const Transformation& _t);
 
     // Model functions
-    void Build() {}
+    void Build();
     void Select(GLuint* _index, vector<Model*>& sel);
     void DrawRender();
     void DrawSelect();
@@ -73,6 +73,8 @@ class BodyModel : public TransformableModel {
 
   private:
 
+    shared_ptr<Body> m_body;            ///< PMPL Body
+
     string m_directory;                 ///< The file directory.
     string m_filename;                  ///< The filename.
     string m_modelFilename;             ///< The relative path.
@@ -80,6 +82,8 @@ class BodyModel : public TransformableModel {
     PolyhedronModel* m_polyhedronModel; ///< The drawable polyhedron model.
 
     Transformation m_currentTransform;  ///< The current transformation.
+
+    GLuint m_textureID;                 ///< GL context's ID for texture
 };
 
 #endif
