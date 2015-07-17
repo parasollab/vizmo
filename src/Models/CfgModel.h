@@ -39,7 +39,7 @@ class CfgModel : public Model, public CfgType {
 
     // Construction
     CfgModel();
-    CfgModel(const Cfg& _c);
+    CfgModel(const CfgType& _c);
 
     // DOF and validity info
     ////////////////////////////////////////////////////////////////////////////

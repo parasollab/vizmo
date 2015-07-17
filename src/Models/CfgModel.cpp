@@ -16,7 +16,7 @@ CfgModel() : Model(""), CfgType() {
 }
 
 CfgModel::
-CfgModel(const Cfg& _c) : Model(""), CfgType(_c) {
+CfgModel(const CfgType& _c) : Model(""), CfgType(_c) {
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;
