@@ -48,8 +48,6 @@ class PolyhedronModel : public Model {
 
     //set m_com to center of mass of _points
     void COM(const PtVector& _points);
-    //set m_moment to moment of inertia
-    void Moment(const PtVector& _points, const TriVector& _tris);
     //set m_radius to distance furthest point in _points to m_com
     void Radius(const PtVector& _points);
 

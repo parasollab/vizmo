@@ -370,27 +370,6 @@ COM(const PtVector& _points) {
 
 void
 PolyhedronModel::
-Moment(const PtVector& _points, const TriVector& _tris) {
-  float massPerTriangle = m_mass/_tris.size();
-  for(const auto& tri : _tris) {
-
-    Vector3d com = (_points[tri[0]] + _points[tri[1]] + _points[tri[2]])/3.0;
-    Vector3d r = m_com - com;
-    m_moment[0][0] += massPerTriangle * (r[1]*r[1] + r[2]*r[2]);
-    m_moment[0][1] += massPerTriangle * -r[0] * r[1];
-    m_moment[0][2] += massPerTriangle * -r[0] * r[2];
-    m_moment[1][0] += massPerTriangle * -r[1] * r[0];
-    m_moment[1][1] += massPerTriangle * (r[0]*r[0] + r[2]*r[2]);
-    m_moment[1][2] += massPerTriangle * -r[1] * r[2];
-    m_moment[2][0] += massPerTriangle * -r[0] * r[2];
-    m_moment[2][1] += massPerTriangle * -r[1] * r[2];
-    m_moment[2][2] += massPerTriangle * (r[0]*r[0] + r[1]*r[1]);
-  }
-  m_moment = inverse(m_moment);
-}
-
-void
-PolyhedronModel::
 Radius(const PtVector& _points) {
   m_radius = 0;
   for(PtVector::const_iterator i = _points.begin(); i!=_points.end(); ++i) {
