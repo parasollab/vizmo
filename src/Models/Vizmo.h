@@ -114,6 +114,12 @@ class Vizmo {
     /// \brief Get the name and label of a sampler from its label.
     /// \param[in] \c _label The sampler's label.
     string GetSamplerNameAndLabel(string _label);
+    
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the name and label of all MP strategies specified in the
+    ///        vizmo problem
+    /// \return All MP strategy name and labels.
+    vector<string> GetAllStrategies() const;
 
     // Motion planning related functions
     void SetSeed(long _l) {m_seed = _l;}

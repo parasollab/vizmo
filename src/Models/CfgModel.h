@@ -95,6 +95,8 @@ class CfgModel : public Model, public Cfg {
     void DrawSelected();
     void Print(ostream& _os) const;
 
+    void DrawPathRobot();
+
   protected:
 
     bool m_isValid; ///< Indicates whether last collision check was valid.

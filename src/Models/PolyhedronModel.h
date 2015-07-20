@@ -5,6 +5,8 @@
 
 #include <containers/sequential/graph/graph.h>
 
+class IModel;
+
 class PolyhedronModel : public Model {
   public:
     typedef Vector<int,  3> Tri;
@@ -26,14 +28,20 @@ class PolyhedronModel : public Model {
     void DrawSelected();
     void DrawHaptics();
     void Print(ostream& _os) const;
+    void DrawNormals();
 
   protected:
     //build models, given points and triangles
-    void ComputeNormals(const PtVector& _points, const TriVector& _tris, vector<Vector3d>& _norms);
-    void BuildSolid(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
-    void BuildWired(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
-    void BuildNormals(const PtVector& _points, const TriVector& _tris, const vector<Vector3d>& _norms);
-    void BuildModelGraph(const PtVector& _points, const TriVector& _tris);
+    void BuildSolidObj(IModel* _model);
+
+    void ComputeNormals(IModel* _model, vector<Vector3d>& _norms);
+    void BuildSolidBYU(IModel* _model, const vector<Vector3d>& _norms);
+
+    void BuildNormalsObj(IModel* _model);
+    void BuildNormalsBYU(IModel* _model, const vector<Vector3d>& _norms);
+
+    void BuildModelGraph(IModel* _model);
+    void BuildWired(IModel* _model, const vector<Vector3d>& _norms);
 
     //set m_com to center of mass of _points
     void COM(const PtVector& _points);

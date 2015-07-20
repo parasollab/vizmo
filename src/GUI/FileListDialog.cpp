@@ -47,13 +47,21 @@ GetAssociatedFiles(const vector<string>& _filename) {
   }
   //grab new files
   else {
-    for(vector<string>::const_iterator myIter = _filename.begin();
-        myIter != _filename.end(); ++myIter) {
-      string name = (*myIter).substr(0, (*myIter).rfind('.'));
+    for(const auto& s : _filename) {
+      size_t pos = s.rfind('.');
+      string name = s.substr(0, pos);
+      if(s.substr(pos, s.length()) == ".path") {
+        size_t pos2 = name.rfind('.');
+        string subname = name.substr(pos2, name.length());
+        if(subname == ".full" || subname == ".rdmp")
+            name = name.substr(0, pos2);
+      }
       string envname = name + ".env";
       string mapname = name + ".map";
       string queryname = name + ".query";
       string pathname = name + ".path";
+      string path1name = name + ".full.path";
+      string path2name = name + ".rdmp.path";
       string debugname = name + ".vd";
       string xmlname = name + ".xml";
 
@@ -92,13 +100,19 @@ GetAssociatedFiles(const vector<string>& _filename) {
         }
 
         bool p = FileExists(pathname);
+        bool p1 = FileExists(path1name);
+        bool p2 = FileExists(path2name);
         bool d = FileExists(debugname);
         if(p)
           m_pathFilename->setText(pathname.c_str());
+        else if(p1)
+          m_pathFilename->setText(path1name.c_str());
+        else if(p2)
+          m_pathFilename->setText(path2name.c_str());
         if(d)
           m_debugFilename->setText(debugname.c_str());
-        m_pathCheckBox->setChecked(p && !d);
-        m_debugCheckBox->setChecked(d && !p);
+        m_pathCheckBox->setChecked(p || p1 || p2);
+        m_debugCheckBox->setChecked(d && !(p || p1 || p2));
       }
     }
   }
@@ -347,8 +361,6 @@ DebugChecked() {
 string
 FileListDialog::
 SearchXML(string _filename, string _key) {
-  string filename = "";
-
   // read in the motion planning node
   XMLNode mpNode(_filename, "MotionPlanning");
   for(auto& child1 : mpNode) {
@@ -358,25 +370,26 @@ SearchXML(string _filename, string _key) {
         // If the child node is the key, something likd Environment
         if(child2.Name() == _key) {
           // Handle Environment case
-          if(_key == "Environment") {
-            filename = child2.Read("filename", false, "", "env filename");
-          }
+          if(_key == "Environment")
+            return child2.Read("filename", false, "", "env filename");
         }
         // Handle all other specific cases
         else if(_key == "Query") {
           if(child2.Name() == "MapEvaluators") {
-            for(auto& child3 : child2) {
-              if(child2.Name() == _key) {
-                filename = child3.Read("queryFile", false, "",
-                    "query filename");
-              }
-            }
+            for(auto& child3 : child2)
+              if(child3.Name() == _key)
+                return child3.Read("queryFile", false, "", "query filename");
+          }
+          else if(child2.Name() == "MPStrategies") {
+            for(auto& child3 : child2)
+              if(child3.Name().find("RRT") != string::npos)
+                return child3.Read("query", false, "", "Query filename");
           }
         }
       }
     }
   }
-  return filename;
+  return "";
 }
 
 vector<string>

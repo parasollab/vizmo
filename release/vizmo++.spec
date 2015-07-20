@@ -65,6 +65,13 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Wed Jul 15 2015 Jory Denny <jdenny@cse.tamu.edu> 7-15jul2015
+- Version 0.3.2 - Fixing bugs in region steering dealing with Env merge. Fixing
+  bugs in region steering when loading from XML. Fixing bugs in path display.
+  Other miscellaneous minor changes and fixes.
+* Wed Jul 10 2015 Jory Denny <jdenny@cse.tamu.edu> 7-10jul2015
+- Version 0.3.1 - Fixing bug in env loading when no color option is specified
+  and -x translation is given.
 * Wed Jul 10 2015 Jory Denny <jdenny@cse.tamu.edu> 7-10jul2015
 - Version 0.3.0 - Merging Env data structures with PMPL counterparts.
   Temporarily disabled functionality to add, copy, and delete obstacles as well

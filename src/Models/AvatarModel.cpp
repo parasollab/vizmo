@@ -25,7 +25,6 @@ AvatarModel::
 DrawRender() {
   if(m_tracking) {
     shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
-    robot->BackUp();
 
     if(this->m_isValid) {
       glColor4fv(m_color);
@@ -38,9 +37,8 @@ DrawRender() {
     }
 
     robot->SetRenderMode(WIRE_MODE);
-    robot->Configure(m_v);
+    robot->ConfigureRender(m_v);
     robot->DrawRender();
-    robot->Restore();
   }
 }
 

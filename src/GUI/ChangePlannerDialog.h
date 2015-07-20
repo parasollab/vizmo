@@ -14,8 +14,6 @@ class ChangePlannerDialog : public QDialog {
 
   public:
     ChangePlannerDialog(MainWindow* _mainWindow);
-
-  public slots:
     string GetPlanner();
 
   private:

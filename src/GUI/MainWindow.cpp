@@ -20,7 +20,7 @@ MainWindow*& GetMainWindow() {return window;}
 
 MainWindow::
 MainWindow(QWidget* _parent) : QMainWindow(_parent), m_vizmoInit(false) {
-  setMinimumSize(960, 700);
+  setMinimumSize(0, 0);//960, 700 Original window size
   setWindowTitle("Vizmo++");
   m_gl = NULL;
   m_animationWidget = NULL;

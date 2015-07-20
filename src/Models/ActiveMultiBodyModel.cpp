@@ -32,6 +32,8 @@ BackUp() {
     shared_ptr<FreeBody> body = m_activeMultiBody->GetFreeBody(i);
     if(body->IsColorLoaded())
       m_colorBackUp.push_back(body->GetColor());
+    else if(body->IsTextureLoaded())
+      m_colorBackUp.push_back(Color4(1, 1, 1, 1));
     else
       m_colorBackUp.push_back(GetColor());
   }
@@ -39,13 +41,13 @@ BackUp() {
 
 void
 ActiveMultiBodyModel::
-Configure(const vector<double>& _cfg) {
+ConfigureRender(const vector<double>& _cfg) {
   m_currCfg = _cfg;
-  m_activeMultiBody->Configure(_cfg);
+  m_activeMultiBody->ConfigureRender(_cfg);
 
   for(size_t i = 0; i < m_activeMultiBody->NumFreeBody(); ++i)
     GetBodies()[i]->SetTransform(
-        m_activeMultiBody->GetFreeBody(i)->GetWorldTransformation());
+        m_activeMultiBody->GetFreeBody(i)->RenderTransformation());
 }
 
 bool
@@ -56,11 +58,17 @@ InCSpace(const vector<double>& _cfg) {
 
 void
 ActiveMultiBodyModel::
-Restore() {
-  SetRenderMode(m_renderModeBackUp);
+RestoreColor() {
   for(size_t i = 0; i < m_bodies.size(); ++i)
     m_bodies[i]->SetColor(m_colorBackUp[i]);
-  Configure(m_initCfg);
+}
+
+void
+ActiveMultiBodyModel::
+Restore() {
+  SetRenderMode(m_renderModeBackUp);
+  RestoreColor();
+  ConfigureRender(m_initCfg);
 }
 
 void
@@ -72,8 +80,23 @@ Print(ostream& _os) const {
 void
 ActiveMultiBodyModel::
 Build() {
-  for(size_t i = 0; i < m_activeMultiBody->NumFreeBody(); ++i)
+  for(size_t i = 0; i < m_activeMultiBody->NumFreeBody(); ++i) {
     m_bodies.emplace_back(new BodyModel(m_activeMultiBody->GetFreeBody(i)));
+    m_bodies.back()->Build();
+  }
+}
+
+void
+ActiveMultiBodyModel::
+DrawSelected() {
+  Restore();
+  DrawSelectedImpl();
+}
+
+void
+ActiveMultiBodyModel::
+DrawSelectedImpl() {
+  MultiBodyModel::DrawSelected();
 }
 
 const vector<ActiveMultiBody::DOFInfo>&
