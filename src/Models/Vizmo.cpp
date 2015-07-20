@@ -38,14 +38,14 @@ VizmoProblem*& GetVizmoProblem() {return vizmoProblem;}
 ////////////////////////////////////////////////////////////////////////////////
 Vizmo::
 Vizmo() :
-    m_envModel(NULL),
-    m_phantomManager(NULL),
-    m_spaceMouseManager(NULL),
-    m_mapModel(NULL),
-    m_queryModel(NULL),
-    m_pathModel(NULL),
-    m_debugModel(NULL) {
-}
+  m_envModel(NULL),
+  m_phantomManager(NULL),
+  m_spaceMouseManager(NULL),
+  m_mapModel(NULL),
+  m_queryModel(NULL),
+  m_pathModel(NULL),
+  m_debugModel(NULL) {
+  }
 
 Vizmo::
 ~Vizmo() {
@@ -188,7 +188,7 @@ InitPMPL() {
   //add NumNodes eval
   VizmoProblem::MapEvaluatorPointer mep(
       new ConditionalEvaluator<VizmoTraits>(
-      ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 7500));
+        ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 7500));
   problem->AddMapEvaluator(mep, "NodesEval");
 
   //set up query evaluators
@@ -205,7 +205,7 @@ InitPMPL() {
     evals.push_back("Query");
     VizmoProblem::MapEvaluatorPointer ce(
         new ComposeEvaluator<VizmoTraits>(
-        ComposeEvaluator<VizmoTraits>::AND, evals));
+          ComposeEvaluator<VizmoTraits>::AND, evals));
     problem->AddMapEvaluator(ce, "DebugQuery");
 
     //set up bounded query evaluator
@@ -261,7 +261,7 @@ InitPMPL() {
   vcList.push_back("PQP_SOLID");
   vcList.push_back("AvoidRegionValidity");
   VizmoProblem::ValidityCheckerPointer rv(new ComposeValidity<VizmoTraits>(
-      ComposeValidity<VizmoTraits>::AND, vcList));
+        ComposeValidity<VizmoTraits>::AND, vcList));
   problem->AddValidityChecker(rv, "RegionValidity");
 
   //avoid-region + PQP_SOLID local planner
@@ -404,7 +404,7 @@ CollisionCheck(CfgModel& _c) {
     return b;
   }
   cerr << "Warning::Collision checking when there is no environment. "
-       << "Returning false." << endl;
+    << "Returning false." << endl;
   return false;
 }
 
@@ -415,7 +415,7 @@ VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
   if(m_envModel) {
     Environment* env = GetVizmoProblem()->GetEnvironment();
     VizmoProblem::LocalPlannerPointer lp = GetVizmoProblem()->
-        GetLocalPlanner("sl");
+      GetLocalPlanner("sl");
     LPOutput<VizmoTraits> lpout;
     if(lp->IsConnected(_c1, _c2, &lpout,
           env->GetPositionRes(), env->GetOrientationRes()))
@@ -423,7 +423,7 @@ VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
   }
   else
     cerr << "Warning::Visibility checking when there is no environment. "
-         << "Returning false" << endl;
+      << "Returning false" << endl;
   return make_pair(false, EdgeModel::MaxWeight().Weight());
 }
 
@@ -526,10 +526,10 @@ AdjustClock(const string& _c1, const string& _c2, const string& _op) {
   /// Adjusts clock \c _c1 by \c +/- \c _c2.second.
   if(_op == "-")
     m_timers[_c1].first =
-        m_timers[_c1].first.addMSecs( m_timers[_c2].second * 1000);
+      m_timers[_c1].first.addMSecs( m_timers[_c2].second * 1000);
   else if (_op == "+")
     m_timers[_c1].first =
-        m_timers[_c1].first.addMSecs(-m_timers[_c2].second * 1000);
+      m_timers[_c1].first.addMSecs(-m_timers[_c2].second * 1000);
   else
     throw PMPLException("ClockError", WHERE,
         "unknown clock adjustment operation.");
@@ -555,7 +555,7 @@ Vizmo::
 Solve(const string& _strategy) {
   SRand(m_seed);
   VizmoProblem::MPStrategyPointer mps =
-      GetVizmoProblem()->GetMPStrategy(_strategy);
+    GetVizmoProblem()->GetMPStrategy(_strategy);
   string name = mps->GetNameAndLabel();
   name = name.substr(0, name.find("::"));
 
@@ -599,3 +599,14 @@ Vizmo::
 GetMaxEnvDist() {
   return GetVizmo().GetEnv()->GetEnvironment()->GetBoundary()->GetMaxDist();
 }
+
+vector<string>
+Vizmo::
+GetAllStrategies() const {
+  vector<string> names;
+  const VizmoProblem::MPStrategySet* mps = GetVizmoProblem()->GetMPStrategies();  
+  for(auto& method : *mps)
+    names.emplace_back(method.second->GetNameAndLabel());
+  return names;
+}
+

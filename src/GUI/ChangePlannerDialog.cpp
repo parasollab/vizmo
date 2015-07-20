@@ -8,51 +8,36 @@ ChangePlannerDialog::
 ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
   m_radioGroup(NULL) {
 
-  //initialize dialog values
-  setWindowTitle("Strategy Selections");
+    //initialize dialog values
+    setWindowTitle("Strategy Selections");
 
-  //construct objects
-  QDialogButtonBox* okCancel = new QDialogButtonBox(this);
-  QRadioButton* regionStrategyButton = new QRadioButton("RegionStrategy", this);
-  QRadioButton* pathStrategyButton = new QRadioButton("PathStrategy", this);
-  QRadioButton* irrtStrategyButton = new QRadioButton("IRRT", this);
-  QRadioButton* regionRRTButton = new QRadioButton("RegionRRT", this);
-  QRadioButton* sparkRegionButton = new QRadioButton("SparkRegion", this);
+    const vector<string>& strategies = GetVizmo().GetAllStrategies();
+    QVBoxLayout* layout = new QVBoxLayout;
+    m_radioGroup = new QButtonGroup;
 
-  m_radioGroup = new QButtonGroup;
-  m_radioGroup->setExclusive(true);
-  m_radioGroup->addButton(regionStrategyButton);
-  m_radioGroup->addButton(pathStrategyButton);
-  m_radioGroup->addButton(irrtStrategyButton);
-  m_radioGroup->addButton(regionRRTButton);
-  m_radioGroup->addButton(sparkRegionButton);
+    for(const auto& s : strategies) {
+      QRadioButton* strategy = new QRadioButton(s.c_str(), this);
+      m_radioGroup->addButton(strategy);
+      layout->addWidget(strategy);
+    }
 
-  //make default selection
-  regionStrategyButton->setChecked(true);
+    if(m_radioGroup->buttons().size())
+      m_radioGroup->buttons().first()->setChecked(true);
+    m_radioGroup->setExclusive(true);
 
-  //add standard ok and cancel buttons
-  okCancel->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QDialogButtonBox* okCancel = new QDialogButtonBox(this);
+    okCancel->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel); 
+    layout->addWidget(okCancel);
+    setLayout(layout);
 
-  connect(okCancel, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(okCancel, SIGNAL(rejected()), this, SLOT(close()));
-
-  QVBoxLayout* layout = new QVBoxLayout;
-  setLayout(layout);
-
-  layout->addWidget(regionStrategyButton);
-  layout->addWidget(pathStrategyButton);
-  layout->addWidget(irrtStrategyButton);
-  layout->addWidget(regionRRTButton);
-  layout->addWidget(sparkRegionButton);
-  layout->addWidget(okCancel);
-}
+    //set accept to Accept for picking the planner
+    connect(okCancel, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(okCancel, SIGNAL(rejected()), this, SLOT(close()));
+  }
 
 string
 ChangePlannerDialog::
 GetPlanner() {
-   return m_radioGroup->checkedButton()->text().toStdString();
+  string temp = m_radioGroup->checkedButton()->text().toStdString();
+  return temp.substr(temp.rfind(':') + 1);
 }
-
-//Also, look for other ok, cancel options
-//in "ok" slot, call accept
-//FUTURE: strategies should not be hard coded
