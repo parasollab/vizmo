@@ -77,6 +77,13 @@ class Camera : public QObject {
     void ToggleFreeFloat();      ///< Toggle free-floating mode.
     void ResetUp();              ///< Reset up to default.
 
+    // Helper for changing frames
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Project a given vector from the camera frame to the world frame.
+    /// \param[in] _v The vector in camera coordinates.
+    /// \return       The same vector in world coordinates.
+    Vector3d ProjectToWorld(const Vector3d& _v) const;
+
   public slots:
 
     // Slots for cross-thread camera control. Qt passes the parameters of these

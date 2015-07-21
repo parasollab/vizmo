@@ -30,6 +30,11 @@
 #include "Icons/SetCameraPosition.xpm"
 #include "Icons/ShowNormals.xpm"
 
+#ifdef USE_SPACEMOUSE
+#include "Utilities/Cursor3d.h"
+#include "Icons/Cursor.xpm"
+#endif
+
 
 GLWidgetOptions::
 GLWidgetOptions(QWidget* _parent) : OptionsBase(_parent, "Display"),
@@ -127,6 +132,17 @@ CreateActions() {
       this, SLOT(ShowGeneralContextMenu()));
   connect(GetMainWindow()->GetGLWidget(), SIGNAL(selectByRMB()),
       this, SLOT(ShowGeneralContextMenu()));
+
+  // Enable Cursor3d if space mouse is in use
+  #ifdef USE_SPACEMOUSE
+  m_actions["toggleCursor"] = new QAction(QPixmap(cursorIcon),
+      tr("Toggle Cursor"), this);
+  m_actions["toggleCursor"]->setEnabled(false);
+  m_actions["toggleCursor"]->setCheckable(true);
+  m_actions["toggleCursor"]->setChecked(false);
+  connect(m_actions["toggleCursor"], SIGNAL(triggered()),
+      this, SLOT(ToggleCursor()));
+  #endif
 }
 
 
@@ -172,6 +188,10 @@ SetHelpTips() {
         "and restricted camera control."));
 
   m_actions["resetCameraUp"]->setWhatsThis(tr("Reset the camera up direction"));
+
+  #ifdef USE_SPACEMOUSE
+  m_actions["toggleCursor"]->setWhatsThis(tr("Enable/disable the 3d cursor."));
+  #endif
 }
 
 
@@ -189,6 +209,10 @@ SetUpSubmenu() {
   m_submenu->addAction(m_actions["showObjectNormals"]);
   m_submenu->addAction(m_actions["resetCamera"]);
   m_submenu->addAction(m_actions["changeBGColor"]);
+
+  #ifdef USE_SPACEMOUSE
+  m_submenu->addAction(m_actions["toggleCursor"]);
+  #endif
 }
 
 
@@ -212,6 +236,10 @@ SetUpToolTab() {
   buttonList.push_back("showAxis");
   buttonList.push_back("showFrameRate");
   buttonList.push_back("showObjectNormals");
+  #ifdef USE_SPACEMOUSE
+  buttonList.push_back("_separator_");
+  buttonList.push_back("toggleCursor");
+  #endif
   CreateToolTab(buttonList);
 }
 
@@ -232,15 +260,19 @@ Reset() {
   m_actions["loadCameraPosition"]->setEnabled(true);
   m_actions["resetCameraUp"]->setEnabled(true);
   m_actions["toggleCameraFree"]->setEnabled(true);
+  #ifdef USE_SPACEMOUSE
+  m_actions["toggleCursor"]->setEnabled(true);
+  m_actions["toggleCursor"]->setChecked(false);
+  #endif
 }
 
-/*----------------------------- GL Functions ---------------------------------*/
+
+/*--------------------------- Camera Functions -------------------------------*/
 
 void
 GLWidgetOptions::
 ResetCamera() {
   GetMainWindow()->GetGLWidget()->ResetCamera();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -290,6 +322,68 @@ ToggleCameraFree() {
   GetMainWindow()->GetGLWidget()->GetCurrentCamera()->ToggleFreeFloat();
 }
 
+
+/*--------------------------- Cursor Functions -------------------------------*/
+#ifdef USE_SPACEMOUSE
+void
+GLWidgetOptions::
+ToggleCursor() {
+  GetMainWindow()->GetGLWidget()->GetCursor()->Toggle();
+}
+#endif
+/*---------------------------- Model Functions -------------------------------*/
+
+void
+GLWidgetOptions::
+MakeSolid() {
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(SOLID_MODE);
+}
+
+
+void
+GLWidgetOptions::
+MakeWired() {
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(WIRE_MODE);
+}
+
+
+void
+GLWidgetOptions::
+MakeInvisible() {
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(INVISIBLE_MODE);
+}
+
+
+void
+GLWidgetOptions::
+ChangeObjectColor() {
+  QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
+  double r, g, b;
+  if(color.isValid()) {
+    r = color.red() / 255.0;
+    g = color.green() / 255.0;
+    b = color.blue() / 255.0;
+  }
+  else
+    return;
+
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetColor(Color4(r, g, b, 1));
+}
+
+
+void
+GLWidgetOptions::
+ShowObjectNormals() {
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->ToggleNormals();
+}
+
+
+/*---------------------------- Other Functions -------------------------------*/
 
 void
 GLWidgetOptions::
@@ -344,54 +438,4 @@ ShowGeneralContextMenu() {
 
   //show menu
   cm.exec(QCursor::pos());
-}
-
-
-void
-GLWidgetOptions::
-MakeSolid() {
-  for(auto& i : GetVizmo().GetSelectedModels())
-    i->SetRenderMode(SOLID_MODE);
-}
-
-
-void
-GLWidgetOptions::
-MakeWired() {
-  for(auto& i : GetVizmo().GetSelectedModels())
-    i->SetRenderMode(WIRE_MODE);
-}
-
-
-void
-GLWidgetOptions::
-MakeInvisible() {
-  for(auto& i : GetVizmo().GetSelectedModels())
-    i->SetRenderMode(INVISIBLE_MODE);
-}
-
-
-void
-GLWidgetOptions::
-ChangeObjectColor() {
-  QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
-  double r, g, b;
-  if(color.isValid()) {
-    r = color.red() / 255.0;
-    g = color.green() / 255.0;
-    b = color.blue() / 255.0;
-  }
-  else
-    return;
-
-  for(auto& i : GetVizmo().GetSelectedModels())
-    i->SetColor(Color4(r, g, b, 1));
-}
-
-
-void
-GLWidgetOptions::
-ShowObjectNormals() {
-  for(auto& i : GetVizmo().GetSelectedModels())
-    i->ToggleNormals();
 }

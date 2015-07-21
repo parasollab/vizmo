@@ -16,16 +16,12 @@ class RegionSphereModel : public RegionModel {
 
     shared_ptr<Boundary> GetBoundary() const;
 
-    //initialization of gl models
+    // Model functions
     void Build();
-    //determing if _index is this GL model
     void Select(GLuint* _index, vector<Model*>& _sel);
-    //draw is called for the scene.
     void DrawRender();
     void DrawSelect();
-    //DrawSelect is only called if item is selected
     void DrawSelected();
-    //output model info
     void Print(ostream& _os) const;
     // output debug information
     void OutputDebugInfo(ostream& _os) const;
@@ -41,6 +37,7 @@ class RegionSphereModel : public RegionModel {
     // operators
     bool operator==(const RegionModel& _other) const;
     void ApplyOffset(const Vector3d& _v);
+    void SetRadius(double _r) {m_radius = _r;}
     double GetShortLength() const;
     double GetLongLength() const;
 

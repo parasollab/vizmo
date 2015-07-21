@@ -40,7 +40,7 @@ Init() {
   this->setWindowIcon(QPixmap(vizmoIcon));
 
   //Create Model
-  if((m_gl = new GLWidget(this, this)) == NULL)
+  if((m_gl = new GLWidget(this)) == NULL)
     return false;
 
   // Create Other GUI
@@ -74,6 +74,9 @@ InitVizmo() {
   resize(width(),height());
   m_args.clear();
   m_gl->ResetCamera();
+  #ifdef USE_SPACEMOUSE
+  m_gl->ResetCursor();
+  #endif
   //reset guis
   m_animationWidget->Reset();
   m_modelSelectionWidget->ResetLists();

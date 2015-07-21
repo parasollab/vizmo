@@ -1,6 +1,8 @@
 #ifndef CROSSHAIR_MODEL_H_
 #define CROSSHAIR_MODEL_H_
 
+#include <QtCore>
+
 #include "Model.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9,17 +11,23 @@
 ////////////////////////////////////////////////////////////////////////////////
 class CrosshairModel : public Model {
 
+  private:
+
+    bool     m_enable{false}; ///< Indicates whether the crosshair is in use.
+    Point3d* m_pos;           ///< Crosshair position.
+
   public:
 
     // Construction
-    CrosshairModel(Point3d* _p = NULL);
+    CrosshairModel(Point3d* _p = NULL) : Model("CrosshairModel"), m_pos(_p) {}
 
     // Crosshair position access
-    void SetPos(Point3d& _p) {m_worldPos = &_p;} ///< Set the crosshair position.
-    Point3d* GetPos() const {return m_worldPos;} ///< Get the crosshair position.
+    void SetPos(Point3d& _p) {m_pos = &_p;} ///< Set the crosshair position.
+    Point3d* GetPos() const {return m_pos;} ///< Get the crosshair position.
 
     // Control functions
-    void Toggle() {m_enabled = !m_enabled;}    ///< Enable/disable the crosshair.
+    void Enable()  {m_enable = true;}       ///< Enable/disable the crosshair.
+    void Disable() {m_enable = false;}      ///< Enable/disable the crosshair.
 
     // Model functions
     void Build() {}
@@ -28,16 +36,6 @@ class CrosshairModel : public Model {
     void DrawSelect() {}
     void DrawSelected() {}
     void Print(ostream& _os) const {}
-
-  private:
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Determines whether the crosshair is inside the environment limits.
-    bool IsInsideBBX() const;
-
-    Point3d* m_worldPos;                         ///< Crosshair position.
-    vector< pair<double, double> > m_worldRange; ///< Environment limits.
-    bool m_enabled;       ///< Indicates whether the crosshair is in use.
 };
 
 #endif

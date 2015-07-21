@@ -290,14 +290,20 @@ Reset() {
 
 void
 PlanningOptions::
-AddRegionBox() {
-  /// Automatically determines whether a 2D or 3D box is needed by checking
-  /// whether the robot is planar. Additionally, the pre-regions timer will be
-  /// started if it has not been already.
+StartRegionTimer() {
   if(!m_regionsStarted) {
     GetVizmo().StartClock("Pre-regions");
     m_regionsStarted = true;
   }
+}
+
+void
+PlanningOptions::
+AddRegionBox() {
+  /// Automatically determines whether a 2D or 3D box is needed by checking
+  /// whether the robot is planar. Additionally, the pre-regions timer will be
+  /// started if it has not been already.
+  StartRegionTimer();
 
   // Create new box region
   RegionModelPtr r;
@@ -326,10 +332,8 @@ AddRegionSphere() {
   /// Automatically determines whether a 2D or 3D sphere is needed by checking
   /// whether the robot is planar. Additionally, the pre-regions timer will be
   /// started if it has not been already.
-  if(!m_regionsStarted) {
-    GetVizmo().StartClock("Pre-regions");
-    m_regionsStarted = true;
-  }
+  StartRegionTimer();
+
   // Create new sphere region
   RegionModelPtr r;
 

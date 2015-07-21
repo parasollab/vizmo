@@ -16,10 +16,8 @@
 
 #include "PHANToM/Manager.h"
 
-#include "Utilities/Camera.h"
 #include "Utilities/Font.h"
 #include "Utilities/GLUtils.h"
-#include "Utilities/TransformTool.h"
 
 bool SHIFT_CLICK = false;
 
@@ -30,11 +28,10 @@ int bs = qRegisterMetaType<Point3d>("Point3d");
 //This class handle opengl features
 
 GLWidget::
-GLWidget(QWidget* _parent, MainWindow* _mainWindow) : QGLWidget(_parent),
+GLWidget(QWidget* _parent) : QGLWidget(_parent),
     m_camera(Point3d(0, 0, 500), Vector3d(0, 0, 0)),
     m_transformTool(GetCurrentCamera()), m_currentRegion(),
     m_currentUserPath(NULL) {
-  m_mainWindow = _mainWindow;
   setMinimumSize(271, 211); //original size: 400 x 600
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setFocusPolicy(Qt::StrongFocus);
@@ -66,12 +63,6 @@ ResetCamera() {
   }
   else
     GetCurrentCamera()->Set(Vector3d(0, 0, 1), Vector3d());
-}
-
-Camera*
-GLWidget::
-GetCurrentCamera() {
-  return &m_camera;
 }
 
 void
@@ -116,7 +107,7 @@ paintGL() {
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  m_mainWindow->InitVizmo();
+  GetMainWindow()->InitVizmo();
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -129,6 +120,11 @@ paintGL() {
 
   //draw transform tool
   m_transformTool.Draw();
+
+  //draw cursor
+  #ifdef USE_SPACEMOUSE
+  m_cursor.Draw();
+  #endif
 
   //draw axis
   DrawAxis();

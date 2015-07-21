@@ -3,6 +3,7 @@ UTILOBJMOC = $(patsubst Utilities/%.h, Utilities/MOC/moc_%.o, $(shell grep -l Q_
 OBJECTS += \
 	  $(UTILOBJMOC) \
 	  Utilities/Camera.o \
+	  Utilities/Cursor3d.o \
 	  Utilities/Font.o \
 	  Utilities/GLUtils.o \
 	  Utilities/ImageFilters.o \

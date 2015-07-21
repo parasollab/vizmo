@@ -4,6 +4,7 @@
 #include "Environment/Environment.h"
 
 #include "Model.h"
+#include "BoundaryModel.h"
 
 #include "Utilities/IO.h"
 
@@ -77,6 +78,9 @@ class EnvModel : public Model {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Set the environment BoundaryModel.
     void SetBoundary(shared_ptr<BoundaryModel> _b);
+    bool InBoundary(const Point3d& _p) const {
+      return m_boundary->GetBoundary()->InBoundary(_p);
+    }
 
     // Avatar
     ////////////////////////////////////////////////////////////////////////////

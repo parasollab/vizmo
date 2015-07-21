@@ -27,7 +27,7 @@ class BoundingBoxModel : public BoundaryModel {
     virtual void Print(ostream& _os) const;
 
     // BoundaryModel functions
-    virtual vector<pair<double, double> > GetRanges();
+    virtual vector<pair<double, double> > GetRanges() const;
     virtual double GetMaxDist();
 
   private:

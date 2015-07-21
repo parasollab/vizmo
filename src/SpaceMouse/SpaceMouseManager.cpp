@@ -9,24 +9,25 @@
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 #include "Utilities/Camera.h"
+#include "Utilities/Cursor3d.h"
 
 #include "SpaceMouseManager.h"
 #include <spnav.h>
 
 using namespace std;
 
-bool spaceMouseDebug = false;
 
 /*-------------------------- Space Mouse Manager -----------------------------*/
 
 SpaceMouseManager::
-SpaceMouseManager() : QObject(NULL), m_enable(false), m_enableCamera(false),
-    m_pos(), m_rot(), m_thread(NULL), m_reader(NULL), m_lock() {
+SpaceMouseManager() : QObject(GetMainWindow()) {
   // Set up thread and device reader. Move reader to thread
   m_thread = new QThread(this);
   m_reader = new SpaceMouseReader(this);
   m_reader->moveToThread(m_thread);
   connect(this, SIGNAL(run()), m_reader, SLOT(InputLoop()));
+  if(GetVizmo().GetEnv())
+    SetSpeed();
 }
 
 
@@ -35,6 +36,9 @@ SpaceMouseManager::
   // Disable camera control.
   if(m_enableCamera)
     this->DisableCamera();
+  // Disable cursor control.
+  if(m_enableCursor)
+    this->DisableCursor();
   // Disable input collection.
   if(m_enable)
     this->Disable();
@@ -53,17 +57,17 @@ SpaceMouseManager::
 void
 SpaceMouseManager::
 Enable() {
-  m_lock.lockForWrite();
-  if(spaceMouseDebug)
+  if(m_debug)
     cout << "Starting spacemouse input thread...";
+  m_lock.lockForWrite();
   if(!m_thread->isRunning()) {
     m_enable = true;
     m_thread->start();
     emit run();
   }
-  if(spaceMouseDebug)
-    cout << "done." << endl;
   m_lock.unlock();
+  if(m_debug)
+    cout << "done." << endl;
 }
 
 
@@ -71,13 +75,13 @@ void
 SpaceMouseManager::
 Disable() {
   m_lock.lockForWrite();
-  if(spaceMouseDebug)
+  if(m_debug)
     cout << "Stopping spacemouse input thread...";
   if(m_thread->isRunning()) {
     m_enable = false;
     m_thread->quit();
   }
-  if(spaceMouseDebug)
+  if(m_debug)
     cout << "done." << endl;
   m_lock.unlock();
 }
@@ -86,82 +90,103 @@ Disable() {
 void
 SpaceMouseManager::
 EnableCamera() {
-  if(spaceMouseDebug)
+  if(!m_enable || m_enableCamera)
+    return;
+  if(m_enableCursor)
+    DisableCursor();
+  if(m_debug)
     cout << "Enabling camera control." << endl;
-  m_lock.lockForWrite();
   m_enableCamera = true;
-  m_lock.unlock();
+  Camera* currentCamera = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
+  connect(this, SIGNAL(TranslateEvent(Vector3d)),
+          currentCamera, SLOT(Translate(Vector3d)));
+  connect(this, SIGNAL(RotateEvent(Vector3d, double)),
+          currentCamera, SLOT(Rotate(Vector3d, double)));
 }
 
 
 void
 SpaceMouseManager::
 DisableCamera() {
-  if(spaceMouseDebug)
+  if(!m_enable || !m_enableCamera)
+    return;
+  if(m_debug)
     cout << "Disabling camera control." << endl;
-  m_lock.lockForWrite();
   m_enableCamera = false;
-  m_lock.unlock();
+  Camera* currentCamera = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
+  disconnect(this, SIGNAL(TranslateEvent(Vector3d)),
+             currentCamera, SLOT(Translate(Vector3d)));
+  disconnect(this, SIGNAL(RotateEvent(Vector3d, double)),
+             currentCamera, SLOT(Rotate(Vector3d, double)));
 }
 
 
-const bool
+void
+SpaceMouseManager::
+EnableCursor() {
+  if(!m_enable || m_enableCursor)
+    return;
+  if(m_enableCamera)
+    DisableCamera();
+  if(m_debug)
+    cout << "Enabling cursor control." << endl;
+  m_enableCursor = true;
+  Cursor3d* cursor = GetMainWindow()->GetGLWidget()->GetCursor();
+  connect(this, SIGNAL(TranslateEvent(Vector3d)),
+          cursor, SLOT(Translate(Vector3d)));
+  connect(this, SIGNAL(ButtonEvent(int, bool)),
+          cursor, SLOT(ButtonHandler(int, bool)));
+}
+
+
+void
+SpaceMouseManager::
+DisableCursor() {
+  if(!m_enable || !m_enableCursor)
+    return;
+  if(m_debug)
+    cout << "Disabling cursor control." << endl;
+  m_enableCursor = false;
+  Cursor3d* cursor = GetMainWindow()->GetGLWidget()->GetCursor();
+  disconnect(this, SIGNAL(TranslateEvent(Vector3d)),
+             cursor, SLOT(Translate(Vector3d)));
+  disconnect(this, SIGNAL(ButtonEvent(int, bool)),
+             cursor, SLOT(ButtonHandler(int, bool)));
+}
+
+
+void
+SpaceMouseManager::
+SetSpeed() {
+  m_speed = .02 * GetVizmo().GetEnv()->GetRadius() / m_pollRate;
+}
+
+
+bool
 SpaceMouseManager::
 IsEnabled() {
   m_lock.lockForRead();
   bool status = m_enable;
   m_lock.unlock();
-  return status;
-}
-
-
-const bool
-SpaceMouseManager::
-IsEnabledCamera() {
-  m_lock.lockForRead();
-  bool status = m_enableCamera;
-  m_lock.unlock();
-  return status;
-}
-
-
-const Vector3d
-SpaceMouseManager::
-GetPos() {
-  m_lock.lockForRead();
-  Vector3d pos = m_pos;
-  m_lock.unlock();
-  return pos;
-}
-
-
-const Vector3d
-SpaceMouseManager::
-GetRot() {
-  m_lock.lockForRead();
-  Vector3d rot = m_rot;
-  m_lock.unlock();
-  return rot;
+  return move(status);
 }
 
 
 void
 SpaceMouseManager::
-SetPos(const Vector3d& _pos) {
-  m_lock.lockForWrite();
-  m_pos = _pos;
-  m_lock.unlock();
+TranslateHandler(const Vector3d& _v) {
+  emit TranslateEvent(_v * m_speed);
 }
 
 
 void
 SpaceMouseManager::
-SetRot(const Vector3d& _rot) {
-  m_lock.lockForWrite();
-  m_rot = _rot;
-  m_lock.unlock();
+RotateHandler(const Vector3d& _v) {
+  static const double scalingFactor = 8 * PI * m_pollRate;
+  double rotMag = _v.norm() / scalingFactor;
+  if(rotMag)
+    emit RotateEvent(_v.normalize(), rotMag);
 }
-
 
 /*-------------------------- Input Gathering Worker --------------------------*/
 
@@ -173,12 +198,12 @@ SpaceMouseReader(SpaceMouseManager* _m) : QObject(), m_manager(_m) {
          << endl;
     exit(0);
   }
-  m_speed = 200. / GetVizmo().GetEnv()->GetRadius();
-  Camera* currentCamera = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
-  connect(this, SIGNAL(TranslateCamera(Vector3d)),
-          currentCamera, SLOT(Translate(Vector3d)));
-  connect(this, SIGNAL(RotateCamera(Vector3d, double)),
-          currentCamera, SLOT(Rotate(Vector3d, double)));
+  connect(this, SIGNAL(TranslateInput(Vector3d)),
+          _m, SLOT(TranslateHandler(Vector3d)));
+  connect(this, SIGNAL(RotateInput(Vector3d)),
+          _m, SLOT(RotateHandler(Vector3d)));
+  connect(this, SIGNAL(ButtonInput(int, bool)),
+          _m, SIGNAL(ButtonEvent(int, bool)));
 }
 
 
@@ -194,49 +219,43 @@ SpaceMouseReader::
 void
 SpaceMouseReader::
 InputLoop() {
-  if(spaceMouseDebug)
+  if(m_manager->m_debug)
     cout << "Entering spacemouse input loop." << endl;
 
   spnav_event inputEvent;
   Vector3d pos, rot;
-  double rotMag;
-  double scalingFactor = m_speed / 350.;
 
-  // Continue while input is enabled.
   while(m_manager->IsEnabled()) {
     // Check for an event (non-blocking).
     if(spnav_poll_event(&inputEvent)) {
-      // An event has occured.
+
+      // Handle motion events.
       if(inputEvent.type == SPNAV_EVENT_MOTION) {
-        // Handle motion events.
-        if(spaceMouseDebug)
-          cout << "Motion detected!" << endl;
-        pos[0] = inputEvent.motion.x * scalingFactor;
-        pos[1] = inputEvent.motion.y * scalingFactor;
-        pos[2] = -inputEvent.motion.z * scalingFactor;
-        rot[0] = inputEvent.motion.rx * scalingFactor;
-        rot[1] = inputEvent.motion.ry * scalingFactor;
-        rot[2] = -inputEvent.motion.rz * scalingFactor;
-        if(m_manager->IsEnabledCamera()) {
-          emit TranslateCamera(pos);
-          rotMag = rot.norm() / 75.;
-          if(rotMag) {
-            rot.selfNormalize();
-            emit RotateCamera(rot, rotMag);
-          }
-        }
-        m_manager->SetPos(pos);
-        m_manager->SetRot(rot);
+        pos[0] =  inputEvent.motion.x;
+        pos[1] =  inputEvent.motion.y;
+        pos[2] = -inputEvent.motion.z;
+        emit TranslateInput(pos);
+        rot[0] =  inputEvent.motion.rx;
+        rot[1] =  inputEvent.motion.ry;
+        rot[2] = -inputEvent.motion.rz;
+        emit RotateInput(rot);
+        if(m_manager->m_debug)
+          cout << "Motion detected!" << endl
+               << "\tTranslation: " << pos << endl
+               << "\tRotation: " << rot << endl;
       }
-      else {
-        // Handle button events.
-        if(spaceMouseDebug)
-          cout << "Button detected!" << endl;
+      // Handle button events.
+      else if(inputEvent.type == SPNAV_EVENT_BUTTON) {
+        emit ButtonInput(inputEvent.button.bnum, (bool)inputEvent.button.press);
+        if(m_manager->m_debug)
+          cout << "Button " << inputEvent.button.bnum << " was "
+               << (inputEvent.button.press ? "pressed" : "released")
+               << "!" << endl;
       }
     }
 
     // Sleep to accept thread quit commands.
-    usleep(1000);
+    usleep(m_manager->m_pollRate);
     // Remove any events that have accumulated while sleeping.
     spnav_remove_events(SPNAV_EVENT_ANY);
   }
