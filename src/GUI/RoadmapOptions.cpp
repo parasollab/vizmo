@@ -383,7 +383,6 @@ AddStraightLineEdge() {
     GetMainWindow()->AlertUser("Cannot add invalid edge!");
 
   sel.clear();
-  map->ClearTempItems();
 }
 
 
@@ -432,7 +431,6 @@ DeleteSelectedItems() {
     GetMainWindow()->GetGLWidget()->updateGL();
     sel.clear();
   }
-  map->ClearTempItems();
 }
 
 
