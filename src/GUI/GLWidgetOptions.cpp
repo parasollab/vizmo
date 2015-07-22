@@ -394,7 +394,6 @@ ChangeBGColor() {
         (double)(color.red()) / 255.0,
         (double)(color.green()) / 255.0,
         (double)(color.blue()) / 255.0);
-    GetMainWindow()->GetGLWidget()->updateGL();
   }
 }
 

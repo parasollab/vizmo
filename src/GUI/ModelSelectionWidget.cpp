@@ -101,7 +101,6 @@ SelectionChanged() {
       }
     }
   }
-  emit CallUpdate();
   emit UpdateTextWidget();
 }
 

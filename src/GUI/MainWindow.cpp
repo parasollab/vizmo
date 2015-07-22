@@ -19,20 +19,22 @@ MainWindow* window;
 MainWindow*& GetMainWindow() {return window;}
 
 MainWindow::
-MainWindow(QWidget* _parent) : QMainWindow(_parent), m_vizmoInit(false) {
-  setMinimumSize(960, 700);
-  setWindowTitle("Vizmo++");
-  m_gl = NULL;
-  m_animationWidget = NULL;
-  m_setQS = false;
-  m_setQG = false;
-  m_command = "";
-  m_mainMenu = NULL;
-  m_textWidget = NULL;
-  m_modelSelectionWidget = NULL;
-  m_toolTabWidget = NULL;
-  m_dialogDock = NULL;
-}
+MainWindow(const vector<string>& _filenames, QWidget* _parent) :
+  QMainWindow(_parent), m_args(_filenames), m_vizmoInit(false) {
+    setMinimumSize(960, 700);
+    setWindowTitle("Vizmo++");
+    m_gl = NULL;
+    m_animationWidget = NULL;
+    m_setQS = false;
+    m_setQG = false;
+    m_command = "";
+    m_mainMenu = NULL;
+    m_textWidget = NULL;
+    m_modelSelectionWidget = NULL;
+    m_toolTabWidget = NULL;
+    m_dialogDock = NULL;
+    QTimer::singleShot(0, this, SLOT(InitVizmo()));
+  }
 
 bool
 MainWindow::
@@ -81,7 +83,6 @@ InitVizmo() {
   m_animationWidget->Reset();
   m_modelSelectionWidget->ResetLists();
   m_mainMenu->CallReset();
-  m_gl->updateGL();
 
   return true;
 }
@@ -108,12 +109,9 @@ CreateGUI() {
 
   // Set up timer to redraw and refresh GUI
   m_timer = new QTimer(this);
-  connect(m_timer, SIGNAL(timeout()), this, SLOT(UpdateScreen()));
+  connect(m_timer, SIGNAL(timeout()), m_gl, SLOT(updateGL()));
   m_timer->start(33);
 
-  connect(m_animationWidget, SIGNAL(CallUpdate()), this, SLOT(UpdateScreen()));
-  connect(m_modelSelectionWidget, SIGNAL(CallUpdate()),
-      this, SLOT(UpdateScreen()));
   connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()),
       m_textWidget, SLOT(SetText()));
   connect(m_gl, SIGNAL(selectByLMB()), m_modelSelectionWidget, SLOT(Select()));
@@ -185,12 +183,6 @@ keyPressEvent(QKeyEvent* _e) {
   switch(_e->key()){
     case Qt::Key_Escape: qApp->quit();
   }
-}
-
-void
-MainWindow::
-UpdateScreen() {
-  m_gl->updateGL();
 }
 
 void

@@ -241,7 +241,6 @@ RoadmapOptions::
 ShowRoadmap() {
   GetVizmo().GetMap()->SetRenderMode(m_actions["showHideRoadmap"]-> isChecked() ?
       SOLID_MODE : INVISIBLE_MODE);
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -262,7 +261,6 @@ RoadmapOptions::
 ScaleNodes() {
   double resize = m_nodeSizeDialog->GetSliderValue() / 1000;
   CfgModel::Scale(resize);
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -278,7 +276,6 @@ RoadmapOptions::
 ChangeEdgeThickness() {
   double resize = m_edgeThicknessDialog->GetSliderValue() / 100;
   EdgeModel::m_edgeThickness = resize;
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -377,7 +374,6 @@ AddStraightLineEdge() {
 
     map->RefreshMap();
     GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-    GetMainWindow()->GetGLWidget()->updateGL();
   }
   else
     GetMainWindow()->AlertUser("Cannot add invalid edge!");
@@ -428,7 +424,6 @@ DeleteSelectedItems() {
     }
     map->RefreshMap();
     GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-    GetMainWindow()->GetGLWidget()->updateGL();
     sel.clear();
   }
 }
@@ -481,8 +476,6 @@ MergeSelectedNodes() {
     }
   }
 
-  GetMainWindow()->GetGLWidget()->updateGL();
-
   NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Supervertex",
       superPreview, toConnect, toDelete);
   GetMainWindow()->ShowDialog(ned);
@@ -493,7 +486,6 @@ void
 RoadmapOptions::
 RandomizeCCColors() {
   GetVizmo().GetMap()->RandomizeCCColors();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 

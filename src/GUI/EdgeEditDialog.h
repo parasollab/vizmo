@@ -38,9 +38,6 @@ class CfgListWidget : public QListWidget {
     CfgListWidget(QWidget* _parent = NULL);
     vector<CfgListItem*>& GetListItems() { return m_items; }
 
-  signals:
-    void CallUpdateGL();
-
   private slots:
     void SelectInMap();
 

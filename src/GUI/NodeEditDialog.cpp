@@ -294,7 +294,6 @@ UpdateDOF(int _id) {
     GetVizmo().GetQry()->Build();
     GetVizmo().PlaceRobots();
   }
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -395,7 +394,6 @@ FinalizeNodeEdit(int _accepted) {
     }
   }
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -416,7 +414,6 @@ FinalizeNodeAdd(int _accepted) {
         QMessageBox::about(this, "", "Cannot add invalid node!");
     }
     GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-    GetMainWindow()->GetGLWidget()->updateGL();
   }
 }
 
@@ -452,5 +449,4 @@ FinalizeNodeMerge(int _accepted) {
       QMessageBox::about(this, "", "Invalid merge!");
   }
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }

@@ -66,7 +66,6 @@ SetBoundary() {
   sel.clear();
   sel.push_back(GetVizmo().GetEnv()->GetBoundary().get());
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
   accept();
 }
 

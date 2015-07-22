@@ -502,7 +502,6 @@ SaveRegion() {
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
   }
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -603,7 +602,6 @@ LoadRegion() {
   else
     GetMainWindow()->statusBar()->showMessage("Loading aborted", 2000);
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -762,7 +760,6 @@ ThreadDone() {
   m_regionsStarted = false;
 
   // Refresh scene + GUI
-  GetMainWindow()->GetGLWidget()->updateGL();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->m_mainMenu->CallReset();
 }

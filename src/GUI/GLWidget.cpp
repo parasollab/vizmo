@@ -107,7 +107,7 @@ paintGL() {
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  GetMainWindow()->InitVizmo();
+  //GetMainWindow()->InitVizmo();
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -196,8 +196,6 @@ mousePressEvent(QMouseEvent* _e) {
         m_pickBox.MousePressed(_e);
     }
   }
-
-  updateGL();
 }
 
 void
@@ -211,8 +209,6 @@ GLWidget::
 SimulateMouseUpSlot() {
   //simulate pick mouse up
   m_pickBox.MouseReleased(NULL);
-
-  updateGL();
 }
 
 void
@@ -231,7 +227,6 @@ mouseReleaseEvent(QMouseEvent* _e) {
     handled = m_currentUserPath->MouseReleased(_e, GetCurrentCamera());
 
   if(handled){ //handled by gli
-    updateGL();
     emit MRbyGLI();
     return;
   }
@@ -330,8 +325,6 @@ mouseReleaseEvent(QMouseEvent* _e) {
       }//end for
     }
   }*/
-
-  updateGL();
 }
 
 
@@ -349,7 +342,6 @@ mouseMoveEvent(QMouseEvent* _e) {
         !(m_currentUserPath && m_currentUserPath->PassiveMouseMotion(_e,
         GetCurrentCamera())))
       m_pickBox.PassiveMouseMotion(_e);
-    updateGL();
   }
   else {
     //handle active mouse motion
@@ -367,8 +359,6 @@ mouseMoveEvent(QMouseEvent* _e) {
           m_pickBox.MouseMotion(_e);
       }
     }
-
-    updateGL();
   }
 }
 
@@ -384,7 +374,6 @@ keyPressEvent(QKeyEvent* _e) {
       !m_transformTool.KeyPressed(_e) &&
       (!m_currentUserPath || !m_currentUserPath->KeyPressed(_e)))
     _e->ignore(); //not handled
-  updateGL();
 }
 
 
@@ -392,7 +381,6 @@ void
 GLWidget::
 ShowAxis() {
   m_showAxis = !m_showAxis;
-  updateGL();
 }
 
 
@@ -400,7 +388,6 @@ void
 GLWidget::
 ShowFrameRate() {
   m_showFrameRate = !m_showFrameRate;
-  updateGL();
 }
 
 

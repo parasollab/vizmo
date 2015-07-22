@@ -63,9 +63,6 @@ InitModels() {
       m_queryFilename = MPProblemBase::GetPath(m_queryFilename);
     }
     else {
-      size_t pos = m_envFilename.rfind('/');
-      string basename = pos == string::npos ? "" : m_envFilename.substr(0, pos+1);
-      MPProblemBase::SetPath(basename);
       //Create environment first
       if(m_envFilename.empty())
         throw ParseException(WHERE, "Vizmo must load an environment file.");
@@ -604,7 +601,7 @@ vector<string>
 Vizmo::
 GetAllStrategies() const {
   vector<string> names;
-  const VizmoProblem::MPStrategySet* mps = GetVizmoProblem()->GetMPStrategies();  
+  const VizmoProblem::MPStrategySet* mps = GetVizmoProblem()->GetMPStrategies();
   for(auto& method : *mps)
     names.emplace_back(method.second->GetNameAndLabel());
   return names;
