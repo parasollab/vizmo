@@ -105,16 +105,12 @@ class Vizmo {
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
-    const vector<string>& GetLoadedSamplers() {return m_loadedSamplers;}
-    void SetLoadedSamplers(const vector<string>& _samplers) {
-      m_loadedSamplers = _samplers;
-    }
-
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Get the name and label of a sampler from its label.
-    /// \param[in] \c _label The sampler's label.
-    string GetSamplerNameAndLabel(string _label);
-    
+    /// \brief Get the name and label of all Samplers specified in the
+    ///        vizmo problem
+    /// \return All Sampler name and labels.
+    vector<string> GetAllSamplers() const;
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the name and label of all MP strategies specified in the
     ///        vizmo problem
@@ -195,7 +191,6 @@ class Vizmo {
 
     vector<Model*> m_loadedModels;    ///< The currently loaded models.
     vector<Model*> m_selectedModels;  ///< The currently selected models.
-    vector<string> m_loadedSamplers;  ///< The labels for the available samplers.
 
     long m_seed;    ///< The program's random seed.
     map<string, pair<QTime, double> > m_timers; ///< A set of timers for stop-

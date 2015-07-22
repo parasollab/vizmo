@@ -26,7 +26,7 @@ ChangePlannerDialog(MainWindow* _mainWindow) : QDialog(_mainWindow),
     m_radioGroup->setExclusive(true);
 
     QDialogButtonBox* okCancel = new QDialogButtonBox(this);
-    okCancel->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel); 
+    okCancel->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     layout->addWidget(okCancel);
     setLayout(layout);
 

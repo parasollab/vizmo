@@ -35,11 +35,6 @@ class FileListDialog : public QDialog {
     /// \param[in] _key The parameter label to search for.
     /// \return The parameter value or an empty string if not found.
     string SearchXML(string _filename, string _key);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Search an XML file for a list of all samplers defined within.
-    /// \param[in] _filename The XML file to search.
-    /// \return The list of samplers found.
-    vector<string> LoadXMLSamplers(string _filename);
 
   private:
 

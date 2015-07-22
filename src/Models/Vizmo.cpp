@@ -270,13 +270,11 @@ InitPMPL() {
   VizmoProblem::SamplerPointer rus(
       new UniformRandomSampler<VizmoTraits>("RegionValidity"));
   problem->AddSampler(rus, "RegionUniformSampler");
-  m_loadedSamplers.push_back("RegionUniformSampler");
 
   //region obstacle-based sampler
   VizmoProblem::SamplerPointer robs(
       new ObstacleBasedSampler<VizmoTraits>("RegionValidity", "euclidean"));
   problem->AddSampler(robs, "RegionObstacleSampler");
-  m_loadedSamplers.push_back("RegionObstacleSampler");
 
   //region neighborhood connector
   VizmoProblem::ConnectorPointer rc(
@@ -307,7 +305,6 @@ Clean() {
   m_debugModel = NULL;
 
   m_loadedModels.clear();
-  m_loadedSamplers.clear();
   m_selectedModels.clear();
 
   delete GetVizmoProblem();
@@ -585,16 +582,20 @@ Solve(const string& _strategy) {
   GetVizmo().GetMap()->RefreshMap();
 }
 
-string
-Vizmo::
-GetSamplerNameAndLabel(string _label) {
-  return GetVizmoProblem()->GetSampler(_label)->GetNameAndLabel();
-}
-
 double
 Vizmo::
 GetMaxEnvDist() {
   return GetVizmo().GetEnv()->GetEnvironment()->GetBoundary()->GetMaxDist();
+}
+
+vector<string>
+Vizmo::
+GetAllSamplers() const {
+  vector<string> names;
+  const VizmoProblem::SamplerSet* ss = GetVizmoProblem()->GetSamplers();
+  for(auto& method : *ss)
+    names.emplace_back(method.second->GetNameAndLabel());
+  return names;
 }
 
 vector<string>

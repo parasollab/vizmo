@@ -312,9 +312,6 @@ Accept() {
 
     if(!m_queryFilename->text().isEmpty())
       GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
-
-    // Pass list of sampler strategies read in from xml to Vizmo.
-    GetVizmo().SetLoadedSamplers(LoadXMLSamplers(xmlfile));
   }
   else if(m_envCheckBox->isChecked()) {
     string envfile = m_envFilename->text().toStdString();
@@ -387,26 +384,3 @@ SearchXML(string _filename, string _key) {
   return "";
 }
 
-vector<string>
-FileListDialog::
-LoadXMLSamplers(string _filename) {
-  vector<string> samplers;
-
-  // Read in the motion planning node
-  XMLNode mpNode(_filename, "MotionPlanning");
-  for(auto& child : mpNode) {
-    // Read in MPProblem node
-    if(child.Name() == "MPProblem") {
-      for(auto& child2 : child) {
-        if(child2.Name() == "Samplers") {
-          for(auto& child3 : child2) {
-            samplers.push_back(
-                child3.Read("label", "false", "", "sampler name"));
-          }
-        }
-      }
-    }
-  }
-
-  return samplers;
-}

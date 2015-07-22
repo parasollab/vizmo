@@ -610,17 +610,10 @@ PlanningOptions::
 ChooseSamplerStrategy() {
   /// Requires that a single region is selected.
   if(SingleRegionSelected()) {
-    const vector<string>& samplers = GetVizmo().GetLoadedSamplers();
+    RegionSamplerDialog rsDialog(GetMainWindow());
 
-    if(samplers.size() == 1)
-      GetMainWindow()->GetGLWidget()->GetCurrentRegion()->
-        SetSampler(samplers.front());
-    else {
-      RegionSamplerDialog rsDialog(samplers, GetMainWindow());
-
-      if(rsDialog.exec() != QDialog::Accepted)
-        cout << "Sampler selection dialog aborted." << endl << flush;
-    }
+    if(rsDialog.exec() != QDialog::Accepted)
+      cout << "Sampler selection dialog aborted." << endl << flush;
   }
 }
 
