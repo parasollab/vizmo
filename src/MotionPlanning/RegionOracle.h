@@ -30,8 +30,9 @@ class RegionOracle : public MPStrategyMethod<MPTraits> {
     void Initialize();
     void Run();
     void Finalize();
-
+    virtual void ParseXML(XMLNode& _node);
   private:
+    vector<string> m_strategy;
 };
 
 
@@ -45,8 +46,19 @@ RegionOracle() : MPStrategyMethod<MPTraits>() {
 template<class MPTraits>
 RegionOracle<MPTraits>::
 RegionOracle(MPProblemType* _problem, XMLNode& _node) :
-    MPStrategyMethod<MPTraits>(_problem, _node) {
-  this->SetName("RegionOracle");
+  MPStrategyMethod<MPTraits>(_problem, _node) {
+    this->SetName("RegionOracle");
+    ParseXML(_node);
+  }
+
+
+template<class MPTraits>
+void
+RegionOracle<MPTraits>::
+ParseXML(XMLNode& _node) {
+  for(auto& child : _node)
+    if(child.Name() == "MPStrategy")
+      m_strategy.emplace_back(child.Read("method", true, "", "MPStrategy from VizmoXML"));
 }
 
 
@@ -70,6 +82,11 @@ Run() {
 
   GetVizmo().StartClock("RegionOracle");
   this->GetStatClass()->StartClock("RegionOracleMP");
+
+  for(auto& label : m_strategy){
+    cout << "RegionOracle Beginning Strategy: " << label << endl;
+    (*this->GetMPStrategy(label))();
+  }
 
   //stop clock
   GetVizmo().StopClock("RegionOracle");

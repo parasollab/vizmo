@@ -621,4 +621,3 @@ GetAllStrategies() const {
     names.emplace_back(method.second->GetNameAndLabel());
   return names;
 }
-

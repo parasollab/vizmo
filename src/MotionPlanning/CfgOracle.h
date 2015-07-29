@@ -20,25 +20,32 @@ class CfgOracle : public MPStrategyMethod<MPTraits> {
     typedef typename MPTraits::CfgType CfgType;
     typedef typename MPTraits::WeightType WeightType;
     typedef typename MPProblemType::RoadmapType::VID VID;
+    typedef typename MPProblemType::RoadmapType RoadmapType;
     typedef typename MPProblemType::RoadmapType::GraphType GraphType;
     typedef typename GraphType::VI VI;
     typedef typename GraphType::EID EID;
     typedef EnvModel::RegionModelPtr RegionModelPtr;
 
-    CfgOracle();
+    CfgOracle(string _inputMapFilename="");
     CfgOracle(MPProblemType* _problem, XMLNode& _node);
 
     void Initialize();
     void Run();
     void Finalize();
-
+    virtual void ParseXML(XMLNode& _node);
+    string m_cfgmap;
+    string m_baseXMLName;
   private:
+    vector<string> m_strategy;
+  protected:
+    string m_inputMapFilename;
+
 };
 
 
 template<class MPTraits>
 CfgOracle<MPTraits>::
-CfgOracle() : MPStrategyMethod<MPTraits>() {
+CfgOracle(string _inputMapFilename) : MPStrategyMethod<MPTraits>() {
   this->SetName("CfgOracle");
 }
 
@@ -46,9 +53,24 @@ CfgOracle() : MPStrategyMethod<MPTraits>() {
 template<class MPTraits>
 CfgOracle<MPTraits>::
 CfgOracle(MPProblemType* _problem, XMLNode& _node) :
-  MPStrategyMethod<MPTraits>(_problem, _node) {
-  this->SetName("CfgOracle");
-}
+  MPStrategyMethod<MPTraits>(_problem, _node), m_inputMapFilename("") {
+    this->SetName("CfgOracle");
+    ParseXML(_node);
+  }
+
+
+template<class MPTraits>
+void
+CfgOracle<MPTraits>::
+ParseXML(XMLNode& _node) {
+  m_inputMapFilename = _node.Read("cfgMap", false, "", "Cfg Map Filename");
+ m_baseXMLName = _node.Read("baseFilename", false, "", "Base file name from the XML.");
+
+  for(auto& child : _node)
+    if(child.Name() == "MPStrategy"){
+      m_strategy.emplace_back(child.Read("method", true, "", "MPStrategy from VizmoXML"));
+    }
+ }
 
 
 template<class MPTraits>
@@ -60,6 +82,13 @@ Initialize() {
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
+
+  RoadmapType* r = this->GetRoadmap();
+  r->Read(m_inputMapFilename.c_str());
+  GetVizmo().GetMap()->RefreshMap();
+  cout << "Input Map: " << m_inputMapFilename << endl;
+
+  //usleep(1000000);
 }
 
 
@@ -67,12 +96,17 @@ template<class MPTraits>
 void
 CfgOracle<MPTraits>::
 Run() {
-  //cout << "Running CfgOracle." << endl;
 
   GetVizmo().StartClock("CfgOracle");
   this->GetStatClass()->StartClock("CfgOracleMP");
+  GetVizmo().StopClock("Pre-cfgs");   
 
   cout<< "Running CfgOracle."<< endl;
+
+  for(auto& label : m_strategy){
+    cout << "CfgOracle Beginning Strategy: " << label << endl;
+    (*this->GetMPStrategy(label))();
+  }
 
   GetVizmo().GetMap()->RefreshMap();
   //stop clock
@@ -87,8 +121,7 @@ CfgOracle<MPTraits>::
 Finalize() {
   //set up variables
   StatClass* stats = this->GetStatClass();
-  string basename = this->GetBaseFilename();
-
+  string basename = this->GetBaseFilename(); //m_baseXMLName;
   cout << "Finalizing CfgOracle." << endl;
 
   //redraw finished map
@@ -96,7 +129,7 @@ Finalize() {
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //print clocks
-  GetVizmo().PrintClock("Pre-regions", cout);
+  GetVizmo().PrintClock("Pre-cfgs", cout);
   GetVizmo().PrintClock("CfgOracle", cout);
   stats->PrintClock("CfgOracleMP", cout);
 
@@ -106,7 +139,7 @@ Finalize() {
   ostats << "NodeGen+Connection Stats" << endl;
   stats->PrintAllStats(ostats, this->GetRoadmap());
 
-  GetVizmo().PrintClock("Pre-regions", ostats);
+  GetVizmo().PrintClock("Pre-cfgs", ostats);
   GetVizmo().PrintClock("CfgOracle", ostats);
   stats->PrintClock("CfgOracleMP", ostats);
 
@@ -115,8 +148,8 @@ Finalize() {
 
   //show results pop-up
   ostringstream results;
-  results << "Planning Complete!" << endl;
-  GetVizmo().PrintClock("Pre-regions", results);
+  results << "Planning Cfg Complete!" << endl;
+  GetVizmo().PrintClock("Pre-cfgs", results);
   GetVizmo().PrintClock("CfgOracle", results);
 
   GetMainWindow()->AlertUser(results.str());

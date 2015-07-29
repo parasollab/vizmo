@@ -31,6 +31,8 @@ class PlanningOptions : public OptionsBase {
     void AddRegionSphere();   ///< Add a new sphere region to the workspace.
     void AddRegionBox();      ///< Add a new box region to the workspace.
     void PlaceCfg();          ///< Place any cfgs that will be used in the planer
+    void SaveCfg();           ///< Saves any cfgs placed in environment
+    void SavePath();        
     void DuplicateRegion();   ///< Create a noncommit copy of the selected region.
     void DeleteRegion();      ///< Delete the selected region.
     void MakeRegionAttract(); ///< Set the selected region to attract.
@@ -104,6 +106,7 @@ class MapEnvironmentWorker : public QObject {
   private:
 
     string m_strategyLabel; ///< The label of the strategy to execute.
+
 };
 
 #endif

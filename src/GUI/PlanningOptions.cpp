@@ -94,7 +94,16 @@ CreateActions() {
       tr("Load Region"), this);
   m_actions["placeCfgs"] = new QAction(QPixmap(addnode),
       tr("Place Cfgs"), this);
-
+  ///////////////////////////////////////////ICON goes here
+  
+  m_actions["saveCfgs"] = new QAction(QPixmap(saveregion),
+    tr("Save Cfgs"), this);
+//  m_actions["loadCfgs"] = new QAction(QPixmap(loadregion),
+ //   tr("Load Cfgs"), this);
+  m_actions["savePath"] = new QAction(QPixmap(saveregion),
+    tr("Save Path"), this);
+  
+////////////////////////////////////////////////////////////////
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
   m_actions["addUserPathCamera"] = new QAction(QPixmap(recordpath),
@@ -124,7 +133,11 @@ CreateActions() {
   m_actions["saveRegion"]->setEnabled(false);
   m_actions["loadRegion"]->setEnabled(false);
   m_actions["placeCfgs"]->setEnabled(false);
-
+ //////////////////////////////////////////////////////////
+  m_actions["saveCfgs"]->setEnabled(false);
+ // m_actions["loadCfgs"]->setEnabled(false);
+  m_actions["savePath"]->setEnabled(false);
+  
   // 3. Make connections
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()),
       this, SLOT(AddRegionSphere()));
@@ -156,6 +169,14 @@ CreateActions() {
       this, SLOT(DeleteUserPath()));
   connect(m_actions["printUserPath"], SIGNAL(triggered()),
       this, SLOT(PrintUserPath()));
+  //////////////////////////////////////////////////////////
+  connect(m_actions["saveCfgs"], SIGNAL(triggered()),
+      this, SLOT(SaveCfg()));
+ // connect(m_actions["loadCfgs"], SIGNAL(triggered()),
+  //    this, SLOT(LoadCfg()));
+  connect(m_actions["savePath"], SIGNAL(triggered()),
+      this, SLOT(SavePath()));
+
 }
 
 
@@ -188,9 +209,9 @@ SetHelpTips() {
       tr("Print selected user path to file"));
   m_actions["saveRegion"]->setWhatsThis(
       tr("Saves the regions drawn in the scene"));
-  m_actions["loadRegion"]->setWhatsThis(
-      tr("Loads saved regions to the scene"));
-}
+ // m_actions["loadRegion"]->setWhatsThis(
+  //    tr("Loads saved regions to the scene"));
+  }
 
 
 void
@@ -208,9 +229,12 @@ SetUpSubmenu() {
   m_regionPropertiesMenu->addAction(m_actions["makeRegionAvoid"]);
   m_regionPropertiesMenu->addAction(m_actions["duplicateRegion"]);
   m_submenu->addMenu(m_regionPropertiesMenu);
-
+/////////////////////////////////////////////////////////////
   m_submenu->addAction(m_actions["placeCfgs"]);
-
+  m_submenu->addAction(m_actions["saveCfgs"]);
+//  m_submenu->addAction(m_actions["loadCfgs"]);
+  m_submenu->addAction(m_actions["savePath"]);
+///////////////////////////////////////////////////////////////
   m_submenu->addAction(m_actions["saveRegion"]);
   m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
@@ -253,8 +277,14 @@ SetUpToolTab() {
 
   buttonList.push_back("saveRegion");
   buttonList.push_back("loadRegion");
-  buttonList.push_back("placeCfgs");
 
+//////////////////////////////////////////////////////// 
+  buttonList.push_back("_separator_");
+  buttonList.push_back("placeCfgs");
+  buttonList.push_back("saveCfgs");
+//  buttonList.push_back("loadCfgs");
+  buttonList.push_back("savePath");
+/////////////////////////////////////////////////////////  
   buttonList.push_back("_separator_");
 
   buttonList.push_back("mapEnvironment");
@@ -282,6 +312,10 @@ Reset() {
   m_actions["saveRegion"]->setEnabled(true);
   m_actions["loadRegion"]->setEnabled(true);
   m_actions["placeCfgs"]->setEnabled(true);
+  ///////////////////////////////////////////////////////////
+  m_actions["saveCfgs"]->setEnabled(true);
+//  m_actions["loadCfgs"]->setEnabled(true);
+  m_actions["savePath"]->setEnabled(true);
   m_pathsMenu->setEnabled(true);
   m_addRegionMenu->setEnabled(true);
   m_regionPropertiesMenu->setEnabled(true);
@@ -359,12 +393,32 @@ PlaceCfg() {
   }
 
   GetVizmo().SetPMPLMap();
-
   NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Node");
   GetMainWindow()->ShowDialog(ned);
 }
 
+
 void
+PlanningOptions::
+SaveCfg() {
+  QString fn = QFileDialog::getSaveFileName(this, "Choose an cfg map file",
+      GetMainWindow()->GetLastDir(), "Cfg Map File (*.cfgmap)");
+
+  if(!fn.isEmpty()) {
+    string filename = fn.toStdString();
+    ofstream ofs(filename.c_str());
+    ofs << "#####CfgMapFile#####" << endl;
+
+    GetVizmo().GetMap()->Write(filename);
+
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  }
+  GetMainWindow()->GetGLWidget()->updateGL();
+}
+
+
+void 
 PlanningOptions::
 DuplicateRegion() {
   /// Requires that a single region is selected. The new region will be offset
@@ -745,6 +799,28 @@ CameraPathCapture() {
       disconnect(GetMainWindow()->GetMainClock(), SIGNAL(timeout()),
           this, SLOT(CameraPathCapture()));
   }
+}
+
+void
+PlanningOptions::
+SavePath(){
+  QString fn = QFileDialog::getSaveFileName(this, "Choose an path map file",
+      GetMainWindow()->GetLastDir(), "Path Map File (*.pathmap)");
+
+  if(!fn.isEmpty()) {
+    string filename = fn.toStdString();
+    ofstream ofs(filename.c_str());
+    ofs << "#####PathMapFile#####" << endl;
+    //////////////////////////////////////////////////////////////////
+   
+   // CfgType Start = cfgs.front();
+   // CfgType End = cfgs.back();
+
+    /////////////////////////////////////////////////////////////////
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  }
+  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 /*-------------------------- Common Planning Functions -----------------------*/

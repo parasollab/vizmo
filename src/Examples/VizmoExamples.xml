@@ -101,7 +101,7 @@
         sLabel="RegionUniformSampler" vcLabel="RegionValidity"
         cLabel = "RegionBFNFConnector"/>
 
-      <PathStrategy label="PathStrategy" vcLabel="cd4" dmLabel="edclidean" />
+      <PathStrategy label="PathStrategy" vcLabel="cd4" dmLabel="edclidean"/>
 
       <IRRTStrategy label="IRRT" vcLabel="cd4" nfLabel="BFNF" 
         dmLabel="euclidean" lpLabel="sl" gtype="UNDIRECTED_TREE" 
@@ -114,8 +114,21 @@
       <SparkRegion label="SparkRegion" cLabel="RegionBFNFConnector" lpLabel="RegionSL" 
         sLabel="RegionUniformSampler" vcLabel="RegionValidity"/>
 
+      <CfgOracle label="CfgOracle" cfgMap="" baseFilename="a">
+        <MPStrategy method = "RegionRRT"/>
+      </CfgOracle>
+
+      <!--RegionOracle label="RegionOracle">
+        <MPStrategy method = "RegionStrategy"/>
+      </RegionOracle-->
+
+      <PathOracle label="PathOracle" pathfile="">
+        <MPStrategy method = "RegionRRT"/>
+      </PathOracle>
+
+
     </MPStrategies>
-    <Solver mpStrategyLabel="RegionStrategy" seed="12345678"  baseFilename="s" 
+    <Solver mpStrategyLabel="CfgOracle" seed="12345678"  baseFilename="s" 
       vizmoDebug="true"/>
   </MPProblem>
 </MotionPlanning>
