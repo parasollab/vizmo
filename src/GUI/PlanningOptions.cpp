@@ -95,14 +95,14 @@ CreateActions() {
   m_actions["placeCfgs"] = new QAction(QPixmap(addnode),
       tr("Place Cfgs"), this);
   ///////////////////////////////////////////ICON goes here
-  
+
   m_actions["saveCfgs"] = new QAction(QPixmap(saveregion),
     tr("Save Cfgs"), this);
 //  m_actions["loadCfgs"] = new QAction(QPixmap(loadregion),
  //   tr("Load Cfgs"), this);
   m_actions["savePath"] = new QAction(QPixmap(saveregion),
     tr("Save Path"), this);
-  
+
 ////////////////////////////////////////////////////////////////
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
@@ -137,7 +137,7 @@ CreateActions() {
   m_actions["saveCfgs"]->setEnabled(false);
  // m_actions["loadCfgs"]->setEnabled(false);
   m_actions["savePath"]->setEnabled(false);
-  
+
   // 3. Make connections
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()),
       this, SLOT(AddRegionSphere()));
@@ -278,13 +278,13 @@ SetUpToolTab() {
   buttonList.push_back("saveRegion");
   buttonList.push_back("loadRegion");
 
-//////////////////////////////////////////////////////// 
+////////////////////////////////////////////////////////
   buttonList.push_back("_separator_");
   buttonList.push_back("placeCfgs");
   buttonList.push_back("saveCfgs");
 //  buttonList.push_back("loadCfgs");
   buttonList.push_back("savePath");
-/////////////////////////////////////////////////////////  
+/////////////////////////////////////////////////////////
   buttonList.push_back("_separator_");
 
   buttonList.push_back("mapEnvironment");
@@ -418,7 +418,7 @@ SaveCfg() {
 }
 
 
-void 
+void
 PlanningOptions::
 DuplicateRegion() {
   /// Requires that a single region is selected. The new region will be offset
@@ -812,7 +812,7 @@ SavePath(){
     ofstream ofs(filename.c_str());
     ofs << "#####PathMapFile#####" << endl;
     //////////////////////////////////////////////////////////////////
-   
+
    // CfgType Start = cfgs.front();
    // CfgType End = cfgs.back();
 

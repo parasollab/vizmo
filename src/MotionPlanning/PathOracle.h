@@ -39,6 +39,7 @@ class PathOracle : public MPStrategyMethod<MPTraits> {
   private:
     vector<string> m_strategy;
   protected:
+
     string m_inputPathFilename;
 };
 
@@ -66,7 +67,7 @@ ParseXML(XMLNode& _node) {
 
   for(auto& child : _node)
     if(child.Name() == "MPStrategy"){
-      m_strategy.emplace_back(child.Read("method", true, "", "MPStrategy from VizmoXML"));    
+      m_strategy.emplace_back(child.Read("method", true, "", "MPStrategy from VizmoXML"));
     }
 }
 
@@ -74,44 +75,35 @@ template<class MPTraits>
 void
 PathOracle<MPTraits>::
 Initialize() {
-  cout << "Initializing " << this->GetNameAndLabel() << "." << endl;
-
   string basename = this->GetBaseFilename();
   //Make non-region objects non-selectable
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
   GraphType* g = this ->GetRoadmap()->GetGraph();
 
-  vector<UserPathModel*> userPaths; 
+  vector<UserPathModel*> userPaths;
   userPaths = GetVizmo().GetEnv()->GetUserPaths();
-  shared_ptr<vector<CfgType> > cfgs; 
+  shared_ptr<vector<CfgType> > cfgs;
   for(const auto& path : userPaths) {
     cfgs = path->GetCfgs();
-    g->AddVertex(cfgs->front());
-    g->AddVertex(cfgs->back()); 
+    VID v1 = g->AddVertex(cfgs->front());
+    VID v2 = g->AddVertex(cfgs->back());
 
-    vector<CfgType> intermediates, back_intermediates;
-    copy(cfgs->begin() + 1, cfgs->begin()+cfgs->size()-1, back_inserter(intermediates));
-    reverse_copy (cfgs->begin() + 1, cfgs->begin()+cfgs->size()-1, back_inserter(back_intermediates));
+    vector<CfgType> intermediates, backIntermediates;
+    copy(cfgs->begin() + 1, cfgs->begin()+cfgs->size()-1,
+        back_inserter(intermediates));
+    reverse_copy(cfgs->begin() + 1, cfgs->begin()+cfgs->size()-1,
+        back_inserter(backIntermediates));
 
-
-
-    //LPOutput<MPTraits> lpOutput; 
-    //g->AddEdge(g->GetVID(cfgs->front()), g->GetVID(cfgs->back()), lpOutput.m_edge);
-    //g->AddEdge(g->GetVID(cfgs->front()), g->GetVID(cfgs->back()), lpOutput.);
-
-    cout << "cfgs size :" << cfgs->size() <<endl;
-    cout <<"intermediate :" <<intermediates.size() <<endl;
-    cout <<"back_intermediate :" <<back_intermediates.size() <<endl;
+    g->AddEdge(v1, v2, make_pair(WeightType("", 1, intermediates),
+          WeightType("", 1, backIntermediates)));
   }
-  // vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
   this->GetRoadmap()->Write(basename + ".cfgmap", this->GetEnvironment());
 
   if(!m_inputPathFilename.empty()){
     RoadmapType* r = this->GetRoadmap();
     r->Read(m_inputPathFilename.c_str());
     GetVizmo().GetMap()->RefreshMap();
-    usleep(3000000);
     cout << "Input Path: " << m_inputPathFilename << endl;
   }
 }
@@ -184,9 +176,9 @@ Finalize() {
 
 //  for(const auto& interm : cfgs) {
 //  this->GetRoadmap()->GetGraph()->AddVertex(interm);
-//  }     
+//  }
 /*
-   make iterator that goes through vector<cfgtype> cfgs 
+   make iterator that goes through vector<cfgtype> cfgs
    inside this iterator the variable will get the nth and n+1th term which are cfgs
 
    put this through a AddEdge(), and it returns an edge
