@@ -168,14 +168,14 @@ Finalize() {
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //perform query if query was given as input
-  /*if(this->m_query) {
+  if(this->m_query) {
     if(this->m_evaluateGoal) {
       if(this->m_query->PerformQuery(this->GetRoadmap()) && this->m_debug)
         cout << "Query successful!" << endl;
       else if(this->m_debug)
         cout << "Query unsuccessful." << endl;
     }
-  }*/
+  }
 
   //output final map
   this->GetRoadmap()->Write(basename + ".map", this->GetEnvironment());
