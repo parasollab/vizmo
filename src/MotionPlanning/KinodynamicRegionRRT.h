@@ -130,7 +130,7 @@ Run() {
       if(this->m_debug && this->m_goalsNotFound.empty())
         cout << "RRT FOUND ALL GOALS" << endl;
 
-      if(m_samplingRegion != NULL) {
+      /*if(m_samplingRegion != NULL) {
         //Delete region if q_new is in it
         shared_ptr<Boundary> boundary = m_samplingRegion->GetBoundary();
         if(this->GetMPProblem()->GetEnvironment()->InBounds(m_qNew, boundary)) {
@@ -138,7 +138,7 @@ Run() {
           GetMainWindow()->GetGLWidget()->SetCurrentRegion();
           GetVizmo().GetEnv()->DeleteRegion(m_samplingRegion);
         }
-      }
+      }*/
 
       GetVizmo().GetMap()->RefreshMap();
     }

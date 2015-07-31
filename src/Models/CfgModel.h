@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <mutex>
 using namespace std;
 
 #include <GL/gl.h>
@@ -103,6 +104,14 @@ class CfgModel : public Model, public CfgType {
 
     void DrawPathRobot();
 
+    void Lock() {
+      m_mutex->lock();
+    }
+
+    void UnLock() {
+      m_mutex->unlock();
+    }
+
   protected:
 
     bool m_isValid; ///< Indicates whether last collision check was valid.
@@ -117,6 +126,8 @@ class CfgModel : public Model, public CfgType {
     bool m_isQuery; ///< Indicates whether this configuration is part of a query.
     size_t m_index; ///< Indicates this configuration's VID in the graph.
     CCModel<CfgModel, EdgeModel>* m_cc; ///< Points to this configuration's CC.
+
+    shared_ptr<mutex> m_mutex;
 };
 
 #endif
