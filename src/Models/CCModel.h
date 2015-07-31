@@ -58,6 +58,7 @@ class CCModel : public Model {
     Graph* m_graph;      ///< Pointer to the graph.
     ColorMap m_colorMap; ///< Auxiliary structure for stapl graph.
     vector<VID> m_nodes; ///< A list of the VIDs in this CC.
+    vector<EID> m_edges; ///< A list of the EIDs in this CC.
 
     static map<VID, Color4> m_colorIndex; ///< Cfg colors by VID.
 };
@@ -104,6 +105,7 @@ Build() {
       CFG* cfg2 = &GetCfg((*ei).target());
       WEIGHT& edge = (*ei).property();
       edge.Set(edgeIdx++, &v->property(), cfg2);
+      m_edges.push_back((*ei).descriptor());
     }
   }
 
@@ -121,18 +123,24 @@ SetColor(const Color4& _c) {
   Model::SetColor(_c);
   m_colorIndex[m_rep] = _c;
 
-  typedef typename vector<VID>::iterator VIT;
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
-    GetCfg(*vit).SetColor(_c);
+  for(auto& vid : m_nodes)
+    GetCfg(vid).SetColor(_c);
 
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+  for(auto& e : m_edges) {
+    VI vi;
+    EI ei;
+    m_graph->find_edge(e, vi, ei);
+    (*ei).property().SetColor(_c);
+  }
+
+  /*for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
     VI v = m_graph->find_vertex(*vit);
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
       if((*ei).source() > (*ei).target())
         continue;
       (*ei).property().SetColor(_c);
     }
-  }
+  }*/
 }
 
 
@@ -140,18 +148,23 @@ template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::
 GetChildren(list<Model*>& _models) {
-  typedef typename vector<VID>::iterator VIT;
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
-    _models.push_back(&GetCfg(*vit));
+  for(auto& vid : m_nodes)
+    _models.push_back(&GetCfg(vid));
 
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+  for(auto& e : m_edges) {
+    VI vi;
+    EI ei;
+    m_graph->find_edge(e, vi, ei);
+    _models.push_back(&(*ei).property());
+  }
+  /*for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
     VI v = m_graph->find_vertex(*vit);
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
       if((*ei).source() > (*ei).target())
         continue;
       _models.push_back(&(*ei).property());
     }
-  }
+  }*/
 }
 
 
@@ -188,7 +201,13 @@ DrawRender() {
   glLineWidth(WEIGHT::m_edgeThickness);
 
   glBegin(GL_LINES);
-  typedef typename vector<VID>::iterator VIT;
+  for(auto& e : m_edges) {
+    VI vi;
+    EI ei;
+    m_graph->find_edge(e, vi, ei);
+    (*ei).property().DrawRenderInCC();
+  }
+  /*typedef typename vector<VID>::iterator VIT;
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
     VI v = m_graph->find_vertex(*vit);
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
@@ -200,7 +219,7 @@ DrawRender() {
       edge.Set(&v->property(), cfg2);
       edge.DrawRenderInCC();
     }
-  }
+  }*/
   glEnd();
 }
 
@@ -236,7 +255,17 @@ DrawSelect() {
   //draw edges
   glPushName(2);
   glLineWidth(WEIGHT::m_edgeThickness);
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
+  for(auto& e : m_edges) {
+    glPushName(e.source());
+    glPushName(e.target());
+    VI vi;
+    EI ei;
+    m_graph->find_edge(e, vi, ei);
+    (*ei).property().DrawSelect();
+    glPopName();
+    glPopName();
+  }
+  /*for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
     glPushName(*vit);
     VI v = m_graph->find_vertex(*vit);
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
@@ -250,7 +279,7 @@ DrawSelect() {
       glPopName();
     }
     glPopName();
-  }
+  }*/
   glPopName();
 }
 
