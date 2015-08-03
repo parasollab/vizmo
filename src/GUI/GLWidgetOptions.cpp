@@ -374,7 +374,13 @@ MakeInvisible() {
 void
 GLWidgetOptions::
 ChangeObjectColor() {
-  QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
+  Color4 init = GetVizmo().GetSelectedModels().front()->GetColor();
+  QColor start{int(init[0] * 255),
+               int(init[1] * 255),
+               int(init[2] * 255),
+               int(init[3] * 255)};
+  QColor color = QColorDialog::getColor(start, this, "Set Object Color",
+      QColorDialog::ShowAlphaChannel);
   double r, g, b;
   if(color.isValid()) {
     r = color.red() / 255.0;
