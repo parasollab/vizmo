@@ -41,16 +41,13 @@ class MainWindow : public QMainWindow {
 
   public:
 
-    MainWindow(QWidget* _parent = 0);
+    MainWindow(const vector<string>& _filenames, QWidget* _parent = 0);
 
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Create the GUI and OpenGL scene.
     /// \return A \c bool indicating success or failure.
     bool Init();
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Initializes the Vizmo object if it is not already initialized.
-    /// \return A \c bool indicating success or failure.
-    bool InitVizmo();
+
     vector<string>& GetArgs() { return m_args; }
     void SetVizmoInit(bool _tf) { m_vizmoInit = _tf; }
     bool GetVizmoInit() { return m_vizmoInit; }
@@ -80,13 +77,19 @@ class MainWindow : public QMainWindow {
     MainMenu* m_mainMenu;   ///< The top menu bar. Manages options classes.
     ToolTabWidget* m_toolTabWidget; ///< The tool tab widget. Owns tool tabs.
 
+  public slots:
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Initializes the Vizmo object if it is not already initialized.
+    /// \return A \c bool indicating success or failure.
+    bool InitVizmo();
+
   signals:
 
     void Alert(QString _s); ///< Signals a pop-up alert.
 
   private slots:
 
-    void UpdateScreen(); ///< Instructs the GLWidget to redraw the scene.
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Hides the dialog calling this signal, and also the dialog dock if
     /// no other dialogs are visible.

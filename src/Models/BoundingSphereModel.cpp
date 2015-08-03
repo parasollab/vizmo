@@ -9,20 +9,19 @@
 
 BoundingSphereModel::
 BoundingSphereModel(shared_ptr<BoundingSphere> _b) :
-  BoundaryModel("Bounding Sphere", _b),
-  m_boundingSphere(_b) {
-    m_center = m_boundingSphere->GetCenter();
-    Build();
-  }
+    BoundaryModel("Bounding Sphere", _b), m_boundingSphere(_b) {
+  m_center = m_boundingSphere->GetCenter();
+  Build();
+}
 
 BoundingSphereModel::
 BoundingSphereModel(const Point3d& _c, double _r) :
-  BoundaryModel("Bounding Sphere", NULL) {
-    m_boundingSphere = shared_ptr<BoundingSphere>(new BoundingSphere(_c, _r));
-    m_boundary = m_boundingSphere;
-    m_center = m_boundingSphere->GetCenter();
-    Build();
-  }
+    BoundaryModel("Bounding Sphere", NULL) {
+  m_boundingSphere = shared_ptr<BoundingSphere>(new BoundingSphere(_c, _r));
+  m_boundary = m_boundingSphere;
+  m_center = m_boundingSphere->GetCenter();
+  Build();
+}
 
 double
 BoundingSphereModel::
@@ -32,7 +31,7 @@ GetRadius() const {
 
 vector<pair<double, double> >
 BoundingSphereModel::
-GetRanges() {
+GetRanges() const {
   vector<pair<double, double> > ranges;
   const Vector3d& center = m_boundingSphere->GetCenter();
   double radius = m_boundingSphere->GetRadius();

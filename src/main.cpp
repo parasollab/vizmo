@@ -52,18 +52,10 @@ main(int _argc, char** _argv) {
   qRegisterMetaType<mathtool::Vector3d>("Vector3d");
 
   MainWindow*& window = GetMainWindow();
-  window = new MainWindow();
+  window = new MainWindow(filename);
   if(!window->Init()) {
     cerr << "Error: vizmo++ could not intialize main window." << endl;
     return 1;
-  }
-
-  if(!filename.empty()) {
-    // Directly open file dialog
-    window->ResetDialogs();
-    window->GetArgs().clear();
-    window->GetArgs() = filename;
-    window->SetVizmoInit(false);
   }
 
   //execute main window and application

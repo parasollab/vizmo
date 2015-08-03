@@ -184,6 +184,5 @@ RefreshPosition() {
       (*(*mit)->begin())->SetTransform(t);
     }
   }
-  m_mainWindow->GetGLWidget()->updateGL();
 }
 

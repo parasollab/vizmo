@@ -183,11 +183,13 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
       m_center = GLUtils::ProjectToWorld(x, y,
           _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
     }
+    m_crosshair.Enable();
     return true;
   }
   if(_e->buttons() == Qt::RightButton && (!m_firstClick)) {
     m_rmb = true;
     m_clicked = QPoint(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
+    m_crosshair.Enable();
     return true;
   }
   return false;
@@ -201,6 +203,7 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
     return false;
 
   if(m_lmb || m_rmb) {
+    m_crosshair.Disable();
     if(!m_firstClick)
       VDRemoveRegion(this);
     m_lmb = false;

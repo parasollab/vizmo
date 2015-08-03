@@ -344,6 +344,7 @@ DrawRender() {
     p->DrawRender();
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
 
   for(auto& t : m_tempObjs)
     t->DrawRender();
@@ -398,6 +399,7 @@ DrawSelect() {
   }
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
 
   glPushName(nameIndx);
   m_boundary->DrawSelect();

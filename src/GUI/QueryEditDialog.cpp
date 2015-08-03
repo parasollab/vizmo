@@ -140,6 +140,5 @@ QueryEditDialog::
 RefreshEnv() {
   m_queryModel->Build();
   GetVizmo().PlaceRobots();
-  m_mainWindow->GetGLWidget()->updateGL();
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }

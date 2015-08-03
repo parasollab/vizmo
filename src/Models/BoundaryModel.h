@@ -29,7 +29,7 @@ class BoundaryModel : public Model {
 
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get minimums and maximums for this environment in X, Y, Z.
-    virtual vector<pair<double, double> > GetRanges() = 0;
+    virtual vector<pair<double, double> > GetRanges() const = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     /// @brief Get maximum distance length for boundary
