@@ -196,6 +196,38 @@ DeleteUserPath(UserPathModel* _p) {
 
 void
 EnvModel::
+SaveUserPaths(const string& _filename) {
+  ofstream ofs(_filename);
+  ofs << "#####PathsFile#####" << endl << endl;
+
+  ofs << "NumPaths " << m_userPaths.size() << endl << endl;
+
+  for(const auto& path : m_userPaths)
+    ofs << *path << endl ;
+}
+
+void 
+EnvModel::
+LoadUserPaths(const string& _filename) {
+  ifstream ifs(_filename);
+  
+  //read num paths
+  string temp;
+  size_t number;
+  ifs >> temp >> temp >> number;
+
+  //read paths
+  m_userPaths.clear();
+  m_userPaths.resize(number);
+  for(auto& path : m_userPaths) {
+    path = new UserPathModel; 
+    ifs >> *path;
+  }
+  GetVizmo().GetEnv()->GetAvatar()->Disable();
+}
+
+void
+EnvModel::
 RemoveTempObjs(TempObjsModel* _t) {
   //remove TempObjs container from EnvModel
   for(vector<TempObjsModel*>::iterator tit = m_tempObjs.begin();

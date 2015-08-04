@@ -4,7 +4,6 @@
 #include "OptionsBase.h"
 #include "Models/EnvModel.h"
 
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief This class provides access to the user-guided planning tools.
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +32,7 @@ class PlanningOptions : public OptionsBase {
     void AddRegionBox();      ///< Add a new box region to the workspace.
     void PlaceCfg();          ///< Place any cfgs that will be used in the planer
     void SaveCfg();           ///< Saves any cfgs placed in environment
-    void SavePath();        
+    void LoadCfg();
     void DuplicateRegion();   ///< Create a noncommit copy of the selected region.
     void DeleteRegion();      ///< Delete the selected region.
     void MakeRegionAttract(); ///< Set the selected region to attract.
@@ -52,6 +51,9 @@ class PlanningOptions : public OptionsBase {
     void PrintUserPath();     ///< Output the selected user path to a file.
     void HapticPathCapture(); ///< Build a user path from the haptic cursor.
     void CameraPathCapture(); ///< Build a user path from the camera position.
+    void SavePath();     
+    void LoadPath();
+
 
     //Common planning functions
     void MapEnvironment();    ///< Start a mapping thread to run an MPStrategy.

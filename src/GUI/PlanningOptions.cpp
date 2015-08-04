@@ -29,11 +29,15 @@
 #include "Icons/AvoidRegion.xpm"
 #include "Icons/DeleteRegion.xpm"
 #include "Icons/DeleteUserPath.xpm"
+#include "Icons/LoadCfg.xpm"
+#include "Icons/LoadPath.xpm"
 #include "Icons/LoadRegion.xpm"
 #include "Icons/DuplicateRegion.xpm"
 #include "Icons/MapEnv.xpm"
 #include "Icons/PrintUserPath.xpm"
+#include "Icons/SaveCfg.xpm"
 #include "Icons/SaveRegion.xpm"
+#include "Icons/SavePaths.xpm"
 #include "Icons/UserPath.xpm"
 #include "Icons/RecordPath.xpm"
 
@@ -96,12 +100,14 @@ CreateActions() {
       tr("Place Cfgs"), this);
   ///////////////////////////////////////////ICON goes here
 
-  m_actions["saveCfgs"] = new QAction(QPixmap(saveregion),
+  m_actions["saveCfgs"] = new QAction(QPixmap(savecfg),
     tr("Save Cfgs"), this);
-//  m_actions["loadCfgs"] = new QAction(QPixmap(loadregion),
- //   tr("Load Cfgs"), this);
-  m_actions["savePath"] = new QAction(QPixmap(saveregion),
+  m_actions["loadCfgs"] = new QAction(QPixmap(loadcfg),
+    tr("Load Cfgs"), this);
+  m_actions["savePath"] = new QAction(QPixmap(savepaths),
     tr("Save Path"), this);
+  m_actions["loadPath"] = new QAction(QPixmap(loadpath),
+    tr("Load Path"), this);
 
 ////////////////////////////////////////////////////////////////
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
@@ -135,8 +141,9 @@ CreateActions() {
   m_actions["placeCfgs"]->setEnabled(false);
  //////////////////////////////////////////////////////////
   m_actions["saveCfgs"]->setEnabled(false);
- // m_actions["loadCfgs"]->setEnabled(false);
+  m_actions["loadCfgs"]->setEnabled(false);
   m_actions["savePath"]->setEnabled(false);
+  m_actions["loadPath"]->setEnabled(false);
 
   // 3. Make connections
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()),
@@ -172,10 +179,13 @@ CreateActions() {
   //////////////////////////////////////////////////////////
   connect(m_actions["saveCfgs"], SIGNAL(triggered()),
       this, SLOT(SaveCfg()));
- // connect(m_actions["loadCfgs"], SIGNAL(triggered()),
-  //    this, SLOT(LoadCfg()));
+  connect(m_actions["loadCfgs"], SIGNAL(triggered()),
+      this, SLOT(LoadCfg()));
   connect(m_actions["savePath"], SIGNAL(triggered()),
       this, SLOT(SavePath()));
+  connect(m_actions["loadPath"], SIGNAL(triggered()),
+      this, SLOT(LoadPath()));
+
 
 }
 
@@ -209,9 +219,7 @@ SetHelpTips() {
       tr("Print selected user path to file"));
   m_actions["saveRegion"]->setWhatsThis(
       tr("Saves the regions drawn in the scene"));
- // m_actions["loadRegion"]->setWhatsThis(
-  //    tr("Loads saved regions to the scene"));
-  }
+ }
 
 
 void
@@ -232,8 +240,9 @@ SetUpSubmenu() {
 /////////////////////////////////////////////////////////////
   m_submenu->addAction(m_actions["placeCfgs"]);
   m_submenu->addAction(m_actions["saveCfgs"]);
-//  m_submenu->addAction(m_actions["loadCfgs"]);
+  m_submenu->addAction(m_actions["loadCfgs"]);
   m_submenu->addAction(m_actions["savePath"]);
+  m_submenu->addAction(m_actions["loadPath"]);
 ///////////////////////////////////////////////////////////////
   m_submenu->addAction(m_actions["saveRegion"]);
   m_submenu->addAction(m_actions["loadRegion"]);
@@ -264,6 +273,8 @@ SetUpToolTab() {
   buttonList.push_back("addUserPathHaptic");
   buttonList.push_back("deleteUserPath");
   buttonList.push_back("printUserPath");
+  buttonList.push_back("savePath");
+  buttonList.push_back("loadPath");
 
   buttonList.push_back("_separator_");
 
@@ -282,8 +293,7 @@ SetUpToolTab() {
   buttonList.push_back("_separator_");
   buttonList.push_back("placeCfgs");
   buttonList.push_back("saveCfgs");
-//  buttonList.push_back("loadCfgs");
-  buttonList.push_back("savePath");
+  buttonList.push_back("loadCfgs");
 /////////////////////////////////////////////////////////
   buttonList.push_back("_separator_");
 
@@ -314,8 +324,9 @@ Reset() {
   m_actions["placeCfgs"]->setEnabled(true);
   ///////////////////////////////////////////////////////////
   m_actions["saveCfgs"]->setEnabled(true);
-//  m_actions["loadCfgs"]->setEnabled(true);
+  m_actions["loadCfgs"]->setEnabled(true);
   m_actions["savePath"]->setEnabled(true);
+  m_actions["loadPath"]->setEnabled(true);
   m_pathsMenu->setEnabled(true);
   m_addRegionMenu->setEnabled(true);
   m_regionPropertiesMenu->setEnabled(true);
@@ -418,6 +429,24 @@ SaveCfg() {
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
   }
+  GetMainWindow()->GetGLWidget()->updateGL();
+}
+
+
+void
+PlanningOptions::
+LoadCfg() {
+  QString fn = QFileDialog::getOpenFileName(this, "Choose an cfg map file",
+      GetMainWindow()->GetLastDir(), "Cfg Map File (*.cfgmap)");
+  if(!fn.isEmpty()) {
+    // GetVizmo().GetMap()->Read(fn.c_str()); 
+
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  } 
+  else
+    GetMainWindow()->statusBar()->showMessage("Loading aborted", 2000);
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->GetGLWidget()->updateGL();
 }
 
@@ -798,23 +827,30 @@ CameraPathCapture() {
 
 void
 PlanningOptions::
-SavePath(){
+SavePath() {
   QString fn = QFileDialog::getSaveFileName(this, "Choose an path map file",
       GetMainWindow()->GetLastDir(), "Path Map File (*.pathmap)");
 
   if(!fn.isEmpty()) {
-    string filename = fn.toStdString();
-    ofstream ofs(filename.c_str());
-    ofs << "#####PathMapFile#####" << endl;
-    //////////////////////////////////////////////////////////////////
-
-   // CfgType Start = cfgs.front();
-   // CfgType End = cfgs.back();
-
-    /////////////////////////////////////////////////////////////////
+    GetVizmo().GetEnv()->SaveUserPaths(fn.toStdString());
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
   }
+}
+
+void 
+PlanningOptions::
+LoadPath() {
+  QString fn = QFileDialog::getOpenFileName(this, "Choose an path file",
+      GetMainWindow()->GetLastDir(), "Path File (*.pathmap)");
+  if(!fn.isEmpty()) {
+    GetVizmo().GetEnv()->LoadUserPaths(fn.toStdString());
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  }
+  else
+    GetMainWindow()->statusBar()->showMessage("Loading aborted", 2000);
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->GetGLWidget()->updateGL();
 }
 
