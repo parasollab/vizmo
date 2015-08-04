@@ -302,46 +302,38 @@ void
 FileListDialog::
 Accept() {
   if(m_xmlMode) {
-    GetVizmo().SetXMLFileName(m_xmlFilename->text().toStdString());
-    m_envFilename->setText(
-        SearchXML(m_xmlFilename->text().toStdString(), "Environment").c_str());
-    m_queryFilename->setText(
-        SearchXML(m_xmlFilename->text().toStdString(), "Query").c_str());
+    string xmlfile = m_xmlFilename->text().toStdString();
+    GetVizmo().SetXMLFileName(xmlfile);
+    m_envFilename->setText(SearchXML(xmlfile, "Environment").c_str());
+    m_queryFilename->setText(SearchXML(xmlfile, "Query").c_str());
 
-    if(!m_envFilename->text().toStdString().empty())
+    if(!m_envFilename->text().isEmpty())
       GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
 
-    if(!m_queryFilename->text().toStdString().empty())
+    if(!m_queryFilename->text().isEmpty())
       GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
-
-    // Pass list of sampler strategies read in from xml to Vizmo.
-    GetVizmo().SetLoadedSamplers(LoadXMLSamplers(
-        m_xmlFilename->text().toStdString()));
-
-    accept();
   }
   else if(m_envCheckBox->isChecked()) {
-    GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
+    string envfile = m_envFilename->text().toStdString();
+    string mapfile = m_mapCheckBox->isChecked() ?
+      m_mapFilename->text().toStdString() : "";
+    string queryfile = m_queryCheckBox->isChecked() ?
+      m_queryFilename->text().toStdString() : "";
+    string pathfile = m_pathCheckBox->isChecked() ?
+      m_pathFilename->text().toStdString() : "";
+    string debugfile = m_debugCheckBox->isChecked() ?
+      m_debugFilename->text().toStdString() : "";
 
-    GetVizmo().SetMapFileName("");
-    if(m_mapCheckBox->isChecked())
-      GetVizmo().SetMapFileName(m_mapFilename->text().toStdString());
-
-    GetVizmo().SetQryFileName("");
-    if(m_queryCheckBox->isChecked())
-      GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
-
-    GetVizmo().SetPathFileName("");
-    if(m_pathCheckBox->isChecked())
-      GetVizmo().SetPathFileName(m_pathFilename->text().toStdString());
-
-    GetVizmo().SetDebugFileName("");
-    if(m_debugCheckBox->isChecked())
-      GetVizmo().SetDebugFileName(m_debugFilename->text().toStdString());
-    accept();
+    //Set vizmo filenames
+    GetVizmo().SetEnvFileName(envfile);
+    GetVizmo().SetMapFileName(mapfile);
+    GetVizmo().SetQryFileName(queryfile);
+    GetVizmo().SetPathFileName(pathfile);
+    GetVizmo().SetDebugFileName(debugfile);
   }
   else
     GetMainWindow()->AlertUser("No Environment File Loaded.");
+  accept();
 }
 
 void
@@ -392,26 +384,3 @@ SearchXML(string _filename, string _key) {
   return "";
 }
 
-vector<string>
-FileListDialog::
-LoadXMLSamplers(string _filename) {
-  vector<string> samplers;
-
-  // Read in the motion planning node
-  XMLNode mpNode(_filename, "MotionPlanning");
-  for(auto& child : mpNode) {
-    // Read in MPProblem node
-    if(child.Name() == "MPProblem") {
-      for(auto& child2 : child) {
-        if(child2.Name() == "Samplers") {
-          for(auto& child3 : child2) {
-            samplers.push_back(
-                child3.Read("label", "false", "", "sampler name"));
-          }
-        }
-      }
-    }
-  }
-
-  return samplers;
-}

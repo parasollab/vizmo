@@ -281,18 +281,19 @@ ResetUp() {
 }
 
 
+Vector3d
+Camera::
+ProjectToWorld(const Vector3d& _v) const {
+  return _v[0] * GetWindowX() + _v[1] * GetWindowY() + _v[2] * GetWindowZ();
+}
+
+
 /*---------------------------- Cross-thread Controls -------------------------*/
 
 void
 Camera::
 Translate(const Vector3d& _delta) {
-  // Transform _delta to world coordinates.
-  Vector3d worldDelta = _delta[0] * GetWindowX() +
-                        _delta[1] * GetWindowY() +
-                        _delta[2] * GetWindowZ();
-
-  // Apply translation.
-  m_eye += worldDelta;
+  m_eye += Camera::ProjectToWorld(_delta);
 }
 
 
@@ -304,9 +305,7 @@ Rotate(const Vector3d& _axis, double _theta) {
     return;
 
   // Transform _axis to world coordinates.
-  Vector3d worldAxis = _axis[0] * GetWindowX() +
-                       _axis[1] * GetWindowY() +
-                       _axis[2] * GetWindowZ();
+  Vector3d worldAxis = Camera::ProjectToWorld(_axis);
 
   // Apply rotation.
   m_dir.rotate(worldAxis, _theta).selfNormalize();

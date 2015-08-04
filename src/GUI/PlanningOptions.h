@@ -24,6 +24,7 @@ class PlanningOptions : public OptionsBase {
     void HaltMPThread(); ///< Deletes the current mapping thread if one exists.
 
     void ResetRegionTimer() {m_regionsStarted = false;}
+    void StartRegionTimer();
 
   private slots:
 

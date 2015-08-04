@@ -353,7 +353,6 @@ RefreshEnv() {
   GetVizmo().GetEnv()->SetRenderMode(SOLID_MODE);
   GetMainWindow()->GetModelSelectionWidget()->reset();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -363,7 +362,6 @@ ClickRobot() {
   CfgModel::SetShape(CfgModel::Robot);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -373,7 +371,6 @@ ClickPoint() {
   CfgModel::SetShape(CfgModel::Point);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -381,5 +378,4 @@ void
 EnvironmentOptions::
 RandomizeEnvColors() {
   GetVizmo().GetEnv()->ChangeColor();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }

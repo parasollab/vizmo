@@ -324,14 +324,20 @@ Reset() {
 
 void
 PlanningOptions::
-AddRegionBox() {
-  /// Automatically determines whether a 2D or 3D box is needed by checking
-  /// whether the robot is planar. Additionally, the pre-regions timer will be
-  /// started if it has not been already.
+StartRegionTimer() {
   if(!m_regionsStarted) {
     GetVizmo().StartClock("Pre-regions");
     m_regionsStarted = true;
   }
+}
+
+void
+PlanningOptions::
+AddRegionBox() {
+  /// Automatically determines whether a 2D or 3D box is needed by checking
+  /// whether the robot is planar. Additionally, the pre-regions timer will be
+  /// started if it has not been already.
+  StartRegionTimer();
 
   // Create new box region
   RegionModelPtr r;
@@ -360,10 +366,8 @@ AddRegionSphere() {
   /// Automatically determines whether a 2D or 3D sphere is needed by checking
   /// whether the robot is planar. Additionally, the pre-regions timer will be
   /// started if it has not been already.
-  if(!m_regionsStarted) {
-    GetVizmo().StartClock("Pre-regions");
-    m_regionsStarted = true;
-  }
+  StartRegionTimer();
+
   // Create new sphere region
   RegionModelPtr r;
 
@@ -552,7 +556,6 @@ SaveRegion() {
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
   }
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -653,7 +656,6 @@ LoadRegion() {
   else
     GetMainWindow()->statusBar()->showMessage("Loading aborted", 2000);
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -662,17 +664,10 @@ PlanningOptions::
 ChooseSamplerStrategy() {
   /// Requires that a single region is selected.
   if(SingleRegionSelected()) {
-    const vector<string>& samplers = GetVizmo().GetLoadedSamplers();
+    RegionSamplerDialog rsDialog(GetMainWindow());
 
-    if(samplers.size() == 1)
-      GetMainWindow()->GetGLWidget()->GetCurrentRegion()->
-        SetSampler(samplers.front());
-    else {
-      RegionSamplerDialog rsDialog(samplers, GetMainWindow());
-
-      if(rsDialog.exec() != QDialog::Accepted)
-        cout << "Sampler selection dialog aborted." << endl << flush;
-    }
+    if(rsDialog.exec() != QDialog::Accepted)
+      cout << "Sampler selection dialog aborted." << endl << flush;
   }
 }
 
@@ -834,7 +829,6 @@ ThreadDone() {
   m_regionsStarted = false;
 
   // Refresh scene + GUI
-  GetMainWindow()->GetGLWidget()->updateGL();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->m_mainMenu->CallReset();
 }

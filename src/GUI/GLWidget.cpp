@@ -16,10 +16,8 @@
 
 #include "PHANToM/Manager.h"
 
-#include "Utilities/Camera.h"
 #include "Utilities/Font.h"
 #include "Utilities/GLUtils.h"
-#include "Utilities/TransformTool.h"
 
 bool SHIFT_CLICK = false;
 
@@ -30,11 +28,10 @@ int bs = qRegisterMetaType<Point3d>("Point3d");
 //This class handle opengl features
 
 GLWidget::
-GLWidget(QWidget* _parent, MainWindow* _mainWindow) : QGLWidget(_parent),
+GLWidget(QWidget* _parent) : QGLWidget(_parent),
     m_camera(Point3d(0, 0, 500), Vector3d(0, 0, 0)),
     m_transformTool(GetCurrentCamera()), m_currentRegion(),
     m_currentUserPath(NULL) {
-  m_mainWindow = _mainWindow;
   setMinimumSize(271, 211); //original size: 400 x 600
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setFocusPolicy(Qt::StrongFocus);
@@ -66,12 +63,6 @@ ResetCamera() {
   }
   else
     GetCurrentCamera()->Set(Vector3d(0, 0, 1), Vector3d());
-}
-
-Camera*
-GLWidget::
-GetCurrentCamera() {
-  return &m_camera;
 }
 
 void
@@ -116,7 +107,7 @@ paintGL() {
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  m_mainWindow->InitVizmo();
+  //GetMainWindow()->InitVizmo();
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -129,6 +120,11 @@ paintGL() {
 
   //draw transform tool
   m_transformTool.Draw();
+
+  //draw cursor
+  #ifdef USE_SPACEMOUSE
+  m_cursor.Draw();
+  #endif
 
   //draw axis
   DrawAxis();
@@ -200,8 +196,6 @@ mousePressEvent(QMouseEvent* _e) {
         m_pickBox.MousePressed(_e);
     }
   }
-
-  updateGL();
 }
 
 void
@@ -215,8 +209,6 @@ GLWidget::
 SimulateMouseUpSlot() {
   //simulate pick mouse up
   m_pickBox.MouseReleased(NULL);
-
-  updateGL();
 }
 
 void
@@ -235,7 +227,6 @@ mouseReleaseEvent(QMouseEvent* _e) {
     handled = m_currentUserPath->MouseReleased(_e, GetCurrentCamera());
 
   if(handled){ //handled by gli
-    updateGL();
     emit MRbyGLI();
     return;
   }
@@ -334,8 +325,6 @@ mouseReleaseEvent(QMouseEvent* _e) {
       }//end for
     }
   }*/
-
-  updateGL();
 }
 
 
@@ -353,7 +342,6 @@ mouseMoveEvent(QMouseEvent* _e) {
         !(m_currentUserPath && m_currentUserPath->PassiveMouseMotion(_e,
         GetCurrentCamera())))
       m_pickBox.PassiveMouseMotion(_e);
-    updateGL();
   }
   else {
     //handle active mouse motion
@@ -371,8 +359,6 @@ mouseMoveEvent(QMouseEvent* _e) {
           m_pickBox.MouseMotion(_e);
       }
     }
-
-    updateGL();
   }
 }
 
@@ -388,7 +374,6 @@ keyPressEvent(QKeyEvent* _e) {
       !m_transformTool.KeyPressed(_e) &&
       (!m_currentUserPath || !m_currentUserPath->KeyPressed(_e)))
     _e->ignore(); //not handled
-  updateGL();
 }
 
 
@@ -396,7 +381,6 @@ void
 GLWidget::
 ShowAxis() {
   m_showAxis = !m_showAxis;
-  updateGL();
 }
 
 
@@ -404,7 +388,6 @@ void
 GLWidget::
 ShowFrameRate() {
   m_showFrameRate = !m_showFrameRate;
-  updateGL();
 }
 
 

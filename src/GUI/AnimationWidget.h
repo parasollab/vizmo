@@ -21,10 +21,6 @@ class AnimationWidget : public QToolBar {
 
     void Reset();            ///< Reset buttons based on loaded models.
 
-  signals:
-
-    void CallUpdate();       ///< Requests a redraw of the GLWidget
-
   private slots:
 
     void GoToFrame(int);     ///< Advance playbar and scene to selected frame

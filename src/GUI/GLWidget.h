@@ -10,6 +10,10 @@
 #include "Utilities/PickBox.h"
 #include "Utilities/TransformTool.h"
 
+#ifdef USE_SPACEMOUSE
+#include "Utilities/Cursor3d.h"
+#endif
+
 using namespace std;
 
 class MainWindow;
@@ -25,13 +29,13 @@ class GLWidget : public QGLWidget {
 
   public:
 
-    GLWidget(QWidget* _parent, MainWindow* _mainWindow);
+    GLWidget(QWidget* _parent);
 
     bool GetDoubleClickStatus() const {return m_doubleClick;}
     void SetDoubleClickStatus(bool _b) {m_doubleClick = _b;}
 
     void ResetCamera();
-    Camera* GetCurrentCamera();
+    Camera* GetCurrentCamera() {return &m_camera;}
     void SetMousePos(Point3d& _p) {emit SetMouse(_p);}
 
     void SetRecording(bool _b) {m_recording = _b;}
@@ -54,6 +58,11 @@ class GLWidget : public QGLWidget {
 
     UserPathModel* GetCurrentUserPath() {return m_currentUserPath;}
     void SetCurrentUserPath(UserPathModel* _p) {m_currentUserPath = _p;}
+
+    #ifdef USE_SPACEMOUSE
+    void ResetCursor() {m_cursor.Reset();}
+    Cursor3d* GetCursor() {return &m_cursor;}
+    #endif
 
   signals:
 
@@ -98,8 +107,6 @@ class GLWidget : public QGLWidget {
     void DrawAxis();
     void DrawFrameRate(double _frameRate);
 
-    MainWindow* m_mainWindow;
-
     bool m_takingSnapShot;
     bool m_showAxis, m_showFrameRate;
     bool m_doubleClick;
@@ -113,6 +120,10 @@ class GLWidget : public QGLWidget {
 
     shared_ptr<RegionModel> m_currentRegion;
     UserPathModel* m_currentUserPath;
+
+    #ifdef USE_SPACEMOUSE
+    Cursor3d m_cursor{Point3d()};
+    #endif
 };
 
 #endif

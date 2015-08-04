@@ -33,7 +33,6 @@ class CaptureOptions : public OptionsBase {
 
     void SimulateMouseUp();       ///< Emulates mouse release.
     void ToggleSelectionSignal(); ///< Indicates that the crop box was toggled.
-    void CallUpdate();            ///< Requests a redraw of the GL scene.
     void UpdateFrame(int);        ///< Indicates the current movie frame.
 
   private:

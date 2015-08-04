@@ -130,7 +130,7 @@ Print(ostream& _os) const {
 
 vector<pair<double, double> >
 BoundingBoxModel::
-GetRanges() {
+GetRanges() const {
   const pair<double, double>* const bbx = m_boundingBox->GetBox();
   return vector<pair<double, double>>(bbx, bbx+3);
 }

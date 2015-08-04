@@ -29,7 +29,6 @@ SelectInMap() { //Display intermediate cfg selection on map
     else
       sel.erase(remove(sel.begin(), sel.end(), (*i)->m_cfg), sel.end());
   }
-  emit CallUpdateGL();
 }
 
 EdgeEditDialog::
@@ -85,7 +84,6 @@ EdgeEditDialog(MainWindow* _mainWindow, EdgeModel* _originalEdge)
   connect(removeIntermediateButton, SIGNAL(clicked()), this, SLOT(RemoveIntermediate()));
   connect(doneButton, SIGNAL(clicked()), this, SLOT(accept()));
   connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-  connect(m_intermediatesList, SIGNAL(CallUpdateGL()), m_glScene, SLOT(updateGL()));
 
   //Set end behavior
   connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeEdgeEdit(int)));
@@ -130,7 +128,6 @@ ResetIntermediates() {
       i++;
     }
   }
-  m_glScene->updateGL();
 }
 
 void
@@ -210,5 +207,4 @@ FinalizeEdgeEdit(int _accepted) {
       QMessageBox::about(this, "", "Invalid edge!");
   }
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
-  m_mainWindow->GetGLWidget()->updateGL();
 }
