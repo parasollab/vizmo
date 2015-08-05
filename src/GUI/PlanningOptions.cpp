@@ -44,12 +44,12 @@
 
 PlanningOptions::
 PlanningOptions(QWidget* _parent) : OptionsBase(_parent, "Planning"),
-    m_regionsStarted(false), m_cfgStarted(false), m_thread(NULL) {
-  CreateActions();
-  SetHelpTips();
-  SetUpSubmenu();
-  SetUpToolTab();
-}
+  m_regionsStarted(false), m_pathStarted(false), m_cfgStarted(false), m_thread(NULL) {
+    CreateActions();
+    SetHelpTips();
+    SetUpSubmenu();
+    SetUpToolTab();
+  }
 
 
 PlanningOptions::
@@ -98,18 +98,14 @@ CreateActions() {
       tr("Load Region"), this);
   m_actions["placeCfgs"] = new QAction(QPixmap(addnode),
       tr("Place Cfgs"), this);
-  ///////////////////////////////////////////ICON goes here
-
   m_actions["saveCfgs"] = new QAction(QPixmap(savecfg),
-    tr("Save Cfgs"), this);
+      tr("Save Cfgs"), this);
   m_actions["loadCfgs"] = new QAction(QPixmap(loadcfg),
-    tr("Load Cfgs"), this);
+      tr("Load Cfgs"), this);
   m_actions["savePath"] = new QAction(QPixmap(savepaths),
-    tr("Save Path"), this);
+      tr("Save Path"), this);
   m_actions["loadPath"] = new QAction(QPixmap(loadpath),
-    tr("Load Path"), this);
-
-////////////////////////////////////////////////////////////////
+      tr("Load Path"), this);
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
   m_actions["addUserPathCamera"] = new QAction(QPixmap(recordpath),
@@ -139,7 +135,6 @@ CreateActions() {
   m_actions["saveRegion"]->setEnabled(false);
   m_actions["loadRegion"]->setEnabled(false);
   m_actions["placeCfgs"]->setEnabled(false);
- //////////////////////////////////////////////////////////
   m_actions["saveCfgs"]->setEnabled(false);
   m_actions["loadCfgs"]->setEnabled(false);
   m_actions["savePath"]->setEnabled(false);
@@ -176,7 +171,6 @@ CreateActions() {
       this, SLOT(DeleteUserPath()));
   connect(m_actions["printUserPath"], SIGNAL(triggered()),
       this, SLOT(PrintUserPath()));
-  //////////////////////////////////////////////////////////
   connect(m_actions["saveCfgs"], SIGNAL(triggered()),
       this, SLOT(SaveCfg()));
   connect(m_actions["loadCfgs"], SIGNAL(triggered()),
@@ -219,7 +213,7 @@ SetHelpTips() {
       tr("Print selected user path to file"));
   m_actions["saveRegion"]->setWhatsThis(
       tr("Saves the regions drawn in the scene"));
- }
+}
 
 
 void
@@ -237,13 +231,11 @@ SetUpSubmenu() {
   m_regionPropertiesMenu->addAction(m_actions["makeRegionAvoid"]);
   m_regionPropertiesMenu->addAction(m_actions["duplicateRegion"]);
   m_submenu->addMenu(m_regionPropertiesMenu);
-/////////////////////////////////////////////////////////////
   m_submenu->addAction(m_actions["placeCfgs"]);
   m_submenu->addAction(m_actions["saveCfgs"]);
   m_submenu->addAction(m_actions["loadCfgs"]);
   m_submenu->addAction(m_actions["savePath"]);
   m_submenu->addAction(m_actions["loadPath"]);
-///////////////////////////////////////////////////////////////
   m_submenu->addAction(m_actions["saveRegion"]);
   m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
@@ -289,12 +281,10 @@ SetUpToolTab() {
   buttonList.push_back("saveRegion");
   buttonList.push_back("loadRegion");
 
-////////////////////////////////////////////////////////
   buttonList.push_back("_separator_");
   buttonList.push_back("placeCfgs");
   buttonList.push_back("saveCfgs");
   buttonList.push_back("loadCfgs");
-/////////////////////////////////////////////////////////
   buttonList.push_back("_separator_");
 
   buttonList.push_back("mapEnvironment");
@@ -322,7 +312,6 @@ Reset() {
   m_actions["saveRegion"]->setEnabled(true);
   m_actions["loadRegion"]->setEnabled(true);
   m_actions["placeCfgs"]->setEnabled(true);
-  ///////////////////////////////////////////////////////////
   m_actions["saveCfgs"]->setEnabled(true);
   m_actions["loadCfgs"]->setEnabled(true);
   m_actions["savePath"]->setEnabled(true);
@@ -439,7 +428,8 @@ LoadCfg() {
   QString fn = QFileDialog::getOpenFileName(this, "Choose an cfg map file",
       GetMainWindow()->GetLastDir(), "Cfg Map File (*.cfgmap)");
   if(!fn.isEmpty()) {
-    // GetVizmo().GetMap()->Read(fn.c_str()); 
+
+    string filename = fn.toStdString();
 
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
@@ -740,6 +730,11 @@ AddUserPath() {
     p = new UserPathModel(UserPathModel::Mouse);
   GetVizmo().GetEnv()->AddUserPath(p);
 
+  if(!m_pathStarted) {
+    GetVizmo().StartClock("Pre-paths");
+    m_pathStarted = true;
+  }
+
   // set mouse events to current path for GLWidget
   GetMainWindow()->GetGLWidget()->SetCurrentUserPath(p);
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
@@ -915,12 +910,12 @@ MapEnvironment() {
 
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel)
-    : QObject(), m_strategyLabel(_strategyLabel) {}
+  : QObject(), m_strategyLabel(_strategyLabel) {}
 
 
-void
-MapEnvironmentWorker::
-Solve() {
-  GetVizmo().Solve(m_strategyLabel);
-  emit Finished();
-}
+  void
+  MapEnvironmentWorker::
+  Solve() {
+    GetVizmo().Solve(m_strategyLabel);
+    emit Finished();
+  }

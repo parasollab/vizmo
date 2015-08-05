@@ -79,6 +79,7 @@ class PlanningOptions : public OptionsBase {
     bool SingleRegionSelected();
 
     bool m_regionsStarted;         ///< Tracks whether pre-regions timer is running.
+    bool m_pathStarted;            ///< Tracks whether pre-paths timer is running.
     bool m_cfgStarted;             ///< Tracks whether pre-cfg timer is running.
     QThread* m_thread;             ///< Points to the current mapping thread.
     QMenu* m_addRegionMenu;        ///< Menu for adding new regions.

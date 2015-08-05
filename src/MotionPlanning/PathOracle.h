@@ -59,6 +59,7 @@ PathOracle(MPProblemType* _problem, XMLNode& _node) :
     ParseXML(_node);
   }
 
+
 template<class MPTraits>
 void
 PathOracle<MPTraits>::
@@ -71,12 +72,15 @@ ParseXML(XMLNode& _node) {
     }
 }
 
+
 template<class MPTraits>
 void
 PathOracle<MPTraits>::
 Initialize() {
+
+  GetVizmo().StopClock("Pre-paths");
   string basename = this->GetBaseFilename();
-  //Make non-region objects non-selectable
+
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
   GraphType* g = this ->GetRoadmap()->GetGraph();
@@ -84,6 +88,7 @@ Initialize() {
   vector<UserPathModel*> userPaths;
   userPaths = GetVizmo().GetEnv()->GetUserPaths();
   shared_ptr<vector<CfgType> > cfgs;
+
   for(const auto& path : userPaths) {
     cfgs = path->GetCfgs();
     VID v1 = g->AddVertex(cfgs->front());
@@ -144,7 +149,7 @@ Finalize() {
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //print clocks
-  GetVizmo().PrintClock("Pre-region", cout);
+  GetVizmo().PrintClock("Pre-paths", cout);
   GetVizmo().PrintClock("PathOracle", cout);
   stats->PrintClock("PathOracleMP", cout);
 
@@ -154,7 +159,7 @@ Finalize() {
   ostats << "NodeGen+Connection Stats" << endl;
   stats->PrintAllStats(ostats, this->GetRoadmap());
 
-  GetVizmo().PrintClock("Pre-regions", ostats);
+  GetVizmo().PrintClock("Pre-paths", ostats);
   GetVizmo().PrintClock("PathOracle", ostats);
   stats->PrintClock("PathOracleMP", ostats);
 
@@ -164,7 +169,7 @@ Finalize() {
   //show results pop-up
   ostringstream results;
   results << "Planning Complete!" << endl;
-  GetVizmo().PrintClock("Pre-regions", results);
+  GetVizmo().PrintClock("Pre-paths", results);
   GetVizmo().PrintClock("PathOracle", results);
 
   GetMainWindow()->AlertUser(results.str());
@@ -173,28 +178,4 @@ Finalize() {
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
 }
-
-//  for(const auto& interm : cfgs) {
-//  this->GetRoadmap()->GetGraph()->AddVertex(interm);
-//  }
-/*
-   make iterator that goes through vector<cfgtype> cfgs
-   inside this iterator the variable will get the nth and n+1th term which are cfgs
-
-   put this through a AddEdge(), and it returns an edge
-   this edge is added to the environment
-   the nth node is added to the environment
-
-
-   for (int i=1 ;1!= cfgs->size; i++){
-   shared_ptr<vector<CfgType>>::iterator cfgsIT;
-   LPOutput<MPTraits> lpOutput;
-   GraphType* g = this ->GetRoadmap()->GetGraph();
-   g->AddVertex(cfgs->front());
-   for (cfgIT = cfgs[i].begin(); cfgsIT != cfgs[i].end(); cfgsIT++) {
-   VID nextpoint = g->AddVertex(*(cfgsIT[i]++));
-   g->AddEdge(g->GetVID(*cfgsIT[i]) , nextpoint, );
-   g->AddVertex(*(CfgsIT[i]++));
-   }
-   }*/
 #endif

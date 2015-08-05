@@ -107,22 +107,22 @@
         sLabel="RegionUniformSampler" vcLabel="RegionValidity"
         cLabel = "RegionBFNFConnector"/>
 
-      <PathStrategy label="PathStrategy" vcLabel="cd4" dmLabel="edclidean"/>
+      <!--PathStrategy label="PathStrategy" vcLabel="cd4" dmLabel="edclidean"/-->
 
-      <IRRTStrategy label="IRRT" vcLabel="cd4" nfLabel="BFNF"
+      <!--IRRTStrategy label="IRRT" vcLabel="cd4" nfLabel="BFNF"
         dmLabel="euclidean" lpLabel="sl" gtype="UNDIRECTED_TREE"
-        query="2D/s.query" evaluateGoal="true"/>
+        query="2D/s.query" evaluateGoal="true"/-->
 
-      <RegionRRT label="RegionRRT" vcLabel="cd4" nfLabel="BFNF"
+      <!--RegionRRT label="RegionRRT" vcLabel="cd4" nfLabel="BFNF"
         dmLabel="euclidean" lpLabel="sl" gtype="UNDIRECTED_TREE"
-        extenderLabel="BERO" query="2D/s.query" evaluateGoal="true"/>
+        extenderLabel="BERO" query="2D/s.query" evaluateGoal="true"/-->
 
-      <SparkRegion label="SparkRegion" lpLabel="RegionSL"
+      <!--SparkRegion label="SparkRegion" lpLabel="RegionSL"
         sLabel="RegionUniformSampler" vcLabel="RegionValidity"
-        cLabel="RegionBFNFConnector"/>
+        cLabel="RegionBFNFConnector"/-->
 
-      <CfgOracle label="CfgOracle" cfgMap="" baseFilename="a">
-        <MPStrategy method = "RegionRRT"/>
+      <CfgOracle label="CfgOracle" cfgMap="" >
+        <MPStrategy method = "RegionStrategy"/>
       </CfgOracle>
 
       <!--RegionOracle label="RegionOracle">
@@ -130,7 +130,7 @@
       </RegionOracle-->
 
       <PathOracle label="PathOracle" pathfile="">
-        <MPStrategy method = "RegionRRT"/>
+        <MPStrategy method = "RegionStrategy"/>
       </PathOracle>
 
 
