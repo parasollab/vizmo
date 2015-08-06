@@ -24,7 +24,6 @@ main(int _argc, char** _argv) {
         exit(1);
       }
       filename.push_back(optarg);
-      break;
     }
     else {
       noXML = true;
