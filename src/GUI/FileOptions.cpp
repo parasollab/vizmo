@@ -135,7 +135,6 @@ LoadFile() {
     GetMainWindow()->statusBar()->showMessage("File Loaded : "+fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
     GetMainWindow()->InitVizmo();
-    GetMainWindow()->GetGLWidget()->ResetTransTool();
   }
   else
     GetMainWindow()->statusBar()->showMessage("Loading aborted");
@@ -158,7 +157,6 @@ UpdateFiles() {
   GetMainWindow()->GetAnimationWidget()->Reset();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->m_mainMenu->CallReset();
-  GetMainWindow()->GetGLWidget()->ResetTransTool();
   GetMainWindow()->GetGLWidget()->SetCurrentRegion();
 }
 

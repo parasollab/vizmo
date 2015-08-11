@@ -5,9 +5,11 @@
 
 #include "Models/BodyModel.h"
 
+#include "Utilities/TransformTool.h"
+
 class EnvModel;
 class MainWindow;
-class MultiBodyModel;
+class StaticMultiBodyModel;
 
 class ObstaclePosDialog : public QDialog {
 
@@ -15,30 +17,37 @@ class ObstaclePosDialog : public QDialog {
 
   public:
     ObstaclePosDialog(MainWindow* _mainWindow,
-        const vector<MultiBodyModel*>& _multiBody);
+        const vector<StaticMultiBodyModel*>& _multiBody);
+    ~ObstaclePosDialog();
+
+  signals:
+    void TranslationChanged(const Vector3d& _t);
+    void RotationChanged(const Quaternion& _r);
 
   public slots:
     void DisplaySlidersValues(int _i);
     void ChangeSlidersValues();
+    void ChangeTranslation(const Vector3d& _t);
+    void ChangeRotation(const Quaternion& _r);
 
   private:
     void SetUpLayout();
     void SetSlidersInit();
 
-    void RefreshPosition();
+    void RefreshPosition(bool _emit);
 
     //Model Variables
-    vector<MultiBodyModel*> m_multiBody;
+    vector<StaticMultiBodyModel*> m_multiBody;
     bool m_oneObst;
 
     //Obstacle Variables
     Vector3d m_center;
-    bool m_valueEdited;
 
     //Qt Variables
-    MainWindow* m_mainWindow;
     QLineEdit* m_posLines[6];
     QSlider* m_sliders[6];
+
+    TransformTool m_transformTool;
 };
 
 #endif

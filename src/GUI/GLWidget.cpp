@@ -30,8 +30,7 @@ int bs = qRegisterMetaType<Point3d>("Point3d");
 GLWidget::
 GLWidget(QWidget* _parent) : QGLWidget(_parent),
     m_camera(Point3d(0, 0, 500), Vector3d(0, 0, 0)),
-    m_transformTool(GetCurrentCamera()), m_currentRegion(),
-    m_currentUserPath(NULL) {
+    m_transformTool(NULL), m_currentRegion(), m_currentUserPath(NULL) {
   setMinimumSize(271, 211); //original size: 400 x 600
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setFocusPolicy(Qt::StrongFocus);
@@ -86,7 +85,6 @@ GLWidget::
 resizeGL(int _w, int _h) {
   GLUtils::windowWidth  = _w;
   GLUtils::windowHeight = _h;
-  m_transformTool.ProjectToWindow();
 
   glViewport(0, 0, _w, _h);
   glMatrixMode(GL_PROJECTION);
@@ -119,7 +117,8 @@ paintGL() {
   m_pickBox.Draw();
 
   //draw transform tool
-  m_transformTool.Draw();
+  if(m_transformTool)
+    m_transformTool->Draw();
 
   //draw cursor
   #ifdef USE_SPACEMOUSE
@@ -185,10 +184,7 @@ mousePressEvent(QMouseEvent* _e) {
   SHIFT_CLICK = _e->modifiers() == Qt::ShiftModifier;
 
   //test camera motion first, then transform tool, then pick box
-  if(GetCurrentCamera()->MousePressed(_e)) {
-    m_transformTool.CameraMotion();
-  }
-  else if(!m_transformTool.MousePressed(_e)) {
+  if(!GetCurrentCamera()->MousePressed(_e) && !(m_transformTool && m_transformTool->MousePressed(_e))) {
     if((m_currentRegion && !m_currentRegion->MousePressed(_e, GetCurrentCamera()))
         || !m_currentRegion) {
       if((m_currentUserPath && !m_currentUserPath->MousePressed(_e, GetCurrentCamera())) ||
@@ -215,11 +211,7 @@ void
 GLWidget::
 mouseReleaseEvent(QMouseEvent* _e) {
   bool handled = false;
-  if(GetCurrentCamera()->MouseReleased(_e)) {
-    m_transformTool.CameraMotion();
-    handled = true;
-  }
-  else if(m_transformTool.MouseReleased(_e))
+  if(GetCurrentCamera()->MouseReleased(_e) || (m_transformTool && m_transformTool->MouseReleased(_e)))
     handled = true;
   else if(m_currentRegion)
     handled = m_currentRegion->MouseReleased(_e, GetCurrentCamera());
@@ -275,8 +267,6 @@ mouseReleaseEvent(QMouseEvent* _e) {
 
       if(SHIFT_CLICK)
         newObjs = objs;
-
-      m_transformTool.CheckSelectObject();
     }
   }
 
@@ -346,10 +336,7 @@ mouseMoveEvent(QMouseEvent* _e) {
   else {
     //handle active mouse motion
     //test camera motion first, then transform tool, then pick box
-    if(GetCurrentCamera()->MouseMotion(_e)) {
-      m_transformTool.CameraMotion();
-    }
-    else if(!m_transformTool.MouseMotion(_e)) {
+    if(!GetCurrentCamera()->MouseMotion(_e) && !(m_transformTool && m_transformTool->MouseMotion(_e))) {
       if((m_currentRegion
           && !m_currentRegion->MouseMotion(_e, GetCurrentCamera()))
           || !m_currentRegion ) {
@@ -371,7 +358,7 @@ keyPressEvent(QKeyEvent* _e) {
     GetVizmo().GetPhantomManager()->ToggleForceOutput();
   //check camera then transform tool
   else if(!GetCurrentCamera()->KeyPressed(_e) &&
-      !m_transformTool.KeyPressed(_e) &&
+      !(m_transformTool && m_transformTool->KeyPressed(_e)) &&
       (!m_currentUserPath || !m_currentUserPath->KeyPressed(_e)))
     _e->ignore(); //not handled
 }
@@ -389,14 +376,6 @@ GLWidget::
 ShowFrameRate() {
   m_showFrameRate = !m_showFrameRate;
 }
-
-
-void
-GLWidget::
-ResetTransTool() {
-  m_transformTool.ResetSelectedObj();
-}
-
 
 //save an image of the GL scene with the given filename
 //Note: filename must have appropriate extension for QImage::save or no file

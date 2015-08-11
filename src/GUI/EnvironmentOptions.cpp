@@ -14,6 +14,7 @@
 #include "Models/RegionBox2DModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
+#include "Models/StaticMultiBodyModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/AddObstacle.xpm"
@@ -262,14 +263,14 @@ DeleteObstacle() {
 void
 EnvironmentOptions::
 MoveObstacle() {
-  vector<MultiBodyModel*> toMove;
+  vector<StaticMultiBodyModel*> toMove;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
   //grab the bodies from the selected vector
   for(auto& s : sel)
     if(s->Name().find("MultiBody") != string::npos &&
         s->Name() != "ActiveMultiBody")
-      toMove.push_back((MultiBodyModel*)s);
+      toMove.push_back((StaticMultiBodyModel*)s);
 
   //alert that only non-active multibodies can be selected
   if(toMove.empty() || toMove.size() != sel.size())
@@ -287,12 +288,12 @@ MoveObstacle() {
 void
 EnvironmentOptions::
 DuplicateObstacles() {
-  vector<MultiBodyModel*> toCopy;
+  vector<StaticMultiBodyModel*> toCopy;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(auto& s : sel)
     if(s->Name().find("MultiBody") != string::npos &&
         s->Name() != "ActiveMultiBody")
-      toCopy.push_back((MultiBodyModel*)s);
+      toCopy.push_back((StaticMultiBodyModel*)s);
 
   //alert that only non-active multibodies can be selected
   if(toCopy.empty() || toCopy.size() != sel.size())
@@ -301,7 +302,7 @@ DuplicateObstacles() {
 
   //successful selection, copy and show ObstaclePosDialog
   else {
-    vector<MultiBodyModel*> copies;
+    vector<StaticMultiBodyModel*> copies;
     /*typedef vector<MultiBodyModel*>::iterator MIT;
     for(MIT mit = toCopy.begin(); mit != toCopy.end(); ++mit) {
       MultiBodyModel* m = new MultiBodyModel(**mit);

@@ -4,16 +4,16 @@
 #include "MainWindow.h"
 #include "Transformation.h"
 #include "Models/BoundaryModel.h"
-#include "Models/MultiBodyModel.h"
-#include "Models/PolyhedronModel.h"
-#include "Models/Vizmo.h"
 #include "Models/EnvModel.h"
+#include "Models/PolyhedronModel.h"
+#include "Models/StaticMultiBodyModel.h"
+#include "Models/Vizmo.h"
 #include "Utilities/IO.h"
 
 ObstaclePosDialog::
 ObstaclePosDialog(MainWindow* _mainWindow,
-    const vector<MultiBodyModel*>& _multiBody) : QDialog(_mainWindow),
-    m_multiBody(_multiBody), m_mainWindow(_mainWindow) {
+    const vector<StaticMultiBodyModel*>& _multiBody) : QDialog(_mainWindow),
+    m_multiBody(_multiBody) {
 
   m_oneObst = m_multiBody.size() == 1;
 
@@ -30,11 +30,25 @@ ObstaclePosDialog(MainWindow* _mainWindow,
     connect(m_posLines[i], SIGNAL(editingFinished()), this, SLOT(ChangeSlidersValues()));
   }
 
+  connect(&m_transformTool, SIGNAL(TranslationChanged(const Vector3d&)),
+      this, SLOT(ChangeTranslation(const Vector3d&)));
+  connect(&m_transformTool, SIGNAL(RotationChanged(const Quaternion&)),
+      this, SLOT(ChangeRotation(const Quaternion&)));
+  connect(this, SIGNAL(TranslationChanged(const Vector3d&)),
+      &m_transformTool, SLOT(ChangeTranslation(const Vector3d&)));
+  connect(this, SIGNAL(RotationChanged(const Quaternion&)),
+      &m_transformTool, SLOT(ChangeRotation(const Quaternion&)));
+
   //set delete on close
   setAttribute(Qt::WA_DeleteOnClose);
 
   //show dialog
   QDialog::show();
+}
+
+ObstaclePosDialog::
+~ObstaclePosDialog() {
+  GetMainWindow()->GetGLWidget()->SetTransformTool(NULL);
 }
 
 void
@@ -59,9 +73,9 @@ SetUpLayout() {
     layout->addWidget(new QLabel(QChar(0x03B3), this), 7, 0);
   }
   size_t num = m_oneObst ? 6 : 3;
-  for(size_t i = 0; i < num; i++) {
+  for(size_t i = 0; i < num; ++i) {
     m_sliders[i] = new QSlider(Qt::Horizontal, this);
-    m_sliders[i]->setFixedWidth(125);
+    m_sliders[i]->setFixedWidth(100);
     layout->addWidget(m_sliders[i], i < 3 ? i+1 : i+2, 1);
 
     m_posLines[i] = new QLineEdit("0", this);
@@ -75,23 +89,25 @@ ObstaclePosDialog::
 SetSlidersInit() {
   //set validators for posLines
   vector<pair<double, double> > ranges = GetVizmo().GetEnv()->GetBoundary()->GetRanges();
-  m_posLines[0]->setValidator(new QDoubleValidator(ranges[0].first, ranges[0].second, 2, this));
-  m_posLines[1]->setValidator(new QDoubleValidator(ranges[1].first, ranges[1].second, 2, this));
-  m_posLines[2]->setValidator(new QDoubleValidator(ranges[2].first, ranges[2].second, 2, this));
-  if(m_oneObst) {
-    m_posLines[3]->setValidator(new QDoubleValidator(-180, 180, 2, this));
-    m_posLines[4]->setValidator(new QDoubleValidator(-180, 180, 2, this));
-    m_posLines[5]->setValidator(new QDoubleValidator(-180, 180, 2, this));
-  }
 
   //set sliders min/max and initial values
-  m_valueEdited=false;
   for(size_t i = 0; i < 3; ++i) {
-    m_sliders[i]->setMinimum(ranges[i].first*100);
-    m_sliders[i]->setMaximum(ranges[i].second*100);
+    if(ranges[i].second == numeric_limits<double>::max()) {
+      double rad = GetVizmo().GetEnv()->GetRadius();
+      m_posLines[i]->setValidator(new QDoubleValidator(-rad, rad, 2, this));
+      m_sliders[i]->setMinimum(-rad*100);
+      m_sliders[i]->setMaximum(rad*100);
+    }
+    else {
+      m_posLines[i]->setValidator(
+          new QDoubleValidator(ranges[i].first, ranges[i].second, 2, this));
+      m_sliders[i]->setMinimum(ranges[i].first*100);
+      m_sliders[i]->setMaximum(ranges[i].second*100);
+    }
   }
   if(m_oneObst) {
     for(size_t i = 3; i < 6; ++i) {
+      m_posLines[i]->setValidator(new QDoubleValidator(-180, 180, 2, this));
       m_sliders[i]->setMinimum(-180*100);
       m_sliders[i]->setMaximum(180*100);
     }
@@ -112,51 +128,102 @@ SetSlidersInit() {
     m_posLines[4]->setText(QString::number(b));
     m_sliders[5]->setValue(g*100);
     m_posLines[5]->setText(QString::number(g));
+
+    m_transformTool.SetTransform(t);
+    GetMainWindow()->GetGLWidget()->SetTransformTool(&m_transformTool);
   }
   else {
     //compute center
-    typedef vector<MultiBodyModel*>::iterator MIT;
-    for(MIT mit = m_multiBody.begin(); mit != m_multiBody.end(); mit++)
-      m_center += (*(*mit)->begin())->GetTransform().translation();
+    for(const auto& mb : m_multiBody)
+      m_center += (*mb->begin())->GetTransform().translation();
     m_center /= m_multiBody.size();
 
     //set slider values
-    for(size_t i=0; i<3; i++) {
+    for(size_t i = 0; i < 3; ++i) {
       m_sliders[i]->setValue(m_center[i]*100);
       m_posLines[i]->setText(QString::number(m_center[i]));
     }
+
+    Transformation t(m_center, Orientation(EulerAngle()));
+    m_transformTool.SetRotationsOn(false);
+    m_transformTool.SetTransform(t);
+    GetMainWindow()->GetGLWidget()->SetTransformTool(&m_transformTool);
   }
 }
 
 void
 ObstaclePosDialog::
 DisplaySlidersValues(int _i) {
-  if(!m_valueEdited) {
-    size_t num = m_oneObst ? 6 : 3;
-    for(size_t i = 0; i < num; ++i)
-      if(m_sliders[i]->value() == _i)
-        m_posLines[i]->setText(QString::number(_i / 100.0));
-    RefreshPosition();
-  }
+  //static cast sender() to slider*
+  //set position lines from slider
+
+  QSlider* slider = static_cast<QSlider*>(sender());
+  auto itr = std::find(begin(m_sliders), end(m_sliders), slider);
+  size_t indx = distance(begin(m_sliders), itr);
+  m_posLines[indx]->blockSignals(true);
+  m_posLines[indx]->setText(QString::number(_i / 100.));
+  m_posLines[indx]->blockSignals(false);
+  RefreshPosition(true);
 }
 
 void
 ObstaclePosDialog::
 ChangeSlidersValues() {
-  m_valueEdited=true;
-  size_t num = m_oneObst ? 6 : 3;
-  for(size_t i = 0; i < num; i++) {
-    double val = m_posLines[i]->text().toDouble();
-    if(val != m_sliders[i]->value() / 100.)
-      m_sliders[i]->setValue(val*100);
-  }
-  RefreshPosition();
-  m_valueEdited=false;
+  QLineEdit* posLine = static_cast<QLineEdit*>(sender());
+  auto itr = std::find(begin(m_posLines), end(m_posLines), posLine);
+  size_t indx = distance(begin(m_posLines), itr);
+  cout << "indx : " << indx << endl;;
+  double val = m_posLines[indx]->text().toDouble();
+  m_sliders[indx]->blockSignals(true);
+  m_sliders[indx]->setValue(val*100);
+  m_sliders[indx]->blockSignals(false);
+  RefreshPosition(true);
 }
 
 void
 ObstaclePosDialog::
-RefreshPosition() {
+ChangeTranslation(const Vector3d& _t) {
+  for(size_t i = 0; i < 3; ++i) {
+    m_posLines[i]->blockSignals(true);
+    m_posLines[i]->setText(QString::number(_t[i]));
+    m_posLines[i]->blockSignals(false);
+    m_sliders[i]->blockSignals(true);
+    m_sliders[i]->setValue(_t[i]*100);
+    m_sliders[i]->blockSignals(false);
+  }
+  RefreshPosition(false);
+}
+
+void
+ObstaclePosDialog::
+ChangeRotation(const Quaternion& _r) {
+  EulerAngle e;
+  convertFromQuaternion(e, _r);
+
+  for(size_t i = 3; i < 6; ++i) {
+    m_posLines[i]->blockSignals(true);
+    m_sliders[i]->blockSignals(true);
+  }
+
+  double a = radToDeg(e.alpha()), b = radToDeg(e.beta()), g = radToDeg(e.gamma());
+  m_sliders[3]->setValue(a*100);
+  m_posLines[3]->setText(QString::number(a));
+  m_sliders[4]->setValue(b*100);
+  m_posLines[4]->setText(QString::number(b));
+  m_sliders[5]->setValue(g*100);
+  m_posLines[5]->setText(QString::number(g));
+
+  for(size_t i = 3; i < 6; ++i) {
+    m_posLines[i]->blockSignals(false);
+    m_sliders[i]->blockSignals(false);
+  }
+
+  RefreshPosition(false);
+}
+
+void
+ObstaclePosDialog::
+RefreshPosition(bool _emit) {
   if(m_oneObst) {
     double x = m_posLines[0]->text().toDouble();
     double y = m_posLines[1]->text().toDouble();
@@ -164,8 +231,17 @@ RefreshPosition() {
     double a = degToRad(m_posLines[3]->text().toDouble());
     double b = degToRad(m_posLines[4]->text().toDouble());
     double g = degToRad(m_posLines[5]->text().toDouble());
-    Transformation t(Vector3d(x, y, z), Orientation(EulerAngle(a, b, g)));
+    Vector3d translation(x, y, z);
+    EulerAngle e(a, b, g);
+    Transformation t(translation, Orientation(e));
     (*m_multiBody[0]->begin())->SetTransform(t);
+    if(_emit) {
+      Quaternion q;
+      convertFromEuler(q, e);
+
+      emit TranslationChanged(translation);
+      emit RotationChanged(q);
+    }
   }
   else {
     //compute difference from center
@@ -177,12 +253,14 @@ RefreshPosition() {
     }
 
     //update transforms
-    typedef vector<MultiBodyModel*>::iterator MIT;
-    for(MIT mit = m_multiBody.begin(); mit != m_multiBody.end(); ++mit) {
-      Transformation t = (*(*mit)->begin())->GetTransform();
+    for(const auto& mb : m_multiBody) {
+      Transformation t = (*mb->begin())->GetTransform();
       t.translation() += diff;
-      (*(*mit)->begin())->SetTransform(t);
+      (*mb->begin())->SetTransform(t);
     }
+
+    if(_emit)
+      emit TranslationChanged(m_center);
   }
 }
 
