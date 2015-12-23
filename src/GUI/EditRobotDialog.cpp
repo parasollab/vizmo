@@ -159,7 +159,7 @@ SetUpDialog() {
 
   m_jointConnectionsLine2->setReadOnly(true);
   m_jointConnectionsLine1->setValidator(
-      new QIntValidator(0, numeric_limits<size_t>::max(), this));
+      new QIntValidator(0, numeric_limits<int>::max(), this));
 
 
   jointAttributes->addWidget(new QLabel("<b>Limits:<\b>", this), 9, 1, 1, 4);
