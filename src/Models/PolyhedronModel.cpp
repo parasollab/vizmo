@@ -10,7 +10,7 @@
 
 PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
   : Model(_filename), m_filename(_filename), m_isSurface(_isSurface),
-  m_numVerts(0), m_solidID(-1), m_wiredID(-1), m_normalsID(-1) {
+  m_numVerts(0), m_numFacets(0), m_solidID(-1), m_wiredID(-1), m_normalsID(-1) {
     Build();
   }
 
@@ -38,6 +38,7 @@ PolyhedronModel::Build() {
 
   const PtVector& points = imodel->GetVertices();
   m_numVerts = points.size();
+  m_numFacets = imodel->GetTriP().size();
 
   //compute center of mass and radius
   COM(points);

@@ -263,6 +263,8 @@ Build() {
   double dist = m_boundary->GetMaxDist() / 2;
   if(dist > m_radius)
     m_radius = dist;
+
+  TetGenDecompose();
 }
 
 
@@ -493,4 +495,78 @@ EnvModel::
 SaveFile(const string& _filename) const {
   ofstream ofs(_filename);
   m_environment->Write(ofs);
+}
+
+size_t
+EnvModel::
+GetNumVertices() const {
+  size_t numVerts = m_boundary->GetNumVertices();
+  for(auto& obst : m_obstacles)
+    numVerts += obst->GetNumVertices();
+  return numVerts;
+}
+
+size_t
+EnvModel::
+GetNumFacets() const {
+  size_t numFacets = m_boundary->GetNumFacets();
+  for(auto& obst : m_obstacles)
+    numFacets += obst->GetNumFacets();
+  return numFacets;
+}
+
+void
+EnvModel::
+TetGenDecompose() const {
+  cout << "Calling decompose." << endl;
+
+
+  //make switches
+  char* switches = (char*)"pq";
+
+  //make in tetgenio - this is a model of free workspace to decompose
+  tetgenio freeWorkspace;
+  //freeWorkspace.initialize();
+
+  freeWorkspace.numberofpoints = GetNumVertices();
+  freeWorkspace.pointlist = new REAL[freeWorkspace.numberofpoints * 3];
+
+  freeWorkspace.numberoffacets = GetNumFacets();
+  freeWorkspace.facetlist = new tetgenio::facet[freeWorkspace.numberoffacets];
+  freeWorkspace.facetmarkerlist = new int[freeWorkspace.numberoffacets];
+
+  freeWorkspace.numberofholes = m_obstacles.size();
+  freeWorkspace.holelist = new REAL[freeWorkspace.numberofholes * 3];
+
+  cout << "Num Verts: " << GetNumVertices() << endl
+    << "Num Facets: " << GetNumFacets() << endl
+    << "Num Holes: " << m_obstacles.size() << endl;
+
+  m_boundary->AddToTetGen(&freeWorkspace);
+  size_t pointOffset = m_boundary->GetNumVertices();
+  size_t facetOffset = m_boundary->GetNumFacets();
+  size_t holeOffset = 0;
+  for(auto& obst : m_obstacles) {
+    obst->AddToTetGen(&freeWorkspace, pointOffset, facetOffset, holeOffset);
+    pointOffset += obst->GetNumVertices();
+    facetOffset += obst->GetNumFacets();
+    ++holeOffset;
+  }
+
+  freeWorkspace.save_nodes((char*)"freespace");
+  freeWorkspace.save_poly((char*)"freespace");
+
+  //make out tetgenio
+  tetgenio decomposedWorkspace;
+  //decomposedWorkspace.initialize();
+
+  //void tetrahedralize(char *switches, tetgenio *in, tetgenio *out,
+  //    tetgenio *addin = NULL, tetgenio *bgmin = NULL);
+  tetrahedralize(switches, &freeWorkspace, &decomposedWorkspace);
+
+  decomposedWorkspace.save_nodes((char*)"decomposed");
+  decomposedWorkspace.save_elements((char*)"decomposed");
+  decomposedWorkspace.save_faces((char*)"decomposed");
+
+
 }

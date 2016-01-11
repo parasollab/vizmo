@@ -85,3 +85,23 @@ BoundingSphereModel::
 GetMaxDist() {
   return m_boundingSphere->GetMaxDist();
 }
+
+size_t
+BoundingSphereModel::
+GetNumVertices() const {
+  ///@todo Implement
+  return -1;
+}
+
+size_t
+BoundingSphereModel::
+GetNumFacets() const {
+  ///@todo Implement
+  return -1;
+}
+
+void
+BoundingSphereModel::
+AddToTetGen(tetgenio* _tetModel) const {
+  ///@todo Implement
+}

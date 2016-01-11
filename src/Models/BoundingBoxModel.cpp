@@ -140,3 +140,135 @@ BoundingBoxModel::
 GetMaxDist() {
   return m_boundingBox->GetMaxDist();
 }
+
+size_t
+BoundingBoxModel::
+GetNumVertices() const {
+  return 8;
+}
+
+size_t
+BoundingBoxModel::
+GetNumFacets() const {
+  return 6;
+}
+
+void
+BoundingBoxModel::
+AddToTetGen(tetgenio* _tetModel) const {
+  const pair<double, double>* const ranges = m_boundingBox->GetBox();
+  _tetModel->pointlist[ 0] = ranges[0].first;
+  _tetModel->pointlist[ 1] = ranges[1].first;
+  _tetModel->pointlist[ 2] = ranges[2].first;
+  _tetModel->pointlist[ 3] = ranges[0].first;
+  _tetModel->pointlist[ 4] = ranges[1].first;
+  _tetModel->pointlist[ 5] = ranges[2].second;
+  _tetModel->pointlist[ 6] = ranges[0].first;
+  _tetModel->pointlist[ 7] = ranges[1].second;
+  _tetModel->pointlist[ 8] = ranges[2].first;
+  _tetModel->pointlist[ 9] = ranges[0].first;
+  _tetModel->pointlist[10] = ranges[1].second;
+  _tetModel->pointlist[11] = ranges[2].second;
+  _tetModel->pointlist[12] = ranges[0].second;
+  _tetModel->pointlist[13] = ranges[1].first;
+  _tetModel->pointlist[14] = ranges[2].first;
+  _tetModel->pointlist[15] = ranges[0].second;
+  _tetModel->pointlist[16] = ranges[1].first;
+  _tetModel->pointlist[17] = ranges[2].second;
+  _tetModel->pointlist[18] = ranges[0].second;
+  _tetModel->pointlist[19] = ranges[1].second;
+  _tetModel->pointlist[20] = ranges[2].first;
+  _tetModel->pointlist[21] = ranges[0].second;
+  _tetModel->pointlist[22] = ranges[1].second;
+  _tetModel->pointlist[23] = ranges[2].second;
+
+  tetgenio::facet* f;
+  tetgenio::polygon* p;
+  //side 1
+  f = &_tetModel->facetlist[0];
+  f->numberofpolygons = 1;
+  f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
+  f->numberofholes = 0;
+  f->holelist = NULL;
+  p = &f->polygonlist[0];
+  p->numberofvertices = 4;
+  p->vertexlist = new int[p->numberofvertices];
+  p->vertexlist[0] = 0;
+  p->vertexlist[1] = 1;
+  p->vertexlist[2] = 3;
+  p->vertexlist[3] = 2;
+
+  //side 2
+  f = &_tetModel->facetlist[1];
+  f->numberofpolygons = 1;
+  f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
+  f->numberofholes = 0;
+  f->holelist = NULL;
+  p = &f->polygonlist[0];
+  p->numberofvertices = 4;
+  p->vertexlist = new int[p->numberofvertices];
+  p->vertexlist[0] = 0;
+  p->vertexlist[1] = 2;
+  p->vertexlist[2] = 6;
+  p->vertexlist[3] = 4;
+
+  //side 3
+  f = &_tetModel->facetlist[2];
+  f->numberofpolygons = 1;
+  f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
+  f->numberofholes = 0;
+  f->holelist = NULL;
+  p = &f->polygonlist[0];
+  p->numberofvertices = 4;
+  p->vertexlist = new int[p->numberofvertices];
+  p->vertexlist[0] = 4;
+  p->vertexlist[1] = 5;
+  p->vertexlist[2] = 7;
+  p->vertexlist[3] = 6;
+
+  //side 4
+  f = &_tetModel->facetlist[3];
+  f->numberofpolygons = 1;
+  f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
+  f->numberofholes = 0;
+  f->holelist = NULL;
+  p = &f->polygonlist[0];
+  p->numberofvertices = 4;
+  p->vertexlist = new int[p->numberofvertices];
+  p->vertexlist[0] = 5;
+  p->vertexlist[1] = 1;
+  p->vertexlist[2] = 3;
+  p->vertexlist[3] = 7;
+
+  //side 5
+  f = &_tetModel->facetlist[4];
+  f->numberofpolygons = 1;
+  f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
+  f->numberofholes = 0;
+  f->holelist = NULL;
+  p = &f->polygonlist[0];
+  p->numberofvertices = 4;
+  p->vertexlist = new int[p->numberofvertices];
+  p->vertexlist[0] = 7;
+  p->vertexlist[1] = 3;
+  p->vertexlist[2] = 2;
+  p->vertexlist[3] = 6;
+
+  //side 6
+  f = &_tetModel->facetlist[5];
+  f->numberofpolygons = 1;
+  f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
+  f->numberofholes = 0;
+  f->holelist = NULL;
+  p = &f->polygonlist[0];
+  p->numberofvertices = 4;
+  p->vertexlist = new int[p->numberofvertices];
+  p->vertexlist[0] = 0;
+  p->vertexlist[1] = 4;
+  p->vertexlist[2] = 5;
+  p->vertexlist[3] = 1;
+
+  for(size_t i = 0; i < 6; ++i)
+    _tetModel->facetmarkerlist[i] = -1;
+}
+

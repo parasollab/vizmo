@@ -18,6 +18,7 @@ class PolyhedronModel : public Model {
     ~PolyhedronModel();
 
     size_t GetNumVertices() const {return m_numVerts;}
+    size_t GetNumFacets() const {return m_numFacets;}
     double GetRadius() const {return m_radius;}
     const Point3d& GetCOM() const {return m_com;}
 
@@ -53,6 +54,7 @@ class PolyhedronModel : public Model {
     bool m_isSurface;
 
     size_t m_numVerts;
+    size_t m_numFacets;
 
     GLuint m_solidID; //the compiled model id for solid model
     GLuint m_wiredID; //the compiled model id for wire frame

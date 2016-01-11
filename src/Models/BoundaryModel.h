@@ -6,6 +6,9 @@
 
 #include "Model.h"
 
+#define TETLIBRARY
+#include "tetgen1.5.0/tetgen.h"
+
 class Boundary;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +41,18 @@ class BoundaryModel : public Model {
     const Point3d& GetCenter() const {return m_center;} ///< Get the center point.
 
     shared_ptr<Boundary>& GetBoundary() {return m_boundary;}
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Number of vertices in boundary model
+    virtual size_t GetNumVertices() const = 0;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Number of facets in boundary model
+    virtual size_t GetNumFacets() const = 0;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Add boundary model to tetgen
+    virtual void AddToTetGen(tetgenio* _tetModel) const = 0;
 
   protected:
     shared_ptr<Boundary> m_boundary;

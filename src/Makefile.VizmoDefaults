@@ -65,6 +65,11 @@ else
 endif
 
 ################################################################################
+# TetGen
+################################################################################
+TETGEN_LIBS = -Ltetgen1.5.0 -ltet
+
+################################################################################
 #Vizmo src objects
 ################################################################################
 #Define Vizmo Objects
@@ -82,7 +87,7 @@ endif
 VIZMO_OBJECTS = $(OBJECTS)
 VIZMO_SRCMOC = $(SRCMOC)
 VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(MP_INCL)
-VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS) $(PHANTOM_LIBS) $(SPACEMOUSE_LIBS)
+VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS) $(PHANTOM_LIBS) $(SPACEMOUSE_LIBS) $(TETGEN_LIBS)
 VIZMO_LIBFILE = $(VIZMO_DIR)/libvizmo.a
 $(VIZMO_DIR)/libvizmo.a: $(VIZMO_OBJECTS)
 	ar rc $@ $(VIZMO_OBJECTS)
