@@ -102,6 +102,6 @@ GetNumFacets() const {
 
 void
 BoundingSphereModel::
-AddToTetGen(tetgenio* _tetModel) const {
+AddToTetGen(tetgenio* _tetModel, size_t _pOff, size_t _fOff) const {
   ///@todo Implement
 }

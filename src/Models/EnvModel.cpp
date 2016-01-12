@@ -523,10 +523,10 @@ TetGenDecompose() const {
 
   //make switches
   char* switches = (char*)"pq";
+  //char* switches = (char*)"d";
 
   //make in tetgenio - this is a model of free workspace to decompose
   tetgenio freeWorkspace;
-  //freeWorkspace.initialize();
 
   freeWorkspace.numberofpoints = GetNumVertices();
   freeWorkspace.pointlist = new REAL[freeWorkspace.numberofpoints * 3];
@@ -542,9 +542,8 @@ TetGenDecompose() const {
     << "Num Facets: " << GetNumFacets() << endl
     << "Num Holes: " << m_obstacles.size() << endl;
 
-  m_boundary->AddToTetGen(&freeWorkspace);
-  size_t pointOffset = m_boundary->GetNumVertices();
-  size_t facetOffset = m_boundary->GetNumFacets();
+  size_t pointOffset = 0;//m_boundary->GetNumVertices();
+  size_t facetOffset = 0;//m_boundary->GetNumFacets();
   size_t holeOffset = 0;
   for(auto& obst : m_obstacles) {
     obst->AddToTetGen(&freeWorkspace, pointOffset, facetOffset, holeOffset);
@@ -552,6 +551,7 @@ TetGenDecompose() const {
     facetOffset += obst->GetNumFacets();
     ++holeOffset;
   }
+  m_boundary->AddToTetGen(&freeWorkspace, pointOffset, facetOffset);
 
   freeWorkspace.save_nodes((char*)"freespace");
   freeWorkspace.save_poly((char*)"freespace");

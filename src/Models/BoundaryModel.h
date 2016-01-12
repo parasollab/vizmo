@@ -52,7 +52,7 @@ class BoundaryModel : public Model {
 
     ////////////////////////////////////////////////////////////////////////////
     /// @brief Add boundary model to tetgen
-    virtual void AddToTetGen(tetgenio* _tetModel) const = 0;
+    virtual void AddToTetGen(tetgenio* _tetModel, size_t _pOff, size_t _fOff) const = 0;
 
   protected:
     shared_ptr<Boundary> m_boundary;

@@ -62,7 +62,7 @@ AddToTetGen(tetgenio* _tetModel,
   size_t m = 0;
   for(auto& t : poly.m_polygonList) {
     tetgenio::facet* f = &_tetModel->facetlist[_fOff + m];
-    _tetModel->facetmarkerlist[_fOff + m] = _hOff;
+    _tetModel->facetmarkerlist[_fOff + m] = _hOff + 1;
     f->numberofpolygons = 1;
     f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
     f->numberofholes = 0;
