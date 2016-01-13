@@ -374,13 +374,13 @@ AddToFreeModel(const shared_ptr<BoundingBox>& _boundary,
       Vector3d x2(&m_freeModel->pointlist[3*tri[2]]);
       Vector3d x20 = (x2-x0).normalize();
       Vector3d x10 = (x1-x0).normalize();
-      cout << "x0: " << tri[0] << " : " << x0 << endl;
+      /*cout << "x0: " << tri[0] << " : " << x0 << endl;
       cout << "x1: " << tri[1] << " : " << x1 << endl;
       cout << "x2: " << tri[2] << " : " << x2 << endl;
       cout << "A : " << x20*(x10%(x3-x2).normalize()) << endl;
       cout << "B : " << x20*(x10%(x4-x2).normalize()) << endl;
       cout << "C : " << x20*(x10%(x5-x2).normalize()) << endl;
-      cout << "D : " << x20*(x10%(x6-x2).normalize()) << endl;
+      cout << "D : " << x20*(x10%(x6-x2).normalize()) << endl;*/
       if(
           fabs(x20*(x10%(x3-x2).normalize())) < 0.00000001 &&
           fabs(x20*(x10%(x4-x2).normalize())) < 0.00000001 &&
