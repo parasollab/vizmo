@@ -30,10 +30,6 @@ class BoundingBoxModel : public BoundaryModel {
     virtual vector<pair<double, double> > GetRanges() const;
     virtual double GetMaxDist();
 
-    virtual size_t GetNumVertices() const override;
-    virtual size_t GetNumFacets() const override;
-    virtual void AddToTetGen(tetgenio* _tetModel, size_t _pOff, size_t _fOff) const override;
-
   private:
     shared_ptr<BoundingBox> m_boundingBox; ///< PMPL's BoundingBox
 };

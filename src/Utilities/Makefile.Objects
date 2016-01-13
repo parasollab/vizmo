@@ -10,6 +10,7 @@ OBJECTS += \
 	  Utilities/IO.o \
 	  Utilities/LoadTexture.o \
 	  Utilities/PickBox.o \
+	  Utilities/TetGenDecomposition.o \
 	  Utilities/TransformTool.o
 
 ####### MOC
