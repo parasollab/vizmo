@@ -1,7 +1,6 @@
 #include "TetGenDecomposition.h"
 
-#define TETLIBRARY
-#include "tetgen.h"
+#include <containers/sequential/graph/algorithms/astar.h>
 
 #include "Environment/BoundingBox.h"
 #include "Environment/BoundingSphere.h"
@@ -11,11 +10,15 @@
 
 #include "VizmoExceptions.h"
 
+#define TETLIBRARY
+#undef PI
+#include "tetgen.h"
+
 TetGenDecomposition::
 TetGenDecomposition() :
   m_freeModel(new tetgenio()),
   m_decompModel(new tetgenio()),
-  m_switches((char*)"pq") {
+  m_switches((char*)"pqna10") {
   }
 
 TetGenDecomposition::
@@ -42,6 +45,56 @@ Decompose(Environment* _env) {
   cout << "\nDecomposing" << endl;
   tetrahedralize(m_switches, m_freeModel, m_decompModel);
   SaveDecompModel();
+
+  MakeGraph();
+}
+
+vector<Vector3d>
+TetGenDecomposition::
+GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes) {
+  size_t s = FindTetrahedron(_p1);
+  size_t g = FindTetrahedron(_p2);
+
+  vector<size_t> pathVID;
+  vector<Vector3d> path;
+
+  auto heuristic = [&](const Vector3d _v) {
+    return (_v - _p2).norm();
+  };
+  stapl::sequential::astar(m_graph, s, g, pathVID, heuristic);
+  m_path = pathVID;
+
+  for(auto vit1 = pathVID.begin(), vit2 = (vit1 + 1);
+      vit2 != pathVID.end(); ++vit1, ++vit2) {
+    Vector3d v1 = m_graph.find_vertex(*vit1)->property();
+    path.push_back(v1);
+
+    Vector3d v2 = m_graph.find_vertex(*vit2)->property();
+    Vector3d dir = v2-v1;
+    size_t steps = ceil(dir.norm()/_posRes);
+    Vector3d step = dir / steps;
+
+    /*cout << "\nv1:    " << v1 << endl;
+    cout << "v2:    " << v2 << endl;
+    cout << "dir:   " << dir << endl;
+    cout << "steps: " << steps << endl;
+    cout << "step:  " << step << endl;*/
+
+    for(size_t i = 0; i < steps; ++i) {
+      //cout << setw(2) << i << ":    " << v1 + step*i << endl;
+      path.push_back(v1 + step*i);
+    }
+  }
+  if(pathVID.size())
+    path.push_back(m_graph.find_vertex(pathVID.back())->property());
+
+  return path;
+}
+
+Vector3d
+TetGenDecomposition::
+GetTetra(size_t _t) {
+  return m_graph.find_vertex(_t)->property();
 }
 
 void
@@ -67,7 +120,8 @@ TetGenDecomposition::
 GetNumVertices() const {
   size_t numVerts = GetNumVertices(m_env->GetBoundary());
   for(size_t i = 0; i < m_env->NumObstacles(); ++i)
-    numVerts += GetNumVertices(m_env->GetObstacle(i));
+    if(!m_env->GetObstacle(i)->IsInternal())
+      numVerts += GetNumVertices(m_env->GetObstacle(i));
   return numVerts;
 }
 
@@ -93,7 +147,8 @@ TetGenDecomposition::
 GetNumFacets() const {
   size_t numFacets = GetNumFacets(m_env->GetBoundary());
   for(size_t i = 0; i < m_env->NumObstacles(); ++i)
-    numFacets += GetNumFacets(m_env->GetObstacle(i));
+    if(!m_env->GetObstacle(i)->IsInternal())
+      numFacets += GetNumFacets(m_env->GetObstacle(i));
   return numFacets;
 }
 
@@ -117,7 +172,11 @@ GetNumFacets(const shared_ptr<Boundary>& _boundary) const {
 size_t
 TetGenDecomposition::
 GetNumHoles() const {
-  return m_env->NumObstacles();
+  size_t numHoles = 0;
+  for(size_t i = 0; i < m_env->NumObstacles(); ++i)
+    if(!m_env->GetObstacle(i)->IsInternal())
+      ++numHoles;
+  return numHoles;
 }
 
 void
@@ -128,10 +187,12 @@ MakeFreeModel() {
   size_t holeOffset = 0;
   for(size_t i = 0; i < m_env->NumObstacles(); ++i) {
     shared_ptr<StaticMultiBody> obst = m_env->GetObstacle(i);
-    AddToFreeModel(obst, pointOffset, facetOffset, holeOffset);
-    pointOffset += GetNumVertices(obst);
-    facetOffset += GetNumFacets(obst);
-    ++holeOffset;
+    if(!obst->IsInternal()) {
+      AddToFreeModel(obst, pointOffset, facetOffset, holeOffset);
+      pointOffset += GetNumVertices(obst);
+      facetOffset += GetNumFacets(obst);
+      ++holeOffset;
+    }
   }
   AddToFreeModel(m_env->GetBoundary(), pointOffset, facetOffset);
 }
@@ -460,3 +521,158 @@ SaveDecompModel() {
   m_decompModel->save_faces((char*)"decomposed");
 }
 
+void
+TetGenDecomposition::
+MakeGraph() {
+  m_graph.clear();
+  size_t numTetras = m_decompModel->numberoftetrahedra;
+  size_t numCorners = m_decompModel->numberofcorners;
+  const REAL* const points = m_decompModel->pointlist;
+  const int* const tetra = m_decompModel->tetrahedronlist;
+  const int* const neighbors = m_decompModel->neighborlist;
+
+  for(size_t i = 0; i < numTetras; ++i) {
+    Vector3d com;
+    for(size_t j = 0; j < numCorners; ++j)
+      com += Vector3d(&points[3*tetra[i*numCorners + j]]);
+    com /= numCorners;
+    m_graph.add_vertex(i, com);
+  }
+
+  for(size_t i = 0; i < numTetras; ++i) {
+    for(size_t j = 0; j < 4; ++j) {
+      size_t neigh = neighbors[4*i + j];
+      if(neigh != size_t(-1)) {
+        Vector3d v1 = m_graph.find_vertex(neigh)->property();
+        Vector3d v2 = m_graph.find_vertex(i)->property();
+        m_graph.add_edge(i, neigh, (v1-v2).norm());
+      }
+    }
+  }
+}
+
+void
+TetGenDecomposition::
+DrawGraph() {
+  glDisable(GL_LIGHTING);
+  glPointSize(4);
+  glLineWidth(3);
+
+  //draw tetras
+
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glDepthMask(GL_FALSE);
+
+  glColor4f(0.0, 1.0, 1.0, 0.01);
+  size_t numTetras = m_decompModel->numberoftetrahedra;
+  size_t numCorners = m_decompModel->numberofcorners;
+  const REAL* const points = m_decompModel->pointlist;
+  const int* const tetra = m_decompModel->tetrahedronlist;
+  glBegin(GL_TRIANGLES);
+  for(size_t i = 0; i < numTetras; ++i) {
+    Vector3d vs[numCorners];
+    for(size_t j = 0; j < numCorners; ++j)
+      vs[j] = Vector3d(&points[3*tetra[i*numCorners + j]]);
+    glVertex3dv(vs[0]);
+    glVertex3dv(vs[2]);
+    glVertex3dv(vs[1]);
+    glVertex3dv(vs[0]);
+    glVertex3dv(vs[3]);
+    glVertex3dv(vs[2]);
+    glVertex3dv(vs[0]);
+    glVertex3dv(vs[1]);
+    glVertex3dv(vs[3]);
+    glVertex3dv(vs[1]);
+    glVertex3dv(vs[2]);
+    glVertex3dv(vs[3]);
+  }
+  glEnd();
+
+  glColor4f(0.0, 1.0, 1.0, 0.02);
+  glBegin(GL_LINES);
+  for(size_t i = 0; i < numTetras; ++i) {
+    Vector3d vs[numCorners];
+    for(size_t j = 0; j < numCorners; ++j)
+      vs[j] = Vector3d(&points[3*tetra[i*numCorners + j]]);
+    glVertex3dv(vs[0]);
+    glVertex3dv(vs[1]);
+    glVertex3dv(vs[0]);
+    glVertex3dv(vs[2]);
+    glVertex3dv(vs[0]);
+    glVertex3dv(vs[3]);
+    glVertex3dv(vs[1]);
+    glVertex3dv(vs[2]);
+    glVertex3dv(vs[2]);
+    glVertex3dv(vs[3]);
+    glVertex3dv(vs[3]);
+    glVertex3dv(vs[1]);
+  }
+  glEnd();
+
+  //draw dual graph
+  glColor4f(1.0, 0.0, 1.0, 0.05);
+
+  glBegin(GL_POINTS);
+  for(auto v = m_graph.begin(); v != m_graph.end(); ++v) {
+    glVertex3dv(v->property());
+  }
+  glEnd();
+
+  glBegin(GL_LINES);
+  for(auto e = m_graph.edges_begin(); e != m_graph.edges_end(); ++e) {
+    glVertex3dv(m_graph.find_vertex((*e).source())->property());
+    glVertex3dv(m_graph.find_vertex((*e).target())->property());
+  }
+  glEnd();
+
+  glDepthMask(GL_TRUE);
+  glDisable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
+
+  glEnable(GL_LIGHTING);
+}
+
+size_t
+TetGenDecomposition::
+FindTetrahedron(const Vector3d& _p) const {
+  size_t closest = -1;
+  double dist = 1e6;
+  for(auto v : m_graph) {
+    double d = (_p - v.property()).norm();
+    if(d < dist) {
+      dist = d;
+      closest = v.descriptor();
+    }
+  }
+  return closest;
+}
+
+void
+TetGenDecomposition::
+DrawPath(/*const Vector3d& _p1, const Vector3d& _p2*/) {
+  //size_t s = FindTetrahedron(_p1);
+  //size_t g = FindTetrahedron(_p2);
+
+  //vector<size_t> path;
+
+  /*auto heuristic = [&](const Vector3d _v) {
+      return (_v - _p2).norm();
+      };
+  stapl::sequential::astar(m_graph, s, g, path, heuristic);*/
+
+  if(m_path.empty())
+    return;
+
+  glDisable(GL_LIGHTING);
+  glLineWidth(6);
+  glColor3f(0.0, 0.5, 0.0);
+
+  glBegin(GL_LINES);
+  for(auto v1 = m_path.begin(), v2 = (v1 + 1); v2 != m_path.end(); ++v1, ++v2) {
+    glVertex3dv(m_graph.find_vertex(*v1)->property());
+    glVertex3dv(m_graph.find_vertex(*v2)->property());
+  }
+  glEnd();
+  glEnable(GL_LIGHTING);
+}

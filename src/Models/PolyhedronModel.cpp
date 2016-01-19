@@ -120,7 +120,7 @@ BuildSolidObj(IModel* _model) {
   glEnable(GL_LIGHTING);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  //glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   PtVector& points = _model->GetVertices();
   vector<Vector3d>& normals = _model->GetNormals();
@@ -172,7 +172,7 @@ BuildSolidBYU(IModel* _model, const vector<Vector3d>& _norms) {
   glEnable(GL_LIGHTING);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  //glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   const PtVector& points = _model->GetVertices();
   const TriVector& tris = _model->GetTriP();
@@ -202,7 +202,7 @@ BuildNormalsObj(IModel* _model) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  //glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   PtVector& points = _model->GetVertices();
   vector<Vector3d>& normals = _model->GetNormals();
@@ -253,7 +253,7 @@ BuildNormalsBYU(IModel* _model, const vector<Vector3d>& _norms) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  //glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   const PtVector& points = _model->GetVertices();
   const TriVector& tris = _model->GetTriP();
@@ -336,7 +336,7 @@ BuildWired(IModel* _model, const vector<Vector3d>& _norms) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  //glTranslated(-m_com[0], -m_com[1], -m_com[2]);
 
   const PtVector& points = _model->GetVertices();
 

@@ -1,9 +1,13 @@
 #ifndef TET_GEN_DECOMPOSITION_H_
 #define TET_GEN_DECOMPOSITION_H_
 
-//#include <cstddef>
 #include <memory>
 using namespace std;
+
+#include <containers/sequential/graph/graph.h>
+
+#include <Vector.h>
+using namespace mathtool;
 
 class tetgenio;
 
@@ -20,6 +24,12 @@ class TetGenDecomposition {
     ~TetGenDecomposition();
 
     void Decompose(Environment* _env);
+    vector<Vector3d> GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes);
+    Vector3d GetTetra(size_t _t);
+
+    void DrawGraph();
+
+    void DrawPath(/*const Vector3d& _p1, const Vector3d& _p2*/);
 
   private:
 
@@ -45,15 +55,22 @@ class TetGenDecomposition {
     void SaveFreeModel();
     void SaveDecompModel();
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// @brief Add boundary model to tetgen
-    //virtual void AddToTetGen(tetgenio* _tetModel, size_t _pOff, size_t _fOff) const = 0;
+    void MakeGraph();
+
+    size_t FindTetrahedron(const Vector3d& _p) const;
 
     tetgenio* m_freeModel;
     tetgenio* m_decompModel;
     char* m_switches;
 
     Environment* m_env;
+
+    typedef stapl::sequential::graph<
+      stapl::UNDIRECTED, stapl::NONMULTIEDGES, Vector3d, double
+      > TetrahedralizationGraph;
+    TetrahedralizationGraph m_graph;
+
+    vector<size_t> m_path;
 };
 
 #endif

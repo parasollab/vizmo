@@ -21,6 +21,8 @@
 #include "Utilities/TetGenDecomposition.h"
 #include "Utilities/VizmoExceptions.h"
 
+TetGenDecomposition t;
+
 EnvModel::
 EnvModel(const string& _filename) : Model("Environment"),
   m_radius(0), m_boundary(NULL) {
@@ -334,6 +336,9 @@ DrawRender() {
   for(auto& s : m_surfaces)
     s->DrawRender();
 
+  t.DrawGraph();
+  t.DrawPath(/*Vector3d(0, 0, 0), Vector3d(20, 5, 10)*/);
+
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
@@ -501,6 +506,5 @@ SaveFile(const string& _filename) const {
 void
 EnvModel::
 TetGenDecompose() const {
-  TetGenDecomposition t;
   t.Decompose(m_environment);
 }
