@@ -243,14 +243,14 @@ SelectDirection() {
   const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   Environment* env = this->GetEnvironment();
 
-  size_t _index = rand() % (regions.size() + 1);
+  size_t index = rand() % (regions.size() + 1);
 
-  if(_index == regions.size()) {
+  if(index == regions.size()) {
     m_samplingRegion.reset();
     samplingBoundary = this->GetEnvironment()->GetBoundary();
   }
   else {
-    m_samplingRegion = regions[_index];
+    m_samplingRegion = regions[index];
     samplingBoundary = m_samplingRegion->GetBoundary();
   }
 

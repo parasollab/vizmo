@@ -166,7 +166,8 @@ Initialize() {
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::Run() {
+RegionStrategy<MPTraits>::
+Run() {
   cout << "Running Region Strategy." << endl;
 
   //start clock
