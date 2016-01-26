@@ -80,10 +80,8 @@ AcceptData() {
     path->SetDisplayInterval(disp);
 
   path->GetGradientVector().clear();
-  typedef vector<QColor>::iterator QIT;
-  for(QIT qit = m_colors.begin(); qit != m_colors.end(); qit++){
-    path->GetGradientVector().push_back(Color4(qit->redF(), qit->greenF(), qit->blueF(), 1.0));
-  }
+  for(auto& c : m_colors)
+    path->GetGradientVector().push_back(Color4(c.redF(), c.greenF(), c.blueF(), 1.0));
 
   path->Build();
   accept();
@@ -108,10 +106,8 @@ SetUpDialog() {
 
   m_colors.clear();
   vector<Color4> tmp = path->GetGradientVector();
-  typedef vector<Color4>::iterator CIT;
-  for(CIT cit = tmp.begin(); cit != tmp.end(); cit++) {
-    m_colors.push_back(QColor(*cit[0] * 255, *cit[1] * 255, *cit[2] * 255));
-  }
+  for(auto& c : tmp)
+    m_colors.push_back(QColor(c[0] * 255, c[1] * 255, c[2] * 255));
   update();
 
   QPushButton* addColorButton = new QPushButton(this);
