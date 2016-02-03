@@ -12,10 +12,11 @@ using namespace mathtool;
 class tetgenio;
 
 class Environment;
-class StaticMultiBody;
 class Boundary;
 class BoundingBox;
 class BoundingSphere;
+class ReebGraphConstruction;
+class StaticMultiBody;
 
 class TetGenDecomposition {
   public:
@@ -71,6 +72,8 @@ class TetGenDecomposition {
     TetrahedralizationGraph m_graph;
 
     vector<size_t> m_path;
+
+    ReebGraphConstruction* m_reebGraph;
 };
 
 #endif

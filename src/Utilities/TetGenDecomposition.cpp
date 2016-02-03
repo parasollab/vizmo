@@ -2,13 +2,14 @@
 
 #include <containers/sequential/graph/algorithms/astar.h>
 
+#include "ReebGraphConstruction.h"
+#include "VizmoExceptions.h"
+
 #include "Environment/BoundingBox.h"
 #include "Environment/BoundingSphere.h"
 #include "Environment/Environment.h"
 #include "Environment/FixedBody.h"
 #include "Environment/StaticMultiBody.h"
-
-#include "VizmoExceptions.h"
 
 #define TETLIBRARY
 #undef PI
@@ -18,7 +19,7 @@ TetGenDecomposition::
 TetGenDecomposition() :
   m_freeModel(new tetgenio()),
   m_decompModel(new tetgenio()),
-  m_switches((char*)"pqna10") {
+  m_switches((char*)"pn") {
   }
 
 TetGenDecomposition::
@@ -549,6 +550,28 @@ MakeGraph() {
       }
     }
   }
+
+  //construct reeb graph
+
+  size_t numPoints = m_decompModel->numberofpoints;
+  vector<Vector3d> vertices(numPoints);
+  for(size_t i = 0; i < numPoints; ++i)
+    vertices[i] = Vector3d(&points[3*i]);
+
+  vector<tuple<size_t, size_t, size_t>> triangles(4*numTetras);
+  for(size_t i = 0; i < numTetras; ++i) {
+    triangles[4*i + 0] = make_tuple(tetra[i*numCorners + 0], tetra[i*numCorners + 2], tetra[i*numCorners + 1]);
+    triangles[4*i + 1] = make_tuple(tetra[i*numCorners + 0], tetra[i*numCorners + 3], tetra[i*numCorners + 2]);
+    triangles[4*i + 2] = make_tuple(tetra[i*numCorners + 0], tetra[i*numCorners + 1], tetra[i*numCorners + 3]);
+    triangles[4*i + 3] = make_tuple(tetra[i*numCorners + 1], tetra[i*numCorners + 2], tetra[i*numCorners + 3]);
+  }
+/*
+  vector<Vector3d> vertices{{0, 0, 0}, {0, 0, 1}, {1, 0, 1}, {1, 0, 0}};
+  vector<tuple<size_t, size_t, size_t>> triangles;
+  triangles.push_back(make_tuple(0, 1, 2));
+  triangles.push_back(make_tuple(0, 2, 3));
+  */
+  m_reebGraph = new ReebGraphConstruction(vertices, triangles);
 }
 
 void
@@ -559,7 +582,7 @@ DrawGraph() {
   glLineWidth(3);
 
   //draw tetras
-
+/*
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
@@ -609,9 +632,9 @@ DrawGraph() {
     glVertex3dv(vs[1]);
   }
   glEnd();
-
+*/
   //draw dual graph
-  glColor4f(1.0, 0.0, 1.0, 0.05);
+/*  glColor4f(1.0, 0.0, 1.0, 0.05);
 
   glBegin(GL_POINTS);
   for(auto v = m_graph.begin(); v != m_graph.end(); ++v) {
@@ -631,6 +654,8 @@ DrawGraph() {
   glDisable(GL_CULL_FACE);
 
   glEnable(GL_LIGHTING);
+*/
+  m_reebGraph->Draw();
 }
 
 size_t
