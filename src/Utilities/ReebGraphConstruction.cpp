@@ -371,7 +371,7 @@ MergeArcs(RGEID _a0, RGEID _a1) {
       b.second = b.second*b.first + bit->second.second*bit->second.first;
       b.first += bit->second.first;
       b.second /= b.first;*/
-      if(bit->first != a0.m_buckets.begin()->first)
+      if(bit->first != a0.m_buckets.rbegin()->first)
         bit = a1.m_buckets.erase(bit);
       else
         ++bit;
