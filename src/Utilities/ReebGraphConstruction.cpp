@@ -22,8 +22,8 @@ void
 ReebGraphConstruction::
 Draw() {
   glDisable(GL_LIGHTING);
-  glPointSize(6);
-  glLineWidth(3);
+  glPointSize(8);
+  glLineWidth(5);
 
   //draw reeb graph
   glColor4f(0.0, 0.5, 0.2, 0.05);
@@ -56,7 +56,7 @@ Draw() {
   }
 
   glColor4f(0.5, 0.0, 0.2, 0.05);
-  glLineWidth(2);
+  glLineWidth(1);
   glBegin(GL_LINES);
   for(auto e = m_reebGraph.edges_begin(); e != m_reebGraph.edges_end(); ++e) {
     glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->source())->property().m_vertex]);
@@ -84,17 +84,55 @@ Construct() {
     cout << "Vertex: " << i << " at " << m_vertices[i] << " f = " << f(m_vertices[i]) << endl;
   }
   //m_numBuckets = ceil((m_maxBucket - m_minBucket)/GetVizmo().GetEnv()->GetEnvironment()->GetPositionRes());
-  m_bucketRes = (m_maxBucket - m_minBucket) / 199.;
+  m_bucketRes = (m_maxBucket - m_minBucket) / 50.;
   //cout << "Buckets: " << m_numBuckets << " buckets from " << m_minBucket << " to " << m_maxBucket << endl;
   cout << "Buckets from " << m_minBucket << " to " << m_maxBucket << " at resolution " << m_bucketRes << endl;
   //cin.ignore();
-  for(auto& t : m_triangles) {
+  ReebNodeComp rnc(&m_vertices);
+  for(auto tit = m_triangles.begin(); tit != m_triangles.end(); ++tit) {
+    size_t v[3] = {get<0>(*tit), get<1>(*tit), get<2>(*tit)};
+    sort(v, v+3, [&](size_t _a, size_t _b) {
+        return rnc(m_reebGraph.find_vertex(_a)->property(),
+            m_reebGraph.find_vertex(_b)->property());
+        /*double fa = f(m_vertices[_a]);
+        double fb = f(m_vertices[_b]);
+        //return fa - fb > 0.000001 || (fabs(fa - fb) < 0.000001 && _a <= _b);
+        return fa - fb > 0.000001 ||
+        (fabs(fa - fb) < 0.000001 &&
+         m_vertices[_a][0] - m_vertices[_b][0] > 0.000001) ||
+        (fabs(fa - fb) < 0.000001 &&
+         fabs(m_vertices[_a][0] - m_vertices[_b][0]) < 0.000001 &&
+         m_vertices[_a][2] - m_vertices[_b][2] > 0.000001);
+         */
+        });
+
+    *tit = make_tuple(v[0], v[1], v[2]);
+  }
+  cout << "triangles: " << m_triangles.size() << endl;
+  sort(m_triangles.begin(), m_triangles.end());
+  auto i = unique(m_triangles.begin(), m_triangles.end());
+  m_triangles.resize(distance(m_triangles.begin(), i));
+  cout << "triangles: " << m_triangles.size() << endl;
+  cin.ignore();
+  /*for(auto& t : m_triangles) {
     size_t v[3] = {get<0>(t), get<1>(t), get<2>(t)};
     sort(v, v+3, [&](size_t _a, size_t _b) {
         double fa = f(m_vertices[_a]);
         double fb = f(m_vertices[_b]);
         return fa > fb || (fa == fb && _a < _b);
         });
+
+    CreateArc(v[0], v[2]);
+    CreateArc(v[0], v[1]);
+    CreateArc(v[1], v[2]);
+  }*/
+  for(auto& t : m_triangles) {
+    size_t v[3] = {get<0>(t), get<1>(t), get<2>(t)};
+    /*sort(v, v+3, [&](size_t _a, size_t _b) {
+        double fa = f(m_vertices[_a]);
+        double fb = f(m_vertices[_b]);
+        return fa - fb > 0.000001 || (fabs(fa - fb) < 0.000001 && _a < _b);
+        });*/
 
     cout << "MergePaths with triangle {" << v[0] << ", " << v[1] << ", " << v[2] << "}" << endl;
 
@@ -107,8 +145,8 @@ Construct() {
     //wait to continue for debug
     cout << "Graph: nodes = " << m_reebGraph.get_num_vertices()
       << " edges = " << m_reebGraph.get_num_edges() << endl;
-    /*for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit)
-      cout << "\tEdge: " << eit->descriptor() << endl;*/
+    //for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit)
+    //  cout << "\tEdge: " << eit->descriptor() << endl;
 
     //cin.ignore();
   }
@@ -172,20 +210,22 @@ Construct() {
       cout << "Err: Can remove vid: " << vit->descriptor() << endl;
     }
   }
-  cout << "Final Graph: nodes = " << m_reebGraph.get_num_vertices()
-    << " edges = " << m_reebGraph.get_num_edges() << endl;
   for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit) {
-    cout << "Edge: " << eit->descriptor() << endl;
+    //cout << "Edge: " << eit->descriptor() << endl;
     for(auto& bucket : eit->property().m_buckets) {
-      cout << "\tBucket: " << bucket.first << " with " << bucket.second.size() << endl;
+      //cout << "\tBucket: " << bucket.first << " with " << bucket.second.size() << endl;
       Vector3d v;
       for(auto& vid : bucket.second)
         v += m_vertices[vid];
       v /= bucket.second.size();
-      cout << "Averaged to: " << v << endl;
+      //cout << "Averaged to: " << v << endl;
       eit->property().m_path.push_back(v);
     }
   }
+  cout << "Final Graph: nodes = " << m_reebGraph.get_num_vertices()
+    << " edges = " << m_reebGraph.get_num_edges() << endl;
+  //for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit)
+  //  cout << "\tEdge: " << eit->descriptor() << endl;
 }
 
 void
@@ -197,9 +237,9 @@ CreateNode(size_t _i, double _w) {
 ReebGraphConstruction::MeshEdge*
 ReebGraphConstruction::
 CreateArc(size_t _s, size_t _t) {
-  MeshEdge m(_s, _t, &m_reebGraph);
+  MeshEdge m(_s, _t, &m_vertices, &m_reebGraph);
   if(!m_edges.count(&m)) {
-    MeshEdge* m2 = new MeshEdge(_s, _t, &m_reebGraph);
+    MeshEdge* m2 = new MeshEdge(_s, _t, &m_vertices, &m_reebGraph);
     m_edges.insert(m2);
     RGEID eid = m_reebGraph.add_edge(_s, _t, ReebArc(_s, _t, m2));
     cout << "\tAdding edge: " << eid << endl;
@@ -280,21 +320,37 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
 
   //cout << "\tGlueByMergeSorting" << endl;
   //cout << "\t\tEdge _e0: " << _e0->m_source << " " << _e0->m_target << " ArcSet _a0: ";
-  /*for(auto& a : _a0)
-    cout << a << " ";
-  cout << endl;*/
+  //for(auto& a : _a0)
+  //  cout << a << " ";
+  //cout << endl;
   //cout << "\t\tEdge _e1: " << _e1->m_source << " " << _e1->m_target << " ArcSet _a1: ";
-  /*for(auto& a : _a1)
-    cout << a << " ";
-  cout << endl;*/
+  //for(auto& a : _a1)
+  //  cout << a << " ";
+  //cout << endl;
 
   //cout << "\t\tBeginning merge" << endl;
-  ReebArcComp rac(&m_reebGraph);
+  ReebArcComp rac(&m_vertices, &m_reebGraph);
   for(auto asit0 = _a0.begin(), asit1 = _a1.begin();
       asit0 != _a0.end() && asit1 != _a1.end();) {
 
     //cout << "\n\t\t\ta0: " << *asit0 << endl;
     //cout << "\t\t\ta1: " << *asit1 << endl;
+
+    if(*asit0 == *asit1) {
+      /*cout << "\t\t\tIdentical EIDs. Skipping." << endl;
+      cout << "\t\t\t_e0: " << _e0 << " ArcSet _a0: ";
+      for(auto& a : _a0)
+        cout << a << " ";
+      cout << endl;
+      cout << "\t\t\t_e1: " << _e1 << " ArcSet _a1: ";
+      for(auto& a : _a1)
+        cout << a << " ";
+      cout << endl;
+      cin.ignore();
+      */
+      ++asit0; ++asit1;
+      continue;
+    }
 
     if(asit0->source() != asit1->source()) {
       //cout << "\t\t\tSources do not match. Skipping." << endl;
@@ -302,12 +358,6 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
         ++asit0;
       else
         ++asit1;
-      continue;
-    }
-
-    if(*asit0 == *asit1) {
-      //cout << "\t\t\tIdentical EIDs. Skipping." << endl;
-      ++asit0; ++asit1;
       continue;
     }
 
@@ -321,7 +371,12 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
       << " at " << m_vertices[n1.m_vertex]
       << " with f = " << n1.m_w << endl;;
     */
-    if(n0.m_w > n1.m_w || (n0.m_w == n1.m_w && rac(*asit0, *asit1))) {
+    //if(n0.m_w - n1.m_w > 0.000001 ||
+    //    (fabs(n0.m_w - n1.m_w) < 0.000001 && asit0->target() < asit1->target()) ||
+    //    (fabs(n0.m_w - n1.m_w) < 0.000001 && asit0->target() == asit1->target() && asit0->id() < asit1->id())
+    ReebNodeComp rnc(&m_vertices);
+    if(rnc(n0, n1)
+        /*rac(*asit0, *asit1)*/) {
       MergeArcs(*asit0, *asit1);
       ++asit0;
       asit1 = _a1.begin();
