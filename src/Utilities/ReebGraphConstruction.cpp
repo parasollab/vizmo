@@ -2,6 +2,8 @@
 
 #include <GL/gl.h>
 
+#include "Utilities/MetricUtils.h"
+
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
@@ -74,6 +76,21 @@ Construct() {
   auto f = [&](const Vector3d& v) {
     return v[1]; //take y value as morse function. TODO generalize
   };
+
+  ClockClass clockTotal, clockAddVertices, clockTriangleSort, clockAddEdges,
+             clockAddTriangles, clockDelete2Nodes, clockMakePaths;
+
+  clockTotal.SetName("Total");
+  clockAddVertices.SetName("Add Vertices");
+  clockTriangleSort.SetName("Triangle Sort");
+  clockAddEdges.SetName("Add Edges");
+  clockAddTriangles.SetName("Add Triangles");
+  clockDelete2Nodes.SetName("Delete 2-Nodes");
+  clockMakePaths.SetName("Make Paths");
+
+  clockTotal.StartClock();
+
+  clockAddVertices.StartClock();
   for(size_t i = 0; i < m_vertices.size(); ++i) {
     double w = f(m_vertices[i]);
     CreateNode(i, w);
@@ -81,13 +98,20 @@ Construct() {
       m_minBucket = w;
     if(w > m_maxBucket)
       m_maxBucket = w;
-    cout << "Vertex: " << i << " at " << m_vertices[i] << " f = " << f(m_vertices[i]) << endl;
+    //cout << "Vertex: " << i << " at " << m_vertices[i] << " f = " << f(m_vertices[i]) << endl;
   }
   //m_numBuckets = ceil((m_maxBucket - m_minBucket)/GetVizmo().GetEnv()->GetEnvironment()->GetPositionRes());
-  m_bucketRes = (m_maxBucket - m_minBucket) / 50.;
+  m_bucketRes = (m_maxBucket - m_minBucket) / 65.;
+
+  clockAddVertices.StopClock();
+
   //cout << "Buckets: " << m_numBuckets << " buckets from " << m_minBucket << " to " << m_maxBucket << endl;
   cout << "Buckets from " << m_minBucket << " to " << m_maxBucket << " at resolution " << m_bucketRes << endl;
   //cin.ignore();
+  cout << "Add Vertices done." << endl;
+
+  clockTriangleSort.StartClock();
+
   ReebNodeComp rnc(&m_vertices);
   for(auto tit = m_triangles.begin(); tit != m_triangles.end(); ++tit) {
     size_t v[3] = {get<0>(*tit), get<1>(*tit), get<2>(*tit)};
@@ -113,19 +137,37 @@ Construct() {
   auto i = unique(m_triangles.begin(), m_triangles.end());
   m_triangles.resize(distance(m_triangles.begin(), i));
   cout << "triangles: " << m_triangles.size() << endl;
-  cin.ignore();
-  /*for(auto& t : m_triangles) {
+  //cin.ignore();
+
+  clockTriangleSort.StopClock();
+
+  cout << "Triangles Sort done." << endl;
+
+  clockAddEdges.StartClock();
+
+  for(auto& t : m_triangles) {
     size_t v[3] = {get<0>(t), get<1>(t), get<2>(t)};
-    sort(v, v+3, [&](size_t _a, size_t _b) {
+    /*sort(v, v+3, [&](size_t _a, size_t _b) {
         double fa = f(m_vertices[_a]);
         double fb = f(m_vertices[_b]);
         return fa > fb || (fa == fb && _a < _b);
-        });
+        });*/
 
-    CreateArc(v[0], v[2]);
-    CreateArc(v[0], v[1]);
-    CreateArc(v[1], v[2]);
-  }*/
+    MeshEdge* e0 = CreateArc(v[0], v[2]);
+    MeshEdge* e1 = CreateArc(v[0], v[1]);
+    MeshEdge* e2 = CreateArc(v[1], v[2]);
+
+    ++e0->m_numTris;
+    ++e1->m_numTris;
+    ++e2->m_numTris;
+  }
+
+  clockAddEdges.StopClock();
+
+  cout << "Add Edges done." << endl;
+
+  clockAddTriangles.StartClock();
+
   for(auto& t : m_triangles) {
     size_t v[3] = {get<0>(t), get<1>(t), get<2>(t)};
     /*sort(v, v+3, [&](size_t _a, size_t _b) {
@@ -134,7 +176,7 @@ Construct() {
         return fa - fb > 0.000001 || (fabs(fa - fb) < 0.000001 && _a < _b);
         });*/
 
-    cout << "MergePaths with triangle {" << v[0] << ", " << v[1] << ", " << v[2] << "}" << endl;
+    //cout << "MergePaths with triangle {" << v[0] << ", " << v[1] << ", " << v[2] << "}" << endl;
 
     MeshEdge* e0 = CreateArc(v[0], v[2]);
     MeshEdge* e1 = CreateArc(v[0], v[1]);
@@ -143,19 +185,38 @@ Construct() {
     MergePaths(e0, e1, e2);
 
     //wait to continue for debug
-    cout << "Graph: nodes = " << m_reebGraph.get_num_vertices()
-      << " edges = " << m_reebGraph.get_num_edges() << endl;
+    //cout << "Graph: nodes = " << m_reebGraph.get_num_vertices()
+    //  << " edges = " << m_reebGraph.get_num_edges() << endl;
     //for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit)
     //  cout << "\tEdge: " << eit->descriptor() << endl;
 
     //cin.ignore();
+
+    --e0->m_numTris;
+    --e1->m_numTris;
+    --e2->m_numTris;
+
+    //delete edge optimization
+    if(e0->m_numTris == 0)
+      DeleteMeshEdge(e0);
+    if(e1->m_numTris == 0)
+      DeleteMeshEdge(e1);
+    if(e2->m_numTris == 0)
+      DeleteMeshEdge(e2);
   }
+
+  clockAddTriangles.StopClock();
+
+  cout << "Add Triangles done." << endl;
+
+  clockDelete2Nodes.StartClock();
+
   bool removed;
   do {
     removed = false;
     for(auto vit = m_reebGraph.begin(); vit != m_reebGraph.end(); ++vit) {
       if(vit->predecessors().size() /*m_reebGraph.get_in_degree(vit->descriptor())*/ == 1 && vit->size()/*m_reebGraph.get_out_degree(vit->descriptor())*/ == 1) {
-        cout << "Can remove vid: " << vit->descriptor() << endl;
+        //cout << "Can remove vid: " << vit->descriptor() << endl;
         //Remove2Node(vit);
         auto pred = m_reebGraph.find_vertex(vit->predecessors()[0]);
         RGEID in, out;
@@ -174,7 +235,7 @@ Construct() {
         for(auto& edge : ain.m_edges) {
           edge->m_arcs.insert(neweid);
           edge->m_arcs.erase(in);
-          newa.m_edges.push_back(edge);
+          newa.m_edges.insert(edge);
         }
         for(auto& bucket : ain.m_buckets)
           newa.m_buckets[bucket.first].insert(bucket.second.begin(), bucket.second.end());
@@ -187,7 +248,7 @@ Construct() {
         for(auto& edge : aout.m_edges) {
           edge->m_arcs.insert(neweid);
           edge->m_arcs.erase(out);
-          newa.m_edges.push_back(edge);
+          newa.m_edges.insert(edge);
         }
         for(auto& bucket : aout.m_buckets)
           newa.m_buckets[bucket.first].insert(bucket.second.begin(), bucket.second.end());
@@ -210,6 +271,13 @@ Construct() {
       cout << "Err: Can remove vid: " << vit->descriptor() << endl;
     }
   }
+
+  clockDelete2Nodes.StopClock();
+
+  cout << "Delete 2 Nodes done." << endl;
+
+  clockMakePaths.StartClock();
+
   for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit) {
     //cout << "Edge: " << eit->descriptor() << endl;
     for(auto& bucket : eit->property().m_buckets) {
@@ -222,10 +290,23 @@ Construct() {
       eit->property().m_path.push_back(v);
     }
   }
+
+  clockMakePaths.StopClock();
+
+  clockTotal.StopClock();
+
   cout << "Final Graph: nodes = " << m_reebGraph.get_num_vertices()
     << " edges = " << m_reebGraph.get_num_edges() << endl;
   //for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit)
   //  cout << "\tEdge: " << eit->descriptor() << endl;
+
+  clockAddVertices.PrintClock(cout);
+  clockTriangleSort.PrintClock(cout);
+  clockAddEdges.PrintClock(cout);
+  clockAddTriangles.PrintClock(cout);
+  clockDelete2Nodes.PrintClock(cout);
+  clockMakePaths.PrintClock(cout);
+  clockTotal.PrintClock(cout);
 }
 
 void
@@ -242,7 +323,7 @@ CreateArc(size_t _s, size_t _t) {
     MeshEdge* m2 = new MeshEdge(_s, _t, &m_vertices, &m_reebGraph);
     m_edges.insert(m2);
     RGEID eid = m_reebGraph.add_edge(_s, _t, ReebArc(_s, _t, m2));
-    cout << "\tAdding edge: " << eid << endl;
+    //cout << "\tAdding edge: " << eid << endl;
     m2->m_arcs.insert(eid);
 
     ReebArc& ra = GetReebArc(eid);
@@ -417,7 +498,7 @@ MergeArcs(RGEID _a0, RGEID _a1) {
       cin.ignore();
     }
     edge->m_arcs.erase(_a1);
-    a0.m_edges.push_back(edge);
+    a0.m_edges.insert(edge);
   }
   for(auto bit = a1.m_buckets.begin(); bit != a1.m_buckets.end();) {
     if(bit->first >= a0.m_buckets.rbegin()->first) {
@@ -459,4 +540,11 @@ GetReebArc(RGEID _a) {
   ReebGraph::vertex_iterator vi;
   m_reebGraph.find_edge(_a, vi, ei);
   return ei->property();
+}
+
+void
+ReebGraphConstruction::
+DeleteMeshEdge(MeshEdge* _e) {
+  for(auto& a : _e->m_arcs)
+    GetReebArc(a).m_edges.erase(_e);
 }

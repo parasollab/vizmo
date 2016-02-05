@@ -47,10 +47,10 @@ class ReebGraphConstruction {
     };
 
     struct ReebArc {
-      ReebArc(size_t _s = -1, size_t _t = -1, MeshEdge* _m = nullptr) : m_source(_s), m_target(_t) {if(_m) m_edges.push_back(_m);}
+      ReebArc(size_t _s = -1, size_t _t = -1, MeshEdge* _m = nullptr) : m_source(_s), m_target(_t) {if(_m) m_edges.insert(_m);}
       size_t m_source;
       size_t m_target;
-      vector<MeshEdge*> m_edges; ///< Edge indices
+      unordered_set<MeshEdge*> m_edges; ///< Edge indices
 
       map<size_t, set<size_t>, greater<size_t>> m_buckets;
       vector<Vector3d> m_path;
@@ -111,11 +111,12 @@ class ReebGraphConstruction {
 
     struct MeshEdge {
       MeshEdge(size_t _s, size_t _t, vector<Vector3d>* _v, ReebGraph* _rg) :
-        m_source(_s), m_target(_t), m_arcs(ReebArcComp(_v, _rg)) {
+        m_source(_s), m_target(_t), m_numTris(0), m_arcs(ReebArcComp(_v, _rg)) {
           //m_arcs.insert(RGEID(_s, _t));
         }
       size_t m_source; ///< Vertex index
       size_t m_target; ///< Vertex index
+      size_t m_numTris; ///< Number of triangles which it is incident on
       ArcSet m_arcs; ///< Reference to Reeb Arcs
     };
 
@@ -148,6 +149,7 @@ class ReebGraphConstruction {
     void GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1);
     void MergeArcs(RGEID _a0, RGEID _a1);
     ReebArc& GetReebArc(RGEID _a);
+    void DeleteMeshEdge(MeshEdge* _e);
 
     vector<Vector3d> m_vertices;
     unordered_set<MeshEdge*, MeshEdgeHash, MeshEdgeEq> m_edges;
