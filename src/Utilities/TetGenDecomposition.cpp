@@ -19,7 +19,7 @@ TetGenDecomposition::
 TetGenDecomposition() :
   m_freeModel(new tetgenio()),
   m_decompModel(new tetgenio()),
-  m_switches((char*)"pn") {
+  m_switches((char*)"pqn") {
   }
 
 TetGenDecomposition::

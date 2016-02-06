@@ -7,6 +7,12 @@
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
+ClockClass clockReebNodeComp;
+ClockClass clockReebArcComp;
+ClockClass clockGetReebArc;
+ClockClass clockMergeArcs;
+ClockClass clockGlueByMergeSorting;
+
 ostream& operator<<(ostream& _os, ReebGraphConstruction::RGEID _rgeid) {
   return _os << "(" << _rgeid.source() << ", " << _rgeid.target() << ", " << _rgeid.id() << ")";
 }
@@ -17,6 +23,11 @@ ReebGraphConstruction(const vector<Vector3d>& _vertices,
   m_vertices(_vertices), m_triangles(_triangles),
   m_minBucket(numeric_limits<double>::max()),
   m_maxBucket(numeric_limits<double>::min()) {
+    clockReebNodeComp.SetName("Reeb Node Comp");
+    clockReebArcComp.SetName("Reeb Arc Comp");
+    clockGetReebArc.SetName("Get Reeb Arc");
+    clockMergeArcs.SetName("Merge Arcs");
+    clockGlueByMergeSorting.SetName("Glue By Merge Sorting");
     Construct();
   }
 
@@ -93,7 +104,7 @@ Construct() {
   clockAddVertices.StartClock();
   for(size_t i = 0; i < m_vertices.size(); ++i) {
     double w = f(m_vertices[i]);
-    CreateNode(i, w);
+    CreateNode(i, m_vertices[i], w);
     if(w < m_minBucket)
       m_minBucket = w;
     if(w > m_maxBucket)
@@ -300,6 +311,11 @@ Construct() {
   //for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit)
   //  cout << "\tEdge: " << eit->descriptor() << endl;
 
+  //clockReebNodeComp.PrintClock(cout);
+  //clockReebArcComp.PrintClock(cout);
+  clockGetReebArc.PrintClock(cout);
+  clockMergeArcs.PrintClock(cout);
+  clockGlueByMergeSorting.PrintClock(cout);
   clockAddVertices.PrintClock(cout);
   clockTriangleSort.PrintClock(cout);
   clockAddEdges.PrintClock(cout);
@@ -311,8 +327,8 @@ Construct() {
 
 void
 ReebGraphConstruction::
-CreateNode(size_t _i, double _w) {
-  m_reebGraph.add_vertex(_i, ReebNode(_i, _w));
+CreateNode(size_t _i, const Vector3d& _v, double _w) {
+  m_reebGraph.add_vertex(_i, ReebNode(_i, _v, _w));
 }
 
 ReebGraphConstruction::MeshEdge*
@@ -410,6 +426,7 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
   //cout << endl;
 
   //cout << "\t\tBeginning merge" << endl;
+  clockGlueByMergeSorting.StartClock();
   ReebArcComp rac(&m_vertices, &m_reebGraph);
   for(auto asit0 = _a0.begin(), asit1 = _a1.begin();
       asit0 != _a0.end() && asit1 != _a1.end();) {
@@ -442,8 +459,10 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
       continue;
     }
 
-    ReebNode& n0 = m_reebGraph.find_vertex(GetReebArc(*asit0).m_target)->property();
-    ReebNode& n1 = m_reebGraph.find_vertex(GetReebArc(*asit1).m_target)->property();
+    //ReebNode& n0 = m_reebGraph.find_vertex(GetReebArc(*asit0).m_target)->property();
+    //ReebNode& n1 = m_reebGraph.find_vertex(GetReebArc(*asit1).m_target)->property();
+    ReebNode& n0 = m_reebGraph.find_vertex(asit0->target())->property();
+    ReebNode& n1 = m_reebGraph.find_vertex(asit1->target())->property();
 
     /*cout << "\t\t\tn0: " << n0.m_vertex
       << " at " << m_vertices[n0.m_vertex]
@@ -476,11 +495,13 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
     //}
     //  valid = false;
   }
+  clockGlueByMergeSorting.StopClock();
 }
 
 void
 ReebGraphConstruction::
 MergeArcs(RGEID _a0, RGEID _a1) {
+  clockMergeArcs.StartClock();
   /*if(_a0.source() != _a1.source()) {
     cout << "\t\t\tSources do not match. Skipping." << endl;
     return;
@@ -489,14 +510,14 @@ MergeArcs(RGEID _a0, RGEID _a1) {
   ReebArc& a0 = GetReebArc(_a0);
   ReebArc& a1 = GetReebArc(_a1);
   for(auto& edge : a1.m_edges) {
-    auto i = edge->m_arcs.insert(_a0);
-    if(!i.second) {
+    /*auto i =*/ edge->m_arcs.insert(_a0);
+    /*if(!i.second) {
       cout << "***Insert existed? " << _a0 << endl;
       for(auto& arc : edge->m_arcs)
         cout << arc << " ";
       cout << endl;
       cin.ignore();
-    }
+    }*/
     edge->m_arcs.erase(_a1);
     a0.m_edges.insert(edge);
   }
@@ -515,10 +536,10 @@ MergeArcs(RGEID _a0, RGEID _a1) {
     else
       ++bit;
   }
-  if(_a0.target() == _a1.target()) {
+  //if(_a0.target() == _a1.target()) {
     //cout << "\t\t\tMerging multiedge" << endl;
-  }
-  else if(_a0.target() != _a1.target()) {
+  //}
+  /*else */if(_a0.target() != _a1.target()) {
     ReebArc a = a1;
     a.m_source = a0.m_target;
     RGEID neweid = m_reebGraph.add_edge(a.m_source, a.m_target, a);
@@ -531,14 +552,17 @@ MergeArcs(RGEID _a0, RGEID _a1) {
     cin.ignore();
   }*/
   m_reebGraph.delete_edge(_a1);
+  clockMergeArcs.StopClock();
 }
 
 ReebGraphConstruction::ReebArc&
 ReebGraphConstruction::
 GetReebArc(RGEID _a) {
+  clockGetReebArc.StartClock();
   ReebGraph::adj_edge_iterator ei;
   ReebGraph::vertex_iterator vi;
   m_reebGraph.find_edge(_a, vi, ei);
+  clockGetReebArc.StopClock();
   return ei->property();
 }
 

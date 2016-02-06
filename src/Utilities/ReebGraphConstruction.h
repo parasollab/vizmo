@@ -13,15 +13,24 @@ using namespace std;
 #include <Vector.h>
 using namespace mathtool;
 
+#include "Utilities/MetricUtils.h"
+
+extern ClockClass clockReebNodeComp;
+extern ClockClass clockReebArcComp;
+extern ClockClass clockGetReebArc;
+extern ClockClass clockMergeArcs;
+extern ClockClass clockGlueByMergeSorting;
+
 class ReebGraphConstruction {
   public:
 
     struct MeshEdge;
 
     struct ReebNode {
-      ReebNode(size_t _v = -1, double _w = numeric_limits<double>::max()) : m_vertex(_v), m_w(_w) {}
+      ReebNode(size_t _v = -1, const Vector3d& _v2 = Vector3d(), double _w = numeric_limits<double>::max()) : m_vertex(_v), m_vertex2(_v2), m_w(_w) {}
 
       size_t m_vertex; ///< Vertex Index
+      Vector3d m_vertex2;
       double m_w; ///< Morse function value
     };
 
@@ -30,17 +39,35 @@ class ReebGraphConstruction {
 
       bool operator()(const ReebNode& _a, const ReebNode& _b) {
         auto vertComp = [](const Vector3d _a, const Vector3d _b) {
-          return _a[1] - _b[1] > 0.000001 ||
-            (fabs(_a[1] - _b[1]) < 0.000001 && _a[0] - _b[0] > 0.000001) ||
-            (fabs(_a[1] - _b[1]) < 0.000001 && fabs(_a[0] - _b[0]) < 0.000001 && _a[2] - _b[2] > 0.000001);
+          return _a[0] - _b[0] > 0.000001 ||
+            (fabs(_a[0] - _b[0]) < 0.000001 && (_a[1] - _b[1] > 0.000001 ||
+            (fabs(_a[1] - _b[1]) < 0.000001 && _a[2] - _b[2] > 0.000001)));
+          /*if(_a[0] - _b[0] > 0.000001)
+            return true;
+          else if(_a[0] - _b[0] < 0.000001 && _a[0] - _b[0] > -0.000001) {
+            if(_a[1] - _b[1] > 0.000001)
+              return true;
+            else if(_a[1] - _b[1] < 0.000001 && _a[1] - _b[1] > -0.000001) {
+              if(_a[2] - _b[2] > 0.000001)
+                return true;
+            }
+          }
+          return false;*/
         };
-        return _a.m_w - _b.m_w > 0.000001 ||
-          (fabs(_a.m_w - _b.m_w) < 0.000001 &&
-           vertComp((*m_vertices)[_a.m_vertex], (*m_vertices)[_b.m_vertex])) ||
-          (fabs(_a.m_w - _b.m_w) < 0.000001 &&
-           !vertComp((*m_vertices)[_a.m_vertex], (*m_vertices)[_b.m_vertex]) &&
-           !vertComp((*m_vertices)[_b.m_vertex], (*m_vertices)[_a.m_vertex]) &&
-           _a.m_vertex < _b.m_vertex);
+        //clockReebNodeComp.StartClock();
+        //const Vector3d& a = (*m_vertices)[_a.m_vertex];
+        //const Vector3d& b = (*m_vertices)[_b.m_vertex];
+        const Vector3d& a = _a.m_vertex2;
+        const Vector3d& b = _b.m_vertex2;
+        bool ret = _b.m_vertex != _a.m_vertex &&
+          (_a.m_w - _b.m_w > 0.000001 ||
+           (fabs(_a.m_w - _b.m_w) < 0.000001 &&
+            (vertComp(a, b) || (a == b &&
+            //!vertComp(a, b) &&
+            //!vertComp(b, a) &&
+            _a.m_vertex < _b.m_vertex))));
+        //clockReebNodeComp.StopClock();
+        return ret;
       }
 
       vector<Vector3d>* m_vertices;
@@ -60,6 +87,9 @@ class ReebGraphConstruction {
     //  stapl::DIRECTED, stapl::MULTIEDGES, ReebNode, ReebArc> ReebGraph;
     typedef stapl::sequential::directed_preds_graph<
       stapl::MULTIEDGES, ReebNode, ReebArc> ReebGraph;
+    //typedef stapl::sequential::directed_preds_graph<
+    //  stapl::MULTIEDGES, ReebNode, ReebArc,
+    //  stapl::sequential::adj_map_int> ReebGraph;
     typedef ReebGraph::edge_descriptor RGEID;
 
     struct ReebArcComp {
@@ -84,20 +114,23 @@ class ReebGraphConstruction {
           }
         }
         return false;*/
+        //clockReebArcComp.StartClock();
+        bool ret = false;
         ReebNode& s0 = m_rg->find_vertex(_a0.source())->property();
         ReebNode& s1 = m_rg->find_vertex(_a1.source())->property();
-        if(m_rnc(s0, s1))
-          return true;
-        else if(!m_rnc(s0, s1) && ! m_rnc(s1, s0)) {
+        if(_a0.source() != _a1.source() && m_rnc(s0, s1))
+          ret = true;
+        else if(_a0.source() == _a1.source() || (!m_rnc(s0, s1) && ! m_rnc(s1, s0))) {
           ReebNode& t0 = m_rg->find_vertex(_a0.target())->property();
           ReebNode& t1 = m_rg->find_vertex(_a1.target())->property();
-          if(m_rnc(t0, t1))
-            return true;
-          else if(!m_rnc(t0, t1) && !m_rnc(t1, t0))
+          if(_a0.target() != _a1.target() && m_rnc(t0, t1))
+            ret = true;
+          else if(_a0.target() == _a1.target() || (!m_rnc(t0, t1) && !m_rnc(t1, t0)))
             if(_a0.id() < _a1.id())
-              return true;
+              ret = true;
         }
-        return false;
+        //clockReebArcComp.StopClock();
+        return ret;
       }
       ReebNodeComp m_rnc;
       ReebGraph* m_rg;
@@ -142,7 +175,7 @@ class ReebGraphConstruction {
 
     void Construct();
 
-    void CreateNode(size_t _i, double _w);
+    void CreateNode(size_t _i, const Vector3d& _v, double _w);
     MeshEdge* CreateArc(size_t _s, size_t _t);
     //MeshEdge& GetMeshEdge(size_t _s, size_t _t);
     void MergePaths(MeshEdge* _e0, MeshEdge* _e1, MeshEdge* _e2);
