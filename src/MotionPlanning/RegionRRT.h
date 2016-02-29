@@ -39,7 +39,7 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
         const CfgType& _goal = CfgType(), string _lp = "sl",
         string _dm = "euclidean", string _nf = "BFNF", string _vc = "PQP_SOLID",
         string _nc = "kClosest", string _gt = "UNDIRECTED_TREE",
-        string _extenderLabel = "AvoidRegionBERO",
+        string _extenderLabel = "RegionBERO",
         vector<string> _evaluators = vector<string>(), double _delta = 10.0,
         double _minDist = 0.001, double _growthFocus = 0.05,
         bool _evaluateGoal = true, size_t _numRoots = 1,
