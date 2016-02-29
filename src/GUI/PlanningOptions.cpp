@@ -395,6 +395,9 @@ DuplicateRegion() {
         else if(shape == RegionModel::SPHERE2D)
           r = RegionModelPtr(
               new RegionSphere2DModel(*static_cast<RegionSphere2DModel*>(*sit)));
+
+        r->ResetProcessed();
+
         if(r) {
           regionFound = true;
           dist = r->GetLongLength();
@@ -454,7 +457,6 @@ MakeRegionAvoid() {
   if(SingleRegionSelected())
     ChangeRegionType(false);
 }
-
 
 void
 PlanningOptions::

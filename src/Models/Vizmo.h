@@ -105,6 +105,9 @@ class Vizmo {
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
+    void ProcessAvoidRegions();
+
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the name and label of all Samplers specified in the
     ///        vizmo problem
