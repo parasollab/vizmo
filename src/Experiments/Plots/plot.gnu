@@ -2,7 +2,7 @@
 # Stacked histograms by percent
 #
 set terminal postscript enhanced color
-set size 1.0,0.5
+set size 1.0,0.3
 set autoscale y
 set border -1
 set style data histograms
