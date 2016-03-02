@@ -1,7 +1,7 @@
 %!PS-Adobe-2.0
 %%Title: Nodes.eps
 %%Creator: gnuplot 4.6 patchlevel 3
-%%CreationDate: Fri Aug 14 11:27:00 2015
+%%CreationDate: Tue Mar  1 23:59:42 2016
 %%DocumentFonts: (atend)
 %%BoundingBox: 302 50 554 770
 %%Orientation: Landscape
@@ -65,11 +65,11 @@ gnudict begin
 /Gshow {show} def   % May be redefined later in the file to support UTF-8
 /vpt2 vpt 2 mul def
 /hpt2 hpt 2 mul def
-/Lshow {currentpoint stroke M 0 vshift R
+/Lshow {currentpoint stroke M 0 vshift R 
 	Blacktext {gsave 0 setgray show grestore} {show} ifelse} def
 /Rshow {currentpoint stroke M dup stringwidth pop neg vshift R
 	Blacktext {gsave 0 setgray show grestore} {show} ifelse} def
-/Cshow {currentpoint stroke M dup stringwidth pop -2 div vshift R
+/Cshow {currentpoint stroke M dup stringwidth pop -2 div vshift R 
 	Blacktext {gsave 0 setgray show grestore} {show} ifelse} def
 /UP {dup vpt_ mul /vpt exch def hpt_ mul /hpt exch def
   /hpt2 hpt 2 mul def /vpt2 vpt 2 mul def} def
@@ -271,7 +271,7 @@ gnudict begin
 /PentE {stroke [] 0 setdash gsave
   translate 0 hpt M 4 {72 rotate 0 hpt L} repeat
   closepath stroke grestore} def
-/CircE {stroke [] 0 setdash
+/CircE {stroke [] 0 setdash 
   hpt 0 360 arc stroke} def
 /Opaque {gsave closepath 1 setgray fill grestore 0 setgray closepath} def
 /DiaW {stroke [] 0 setdash vpt add M
@@ -291,7 +291,7 @@ gnudict begin
 /PentW {stroke [] 0 setdash gsave
   translate 0 hpt M 4 {72 rotate 0 hpt L} repeat
   Opaque stroke grestore} def
-/CircW {stroke [] 0 setdash
+/CircW {stroke [] 0 setdash 
   hpt 0 360 arc Opaque stroke} def
 /BoxFill {gsave Rec 1 setgray fill grestore} def
 /Density {
@@ -343,7 +343,7 @@ gnudict begin
 	bind def
 /KeepColor {currentrgbcolor [/Pattern /DeviceRGB] setcolorspace} bind def
 << Tile8x8
- /PaintProc {0.5 setlinewidth pop 0 0 M 8 8 L 0 8 M 8 0 L stroke}
+ /PaintProc {0.5 setlinewidth pop 0 0 M 8 8 L 0 8 M 8 0 L stroke} 
 >> matrix makepattern
 /Pat1 exch def
 << Tile8x8
@@ -450,7 +450,7 @@ currentdict end definefont pop
   Blacktext {gsave 0 setgray MFshow grestore} {MFshow} ifelse } bind def
 /XYsave    { [( ) 1 2 true false 3 ()] } bind def
 /XYrestore { [( ) 1 2 true false 4 ()] } bind def
-Level1 SuppressPDFMark or
+Level1 SuppressPDFMark or 
 {} {
 /SDict 10 dict def
 systemdict /pdfmark known not {
@@ -460,10 +460,10 @@ SDict begin [
   /Title (Nodes.eps)
   /Subject (gnuplot plot)
   /Creator (gnuplot 4.6 patchlevel 3)
-  /Author (hqin)
+  /Author (jdenny)
 %  /Producer (gnuplot)
 %  /Keywords ()
-  /CreationDate (Fri Aug 14 11:27:00 2015)
+  /CreationDate (Tue Mar  1 23:59:42 2016)
   /DOCINFO pdfmark
 end
 } ifelse
@@ -587,56 +587,56 @@ stroke
 1.000 UL
 LTb
 LCb setrgbcolor
-1285 280 M
+1733 280 M
 0 63 V
 0 2009 R
 0 -63 V
 stroke
-1285 140 M
+1733 140 M
 [ [(Helvetica) 140.0 0.0 true true 0 (STunnel)]
 ] -46.7 MCshow
 1.000 UL
 LTb
 LCb setrgbcolor
-2361 280 M
+2612 280 M
 0 63 V
 0 2009 R
 0 -63 V
 stroke
-2361 140 M
+2612 140 M
 [ [(Helvetica) 140.0 0.0 true true 0 (ZTunnel)]
 ] -46.7 MCshow
 1.000 UL
 LTb
 LCb setrgbcolor
-3437 280 M
+3491 280 M
 0 63 V
 0 2009 R
 0 -63 V
 stroke
-3437 140 M
+3491 140 M
 [ [(Helvetica) 140.0 0.0 true true 0 (MazeTunnel)]
 ] -46.7 MCshow
 1.000 UL
 LTb
 LCb setrgbcolor
-4514 280 M
+4370 280 M
 0 63 V
 0 2009 R
 0 -63 V
 stroke
-4514 140 M
+4370 140 M
 [ [(Helvetica) 140.0 0.0 true true 0 (Walls)]
 ] -46.7 MCshow
 1.000 UL
 LTb
 LCb setrgbcolor
-5590 280 M
+5249 280 M
 0 63 V
 0 2009 R
 0 -63 V
 stroke
-5590 140 M
+5249 140 M
 [ [(Helvetica) 140.0 0.0 true true 0 (Hook)]
 ] -46.7 MCshow
 1.000 UL
@@ -679,49 +679,49 @@ LCb setrgbcolor
 0 -70 V
 Z stroke
 LT0
-1.00 0.00 0.00 C 0.750 1038 280 135 2006 BoxColFill
+1.00 0.00 0.00 C 0.750 1532 280 110 2006 BoxColFill
 LCb setrgbcolor
-1038 280 N
+1532 280 N
 0 2005 V
-134 0 V
+109 0 V
 0 -2005 V
--134 0 V
+-109 0 V
 Z stroke
 LT0
-1.00 0.00 0.00 C 0.750 2114 280 136 1962 BoxColFill
+1.00 0.00 0.00 C 0.750 2411 280 110 1962 BoxColFill
 LCb setrgbcolor
-2114 280 N
+2411 280 N
 0 1961 V
-135 0 V
+109 0 V
 0 -1961 V
--135 0 V
+-109 0 V
 Z stroke
 LT0
-1.00 0.00 0.00 C 0.750 3191 280 135 1656 BoxColFill
+1.00 0.00 0.00 C 0.750 3290 280 110 1656 BoxColFill
 LCb setrgbcolor
-3191 280 N
+3290 280 N
 0 1655 V
-134 0 V
+109 0 V
 0 -1655 V
--134 0 V
+-109 0 V
 Z stroke
 LT0
-1.00 0.00 0.00 C 0.750 4267 280 135 2033 BoxColFill
+1.00 0.00 0.00 C 0.750 4169 280 110 2033 BoxColFill
 LCb setrgbcolor
-4267 280 N
+4169 280 N
 0 2032 V
-134 0 V
+109 0 V
 0 -2032 V
--134 0 V
+-109 0 V
 Z stroke
 LT0
-1.00 0.00 0.00 C 0.750 5343 280 136 1915 BoxColFill
+1.00 0.00 0.00 C 0.750 5048 280 110 1915 BoxColFill
 LCb setrgbcolor
-5343 280 N
+5048 280 N
 0 1914 V
-135 0 V
+109 0 V
 0 -1914 V
--135 0 V
+-109 0 V
 Z stroke
 LT0
 1.00 0.00 0.00 C % End plot #1
@@ -742,49 +742,49 @@ LCb setrgbcolor
 0 -70 V
 Z stroke
 LT0
-0.00 1.00 0.00 C 0.750 1217 280 136 1474 BoxColFill
+0.00 1.00 0.00 C 0.750 1678 280 111 1474 BoxColFill
 LCb setrgbcolor
-1217 280 N
+1678 280 N
 0 1473 V
-135 0 V
+110 0 V
 0 -1473 V
--135 0 V
+-110 0 V
 Z stroke
 LT0
-0.00 1.00 0.00 C 0.750 2294 280 135 1609 BoxColFill
+0.00 1.00 0.00 C 0.750 2557 280 111 1609 BoxColFill
 LCb setrgbcolor
-2294 280 N
+2557 280 N
 0 1608 V
-134 0 V
+110 0 V
 0 -1608 V
--134 0 V
+-110 0 V
 Z stroke
 LT0
-0.00 1.00 0.00 C 0.750 3370 280 135 1486 BoxColFill
+0.00 1.00 0.00 C 0.750 3436 280 111 1486 BoxColFill
 LCb setrgbcolor
-3370 280 N
+3436 280 N
 0 1485 V
-134 0 V
+110 0 V
 0 -1485 V
--134 0 V
+-110 0 V
 Z stroke
 LT0
-0.00 1.00 0.00 C 0.750 4446 280 136 1701 BoxColFill
+0.00 1.00 0.00 C 0.750 4315 280 111 1701 BoxColFill
 LCb setrgbcolor
-4446 280 N
+4315 280 N
 0 1700 V
-135 0 V
+110 0 V
 0 -1700 V
--135 0 V
+-110 0 V
 Z stroke
 LT0
-0.00 1.00 0.00 C 0.750 5523 280 135 1612 BoxColFill
+0.00 1.00 0.00 C 0.750 5194 280 111 1612 BoxColFill
 LCb setrgbcolor
-5523 280 N
+5194 280 N
 0 1611 V
-134 0 V
+110 0 V
 0 -1611 V
--134 0 V
+-110 0 V
 Z stroke
 LT0
 0.00 1.00 0.00 C % End plot #2
@@ -805,49 +805,49 @@ LCb setrgbcolor
 0 -70 V
 Z stroke
 LT0
-0.00 0.00 1.00 C 0.750 1397 280 135 1344 BoxColFill
+0.00 0.00 1.00 C 0.750 1825 280 110 1344 BoxColFill
 LCb setrgbcolor
-1397 280 N
+1825 280 N
 0 1343 V
-134 0 V
+109 0 V
 0 -1343 V
--134 0 V
+-109 0 V
 Z stroke
 LT0
-0.00 0.00 1.00 C 0.750 2473 280 136 1399 BoxColFill
+0.00 0.00 1.00 C 0.750 2704 280 110 1399 BoxColFill
 LCb setrgbcolor
-2473 280 N
+2704 280 N
 0 1398 V
-135 0 V
+109 0 V
 0 -1398 V
--135 0 V
+-109 0 V
 Z stroke
 LT0
-0.00 0.00 1.00 C 0.750 3549 280 136 1437 BoxColFill
+0.00 0.00 1.00 C 0.750 3583 280 110 1437 BoxColFill
 LCb setrgbcolor
-3549 280 N
+3583 280 N
 0 1436 V
-135 0 V
+109 0 V
 0 -1436 V
--135 0 V
+-109 0 V
 Z stroke
 LT0
-0.00 0.00 1.00 C 0.750 4626 280 135 1151 BoxColFill
+0.00 0.00 1.00 C 0.750 4462 280 110 1151 BoxColFill
 LCb setrgbcolor
-4626 280 N
+4462 280 N
 0 1150 V
-134 0 V
+109 0 V
 0 -1150 V
--134 0 V
+-109 0 V
 Z stroke
 LT0
-0.00 0.00 1.00 C 0.750 5702 280 135 1228 BoxColFill
+0.00 0.00 1.00 C 0.750 5341 280 110 1228 BoxColFill
 LCb setrgbcolor
-5702 280 N
+5341 280 N
 0 1227 V
-134 0 V
+109 0 V
 0 -1227 V
--134 0 V
+-109 0 V
 Z stroke
 LT0
 0.00 0.00 1.00 C % End plot #3
@@ -868,49 +868,49 @@ LCb setrgbcolor
 0 -70 V
 Z stroke
 LT0
-1.00 0.00 1.00 C 0.750 1576 280 136 667 BoxColFill
+1.00 0.00 1.00 C 0.750 1971 280 111 667 BoxColFill
 LCb setrgbcolor
-1576 280 N
+1971 280 N
 0 666 V
-135 0 V
+110 0 V
 0 -666 V
--135 0 V
+-110 0 V
 Z stroke
 LT0
-1.00 0.00 1.00 C 0.750 2652 280 136 307 BoxColFill
+1.00 0.00 1.00 C 0.750 2850 280 111 307 BoxColFill
 LCb setrgbcolor
-2652 280 N
+2850 280 N
 0 306 V
-135 0 V
+110 0 V
 0 -306 V
--135 0 V
+-110 0 V
 Z stroke
 LT0
-1.00 0.00 1.00 C 0.750 3729 280 135 307 BoxColFill
+1.00 0.00 1.00 C 0.750 3729 280 111 307 BoxColFill
 LCb setrgbcolor
 3729 280 N
 0 306 V
-134 0 V
+110 0 V
 0 -306 V
--134 0 V
+-110 0 V
 Z stroke
 LT0
-1.00 0.00 1.00 C 0.750 4805 280 136 307 BoxColFill
+1.00 0.00 1.00 C 0.750 4608 280 111 307 BoxColFill
 LCb setrgbcolor
-4805 280 N
+4608 280 N
 0 306 V
-135 0 V
+110 0 V
 0 -306 V
--135 0 V
+-110 0 V
 Z stroke
 LT0
-1.00 0.00 1.00 C 0.750 5881 280 136 307 BoxColFill
+1.00 0.00 1.00 C 0.750 5487 280 111 307 BoxColFill
 LCb setrgbcolor
-5881 280 N
+5487 280 N
 0 306 V
-135 0 V
+110 0 V
 0 -306 V
--135 0 V
+-110 0 V
 Z stroke
 LT0
 1.00 0.00 1.00 C % End plot #4
