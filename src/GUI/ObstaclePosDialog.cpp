@@ -58,6 +58,8 @@ SetUpLayout() {
   setLayout(layout);
   setStyleSheet("QLabel { font:9pt } QLineEdit { font:8pt }");
 
+  layout->setAlignment(Qt::AlignTop);
+
   QPushButton* loadButton = new QPushButton("OK", this);
   connect(loadButton, SIGNAL(clicked()), this, SLOT(accept()));
   layout->addWidget(loadButton, 8, 0, 1, 3);
