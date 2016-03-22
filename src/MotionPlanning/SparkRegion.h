@@ -67,7 +67,7 @@ Run() {
     size_t index = this->SelectRegion();
     this->SampleRegion(index, samples);
 
-    this->ProcessAvoidRegions();
+    GetVizmo().ProcessAvoidRegions();
 
     vector<VID> vids;
     this->AddToRoadmap(samples, vids);

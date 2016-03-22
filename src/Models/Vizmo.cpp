@@ -218,6 +218,11 @@ InitPMPL() {
           "euclidean", "PQP_SOLID", 10., true));
     problem->AddExtender(bero, "BERO");
 
+    //add basic extender for avoid region checking
+    VizmoProblem::ExtenderPointer arbero(new BasicExtender<VizmoTraits>(
+          "euclidean", "RegionValidity", 10., true));
+    problem->AddExtender(arbero, "RegionBERO");
+
     //add I-RRT strategy
     VizmoProblem::MPStrategyPointer irrt(
         new IRRTStrategy<VizmoTraits>(query->GetQuery().front(),
@@ -412,6 +417,73 @@ CollisionCheck(CfgModel& _c) {
   cerr << "Warning::Collision checking when there is no environment. "
     << "Returning false." << endl;
   return false;
+}
+
+void
+Vizmo::
+ProcessAvoidRegions() {
+  //get avoid regions and graph
+  typedef EnvModel::RegionModelPtr RegionModelPtr;
+
+  const vector<RegionModelPtr>& avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+
+  //check that some avoid region needs processing
+  bool skipCheck = true;
+  for(typename vector<RegionModelPtr>::const_iterator rit = avoidRegions.begin();
+      rit != avoidRegions.end(); ++rit) {
+    if(!(*rit)->IsProcessed()) {
+      skipCheck = false;
+      (*rit)->Processed();
+    }
+  }
+  if(skipCheck)
+    return;
+
+  //check is needed. get env, graph, vc, and lp
+  typedef Roadmap<VizmoTraits> RGraph;
+  typedef RGraph::GraphType GraphType;
+  typedef typename GraphType::vertex_descriptor VID;
+  typedef typename GraphType::vertex_iterator VI;
+  typedef typename GraphType::edge_descriptor EID;
+  typedef typename GraphType::adj_edge_iterator EI;
+
+  GraphType* g = GetVizmoProblem()->GetRoadmap()->GetGraph();
+  Environment* env = GetVizmo().GetEnv()->GetEnvironment();
+  VizmoProblem::ValidityCheckerPointer vc = GetVizmoProblem()->
+    GetValidityChecker("AvoidRegionValidity");
+  VizmoProblem::LocalPlannerPointer lp =
+    GetVizmoProblem()->GetLocalPlanner("AvoidRegionSL");
+
+  vector<VID> verticesToDel;
+  vector<EID> edgesToDel;
+
+  //re-validate graph with avoid region validity
+  //loop over the graph testing vertices for deletion
+  for(VI vit = g->begin(); vit != g->end(); ++vit)
+    if(!vc->IsValid(vit->property(), vc->GetNameAndLabel()))
+      verticesToDel.push_back(vit->descriptor());
+
+  //loop over the graph testing edges for deletion
+  for(typename GraphType::edge_iterator eit = g->edges_begin();
+      eit != g->edges_end(); ++eit) {
+    LPOutput<VizmoTraits> lpOutput;
+    CfgModel collisionCfg;
+    if(!lp->IsConnected(g->GetVertex((*eit).source()),
+          g->GetVertex((*eit).target()), collisionCfg, &lpOutput,
+          env->GetPositionRes(), env->GetOrientationRes()))
+      edgesToDel.push_back((*eit).descriptor());
+  }
+
+  //handle deletion of invalid edges and vertices
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+  for(typename vector<EID>::iterator eit = edgesToDel.begin();
+      eit != edgesToDel.end(); ++eit)
+    g->delete_edge(*eit);
+  for(typename vector<VID>::iterator vit = verticesToDel.begin();
+      vit != verticesToDel.end(); ++vit)
+    g->delete_vertex(*vit);
+
+  GetVizmo().GetMap()->RefreshMap(false);
 }
 
 pair<bool, double>

@@ -43,8 +43,11 @@ class GLWidget : public QGLWidget {
     void SetClearColor(double _r, double _g, double _b) const {
       glClearColor(_r, _g, _b, 0);
     }
-    // reset tranformation tool
-    void ResetTransTool();
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Activate a transform tool in the scene
+    /// @param _tt Transform Tool to activate
+    void SetTransformTool(TransformTool* _tt) {m_transformTool = _tt;}
 
     //save an image of the GL scene with the given filename
     //Note: filename must have appropriate extension for QImage::save or no file
@@ -115,7 +118,7 @@ class GLWidget : public QGLWidget {
     deque<double> m_frameTimes;
 
     Camera m_camera;
-    TransformTool m_transformTool;
+    TransformTool* m_transformTool;
     PickBox m_pickBox;
 
     shared_ptr<RegionModel> m_currentRegion;
