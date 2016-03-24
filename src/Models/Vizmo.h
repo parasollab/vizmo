@@ -67,6 +67,7 @@ class Vizmo {
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
     const string& GetMapFileName() const {return m_mapFilename;}
     void SetMapFileName(const string& _name) {m_mapFilename = _name;}
+    void ReadMap(const string& _name);
     bool IsRoadMapLoaded(){return m_mapModel;}
 
     // Query Related Functions

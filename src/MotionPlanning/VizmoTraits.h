@@ -50,8 +50,11 @@
 #include "MPStrategies/BasicRRTStrategy.h"
 #include "MPStrategies/BasicPRM.h"
 #include "MPStrategies/SparkPRM.h"
+#include "CfgOracle.h"
 #include "IRRTStrategy.h"
+#include "PathOracle.h"
 #include "PathStrategy.h"
+#include "RegionOracle.h"
 #include "RegionStrategy.h"
 #include "RegionRRT.h"
 #include "SparkRegion.h"
@@ -133,8 +136,11 @@ struct VizmoTraits {
   typedef boost::mpl::list<
     BasicPRM<VizmoTraits>,
     BasicRRTStrategy<VizmoTraits>,
+    CfgOracle<VizmoTraits>,
     IRRTStrategy<VizmoTraits>,
+    PathOracle<VizmoTraits>,
     PathStrategy<VizmoTraits>,
+    RegionOracle<VizmoTraits>,
     RegionRRT<VizmoTraits>,
     RegionStrategy<VizmoTraits>,
     SparkRegion<VizmoTraits>,

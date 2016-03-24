@@ -106,14 +106,14 @@ Finalize() {
 
   //print clocks + output a stat class
   StatClass* stats = this->GetStatClass();
-  GetVizmo().PrintClock("Pre-regions", cout);
+  GetVizmo().PrintClock("Pre-input", cout);
   GetVizmo().PrintClock("SparkRegion", cout);
   stats->PrintClock("SparkRegionMP", cout);
 
   ofstream ostats((basename + ".stat").c_str());
   ostats << "NodeGen+Connection Stats" << endl;
   stats->PrintAllStats(ostats, this->GetRoadmap());
-  GetVizmo().PrintClock("Pre-regions", ostats);
+  GetVizmo().PrintClock("Pre-input", ostats);
   GetVizmo().PrintClock("SparkRegion", ostats);
   stats->PrintClock("SparkRegionMP", ostats);
 
@@ -123,7 +123,7 @@ Finalize() {
   //show results pop-up
   ostringstream results;
   results << "Planning Complete!" << endl;
-  GetVizmo().PrintClock("Pre-regions", results);
+  GetVizmo().PrintClock("Pre-input", results);
   GetVizmo().PrintClock("SparkRegion", results);
 
   GetMainWindow()->AlertUser(results.str());

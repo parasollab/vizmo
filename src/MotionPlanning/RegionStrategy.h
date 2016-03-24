@@ -225,7 +225,7 @@ Finalize() {
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //print clocks
-  GetVizmo().PrintClock("Pre-regions", cout);
+  GetVizmo().PrintClock("Pre-input", cout);
   GetVizmo().PrintClock("RegionStrategy", cout);
   stats->PrintClock("RegionStrategyMP", cout);
 
@@ -235,7 +235,7 @@ Finalize() {
   ostats << "NodeGen+Connection Stats" << endl;
   stats->PrintAllStats(ostats, this->GetRoadmap());
 
-  GetVizmo().PrintClock("Pre-regions", ostats);
+  GetVizmo().PrintClock("Pre-input", ostats);
   GetVizmo().PrintClock("RegionStrategy", ostats);
   stats->PrintClock("RegionStrategyMP", ostats);
 
@@ -249,7 +249,7 @@ Finalize() {
   //show results pop-up
   ostringstream results;
   results << "Planning Complete!" << endl;
-  GetVizmo().PrintClock("Pre-regions", results);
+  GetVizmo().PrintClock("Pre-input", results);
   GetVizmo().PrintClock("RegionStrategy", results);
 
   GetMainWindow()->AlertUser(results.str());

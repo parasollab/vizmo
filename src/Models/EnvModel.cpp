@@ -14,6 +14,10 @@
 #include "BoundingBoxModel.h"
 #include "BoundingSphereModel.h"
 #include "CfgModel.h"
+#include "RegionBoxModel.h"
+#include "RegionBox2DModel.h"
+#include "RegionSphereModel.h"
+#include "RegionSphere2DModel.h"
 #include "StaticMultiBodyModel.h"
 #include "SurfaceMultiBodyModel.h"
 #include "TempObjsModel.h"
@@ -185,6 +189,110 @@ GetRegion(Model* _model) {
 
 void
 EnvModel::
+SaveRegions(const string& _filename) {
+  ofstream ofs(_filename);
+  ofs << "#####RegionFile#####" << endl;
+
+  typedef vector<RegionModelPtr>::const_iterator CRIT;
+  for(auto& r : m_nonCommitRegions)
+    r->OutputDebugInfo(ofs);
+  for(auto& r : m_attractRegions)
+    r->OutputDebugInfo(ofs);
+  for(auto& r : m_avoidRegions)
+    r->OutputDebugInfo(ofs);
+}
+
+void
+EnvModel::
+LoadRegions(const string& _filename) {
+  ifstream ifs(_filename);
+
+  m_nonCommitRegions.clear();
+  m_attractRegions.clear();
+  m_avoidRegions.clear();
+
+  string line;
+  getline(ifs,line);
+
+  while(getline(ifs,line)) {
+
+    istringstream iss(line);
+
+    RegionModelPtr _mod;
+
+    int tempType;
+    iss >> tempType;
+
+    string modelShapeName;
+    iss >> modelShapeName;
+
+    RegionModel::Type modelType = static_cast<RegionModel::Type>(tempType);
+
+    if(modelShapeName == "BOX") {
+
+      Point3d min, max;
+      iss >> min >> max;
+
+      pair<double, double> xPair(min[0], max[0]);
+      pair<double, double> yPair(min[1], max[1]);
+      pair<double, double> zPair(min[2], max[2]);
+
+      _mod = RegionModelPtr(new RegionBoxModel(xPair, yPair, zPair));
+      _mod->SetType(modelType);
+      _mod->ChangeColor();
+    }
+    else if(modelShapeName == "BOX2D") {
+
+      Point2d min, max;
+      iss >> min >> max;
+
+      pair<double, double> xPair(min[0], max[0]);
+      pair<double, double> yPair(min[1], max[1]);
+
+      _mod = RegionModelPtr(new RegionBox2DModel(xPair, yPair));
+      _mod->SetType(modelType);
+      _mod->ChangeColor();
+
+    }
+    else if(modelShapeName == "SPHERE") {
+
+      Point3d tempCenter;
+      iss >> tempCenter;
+
+      double radius = -1;
+      iss >> radius;
+
+      _mod = RegionModelPtr(new RegionSphereModel(tempCenter, radius));
+      _mod->SetType(modelType);
+      _mod->ChangeColor();
+    }
+    else if(modelShapeName == "SPHERE2D") {
+
+      Point3d tempCenter;
+      iss >> tempCenter;
+
+      double radius = -1;
+      iss >> radius;
+
+      _mod = RegionModelPtr(new RegionSphere2DModel(tempCenter, radius));
+      _mod->SetType(modelType);
+      _mod->ChangeColor();
+    }
+
+    if(_mod != NULL) {
+      //Checks what type of region then adds
+      if(_mod->GetType() == 0)
+        AddAttractRegion(_mod);
+      else if(_mod->GetType() == 1)
+        AddAvoidRegion(_mod);
+      else if(_mod->GetType() == 2)
+        AddNonCommitRegion(_mod);
+    }
+  }
+}
+
+void
+EnvModel::
 DeleteUserPath(UserPathModel* _p) {
   vector<UserPathModel*>::iterator pit;
   pit = find(m_userPaths.begin(), m_userPaths.end(), _p);
@@ -192,6 +300,38 @@ DeleteUserPath(UserPathModel* _p) {
     delete *pit;
     m_userPaths.erase(pit);
   }
+}
+
+void
+EnvModel::
+SaveUserPaths(const string& _filename) {
+  ofstream ofs(_filename);
+  ofs << "#####PathsFile#####" << endl << endl;
+
+  ofs << "NumPaths " << m_userPaths.size() << endl << endl;
+
+  for(const auto& path : m_userPaths)
+    ofs << *path << endl ;
+}
+
+void
+EnvModel::
+LoadUserPaths(const string& _filename) {
+  ifstream ifs(_filename);
+
+  //read num paths
+  string temp;
+  size_t number;
+  ifs >> temp >> temp >> number;
+
+  //read paths
+  m_userPaths.clear();
+  m_userPaths.resize(number);
+  for(auto& path : m_userPaths) {
+    path = new UserPathModel;
+    ifs >> *path;
+  }
+  GetVizmo().GetEnv()->GetAvatar()->Disable();
 }
 
 void

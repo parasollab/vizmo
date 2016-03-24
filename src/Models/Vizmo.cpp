@@ -248,6 +248,18 @@ InitPMPL() {
   VizmoProblem::MPStrategyPointer sr(new SparkPRM<VizmoTraits, SparkRegion>());
   problem->AddMPStrategy(sr, "SparkRegion");
 
+  //add Cfg oracle
+  VizmoProblem::MPStrategyPointer co(new CfgOracle<VizmoTraits>());
+  problem->AddMPStrategy(co, "CfgOracle");
+
+  //add region oracle
+  VizmoProblem::MPStrategyPointer ro(new RegionOracle<VizmoTraits>());
+  problem->AddMPStrategy(ro, "RegionOracle");
+
+  //add path oracle
+  VizmoProblem::MPStrategyPointer po(new PathOracle<VizmoTraits>());
+  problem->AddMPStrategy(po, "PathOracle");
+
   //avoid-region validity checker
   VizmoProblem::ValidityCheckerPointer arv(
       new AvoidRegionValidity<VizmoTraits>());
@@ -320,12 +332,12 @@ void
 Vizmo::
 Draw() {
   typedef vector<Model*>::iterator MIT;
-  for(MIT mit = m_loadedModels.begin(); mit!=m_loadedModels.end(); ++mit)
-    (*mit)->DrawRender();
+  for(auto& model : m_loadedModels)
+    model->DrawRender();
 
   glColor3f(1,1,0); //Selections are yellow, so set the color once now
-  for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit)
-    (*mit)->DrawSelected();
+  for(auto& model : m_selectedModels)
+    model->DrawSelected();
 }
 
 void
@@ -509,6 +521,19 @@ PlaceRobots() {
 
 void
 Vizmo::
+ReadMap(const string& _name) {
+  m_mapFilename = _name;
+  GetVizmoProblem()->GetRoadmap()->Read(_name);
+  delete m_mapModel;
+  m_mapModel = new MapModel<CfgModel, EdgeModel>(
+      GetVizmoProblem()->GetRoadmap()->GetGraph());
+  m_loadedModels.push_back(m_mapModel);
+  GetVizmo().GetMap()->RefreshMap();
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+}
+
+void
+Vizmo::
 SearchSelectedItems(int _hit, void* _buffer, bool _all) {
   //init local data
   GLuint* ptr = (GLuint*)_buffer;
@@ -613,6 +638,7 @@ SetPMPLMap() {
   }
   m_mapModel = new MapModel<CfgModel, EdgeModel>(
       GetVizmoProblem()->GetRoadmap()->GetGraph());
+  m_mapModel->SetEnvFileName(m_envFilename);
   m_loadedModels.push_back(m_mapModel);
 }
 
@@ -679,4 +705,3 @@ GetAllStrategies() const {
     names.emplace_back(method.second->GetNameAndLabel());
   return names;
 }
-
