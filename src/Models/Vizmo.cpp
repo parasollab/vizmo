@@ -222,6 +222,11 @@ InitPMPL() {
           "euclidean", "PQP_SOLID", 10., true));
     problem->AddExtender(bero, "BERO");*/
 
+    //add basic extender for avoid region checking
+    /*VizmoProblem::ExtenderPointer arbero(new BasicExtender<VizmoTraits>(
+          "euclidean", "RegionValidity", 10., true));
+    problem->AddExtender(arbero, "RegionBERO");*/
+
     //add I-RRT strategy
     /*VizmoProblem::MPStrategyPointer irrt(
         new IRRTStrategy<VizmoTraits>(query->GetQuery().front(),
@@ -246,6 +251,18 @@ InitPMPL() {
   //add spark region strategy
   VizmoProblem::MPStrategyPointer sr(new SparkPRM<VizmoTraits, SparkRegion>());
   problem->AddMPStrategy(sr, "SparkRegion");
+
+  //add Cfg oracle
+  VizmoProblem::MPStrategyPointer co(new CfgOracle<VizmoTraits>());
+  problem->AddMPStrategy(co, "CfgOracle");
+
+  //add region oracle
+  VizmoProblem::MPStrategyPointer ro(new RegionOracle<VizmoTraits>());
+  problem->AddMPStrategy(ro, "RegionOracle");
+
+  //add path oracle
+  VizmoProblem::MPStrategyPointer po(new PathOracle<VizmoTraits>());
+  problem->AddMPStrategy(po, "PathOracle");
   */
   //avoid-region validity checker
   VizmoProblem::ValidityCheckerPointer arv(
@@ -320,12 +337,12 @@ void
 Vizmo::
 Draw() {
   typedef vector<Model*>::iterator MIT;
-  for(MIT mit = m_loadedModels.begin(); mit!=m_loadedModels.end(); ++mit)
-    (*mit)->DrawRender();
+  for(auto& model : m_loadedModels)
+    model->DrawRender();
 
   glColor3f(1,1,0); //Selections are yellow, so set the color once now
-  for(MIT mit = m_selectedModels.begin(); mit != m_selectedModels.end(); ++mit)
-    (*mit)->DrawSelected();
+  for(auto& model : m_selectedModels)
+    model->DrawSelected();
 }
 
 void
@@ -407,6 +424,73 @@ CollisionCheck(CfgModel& _c) {
   return false;
 }
 
+void
+Vizmo::
+ProcessAvoidRegions() {
+  //get avoid regions and graph
+  typedef EnvModel::RegionModelPtr RegionModelPtr;
+
+  const vector<RegionModelPtr>& avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+
+  //check that some avoid region needs processing
+  bool skipCheck = true;
+  for(typename vector<RegionModelPtr>::const_iterator rit = avoidRegions.begin();
+      rit != avoidRegions.end(); ++rit) {
+    if(!(*rit)->IsProcessed()) {
+      skipCheck = false;
+      (*rit)->Processed();
+    }
+  }
+  if(skipCheck)
+    return;
+
+  //check is needed. get env, graph, vc, and lp
+  typedef Roadmap<VizmoTraits> RGraph;
+  typedef RGraph::GraphType GraphType;
+  typedef typename GraphType::vertex_descriptor VID;
+  typedef typename GraphType::vertex_iterator VI;
+  typedef typename GraphType::edge_descriptor EID;
+  typedef typename GraphType::adj_edge_iterator EI;
+
+  GraphType* g = GetVizmoProblem()->GetRoadmap()->GetGraph();
+  Environment* env = GetVizmo().GetEnv()->GetEnvironment();
+  VizmoProblem::ValidityCheckerPointer vc = GetVizmoProblem()->
+    GetValidityChecker("AvoidRegionValidity");
+  VizmoProblem::LocalPlannerPointer lp =
+    GetVizmoProblem()->GetLocalPlanner("AvoidRegionSL");
+
+  vector<VID> verticesToDel;
+  vector<EID> edgesToDel;
+
+  //re-validate graph with avoid region validity
+  //loop over the graph testing vertices for deletion
+  for(VI vit = g->begin(); vit != g->end(); ++vit)
+    if(!vc->IsValid(vit->property(), vc->GetNameAndLabel()))
+      verticesToDel.push_back(vit->descriptor());
+
+  //loop over the graph testing edges for deletion
+  for(typename GraphType::edge_iterator eit = g->edges_begin();
+      eit != g->edges_end(); ++eit) {
+    LPOutput<VizmoTraits> lpOutput;
+    CfgModel collisionCfg;
+    if(!lp->IsConnected(g->GetVertex((*eit).source()),
+          g->GetVertex((*eit).target()), collisionCfg, &lpOutput,
+          env->GetPositionRes(), env->GetOrientationRes()))
+      edgesToDel.push_back((*eit).descriptor());
+  }
+
+  //handle deletion of invalid edges and vertices
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+  for(typename vector<EID>::iterator eit = edgesToDel.begin();
+      eit != edgesToDel.end(); ++eit)
+    g->delete_edge(*eit);
+  for(typename vector<VID>::iterator vit = verticesToDel.begin();
+      vit != verticesToDel.end(); ++vit)
+    g->delete_vertex(*vit);
+
+  GetVizmo().GetMap()->RefreshMap(false);
+}
+
 pair<bool, double>
 Vizmo::
 VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {
@@ -438,6 +522,19 @@ PlaceRobots() {
     m_envModel->PlaceRobots(cfgs,
         m_pathModel || m_mapModel || m_queryModel || m_debugModel);
   }
+}
+
+void
+Vizmo::
+ReadMap(const string& _name) {
+  m_mapFilename = _name;
+  GetVizmoProblem()->GetRoadmap()->Read(_name);
+  delete m_mapModel;
+  m_mapModel = new MapModel<CfgModel, EdgeModel>(
+      GetVizmoProblem()->GetRoadmap()->GetGraph());
+  m_loadedModels.push_back(m_mapModel);
+  GetVizmo().GetMap()->RefreshMap();
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
 }
 
 void
@@ -546,6 +643,7 @@ SetPMPLMap() {
   }
   m_mapModel = new MapModel<CfgModel, EdgeModel>(
       GetVizmoProblem()->GetRoadmap()->GetGraph());
+  m_mapModel->SetEnvFileName(m_envFilename);
   m_loadedModels.push_back(m_mapModel);
 }
 
@@ -612,4 +710,3 @@ GetAllStrategies() const {
     names.emplace_back(method.second->GetNameAndLabel());
   return names;
 }
-

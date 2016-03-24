@@ -96,4 +96,80 @@ namespace GLUtils {
     glVertex3dv(_r*cos(_e)*_v1 + _r*sin(_e)*_v2);
     glEnd();
   }
+
+  void
+  DrawHollowCylinder(double _ir, double _or, double _h, double _s) {
+    //inside verts top
+    //for(size_t i = 0; i < _s; ++i)
+    //  glVertex3d(_ir * cos(TWOPI/i), _ir * sin(TWOPI/i), _h/2);
+    //inside verts bottom
+    //for(size_t i = 0; i < _s; ++i)
+    //  glVertex3d(_ir * cos(TWOPI/i), _ir * sin(TWOPI/i), -_h/2);
+    //outside verts top
+    //for(size_t i = 0; i < _s; ++i)
+    //  glVertex3d(_or * cos(TWOPI/i), _or * sin(TWOPI/i), _h/2);
+    //outside verts bottom
+    //for(size_t i = 0; i < _s; ++i)
+    //  glVertex3d(_or * cos(TWOPI/i), _or * sin(TWOPI/i), -_h/2);
+
+    //triangle strip inner loop
+    glBegin(GL_TRIANGLE_STRIP);
+    glNormal3d(-1, 0, 0);
+    glVertex3d(_ir, 0, _h/2);
+    glNormal3d(-1, 0, 0);
+    glVertex3d(_ir, 0, -_h/2);
+    for(size_t i = 1; i <= _s; ++i) {
+      double frac = TWOPI * (double)i/_s;
+      glNormal3d(-cos(frac), -sin(frac), 0);
+      glVertex3d(_ir * cos(frac), _ir * sin(frac), _h/2);
+      glNormal3d(-cos(frac), -sin(frac), 0);
+      glVertex3d(_ir * cos(frac), _ir * sin(frac), -_h/2);
+    }
+    glEnd();
+
+    //triangle strip inner loop
+    glBegin(GL_TRIANGLE_STRIP);
+    glNormal3d(1, 0, 0);
+    glVertex3d(_or, 0, _h/2);
+    glNormal3d(1, 0, 0);
+    glVertex3d(_or, 0, -_h/2);
+    for(size_t i = 1; i <= _s; ++i) {
+      double frac = TWOPI * (double)i/_s;
+      glNormal3d(cos(frac), sin(frac), 0);
+      glVertex3d(_or * cos(frac), _or * sin(frac), _h/2);
+      glNormal3d(cos(frac), sin(frac), 0);
+      glVertex3d(_or * cos(frac), _or * sin(frac), -_h/2);
+    }
+    glEnd();
+
+    //triangle strip top
+    glBegin(GL_TRIANGLE_STRIP);
+    glNormal3d(0, 0, 1);
+    glVertex3d(_ir, 0, _h/2);
+    glNormal3d(0, 0, 1);
+    glVertex3d(_or, 0, _h/2);
+    for(size_t i = 1; i <= _s; ++i) {
+      double frac = TWOPI * (double)i/_s;
+      glNormal3d(0, 0, 1);
+      glVertex3d(_ir * cos(frac), _ir * sin(frac), _h/2);
+      glNormal3d(0, 0, 1);
+      glVertex3d(_or * cos(frac), _or * sin(frac), _h/2);
+    }
+    glEnd();
+
+    //triangle strip bottom
+    glBegin(GL_TRIANGLE_STRIP);
+    glNormal3d(0, 0, -1);
+    glVertex3d(_ir, 0, -_h/2);
+    glNormal3d(0, 0, -1);
+    glVertex3d(_or, 0, -_h/2);
+    for(size_t i = 1; i <= _s; ++i) {
+      double frac = TWOPI * (double)i/_s;
+      glNormal3d(0, 0, -1);
+      glVertex3d(_ir * cos(frac), _ir * sin(frac), -_h/2);
+      glNormal3d(0, 0, -1);
+      glVertex3d(_or * cos(frac), _or * sin(frac), -_h/2);
+    }
+    glEnd();
+  }
 }

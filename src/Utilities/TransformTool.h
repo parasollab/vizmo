@@ -3,180 +3,141 @@
 
 #include <Vector.h>
 #include <Quaternion.h>
+#include <Transformation.h>
 using namespace mathtool;
 
 #include <qgl.h>
 
-class Camera;
-class TransformableModel;
+////////////////////////////////////////////////////////////////////////////////
+/// @brief Transform tool to set a transformation by moving click-and-drag
+///        object in GL scene
+///
+/// @todo Make 2d version of transform tool
+/// @todo make joint version of transform tool
+/// @todo like transform to objects
+////////////////////////////////////////////////////////////////////////////////
+class TransformTool : public QObject {
 
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief ?
-///////////////////////////////////////////////////////////////////////////////
-class TransformToolBase {
+  Q_OBJECT
 
   public:
 
-    TransformToolBase() {}
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Movement type after selecting with mouse
+    ////////////////////////////////////////////////////////////////////////////
+    enum class MovementType {
+      None,      ///< No movement
+      XAxis,    ///< X translation
+      YAxis,    ///< Y translation
+      ZAxis,    ///< Z translation
+      XAxisRot, ///< Rotation around X-axis of model
+      YAxisRot, ///< Rotation around Y-axis of model
+      ZAxisRot, ///< Rotation around Z-axis of model
+      ViewPlane ///< Translation in viewing plane
+    };
 
-    static void SetCurrentCamera(Camera* _camera) {m_currentCamera = _camera;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// @name Construction
+    /// @{
 
-    void ResetSelectedObj() {m_obj = NULL;}
-    virtual void SetSelectedObj(TransformableModel* _obj);
-    void ProjectToWindow();
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Constructor
+    TransformTool(const Transformation& _t = Transformation());
 
+    /// @}
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @name Modifiers
+    /// @{
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Turn rotations on and off
+    /// @param _on On/off
+    void SetRotationsOn(bool _on) {m_rotationsOn = _on;}
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Set transform of tool
+    /// @param _t Transformation
+    void SetTransform(const Transformation& _t);
+
+    /// @}
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @name Rendering
+    /// @{
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Draw transformation tool for GL_RENDER
     void Draw();
-    virtual bool MousePressed(QMouseEvent* _e) = 0;
-    virtual bool MouseReleased(QMouseEvent* _e) = 0;
-    virtual bool MouseMotion(QMouseEvent* _e) = 0;
-    virtual void Enable() {};   //called when this tool is activated
-    virtual void Disable() {};  //called when this tool is unactivated
-
-  protected:
-
-    enum MovementType{NON, X_AXIS, Y_AXIS, Z_AXIS, VIEW_PLANE}; //move where?
-
-    virtual void Draw(bool _selected) = 0;
-
-    static TransformableModel* m_obj;    //selected Object
-    static Camera* m_currentCamera;
-    static Point3d m_objPosPrj; //project(m_obj.pos and 3 axis), (win coord)
-    static Point3d m_xPrj, m_yPrj, m_zPrj;
-    static int m_hitX, m_hitY;    //mouse hit on m_hitX, m_hitY (win coord)
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief ?
-///////////////////////////////////////////////////////////////////////////////
-class TranslationTool : public TransformToolBase {
-
-  public:
-
-    TranslationTool() : TransformToolBase(), m_movementType(NON) { }
-
-    bool MousePressed(QMouseEvent* _e);
-    bool MouseReleased(QMouseEvent* _e);
-    bool MouseMotion(QMouseEvent* _e);
-
-  protected:
-
-    void Draw(bool _selected);
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Draw transformation tool for GL_SELECT
+    void DrawSelect();
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Select portion of object for transformation
+    /// @param _x X window coordinate
+    /// @param _y Y window coordinate
     bool Select(int _x, int _y);
 
-  private:
+    /// @}
+    ////////////////////////////////////////////////////////////////////////////
 
-    MovementType m_movementType; ///< which axis is selected
-    Vector3d m_deltaDis;         ///< displacement caused by user
-    Point3d m_hitUnPrj;          ///< unproject(m_w, m_h)
-    Point3d m_objPosCatch;       ///< catch for m_obj->pos
-    Point3d m_objPosCatchPrj;    ///< catch for m_objPosPrj
-};
+    ////////////////////////////////////////////////////////////////////////////
+    /// @name Event handling
+    /// @{
 
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief ?
-///////////////////////////////////////////////////////////////////////////////
-class RotationTool : public TransformToolBase {
-
-  public:
-
-    RotationTool() : TransformToolBase(), m_movementType(NON),
-      m_hitAngle(0), m_curAngle(0), m_radius(50) {}
-
-    void SetSelectedObj(TransformableModel* _obj);
-    void ComputeArcs(); //compute values for m_arcs, called when view changed
-
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Mouse pressed action
+    /// @param _e Mouse Event
     bool MousePressed(QMouseEvent* _e);
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Mouse released action
+    /// @param _e Mouse Event
     bool MouseReleased(QMouseEvent* _e);
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Mouse motion action
+    /// @param _e Mouse Event
     bool MouseMotion(QMouseEvent* _e);
-    void Enable();
-
-  protected:
-
-    void Draw(bool _selected);
-    bool Select(int _x, int _y);
-
-  private:
-
-    void ComputeArcs(double _angle[2], Vector3d& _n, Vector3d& _v1, Vector3d& _v2,
-        Vector3d& _view);
-    void ComputeLocalAxis();
-    Point3d UnPrjToWorld(const Point3d& _ref, const Vector3d& _n, int _x, int _y);
-
-    MovementType m_movementType;  ///< which axis is selected
-    Vector3d m_localAxis[3];      ///< axis of object
-    Vector3d m_localAxisCatch[3]; ///< catch for m_localAxis[3]
-    double m_hitAngle;            ///< the angle when mouse clikced.
-    double m_curAngle;            ///< current angle of mouse point
-    Point3d m_objPosCatch;        ///< catch for m_obj->pos
-    Quaternion m_objQuatCatch;    ///< catch for m_obj->q
-    double m_radius;              ///< Radius of tool
-    double m_arcs[3][2];          ///< start/end of each arc
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief ?
-///////////////////////////////////////////////////////////////////////////////
-class ScaleTool : public TransformToolBase {
-
-  public:
-
-    ScaleTool() : TransformToolBase(), m_movementType(NON) {}
-
-    bool MousePressed(QMouseEvent * _e);
-    bool MouseReleased(QMouseEvent * _e);
-    bool MouseMotion(QMouseEvent * _e);
-
-  protected:
-
-    void Draw(bool _selected);
-    bool Select(int _x, int _y);
-
-  private:
-
-    MovementType  m_movementType; ///< which axis is selected
-    Vector3d m_deltaDis;          ///< displacement caused by user
-    Point3d  m_hitUnPrj;          ///< unproject(m_w, m_h)
-    Point3d  m_objPosCatch;       ///< catch for m_obj->pos
-    Point3d  m_objPosCatchPrj;    ///< catch for m_objPosPrj
-    Vector3d m_origScale;         ///< The previous scale.
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief ?
-///////////////////////////////////////////////////////////////////////////////
-class TransformTool {
-
-  public:
-
-    TransformTool(Camera* _camera) : m_tool(NULL) {
-      TransformToolBase::SetCurrentCamera(_camera);
-    }
-
-    void CheckSelectObject();
-    void ResetSelectedObj() {m_tool->ResetSelectedObj();}
-    void ProjectToWindow() {
-      m_translationTool.ProjectToWindow();
-      m_scaleTool.ProjectToWindow();
-    }
-
-    void Draw();
-    bool MousePressed(QMouseEvent* _e);
-    bool MouseReleased(QMouseEvent* _e);
-    bool MouseMotion(QMouseEvent* _e);
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Key pressed action
+    /// @param _e Key Event
     bool KeyPressed(QKeyEvent* _e);
-    void CameraMotion();
+
+    /// @}
+    ////////////////////////////////////////////////////////////////////////////
+
+  signals:
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Signal of new translation
+    /// @param _t Translation
+    void TranslationChanged(const Vector3d& _t);
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Signal of new rotation
+    /// @param _r Rotation
+    void RotationChanged(const Quaternion& _r);
+
+  public slots:
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Set new translation
+    /// @param _t Translation
+    void ChangeTranslation(const Vector3d& _t);
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Set new rotation
+    /// @param _r Rotation
+    void ChangeRotation(const Quaternion& _r);
 
   private:
-
-    TransformToolBase* m_tool;  ///< The current tool or NULL if none selected.
-    TranslationTool m_translationTool; ///< The translation tool.
-    RotationTool m_rotationTool;       ///< The rotation tool.
-    ScaleTool m_scaleTool;             ///< The scaling tool.
+    bool m_rotationsOn;          ///< Consider rotations or not
+    MovementType m_movementType; ///< Which axis is selected
+    Point3d m_translation;       ///< World vector for translation
+    Point3d m_oldTranslation;    ///< Old translation
+    Quaternion m_rotation;       ///< Rotation
+    Quaternion m_oldRotation;    ///< Old rotation
+    int m_hitX, m_hitY;          ///< Mouse hit in window coordinates
+    Point3d m_hitWorld;          ///< World position of (m_hitX, m_hitY)
 };
 
 #endif

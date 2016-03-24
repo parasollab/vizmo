@@ -61,5 +61,13 @@ namespace GLUtils {
   void DrawArc(double _r, double _s, double _e, const Vector3d& _v1,
       const Vector3d& _v2);
 
+  //////////////////////////////////////////////////////////////////////////////
+  /// @brief Draw hollow cylinder in open gl scene
+  /// @param _ir Inside radius
+  /// @param _or Outside radius
+  /// @param _h Height
+  /// @param _s Slices
+  void DrawHollowCylinder(double _ir, double _or, double _h, double _s = 30);
+
 }
 #endif

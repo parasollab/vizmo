@@ -73,7 +73,7 @@ IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName) {
 
     //if center is outside boundary, check each component of the robot to ensure
     //that none lie within the avoid region
-    for(int m = 0; m < robot->NumFreeBody(); ++m) {
+    for(size_t m = 0; m < robot->NumFreeBody(); ++m) {
       typedef vector<Vector3d>::const_iterator VIT;
       Transformation& worldTransformation = robot->GetFreeBody(m)->
         WorldTransformation();

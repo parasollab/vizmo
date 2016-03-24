@@ -39,6 +39,8 @@ class RegionModel : public Model {
     virtual double GetShortLength() const = 0;
     virtual double GetLongLength() const = 0;
 
+    void ResetProcessed() {m_processed = false;}
+
     // Model functions
     virtual void Build() = 0;
     virtual void Select(GLuint* _index, vector<Model*>& _sel) = 0;
