@@ -12,6 +12,8 @@ class StaticMultiBodyModel : public MultiBodyModel {
 
     virtual void Build();
 
+    void SetTransform(Transformation& _t);
+
   private:
     shared_ptr<StaticMultiBody> m_staticMultiBody;
 };

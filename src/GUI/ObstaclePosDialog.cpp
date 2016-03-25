@@ -236,7 +236,7 @@ RefreshPosition(bool _emit) {
     Vector3d translation(x, y, z);
     EulerAngle e(a, b, g);
     Transformation t(translation, Orientation(e));
-    (*m_multiBody[0]->begin())->SetTransform(t);
+    m_multiBody[0]->SetTransform(t);
     if(_emit) {
       Quaternion q;
       convertFromEuler(q, e);
@@ -258,7 +258,7 @@ RefreshPosition(bool _emit) {
     for(const auto& mb : m_multiBody) {
       Transformation t = (*mb->begin())->GetTransform();
       t.translation() += diff;
-      (*mb->begin())->SetTransform(t);
+      mb->SetTransform(t);
     }
 
     if(_emit)
