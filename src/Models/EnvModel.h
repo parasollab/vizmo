@@ -72,14 +72,9 @@ class EnvModel : public Model {
     /// @return Pointer to newly created obstacle
     shared_ptr<StaticMultiBodyModel> AddObstacle(const string& _dir,
         const string& _filename, const Transformation& _t);
-
-    // Multibodies
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Add a multibody to the environment.
-    //void AddMBModel(MultiBodyModel* _newMBI);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Remove a multibody from the environment.
-    //void DeleteMBModel(MultiBodyModel* _mbl);
+    /// @brief Remove obstacle from the environment
+    void DeleteObstacle(StaticMultiBodyModel* _m);
 
     // Boundary
     ////////////////////////////////////////////////////////////////////////////

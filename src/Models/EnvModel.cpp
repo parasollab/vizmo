@@ -116,6 +116,18 @@ AddObstacle(const string& _dir, const string& _filename,
 
 void
 EnvModel::
+DeleteObstacle(StaticMultiBodyModel* _m) {
+  for(auto it = m_obstacles.begin(); it != m_obstacles.end(); ++it) {
+    if(_m == it->get()) {
+      m_environment->RemoveObstacle((*it)->GetStaticMultiBody());
+      m_obstacles.erase(it);
+      break;
+    }
+  }
+}
+
+void
+EnvModel::
 SetBoundary(shared_ptr<BoundaryModel> _b) {
   m_boundary = _b;
   m_environment->SetBoundary(m_boundary->GetBoundary());
@@ -628,27 +640,6 @@ GetChildren(list<Model*>& _models) {
     _models.push_back(p);
   _models.push_back(m_boundary.get());
 }
-
-
-/*void
-  EnvModel::
-  DeleteMBModel(MultiBodyModel* _mbl) {
-  vector<MultiBodyModel*>::iterator mbit;
-  for(mbit = m_multibodies.begin(); mbit != m_multibodies.end(); mbit++){
-  if((*mbit) == _mbl){
-  m_multibodies.erase(mbit);
-  break;
-  }
-  }
-  }
-
-
-  void
-  EnvModel::
-  AddMBModel(MultiBodyModel* _m) {
-  _m->Build();
-  m_multibodies.push_back(_m);
-  }*/
 
 void
 EnvModel::

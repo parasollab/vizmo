@@ -11,6 +11,10 @@ class StaticMultiBodyModel : public MultiBodyModel {
 
     virtual void Build();
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// @return Corresponding PMPL StaticMultiBody object
+    shared_ptr<StaticMultiBody> GetStaticMultiBody() {return m_staticMultiBody;}
+
     void SetTransform(Transformation& _t);
 
   protected:
