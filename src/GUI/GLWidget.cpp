@@ -67,16 +67,15 @@ ResetCamera() {
 void
 GLWidget::
 initializeGL() {
-  //Setup light and material properties
-  SetLight();
-
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glClearColor(1, 1, 1, 0);
-  //glEnable(GL_CULL_FACE);
-  //glCullFace(GL_BACK);
+  glEnable(GL_COLOR_MATERIAL);
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+
   glLineStipple(2, 0xAAAA);
 }
 
@@ -129,7 +128,7 @@ paintGL() {
   DrawAxis();
 
   //set lights
-  SetLightPos();
+  SetLights();
 
   //draw scene
   GetVizmo().Draw();
@@ -156,25 +155,18 @@ paintGL() {
 
 void
 GLWidget::
-SetLight() {
-  //glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-  glEnable(GL_COLOR_MATERIAL);
-
-  GLfloat WhiteLight[] =  { 0.9f, 0.9f, 0.9f, 1.0f };
-  glLightfv(GL_LIGHT0,GL_DIFFUSE,WhiteLight);
-  glLightfv(GL_LIGHT1,GL_DIFFUSE,WhiteLight);
-
-  glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHT1);
-}
-
-void
-GLWidget::
-SetLightPos() {
-  static GLfloat lightPosition[] = { 250.0f, 250.0f, 250.0f, 1.0f };
-  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-  static GLfloat lightPosition2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
-  glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
+SetLights() {
+  EnvModel* e = GetVizmo().GetEnv();
+  if(e) {
+    glEnable(GL_LIGHT0);
+    float r = e->GetRadius();
+    GLfloat lightPosition[] = {r, r, r, 1.f};
+    GLfloat lightAmbient[] = {0.1f, 0.1f, 0.1f, 1.f};
+    GLfloat lightDiffuse[] = {1.f, 1.f, 1.f, 1.f};
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+  }
 }
 
 void
@@ -283,38 +275,6 @@ mouseReleaseEvent(QMouseEvent* _e) {
     else
       emit clickByLMB();
   }
-
-  //Update rotation of object
-  /*if(objs.size()!=0){
-    vector<Model*>& sel=GetVizmo().GetSelectedModels();
-    typedef vector<Model*>::iterator OIT;
-    for(OIT oit = sel.begin(); oit != sel.end(); oit++){
-      if(((Model*)(*oit))->Name() != "Node") {
-        typedef vector<Model*>::iterator GIT;
-        MultiBodyModel* mbl;
-        list<Model*> modelList;
-        Model* gl;
-        int i=0;
-        for(GIT ig= GetVizmo().GetSelectedModels().begin();ig!=GetVizmo().GetSelectedModels().end();ig++){
-          if(!modelList.empty()){
-            i++;
-            mbl=(MultiBodyModel*)(*ig);
-            //get Polyhedron
-            mbl->GetChildren(modelList);
-            gl = modelList.front();
-
-            //multiply polyhedron0 and multiBody quaternions
-            //to get new rotation
-            Quaternion finalQ = objs[0]->RotationQ() * gl->RotationQ();
-            EulerAngle e;
-            convertFromQuaternion(e, finalQ);
-
-            mbl->Rotation()(e.alpha(), e.beta(), e.gamma());
-          }
-        }//end IF  ...actually, this appears to be end for -NJ
-      }//end for
-    }
-  }*/
 }
 
 
