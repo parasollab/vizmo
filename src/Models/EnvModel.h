@@ -63,6 +63,16 @@ class EnvModel : public Model {
     /// @param _c CfgModel to position in environment
     void ConfigureRender(const CfgModel& _c);
 
+    // Obstacles
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Add obstacle to environment
+    /// @param _dir Directory for geometry file
+    /// @param _filename Geometry filename
+    /// @param _t Transformation of object
+    /// @return Pointer to newly created obstacle
+    shared_ptr<StaticMultiBodyModel> AddObstacle(const string& _dir,
+        const string& _filename, const Transformation& _t);
+
     // Multibodies
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Add a multibody to the environment.

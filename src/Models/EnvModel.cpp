@@ -92,6 +92,28 @@ ConfigureRender(const CfgModel& _c) {
   m_robots[_c.GetRobotIndex()]->ConfigureRender(_c.GetData());
 }
 
+shared_ptr<StaticMultiBodyModel>
+EnvModel::
+AddObstacle(const string& _dir, const string& _filename,
+    const Transformation& _t) {
+  m_centerOfMass *= m_obstacles.size() + m_surfaces.size();
+
+  shared_ptr<StaticMultiBody> o =
+    m_environment->AddObstacle(_dir, _filename, _t).second;
+  m_obstacles.emplace_back(new StaticMultiBodyModel(o));
+  m_obstacles.back()->Build();
+
+  m_centerOfMass += m_obstacles.back()->GetCOM();
+  m_centerOfMass /= m_obstacles.size() + m_surfaces.size();
+
+  double dist = (m_obstacles.back()->GetCOM() - m_centerOfMass).norm() +
+    m_obstacles.back()->GetRadius();
+  if(dist > m_radius)
+    m_radius = dist;
+
+  return m_obstacles.back();
+}
+
 void
 EnvModel::
 SetBoundary(shared_ptr<BoundaryModel> _b) {

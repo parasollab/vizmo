@@ -202,7 +202,7 @@ void
 EnvironmentOptions::
 AddObstacle() {
   //get the name of an obstacle file
-  /*QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
+  QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
       GetMainWindow()->GetLastDir(), "Files  (*.g *.obj)");
 
   if(!fn.isEmpty()) {
@@ -210,24 +210,24 @@ AddObstacle() {
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
 
-    //create a new obstacle
-    MultiBodyModel* m = new MultiBodyModel(GetVizmo().GetEnv(),
-        fi.absolutePath().toStdString(), fi.fileName().toStdString(),
-        Transformation());
-
     //add the new obstacle to the environment and select it
-    GetVizmo().GetEnv()->AddMBModel(m);
-    GetVizmo().GetSelectedModels().clear();
-    GetVizmo().GetSelectedModels().push_back(m);
+    shared_ptr<StaticMultiBodyModel> m = GetVizmo().GetEnv()->AddObstacle(
+        fi.absolutePath().toStdString(),
+        fi.fileName().toStdString(),
+        Transformation());
     RefreshEnv();
 
+    //Select new obstacle
+    GetVizmo().GetSelectedModels().clear();
+    GetVizmo().GetSelectedModels().push_back(m.get());
+
     //open the obstacle position dialog for the new obstacle
-    vector<MultiBodyModel*> v(1, m);
+    vector<StaticMultiBodyModel*> v(1, m.get());
     ObstaclePosDialog* opd = new ObstaclePosDialog(GetMainWindow(), v);
     GetMainWindow()->ShowDialog(opd);
   }
   else
-    GetMainWindow()->statusBar()->showMessage("Loading aborted");*/
+    GetMainWindow()->statusBar()->showMessage("Loading aborted");
 }
 
 

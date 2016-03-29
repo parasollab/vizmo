@@ -174,7 +174,6 @@ ChangeSlidersValues() {
   QLineEdit* posLine = static_cast<QLineEdit*>(sender());
   auto itr = std::find(begin(m_posLines), end(m_posLines), posLine);
   size_t indx = distance(begin(m_posLines), itr);
-  cout << "indx : " << indx << endl;;
   double val = m_posLines[indx]->text().toDouble();
   m_sliders[indx]->blockSignals(true);
   m_sliders[indx]->setValue(val*100);
