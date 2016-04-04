@@ -120,7 +120,7 @@ ButtonHandler(int _button, bool _pressed) {
       else if(!m_currentRegion) { // Draw new region
         m_drawing = true;
         static_cast<PlanningOptions*>(GetMainWindow()->m_mainMenu->
-            m_planningOptions)->StartRegionTimer();
+            m_planningOptions)->StartPreInputTimer();
         m_currentRegion = shared_ptr<RegionModel>(new RegionSphereModel(m_pos, 0,
             false));
         GetVizmo().GetEnv()->AddNonCommitRegion(m_currentRegion);
