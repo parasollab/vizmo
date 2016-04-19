@@ -558,20 +558,59 @@ MakeGraph() {
   for(size_t i = 0; i < numPoints; ++i)
     vertices[i] = Vector3d(&points[3*i]);
 
-  vector<tuple<size_t, size_t, size_t>> triangles(4*numTetras);
+  typedef tuple<size_t, size_t, size_t> Triangle;
+  //vector<Triangle> triangles(4*numTetras);
+  map<Triangle, unordered_set<size_t>> triangles;
   for(size_t i = 0; i < numTetras; ++i) {
-    triangles[4*i + 0] = make_tuple(tetra[i*numCorners + 0], tetra[i*numCorners + 2], tetra[i*numCorners + 1]);
-    triangles[4*i + 1] = make_tuple(tetra[i*numCorners + 0], tetra[i*numCorners + 3], tetra[i*numCorners + 2]);
-    triangles[4*i + 2] = make_tuple(tetra[i*numCorners + 0], tetra[i*numCorners + 1], tetra[i*numCorners + 3]);
-    triangles[4*i + 3] = make_tuple(tetra[i*numCorners + 1], tetra[i*numCorners + 2], tetra[i*numCorners + 3]);
+    auto AddTriangle = [&](size_t _i, size_t _j, size_t _k) {
+      int v[3] = {tetra[i*numCorners + _i], tetra[i*numCorners + _j], tetra[i*numCorners + _k]};
+      sort(v, v+3);
+      triangles[make_tuple(v[0], v[1], v[2])].insert(i);
+    };
+
+    AddTriangle(0, 2, 1);
+    AddTriangle(0, 3, 2);
+    AddTriangle(0, 1, 3);
+    AddTriangle(1, 2, 3);
+
+    /*size_t v[3] = {tetra[i*numCorners + 0], tetra[i*numCorners + 2], tetra[i*numCorners + 1]};
+    sort(v, v+3);
+    //triangles[4*i + 0] = make_tuple(v[0], v[1], v[2]);
+    triangles[make_tuple(v[0], v[1], v[2])].insert(i);
+
+    v = {tetra[i*numCorners + 0], tetra[i*numCorners + 3], tetra[i*numCorners + 2]};
+    sort(v, v+3);
+    //triangles[4*i + 1] = make_tuple(v[0], v[1], v[2]);
+    triangles[make_tuple(v[0], v[1], v[2])].insert(i);
+
+    v = {tetra[i*numCorners + 0], tetra[i*numCorners + 1], tetra[i*numCorners + 3]};
+    sort(v, v+3);
+    //triangles[4*i + 2] = make_tuple(v[0], v[1], v[2]);
+    triangles[make_tuple(v[0], v[1], v[2])].insert(i);
+
+    v = {tetra[i*numCorners + 1], tetra[i*numCorners + 2], tetra[i*numCorners + 3]};
+    sort(v, v+3);
+    //triangles[4*i + 3] = make_tuple(v[0], v[1], v[2]);
+    triangles[make_tuple(v[0], v[1], v[2])].insert(i);*/
   }
-/*
+
+  cout << "triangles: " << triangles.size() << endl;
+  //sort(m_triangles.begin(), m_triangles.end());
+  //auto i = unique(m_triangles.begin(), m_triangles.end());
+  //m_triangles.resize(distance(m_triangles.begin(), i));
+  //cout << "triangles: " << triangles.size() << endl;
+
+  vector<pair<Triangle, unordered_set<size_t>>> tris;
+  copy(triangles.begin(), triangles.end(), back_inserter(tris));
+
+  /*
   vector<Vector3d> vertices{{0, 0, 0}, {0, 0, 1}, {1, 0, 1}, {1, 0, 0}};
   vector<tuple<size_t, size_t, size_t>> triangles;
   triangles.push_back(make_tuple(0, 1, 2));
   triangles.push_back(make_tuple(0, 2, 3));
   */
-  m_reebGraph = new ReebGraphConstruction(vertices, triangles);
+  //m_reebGraph = new ReebGraphConstruction(vertices, triangles);
+  m_reebGraph = new ReebGraphConstruction(vertices, tris);
 }
 
 void
@@ -587,12 +626,12 @@ DrawGraph() {
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
 
-  glColor4f(0.0, 1.0, 1.0, 0.01);
+  //glColor4f(0.0, 1.0, 1.0, 0.01);
   size_t numTetras = m_decompModel->numberoftetrahedra;
   size_t numCorners = m_decompModel->numberofcorners;
   const REAL* const points = m_decompModel->pointlist;
   const int* const tetra = m_decompModel->tetrahedronlist;
-  glBegin(GL_TRIANGLES);
+  /*glBegin(GL_TRIANGLES);
   for(size_t i = 0; i < numTetras; ++i) {
     Vector3d vs[numCorners];
     for(size_t j = 0; j < numCorners; ++j)
@@ -610,10 +649,10 @@ DrawGraph() {
     glVertex3dv(vs[2]);
     glVertex3dv(vs[3]);
   }
-  glEnd();
+  glEnd();*/
 
-  glColor4f(0.0, 1.0, 1.0, 0.02);
-  glBegin(GL_LINES);
+  //glColor4f(0.0, 1.0, 1.0, 0.02);
+  /*glBegin(GL_LINES);
   for(size_t i = 0; i < numTetras; ++i) {
     Vector3d vs[numCorners];
     for(size_t j = 0; j < numCorners; ++j)
@@ -631,10 +670,10 @@ DrawGraph() {
     glVertex3dv(vs[3]);
     glVertex3dv(vs[1]);
   }
-  glEnd();
+  glEnd();*/
 
   //draw dual graph
-  glColor4f(1.0, 0.0, 1.0, 0.05);
+  /*glColor4f(1.0, 0.0, 1.0, 0.05);
 
   glBegin(GL_POINTS);
   for(auto v = m_graph.begin(); v != m_graph.end(); ++v) {
@@ -647,7 +686,7 @@ DrawGraph() {
     glVertex3dv(m_graph.find_vertex((*e).source())->property());
     glVertex3dv(m_graph.find_vertex((*e).target())->property());
   }
-  glEnd();
+  glEnd();*/
 
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
@@ -655,7 +694,7 @@ DrawGraph() {
 
   glEnable(GL_LIGHTING);
 
-  m_reebGraph->Draw();
+  m_reebGraph->Draw(points, tetra, numTetras, numCorners);
 }
 
 size_t
