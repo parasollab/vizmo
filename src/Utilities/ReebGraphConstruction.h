@@ -32,6 +32,7 @@ class ReebGraphConstruction {
       size_t m_vertex; ///< Vertex Index
       Vector3d m_vertex2;
       double m_w; ///< Morse function value
+      size_t m_order;
     };
 
     struct ReebNodeComp {
@@ -79,7 +80,7 @@ class ReebGraphConstruction {
       size_t m_target;
       unordered_set<MeshEdge*> m_edges; ///< Edge indices
 
-      map<size_t, set<size_t>, greater<size_t>> m_buckets;
+      map<size_t, unordered_set<size_t>, greater<size_t>> m_buckets;
       vector<Vector3d> m_path;
     };
 
@@ -116,7 +117,7 @@ class ReebGraphConstruction {
         return false;*/
         //clockReebArcComp.StartClock();
         bool ret = false;
-        ReebNode& s0 = m_rg->find_vertex(_a0.source())->property();
+        /*ReebNode& s0 = m_rg->find_vertex(_a0.source())->property();
         ReebNode& s1 = m_rg->find_vertex(_a1.source())->property();
         if(_a0.source() != _a1.source() && m_rnc(s0, s1))
           ret = true;
@@ -126,6 +127,19 @@ class ReebGraphConstruction {
           if(_a0.target() != _a1.target() && m_rnc(t0, t1))
             ret = true;
           else if(_a0.target() == _a1.target() || (!m_rnc(t0, t1) && !m_rnc(t1, t0)))
+            if(_a0.id() < _a1.id())
+              ret = true;
+        }*/
+        ReebNode& s0 = m_rg->find_vertex(_a0.source())->property();
+        ReebNode& s1 = m_rg->find_vertex(_a1.source())->property();
+        if(s0.m_order < s1.m_order)
+          ret = true;
+        else if(s0.m_order == s1.m_order) {
+          ReebNode& t0 = m_rg->find_vertex(_a0.target())->property();
+          ReebNode& t1 = m_rg->find_vertex(_a1.target())->property();
+          if(t0.m_order < t1.m_order)
+            ret = true;
+          else if(t0.m_order == t1.m_order)
             if(_a0.id() < _a1.id())
               ret = true;
         }

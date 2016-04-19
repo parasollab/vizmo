@@ -582,7 +582,7 @@ DrawGraph() {
   glLineWidth(3);
 
   //draw tetras
-/*
+
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
@@ -632,9 +632,9 @@ DrawGraph() {
     glVertex3dv(vs[1]);
   }
   glEnd();
-*/
+
   //draw dual graph
-/*  glColor4f(1.0, 0.0, 1.0, 0.05);
+  glColor4f(1.0, 0.0, 1.0, 0.05);
 
   glBegin(GL_POINTS);
   for(auto v = m_graph.begin(); v != m_graph.end(); ++v) {
@@ -654,7 +654,7 @@ DrawGraph() {
   glDisable(GL_CULL_FACE);
 
   glEnable(GL_LIGHTING);
-*/
+
   m_reebGraph->Draw();
 }
 

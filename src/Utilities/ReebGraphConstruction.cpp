@@ -88,11 +88,12 @@ Construct() {
     return v[1]; //take y value as morse function. TODO generalize
   };
 
-  ClockClass clockTotal, clockAddVertices, clockTriangleSort, clockAddEdges,
-             clockAddTriangles, clockDelete2Nodes, clockMakePaths;
+  ClockClass clockTotal, clockAddVertices, clockVertexSort, clockTriangleSort,
+             clockAddEdges, clockAddTriangles, clockDelete2Nodes, clockMakePaths;
 
   clockTotal.SetName("Total");
   clockAddVertices.SetName("Add Vertices");
+  clockVertexSort.SetName("Vertex Sort");
   clockTriangleSort.SetName("Triangle Sort");
   clockAddEdges.SetName("Add Edges");
   clockAddTriangles.SetName("Add Triangles");
@@ -112,7 +113,7 @@ Construct() {
     //cout << "Vertex: " << i << " at " << m_vertices[i] << " f = " << f(m_vertices[i]) << endl;
   }
   //m_numBuckets = ceil((m_maxBucket - m_minBucket)/GetVizmo().GetEnv()->GetEnvironment()->GetPositionRes());
-  m_bucketRes = (m_maxBucket - m_minBucket) / 65.;
+  m_bucketRes = (m_maxBucket - m_minBucket) / 35.;
 
   clockAddVertices.StopClock();
 
@@ -121,14 +122,30 @@ Construct() {
   //cin.ignore();
   cout << "Add Vertices done." << endl;
 
+  clockVertexSort.StartClock();
+
+  vector<size_t> order;
+  for(size_t i = 0; i < m_vertices.size(); ++i)
+    order.emplace_back(i);
+  ReebNodeComp rnc(&m_vertices);
+  sort(order.begin(), order.end(), [&](size_t _a, size_t _b) {
+        return rnc(m_reebGraph.find_vertex(_a)->property(), m_reebGraph.find_vertex(_b)->property());
+      });
+  for(size_t i = 0; i < order.size(); ++i)
+    m_reebGraph.find_vertex(order[i])->property().m_order = i;
+
+  clockVertexSort.StopClock();
+
   clockTriangleSort.StartClock();
 
-  ReebNodeComp rnc(&m_vertices);
+  //ReebNodeComp rnc(&m_vertices);
   for(auto tit = m_triangles.begin(); tit != m_triangles.end(); ++tit) {
     size_t v[3] = {get<0>(*tit), get<1>(*tit), get<2>(*tit)};
     sort(v, v+3, [&](size_t _a, size_t _b) {
-        return rnc(m_reebGraph.find_vertex(_a)->property(),
-            m_reebGraph.find_vertex(_b)->property());
+        //return rnc(m_reebGraph.find_vertex(_a)->property(),
+        //    m_reebGraph.find_vertex(_b)->property());
+        return m_reebGraph.find_vertex(_a)->property().m_order <
+            m_reebGraph.find_vertex(_b)->property().m_order;
         /*double fa = f(m_vertices[_a]);
         double fb = f(m_vertices[_b]);
         //return fa - fb > 0.000001 || (fabs(fa - fb) < 0.000001 && _a <= _b);
@@ -312,11 +329,12 @@ Construct() {
   //  cout << "\tEdge: " << eit->descriptor() << endl;
 
   //clockReebNodeComp.PrintClock(cout);
-  //clockReebArcComp.PrintClock(cout);
+  clockReebArcComp.PrintClock(cout);
   clockGetReebArc.PrintClock(cout);
   clockMergeArcs.PrintClock(cout);
   clockGlueByMergeSorting.PrintClock(cout);
   clockAddVertices.PrintClock(cout);
+  clockVertexSort.PrintClock(cout);
   clockTriangleSort.PrintClock(cout);
   clockAddEdges.PrintClock(cout);
   clockAddTriangles.PrintClock(cout);
@@ -475,7 +493,7 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
     //    (fabs(n0.m_w - n1.m_w) < 0.000001 && asit0->target() < asit1->target()) ||
     //    (fabs(n0.m_w - n1.m_w) < 0.000001 && asit0->target() == asit1->target() && asit0->id() < asit1->id())
     ReebNodeComp rnc(&m_vertices);
-    if(rnc(n0, n1)
+    if(n0.m_order < n1.m_order//rnc(n0, n1)
         /*rac(*asit0, *asit1)*/) {
       MergeArcs(*asit0, *asit1);
       ++asit0;
