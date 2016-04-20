@@ -1,6 +1,6 @@
 #include "ReebGraphConstruction.h"
 
-#include <containers/sequential/graph/algorithms/astar.h>
+#include <containers/sequential/graph/algorithms/dijkstra.h>
 
 #include <GL/gl.h>
 
@@ -307,24 +307,18 @@ Embed(const vector<Vector3d>& _vertices,
       for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
         auto sourceit = _tetraGraph.find_vertex(eit->source());
         auto targetit = _tetraGraph.find_vertex(eit->target());
-        eit->property() = 0.1 * (sourceit->property() - targetit->property()).norm();
+        eit->property() = 0.01 * (sourceit->property() - targetit->property()).norm();
       }
     }
 
     //find path
     auto sourceit = m_reebGraph.find_vertex(eit->source());
     auto targetit = m_reebGraph.find_vertex(eit->target());
-    Vector3d& goal = targetit->property().m_vertex2;
 
     vector<size_t> pathVID;
-
-    auto heuristic = [&](const Vector3d _v) {
-      return (_v - goal).norm();
-    };
-
-    stapl::sequential::astar(_tetraGraph,
+    stapl::sequential::find_path_dijkstra(_tetraGraph,
         sourceit->property().m_tetra, targetit->property().m_tetra,
-        pathVID, heuristic);
+        pathVID, numeric_limits<double>::max());
 
     ra.m_path.clear();
     //for(auto& vid : pathVID)
