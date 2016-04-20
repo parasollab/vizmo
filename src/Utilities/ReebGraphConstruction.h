@@ -36,6 +36,8 @@ class ReebGraphConstruction {
       Vector3d m_vertex2;
       double m_w; ///< Morse function value
       size_t m_order;
+
+      size_t m_tetra;
     };
 
     struct ReebNodeComp {
@@ -143,8 +145,15 @@ class ReebGraphConstruction {
       }
     };
 
+    typedef stapl::sequential::graph<
+      stapl::UNDIRECTED, stapl::NONMULTIEDGES, Vector3d, double
+      > TetrahedralizationGraph;
+
     ReebGraphConstruction(const vector<Vector3d>& _vertices,
-        const vector<pair<tuple<size_t, size_t, size_t>, unordered_set<size_t>>>& _triangles);
+        const vector<pair<tuple<size_t, size_t, size_t>, unordered_set<size_t>>>& _triangles,
+        const int* const _tetras,
+        size_t _numCorners,
+        TetrahedralizationGraph& _tetraGraph);
 
     template<typename REAL>
     void Draw(const REAL* const _points, const int* const _tetra,
@@ -153,6 +162,9 @@ class ReebGraphConstruction {
   private:
 
     void Construct();
+    void Embed(const vector<Vector3d>& _vertices,
+        const int* const _tetras, size_t _numCorners,
+        TetrahedralizationGraph& _tetraGraph);
 
     void CreateNode(size_t _i, const Vector3d& _v, double _w);
     MeshEdge* CreateArc(size_t _s, size_t _t,
@@ -204,15 +216,23 @@ Draw(const REAL* const _points, const int* const _tetra,
   //draw reeb graph
   glColor4f(0.0, 0.5, 0.2, 0.05);
 
-  glBegin(GL_POINTS);
+  /*glBegin(GL_POINTS);
   for(auto v = m_reebGraph.begin(); v != m_reebGraph.end(); ++v) {
     glVertex3dv(m_vertices[v->property().m_vertex]);
   }
   glEnd();
 
+  glColor4f(0.0, 0.2, 0.5, 0.05);*/
+
+  glBegin(GL_POINTS);
+  for(auto v = m_reebGraph.begin(); v != m_reebGraph.end(); ++v) {
+    glVertex3dv(v->property().m_vertex2);
+  }
+  glEnd();
+
   size_t i = 0;
   for(auto e = m_reebGraph.edges_begin(); e != m_reebGraph.edges_end(); ++e) {
-    if(i++ == edge) {
+    //if(i++ == edge) {
       glBegin(GL_LINE_STRIP);
       /*glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->source())->property().m_vertex]);
         glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);*/
@@ -221,10 +241,10 @@ Draw(const REAL* const _points, const int* const _tetra,
         glVertex3dv(v);
       //glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);
       glEnd();
-    }
+    //}
   }
 
-  glColor4f(0.5, 0.0, 0.2, 0.05);
+  /*glColor4f(0.5, 0.0, 0.2, 0.05);
   glLineWidth(3);
   glBegin(GL_LINES);
   i = 0;
@@ -234,7 +254,7 @@ Draw(const REAL* const _points, const int* const _tetra,
       glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);
     }
   }
-  glEnd();
+  glEnd();*/
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);

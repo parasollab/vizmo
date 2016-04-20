@@ -610,7 +610,7 @@ MakeGraph() {
   triangles.push_back(make_tuple(0, 2, 3));
   */
   //m_reebGraph = new ReebGraphConstruction(vertices, triangles);
-  m_reebGraph = new ReebGraphConstruction(vertices, tris);
+  m_reebGraph = new ReebGraphConstruction(vertices, tris, tetra, numCorners, m_graph);
 }
 
 void

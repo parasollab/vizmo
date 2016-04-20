@@ -1,5 +1,7 @@
 #include "ReebGraphConstruction.h"
 
+#include <containers/sequential/graph/algorithms/astar.h>
+
 #include <GL/gl.h>
 
 #include "Utilities/MetricUtils.h"
@@ -19,7 +21,9 @@ ostream& operator<<(ostream& _os, ReebGraphConstruction::RGEID _rgeid) {
 
 ReebGraphConstruction::
 ReebGraphConstruction(const vector<Vector3d>& _vertices,
-    const vector<pair<tuple<size_t, size_t, size_t>, unordered_set<size_t>>>& _triangles) :
+    const vector<pair<tuple<size_t, size_t, size_t>, unordered_set<size_t>>>& _triangles,
+    const int* const _tetras, size_t _numCorners,
+    TetrahedralizationGraph& _tetraGraph) :
   m_vertices(_vertices), m_triangles(_triangles),
   m_minBucket(numeric_limits<double>::max()),
   m_maxBucket(numeric_limits<double>::min()) {
@@ -29,6 +33,7 @@ ReebGraphConstruction(const vector<Vector3d>& _vertices,
     clockMergeArcs.SetName("Merge Arcs");
     clockGlueByMergeSorting.SetName("Glue By Merge Sorting");
     Construct();
+    Embed(_vertices, _tetras, _numCorners, _tetraGraph);
   }
 
 void
@@ -266,6 +271,115 @@ Construct() {
   clockDelete2Nodes.PrintClock(cout);
   clockMakePaths.PrintClock(cout);
   clockTotal.PrintClock(cout);
+}
+
+void
+ReebGraphConstruction::
+Embed(const vector<Vector3d>& _vertices,
+    const int* const _tetras, size_t _numCorners,
+    TetrahedralizationGraph& _tetraGraph) {
+
+  //embed ReebNodes in tetrahedralization
+  for(auto nit = m_reebGraph.begin(); nit != m_reebGraph.end(); ++nit) {
+    Vector3d& vn = nit->property().m_vertex2;
+    double minDist = numeric_limits<double>::max();
+    Vector3d closest;
+    size_t closestID = -1;
+    for(auto tit = _tetraGraph.begin(); tit != _tetraGraph.end(); ++tit) {
+      Vector3d& vt = tit->property();
+      double dist = (vt - vn).norm();
+      if(dist < minDist) {
+        minDist = dist;
+        closest = vt;
+        closestID = tit->descriptor();
+      }
+    }
+    nit->property().m_vertex2 = closest;
+    nit->property().m_tetra = closestID;
+  }
+
+  //embed ReebArcs in tetrahedralization
+  for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit) {
+    ReebArc& ra = eit->property();
+    //weight all
+    for(auto& tetraid : ra.m_tetra) {
+      auto vit = _tetraGraph.find_vertex(tetraid);
+      for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
+        auto sourceit = _tetraGraph.find_vertex(eit->source());
+        auto targetit = _tetraGraph.find_vertex(eit->target());
+        eit->property() = 0.1 * (sourceit->property() - targetit->property()).norm();
+      }
+    }
+
+    //find path
+    auto sourceit = m_reebGraph.find_vertex(eit->source());
+    auto targetit = m_reebGraph.find_vertex(eit->target());
+    Vector3d& goal = targetit->property().m_vertex2;
+
+    vector<size_t> pathVID;
+
+    auto heuristic = [&](const Vector3d _v) {
+      return (_v - goal).norm();
+    };
+
+    stapl::sequential::astar(_tetraGraph,
+        sourceit->property().m_tetra, targetit->property().m_tetra,
+        pathVID, heuristic);
+
+    ra.m_path.clear();
+    //for(auto& vid : pathVID)
+    //  ra.m_path.push_back(_tetraGraph.find_vertex(vid)->property());
+
+    for(auto vit1 = pathVID.begin(), vit2 = vit1 + 1;
+        vit2 != pathVID.end(); ++vit1, ++vit2) {
+      Vector3d& v1 = _tetraGraph.find_vertex(*vit1)->property();
+      ra.m_path.push_back(v1);
+
+      int t1[4] = {_tetras[(*vit1)*_numCorners + 0],
+        _tetras[(*vit1)*_numCorners + 1],
+        _tetras[(*vit1)*_numCorners + 2],
+        _tetras[(*vit1)*_numCorners + 3]};
+      int t2[4] = {_tetras[(*vit2)*_numCorners + 0],
+        _tetras[(*vit2)*_numCorners + 1],
+        _tetras[(*vit2)*_numCorners + 2],
+        _tetras[(*vit2)*_numCorners + 3]};
+
+      int tcommon[3];
+      size_t j = 0;
+      for(size_t i = 0; i < 4; ++i) {
+        int* f = find(t2, t2+4, t1[i]);
+        if(f != t2 + 4)
+          tcommon[j++] = *f;
+      }
+
+      Vector3d c;
+      for(size_t i = 0; i < 3; ++i)
+        c += _vertices[tcommon[i]];
+      c /= 3;
+
+      ra.m_path.push_back(c);
+    }
+    ra.m_path.push_back(_tetraGraph.find_vertex(pathVID.back())->property());
+
+    //ra.m_path.push_back(_tetraGraph.find_vertex(pathVID.front())->property());
+    //for(auto vit1 = pathVID.begin(), vit2 = vit1 + 1;
+    //    vit2 != pathVID.end(); ++vit1, ++vit2) {
+    //  Vector3d& v1 = _tetraGraph.find_vertex(*vit1)->property();
+    //  Vector3d& v2 = _tetraGraph.find_vertex(*vit2)->property();
+    //  ra.m_path.push_back((v1 + v2) / 2);
+    //}
+    //ra.m_path.push_back(_tetraGraph.find_vertex(pathVID.back())->property());
+
+    //unweight all
+    for(auto& tetraid : ra.m_tetra) {
+      auto vit = _tetraGraph.find_vertex(tetraid);
+      for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
+        auto sourceit = _tetraGraph.find_vertex(eit->source());
+        auto targetit = _tetraGraph.find_vertex(eit->target());
+        eit->property() = (sourceit->property() - targetit->property()).norm();
+      }
+    }
+  }
 }
 
 void
