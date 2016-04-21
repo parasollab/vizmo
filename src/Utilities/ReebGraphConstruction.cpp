@@ -24,9 +24,7 @@ ReebGraphConstruction(const vector<Vector3d>& _vertices,
     const vector<pair<tuple<size_t, size_t, size_t>, unordered_set<size_t>>>& _triangles,
     const int* const _tetras, size_t _numCorners,
     TetrahedralizationGraph& _tetraGraph) :
-  m_vertices(_vertices), m_triangles(_triangles),
-  m_minBucket(numeric_limits<double>::max()),
-  m_maxBucket(numeric_limits<double>::min()) {
+  m_vertices(_vertices), m_triangles(_triangles) {
     clockReebNodeComp.SetName("Reeb Node Comp");
     clockReebArcComp.SetName("Reeb Arc Comp");
     clockGetReebArc.SetName("Get Reeb Arc");
@@ -61,20 +59,11 @@ Construct() {
   for(size_t i = 0; i < m_vertices.size(); ++i) {
     double w = f(m_vertices[i]);
     CreateNode(i, m_vertices[i], w);
-    if(w < m_minBucket)
-      m_minBucket = w;
-    if(w > m_maxBucket)
-      m_maxBucket = w;
     //cout << "Vertex: " << i << " at " << m_vertices[i] << " f = " << f(m_vertices[i]) << endl;
   }
-  //m_numBuckets = ceil((m_maxBucket - m_minBucket)/GetVizmo().GetEnv()->GetEnvironment()->GetPositionRes());
-  m_bucketRes = (m_maxBucket - m_minBucket) / 35.;
 
   clockAddVertices.StopClock();
 
-  //cout << "Buckets: " << m_numBuckets << " buckets from " << m_minBucket << " to " << m_maxBucket << endl;
-  cout << "Buckets from " << m_minBucket << " to " << m_maxBucket << " at resolution " << m_bucketRes << endl;
-  //cin.ignore();
   cout << "Add Vertices done." << endl;
 
   clockVertexSort.StartClock();
@@ -103,11 +92,6 @@ Construct() {
     t.first = make_tuple(v[0], v[1], v[2]);
   }
   cout << "triangles: " << m_triangles.size() << endl;
-  //sort(m_triangles.begin(), m_triangles.end());
-  //auto i = unique(m_triangles.begin(), m_triangles.end());
-  //m_triangles.resize(distance(m_triangles.begin(), i));
-  //cout << "triangles: " << m_triangles.size() << endl;
-  //cin.ignore();
 
   clockTriangleSort.StopClock();
 
@@ -150,8 +134,6 @@ Construct() {
     //for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit)
     //  cout << "\tEdge: " << eit->descriptor() << endl;
 
-    //cin.ignore();
-
     --e0->m_numTris;
     --e1->m_numTris;
     --e2->m_numTris;
@@ -175,7 +157,7 @@ Construct() {
   do {
     removed = false;
     for(auto vit = m_reebGraph.begin(); vit != m_reebGraph.end(); ++vit) {
-      if(vit->predecessors().size() /*m_reebGraph.get_in_degree(vit->descriptor())*/ == 1 && vit->size()/*m_reebGraph.get_out_degree(vit->descriptor())*/ == 1) {
+      if(vit->predecessors().size() == 1 && vit->size() == 1) {
         //cout << "Can remove vid: " << vit->descriptor() << endl;
         //Remove2Node(vit);
         auto pred = m_reebGraph.find_vertex(vit->predecessors()[0]);
@@ -200,16 +182,12 @@ Construct() {
           edge->m_arcs.erase(in);
           newa.m_edges.insert(edge);
         }
-        //for(auto& bucket : ain.m_buckets)
-        //  newa.m_buckets[bucket.first].insert(bucket.second.begin(), bucket.second.end());
         newa.m_tetra.insert(ain.m_tetra.begin(), ain.m_tetra.end());
         for(auto& edge : aout.m_edges) {
           edge->m_arcs.insert(neweid);
           edge->m_arcs.erase(out);
           newa.m_edges.insert(edge);
         }
-        //for(auto& bucket : aout.m_buckets)
-        //  newa.m_buckets[bucket.first].insert(bucket.second.begin(), bucket.second.end());
         newa.m_tetra.insert(aout.m_tetra.begin(), aout.m_tetra.end());
 
         m_reebGraph.delete_edge(in);
@@ -221,9 +199,8 @@ Construct() {
     }
   } while(removed);
   for(auto vit = m_reebGraph.begin(); vit != m_reebGraph.end(); ++vit) {
-    if(vit->predecessors().size() /*m_reebGraph.get_in_degree(vit->descriptor())*/ == 1 && vit->size()/*m_reebGraph.get_out_degree(vit->descriptor())*/ == 1) {
+    if(vit->predecessors().size() == 1 && vit->size() == 1)
       cout << "Err: Can remove vid: " << vit->descriptor() << endl;
-    }
   }
 
   clockDelete2Nodes.StopClock();
@@ -235,17 +212,9 @@ Construct() {
   map<RGEID, Color4, RGEIDComp> tmpColors = m_colors;
   m_colors.clear();
 
-  for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit) {
+  for(auto eit = m_reebGraph.edges_begin();
+      eit != m_reebGraph.edges_end(); ++eit) {
     //cout << "Edge: " << eit->descriptor() << endl;
-    //for(auto& bucket : eit->property().m_buckets) {
-    //  //cout << "\tBucket: " << bucket.first << " with " << bucket.second.size() << endl;
-    //  Vector3d v;
-    //  for(auto& vid : bucket.second)
-    //    v += m_vertices[vid];
-    //  v /= bucket.second.size();
-    //  //cout << "Averaged to: " << v << endl;
-    //  eit->property().m_path.push_back(v);
-    //}
     m_colors[eit->descriptor()] = tmpColors[eit->descriptor()];
   }
 
@@ -255,8 +224,6 @@ Construct() {
 
   cout << "Final Graph: nodes = " << m_reebGraph.get_num_vertices()
     << " edges = " << m_reebGraph.get_num_edges() << endl;
-  //for(auto eit = m_reebGraph.edges_begin(); eit != m_reebGraph.edges_end(); ++eit)
-  //  cout << "\tEdge: " << eit->descriptor() << endl;
 
   //clockReebNodeComp.PrintClock(cout);
   clockReebArcComp.PrintClock(cout);
@@ -392,14 +359,6 @@ CreateArc(size_t _s, size_t _t, const unordered_set<size_t>& _tetra) {
     RGEID eid = m_reebGraph.add_edge(_s, _t, ReebArc(_s, _t, m2));
     //cout << "\tAdding edge: " << eid << endl;
     m2->m_arcs.insert(eid);
-
-    //ReebArc& ra = GetReebArc(eid);
-    //double ws = m_reebGraph.find_vertex(_s)->property().m_w;
-    //double wt = m_reebGraph.find_vertex(_t)->property().m_w;
-    //size_t bis = floor((ws - m_minBucket)/m_bucketRes);
-    //size_t bit = floor((wt - m_minBucket)/m_bucketRes);
-    //ra.m_buckets[bis].insert(_s);
-    //ra.m_buckets[bit].insert(_t);
   }
   MeshEdge* e = *m_edges.find(&m);
   for(auto& a : e->m_arcs) {
@@ -443,8 +402,6 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
   //    MergeArcs(a1, a0)
   //  a0 <- NextArcMappedToEdge(a0, e0)
   //  a1 <- NextArcMappedToEdge(a1, e1)
-  //bool valid = true;
-  //while(valid) {
 
   //cout << "\tGlueByMergeSorting" << endl;
   //cout << "\t\tEdge _e0: " << _e0->m_source << " " << _e0->m_target << " ArcSet _a0: ";
@@ -490,8 +447,6 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
       continue;
     }
 
-    //ReebNode& n0 = m_reebGraph.find_vertex(GetReebArc(*asit0).m_target)->property();
-    //ReebNode& n1 = m_reebGraph.find_vertex(GetReebArc(*asit1).m_target)->property();
     ReebNode& n0 = m_reebGraph.find_vertex(asit0->target())->property();
     ReebNode& n1 = m_reebGraph.find_vertex(asit1->target())->property();
 
@@ -502,29 +457,17 @@ GlueByMergeSorting(ArcSet& _a0, MeshEdge* _e0, ArcSet& _a1, MeshEdge* _e1) {
       << " at " << m_vertices[n1.m_vertex]
       << " with f = " << n1.m_w << endl;;
     */
-    //if(n0.m_w - n1.m_w > 0.000001 ||
-    //    (fabs(n0.m_w - n1.m_w) < 0.000001 && asit0->target() < asit1->target()) ||
-    //    (fabs(n0.m_w - n1.m_w) < 0.000001 && asit0->target() == asit1->target() && asit0->id() < asit1->id())
-    ReebNodeComp rnc(&m_vertices);
-    if(n0.m_order < n1.m_order//rnc(n0, n1)
-        /*rac(*asit0, *asit1)*/) {
+
+    if(n0.m_order < n1.m_order) {
       MergeArcs(*asit0, *asit1);
       ++asit0;
       asit1 = _a1.begin();
     }
-    else /*if(n0.m_w < n1.m_w)*/ {
+    else {
       MergeArcs(*asit1, *asit0);
       ++asit1;
       asit0 = _a0.begin();
     }
-    //n0.m_w == n1.m_w && n0.m_vertex == n1.m_vertex
-    //else {
-      //merge special
-      //cout << "\t\t\tMerging Special?" << endl;
-      //MergeArcs(*asit1, *asit0);
-      //++asit0, ++asit1;
-    //}
-    //  valid = false;
   }
   clockGlueByMergeSorting.StopClock();
 }
@@ -540,6 +483,7 @@ MergeArcs(RGEID _a0, RGEID _a1) {
   //cout << "\t\t\tMerging: _a0 = " << _a0 << " _a1 = " << _a1 << endl;
   ReebArc& a0 = GetReebArc(_a0);
   ReebArc& a1 = GetReebArc(_a1);
+
   for(auto& edge : a1.m_edges) {
     /*auto i =*/ edge->m_arcs.insert(_a0);
     /*if(!i.second) {
@@ -552,18 +496,8 @@ MergeArcs(RGEID _a0, RGEID _a1) {
     edge->m_arcs.erase(_a1);
     a0.m_edges.insert(edge);
   }
-  /*for(auto bit = a1.m_buckets.begin(); bit != a1.m_buckets.end();) {
-    if(bit->first >= a0.m_buckets.rbegin()->first) {
-      a0.m_buckets[bit->first].insert(bit->second.begin(), bit->second.end());
-      if(bit->first != a0.m_buckets.rbegin()->first)
-        bit = a1.m_buckets.erase(bit);
-      else
-        ++bit;
-    }
-    else
-      ++bit;
-  }*/
   a0.m_tetra.insert(a1.m_tetra.begin(), a1.m_tetra.end());
+
   //if(_a0.target() == _a1.target()) {
     //cout << "\t\t\tMerging multiedge" << endl;
   //}

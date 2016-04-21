@@ -7,7 +7,6 @@ using namespace std;
 
 #include <boost/functional/hash.hpp>
 
-//#include <containers/sequential/graph/graph.h>
 #include <containers/sequential/graph/directed_preds_graph.h>
 
 #include <GL/gl.h>
@@ -77,17 +76,11 @@ class ReebGraphConstruction {
       unordered_set<MeshEdge*> m_edges; ///< Edge indices
       unordered_set<size_t> m_tetra;
 
-      //map<size_t, unordered_set<size_t>, greater<size_t>> m_buckets;
       vector<Vector3d> m_path;
     };
 
-    //typedef stapl::sequential::graph<
-    //  stapl::DIRECTED, stapl::MULTIEDGES, ReebNode, ReebArc> ReebGraph;
     typedef stapl::sequential::directed_preds_graph<
       stapl::MULTIEDGES, ReebNode, ReebArc> ReebGraph;
-    //typedef stapl::sequential::directed_preds_graph<
-    //  stapl::MULTIEDGES, ReebNode, ReebArc,
-    //  stapl::sequential::adj_map_int> ReebGraph;
     typedef ReebGraph::edge_descriptor RGEID;
 
     struct ReebArcComp {
@@ -180,8 +173,6 @@ class ReebGraphConstruction {
     vector<pair<tuple<size_t, size_t, size_t>, unordered_set<size_t>>> m_triangles;
 
     ReebGraph m_reebGraph;
-
-    double m_minBucket, m_maxBucket, m_bucketRes;
 
     struct RGEIDComp {
       bool operator()(const RGEID& _a, const RGEID& _b) {
