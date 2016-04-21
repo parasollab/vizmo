@@ -1,6 +1,8 @@
 #ifndef AUTO_REGION_RRT_H_
 #define AUTO_REGION_RRT_H_
 
+#include <unordered_map>
+
 #include "MPStrategies/MPStrategyMethod.h"
 #include "MPStrategies/BasicRRTStrategy.h"
 
@@ -121,14 +123,30 @@ Run() {
   stats->StartClock("RRT Generation MP");
 
   Vector3d start = this->m_query->GetQuery()[0].GetPoint();
-  Vector3d goal = this->m_query->GetQuery()[1].GetPoint();
-  shared_ptr<RegionModel> r(new RegionSphereModel(start,
-          2.5*this->GetEnvironment()->GetRobot(0)->GetBoundingSphereRadius(), false));
+  //Vector3d goal = this->m_query->GetQuery()[1].GetPoint();
 
-  GetVizmo().GetEnv()->AddAttractRegion(r);
+  //Get directed flow network
+  typedef TetGenDecomposition::FlowGraph FlowGraph;
+  typedef FlowGraph::edge_descriptor FED;
+  pair<FlowGraph, size_t> flow = t.GetFlowGraph(start, this->GetEnvironment()->GetPositionRes());
+  //cout << "flow: " << flow.get_num_vertices() << " " << flow.get_num_edges() << endl;
 
-  vector<Vector3d> path = t.GetPath(start, goal, this->GetEnvironment()->GetPositionRes());
-  size_t i = 0;
+  //vector<Vector3d> path = t.GetPath(start, goal, this->GetEnvironment()->GetPositionRes());
+  //size_t i = 0;
+
+  double robotRadius = this->GetEnvironment()->GetRobot(0)->GetBoundingSphereRadius();
+  unordered_map<RegionModelPtr, pair<FED, size_t>> regions;
+  auto sit = flow.first.find_vertex(flow.second);
+  for(auto eit = sit->begin(); eit != sit->end(); ++eit) {
+    auto i = regions.emplace(
+        RegionModelPtr(new RegionSphereModel(start, 3*robotRadius, false)),
+        make_pair(eit->descriptor(), 0));
+    GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
+  }
+  cout << "Num initial regions: " << regions.size() << endl;
+  //shared_ptr<RegionModel> r(new RegionSphereModel(start,
+  //        2.5*this->GetEnvironment()->GetRobot(0)->GetBoundingSphereRadius(), false));
+  //GetVizmo().GetEnv()->AddAttractRegion(r);
 
   CfgType dir;
   bool mapPassedEvaluation = false;
@@ -154,10 +172,34 @@ Run() {
           //GetVizmo().GetSelectedModels().clear();
           //GetMainWindow()->GetGLWidget()->SetCurrentRegion();
           Vector3d cur = m_samplingRegion->GetCenter();
-          size_t j = (i+1)%path.size();
-          Vector3d next = path[j];
-          m_samplingRegion->ApplyOffset(next-cur);
-          i = j;
+
+          auto& pr = regions[m_samplingRegion];
+          FlowGraph::vertex_iterator vi;
+          FlowGraph::adj_edge_iterator ei;
+          flow.first.find_edge(pr.first, vi, ei);
+          vector<Vector3d>& path = ei->property();
+          size_t& i = pr.second;
+          size_t j = i+1;
+          if(j < path.size()) {
+            Vector3d& next = path[j];
+            m_samplingRegion->ApplyOffset(next-cur);
+            i = j;
+          }
+          //else need to delete region and add next set
+          else {
+            auto vit = flow.first.find_vertex(pr.first.target());
+            for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
+              auto i = regions.emplace(
+                  RegionModelPtr(new RegionSphereModel(vit->property(), 3*robotRadius, false)),
+                  make_pair(eit->descriptor(), 0));
+              GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
+            }
+            GetVizmo().GetEnv()->DeleteRegion(m_samplingRegion);
+            regions.erase(m_samplingRegion);
+            cout << "Num regions: " << regions.size() << endl;
+            break;
+          }
+          //sleep(1);
         }
       }
 

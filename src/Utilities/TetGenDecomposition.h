@@ -26,7 +26,12 @@ class TetGenDecomposition {
 
     void Decompose(Environment* _env);
     vector<Vector3d> GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes);
-    Vector3d GetTetra(size_t _t);
+
+    typedef stapl::sequential::graph<
+      stapl::DIRECTED, stapl::MULTIEDGES,
+      Vector3d, vector<Vector3d>
+        > FlowGraph;
+    pair<FlowGraph, size_t> GetFlowGraph(const Vector3d& _p1, double _posRes);
 
     void DrawGraph();
 

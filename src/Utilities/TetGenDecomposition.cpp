@@ -1,5 +1,7 @@
 #include "TetGenDecomposition.h"
 
+#include <unordered_map>
+
 #include <containers/sequential/graph/algorithms/astar.h>
 
 #include "ReebGraphConstruction.h"
@@ -19,7 +21,7 @@ TetGenDecomposition::
 TetGenDecomposition() :
   m_freeModel(new tetgenio()),
   m_decompModel(new tetgenio()),
-  m_switches((char*)"pn") {
+  m_switches((char*)"pqn") {
   }
 
 TetGenDecomposition::
@@ -92,10 +94,93 @@ GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes) {
   return path;
 }
 
-Vector3d
+pair<TetGenDecomposition::FlowGraph, size_t>
 TetGenDecomposition::
-GetTetra(size_t _t) {
-  return m_graph.find_vertex(_t)->property();
+GetFlowGraph(const Vector3d& _p, double _posRes) {
+  typedef FlowGraph::vertex_descriptor FVD;
+  FlowGraph f;
+
+  enum Color {White, Gray, Black};
+  unordered_map<FVD, Color> visited;
+
+  typedef ReebGraphConstruction::ReebGraph ReebGraph;
+  ReebGraph& reebGraph = m_reebGraph->GetReebGraph();
+
+  //add vertices of reeb graph and find closest
+  double closestDist = numeric_limits<double>::max();
+  FVD closestID = -1;
+  for(auto vit = reebGraph.begin(); vit != reebGraph.end(); ++vit) {
+    Vector3d v = vit->property().m_vertex2;
+    FVD vd = vit->descriptor();
+    f.add_vertex(vd, v);
+    //cout << "Adding vertex: " << vd << endl;
+    //cout << "Has edges: " << endl;
+    //for(auto eit = vit->begin(); eit != vit->end(); ++eit)
+    //  cout << "\t" << eit->source() << " " << eit->target() << " " << eit->id() << endl;
+    visited[vd] = White;
+    double dist = (v - _p).norm();
+    if(dist < closestDist) {
+      closestDist = dist;
+      closestID = vd;
+    }
+  }
+
+  //Specialized BFS to make flow network
+  //
+  //Differs from regular BFS because:
+  //  - Treats ReebGraph as undirected graph even though it is directed
+  //  - Computes a graph instead of BFS tree, i.e., cross edges are added
+  queue<FVD> q;
+  q.push(closestID);
+  visited[closestID] = Gray;
+  while(!q.empty()) {
+    FVD u = q.front();
+    q.pop();
+    auto uit = reebGraph.find_vertex(u);
+
+    //process outgoing edges
+    for(auto eit = uit->begin(); eit != uit->end(); ++eit) {
+      FVD v = eit->target();
+      switch(visited[v]) {
+        case White:
+          visited[v] = Gray;
+          q.push(v);
+        case Gray:
+          f.add_edge(eit->descriptor(), eit->property().m_path);
+          break;
+        default:
+          break;
+      }
+    }
+
+    //process incoming edges
+    set<FVD> processed;
+    for(auto pit = uit->predecessors().begin();
+        pit != uit->predecessors().end(); ++pit) {
+      FVD v = *pit;
+      if(processed.count(v) == 0) {
+        auto vit = reebGraph.find_vertex(v);
+        for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
+          if(eit->target() == u) {
+            switch(visited[v]) {
+              case White:
+                visited[v] = Gray;
+                q.push(v);
+              case Gray:
+                f.add_edge(ReebGraph::edge_descriptor(u, v, eit->descriptor().id()), eit->property().m_path);
+                break;
+              default:
+                break;
+            }
+          }
+        }
+      }
+      processed.emplace(v);
+    }
+    visited[u] = Black;
+  }
+
+  return make_pair(f, closestID);
 }
 
 void

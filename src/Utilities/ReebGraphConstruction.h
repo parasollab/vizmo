@@ -152,6 +152,8 @@ class ReebGraphConstruction {
     void Draw(const REAL* const _points, const int* const _tetra,
         size_t _numTetra, size_t _numCorners);
 
+    ReebGraph& GetReebGraph() {return m_reebGraph;}
+
   private:
 
     void Construct();
