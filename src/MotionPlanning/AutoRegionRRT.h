@@ -13,7 +13,7 @@
 #include "Models/Vizmo.h"
 #include "Utilities/TetGenDecomposition.h"
 
-extern TetGenDecomposition t;
+extern TetGenDecomposition* t;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  AutoRegionRRT
@@ -130,7 +130,7 @@ Run() {
   typedef TetGenDecomposition::FlowGraph FlowGraph;
   typedef FlowGraph::vertex_descriptor FVD;
   typedef FlowGraph::edge_descriptor FED;
-  pair<FlowGraph, FVD> flow = t.GetFlowGraph(start, this->GetEnvironment()->GetPositionRes());
+  pair<FlowGraph, FVD> flow = t->GetFlowGraph(start, this->GetEnvironment()->GetPositionRes());
   //cout << "flow: " << flow.get_num_vertices() << " " << flow.get_num_edges() << endl;
 
   //vector<Vector3d> path = t.GetPath(start, goal, this->GetEnvironment()->GetPositionRes());

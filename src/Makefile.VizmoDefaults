@@ -67,7 +67,12 @@ endif
 ################################################################################
 # TetGen
 ################################################################################
-TETGEN_LIBS = -L/usr/lib64/tetgen1.5.0 -ltet
+TETGEN_DIR = ${UTILS_DIR}/tetgen1.5.0
+TETGEN_LIB = -L${TETGEN_DIR} -ltet
+TETGEN_INCL = -I${TETGEN_DIR}
+TETGEN_LIBFILE = ${TETGEN_DIR}/libtet.a
+${TETGEN_DIR}/libtet.a:
+	cd ${TETGEN_DIR}; ${MAKE} platform=${platform} debug=${debug}
 
 ################################################################################
 #Vizmo src objects
@@ -86,8 +91,8 @@ ifeq ($(spacemouse), 1)
 endif
 VIZMO_OBJECTS = $(OBJECTS)
 VIZMO_SRCMOC = $(SRCMOC)
-VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(MP_INCL)
-VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS) $(PHANTOM_LIBS) $(SPACEMOUSE_LIBS) $(TETGEN_LIBS)
+VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(MP_INCL) $(TETGEN_INCL)
+VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS) $(PHANTOM_LIBS) $(SPACEMOUSE_LIBS) $(TETGEN_LIB)
 VIZMO_LIBFILE = $(VIZMO_DIR)/libvizmo.a
 $(VIZMO_DIR)/libvizmo.a: $(VIZMO_OBJECTS)
 	ar rc $@ $(VIZMO_OBJECTS)

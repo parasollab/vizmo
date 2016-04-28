@@ -18,10 +18,12 @@
 #include "tetgen.h"
 
 TetGenDecomposition::
-TetGenDecomposition() :
+TetGenDecomposition(Environment* _env, string _switches) :
+  m_env(_env),
   m_freeModel(new tetgenio()),
   m_decompModel(new tetgenio()),
-  m_switches((char*)"pqn") {
+  m_switches(_switches) {
+    Decompose();
   }
 
 TetGenDecomposition::
@@ -32,10 +34,8 @@ TetGenDecomposition::
 
 void
 TetGenDecomposition::
-Decompose(Environment* _env) {
+Decompose() {
   cout << "\n\nTetGen Decomposition" << endl;
-
-  m_env = _env;
 
   //make in tetgenio - this is a model of free workspace to decompose
   cout << "\nMakeing free space model" << endl;
@@ -46,13 +46,13 @@ Decompose(Environment* _env) {
 
   //decompose
   cout << "\nDecomposing" << endl;
-  tetrahedralize(m_switches, m_freeModel, m_decompModel);
+  tetrahedralize(const_cast<char*>(m_switches.c_str()), m_freeModel, m_decompModel);
   SaveDecompModel();
 
   MakeGraph();
 }
 
-vector<Vector3d>
+/*vector<Vector3d>
 TetGenDecomposition::
 GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes) {
   size_t s = FindTetrahedron(_p1);
@@ -76,13 +76,13 @@ GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes) {
     Vector3d dir = v2-v1;
     size_t steps = ceil(dir.norm()/_posRes);
     Vector3d step = dir / steps;
-
+*/
     /*cout << "\nv1:    " << v1 << endl;
     cout << "v2:    " << v2 << endl;
     cout << "dir:   " << dir << endl;
     cout << "steps: " << steps << endl;
     cout << "step:  " << step << endl;*/
-
+/*
     for(size_t i = 0; i < steps; ++i) {
       //cout << setw(2) << i << ":    " << v1 + step*i << endl;
       path.push_back(v1 + step*i);
@@ -92,7 +92,7 @@ GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes) {
     path.push_back(m_graph.find_vertex(pathVID.back())->property());
 
   return path;
-}
+}*/
 
 pair<TetGenDecomposition::FlowGraph, size_t>
 TetGenDecomposition::
@@ -661,44 +661,13 @@ MakeGraph() {
     AddTriangle(0, 3, 2);
     AddTriangle(0, 1, 3);
     AddTriangle(1, 2, 3);
-
-    /*size_t v[3] = {tetra[i*numCorners + 0], tetra[i*numCorners + 2], tetra[i*numCorners + 1]};
-    sort(v, v+3);
-    //triangles[4*i + 0] = make_tuple(v[0], v[1], v[2]);
-    triangles[make_tuple(v[0], v[1], v[2])].insert(i);
-
-    v = {tetra[i*numCorners + 0], tetra[i*numCorners + 3], tetra[i*numCorners + 2]};
-    sort(v, v+3);
-    //triangles[4*i + 1] = make_tuple(v[0], v[1], v[2]);
-    triangles[make_tuple(v[0], v[1], v[2])].insert(i);
-
-    v = {tetra[i*numCorners + 0], tetra[i*numCorners + 1], tetra[i*numCorners + 3]};
-    sort(v, v+3);
-    //triangles[4*i + 2] = make_tuple(v[0], v[1], v[2]);
-    triangles[make_tuple(v[0], v[1], v[2])].insert(i);
-
-    v = {tetra[i*numCorners + 1], tetra[i*numCorners + 2], tetra[i*numCorners + 3]};
-    sort(v, v+3);
-    //triangles[4*i + 3] = make_tuple(v[0], v[1], v[2]);
-    triangles[make_tuple(v[0], v[1], v[2])].insert(i);*/
   }
 
   cout << "triangles: " << triangles.size() << endl;
-  //sort(m_triangles.begin(), m_triangles.end());
-  //auto i = unique(m_triangles.begin(), m_triangles.end());
-  //m_triangles.resize(distance(m_triangles.begin(), i));
-  //cout << "triangles: " << triangles.size() << endl;
 
   vector<pair<Triangle, unordered_set<size_t>>> tris;
   copy(triangles.begin(), triangles.end(), back_inserter(tris));
 
-  /*
-  vector<Vector3d> vertices{{0, 0, 0}, {0, 0, 1}, {1, 0, 1}, {1, 0, 0}};
-  vector<tuple<size_t, size_t, size_t>> triangles;
-  triangles.push_back(make_tuple(0, 1, 2));
-  triangles.push_back(make_tuple(0, 2, 3));
-  */
-  //m_reebGraph = new ReebGraphConstruction(vertices, triangles);
   m_reebGraph = new ReebGraphConstruction(vertices, tris, tetra, numCorners, m_graph);
 }
 

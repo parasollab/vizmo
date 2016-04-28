@@ -21,11 +21,11 @@ class StaticMultiBody;
 class TetGenDecomposition {
   public:
 
-    TetGenDecomposition();
+    TetGenDecomposition(Environment* _env, string _switches = "pqn");
     ~TetGenDecomposition();
 
-    void Decompose(Environment* _env);
-    vector<Vector3d> GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes);
+    void Decompose();
+    //vector<Vector3d> GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes);
 
     typedef stapl::sequential::graph<
       stapl::DIRECTED, stapl::MULTIEDGES,
@@ -65,11 +65,11 @@ class TetGenDecomposition {
 
     size_t FindTetrahedron(const Vector3d& _p) const;
 
+    Environment* m_env;
+
     tetgenio* m_freeModel;
     tetgenio* m_decompModel;
-    char* m_switches;
-
-    Environment* m_env;
+    string m_switches;
 
     typedef stapl::sequential::graph<
       stapl::UNDIRECTED, stapl::NONMULTIEDGES, Vector3d, double
