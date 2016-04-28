@@ -86,7 +86,6 @@ class MapModel : public LoadableModel {
     bool m_delGraph;
 
     mutable QMutex m_lock;
-    QMutexLocker* m_locker; //for acquire/release around get children
 };
 
 template <class CFG, class WEIGHT>

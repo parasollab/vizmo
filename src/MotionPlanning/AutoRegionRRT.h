@@ -26,6 +26,7 @@ class AutoRegionRRT : public BasicRRTStrategy<MPTraits> {
     // Local Types
     typedef typename MPTraits::MPProblemType MPProblemType;
     typedef typename MPTraits::CfgType CfgType;
+    typedef typename MPTraits::CfgRef CfgRef;
     typedef typename MPTraits::WeightType WeightType;
     typedef typename MPProblemType::VID VID;
     typedef typename MPProblemType::GraphType GraphType;
@@ -127,12 +128,17 @@ Run() {
 
   //Get directed flow network
   typedef TetGenDecomposition::FlowGraph FlowGraph;
+  typedef FlowGraph::vertex_descriptor FVD;
   typedef FlowGraph::edge_descriptor FED;
-  pair<FlowGraph, size_t> flow = t.GetFlowGraph(start, this->GetEnvironment()->GetPositionRes());
+  pair<FlowGraph, FVD> flow = t.GetFlowGraph(start, this->GetEnvironment()->GetPositionRes());
   //cout << "flow: " << flow.get_num_vertices() << " " << flow.get_num_edges() << endl;
 
   //vector<Vector3d> path = t.GetPath(start, goal, this->GetEnvironment()->GetPositionRes());
   //size_t i = 0;
+
+  unordered_map<FVD, bool> visited;
+  for(auto vit = flow.first.begin(); vit != flow.first.end(); ++vit)
+    visited[vit->descriptor()] = false;
 
   double robotRadius = this->GetEnvironment()->GetRobot(0)->GetBoundingSphereRadius();
   unordered_map<RegionModelPtr, pair<FED, size_t>> regions;
@@ -143,7 +149,8 @@ Run() {
         make_pair(eit->descriptor(), 0));
     GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
   }
-  cout << "Num initial regions: " << regions.size() << endl;
+  visited[sit->descriptor()] = true;
+  cout << "Initial: Num regions: " << regions.size() << endl;
   //shared_ptr<RegionModel> r(new RegionSphereModel(start,
   //        2.5*this->GetEnvironment()->GetRobot(0)->GetBoundingSphereRadius(), false));
   //GetVizmo().GetEnv()->AddAttractRegion(r);
@@ -166,7 +173,8 @@ Run() {
     VID recent = this->ExpandTree(dir);
     if(recent != INVALID_VID) {
 
-      if(m_samplingRegion != NULL) {
+      if(m_samplingRegion) {
+        m_samplingRegion->ClearFACount();
         //Delete region if q_new is in it
         while(this->GetMPProblem()->GetEnvironment()->InBounds(m_qNew, m_samplingRegion->GetBoundary())) {
           //GetVizmo().GetSelectedModels().clear();
@@ -187,19 +195,63 @@ Run() {
           }
           //else need to delete region and add next set
           else {
-            auto vit = flow.first.find_vertex(pr.first.target());
-            for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
-              auto i = regions.emplace(
-                  RegionModelPtr(new RegionSphereModel(vit->property(), 3*robotRadius, false)),
-                  make_pair(eit->descriptor(), 0));
-              GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
-            }
+            /*if(!visited[pr.first.target()]) {
+              auto vit = flow.first.find_vertex(pr.first.target());
+              for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
+                auto i = regions.emplace(
+                    RegionModelPtr(new RegionSphereModel(vit->property(), 3*robotRadius, false)),
+                    make_pair(eit->descriptor(), 0));
+                GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
+              }
+              visited[vit->descriptor()] = true;
+              cout << "Split: Num regions: " << regions.size() << endl;
+            }*/
             GetVizmo().GetEnv()->DeleteRegion(m_samplingRegion);
             regions.erase(m_samplingRegion);
-            cout << "Num regions: " << regions.size() << endl;
             break;
           }
           //sleep(1);
+        }
+      }
+      /*else {
+        CfgRef newest = this->GetRoadmap()->GetGraph()->GetVertex(recent);
+        Vector3d p = newest.GetPoint();
+
+        double minDist = numeric_limits<double>::max();
+        FVD closest = -1;
+        for(auto vit = flow.first.begin(); vit != flow.first.end(); ++vit) {
+          double dist = (vit->property() - p).norm();
+          if(dist < minDist) {
+            minDist = dist;
+            closest = vit->descriptor();
+          }
+        }
+
+        if(minDist < 3*robotRadius && !visited[closest]) {
+          auto vit = flow.first.find_vertex(closest);
+          for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
+            auto i = regions.emplace(
+                RegionModelPtr(new RegionSphereModel(vit->property(), 3*robotRadius, false)),
+                make_pair(eit->descriptor(), 0));
+            GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
+          }
+          cout << "New: Num regions: " << regions.size() << endl;
+        }
+      }*/
+      CfgRef newest = this->GetRoadmap()->GetGraph()->GetVertex(recent);
+      Vector3d p = newest.GetPoint();
+
+      for(auto vit = flow.first.begin(); vit != flow.first.end(); ++vit) {
+        double dist = (vit->property() - p).norm();
+        if(dist < 3*robotRadius && !visited[vit->descriptor()]) {
+          for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
+            auto i = regions.emplace(
+                RegionModelPtr(new RegionSphereModel(vit->property(), 3*robotRadius, false)),
+                make_pair(eit->descriptor(), 0));
+            GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
+          }
+          visited[vit->descriptor()] = true;
+          cout << "New: Num regions: " << regions.size() << endl;
         }
       }
 
@@ -224,11 +276,21 @@ Run() {
       else
         mapPassedEvaluation = evalMap && oneTree;
     }
-    else
+    else {
+      if(m_samplingRegion) {
+        m_samplingRegion->IncreaseFACount(1);
+        //cout << "Increasing FA Count: " << m_samplingRegion->GetFACount() << endl;
+        if(m_samplingRegion->GetFACount() > 100) {
+          GetVizmo().GetEnv()->DeleteRegion(m_samplingRegion);
+          regions.erase(m_samplingRegion);
+          cout << "Delete: Num Regions: " << regions.size() << endl;
+        }
+      }
       mapPassedEvaluation = false;
+    }
 
     GetVizmo().GetMap()->RefreshMap();
-    usleep(10000);
+    //usleep(10000);
   }
 
   GetVizmo().StopClock("AutoRegionRRT");

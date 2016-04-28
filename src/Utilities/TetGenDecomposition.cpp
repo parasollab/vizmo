@@ -167,8 +167,12 @@ GetFlowGraph(const Vector3d& _p, double _posRes) {
                 visited[v] = Gray;
                 q.push(v);
               case Gray:
-                f.add_edge(ReebGraph::edge_descriptor(u, v, eit->descriptor().id()), eit->property().m_path);
-                break;
+                {
+                  vector<Vector3d>& opath = eit->property().m_path;
+                  vector<Vector3d> path(opath.rbegin(), opath.rend());
+                  f.add_edge(ReebGraph::edge_descriptor(u, v, eit->descriptor().id()), path);
+                  break;
+                }
               default:
                 break;
             }

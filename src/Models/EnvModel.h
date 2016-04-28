@@ -1,6 +1,9 @@
 #ifndef ENV_MODEL_H_
 #define ENV_MODEL_H_
 
+#include <QMutex>
+#include <QMutexLocker>
+
 #include "Environment/Environment.h"
 
 #include "Model.h"
@@ -178,6 +181,7 @@ class EnvModel : public Model {
     vector<RegionModelPtr> m_attractRegions;   ///< Stores attract regions.
     vector<RegionModelPtr> m_avoidRegions;     ///< Stores avoid regions.
     vector<RegionModelPtr> m_nonCommitRegions; ///< Stores non-commit regions.
+    mutable QMutex m_regionLock;               ///< Region Lock
 
     vector<UserPathModel*> m_userPaths; ///< Stores user paths.
     vector<TempObjsModel*> m_tempObjs;  ///< Stores temporary objects.

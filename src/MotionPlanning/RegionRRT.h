@@ -170,7 +170,7 @@ Run() {
     }*/
 
     GetVizmo().GetMap()->RefreshMap();
-    usleep(10000);
+    //usleep(10000);
   }
 
   GetVizmo().StopClock("RegionRRT");

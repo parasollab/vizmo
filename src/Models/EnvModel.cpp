@@ -108,6 +108,7 @@ IsNonCommitRegion(RegionModelPtr _r) const {
 void
 EnvModel::
 AddAttractRegion(RegionModelPtr _r) {
+  QMutexLocker lock(&m_regionLock);
   _r->SetColor(Color4(0, 1, 0, 0.5));
   m_attractRegions.push_back(_r);
   VDAddRegion(_r.get());
@@ -116,6 +117,7 @@ AddAttractRegion(RegionModelPtr _r) {
 void
 EnvModel::
 AddAvoidRegion(RegionModelPtr _r) {
+  QMutexLocker lock(&m_regionLock);
   _r->SetColor(Color4(0, 0, 0, 0.5));
   m_avoidRegions.push_back(_r);
   VDAddRegion(_r.get());
@@ -124,6 +126,7 @@ AddAvoidRegion(RegionModelPtr _r) {
 void
 EnvModel::
 AddNonCommitRegion(RegionModelPtr _r) {
+  QMutexLocker lock(&m_regionLock);
   _r->SetColor(Color4(0, 0, 1, 0.8));
   m_nonCommitRegions.push_back(_r);
 }
@@ -131,6 +134,7 @@ AddNonCommitRegion(RegionModelPtr _r) {
 void
 EnvModel::
 ChangeRegionType(RegionModelPtr _r, bool _attract) {
+  QMutexLocker lock(&m_regionLock);
   vector<RegionModelPtr>::iterator rit;
   rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
   if(rit != m_nonCommitRegions.end()) {
@@ -145,6 +149,7 @@ ChangeRegionType(RegionModelPtr _r, bool _attract) {
 void
 EnvModel::
 DeleteRegion(RegionModelPtr _r) {
+  QMutexLocker lock(&m_regionLock);
   VDRemoveRegion(_r.get());
 
   vector<RegionModelPtr>::iterator rit;
@@ -342,12 +347,15 @@ DrawRender() {
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
-  for(auto& r : m_attractRegions)
-    r->DrawRender();
-  for(auto& r : m_avoidRegions)
-    r->DrawRender();
-  for(auto& r : m_nonCommitRegions)
-    r->DrawRender();
+  {
+    QMutexLocker lock(&m_regionLock);
+    for(auto& r : m_attractRegions)
+      r->DrawRender();
+    for(auto& r : m_avoidRegions)
+      r->DrawRender();
+    for(auto& r : m_nonCommitRegions)
+      r->DrawRender();
+  }
   for(auto& p : m_userPaths)
     p->DrawRender();
   glDepthMask(GL_TRUE);
@@ -385,20 +393,23 @@ DrawSelect() {
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
-  for(auto& r : m_attractRegions) {
-    glPushName(nameIndx++);
-    r->DrawSelect();
-    glPopName();
-  }
-  for(auto& r : m_avoidRegions) {
-    glPushName(nameIndx++);
-    r->DrawSelect();
-    glPopName();
-  }
-  for(auto& r : m_nonCommitRegions) {
-    glPushName(nameIndx++);
-    r->DrawSelect();
-    glPopName();
+  {
+    QMutexLocker lock(&m_regionLock);
+    for(auto& r : m_attractRegions) {
+      glPushName(nameIndx++);
+      r->DrawSelect();
+      glPopName();
+    }
+    for(auto& r : m_avoidRegions) {
+      glPushName(nameIndx++);
+      r->DrawSelect();
+      glPopName();
+    }
+    for(auto& r : m_nonCommitRegions) {
+      glPushName(nameIndx++);
+      r->DrawSelect();
+      glPopName();
+    }
   }
   for(auto& p : m_userPaths) {
     glPushName(nameIndx++);
@@ -463,12 +474,15 @@ GetChildren(list<Model*>& _models) {
     _models.push_back(o.get());
   for(const auto& s : m_surfaces)
     _models.push_back(s.get());
-  for(const auto& r : m_attractRegions)
-    _models.push_back(r.get());
-  for(const auto& r : m_avoidRegions)
-    _models.push_back(r.get());
-  for(const auto& r : m_nonCommitRegions)
-    _models.push_back(r.get());
+  {
+    QMutexLocker lock(&m_regionLock);
+    for(const auto& r : m_attractRegions)
+      _models.push_back(r.get());
+    for(const auto& r : m_avoidRegions)
+      _models.push_back(r.get());
+    for(const auto& r : m_nonCommitRegions)
+      _models.push_back(r.get());
+  }
   typedef vector<UserPathModel*>::iterator PIT;
   for(const auto& p : m_userPaths)
     _models.push_back(p);
