@@ -13,16 +13,15 @@
 #include "Environment/FixedBody.h"
 #include "Environment/StaticMultiBody.h"
 
-#define TETLIBRARY
-#undef PI
-#include "tetgen.h"
-
 TetGenDecomposition::
-TetGenDecomposition(Environment* _env, string _switches) :
+TetGenDecomposition(Environment* _env, string _switches,
+    bool _writeFreeModel, bool _writeDecompModel) :
   m_env(_env),
   m_freeModel(new tetgenio()),
   m_decompModel(new tetgenio()),
-  m_switches(_switches) {
+  m_switches(_switches),
+  m_writeFreeModel(_writeFreeModel),
+  m_writeDecompModel(_writeDecompModel) {
     Decompose();
   }
 
@@ -35,170 +34,33 @@ TetGenDecomposition::
 void
 TetGenDecomposition::
 Decompose() {
-  cout << "\n\nTetGen Decomposition" << endl;
-
   //make in tetgenio - this is a model of free workspace to decompose
-  cout << "\nMakeing free space model" << endl;
-
   InitializeFreeModel();
   MakeFreeModel();
-  SaveFreeModel();
+  if(m_writeFreeModel)
+    SaveFreeModel();
 
-  //decompose
-  cout << "\nDecomposing" << endl;
-  tetrahedralize(const_cast<char*>(m_switches.c_str()), m_freeModel, m_decompModel);
-  SaveDecompModel();
+  //decompose with tetgen
+  tetrahedralize(const_cast<char*>(m_switches.c_str()),
+      m_freeModel, m_decompModel);
+  if(m_writeDecompModel)
+    SaveDecompModel();
 
-  MakeGraph();
-}
-
-/*vector<Vector3d>
-TetGenDecomposition::
-GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes) {
-  size_t s = FindTetrahedron(_p1);
-  size_t g = FindTetrahedron(_p2);
-
-  vector<size_t> pathVID;
-  vector<Vector3d> path;
-
-  auto heuristic = [&](const Vector3d _v) {
-    return (_v - _p2).norm();
-  };
-  stapl::sequential::astar(m_graph, s, g, pathVID, heuristic);
-  m_path = pathVID;
-
-  for(auto vit1 = pathVID.begin(), vit2 = (vit1 + 1);
-      vit2 != pathVID.end(); ++vit1, ++vit2) {
-    Vector3d v1 = m_graph.find_vertex(*vit1)->property();
-    path.push_back(v1);
-
-    Vector3d v2 = m_graph.find_vertex(*vit2)->property();
-    Vector3d dir = v2-v1;
-    size_t steps = ceil(dir.norm()/_posRes);
-    Vector3d step = dir / steps;
-*/
-    /*cout << "\nv1:    " << v1 << endl;
-    cout << "v2:    " << v2 << endl;
-    cout << "dir:   " << dir << endl;
-    cout << "steps: " << steps << endl;
-    cout << "step:  " << step << endl;*/
-/*
-    for(size_t i = 0; i < steps; ++i) {
-      //cout << setw(2) << i << ":    " << v1 + step*i << endl;
-      path.push_back(v1 + step*i);
-    }
-  }
-  if(pathVID.size())
-    path.push_back(m_graph.find_vertex(pathVID.back())->property());
-
-  return path;
-}*/
-
-pair<TetGenDecomposition::FlowGraph, size_t>
-TetGenDecomposition::
-GetFlowGraph(const Vector3d& _p, double _posRes) {
-  typedef FlowGraph::vertex_descriptor FVD;
-  FlowGraph f;
-
-  enum Color {White, Gray, Black};
-  unordered_map<FVD, Color> visited;
-
-  typedef ReebGraphConstruction::ReebGraph ReebGraph;
-  ReebGraph& reebGraph = m_reebGraph->GetReebGraph();
-
-  //add vertices of reeb graph and find closest
-  double closestDist = numeric_limits<double>::max();
-  FVD closestID = -1;
-  for(auto vit = reebGraph.begin(); vit != reebGraph.end(); ++vit) {
-    Vector3d v = vit->property().m_vertex2;
-    FVD vd = vit->descriptor();
-    f.add_vertex(vd, v);
-    //cout << "Adding vertex: " << vd << endl;
-    //cout << "Has edges: " << endl;
-    //for(auto eit = vit->begin(); eit != vit->end(); ++eit)
-    //  cout << "\t" << eit->source() << " " << eit->target() << " " << eit->id() << endl;
-    visited[vd] = White;
-    double dist = (v - _p).norm();
-    if(dist < closestDist) {
-      closestDist = dist;
-      closestID = vd;
-    }
-  }
-
-  //Specialized BFS to make flow network
-  //
-  //Differs from regular BFS because:
-  //  - Treats ReebGraph as undirected graph even though it is directed
-  //  - Computes a graph instead of BFS tree, i.e., cross edges are added
-  queue<FVD> q;
-  q.push(closestID);
-  visited[closestID] = Gray;
-  while(!q.empty()) {
-    FVD u = q.front();
-    q.pop();
-    auto uit = reebGraph.find_vertex(u);
-
-    //process outgoing edges
-    for(auto eit = uit->begin(); eit != uit->end(); ++eit) {
-      FVD v = eit->target();
-      switch(visited[v]) {
-        case White:
-          visited[v] = Gray;
-          q.push(v);
-        case Gray:
-          f.add_edge(eit->descriptor(), eit->property().m_path);
-          break;
-        default:
-          break;
-      }
-    }
-
-    //process incoming edges
-    set<FVD> processed;
-    for(auto pit = uit->predecessors().begin();
-        pit != uit->predecessors().end(); ++pit) {
-      FVD v = *pit;
-      if(processed.count(v) == 0) {
-        auto vit = reebGraph.find_vertex(v);
-        for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
-          if(eit->target() == u) {
-            switch(visited[v]) {
-              case White:
-                visited[v] = Gray;
-                q.push(v);
-              case Gray:
-                {
-                  vector<Vector3d>& opath = eit->property().m_path;
-                  vector<Vector3d> path(opath.rbegin(), opath.rend());
-                  f.add_edge(ReebGraph::edge_descriptor(u, v, eit->descriptor().id()), path);
-                  break;
-                }
-              default:
-                break;
-            }
-          }
-        }
-      }
-      processed.emplace(v);
-    }
-    visited[u] = Black;
-  }
-
-  return make_pair(f, closestID);
+  MakeDualGraph();
 }
 
 void
 TetGenDecomposition::
 InitializeFreeModel() {
   m_freeModel->numberofpoints = GetNumVertices();
-  m_freeModel->pointlist = new REAL[m_freeModel->numberofpoints * 3];
+  m_freeModel->pointlist = new double[m_freeModel->numberofpoints * 3];
 
   m_freeModel->numberoffacets = GetNumFacets();
   m_freeModel->facetlist = new tetgenio::facet[m_freeModel->numberoffacets];
   m_freeModel->facetmarkerlist = new int[m_freeModel->numberoffacets];
 
   m_freeModel->numberofholes = GetNumHoles();
-  m_freeModel->holelist = new REAL[m_freeModel->numberofholes * 3];
+  m_freeModel->holelist = new double[m_freeModel->numberofholes * 3];
 
   cout << "Num Verts: " << m_freeModel->numberofpoints << endl
     << "Num Facets: " << m_freeModel->numberoffacets << endl
@@ -554,7 +416,7 @@ AddToFreeModel(const shared_ptr<BoundingBox>& _boundary,
     f->numberofpolygons = numPoly;
     f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
     f->numberofholes = numHoles;
-    f->holelist = new REAL[3*f->numberofholes];
+    f->holelist = new double[3*f->numberofholes];
 
     size_t polyIndx = 0;
     size_t holeIndx = 0;
@@ -613,11 +475,11 @@ SaveDecompModel() {
 
 void
 TetGenDecomposition::
-MakeGraph() {
-  m_graph.clear();
+MakeDualGraph() {
+  m_dualGraph.clear();
   size_t numTetras = m_decompModel->numberoftetrahedra;
   size_t numCorners = m_decompModel->numberofcorners;
-  const REAL* const points = m_decompModel->pointlist;
+  const double* const points = m_decompModel->pointlist;
   const int* const tetra = m_decompModel->tetrahedronlist;
   const int* const neighbors = m_decompModel->neighborlist;
 
@@ -626,49 +488,19 @@ MakeGraph() {
     for(size_t j = 0; j < numCorners; ++j)
       com += Vector3d(&points[3*tetra[i*numCorners + j]]);
     com /= numCorners;
-    m_graph.add_vertex(i, com);
+    m_dualGraph.add_vertex(i, com);
   }
 
   for(size_t i = 0; i < numTetras; ++i) {
     for(size_t j = 0; j < 4; ++j) {
       size_t neigh = neighbors[4*i + j];
       if(neigh != size_t(-1)) {
-        Vector3d v1 = m_graph.find_vertex(neigh)->property();
-        Vector3d v2 = m_graph.find_vertex(i)->property();
-        m_graph.add_edge(i, neigh, (v1-v2).norm());
+        Vector3d v1 = m_dualGraph.find_vertex(neigh)->property();
+        Vector3d v2 = m_dualGraph.find_vertex(i)->property();
+        m_dualGraph.add_edge(i, neigh, (v1-v2).norm());
       }
     }
   }
-
-  //construct reeb graph
-
-  size_t numPoints = m_decompModel->numberofpoints;
-  vector<Vector3d> vertices(numPoints);
-  for(size_t i = 0; i < numPoints; ++i)
-    vertices[i] = Vector3d(&points[3*i]);
-
-  typedef tuple<size_t, size_t, size_t> Triangle;
-  //vector<Triangle> triangles(4*numTetras);
-  map<Triangle, unordered_set<size_t>> triangles;
-  for(size_t i = 0; i < numTetras; ++i) {
-    auto AddTriangle = [&](size_t _i, size_t _j, size_t _k) {
-      int v[3] = {tetra[i*numCorners + _i], tetra[i*numCorners + _j], tetra[i*numCorners + _k]};
-      sort(v, v+3);
-      triangles[make_tuple(v[0], v[1], v[2])].insert(i);
-    };
-
-    AddTriangle(0, 2, 1);
-    AddTriangle(0, 3, 2);
-    AddTriangle(0, 1, 3);
-    AddTriangle(1, 2, 3);
-  }
-
-  cout << "triangles: " << triangles.size() << endl;
-
-  vector<pair<Triangle, unordered_set<size_t>>> tris;
-  copy(triangles.begin(), triangles.end(), back_inserter(tris));
-
-  m_reebGraph = new ReebGraphConstruction(vertices, tris, tetra, numCorners, m_graph);
 }
 
 void
@@ -685,10 +517,10 @@ DrawGraph() {
   glDepthMask(GL_FALSE);
 
   //glColor4f(0.0, 1.0, 1.0, 0.01);
-  size_t numTetras = m_decompModel->numberoftetrahedra;
+  /*size_t numTetras = m_decompModel->numberoftetrahedra;
   size_t numCorners = m_decompModel->numberofcorners;
-  const REAL* const points = m_decompModel->pointlist;
-  const int* const tetra = m_decompModel->tetrahedronlist;
+  const double* const points = m_decompModel->pointlist;
+  const int* const tetra = m_decompModel->tetrahedronlist;*/
   /*glBegin(GL_TRIANGLES);
   for(size_t i = 0; i < numTetras; ++i) {
     Vector3d vs[numCorners];
@@ -734,15 +566,15 @@ DrawGraph() {
   /*glColor4f(1.0, 0.0, 1.0, 0.05);
 
   glBegin(GL_POINTS);
-  for(auto v = m_graph.begin(); v != m_graph.end(); ++v) {
+  for(auto v = m_dualGraph.begin(); v != m_dualGraph.end(); ++v) {
     glVertex3dv(v->property());
   }
   glEnd();
 
   glBegin(GL_LINES);
-  for(auto e = m_graph.edges_begin(); e != m_graph.edges_end(); ++e) {
-    glVertex3dv(m_graph.find_vertex((*e).source())->property());
-    glVertex3dv(m_graph.find_vertex((*e).target())->property());
+  for(auto e = m_dualGraph.edges_begin(); e != m_dualGraph.edges_end(); ++e) {
+    glVertex3dv(m_dualGraph.find_vertex((*e).source())->property());
+    glVertex3dv(m_dualGraph.find_vertex((*e).target())->property());
   }
   glEnd();*/
 
@@ -752,37 +584,12 @@ DrawGraph() {
 
   glEnable(GL_LIGHTING);
 
-  m_reebGraph->Draw(points, tetra, numTetras, numCorners);
-}
-
-size_t
-TetGenDecomposition::
-FindTetrahedron(const Vector3d& _p) const {
-  size_t closest = -1;
-  double dist = 1e6;
-  for(auto v : m_graph) {
-    double d = (_p - v.property()).norm();
-    if(d < dist) {
-      dist = d;
-      closest = v.descriptor();
-    }
-  }
-  return closest;
+  //m_reebGraph->Draw(points, tetra, numTetras, numCorners);
 }
 
 void
 TetGenDecomposition::
-DrawPath(/*const Vector3d& _p1, const Vector3d& _p2*/) {
-  //size_t s = FindTetrahedron(_p1);
-  //size_t g = FindTetrahedron(_p2);
-
-  //vector<size_t> path;
-
-  /*auto heuristic = [&](const Vector3d _v) {
-      return (_v - _p2).norm();
-      };
-  stapl::sequential::astar(m_graph, s, g, path, heuristic);*/
-
+DrawPath() {
   if(m_path.empty())
     return;
 
@@ -792,8 +599,8 @@ DrawPath(/*const Vector3d& _p1, const Vector3d& _p2*/) {
 
   glBegin(GL_LINES);
   for(auto v1 = m_path.begin(), v2 = (v1 + 1); v2 != m_path.end(); ++v1, ++v2) {
-    glVertex3dv(m_graph.find_vertex(*v1)->property());
-    glVertex3dv(m_graph.find_vertex(*v2)->property());
+    glVertex3dv(m_dualGraph.find_vertex(*v1)->property());
+    glVertex3dv(m_dualGraph.find_vertex(*v2)->property());
   }
   glEnd();
   glEnable(GL_LIGHTING);

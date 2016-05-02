@@ -6,10 +6,12 @@ using namespace std;
 
 #include <containers/sequential/graph/graph.h>
 
+#define TETLIBRARY
+#undef PI
+#include "tetgen.h"
+
 #include <Vector.h>
 using namespace mathtool;
-
-class tetgenio;
 
 class Environment;
 class Boundary;
@@ -21,23 +23,29 @@ class StaticMultiBody;
 class TetGenDecomposition {
   public:
 
-    TetGenDecomposition(Environment* _env, string _switches = "pqn");
+    typedef stapl::sequential::graph<
+      stapl::UNDIRECTED, stapl::NONMULTIEDGES,
+      Vector3d, double
+        > DualGraph;
+
+    TetGenDecomposition(Environment* _env, string _switches,
+        bool _writeFreeModel, bool _writeDecompModel);
     ~TetGenDecomposition();
 
-    void Decompose();
-    //vector<Vector3d> GetPath(const Vector3d& _p1, const Vector3d& _p2, double _posRes);
-
-    typedef stapl::sequential::graph<
-      stapl::DIRECTED, stapl::MULTIEDGES,
-      Vector3d, vector<Vector3d>
-        > FlowGraph;
-    pair<FlowGraph, size_t> GetFlowGraph(const Vector3d& _p1, double _posRes);
+    size_t GetNumPoints() const {return m_decompModel->numberofpoints;}
+    const double* const GetPoints() const {return m_decompModel->pointlist;}
+    size_t GetNumCorners() const {return m_decompModel->numberofcorners;}
+    size_t GetNumTetras() const {return m_decompModel->numberoftetrahedra;}
+    const int* const GetTetras() const {return m_decompModel->tetrahedronlist;}
+    DualGraph& GetDualGraph() {return m_dualGraph;}
 
     void DrawGraph();
 
-    void DrawPath(/*const Vector3d& _p1, const Vector3d& _p2*/);
+    void DrawPath();
 
   private:
+
+    void Decompose();
 
     void InitializeFreeModel();
     size_t GetNumVertices() const;
@@ -61,20 +69,17 @@ class TetGenDecomposition {
     void SaveFreeModel();
     void SaveDecompModel();
 
-    void MakeGraph();
-
-    size_t FindTetrahedron(const Vector3d& _p) const;
+    void MakeDualGraph();
 
     Environment* m_env;
 
     tetgenio* m_freeModel;
     tetgenio* m_decompModel;
     string m_switches;
+    bool m_writeFreeModel;
+    bool m_writeDecompModel;
 
-    typedef stapl::sequential::graph<
-      stapl::UNDIRECTED, stapl::NONMULTIEDGES, Vector3d, double
-      > TetrahedralizationGraph;
-    TetrahedralizationGraph m_graph;
+    DualGraph m_dualGraph;
 
     vector<size_t> m_path;
 

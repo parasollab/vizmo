@@ -271,8 +271,6 @@ Build() {
   double dist = m_boundary->GetMaxDist() / 2;
   if(dist > m_radius)
     m_radius = dist;
-
-  TetGenDecompose();
 }
 
 
@@ -341,8 +339,8 @@ DrawRender() {
   for(auto& s : m_surfaces)
     s->DrawRender();
 
-  t->DrawGraph();
-  t->DrawPath(/*Vector3d(0, 0, 0), Vector3d(20, 5, 10)*/);
+  if(t)
+    t->DrawGraph();
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
@@ -517,8 +515,3 @@ SaveFile(const string& _filename) const {
   m_environment->Write(ofs);
 }
 
-void
-EnvModel::
-TetGenDecompose() const {
-  t = new TetGenDecomposition(m_environment);
-}

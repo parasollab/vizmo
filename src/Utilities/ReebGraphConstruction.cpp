@@ -1,11 +1,14 @@
 #include "ReebGraphConstruction.h"
 
+#include <unordered_map>
+
 #include <containers/sequential/graph/algorithms/dijkstra.h>
 
 #include <GL/gl.h>
 
 #include "Utilities/MetricUtils.h"
 
+#include "TetGenDecomposition.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
@@ -20,19 +23,234 @@ ostream& operator<<(ostream& _os, ReebGraphConstruction::RGEID _rgeid) {
 }
 
 ReebGraphConstruction::
-ReebGraphConstruction(const vector<Vector3d>& _vertices,
-    const vector<pair<tuple<size_t, size_t, size_t>, unordered_set<size_t>>>& _triangles,
-    const int* const _tetras, size_t _numCorners,
-    TetrahedralizationGraph& _tetraGraph) :
-  m_vertices(_vertices), m_triangles(_triangles) {
-    clockReebNodeComp.SetName("Reeb Node Comp");
-    clockReebArcComp.SetName("Reeb Arc Comp");
-    clockGetReebArc.SetName("Get Reeb Arc");
-    clockMergeArcs.SetName("Merge Arcs");
-    clockGlueByMergeSorting.SetName("Glue By Merge Sorting");
-    Construct();
-    Embed(_vertices, _tetras, _numCorners, _tetraGraph);
+ReebGraphConstruction(TetGenDecomposition* _tetgen) {
+  //Fill vertices vector
+  size_t numPoints = _tetgen->GetNumPoints();
+  const double* const points = _tetgen->GetPoints();
+  m_vertices.reserve(numPoints);
+  for(size_t i = 0; i < numPoints; ++i)
+    m_vertices.emplace_back(&points[3*i]);
+
+  //Fill triangle vector
+  size_t numCorners = _tetgen->GetNumCorners();
+  size_t numTetras = _tetgen->GetNumTetras();
+  const int* const tetra = _tetgen->GetTetras();
+  map<Triangle, unordered_set<size_t>> triangles;
+
+  for(size_t i = 0; i < numTetras; ++i) {
+    auto AddTriangle = [&](size_t _i, size_t _j, size_t _k) {
+      int v[3] = {tetra[i*numCorners + _i], tetra[i*numCorners + _j], tetra[i*numCorners + _k]};
+      sort(v, v+3);
+      triangles[Triangle(v[0], v[1], v[2])].insert(i);
+    };
+
+    AddTriangle(0, 2, 1);
+    AddTriangle(0, 3, 2);
+    AddTriangle(0, 1, 3);
+    AddTriangle(1, 2, 3);
   }
+
+  m_triangles.reserve(triangles.size());
+  copy(triangles.begin(), triangles.end(), back_inserter(m_triangles));
+
+  clockReebNodeComp.SetName("Reeb Node Comp");
+  clockReebArcComp.SetName("Reeb Arc Comp");
+  clockGetReebArc.SetName("Get Reeb Arc");
+  clockMergeArcs.SetName("Merge Arcs");
+  clockGlueByMergeSorting.SetName("Glue By Merge Sorting");
+
+  Construct();
+  Embed(_tetgen);
+}
+
+void
+ReebGraphConstruction::
+Draw(const REAL* const _points, const int* const _tetra,
+    size_t _numTetra, size_t _numCorners) {
+
+  static size_t numCalls = 0;
+  static size_t edge = 0;
+
+  //cout << "Num calls: " << numCalls << endl;
+  numCalls = (numCalls + 1) % 60;
+  if(numCalls == 0) {
+    edge = (edge + 1) % m_reebGraph.get_num_edges();
+  }
+
+  glDisable(GL_LIGHTING);
+  glPointSize(8);
+  glLineWidth(5);
+
+  //draw reeb graph
+  glColor4f(0.0, 0.5, 0.2, 0.05);
+
+  /*glBegin(GL_POINTS);
+  for(auto v = m_reebGraph.begin(); v != m_reebGraph.end(); ++v) {
+    glVertex3dv(m_vertices[v->property().m_vertex]);
+  }
+  glEnd();
+
+  glColor4f(0.0, 0.2, 0.5, 0.05);*/
+
+  glBegin(GL_POINTS);
+  for(auto v = m_reebGraph.begin(); v != m_reebGraph.end(); ++v) {
+    glVertex3dv(v->property().m_vertex2);
+  }
+  glEnd();
+
+  size_t i = 0;
+  for(auto e = m_reebGraph.edges_begin(); e != m_reebGraph.edges_end(); ++e) {
+    //if(i++ == edge) {
+      glBegin(GL_LINE_STRIP);
+      /*glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->source())->property().m_vertex]);
+        glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);*/
+      //glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->source())->property().m_vertex]);
+      for(auto& v : e->property().m_path)
+        glVertex3dv(v);
+      //glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);
+      glEnd();
+    //}
+  }
+
+  /*glColor4f(0.5, 0.0, 0.2, 0.05);
+  glLineWidth(3);
+  glBegin(GL_LINES);
+  i = 0;
+  for(auto e = m_reebGraph.edges_begin(); e != m_reebGraph.edges_end(); ++e) {
+    if(i++ == edge) {
+      glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->source())->property().m_vertex]);
+      glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);
+    }
+  }
+  glEnd();*/
+
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glDepthMask(GL_FALSE);
+  i = 0;
+  for(auto e = m_reebGraph.edges_begin(); e != m_reebGraph.edges_end(); ++e) {
+    if(i++ == edge) {
+      ReebArc& ra = e->property();
+      glColor4fv(m_colors[e->descriptor()]);
+      //cout << m_colors.size() << " Color: " << m_colors[e->descriptor()] << endl;
+      glBegin(GL_TRIANGLES);
+      for(const size_t& i : ra.m_tetra) {
+        Vector3d vs[_numCorners];
+        for(size_t j = 0; j < _numCorners; ++j)
+          vs[j] = Vector3d(&_points[3*_tetra[i*_numCorners + j]]);
+        glVertex3dv(vs[0]);
+        glVertex3dv(vs[2]);
+        glVertex3dv(vs[1]);
+        glVertex3dv(vs[0]);
+        glVertex3dv(vs[3]);
+        glVertex3dv(vs[2]);
+        glVertex3dv(vs[0]);
+        glVertex3dv(vs[1]);
+        glVertex3dv(vs[3]);
+        glVertex3dv(vs[1]);
+        glVertex3dv(vs[2]);
+        glVertex3dv(vs[3]);
+      }
+      glEnd();
+    }
+  }
+
+  glDepthMask(GL_TRUE);
+  glDisable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
+
+  glEnable(GL_LIGHTING);
+}
+
+pair<ReebGraphConstruction::FlowGraph, size_t>
+ReebGraphConstruction::
+GetFlowGraph(const Vector3d& _p, double _posRes) {
+  typedef FlowGraph::vertex_descriptor FVD;
+  FlowGraph f;
+
+  enum Color {White, Gray, Black};
+  unordered_map<FVD, Color> visited;
+
+  //add vertices of reeb graph and find closest
+  double closestDist = numeric_limits<double>::max();
+  FVD closestID = -1;
+  for(auto vit = m_reebGraph.begin(); vit != m_reebGraph.end(); ++vit) {
+    Vector3d v = vit->property().m_vertex2;
+    FVD vd = vit->descriptor();
+    f.add_vertex(vd, v);
+    //cout << "Adding vertex: " << vd << endl;
+    //cout << "Has edges: " << endl;
+    //for(auto eit = vit->begin(); eit != vit->end(); ++eit)
+    //  cout << "\t" << eit->source() << " " << eit->target() << " " << eit->id() << endl;
+    visited[vd] = White;
+    double dist = (v - _p).norm();
+    if(dist < closestDist) {
+      closestDist = dist;
+      closestID = vd;
+    }
+  }
+
+  //Specialized BFS to make flow network
+  //
+  //Differs from regular BFS because:
+  //  - Treats ReebGraph as undirected graph even though it is directed
+  //  - Computes a graph instead of BFS tree, i.e., cross edges are added
+  queue<FVD> q;
+  q.push(closestID);
+  visited[closestID] = Gray;
+  while(!q.empty()) {
+    FVD u = q.front();
+    q.pop();
+    auto uit = m_reebGraph.find_vertex(u);
+
+    //process outgoing edges
+    for(auto eit = uit->begin(); eit != uit->end(); ++eit) {
+      FVD v = eit->target();
+      switch(visited[v]) {
+        case White:
+          visited[v] = Gray;
+          q.push(v);
+        case Gray:
+          f.add_edge(eit->descriptor(), eit->property().m_path);
+          break;
+        default:
+          break;
+      }
+    }
+
+    //process incoming edges
+    set<FVD> processed;
+    for(auto pit = uit->predecessors().begin();
+        pit != uit->predecessors().end(); ++pit) {
+      FVD v = *pit;
+      if(processed.count(v) == 0) {
+        auto vit = m_reebGraph.find_vertex(v);
+        for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
+          if(eit->target() == u) {
+            switch(visited[v]) {
+              case White:
+                visited[v] = Gray;
+                q.push(v);
+              case Gray:
+                {
+                  vector<Vector3d>& opath = eit->property().m_path;
+                  vector<Vector3d> path(opath.rbegin(), opath.rend());
+                  f.add_edge(ReebGraph::edge_descriptor(u, v, eit->descriptor().id()), path);
+                  break;
+                }
+              default:
+                break;
+            }
+          }
+        }
+      }
+      processed.emplace(v);
+    }
+    visited[u] = Black;
+  }
+
+  return make_pair(f, closestID);
+}
 
 void
 ReebGraphConstruction::
@@ -242,9 +460,10 @@ Construct() {
 
 void
 ReebGraphConstruction::
-Embed(const vector<Vector3d>& _vertices,
-    const int* const _tetras, size_t _numCorners,
-    TetrahedralizationGraph& _tetraGraph) {
+Embed(TetGenDecomposition* _tetgen) {
+  size_t numCorners = _tetgen->GetNumCorners();
+  const int* const tetras = _tetgen->GetTetras();
+  TetGenDecomposition::DualGraph& tetraGraph = _tetgen->GetDualGraph();
 
   //embed ReebNodes in tetrahedralization
   for(auto nit = m_reebGraph.begin(); nit != m_reebGraph.end(); ++nit) {
@@ -252,7 +471,7 @@ Embed(const vector<Vector3d>& _vertices,
     double minDist = numeric_limits<double>::max();
     Vector3d closest;
     size_t closestID = -1;
-    for(auto tit = _tetraGraph.begin(); tit != _tetraGraph.end(); ++tit) {
+    for(auto tit = tetraGraph.begin(); tit != tetraGraph.end(); ++tit) {
       Vector3d& vt = tit->property();
       double dist = (vt - vn).norm();
       if(dist < minDist) {
@@ -270,11 +489,10 @@ Embed(const vector<Vector3d>& _vertices,
     ReebArc& ra = eit->property();
     //weight all
     for(auto& tetraid : ra.m_tetra) {
-      auto vit = _tetraGraph.find_vertex(tetraid);
+      auto vit = tetraGraph.find_vertex(tetraid);
       for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
-        auto sourceit = _tetraGraph.find_vertex(eit->source());
-        auto targetit = _tetraGraph.find_vertex(eit->target());
-        eit->property() = 0.01 * (sourceit->property() - targetit->property()).norm();
+        auto targetit = tetraGraph.find_vertex(eit->target());
+        eit->property() = 0.01 * (vit->property() - targetit->property()).norm();
       }
     }
 
@@ -283,27 +501,25 @@ Embed(const vector<Vector3d>& _vertices,
     auto targetit = m_reebGraph.find_vertex(eit->target());
 
     vector<size_t> pathVID;
-    stapl::sequential::find_path_dijkstra(_tetraGraph,
+    stapl::sequential::find_path_dijkstra(tetraGraph,
         sourceit->property().m_tetra, targetit->property().m_tetra,
         pathVID, numeric_limits<double>::max());
 
     ra.m_path.clear();
-    //for(auto& vid : pathVID)
-    //  ra.m_path.push_back(_tetraGraph.find_vertex(vid)->property());
 
     for(auto vit1 = pathVID.begin(), vit2 = vit1 + 1;
         vit2 != pathVID.end(); ++vit1, ++vit2) {
-      Vector3d& v1 = _tetraGraph.find_vertex(*vit1)->property();
+      Vector3d& v1 = tetraGraph.find_vertex(*vit1)->property();
       ra.m_path.push_back(v1);
 
-      int t1[4] = {_tetras[(*vit1)*_numCorners + 0],
-        _tetras[(*vit1)*_numCorners + 1],
-        _tetras[(*vit1)*_numCorners + 2],
-        _tetras[(*vit1)*_numCorners + 3]};
-      int t2[4] = {_tetras[(*vit2)*_numCorners + 0],
-        _tetras[(*vit2)*_numCorners + 1],
-        _tetras[(*vit2)*_numCorners + 2],
-        _tetras[(*vit2)*_numCorners + 3]};
+      int t1[4] = {tetras[(*vit1)*numCorners + 0],
+        tetras[(*vit1)*numCorners + 1],
+        tetras[(*vit1)*numCorners + 2],
+        tetras[(*vit1)*numCorners + 3]};
+      int t2[4] = {tetras[(*vit2)*numCorners + 0],
+        tetras[(*vit2)*numCorners + 1],
+        tetras[(*vit2)*numCorners + 2],
+        tetras[(*vit2)*numCorners + 3]};
 
       int tcommon[3];
       size_t j = 0;
@@ -315,29 +531,19 @@ Embed(const vector<Vector3d>& _vertices,
 
       Vector3d c;
       for(size_t i = 0; i < 3; ++i)
-        c += _vertices[tcommon[i]];
+        c += m_vertices[tcommon[i]];
       c /= 3;
 
       ra.m_path.push_back(c);
     }
-    ra.m_path.push_back(_tetraGraph.find_vertex(pathVID.back())->property());
-
-    //ra.m_path.push_back(_tetraGraph.find_vertex(pathVID.front())->property());
-    //for(auto vit1 = pathVID.begin(), vit2 = vit1 + 1;
-    //    vit2 != pathVID.end(); ++vit1, ++vit2) {
-    //  Vector3d& v1 = _tetraGraph.find_vertex(*vit1)->property();
-    //  Vector3d& v2 = _tetraGraph.find_vertex(*vit2)->property();
-    //  ra.m_path.push_back((v1 + v2) / 2);
-    //}
-    //ra.m_path.push_back(_tetraGraph.find_vertex(pathVID.back())->property());
+    ra.m_path.push_back(tetraGraph.find_vertex(pathVID.back())->property());
 
     //unweight all
     for(auto& tetraid : ra.m_tetra) {
-      auto vit = _tetraGraph.find_vertex(tetraid);
+      auto vit = tetraGraph.find_vertex(tetraid);
       for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
-        auto sourceit = _tetraGraph.find_vertex(eit->source());
-        auto targetit = _tetraGraph.find_vertex(eit->target());
-        eit->property() = (sourceit->property() - targetit->property()).norm();
+        auto targetit = tetraGraph.find_vertex(eit->target());
+        eit->property() = (vit->property() - targetit->property()).norm();
       }
     }
   }

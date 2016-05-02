@@ -11,6 +11,7 @@
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
 #include "Models/Vizmo.h"
+#include "Utilities/ReebGraphConstruction.h"
 #include "Utilities/TetGenDecomposition.h"
 
 extern TetGenDecomposition* t;
@@ -71,6 +72,13 @@ class AutoRegionRRT : public BasicRRTStrategy<MPTraits> {
 
     RegionModelPtr m_samplingRegion;  ///< Points to the current sampling region.
     CfgType m_qNew;                   ///< Storage for checking avoid regions.
+
+    TetGenDecomposition* m_tetrahedralization; ///< TetGen decomposition
+    string m_switches;             ///< Input switches to TetGen model
+    bool m_writeFreeModel;         ///< Output TetGen model of freespace
+    bool m_writeDecompModel;       ///< Output TetGen model tetrahedrons
+
+    ReebGraphConstruction* m_reebGraphConstruction; ///< Embedded reeb graph
 };
 
 
@@ -81,28 +89,37 @@ AutoRegionRRT(const CfgType& _start, const CfgType& _goal, string _lp, string _d
     vector<string> _evaluators, double _delta, double _minDist,
     double _growthFocus, bool _evaluateGoal, size_t _numRoots,
     size_t _numDirections, size_t _maxTrial, bool _growGoals) :
-    BasicRRTStrategy<MPTraits>(_lp, _dm, _nf, _vc, _nc, _gt, _extenderLabel,
-        _evaluators, _delta, _minDist, _growthFocus, _evaluateGoal,
-        _start, _goal, _numRoots, _numDirections, _maxTrial, _growGoals) {
-  this->SetName("AutoRegionRRT");
-  this->m_delta = MAX_DBL;
-}
-
+  BasicRRTStrategy<MPTraits>(_lp, _dm, _nf, _vc, _nc, _gt, _extenderLabel,
+      _evaluators, _delta, _minDist, _growthFocus, _evaluateGoal,
+      _start, _goal, _numRoots, _numDirections, _maxTrial, _growGoals) {
+    this->SetName("AutoRegionRRT");
+    this->m_delta = MAX_DBL;
+    m_switches = "pqnQ";
+    m_writeFreeModel = false;
+    m_writeDecompModel = false;
+  }
 
 template<class MPTraits>
 AutoRegionRRT<MPTraits>::
 AutoRegionRRT(MPProblemType* _problem, XMLNode& _node) :
-    BasicRRTStrategy<MPTraits>(_problem, _node) {
-  this->SetName("AutoRegionRRT");
-  this->m_delta = MAX_DBL;
-}
-
+  BasicRRTStrategy<MPTraits>(_problem, _node) {
+    this->SetName("AutoRegionRRT");
+    this->m_delta = MAX_DBL;
+    m_switches = "pqnQ";
+    m_writeFreeModel = false;
+    m_writeDecompModel = false;
+  }
 
 template<class MPTraits>
 void
 AutoRegionRRT<MPTraits>::
 Initialize() {
   BasicRRTStrategy<MPTraits>::Initialize();
+
+  m_tetrahedralization = new TetGenDecomposition(this->GetEnvironment(),
+      m_switches, m_writeFreeModel, m_writeDecompModel);
+  t = m_tetrahedralization;
+  m_reebGraphConstruction = new ReebGraphConstruction(m_tetrahedralization);
 
   //Make non-user objects non-selectable while PathStrategy is running
   GetVizmo().GetMap()->SetSelectable(false);
@@ -124,17 +141,14 @@ Run() {
   stats->StartClock("RRT Generation MP");
 
   Vector3d start = this->m_query->GetQuery()[0].GetPoint();
-  //Vector3d goal = this->m_query->GetQuery()[1].GetPoint();
 
   //Get directed flow network
-  typedef TetGenDecomposition::FlowGraph FlowGraph;
+  typedef ReebGraphConstruction::FlowGraph FlowGraph;
   typedef FlowGraph::vertex_descriptor FVD;
   typedef FlowGraph::edge_descriptor FED;
-  pair<FlowGraph, FVD> flow = t->GetFlowGraph(start, this->GetEnvironment()->GetPositionRes());
+  pair<FlowGraph, FVD> flow = m_reebGraphConstruction->
+    GetFlowGraph(start, this->GetEnvironment()->GetPositionRes());
   //cout << "flow: " << flow.get_num_vertices() << " " << flow.get_num_edges() << endl;
-
-  //vector<Vector3d> path = t.GetPath(start, goal, this->GetEnvironment()->GetPositionRes());
-  //size_t i = 0;
 
   unordered_map<FVD, bool> visited;
   for(auto vit = flow.first.begin(); vit != flow.first.end(); ++vit)
@@ -151,9 +165,6 @@ Run() {
   }
   visited[sit->descriptor()] = true;
   cout << "Initial: Num regions: " << regions.size() << endl;
-  //shared_ptr<RegionModel> r(new RegionSphereModel(start,
-  //        2.5*this->GetEnvironment()->GetRobot(0)->GetBoundingSphereRadius(), false));
-  //GetVizmo().GetEnv()->AddAttractRegion(r);
 
   CfgType dir;
   bool mapPassedEvaluation = false;
@@ -193,51 +204,16 @@ Run() {
             m_samplingRegion->ApplyOffset(next-cur);
             i = j;
           }
-          //else need to delete region and add next set
+          //else need to delete region
           else {
-            /*if(!visited[pr.first.target()]) {
-              auto vit = flow.first.find_vertex(pr.first.target());
-              for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
-                auto i = regions.emplace(
-                    RegionModelPtr(new RegionSphereModel(vit->property(), 3*robotRadius, false)),
-                    make_pair(eit->descriptor(), 0));
-                GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
-              }
-              visited[vit->descriptor()] = true;
-              cout << "Split: Num regions: " << regions.size() << endl;
-            }*/
             GetVizmo().GetEnv()->DeleteRegion(m_samplingRegion);
             regions.erase(m_samplingRegion);
             break;
           }
-          //sleep(1);
         }
       }
-      /*else {
-        CfgRef newest = this->GetRoadmap()->GetGraph()->GetVertex(recent);
-        Vector3d p = newest.GetPoint();
 
-        double minDist = numeric_limits<double>::max();
-        FVD closest = -1;
-        for(auto vit = flow.first.begin(); vit != flow.first.end(); ++vit) {
-          double dist = (vit->property() - p).norm();
-          if(dist < minDist) {
-            minDist = dist;
-            closest = vit->descriptor();
-          }
-        }
-
-        if(minDist < 3*robotRadius && !visited[closest]) {
-          auto vit = flow.first.find_vertex(closest);
-          for(auto eit = vit->begin(); eit != vit->end(); ++eit) {
-            auto i = regions.emplace(
-                RegionModelPtr(new RegionSphereModel(vit->property(), 3*robotRadius, false)),
-                make_pair(eit->descriptor(), 0));
-            GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
-          }
-          cout << "New: Num regions: " << regions.size() << endl;
-        }
-      }*/
+      //Add new regions
       CfgRef newest = this->GetRoadmap()->GetGraph()->GetVertex(recent);
       Vector3d p = newest.GetPoint();
 

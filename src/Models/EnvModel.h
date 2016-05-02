@@ -163,8 +163,6 @@ class EnvModel : public Model {
 
     void SaveFile(const string& _filename) const;
 
-    void TetGenDecompose() const;
-
   private:
 
     vector<shared_ptr<ActiveMultiBodyModel>> m_robots;    ///< All robots.
