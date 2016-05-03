@@ -17,7 +17,6 @@ class Environment;
 class Boundary;
 class BoundingBox;
 class BoundingSphere;
-class ReebGraphConstruction;
 class StaticMultiBody;
 
 class TetGenDecomposition {
@@ -38,10 +37,6 @@ class TetGenDecomposition {
     size_t GetNumTetras() const {return m_decompModel->numberoftetrahedra;}
     const int* const GetTetras() const {return m_decompModel->tetrahedronlist;}
     DualGraph& GetDualGraph() {return m_dualGraph;}
-
-    void DrawGraph();
-
-    void DrawPath();
 
   private:
 
@@ -80,10 +75,6 @@ class TetGenDecomposition {
     bool m_writeDecompModel;
 
     DualGraph m_dualGraph;
-
-    vector<size_t> m_path;
-
-    ReebGraphConstruction* m_reebGraph;
 };
 
 #endif

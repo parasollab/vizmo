@@ -118,7 +118,8 @@ Initialize() {
 
   m_tetrahedralization = new TetGenDecomposition(this->GetEnvironment(),
       m_switches, m_writeFreeModel, m_writeDecompModel);
-  t = m_tetrahedralization;
+  GetVizmo().GetEnv()->AddTetGenDecompositionModel(m_tetrahedralization);
+  GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
   m_reebGraphConstruction = new ReebGraphConstruction(m_tetrahedralization);
 
   //Make non-user objects non-selectable while PathStrategy is running

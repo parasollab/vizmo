@@ -18,14 +18,12 @@
 #include "SurfaceMultiBodyModel.h"
 #include "TempObjsModel.h"
 #include "UserPathModel.h"
-#include "Utilities/TetGenDecomposition.h"
+#include "TetGenDecompositionModel.h"
 #include "Utilities/VizmoExceptions.h"
-
-TetGenDecomposition* t;
 
 EnvModel::
 EnvModel(const string& _filename) : Model("Environment"),
-  m_radius(0), m_boundary(NULL) {
+  m_radius(0), m_boundary(NULL), m_tetgenModel(NULL) {
 
     m_environment = new Environment();
     m_environment->Read(_filename);
@@ -38,7 +36,7 @@ EnvModel(const string& _filename) : Model("Environment"),
 
 EnvModel::
 EnvModel(Environment* _env) : Model("Environment"),
-  m_radius(0), m_boundary(NULL), m_environment(_env) {
+  m_radius(0), m_boundary(NULL), m_tetgenModel(NULL), m_environment(_env) {
 
     Build();
 
@@ -217,6 +215,12 @@ RemoveTempObjs(TempObjsModel* _t) {
 
 void
 EnvModel::
+AddTetGenDecompositionModel(TetGenDecomposition* _tetgen) {
+  m_tetgenModel = new TetGenDecompositionModel(_tetgen);
+}
+
+void
+EnvModel::
 Build() {
   //construct boundary
   if(shared_ptr<BoundingBox> b = dynamic_pointer_cast<BoundingBox>(m_environment->GetBoundary()))
@@ -317,6 +321,12 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     return;
   }
   indx -= m_userPaths.size();
+  cout << "indx: " << indx << endl;
+  if(indx == 0 && m_tetgenModel) {
+    m_tetgenModel->Select(_index+1, _sel);
+    return;
+  }
+  --indx;
   if(indx == 0)
     m_boundary->Select(_index+1, _sel);
 }
@@ -339,9 +349,6 @@ DrawRender() {
   for(auto& s : m_surfaces)
     s->DrawRender();
 
-  if(t)
-    t->DrawGraph();
-
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
@@ -362,6 +369,9 @@ DrawRender() {
 
   for(auto& t : m_tempObjs)
     t->DrawRender();
+
+  if(m_tetgenModel)
+    m_tetgenModel->DrawRender();
 }
 
 
@@ -418,6 +428,11 @@ DrawSelect() {
   glDisable(GL_BLEND);
   glDisable(GL_CULL_FACE);
 
+  glPushName(nameIndx++);
+  if(m_tetgenModel)
+    m_tetgenModel->DrawSelect();
+  glPopName();
+
   glPushName(nameIndx);
   m_boundary->DrawSelect();
   glPopName();
@@ -459,6 +474,7 @@ SetSelectable(bool _s) {
     o->SetSelectable(_s);
   for(const auto& s : m_surfaces)
     s->SetSelectable(_s);
+  m_tetgenModel->SetSelectable(_s);
   m_boundary->SetSelectable(_s);
 }
 
@@ -485,6 +501,8 @@ GetChildren(list<Model*>& _models) {
   for(const auto& p : m_userPaths)
     _models.push_back(p);
   _models.push_back(m_boundary.get());
+  if(m_tetgenModel)
+    _models.push_back(m_tetgenModel);
 }
 
 

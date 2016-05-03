@@ -10,7 +10,7 @@
 
 PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
   : Model(_filename), m_filename(_filename), m_isSurface(_isSurface),
-  m_numVerts(0), m_solidID(-1), m_wiredID(-1), m_normalsID(-1) {
+  m_numVerts(0), m_solidID(0), m_wiredID(0), m_normalsID(0) {
     Build();
   }
 
@@ -20,9 +20,9 @@ PolyhedronModel::PolyhedronModel(const PolyhedronModel& _p) : Model(_p),
   }
 
 PolyhedronModel::~PolyhedronModel(){
-  glDeleteLists(m_wiredID,1);
-  glDeleteLists(m_solidID,1);
-  glDeleteLists(m_normalsID,1);
+  glDeleteLists(m_wiredID, 1);
+  glDeleteLists(m_solidID, 1);
+  glDeleteLists(m_normalsID, 1);
 }
 
 void
@@ -62,7 +62,7 @@ PolyhedronModel::Build() {
 void
 PolyhedronModel::
 DrawRender() {
-  if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
+  if(m_solidID == 0 || m_renderMode == INVISIBLE_MODE)
     return;
 
   if(m_renderMode == SOLID_MODE){
@@ -80,7 +80,7 @@ DrawRender() {
 void
 PolyhedronModel::
 DrawSelect() {
-  if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
+  if(m_solidID == 0 || m_renderMode == INVISIBLE_MODE)
     return;
 
   glCallList(m_solidID);

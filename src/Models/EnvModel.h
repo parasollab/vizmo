@@ -18,6 +18,8 @@ class CfgModel;
 class StaticMultiBodyModel;
 class SurfaceMultiBodyModel;
 class TempObjsModel;
+class TetGenDecomposition;
+class TetGenDecompositionModel;
 class UserPathModel;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,6 +150,11 @@ class EnvModel : public Model {
     /// \brief Remove a set of temporary objects from the environment.
     void RemoveTempObjs(TempObjsModel* _t);
 
+    // TetGen Decomposition
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Add TetGen Decomposition Model to environment
+    void AddTetGenDecompositionModel(TetGenDecomposition* _tetgen);
+
     // Display functions
     void ChangeColor(); ///< Change all objects' colors randomly.
 
@@ -183,6 +190,8 @@ class EnvModel : public Model {
 
     vector<UserPathModel*> m_userPaths; ///< Stores user paths.
     vector<TempObjsModel*> m_tempObjs;  ///< Stores temporary objects.
+
+    TetGenDecompositionModel* m_tetgenModel; ///< TetGen Model
 
     Environment* m_environment; ///< The PMPL environment.
 };

@@ -1,17 +1,12 @@
 #include "TetGenDecomposition.h"
 
-#include <unordered_map>
-
-#include <containers/sequential/graph/algorithms/astar.h>
-
-#include "ReebGraphConstruction.h"
-#include "VizmoExceptions.h"
-
 #include "Environment/BoundingBox.h"
 #include "Environment/BoundingSphere.h"
 #include "Environment/Environment.h"
 #include "Environment/FixedBody.h"
 #include "Environment/StaticMultiBody.h"
+
+#include "VizmoExceptions.h"
 
 TetGenDecomposition::
 TetGenDecomposition(Environment* _env, string _switches,
@@ -503,105 +498,3 @@ MakeDualGraph() {
   }
 }
 
-void
-TetGenDecomposition::
-DrawGraph() {
-  glDisable(GL_LIGHTING);
-  glPointSize(4);
-  glLineWidth(3);
-
-  //draw tetras
-
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_BLEND);
-  glDepthMask(GL_FALSE);
-
-  //glColor4f(0.0, 1.0, 1.0, 0.01);
-  /*size_t numTetras = m_decompModel->numberoftetrahedra;
-  size_t numCorners = m_decompModel->numberofcorners;
-  const double* const points = m_decompModel->pointlist;
-  const int* const tetra = m_decompModel->tetrahedronlist;*/
-  /*glBegin(GL_TRIANGLES);
-  for(size_t i = 0; i < numTetras; ++i) {
-    Vector3d vs[numCorners];
-    for(size_t j = 0; j < numCorners; ++j)
-      vs[j] = Vector3d(&points[3*tetra[i*numCorners + j]]);
-    glVertex3dv(vs[0]);
-    glVertex3dv(vs[2]);
-    glVertex3dv(vs[1]);
-    glVertex3dv(vs[0]);
-    glVertex3dv(vs[3]);
-    glVertex3dv(vs[2]);
-    glVertex3dv(vs[0]);
-    glVertex3dv(vs[1]);
-    glVertex3dv(vs[3]);
-    glVertex3dv(vs[1]);
-    glVertex3dv(vs[2]);
-    glVertex3dv(vs[3]);
-  }
-  glEnd();*/
-
-  //glColor4f(0.0, 1.0, 1.0, 0.02);
-  /*glBegin(GL_LINES);
-  for(size_t i = 0; i < numTetras; ++i) {
-    Vector3d vs[numCorners];
-    for(size_t j = 0; j < numCorners; ++j)
-      vs[j] = Vector3d(&points[3*tetra[i*numCorners + j]]);
-    glVertex3dv(vs[0]);
-    glVertex3dv(vs[1]);
-    glVertex3dv(vs[0]);
-    glVertex3dv(vs[2]);
-    glVertex3dv(vs[0]);
-    glVertex3dv(vs[3]);
-    glVertex3dv(vs[1]);
-    glVertex3dv(vs[2]);
-    glVertex3dv(vs[2]);
-    glVertex3dv(vs[3]);
-    glVertex3dv(vs[3]);
-    glVertex3dv(vs[1]);
-  }
-  glEnd();*/
-
-  //draw dual graph
-  /*glColor4f(1.0, 0.0, 1.0, 0.05);
-
-  glBegin(GL_POINTS);
-  for(auto v = m_dualGraph.begin(); v != m_dualGraph.end(); ++v) {
-    glVertex3dv(v->property());
-  }
-  glEnd();
-
-  glBegin(GL_LINES);
-  for(auto e = m_dualGraph.edges_begin(); e != m_dualGraph.edges_end(); ++e) {
-    glVertex3dv(m_dualGraph.find_vertex((*e).source())->property());
-    glVertex3dv(m_dualGraph.find_vertex((*e).target())->property());
-  }
-  glEnd();*/
-
-  glDepthMask(GL_TRUE);
-  glDisable(GL_BLEND);
-  glDisable(GL_CULL_FACE);
-
-  glEnable(GL_LIGHTING);
-
-  //m_reebGraph->Draw(points, tetra, numTetras, numCorners);
-}
-
-void
-TetGenDecomposition::
-DrawPath() {
-  if(m_path.empty())
-    return;
-
-  glDisable(GL_LIGHTING);
-  glLineWidth(6);
-  glColor3f(0.0, 0.5, 0.0);
-
-  glBegin(GL_LINES);
-  for(auto v1 = m_path.begin(), v2 = (v1 + 1); v2 != m_path.end(); ++v1, ++v2) {
-    glVertex3dv(m_dualGraph.find_vertex(*v1)->property());
-    glVertex3dv(m_dualGraph.find_vertex(*v2)->property());
-  }
-  glEnd();
-  glEnable(GL_LIGHTING);
-}
