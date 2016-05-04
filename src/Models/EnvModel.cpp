@@ -321,7 +321,6 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     return;
   }
   indx -= m_userPaths.size();
-  cout << "indx: " << indx << endl;
   if(indx == 0 && m_tetgenModel) {
     m_tetgenModel->Select(_index+1, _sel);
     return;

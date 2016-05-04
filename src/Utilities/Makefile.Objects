@@ -11,7 +11,6 @@ OBJECTS += \
 	  Utilities/LoadTexture.o \
 	  Utilities/PickBox.o \
 	  Utilities/ReebGraphConstruction.o \
-	  Utilities/TetGenDecomposition.o \
 	  Utilities/TransformTool.o
 
 ####### MOC

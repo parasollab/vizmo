@@ -116,8 +116,9 @@ AutoRegionRRT<MPTraits>::
 Initialize() {
   BasicRRTStrategy<MPTraits>::Initialize();
 
-  m_tetrahedralization = new TetGenDecomposition(this->GetEnvironment(),
-      m_switches, m_writeFreeModel, m_writeDecompModel);
+  m_tetrahedralization = new TetGenDecomposition(m_switches,
+      m_writeFreeModel, m_writeDecompModel);
+  m_tetrahedralization->Decompose(this->GetEnvironment());
   GetVizmo().GetEnv()->AddTetGenDecompositionModel(m_tetrahedralization);
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
   m_reebGraphConstruction = new ReebGraphConstruction(m_tetrahedralization);

@@ -7,8 +7,8 @@
 #include <GL/gl.h>
 
 #include "Utilities/MetricUtils.h"
+#include "Utilities/TetGenDecomposition.h"
 
-#include "TetGenDecomposition.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
