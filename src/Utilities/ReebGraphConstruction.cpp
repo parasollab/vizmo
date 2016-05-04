@@ -4,13 +4,8 @@
 
 #include <containers/sequential/graph/algorithms/dijkstra.h>
 
-#include <GL/gl.h>
-
 #include "Utilities/MetricUtils.h"
 #include "Utilities/TetGenDecomposition.h"
-
-#include "Models/EnvModel.h"
-#include "Models/Vizmo.h"
 
 ClockClass clockReebNodeComp;
 ClockClass clockReebArcComp;
@@ -67,99 +62,6 @@ void
 ReebGraphConstruction::
 Draw(const REAL* const _points, const int* const _tetra,
     size_t _numTetra, size_t _numCorners) {
-
-  static size_t numCalls = 0;
-  static size_t edge = 0;
-
-  //cout << "Num calls: " << numCalls << endl;
-  numCalls = (numCalls + 1) % 60;
-  if(numCalls == 0) {
-    edge = (edge + 1) % m_reebGraph.get_num_edges();
-  }
-
-  glDisable(GL_LIGHTING);
-  glPointSize(8);
-  glLineWidth(5);
-
-  //draw reeb graph
-  glColor4f(0.0, 0.5, 0.2, 0.05);
-
-  /*glBegin(GL_POINTS);
-  for(auto v = m_reebGraph.begin(); v != m_reebGraph.end(); ++v) {
-    glVertex3dv(m_vertices[v->property().m_vertex]);
-  }
-  glEnd();
-
-  glColor4f(0.0, 0.2, 0.5, 0.05);*/
-
-  glBegin(GL_POINTS);
-  for(auto v = m_reebGraph.begin(); v != m_reebGraph.end(); ++v) {
-    glVertex3dv(v->property().m_vertex2);
-  }
-  glEnd();
-
-  size_t i = 0;
-  for(auto e = m_reebGraph.edges_begin(); e != m_reebGraph.edges_end(); ++e) {
-    //if(i++ == edge) {
-      glBegin(GL_LINE_STRIP);
-      /*glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->source())->property().m_vertex]);
-        glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);*/
-      //glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->source())->property().m_vertex]);
-      for(auto& v : e->property().m_path)
-        glVertex3dv(v);
-      //glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);
-      glEnd();
-    //}
-  }
-
-  /*glColor4f(0.5, 0.0, 0.2, 0.05);
-  glLineWidth(3);
-  glBegin(GL_LINES);
-  i = 0;
-  for(auto e = m_reebGraph.edges_begin(); e != m_reebGraph.edges_end(); ++e) {
-    if(i++ == edge) {
-      glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->source())->property().m_vertex]);
-      glVertex3dv(m_vertices[m_reebGraph.find_vertex(e->target())->property().m_vertex]);
-    }
-  }
-  glEnd();*/
-
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_BLEND);
-  glDepthMask(GL_FALSE);
-  i = 0;
-  for(auto e = m_reebGraph.edges_begin(); e != m_reebGraph.edges_end(); ++e) {
-    if(i++ == edge) {
-      ReebArc& ra = e->property();
-      glColor4fv(m_colors[e->descriptor()]);
-      //cout << m_colors.size() << " Color: " << m_colors[e->descriptor()] << endl;
-      glBegin(GL_TRIANGLES);
-      for(const size_t& i : ra.m_tetra) {
-        Vector3d vs[_numCorners];
-        for(size_t j = 0; j < _numCorners; ++j)
-          vs[j] = Vector3d(&_points[3*_tetra[i*_numCorners + j]]);
-        glVertex3dv(vs[0]);
-        glVertex3dv(vs[2]);
-        glVertex3dv(vs[1]);
-        glVertex3dv(vs[0]);
-        glVertex3dv(vs[3]);
-        glVertex3dv(vs[2]);
-        glVertex3dv(vs[0]);
-        glVertex3dv(vs[1]);
-        glVertex3dv(vs[3]);
-        glVertex3dv(vs[1]);
-        glVertex3dv(vs[2]);
-        glVertex3dv(vs[3]);
-      }
-      glEnd();
-    }
-  }
-
-  glDepthMask(GL_TRUE);
-  glDisable(GL_BLEND);
-  glDisable(GL_CULL_FACE);
-
-  glEnable(GL_LIGHTING);
 }
 
 pair<ReebGraphConstruction::FlowGraph, size_t>

@@ -116,12 +116,17 @@ AutoRegionRRT<MPTraits>::
 Initialize() {
   BasicRRTStrategy<MPTraits>::Initialize();
 
+  //Tetrahedralize environment
   m_tetrahedralization = new TetGenDecomposition(m_switches,
       m_writeFreeModel, m_writeDecompModel);
   m_tetrahedralization->Decompose(this->GetEnvironment());
   GetVizmo().GetEnv()->AddTetGenDecompositionModel(m_tetrahedralization);
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
+
+  //Embed ReebGraph
   m_reebGraphConstruction = new ReebGraphConstruction(m_tetrahedralization);
+  GetVizmo().GetEnv()->AddReebGraphModel(m_reebGraphConstruction);
+  GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //Make non-user objects non-selectable while PathStrategy is running
   GetVizmo().GetMap()->SetSelectable(false);
@@ -273,6 +278,10 @@ Run() {
 
   GetVizmo().StopClock("AutoRegionRRT");
   stats->StopClock("RRT Generation MP");
+
+  for(auto r : regions)
+    GetVizmo().GetEnv()->DeleteRegion(r.first);
+  regions.clear();
 
   if(this->m_debug)
     cout<<"\nEnd Running AutoRegionRRT::Run" << endl;

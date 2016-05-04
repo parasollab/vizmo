@@ -113,10 +113,6 @@ class ReebGraphConstruction {
       ReebGraph* m_rg;
     };
 
-    struct MeshVertex {
-      Vector3d m_vertex;
-    };
-
     typedef set<RGEID, ReebArcComp> ArcSet;
 
     struct MeshEdge {

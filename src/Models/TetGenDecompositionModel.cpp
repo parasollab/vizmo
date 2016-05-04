@@ -39,21 +39,11 @@ DrawRender() {
   if(m_tetrahedronID == 0)
     Build();
 
-  glDisable(GL_LIGHTING);
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_BLEND);
-  glDepthMask(GL_FALSE);
-
   glColor4f(0.0, 1.0, 1.0, 0.01);
   glCallList(m_tetrahedronID);
 
   glColor4f(1.0, 0.0, 1.0, 1);
   glCallList(m_dualGraphID);
-
-  glDepthMask(GL_TRUE);
-  glDisable(GL_BLEND);
-  glDisable(GL_CULL_FACE);
-  glEnable(GL_LIGHTING);
 }
 
 void
@@ -74,11 +64,7 @@ DrawSelected() {
   if(m_tetrahedronID == 0)
     Build();
 
-  glDisable(GL_LIGHTING);
-
   glCallList(m_dualGraphID);
-
-  glEnable(GL_LIGHTING);
 }
 
 void
@@ -99,6 +85,11 @@ BuildTetrahedrons() {
   size_t numTetras = m_tetgen->GetNumTetras();
   const double* const points = m_tetgen->GetPoints();
   const int* const tetra = m_tetgen->GetTetras();
+
+  glDisable(GL_LIGHTING);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glDepthMask(GL_FALSE);
 
   glBegin(GL_TRIANGLES);
   for(size_t i = 0; i < numTetras; ++i) {
@@ -140,6 +131,11 @@ BuildTetrahedrons() {
   }
   glEnd();
 
+  glDepthMask(GL_TRUE);
+  glDisable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
+  glEnable(GL_LIGHTING);
+
   glEndList();
 }
 
@@ -150,6 +146,8 @@ BuildDualGraph() {
   glNewList(m_dualGraphID, GL_COMPILE);
 
   TetGenDecomposition::DualGraph& dualGraph = m_tetgen->GetDualGraph();
+
+  glDisable(GL_LIGHTING);
 
   glBegin(GL_POINTS);
   for(auto v = dualGraph.begin(); v != dualGraph.end(); ++v)
@@ -162,6 +160,8 @@ BuildDualGraph() {
     glVertex3dv(dualGraph.find_vertex(e->target())->property());
   }
   glEnd();
+
+  glEnable(GL_LIGHTING);
 
   glEndList();
 }
