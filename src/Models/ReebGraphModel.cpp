@@ -28,7 +28,7 @@ Build() {
 
   glBegin(GL_POINTS);
   for(auto v = reebGraph.begin(); v != reebGraph.end(); ++v) {
-    glVertex3dv(v->property().m_vertex2);
+    glVertex3dv(v->property().m_vertex);
   }
   glEnd();
 

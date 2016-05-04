@@ -171,7 +171,6 @@ Run() {
     GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
   }
   visited[sit->descriptor()] = true;
-  cout << "Initial: Num regions: " << regions.size() << endl;
 
   CfgType dir;
   bool mapPassedEvaluation = false;
@@ -234,7 +233,6 @@ Run() {
             GetVizmo().GetEnv()->AddAttractRegion(i.first->first);
           }
           visited[vit->descriptor()] = true;
-          cout << "New: Num regions: " << regions.size() << endl;
         }
       }
 
@@ -262,11 +260,9 @@ Run() {
     else {
       if(m_samplingRegion) {
         m_samplingRegion->IncreaseFACount(1);
-        //cout << "Increasing FA Count: " << m_samplingRegion->GetFACount() << endl;
         if(m_samplingRegion->GetFACount() > 100) {
           GetVizmo().GetEnv()->DeleteRegion(m_samplingRegion);
           regions.erase(m_samplingRegion);
-          cout << "Delete: Num Regions: " << regions.size() << endl;
         }
       }
       mapPassedEvaluation = false;
