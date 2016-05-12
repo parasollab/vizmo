@@ -14,11 +14,11 @@ Name: vizmo++
 Summary: vizmo++ - A visualization/authoring tool for motion planning
 Version: 0
 Release: %{date}%{dist}
-License: Copyright 2012, Parasol Lab, Texas A&M University.  All Rights Reserved.
+License: Copyright 2016, Parasol Lab, Texas A&M University. All Rights Reserved.
 Group: Application/Engineering
 Source: %{name}-%{version}-%{date}.tar.gz
 URL: http://parasol.tamu.edu/groups/amatogroup/research/vizmo++/
-Packager: Jory Denny <jdenny@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
+Packager: Read Sandstrom <readamus@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot/
 Requires: qt4
 BuildRequires: qt4-devel
@@ -65,6 +65,8 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Thu May 5 2016 Read Sandstrom <readamus@cse.tamu.edu> 5-5may2016
+- Version 0.3.3 - Release for CentOS 7.
 * Wed Jul 15 2015 Jory Denny <jdenny@cse.tamu.edu> 7-15jul2015
 - Version 0.3.2 - Fixing bugs in region steering dealing with Env merge. Fixing
   bugs in region steering when loading from XML. Fixing bugs in path display.
