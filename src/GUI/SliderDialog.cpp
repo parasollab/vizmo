@@ -27,6 +27,8 @@ SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
   m_oldValue = _startValue;
   layout->addWidget(m_slider, 2, 2, 1, 1);
 
+  //UpdatePercentile();
+
   QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
   okayCancel->setFixedSize(120, 32);
   okayCancel->setOrientation(Qt::Horizontal);

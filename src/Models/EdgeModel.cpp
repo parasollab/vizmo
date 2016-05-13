@@ -6,7 +6,7 @@
 #include "CfgModel.h"
 
 double EdgeModel::m_edgeThickness = 1;
-
+double EdgeModel::m_numIntermediates = .3;
 
 EdgeModel::
 EdgeModel(string _lpLabel, double _weight,
@@ -39,6 +39,21 @@ Set(size_t _id, CfgModel* _c1, CfgModel* _c2) {
   m_id = _id;
   Set(_c1, _c2);
   SetName();
+
+  RecalculateEdges(*_c1);
+}
+
+void
+EdgeModel::
+RecalculateEdges(CfgModel _c) {
+  double timeRes = CfgModel::GetTimeRes();
+  CfgModel tick = _c;
+
+  m_intermediates.clear();
+  for(int i = 0; i < m_timeStep; ++i) {
+    tick = tick.Apply(m_control, timeRes);
+    m_intermediates.push_back(tick);
+  }
 }
 
 void
@@ -127,9 +142,15 @@ void
 EdgeModel::
 DrawRenderInCC() {
   glVertex3dv(m_startCfg->GetPoint());
-  for(const auto& c : m_intermediates) {
-    glVertex3dv(c.GetPoint());
-    glVertex3dv(c.GetPoint());
+
+  //Number of intermediates to keep
+  float k = m_numIntermediates == 0 ? 0 : 1 / m_numIntermediates;
+
+  for(float i = 0; i < m_intermediates.size() - k; i += k) {
+    int index = round(i);
+    glVertex3dv(m_intermediates[index].GetPoint());
+    glVertex3dv(m_intermediates[index].GetPoint());
   }
+
   glVertex3dv(m_endCfg->GetPoint());
 }

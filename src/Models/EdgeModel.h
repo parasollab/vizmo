@@ -54,6 +54,10 @@ class EdgeModel : public Model, public EdgeType {
     /// \param[in] _c1 The target configuration.
     void Set(size_t _id, CfgModel* _c1, CfgModel* _c2);
     ////////////////////////////////////////////////////////////////////////////
+    // \brief Calculate intermediates of edge when the edge is set in Vizmo
+    // \param[in] _c A configuration in the edge
+    void RecalculateEdges(CfgModel _c);
+    ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the EID of this edge.
     size_t GetID() {return m_id;}
     ////////////////////////////////////////////////////////////////////////////
@@ -75,6 +79,7 @@ class EdgeModel : public Model, public EdgeType {
 
     // Class properties
     static double m_edgeThickness; ///< Rendering thickness for edge lines.
+    static double m_numIntermediates; ///< Rendering for number of intermediates
 
   private:
 
