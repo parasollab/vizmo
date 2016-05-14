@@ -39,11 +39,11 @@ class AutoRegionRRT : public BasicRRTStrategy<MPTraits> {
 
     // Construction
     AutoRegionRRT(const CfgType& _start = CfgType(),
-        const CfgType& _goal = CfgType(), string _lp = "sl",
+        const CfgType& _goal = CfgType(),
         string _dm = "euclidean", string _nf = "BFNF", string _vc = "PQP_SOLID",
         string _nc = "kClosest", string _gt = "UNDIRECTED_TREE",
         string _extenderLabel = "BERO",
-        vector<string> _evaluators = vector<string>(), double _delta = 10.0,
+        vector<string> _evaluators = vector<string>(),
         double _minDist = 0.001, double _growthFocus = 0.05,
         bool _evaluateGoal = true, size_t _numRoots = 1,
         size_t _numDirections = 1, size_t _maxTrial = 3,
@@ -84,16 +84,15 @@ class AutoRegionRRT : public BasicRRTStrategy<MPTraits> {
 
 template<class MPTraits>
 AutoRegionRRT<MPTraits>::
-AutoRegionRRT(const CfgType& _start, const CfgType& _goal, string _lp, string _dm,
+AutoRegionRRT(const CfgType& _start, const CfgType& _goal, string _dm,
     string _nf, string _vc, string _nc, string _gt, string _extenderLabel,
-    vector<string> _evaluators, double _delta, double _minDist,
+    vector<string> _evaluators, double _minDist,
     double _growthFocus, bool _evaluateGoal, size_t _numRoots,
     size_t _numDirections, size_t _maxTrial, bool _growGoals) :
-  BasicRRTStrategy<MPTraits>(_lp, _dm, _nf, _vc, _nc, _gt, _extenderLabel,
-      _evaluators, _delta, _minDist, _growthFocus, _evaluateGoal,
+  BasicRRTStrategy<MPTraits>(_dm, _nf, _vc, _nc, _gt, _extenderLabel,
+      _evaluators, _minDist, _growthFocus, _evaluateGoal,
       _start, _goal, _numRoots, _numDirections, _maxTrial, _growGoals) {
     this->SetName("AutoRegionRRT");
-    this->m_delta = MAX_DBL;
     m_switches = "pqnQ";
     m_writeFreeModel = false;
     m_writeDecompModel = false;
@@ -104,7 +103,6 @@ AutoRegionRRT<MPTraits>::
 AutoRegionRRT(MPProblemType* _problem, XMLNode& _node) :
   BasicRRTStrategy<MPTraits>(_problem, _node) {
     this->SetName("AutoRegionRRT");
-    this->m_delta = MAX_DBL;
     m_switches = "pqnQ";
     m_writeFreeModel = false;
     m_writeDecompModel = false;
