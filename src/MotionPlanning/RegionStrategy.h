@@ -63,7 +63,7 @@ class RegionStrategy : public MPStrategyMethod<MPTraits> {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief  Re-validate the roadmap when new avoid regions are added.
     ///         Samples lying within a new avoid region will be deleted.
-
+    void ProcessAvoidRegions();
     ////////////////////////////////////////////////////////////////////////////
     /// \brief  Add a set of configurations to the roadmap.
     /// \param[in] _samples The new configurations to add.
@@ -166,8 +166,7 @@ Initialize() {
 
 template<class MPTraits>
 void
-RegionStrategy<MPTraits>::
-Run() {
+RegionStrategy<MPTraits>::Run() {
   cout << "Running Region Strategy." << endl;
 
   //start clock
@@ -195,7 +194,7 @@ Run() {
       RecommendRegions(vids, iter);
     }
 
-    GetVizmo().ProcessAvoidRegions();
+    ProcessAvoidRegions();
 
     //refresh map and selection widget
     //if(++iter % 20 == 0) {
@@ -225,7 +224,7 @@ Finalize() {
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //print clocks
-  GetVizmo().PrintClock("Pre-input", cout);
+  GetVizmo().PrintClock("Pre-regions", cout);
   GetVizmo().PrintClock("RegionStrategy", cout);
   stats->PrintClock("RegionStrategyMP", cout);
 
@@ -235,7 +234,7 @@ Finalize() {
   ostats << "NodeGen+Connection Stats" << endl;
   stats->PrintAllStats(ostats, this->GetRoadmap());
 
-  GetVizmo().PrintClock("Pre-input", ostats);
+  GetVizmo().PrintClock("Pre-regions", ostats);
   GetVizmo().PrintClock("RegionStrategy", ostats);
   stats->PrintClock("RegionStrategyMP", ostats);
 
@@ -249,7 +248,7 @@ Finalize() {
   //show results pop-up
   ostringstream results;
   results << "Planning Complete!" << endl;
-  GetVizmo().PrintClock("Pre-input", results);
+  GetVizmo().PrintClock("Pre-regions", results);
   GetVizmo().PrintClock("RegionStrategy", results);
 
   GetMainWindow()->AlertUser(results.str());
@@ -316,6 +315,66 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
     exit(1);
   }
 }
+
+
+template<class MPTraits>
+void
+RegionStrategy<MPTraits>::
+ProcessAvoidRegions() {
+  //get avoid regions and graph
+  const vector<RegionModelPtr>& avoidRegions = GetVizmo().GetEnv()->GetAvoidRegions();
+
+  //check that some avoid region needs processing
+  bool skipCheck = true;
+  for(typename vector<RegionModelPtr>::const_iterator rit = avoidRegions.begin();
+      rit != avoidRegions.end(); ++rit) {
+    if(!(*rit)->IsProcessed()) {
+      skipCheck = false;
+      (*rit)->Processed();
+    }
+  }
+  if(skipCheck)
+    return;
+
+  //check is needed. get env, graph, vc, and lp
+  GraphType* g = this->GetRoadmap()->GetGraph();
+  Environment* env = this->GetEnvironment();
+  typename MPProblemType::ValidityCheckerPointer vc =
+    this->GetValidityChecker("AvoidRegionValidity");
+  typename MPProblemType::LocalPlannerPointer lp =
+    this->GetLocalPlanner("AvoidRegionSL");
+
+  vector<VID> verticesToDel;
+  vector<EID> edgesToDel;
+
+  //re-validate graph with avoid region validity
+  //loop over the graph testing vertices for deletion
+  for(VI vit = g->begin(); vit != g->end(); ++vit)
+    if(!vc->IsValid(vit->property(), this->GetNameAndLabel()))
+      verticesToDel.push_back(vit->descriptor());
+  //loop over the graph testing edges for deletion
+  for(typename GraphType::edge_iterator eit = g->edges_begin();
+      eit != g->edges_end(); ++eit) {
+    LPOutput<MPTraits> lpOutput;
+    CfgType collisionCfg;
+    if(!lp->IsConnected(g->GetVertex((*eit).source()),
+          g->GetVertex((*eit).target()), collisionCfg, &lpOutput,
+          env->GetPositionRes(), env->GetOrientationRes()))
+      edgesToDel.push_back((*eit).descriptor());
+  }
+
+  //handle deletion of invalid edges and vertices
+  QMutexLocker locker(&GetVizmo().GetMap()->AcquireMutex());
+  for(typename vector<EID>::iterator eit = edgesToDel.begin();
+      eit != edgesToDel.end(); ++eit)
+    g->delete_edge(*eit);
+  for(typename vector<VID>::iterator vit = verticesToDel.begin();
+      vit != verticesToDel.end(); ++vit)
+    g->delete_vertex(*vit);
+
+  GetVizmo().GetMap()->RefreshMap(false);
+}
+
 
 template<class MPTraits>
 void

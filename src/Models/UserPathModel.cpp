@@ -183,56 +183,6 @@ KeyPressed(QKeyEvent* _e) {
   return false;
 }
 
-ostream&
-operator<<(ostream& _os, const UserPathModel& _upm) {
-  _os << "Type ";  
-  switch (_upm.m_type) {
-    case UserPathModel::Mouse:
-      _os << "Mouse" << endl;
-      break;
-    case UserPathModel::CameraPath:
-      _os << "CameraPath" << endl;
-      break;
-    case UserPathModel::Haptic:
-      _os << "Haptic" << endl;
-      break;
-  }
-  _os << "Validity " << _upm.m_valid << endl;
-  _os << "NumPoints " << _upm.m_userPath.size() << endl;
-
-  for(const auto& point: _upm.m_userPath)
-    _os << point << endl;
-  return _os;
-}
-
-istream& 
-operator>>(istream& _is, UserPathModel& _upm) {  
-  ///\todo Incorporate error checking into path format
- 
-  // Reading input type
-  string temp;
-  _is >> temp >> temp;
-
-  if(temp == "Mouse") 
-    _upm.m_type = UserPathModel::Mouse;
-  else if(temp == "CameraPath")
-    _upm.m_type = UserPathModel::CameraPath;
-  else if(temp == "Haptic")
-    _upm.m_type = UserPathModel::Haptic;
-
-  //read validity
-  _is >> temp >> _upm.m_valid;
-  
-  //read points
-  size_t numpoints;
-  _is >> temp >> numpoints;
-  _upm.m_userPath.clear();
-  _upm.m_userPath.resize(numpoints);
-  for(auto& point : _upm.m_userPath)
-    _is >> point;
-  _upm.m_finished = true; 
-  return _is;
-}
 
 void
 UserPathModel::

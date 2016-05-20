@@ -30,7 +30,7 @@ QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL
 ################################################################################
 #PMPL
 parallel = 0
-ROBOT_DEF = PMPCfg
+ROBOT_DEF = PMPCfgMultiRobot
 PMPL_DIR = ${VIZMO_DIR}/../pmpl/src
 UTILS_DIR = ${PMPL_DIR}/../utils
 STAPL_DIR = $(UTILS_DIR)/stapl_release
@@ -38,8 +38,8 @@ STAPL_DIR = $(UTILS_DIR)/stapl_release
 include ${PMPL_DIR}/Makefile.PMPLdefaults
 
 MP_DEF = -D$(ROBOT_DEF) $(UTILS_DEF) $(CGAL_DEF)
-MP_INCL = $(MP_DEF) $(PMPL_INCL) $(UTILS_INCL) $(STAPL_INCL) $(BOOST_INCL) $(MPNN_INCL)
-MP_LIBS = $(PMPL_LIB) $(UTILS_LIB) $(BOOST_LIB) $(CGAL_LIB) $(MPNN_LIB)
+MP_INCL = $(MP_DEF) $(PMPL_INCL) $(UTILS_INCL) $(STAPL_INCL) $(BOOST_INCL) $(CGAL_INCL) $(MPNN_INCL)
+MP_LIBS = $(PMPL_LIB) $(UTILS_LIB) $(MPNN_LIB) $(BOOST_LIB)
 MP_LIBFILE = $(PMPL_DIR)/libobprm.a
 $(PMPL_DIR)/libobprm.a:
 	cd ${PMPL_DIR}; ${MAKE} ROBOT_DEF=$(ROBOT_DEF) platform=${platform} debug=${debug};

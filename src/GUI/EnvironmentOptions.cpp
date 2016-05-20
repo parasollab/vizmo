@@ -1,8 +1,5 @@
 #include "EnvironmentOptions.h"
 
-#include "Environment/FixedBody.h"
-#include "Environment/StaticMultiBody.h"
-
 #include "ChangeBoundaryDialog.h"
 #include "EditRobotDialog.h"
 #include "GLWidget.h"
@@ -205,7 +202,7 @@ void
 EnvironmentOptions::
 AddObstacle() {
   //get the name of an obstacle file
-  QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
+  /*QString fn = QFileDialog::getOpenFileName(this, "Choose an obstacle to load",
       GetMainWindow()->GetLastDir(), "Files  (*.g *.obj)");
 
   if(!fn.isEmpty()) {
@@ -213,47 +210,50 @@ AddObstacle() {
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
 
-    //add the new obstacle to the environment and select it
-    shared_ptr<StaticMultiBodyModel> m = GetVizmo().GetEnv()->AddObstacle(
-        fi.absolutePath().toStdString(),
-        fi.fileName().toStdString(),
+    //create a new obstacle
+    MultiBodyModel* m = new MultiBodyModel(GetVizmo().GetEnv(),
+        fi.absolutePath().toStdString(), fi.fileName().toStdString(),
         Transformation());
+
+    //add the new obstacle to the environment and select it
+    GetVizmo().GetEnv()->AddMBModel(m);
+    GetVizmo().GetSelectedModels().clear();
+    GetVizmo().GetSelectedModels().push_back(m);
     RefreshEnv();
 
-    //Select new obstacle
-    GetVizmo().GetSelectedModels().clear();
-    GetVizmo().GetSelectedModels().push_back(m.get());
-
     //open the obstacle position dialog for the new obstacle
-    vector<StaticMultiBodyModel*> v(1, m.get());
+    vector<MultiBodyModel*> v(1, m);
     ObstaclePosDialog* opd = new ObstaclePosDialog(GetMainWindow(), v);
     GetMainWindow()->ShowDialog(opd);
   }
   else
-    GetMainWindow()->statusBar()->showMessage("Loading aborted");
+    GetMainWindow()->statusBar()->showMessage("Loading aborted");*/
 }
 
 
 void
 EnvironmentOptions::
 DeleteObstacle() {
-  vector<StaticMultiBodyModel*> toDel;
+  vector<MultiBodyModel*> toDel;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
   //grab the bodies from the selected vector
   for(auto& s : sel)
-    if(s->Name() == "StaticMultiBody")
-      toDel.push_back(static_cast<StaticMultiBodyModel*>(s));
+    if(s->Name().find("MultiBody") != string::npos &&
+        s->Name() != "ActiveMultiBody")
+      toDel.push_back((MultiBodyModel*)s);
 
   //alert that only non-active multibodies can be selected
   if(toDel.empty() || toDel.size() != sel.size())
     GetMainWindow()->AlertUser(
-        "Must select one or more static multibodies only.");
+        "Must select one or more non-active multibodies only.");
 
   //successful selection, delete obstacle(s)
   else {
-    for(auto& model : toDel)
-      GetVizmo().GetEnv()->DeleteObstacle(model);
+    /*typedef vector<MultiBodyModel*>::iterator MIT;
+    for(MIT mit = toDel.begin(); mit != toDel.end(); ++mit)
+      GetVizmo().GetEnv()->DeleteMBModel(*mit);*/
+
     GetVizmo().GetSelectedModels().clear();
     RefreshEnv();
   }
@@ -270,7 +270,7 @@ MoveObstacle() {
   for(auto& s : sel)
     if(s->Name().find("MultiBody") != string::npos &&
         s->Name() != "ActiveMultiBody")
-      toMove.push_back(static_cast<StaticMultiBodyModel*>(s));
+      toMove.push_back((StaticMultiBodyModel*)s);
 
   //alert that only non-active multibodies can be selected
   if(toMove.empty() || toMove.size() != sel.size())
@@ -291,8 +291,9 @@ DuplicateObstacles() {
   vector<StaticMultiBodyModel*> toCopy;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   for(auto& s : sel)
-    if(s->Name() == "StaticMultiBody")
-      toCopy.push_back(static_cast<StaticMultiBodyModel*>(s));
+    if(s->Name().find("MultiBody") != string::npos &&
+        s->Name() != "ActiveMultiBody")
+      toCopy.push_back((StaticMultiBodyModel*)s);
 
   //alert that only non-active multibodies can be selected
   if(toCopy.empty() || toCopy.size() != sel.size())
@@ -302,20 +303,17 @@ DuplicateObstacles() {
   //successful selection, copy and show ObstaclePosDialog
   else {
     vector<StaticMultiBodyModel*> copies;
-    for(auto& o : toCopy) {
-      auto body = o->GetStaticMultiBody()->GetFixedBody(0);
-      cout << "Filename: " << body->GetFileName() << endl;
-      shared_ptr<StaticMultiBodyModel> newo = GetVizmo().GetEnv()->AddObstacle(
-          "", body->GetFileName(), body->GetWorldTransformation()
-          );
-      copies.push_back(newo.get());
-    }
+    /*typedef vector<MultiBodyModel*>::iterator MIT;
+    for(MIT mit = toCopy.begin(); mit != toCopy.end(); ++mit) {
+      MultiBodyModel* m = new MultiBodyModel(**mit);
+      copies.push_back(m);
+      GetVizmo().GetEnv()->AddMBModel(m);
+    }*/
     sel.clear();
     copy(copies.begin(), copies.end(), back_inserter(sel));
 
     ObstaclePosDialog* opd = new ObstaclePosDialog(GetMainWindow(), copies);
     GetMainWindow()->ShowDialog(opd);
-    RefreshEnv();
   }
 }
 
@@ -357,6 +355,7 @@ RefreshEnv() {
   GetMainWindow()->GetModelSelectionWidget()->reset();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
 }
+
 
 void
 EnvironmentOptions::

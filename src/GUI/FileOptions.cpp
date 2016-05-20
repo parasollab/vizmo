@@ -157,7 +157,6 @@ UpdateFiles() {
   GetMainWindow()->GetAnimationWidget()->Reset();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->m_mainMenu->CallReset();
-  GetMainWindow()->GetGLWidget()->ResetCamera();
   GetMainWindow()->GetGLWidget()->SetCurrentRegion();
 }
 

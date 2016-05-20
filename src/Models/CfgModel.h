@@ -8,7 +8,11 @@ using namespace std;
 #include <GL/gl.h>
 #include <GL/glut.h>
 
+#ifdef PMPCfgMultiRobot
+#include "Cfg/CfgMultiRobot.h"
+#else
 #include "Cfg/Cfg.h"
+#endif
 
 #include "EdgeModel.h"
 #include "Model.h"
@@ -19,7 +23,11 @@ class EdgeModel;
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A drawable configuration model.
 ////////////////////////////////////////////////////////////////////////////////
+#ifdef PMPCfgMultiRobot
+class CfgModel : public Model, public CfgMultiRobot {
+#else
 class CfgModel : public Model, public Cfg {
+#endif
 
   public:
 
@@ -33,7 +41,11 @@ class CfgModel : public Model, public Cfg {
 
     // Construction
     CfgModel();
+#ifdef PMPCfgMultiRobot
+    CfgModel(const CfgMultiRobot& _c);
+#else
     CfgModel(const Cfg& _c);
+#endif
 
     // DOF and validity info
     ////////////////////////////////////////////////////////////////////////////

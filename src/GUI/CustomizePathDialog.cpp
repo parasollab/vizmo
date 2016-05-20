@@ -80,8 +80,10 @@ AcceptData() {
     path->SetDisplayInterval(disp);
 
   path->GetGradientVector().clear();
-  for(auto& c : m_colors)
-    path->GetGradientVector().push_back(Color4(c.redF(), c.greenF(), c.blueF(), 1.0));
+  typedef vector<QColor>::iterator QIT;
+  for(QIT qit = m_colors.begin(); qit != m_colors.end(); qit++){
+    path->GetGradientVector().push_back(Color4(qit->redF(), qit->greenF(), qit->blueF(), 1.0));
+  }
 
   path->Build();
   accept();
@@ -90,8 +92,6 @@ AcceptData() {
 void
 CustomizePathDialog::
 SetUpDialog() {
-  PathModel* path = GetVizmo().GetPath();
-
   setFixedSize(200, 540);
   setWindowTitle("Customize Path");
 
@@ -103,12 +103,6 @@ SetUpDialog() {
   m_gradientRect->setFixedSize(30, 425);
   layout->addWidget(new QLabel("Path Gradient Fill", this), 1, 1, 1, 3);
   layout->addWidget(m_gradientRect, 2, 1, 7, 1);
-
-  m_colors.clear();
-  vector<Color4> tmp = path->GetGradientVector();
-  for(auto& c : tmp)
-    m_colors.push_back(QColor(c[0] * 255, c[1] * 255, c[2] * 255));
-  update();
 
   QPushButton* addColorButton = new QPushButton(this);
   addColorButton->setText("Add Color...");
@@ -124,16 +118,10 @@ SetUpDialog() {
   layout->addWidget(new QLabel("Outline width", this), 5, 3, 1, 1);
   layout->addWidget(m_widthLineEdit, 6, 3, 1, 1);
 
-  QString widthString = QString::number(path->GetLineWidth());
-  m_widthLineEdit->setText(widthString);
-
   m_modLineEdit = new QLineEdit(this);
   layout->addWidget(new QLabel("Cfg display\ninterval", this), 7, 3, 1, 1);
   layout->addWidget(m_modLineEdit, 8, 3, 1, 1);
   layout->addItem(new QSpacerItem(200, 12), 9, 1, 1, 3);
-
-  QString dispString = QString::number(path->GetDisplayInterval());
-  m_modLineEdit->setText(dispString);
 
   QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
   okayCancel->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);

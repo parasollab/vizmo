@@ -103,17 +103,11 @@
 
     <MPStrategies>
 
-      <CfgOracle label="CfgOracle" cfgFile="" mps="RegionStrategy"/>
-
-      <RegionOracle label="RegionOracle" mps="RegionStrategy"/>
-
-      <PathOracle label="PathOracle" pathFile="" mps="RegionStrategy"/>
-
       <RegionStrategy label="RegionStrategy" lpLabel="RegionSL"
         sLabel="RegionUniformSampler" vcLabel="RegionValidity"
         cLabel = "RegionBFNFConnector"/>
 
-      <PathStrategy label="PathStrategy" vcLabel="cd4" dmLabel="edclidean"/>
+      <PathStrategy label="PathStrategy" vcLabel="cd4" dmLabel="edclidean" />
 
       <IRRTStrategy label="IRRT" vcLabel="cd4" nfLabel="BFNF"
         dmLabel="euclidean" lpLabel="sl" gtype="UNDIRECTED_TREE"
@@ -128,9 +122,7 @@
         cLabel="RegionBFNFConnector"/>
 
     </MPStrategies>
-
     <Solver mpStrategyLabel="RegionStrategy" seed="12345678"  baseFilename="s"
       vizmoDebug="true"/>
-
   </MPProblem>
 </MotionPlanning>

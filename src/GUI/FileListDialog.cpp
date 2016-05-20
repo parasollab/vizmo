@@ -67,7 +67,7 @@ GetAssociatedFiles(const vector<string>& _filename) {
 
       //test if files exist
       //first, if xml file, load that only
-      if(s == xmlname && FileExists(xmlname)) {
+      if(FileExists(xmlname)) {
         m_xmlMode = true;
 
         SetUpSubwidgets();

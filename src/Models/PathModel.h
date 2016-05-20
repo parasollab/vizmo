@@ -18,9 +18,6 @@ class PathModel : public LoadableModel {
     void SetDisplayInterval(int _disp) {m_displayInterval = _disp;}
     const CfgModel& GetConfiguration(size_t _i) const {return m_path[_i];}
 
-    float GetLineWidth() {return m_lineWidth;}
-    size_t GetDisplayInterval() {return m_displayInterval;}
-
     void ConfigureFrame(size_t _frame);
 
     void ParseFile();

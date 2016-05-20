@@ -63,18 +63,13 @@ class EnvModel : public Model {
     /// @param _c CfgModel to position in environment
     void ConfigureRender(const CfgModel& _c);
 
-    // Obstacles
+    // Multibodies
     ////////////////////////////////////////////////////////////////////////////
-    /// @brief Add obstacle to environment
-    /// @param _dir Directory for geometry file
-    /// @param _filename Geometry filename
-    /// @param _t Transformation of object
-    /// @return Pointer to newly created obstacle
-    shared_ptr<StaticMultiBodyModel> AddObstacle(const string& _dir,
-        const string& _filename, const Transformation& _t);
+    /// \brief Add a multibody to the environment.
+    //void AddMBModel(MultiBodyModel* _newMBI);
     ////////////////////////////////////////////////////////////////////////////
-    /// @brief Remove obstacle from the environment
-    void DeleteObstacle(StaticMultiBodyModel* _m);
+    /// \brief Remove a multibody from the environment.
+    //void DeleteMBModel(MultiBodyModel* _mbl);
 
     // Boundary
     ////////////////////////////////////////////////////////////////////////////
@@ -130,14 +125,6 @@ class EnvModel : public Model {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get a region pointer from a region model base pointer.
     RegionModelPtr GetRegion(Model* _model);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Save all regions to file
-    /// \param _filename File name
-    void SaveRegions(const string& _filename);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Load regions from file
-    /// \param _filename File name
-    void LoadRegions(const string& _filename);
 
     //Paths
     ////////////////////////////////////////////////////////////////////////////
@@ -149,14 +136,6 @@ class EnvModel : public Model {
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Remove a user path.
     void DeleteUserPath(UserPathModel* _p);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Save all user paths to file
-    /// \param _filename File name
-    void SaveUserPaths(const string& _filename);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Load user path from file
-    /// \param _filename File name
-    void LoadUserPaths(const string& _filename);
 
     // Temporary Objects
     ////////////////////////////////////////////////////////////////////////////

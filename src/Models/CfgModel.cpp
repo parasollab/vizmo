@@ -8,7 +8,11 @@ CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
 
 CfgModel::
+#ifdef PMPCfgMultiRobot
+CfgModel() : Model(""), CfgMultiRobot() {
+#else
 CfgModel() : Model(""), Cfg() {
+#endif
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;
@@ -16,7 +20,11 @@ CfgModel() : Model(""), Cfg() {
 }
 
 CfgModel::
+#ifdef PMPCfgMultiRobot
+CfgModel(const CfgMultiRobot& _c) : Model(""), CfgMultiRobot(_c) {
+#else
 CfgModel(const Cfg& _c) : Model(""), Cfg(_c) {
+#endif
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;
@@ -34,14 +42,22 @@ SetName() {
 void
 CfgModel::
 SetCfg(const vector<double>& _newCfg) {
-  m_v.assign(_newCfg.begin(), _newCfg.end());
+  SetData(_newCfg);
+  /* m_v.assign(_newCfg.begin(), _newCfg.end()); */
 }
 
 Point3d
 CfgModel::
 GetPoint() const {
+#ifdef PMPCfgMultiRobot
+  //FIXME should return a composite C-space point (not first one only)
+  //auto& cfg = GetRobotsCollect()[0];
+  shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(0);
+  return Point3d(m_v[0], m_v[1], robot->IsPlanar() ? 0 : m_v[2]);
+#else
   shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
   return Point3d(m_v[0], m_v[1], robot->IsPlanar() ? 0 : m_v[2]);
+#endif
 }
 
 void
@@ -69,11 +85,21 @@ DrawRender() {
   switch(m_shape) {
     case Robot:
       {
+#ifdef PMPCfgMultiRobot
+        for(auto& cfg : m_robotsCollect) {
+          shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(cfg.GetRobotIndex());
+          robot->SetColor(c);
+          robot->SetRenderMode(m_renderMode);
+          robot->ConfigureRender(cfg.GetData());
+          robot->DrawRender();
+        }
+#else
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->SetColor(c);
         robot->SetRenderMode(m_renderMode);
         robot->ConfigureRender(m_v);
         robot->DrawRender();
+#endif
         break;
       }
 
@@ -96,10 +122,19 @@ DrawSelect() {
   switch(m_shape) {
     case Robot:
       {
+#ifdef PMPCfgMultiRobot
+        for(auto& cfg : m_robotsCollect) {
+          shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(cfg.GetRobotIndex());
+          robot->SetRenderMode(m_renderMode);
+          robot->ConfigureRender(cfg.GetData());
+          robot->DrawSelect();
+        }
+#else
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->SetRenderMode(m_renderMode);
         robot->ConfigureRender(m_v);
         robot->DrawSelect();
+#endif
       }
       break;
 
@@ -119,10 +154,19 @@ DrawSelected() {
   switch(m_shape) {
     case Robot:
       {
+#ifdef PMPCfgMultiRobot
+        for(auto& cfg : m_robotsCollect) {
+          shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(cfg.GetRobotIndex());
+          robot->SetRenderMode(WIRE_MODE);
+          robot->ConfigureRender(cfg.GetData());
+          robot->DrawSelectedImpl();
+        }
+#else
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->SetRenderMode(WIRE_MODE);
         robot->ConfigureRender(m_v);
         robot->DrawSelectedImpl();
+#endif
       }
       break;
     case Point:
@@ -138,11 +182,21 @@ DrawSelected() {
 void
 CfgModel::
 DrawPathRobot() {
+#ifdef PMPCfgMultiRobot
+  for(auto& cfg : m_robotsCollect) {
+    shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(cfg.GetRobotIndex());
+    robot->RestoreColor();
+    robot->SetRenderMode(SOLID_MODE);
+    robot->ConfigureRender(cfg.GetData());
+    robot->DrawRender();
+  }
+#else
   shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
   robot->RestoreColor();
   robot->SetRenderMode(SOLID_MODE);
   robot->ConfigureRender(m_v);
   robot->DrawRender();
+#endif
 }
 
 void

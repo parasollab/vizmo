@@ -9,8 +9,6 @@
 #include "Models/RegionSphere2DModel.h"
 #include "Models/Vizmo.h"
 
-#include "MotionPlanning/VizmoTraits.h"
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  RegionRRT is a user-guided RRT that draws some of its samples q_rand
 ///         from the user-created attract regions.
@@ -31,7 +29,6 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
     typedef typename MPProblemType::DistanceMetricPointer DistanceMetricPointer;
     typedef typename MPProblemType::NeighborhoodFinderPointer
         NeighborhoodFinderPointer;
-    typedef typename MPProblemType::ValidityCheckerPointer ValidityCheckerPointer;
     typedef EnvModel::RegionModelPtr RegionModelPtr;
 
     // Construction
@@ -39,7 +36,7 @@ class RegionRRT : public BasicRRTStrategy<MPTraits> {
         const CfgType& _goal = CfgType(), string _lp = "sl",
         string _dm = "euclidean", string _nf = "BFNF", string _vc = "PQP_SOLID",
         string _nc = "kClosest", string _gt = "UNDIRECTED_TREE",
-        string _extenderLabel = "RegionBERO",
+        string _extenderLabel = "BERO",
         vector<string> _evaluators = vector<string>(), double _delta = 10.0,
         double _minDist = 0.001, double _growthFocus = 0.05,
         bool _evaluateGoal = true, size_t _numRoots = 1,
@@ -137,7 +134,6 @@ Run() {
     this->m_currentTree = this->m_trees.begin() + LRand() % this->m_trees.size();
 
     VID recent = this->ExpandTree(dir);
-
     if(recent != INVALID_VID) {
       //connect various trees together
       this->ConnectTrees(recent);
@@ -162,8 +158,6 @@ Run() {
     }
     else
       mapPassedEvaluation = false;
-
-    GetVizmo().ProcessAvoidRegions();
 
     /*if(m_samplingRegion != NULL) {
       //Delete region if q_new is in it
@@ -249,14 +243,14 @@ SelectDirection() {
   const vector<RegionModelPtr>& regions = GetVizmo().GetEnv()->GetAttractRegions();
   Environment* env = this->GetEnvironment();
 
-  size_t index = rand() % (regions.size() + 1);
+  size_t _index = rand() % (regions.size() + 1);
 
-  if(index == regions.size()) {
+  if(_index == regions.size()) {
     m_samplingRegion.reset();
     samplingBoundary = this->GetEnvironment()->GetBoundary();
   }
   else {
-    m_samplingRegion = regions[index];
+    m_samplingRegion = regions[_index];
     samplingBoundary = m_samplingRegion->GetBoundary();
   }
 

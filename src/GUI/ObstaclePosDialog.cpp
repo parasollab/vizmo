@@ -58,8 +58,6 @@ SetUpLayout() {
   setLayout(layout);
   setStyleSheet("QLabel { font:9pt } QLineEdit { font:8pt }");
 
-  layout->setAlignment(Qt::AlignTop);
-
   QPushButton* loadButton = new QPushButton("OK", this);
   connect(loadButton, SIGNAL(clicked()), this, SLOT(accept()));
   layout->addWidget(loadButton, 8, 0, 1, 3);
@@ -174,6 +172,7 @@ ChangeSlidersValues() {
   QLineEdit* posLine = static_cast<QLineEdit*>(sender());
   auto itr = std::find(begin(m_posLines), end(m_posLines), posLine);
   size_t indx = distance(begin(m_posLines), itr);
+  cout << "indx : " << indx << endl;;
   double val = m_posLines[indx]->text().toDouble();
   m_sliders[indx]->blockSignals(true);
   m_sliders[indx]->setValue(val*100);
@@ -235,7 +234,7 @@ RefreshPosition(bool _emit) {
     Vector3d translation(x, y, z);
     EulerAngle e(a, b, g);
     Transformation t(translation, Orientation(e));
-    m_multiBody[0]->SetTransform(t);
+    (*m_multiBody[0]->begin())->SetTransform(t);
     if(_emit) {
       Quaternion q;
       convertFromEuler(q, e);
@@ -257,7 +256,7 @@ RefreshPosition(bool _emit) {
     for(const auto& mb : m_multiBody) {
       Transformation t = (*mb->begin())->GetTransform();
       t.translation() += diff;
-      mb->SetTransform(t);
+      (*mb->begin())->SetTransform(t);
     }
 
     if(_emit)
