@@ -74,11 +74,13 @@ PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
     if(_invisible)
       r->SetRenderMode(INVISIBLE_MODE);
     r->BackUp();
-    m_avatar->SetCfg(cfg);
+//    m_avatar->SetCfg(cfg);
   }
   for(const auto& cfg : _cfgs) {
-    m_robots[cfg.GetRobotIndex()]->SetInitialCfg(cfg.GetData());
-    m_avatar->SetCfg(cfg.GetData());
+    for(auto& robot : cfg.GetRobotsCollect()) {
+      m_robots[robot.GetRobotIndex()]->SetInitialCfg(robot.GetData());
+//    m_avatar->SetCfg(cfg.GetData());
+    }
   }
 }
 
@@ -317,7 +319,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
 void
 EnvModel::
 DrawRender() {
-  m_avatar->DrawRender();
+  //m_avatar->DrawRender();
 
   m_boundary->DrawRender();
 
