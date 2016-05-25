@@ -12,7 +12,7 @@ BodyModel::
 BodyModel(shared_ptr<Body> _b) : TransformableModel("Body"), m_body(_b),
   m_polyhedronModel(new PolyhedronModel(
         (Body::m_modelDataDir == "/" ? "" : Body::m_modelDataDir) +
-        _b->GetFileName())),
+        _b->GetFileName(), _b->GetCOMAdjust())),
   m_textureID(-1) {
     SetTransform(_b->GetWorldTransformation());
   }
