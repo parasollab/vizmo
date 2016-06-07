@@ -8,21 +8,23 @@
 
 #include "Utilities/VizmoExceptions.h"
 
-PolyhedronModel::PolyhedronModel(const string& _filename, bool _isSurface)
-  : Model(_filename), m_filename(_filename), m_isSurface(_isSurface),
-  m_numVerts(0), m_solidID(-1), m_wiredID(-1), m_normalsID(-1) {
+PolyhedronModel::PolyhedronModel(const string& _filename,
+    GMSPolyhedron::COMAdjust _comAdjust)
+  : Model(_filename), m_filename(_filename),
+  m_numVerts(0), m_solidID(0), m_wiredID(0), m_normalsID(0),
+  m_comAdjust(_comAdjust) {
     Build();
   }
 
 PolyhedronModel::PolyhedronModel(const PolyhedronModel& _p) : Model(_p),
-  m_filename(_p.m_filename), m_isSurface(_p.m_isSurface) {
+  m_filename(_p.m_filename), m_comAdjust(_p.m_comAdjust) {
     Build();
   }
 
 PolyhedronModel::~PolyhedronModel(){
-  glDeleteLists(m_wiredID,1);
-  glDeleteLists(m_solidID,1);
-  glDeleteLists(m_normalsID,1);
+  glDeleteLists(m_wiredID, 1);
+  glDeleteLists(m_solidID, 1);
+  glDeleteLists(m_normalsID, 1);
 }
 
 void
@@ -62,7 +64,7 @@ PolyhedronModel::Build() {
 void
 PolyhedronModel::
 DrawRender() {
-  if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
+  if(m_solidID == 0 || m_renderMode == INVISIBLE_MODE)
     return;
 
   if(m_renderMode == SOLID_MODE){
@@ -80,7 +82,7 @@ DrawRender() {
 void
 PolyhedronModel::
 DrawSelect() {
-  if(m_solidID == GLuint(-1) || m_renderMode == INVISIBLE_MODE)
+  if(m_solidID == 0 || m_renderMode == INVISIBLE_MODE)
     return;
 
   glCallList(m_solidID);
@@ -120,7 +122,17 @@ BuildSolidObj(IModel* _model) {
   glEnable(GL_LIGHTING);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  switch(m_comAdjust) {
+    case GMSPolyhedron::COMAdjust::COM:
+      glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::Surface:
+      glTranslated(-m_com[0], 0, -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::None:
+    default:
+      break;
+  }
 
   PtVector& points = _model->GetVertices();
   vector<Vector3d>& normals = _model->GetNormals();
@@ -172,7 +184,17 @@ BuildSolidBYU(IModel* _model, const vector<Vector3d>& _norms) {
   glEnable(GL_LIGHTING);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  switch(m_comAdjust) {
+    case GMSPolyhedron::COMAdjust::COM:
+      glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::Surface:
+      glTranslated(-m_com[0], 0, -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::None:
+    default:
+      break;
+  }
 
   const PtVector& points = _model->GetVertices();
   const TriVector& tris = _model->GetTriP();
@@ -202,7 +224,17 @@ BuildNormalsObj(IModel* _model) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  switch(m_comAdjust) {
+    case GMSPolyhedron::COMAdjust::COM:
+      glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::Surface:
+      glTranslated(-m_com[0], 0, -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::None:
+    default:
+      break;
+  }
 
   PtVector& points = _model->GetVertices();
   vector<Vector3d>& normals = _model->GetNormals();
@@ -253,7 +285,17 @@ BuildNormalsBYU(IModel* _model, const vector<Vector3d>& _norms) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  switch(m_comAdjust) {
+    case GMSPolyhedron::COMAdjust::COM:
+      glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::Surface:
+      glTranslated(-m_com[0], 0, -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::None:
+    default:
+      break;
+  }
 
   const PtVector& points = _model->GetVertices();
   const TriVector& tris = _model->GetTriP();
@@ -336,7 +378,17 @@ BuildWired(IModel* _model, const vector<Vector3d>& _norms) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+  switch(m_comAdjust) {
+    case GMSPolyhedron::COMAdjust::COM:
+      glTranslated(-m_com[0], -m_com[1], -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::Surface:
+      glTranslated(-m_com[0], 0, -m_com[2]);
+      break;
+    case GMSPolyhedron::COMAdjust::None:
+    default:
+      break;
+  }
 
   const PtVector& points = _model->GetVertices();
 
@@ -364,8 +416,6 @@ PolyhedronModel::
 COM(const PtVector& _points) {
   m_com = accumulate(_points.begin(), _points.end(), Point3d(0, 0, 0));
   m_com /= _points.size();
-  if(m_isSurface)
-    m_com[1] = 0;
 }
 
 void

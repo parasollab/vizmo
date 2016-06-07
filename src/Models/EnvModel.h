@@ -1,6 +1,9 @@
 #ifndef ENV_MODEL_H_
 #define ENV_MODEL_H_
 
+#include <QMutex>
+#include <QMutexLocker>
+
 #include "Environment/Environment.h"
 
 #include "Model.h"
@@ -12,9 +15,13 @@ class ActiveMultiBodyModel;
 class AvatarModel;
 class BoundaryModel;
 class CfgModel;
+class ReebGraphConstruction;
+class ReebGraphModel;
 class StaticMultiBodyModel;
 class SurfaceMultiBodyModel;
 class TempObjsModel;
+class TetGenDecomposition;
+class TetGenDecompositionModel;
 class UserPathModel;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,6 +33,19 @@ class UserPathModel;
 class EnvModel : public Model {
 
   public:
+
+    enum EnvObjectName : GLuint {
+      Boundary,
+      Robots,
+      Obstacles,
+      Surfaces,
+      AttractRegions,
+      AvoidRegions,
+      NonCommitRegions,
+      UserPaths,
+      TetGen,
+      ReebGraph
+    };
 
     // Construction
     EnvModel(const string& _filename);
@@ -166,6 +186,14 @@ class EnvModel : public Model {
     /// \brief Remove a set of temporary objects from the environment.
     void RemoveTempObjs(TempObjsModel* _t);
 
+    // Decomposition
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Add TetGen Decomposition Model to environment
+    void AddTetGenDecompositionModel(TetGenDecomposition* _tetgen);
+    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Add Reeb Graph Model to environment
+    void AddReebGraphModel(ReebGraphConstruction* _reebGraph);
+
     // Display functions
     void ChangeColor(); ///< Change all objects' colors randomly.
 
@@ -197,9 +225,13 @@ class EnvModel : public Model {
     vector<RegionModelPtr> m_attractRegions;   ///< Stores attract regions.
     vector<RegionModelPtr> m_avoidRegions;     ///< Stores avoid regions.
     vector<RegionModelPtr> m_nonCommitRegions; ///< Stores non-commit regions.
+    mutable QMutex m_regionLock;               ///< Region Lock
 
     vector<UserPathModel*> m_userPaths; ///< Stores user paths.
     vector<TempObjsModel*> m_tempObjs;  ///< Stores temporary objects.
+
+    TetGenDecompositionModel* m_tetgenModel; ///< TetGen Model
+    ReebGraphModel* m_reebGraphModel;        ///< Reeb Graph Model
 
     Environment* m_environment; ///< The PMPL environment.
 };

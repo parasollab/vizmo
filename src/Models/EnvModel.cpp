@@ -14,6 +14,7 @@
 #include "BoundingBoxModel.h"
 #include "BoundingSphereModel.h"
 #include "CfgModel.h"
+#include "ReebGraphModel.h"
 #include "RegionBoxModel.h"
 #include "RegionBox2DModel.h"
 #include "RegionSphereModel.h"
@@ -21,12 +22,14 @@
 #include "StaticMultiBodyModel.h"
 #include "SurfaceMultiBodyModel.h"
 #include "TempObjsModel.h"
+#include "TetGenDecompositionModel.h"
 #include "UserPathModel.h"
 #include "Utilities/VizmoExceptions.h"
 
 EnvModel::
 EnvModel(const string& _filename) : Model("Environment"),
-  m_radius(0), m_boundary(NULL) {
+  m_radius(0), m_boundary(nullptr),
+  m_tetgenModel(nullptr), m_reebGraphModel(nullptr) {
 
     m_environment = new Environment();
     m_environment->Read(_filename);
@@ -39,7 +42,9 @@ EnvModel(const string& _filename) : Model("Environment"),
 
 EnvModel::
 EnvModel(Environment* _env) : Model("Environment"),
-  m_radius(0), m_boundary(NULL), m_environment(_env) {
+  m_radius(0), m_boundary(nullptr),
+  m_tetgenModel(nullptr), m_reebGraphModel(nullptr),
+  m_environment(_env) {
 
     Build();
 
@@ -52,6 +57,8 @@ EnvModel::
   delete m_avatar;
   for(auto& p : m_userPaths)
     delete p;
+  delete m_tetgenModel;
+  delete m_reebGraphModel;
 }
 
 const Point3d&
@@ -143,6 +150,7 @@ IsNonCommitRegion(RegionModelPtr _r) const {
 void
 EnvModel::
 AddAttractRegion(RegionModelPtr _r) {
+  QMutexLocker lock(&m_regionLock);
   _r->SetColor(Color4(0, 1, 0, 0.5));
   m_attractRegions.push_back(_r);
   VDAddRegion(_r.get());
@@ -151,6 +159,7 @@ AddAttractRegion(RegionModelPtr _r) {
 void
 EnvModel::
 AddAvoidRegion(RegionModelPtr _r) {
+  QMutexLocker lock(&m_regionLock);
   _r->SetColor(Color4(0, 0, 0, 0.5));
   m_avoidRegions.push_back(_r);
   VDAddRegion(_r.get());
@@ -159,6 +168,7 @@ AddAvoidRegion(RegionModelPtr _r) {
 void
 EnvModel::
 AddNonCommitRegion(RegionModelPtr _r) {
+  QMutexLocker lock(&m_regionLock);
   _r->SetColor(Color4(0, 0, 1, 0.8));
   m_nonCommitRegions.push_back(_r);
 }
@@ -166,6 +176,7 @@ AddNonCommitRegion(RegionModelPtr _r) {
 void
 EnvModel::
 ChangeRegionType(RegionModelPtr _r, bool _attract) {
+  QMutexLocker lock(&m_regionLock);
   vector<RegionModelPtr>::iterator rit;
   rit = find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r);
   if(rit != m_nonCommitRegions.end()) {
@@ -180,6 +191,7 @@ ChangeRegionType(RegionModelPtr _r, bool _attract) {
 void
 EnvModel::
 DeleteRegion(RegionModelPtr _r) {
+  QMutexLocker lock(&m_regionLock);
   VDRemoveRegion(_r.get());
 
   vector<RegionModelPtr>::iterator rit;
@@ -383,6 +395,18 @@ RemoveTempObjs(TempObjsModel* _t) {
 
 void
 EnvModel::
+AddTetGenDecompositionModel(TetGenDecomposition* _tetgen) {
+  m_tetgenModel = new TetGenDecompositionModel(_tetgen);
+}
+
+void
+EnvModel::
+AddReebGraphModel(ReebGraphConstruction* _reebGraph) {
+  m_reebGraphModel = new ReebGraphModel(_reebGraph);
+}
+
+void
+EnvModel::
 Build() {
   //construct boundary
   if(shared_ptr<BoundingBox> b = dynamic_pointer_cast<BoundingBox>(m_environment->GetBoundary()))
@@ -448,43 +472,40 @@ Select(GLuint* _index, vector<Model*>& _sel) {
 
   GLuint indx = *_index;
 
-  if(indx < m_robots.size()) {
-    m_robots[indx]->Select(_index+1, _sel);
-    return;
+  switch(indx) {
+    case EnvObjectName::Boundary:
+      m_boundary->Select(_index + 1, _sel);
+      break;
+    case EnvObjectName::Robots:
+      m_robots[*(_index + 1)]->Select(_index + 2, _sel);
+      break;
+    case EnvObjectName::Obstacles:
+      m_obstacles[*(_index + 1)]->Select(_index + 2, _sel);
+      break;
+    case EnvObjectName::Surfaces:
+      m_surfaces[*(_index + 1)]->Select(_index + 2, _sel);
+      break;
+    case EnvObjectName::AttractRegions:
+      m_attractRegions[*(_index + 1)]->Select(_index + 2, _sel);
+      break;
+    case EnvObjectName::AvoidRegions:
+      m_avoidRegions[*(_index + 1)]->Select(_index + 2, _sel);
+      break;
+    case EnvObjectName::NonCommitRegions:
+      m_nonCommitRegions[*(_index + 1)]->Select(_index + 2, _sel);
+      break;
+    case EnvObjectName::UserPaths:
+      m_userPaths[*(_index + 1)]->Select(_index + 2, _sel);
+      break;
+    case EnvObjectName::TetGen:
+      m_tetgenModel->Select(_index + 1, _sel);
+      break;
+    case EnvObjectName::ReebGraph:
+      m_reebGraphModel->Select(_index + 1, _sel);
+      break;
+    default:
+      break;
   }
-  indx -= m_robots.size();
-  if(indx < m_obstacles.size()) {
-    m_obstacles[indx]->Select(_index+1, _sel);
-    return;
-  }
-  indx -= m_obstacles.size();
-  if(indx < m_surfaces.size()) {
-    m_surfaces[indx]->Select(_index+1, _sel);
-    return;
-  }
-  indx -= m_surfaces.size();
-  if(indx < m_attractRegions.size()) {
-    m_attractRegions[indx]->Select(_index+1, _sel);
-    return;
-  }
-  indx -= m_attractRegions.size();
-  if(indx < m_avoidRegions.size()) {
-    m_avoidRegions[indx]->Select(_index+1, _sel);
-    return;
-  }
-  indx -= m_avoidRegions.size();
-  if(indx < m_nonCommitRegions.size()) {
-    m_nonCommitRegions[indx]->Select(_index+1, _sel);
-    return;
-  }
-  indx -= m_nonCommitRegions.size();
-  if(indx < m_userPaths.size()) {
-    m_userPaths[indx]->Select(_index+1, _sel);
-    return;
-  }
-  indx -= m_userPaths.size();
-  if(indx == 0)
-    m_boundary->Select(_index+1, _sel);
 }
 
 
@@ -508,12 +529,15 @@ DrawRender() {
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
-  for(auto& r : m_attractRegions)
-    r->DrawRender();
-  for(auto& r : m_avoidRegions)
-    r->DrawRender();
-  for(auto& r : m_nonCommitRegions)
-    r->DrawRender();
+  {
+    QMutexLocker lock(&m_regionLock);
+    for(auto& r : m_attractRegions)
+      r->DrawRender();
+    for(auto& r : m_avoidRegions)
+      r->DrawRender();
+    for(auto& r : m_nonCommitRegions)
+      r->DrawRender();
+  }
   for(auto& p : m_userPaths)
     p->DrawRender();
   glDepthMask(GL_TRUE);
@@ -522,60 +546,105 @@ DrawRender() {
 
   for(auto& t : m_tempObjs)
     t->DrawRender();
+
+  if(m_tetgenModel)
+    m_tetgenModel->DrawRender();
+  if(m_reebGraphModel)
+    m_reebGraphModel->DrawRender();
 }
 
 
 void
 EnvModel::
 DrawSelect() {
+  glLineWidth(1);
+
   size_t nameIndx = 0;
 
-  glLineWidth(1);
+  glPushName(EnvObjectName::Robots);
   for(auto& r : m_robots) {
     glPushName(nameIndx++);
     r->Restore();
     r->DrawSelect();
     glPopName();
   }
+  glPopName();
+
+  nameIndx = 0;
+  glPushName(EnvObjectName::Obstacles);
   for(auto& o : m_obstacles) {
     glPushName(nameIndx++);
     o->DrawSelect();
     glPopName();
   }
+  glPopName();
+
+  nameIndx = 0;
+  glPushName(EnvObjectName::Surfaces);
   for(auto& s : m_surfaces) {
     glPushName(nameIndx++);
     s->DrawSelect();
     glPopName();
   }
+  glPopName();
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glDepthMask(GL_FALSE);
-  for(auto& r : m_attractRegions) {
-    glPushName(nameIndx++);
-    r->DrawSelect();
+  {
+    QMutexLocker lock(&m_regionLock);
+
+    nameIndx = 0;
+    glPushName(EnvObjectName::AttractRegions);
+    for(auto& r : m_attractRegions) {
+      glPushName(nameIndx++);
+      r->DrawSelect();
+      glPopName();
+    }
+    glPopName();
+
+    nameIndx = 0;
+    glPushName(EnvObjectName::AvoidRegions);
+    for(auto& r : m_avoidRegions) {
+      glPushName(nameIndx++);
+      r->DrawSelect();
+      glPopName();
+    }
+    glPopName();
+
+    nameIndx = 0;
+    glPushName(EnvObjectName::NonCommitRegions);
+    for(auto& r : m_nonCommitRegions) {
+      glPushName(nameIndx++);
+      r->DrawSelect();
+      glPopName();
+    }
     glPopName();
   }
-  for(auto& r : m_avoidRegions) {
-    glPushName(nameIndx++);
-    r->DrawSelect();
-    glPopName();
-  }
-  for(auto& r : m_nonCommitRegions) {
-    glPushName(nameIndx++);
-    r->DrawSelect();
-    glPopName();
-  }
+
+  nameIndx = 0;
+  glPushName(EnvObjectName::UserPaths);
   for(auto& p : m_userPaths) {
     glPushName(nameIndx++);
     p->DrawSelect();
     glPopName();
   }
+  glPopName();
   glDepthMask(GL_TRUE);
   glDisable(GL_BLEND);
   glDisable(GL_CULL_FACE);
 
-  glPushName(nameIndx);
+  glPushName(EnvObjectName::TetGen);
+  if(m_tetgenModel)
+    m_tetgenModel->DrawSelect();
+  glPopName();
+
+  glPushName(EnvObjectName::ReebGraph);
+  if(m_reebGraphModel)
+    m_reebGraphModel->DrawSelect();
+  glPopName();
+
+  glPushName(EnvObjectName::Boundary);
   m_boundary->DrawSelect();
   glPopName();
 }
@@ -616,6 +685,10 @@ SetSelectable(bool _s) {
     o->SetSelectable(_s);
   for(const auto& s : m_surfaces)
     s->SetSelectable(_s);
+  if(m_tetgenModel)
+    m_tetgenModel->SetSelectable(_s);
+  if(m_reebGraphModel)
+    m_reebGraphModel->SetSelectable(_s);
   m_boundary->SetSelectable(_s);
 }
 
@@ -629,16 +702,23 @@ GetChildren(list<Model*>& _models) {
     _models.push_back(o.get());
   for(const auto& s : m_surfaces)
     _models.push_back(s.get());
-  for(const auto& r : m_attractRegions)
-    _models.push_back(r.get());
-  for(const auto& r : m_avoidRegions)
-    _models.push_back(r.get());
-  for(const auto& r : m_nonCommitRegions)
-    _models.push_back(r.get());
+  {
+    QMutexLocker lock(&m_regionLock);
+    for(const auto& r : m_attractRegions)
+      _models.push_back(r.get());
+    for(const auto& r : m_avoidRegions)
+      _models.push_back(r.get());
+    for(const auto& r : m_nonCommitRegions)
+      _models.push_back(r.get());
+  }
   typedef vector<UserPathModel*>::iterator PIT;
   for(const auto& p : m_userPaths)
     _models.push_back(p);
   _models.push_back(m_boundary.get());
+  if(m_tetgenModel)
+    _models.push_back(m_tetgenModel);
+  if(m_reebGraphModel)
+    _models.push_back(m_reebGraphModel);
 }
 
 void
@@ -647,3 +727,4 @@ SaveFile(const string& _filename) const {
   ofstream ofs(_filename);
   m_environment->Write(ofs);
 }
+

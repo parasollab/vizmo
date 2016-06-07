@@ -1,9 +1,11 @@
 #ifndef POLYHEDRONMODEL_H_
 #define POLYHEDRONMODEL_H_
 
-#include "Model.h"
-
 #include <containers/sequential/graph/graph.h>
+
+#include "Environment/GMSPolyhedron.h"
+
+#include "Model.h"
 
 class IModel;
 
@@ -13,7 +15,7 @@ class PolyhedronModel : public Model {
     typedef vector<Point3d> PtVector;
     typedef vector<Tri> TriVector;
 
-    PolyhedronModel(const string& _filename, bool _isSurface = false);
+    PolyhedronModel(const string& _filename, GMSPolyhedron::COMAdjust _comAdjust);
     PolyhedronModel(const PolyhedronModel& _p);
     ~PolyhedronModel();
 
@@ -50,7 +52,6 @@ class PolyhedronModel : public Model {
 
   private:
     string m_filename;
-    bool m_isSurface;
 
     size_t m_numVerts;
 
@@ -60,6 +61,7 @@ class PolyhedronModel : public Model {
 
     double m_radius; //radius
     Point3d m_com; //Center of Mass
+    GMSPolyhedron::COMAdjust m_comAdjust; ///< Adjustment of COM
 
     typedef stapl::sequential::graph<stapl::UNDIRECTED, stapl::NONMULTIEDGES, int, Vector<int, 2> > ModelGraph;
     ModelGraph m_modelGraph; //model graph for wired model
