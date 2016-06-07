@@ -65,6 +65,9 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Tue Jun 7 2016 Read Sandstrom <readamus@cse.tamu.edu> 6-7jun2016
+- Version 0.3.4 - Adding support workspace decomposition methods and auto-user
+  RRT.
 * Thu May 5 2016 Read Sandstrom <readamus@cse.tamu.edu> 5-5may2016
 - Version 0.3.3 - Release for CentOS 7.
 * Wed Jul 15 2015 Jory Denny <jdenny@cse.tamu.edu> 7-15jul2015
