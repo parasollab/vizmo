@@ -67,6 +67,7 @@ class Vizmo {
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
     const string& GetMapFileName() const {return m_mapFilename;}
     void SetMapFileName(const string& _name) {m_mapFilename = _name;}
+    void ReadMap(const string& _name);
     bool IsRoadMapLoaded(){return m_mapModel;}
 
     // Query Related Functions
@@ -104,6 +105,9 @@ class Vizmo {
 
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
+
+    void ProcessAvoidRegions();
+
 
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the name and label of all Samplers specified in the

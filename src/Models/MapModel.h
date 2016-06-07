@@ -47,6 +47,7 @@ class MapModel : public LoadableModel {
 
     //Access functions
     const string& GetEnvFileName() const {return m_envFileName;}
+    void SetEnvFileName(const string& _name) {m_envFileName = _name;}
     RGraph* GetGraph() {return m_graph;}
 
     VID Cfg2VID(const CFG& _target);
@@ -132,7 +133,7 @@ ParseFile() {
   if(!FileExists(GetFilename()))
     throw ParseException(WHERE, "File '" + GetFilename() + "' does not exist");
 
-  ifstream ifs(GetFilename().c_str());
+  ifstream ifs(GetFilename());
 
   //parse env filename
   string s;

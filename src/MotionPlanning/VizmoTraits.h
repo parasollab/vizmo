@@ -51,8 +51,11 @@
 #include "MPStrategies/BasicPRM.h"
 #include "MPStrategies/SparkPRM.h"
 #include "AutoRegionRRT.h"
+#include "CfgOracle.h"
 #include "IRRTStrategy.h"
+#include "PathOracle.h"
 #include "PathStrategy.h"
+#include "RegionOracle.h"
 #include "RegionStrategy.h"
 #include "RegionRRT.h"
 #include "SparkRegion.h"
@@ -135,8 +138,11 @@ struct VizmoTraits {
     AutoRegionRRT<VizmoTraits>,
     BasicPRM<VizmoTraits>,
     BasicRRTStrategy<VizmoTraits>,
+    CfgOracle<VizmoTraits>,
     IRRTStrategy<VizmoTraits>,
+    PathOracle<VizmoTraits>,
     PathStrategy<VizmoTraits>,
+    RegionOracle<VizmoTraits>,
     RegionRRT<VizmoTraits>,
     RegionStrategy<VizmoTraits>,
     SparkRegion<VizmoTraits>,

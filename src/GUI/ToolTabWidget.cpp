@@ -28,8 +28,7 @@ ToolTabWidget(MainWindow* _mainWindow) : QTabWidget() {
   }
 
   //set size
-  //setFixedSize(160, 420);
-  setFixedWidth(160);
+  setFixedSize(160, 345);
 
   //set tabs to appear on right-hand side
   setTabPosition(QTabWidget::East);

@@ -94,6 +94,9 @@ class UserPathModel : public Model {
     /// \param[in] _e The key event.
     bool KeyPressed(QKeyEvent* _e);
 
+    friend ostream& operator<<(ostream& _os, const UserPathModel& _upm);
+    friend istream& operator>>(istream& _is, UserPathModel& _upm);
+
   private:
 
     //helper functions

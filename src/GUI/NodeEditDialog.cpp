@@ -38,21 +38,22 @@ validate(QString& _s, int& _i) const {
 NodeEditSlider::
 NodeEditSlider(QWidget* _parent, string _label) : QWidget(_parent) {
   setStyleSheet("QLabel { font:8pt } QLineEdit { font:8pt }");
+  setMaximumHeight(60);
 
   QGridLayout* layout = new QGridLayout();
   this->setLayout(layout);
 
   QLabel* dofName = new QLabel(this);
   dofName->setText(QString::fromStdString(_label));
-  layout->addWidget(dofName, 1, 1, 1, 14);
+  layout->addWidget(dofName, 0, 0, 1, 14);
 
   m_slider = new QSlider(this);
   m_slider->setOrientation(Qt::Horizontal);
   m_slider->installEventFilter(this);
-  layout->addWidget(m_slider, 2, 1, 1, 14);
+  layout->addWidget(m_slider, 2, 0, 1, 10);
 
   m_dofValue = new QLineEdit(this);
-  layout->addWidget(m_dofValue, 3, 14);
+  layout->addWidget(m_dofValue, 2, 10, 1, 4);
 
   connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(UpdateDOFLabel(int)));
 }
@@ -228,7 +229,9 @@ Init() {
 
   SetUpSliders(m_sliders);
   for(SIT it = m_sliders.begin(); it != m_sliders.end(); it++)
-    scrollAreaBoxLayout->addWidget(*it);
+    scrollAreaBoxLayout->addWidget(*it, 1, Qt::AlignTop);
+
+  scrollAreaBox->setMaximumHeight(m_sliders.size() * 100);
 
   scrollArea->setWidget(scrollAreaBox);
   this->setLayout(overallLayout);

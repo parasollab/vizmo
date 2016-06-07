@@ -122,7 +122,9 @@ Initialize() {
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
   //Embed ReebGraph
-  m_reebGraphConstruction = new ReebGraphConstruction(m_tetrahedralization);
+  m_reebGraphConstruction = new ReebGraphConstruction();
+  m_reebGraphConstruction->Construct(this->GetEnvironment(),
+      this->GetBaseFilename());
   GetVizmo().GetEnv()->AddReebGraphModel(m_reebGraphConstruction);
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 

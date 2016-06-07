@@ -26,3 +26,10 @@ StaticMultiBodyModel::Build() {
     SetRenderMode(INVISIBLE_MODE);
 }
 
+void
+StaticMultiBodyModel::
+SetTransform(Transformation& _t) {
+  m_bodies[0]->SetTransform(_t);
+  m_staticMultiBody->GetFixedBody(0)->PutWorldTransformation(_t);
+}
+
