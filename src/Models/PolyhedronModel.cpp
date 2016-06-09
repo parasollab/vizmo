@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <numeric>
 
+#include "IModel.h"
 #include "ModelFactory.h"
 
 #include "Utilities/VizmoExceptions.h"
