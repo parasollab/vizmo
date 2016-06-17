@@ -1,10 +1,10 @@
 #!/bin/bash
 
-VERSION=0.3.2
+VERSION=0.3.4
 DATE=`date +"%Y.%m.%d"`
 BASENAME=vizmo++-$VERSION-$DATE
 TAR=$BASENAME.tar.gz
-RPMBUILDDIR=/scratch/jdenny/rpmbuild
+RPMBUILDDIR=/scratch/readamus/rpmbuild
 WORKINGDIR=/tmp
 RELEASEDIR=VizmoRelease
 

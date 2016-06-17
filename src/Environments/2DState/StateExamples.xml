@@ -30,7 +30,7 @@
 
     <Extenders>
       <KinodynamicExtender label="FixedBest" dmLabel="weuclidean" vcLabel="cd1"
-        delta="50.0" fixed="true" best="true"/>
+        delta="30.0" fixed="true" best="true"/>
       <KinodynamicExtender label="FixedRandom" dmLabel="weuclidean" vcLabel="cd1"
         delta="50.0" fixed="true" best="false"/>
       <KinodynamicExtender label="VaryBest" dmLabel="weuclidean" vcLabel="cd1"
@@ -79,9 +79,9 @@
 
       <!-- KinodynamicRRT -->
       <KinodynamicRegionRRT label="KinodynamicRegionRRT" growthFocus="0.05" minDist="0.001"
-        evaluateGoal="true" goalDist=".25" query="2d.query"
+        evaluateGoal="true" goalDist="0.3" query="2d.query"
         dmLabel="weuclidean" nfLabel="Nearest" vcLabel="cd1"
-        extenderLabel="VaryBest" debug="false">
+        extenderLabel="FixedBest" debug="false">
       </KinodynamicRegionRRT>
 
     </MPStrategies>

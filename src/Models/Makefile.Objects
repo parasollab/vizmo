@@ -15,6 +15,7 @@ OBJECTS += \
 	   Models/PathModel.o \
 	   Models/PolyhedronModel.o \
 	   Models/QueryModel.o \
+	   Models/ReebGraphModel.o \
 	   Models/RegionBoxModel.o \
 	   Models/RegionBox2DModel.o \
 	   Models/RegionSphereModel.o \
@@ -22,5 +23,6 @@ OBJECTS += \
 	   Models/StaticMultiBodyModel.o \
 	   Models/SurfaceMultiBodyModel.o \
 	   Models/TempObjsModel.o \
+	   Models/TetGenDecompositionModel.o \
 	   Models/UserPathModel.o \
 	   Models/Vizmo.o

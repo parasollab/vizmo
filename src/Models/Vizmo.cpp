@@ -238,6 +238,11 @@ InitPMPL() {
           query->GetQuery().back()));
     problem->AddMPStrategy(rr, "RegionRRT");*/
 
+    /*VizmoProblem::MPStrategyPointer arr(
+        new AutoRegionRRT<VizmoTraits>(query->GetQuery().front(),
+          query->GetQuery().back()));
+    problem->AddMPStrategy(arr, "AutoRegionRRT");*/
+
   }
   /*
   //add region strategy

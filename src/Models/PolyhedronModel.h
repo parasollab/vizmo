@@ -1,9 +1,11 @@
 #ifndef POLYHEDRONMODEL_H_
 #define POLYHEDRONMODEL_H_
 
-#include "Model.h"
-
 #include <containers/sequential/graph/graph.h>
+
+#include "Environment/GMSPolyhedron.h"
+
+#include "Model.h"
 
 #include "Matrix.h"
 
@@ -15,7 +17,7 @@ class PolyhedronModel : public Model {
     typedef vector<Point3d> PtVector;
     typedef vector<Tri> TriVector;
 
-    PolyhedronModel(const string& _filename, double _mass = 1.0, bool _isSurface = false);
+    PolyhedronModel(const string& _filename, GMSPolyhedron::COMAdjust _comAdjust, double _mass = 1.0);
     PolyhedronModel(const PolyhedronModel& _p);
     ~PolyhedronModel();
 
@@ -53,7 +55,6 @@ class PolyhedronModel : public Model {
 
   private:
     string m_filename;
-    bool m_isSurface;
 
     size_t m_numVerts;
 
@@ -63,6 +64,8 @@ class PolyhedronModel : public Model {
 
     double m_radius; //radius
     Point3d m_com; //Center of Mass
+    GMSPolyhedron::COMAdjust m_comAdjust; ///< Adjustment of COM
+
     double m_mass; //Mass
     Matrix3x3 m_moment; //Moment of Inertia
 

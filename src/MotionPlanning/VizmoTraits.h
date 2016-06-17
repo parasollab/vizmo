@@ -50,6 +50,7 @@
 #include "MPStrategies/BasicRRTStrategy.h"
 #include "MPStrategies/BasicPRM.h"
 #include "MPStrategies/SparkPRM.h"
+#include "AutoRegionRRT.h"
 #include "CfgOracle.h"
 #include "IRRTStrategy.h"
 #include "PathOracle.h"
@@ -134,6 +135,7 @@ struct VizmoTraits {
 
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
+    AutoRegionRRT<VizmoTraits>,
     BasicPRM<VizmoTraits>,
     BasicRRTStrategy<VizmoTraits>,
     CfgOracle<VizmoTraits>,

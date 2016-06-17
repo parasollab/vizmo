@@ -100,8 +100,7 @@ class GLWidget : public QGLWidget {
     /////////////////////////////////////////////
 
     //setup for lighting
-    void SetLight();
-    void SetLightPos();
+    void SetLights();
 
     //Grab the size of image for saving. If crop is true, use the cropBox to
     //size the image down.
