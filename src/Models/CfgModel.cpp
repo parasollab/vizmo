@@ -8,7 +8,7 @@ CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
 
 CfgModel::
-CfgModel() : Model(""), Cfg() {
+CfgModel() : Model(""), CfgType(), m_mutex(new mutex()) {
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;
@@ -16,7 +16,15 @@ CfgModel() : Model(""), Cfg() {
 }
 
 CfgModel::
-CfgModel(const Cfg& _c) : Model(""), Cfg(_c) {
+CfgModel(const CfgType& _c) : Model(""), CfgType(_c), m_mutex(new mutex()) {
+  m_index = -1;
+  m_isValid = true;
+  m_cc = NULL;
+  m_isQuery = false;
+}
+
+CfgModel::
+CfgModel(const CfgModel& _c) : Model(""), CfgType(_c), m_mutex(new mutex()) {
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;
@@ -148,12 +156,21 @@ DrawPathRobot() {
 void
 CfgModel::
 Print(ostream& _os) const {
-  /// \todo Function is not used: this information is controlled by
-  ///       VizmoRoadmapGUI::printNodeCfg() in roadmap.cpp, which calls
-  ///       CfgModel::GetNodeInfo().
-  _os << "Node ID = " << m_index << endl
-      << "Cfg ( " << *this << " )" << endl;
+  if(m_index != (size_t)-1)
+    _os << "VID: " << m_index << endl;
+
+  _os << "Cfg: ";
+  for(const auto& v : m_v)
+    _os << v << " ";
+  _os << endl;
+
+#ifdef PMPState
+  _os << "Vel: ";
+  for(const auto& v : m_vel)
+    _os << v << " ";
+  _os << endl;
+#endif
 
   if(!m_isValid)
-    _os << "**** IS IN COLLISION!! ****" << endl;
+    _os << endl << "**** Invalid! ****" << endl;
 }

@@ -2,7 +2,7 @@
 
 #include <QtGui>
 
-#include "Environment/BoundingSphere.h"
+#include "Environment/BoundingSphere2D.h"
 
 #include "Utilities/Camera.h"
 #include "Utilities/GLUtils.h"
@@ -21,7 +21,8 @@ RegionSphere2DModel(const Point3d& _center, double _radius, bool _firstClick) :
 shared_ptr<Boundary>
 RegionSphere2DModel::
 GetBoundary() const {
-  return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
+  return shared_ptr<Boundary>(new BoundingSphere2D(
+        Vector2d(m_center[0], m_center[1]), m_radius));
 }
 
 

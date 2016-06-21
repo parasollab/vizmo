@@ -8,6 +8,11 @@ ifndef debug
   debug = 0
 endif
 
+ifndef ROBOT_DEF
+  ROBOT_DEF = PMPCfg
+  #ROBOT_DEF = PMPState
+endif
+
 # set PHANToM compile
 ifndef phantom
   phantom = 0

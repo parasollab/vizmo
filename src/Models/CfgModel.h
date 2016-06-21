@@ -3,12 +3,19 @@
 
 #include <iostream>
 #include <string>
+#include <mutex>
 using namespace std;
 
 #include <GL/gl.h>
 #include <GL/glut.h>
 
+#ifdef PMPCfg
 #include "Cfg/Cfg.h"
+typedef Cfg CfgType;
+#elif defined(PMPState)
+#include "Cfg/State.h"
+typedef State CfgType;
+#endif
 
 #include "EdgeModel.h"
 #include "Model.h"
@@ -19,7 +26,7 @@ class EdgeModel;
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A drawable configuration model.
 ////////////////////////////////////////////////////////////////////////////////
-class CfgModel : public Model, public Cfg {
+class CfgModel : public Model, public CfgType {
 
   public:
 
@@ -33,7 +40,8 @@ class CfgModel : public Model, public Cfg {
 
     // Construction
     CfgModel();
-    CfgModel(const Cfg& _c);
+    CfgModel(const CfgType& _c);
+    CfgModel(const CfgModel& _c);
 
     // DOF and validity info
     ////////////////////////////////////////////////////////////////////////////
@@ -97,6 +105,14 @@ class CfgModel : public Model, public Cfg {
 
     void DrawPathRobot();
 
+    void Lock() {
+      m_mutex->lock();
+    }
+
+    void UnLock() {
+      m_mutex->unlock();
+    }
+
   protected:
 
     bool m_isValid; ///< Indicates whether last collision check was valid.
@@ -111,6 +127,8 @@ class CfgModel : public Model, public Cfg {
     bool m_isQuery; ///< Indicates whether this configuration is part of a query.
     size_t m_index; ///< Indicates this configuration's VID in the graph.
     CCModel<CfgModel, EdgeModel>* m_cc; ///< Points to this configuration's CC.
+
+    shared_ptr<mutex> m_mutex;
 };
 
 #endif

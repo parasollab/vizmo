@@ -3,7 +3,9 @@
 #include <fstream>
 
 #include "Environment/BoundingBox.h"
+#include "Environment/BoundingBox2D.h"
 #include "Environment/BoundingSphere.h"
+#include "Environment/BoundingSphere2D.h"
 #include "Environment/ActiveMultiBody.h"
 #include "Environment/StaticMultiBody.h"
 #include "Environment/SurfaceMultiBody.h"
@@ -12,7 +14,9 @@
 #include "AvatarModel.h"
 #include "BodyModel.h"
 #include "BoundingBoxModel.h"
+#include "BoundingBox2DModel.h"
 #include "BoundingSphereModel.h"
+#include "BoundingSphere2DModel.h"
 #include "CfgModel.h"
 #include "ReebGraphModel.h"
 #include "RegionBoxModel.h"
@@ -149,20 +153,26 @@ IsNonCommitRegion(RegionModelPtr _r) const {
 
 void
 EnvModel::
-AddAttractRegion(RegionModelPtr _r) {
-  QMutexLocker lock(&m_regionLock);
+AddAttractRegion(RegionModelPtr _r, bool _lock) {
+  QMutexLocker* lock = NULL;
+  if(_lock)
+    lock = new QMutexLocker(&m_regionLock);
   _r->SetColor(Color4(0, 1, 0, 0.5));
   m_attractRegions.push_back(_r);
   VDAddRegion(_r.get());
+  delete lock;
 }
 
 void
 EnvModel::
-AddAvoidRegion(RegionModelPtr _r) {
-  QMutexLocker lock(&m_regionLock);
+AddAvoidRegion(RegionModelPtr _r, bool _lock) {
+  QMutexLocker* lock = NULL;
+  if(_lock)
+    lock = new QMutexLocker(&m_regionLock);
   _r->SetColor(Color4(0, 0, 0, 0.5));
   m_avoidRegions.push_back(_r);
   VDAddRegion(_r.get());
+  delete lock;
 }
 
 void
@@ -182,9 +192,9 @@ ChangeRegionType(RegionModelPtr _r, bool _attract) {
   if(rit != m_nonCommitRegions.end()) {
     m_nonCommitRegions.erase(rit);
     if(_attract)
-      AddAttractRegion(_r);
+      AddAttractRegion(_r, false);
     else
-      AddAvoidRegion(_r);
+      AddAvoidRegion(_r, false);
   }
 }
 
@@ -409,10 +419,29 @@ void
 EnvModel::
 Build() {
   //construct boundary
-  if(shared_ptr<BoundingBox> b = dynamic_pointer_cast<BoundingBox>(m_environment->GetBoundary()))
-    m_boundary = shared_ptr<BoundingBoxModel>(new BoundingBoxModel(b));
-  else if(shared_ptr<BoundingSphere> b = dynamic_pointer_cast<BoundingSphere>(m_environment->GetBoundary()))
-    m_boundary = shared_ptr<BoundingSphereModel>(new BoundingSphereModel(b));
+  //auto bounds = m_environment->GetBoundary();
+  shared_ptr<Boundary> bounds = m_environment->GetBoundary();
+  string type = bounds->Type();
+  if(type == "Box") {
+    m_boundary = shared_ptr<BoundingBoxModel>(
+        new BoundingBoxModel(dynamic_pointer_cast<BoundingBox>(bounds))
+        );
+  }
+  else if(type == "Box2D") {
+    m_boundary = shared_ptr<BoundingBox2DModel>(
+        new BoundingBox2DModel(dynamic_pointer_cast<BoundingBox2D>(bounds))
+        );
+  }
+  else if(type == "Sphere") {
+    m_boundary = shared_ptr<BoundingSphereModel>(
+        new BoundingSphereModel(dynamic_pointer_cast<BoundingSphere>(bounds))
+        );
+  }
+  else if(type == "Sphere2D") {
+    m_boundary = shared_ptr<BoundingSphere2DModel>(
+        new BoundingSphere2DModel(dynamic_pointer_cast<BoundingSphere2D>(bounds))
+        );
+  }
   else
     throw RunTimeException(WHERE, "Failed casting Boundary.");
 
@@ -473,7 +502,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
   GLuint indx = *_index;
 
   switch(indx) {
-    case EnvObjectName::Boundary:
+    case EnvObjectName::BoundaryObj:
       m_boundary->Select(_index + 1, _sel);
       break;
     case EnvObjectName::Robots:
@@ -644,7 +673,7 @@ DrawSelect() {
     m_reebGraphModel->DrawSelect();
   glPopName();
 
-  glPushName(EnvObjectName::Boundary);
+  glPushName(EnvObjectName::BoundaryObj);
   m_boundary->DrawSelect();
   glPopName();
 }

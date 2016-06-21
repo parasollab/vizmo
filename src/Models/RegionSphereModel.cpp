@@ -138,7 +138,14 @@ DrawSelected() {
   glLineWidth(4);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
-  glutWireSphere(m_radius, 20, 20);
+  glDisable(GL_LIGHTING);
+  GLUtils::DrawArc(m_radius, 0, 2 * PI, Vector3d(1., 0., 0.),
+      Vector3d(0., 1., 0.));
+  GLUtils::DrawArc(m_radius, 0, 2 * PI, Vector3d(0., 1., 0.),
+      Vector3d(0., 0., 1.));
+  GLUtils::DrawArc(m_radius, 0, 2 * PI, Vector3d(0., 0., 1.),
+      Vector3d(1., 0., 0.));
+  glEnable(GL_LIGHTING);
   glPopMatrix();
 }
 

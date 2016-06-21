@@ -32,6 +32,8 @@ RoadmapOptions(QWidget* _parent) : OptionsBase(_parent, "Roadmap") {
       "Node Scale", 0, 2500, 1000, this);
   m_edgeThicknessDialog = new SliderDialog("Edge Thickness",
       "Edge Thickness", 100, 1000, 100, this);
+  m_numIntermediatesDialog = new SliderDialog("Number of Intermediates",
+      "Number of Intermediates", 1, 100, 100, this);
 
   CreateActions();
   SetHelpTips();
@@ -51,6 +53,8 @@ CreateActions() {
       tr("Scale Nodes"), this);
   m_actions["edgeThickness"] = new QAction(QPixmap(edgeThicknessIcon),
       tr("Change Edge Thickness"), this);
+  m_actions["numIntermediates"] = new QAction(QPixmap(edgeThicknessIcon),
+      tr("Change number of intermediates"), this);
   m_actions["editNode"] = new QAction(QPixmap(editnode), tr("Edit Node"), this);
   m_actions["editEdge"] = new QAction(QPixmap(editedge), tr("Edit Edge"), this);
   m_actions["addNode"] = new QAction(QPixmap(addnode), tr("Add Node"), this);
@@ -71,6 +75,7 @@ CreateActions() {
   m_actions["scaleNodes"]->setShortcut(tr("CTRL+S"));
   m_actions["scaleNodes"]->setEnabled(false);
   m_actions["edgeThickness"]->setEnabled(false);
+  m_actions["numIntermediates"]->setEnabled(false);
   m_actions["editNode"]->setEnabled(false);
   m_actions["editEdge"]->setEnabled(false);
   m_actions["addNode"]->setEnabled(false);
@@ -92,6 +97,10 @@ CreateActions() {
       this, SLOT(ShowEdgeThicknessDialog()));
   connect(m_edgeThicknessDialog->GetSlider(), SIGNAL(valueChanged(int)),
       this, SLOT(ChangeEdgeThickness()));
+  connect(m_actions["numIntermediates"], SIGNAL(triggered()),
+      this, SLOT(ShowNumIntermediatesDialog()));
+  connect(m_numIntermediatesDialog->GetSlider(), SIGNAL(valueChanged(int)),
+      this, SLOT(ChangeNumIntermediates()));
   connect(m_actions["editNode"], SIGNAL(triggered()),
       this, SLOT(ShowNodeEditDialog()));
   connect(m_actions["editEdge"], SIGNAL(triggered()),
@@ -127,6 +136,10 @@ SetHelpTips() {
   m_actions["edgeThickness"]->setWhatsThis(tr("Click this button to scale the"
         " thickness of the edges."));
   m_actions["edgeThickness"]->setStatusTip(tr("Change edge thickness"));
+
+  m_actions["numIntermediates"]->setWhatsThis(tr("Click this button the change the"
+        " number of intermediates displayed per edge"));
+  m_actions["numIntermediates"]->setStatusTip(tr("Change number of intermediates"));
 
   m_actions["editNode"]->setWhatsThis(tr("Click this button to open the node"
         " editing widget."));
@@ -171,6 +184,7 @@ SetUpSubmenu() {
   m_submenu->addAction(m_actions["showHideRoadmap"]);
   m_submenu->addAction(m_actions["scaleNodes"]);
   m_submenu->addAction(m_actions["edgeThickness"]);
+  m_submenu->addAction(m_actions["numIntermediates"]);
   m_submenu->addAction(m_actions["editNode"]);
   m_submenu->addAction(m_actions["editEdge"]);
   m_submenu->addAction(m_actions["addNode"]);
@@ -198,6 +212,7 @@ SetUpToolTab() {
   buttonList.push_back("randomizeColors");
   buttonList.push_back("scaleNodes");
   buttonList.push_back("edgeThickness");
+  buttonList.push_back("numIntermediates");
   buttonList.push_back("_separator_");
 
   buttonList.push_back("editNode");
@@ -219,6 +234,7 @@ Reset() {
   if(GetVizmo().IsRoadMapLoaded()) {
     m_actions["scaleNodes"]->setEnabled(true);
     m_actions["edgeThickness"]->setEnabled(true);
+    m_actions["numIntermediates"]->setEnabled(true);
     m_actions["editNode"]->setEnabled(true);
     m_actions["editEdge"]->setEnabled(true);
     m_actions["addNode"]->setEnabled(true);
@@ -278,6 +294,18 @@ ChangeEdgeThickness() {
   EdgeModel::m_edgeThickness = resize;
 }
 
+void
+RoadmapOptions::
+ShowNumIntermediatesDialog() {
+  GetMainWindow()->ShowDialog(m_numIntermediatesDialog);
+}
+
+void
+RoadmapOptions::
+ChangeNumIntermediates() {
+  double num = m_numIntermediatesDialog->GetSliderValue() / 100;
+  EdgeModel::m_numIntermediates = num;
+}
 
 void
 RoadmapOptions::

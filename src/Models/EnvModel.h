@@ -35,7 +35,7 @@ class EnvModel : public Model {
   public:
 
     enum EnvObjectName : GLuint {
-      Boundary,
+      BoundaryObj,
       Robots,
       Obstacles,
       Surfaces,
@@ -134,10 +134,10 @@ class EnvModel : public Model {
     }
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Add a new attract region.
-    void AddAttractRegion(RegionModelPtr _r);
+    void AddAttractRegion(RegionModelPtr _r, bool _lock = true);
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Add a new avoid region.
-    void AddAvoidRegion(RegionModelPtr _r);
+    void AddAvoidRegion(RegionModelPtr _r, bool _lock = true);
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Add a new non-commit region.
     void AddNonCommitRegion(RegionModelPtr _r);

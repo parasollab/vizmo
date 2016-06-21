@@ -16,10 +16,7 @@ class BoundingBoxModel : public BoundaryModel {
     BoundingBoxModel(shared_ptr<BoundingBox> _b);
     BoundingBoxModel(const pair<double, double>& _x,
         const pair<double, double>& _y,
-        const pair<double, double>& _z = pair<double, double>(
-          -numeric_limits<double>::max(),
-          numeric_limits<double>::max())
-        );
+        const pair<double, double>& _z);
 
     // Model functions
     virtual void Build();

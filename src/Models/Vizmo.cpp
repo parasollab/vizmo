@@ -14,7 +14,11 @@ using namespace std;
 
 #include "GUI/MainWindow.h"
 
+#ifdef PMPCfg
 #include "MotionPlanning/VizmoTraits.h"
+#elif defined(PMPState)
+#include "MotionPlanning/VizmoStateTraits.h"
+#endif
 
 #include "PHANToM/Manager.h"
 #include "SpaceMouse/SpaceMouseManager.h"
@@ -191,10 +195,12 @@ InitPMPL() {
   //set up query evaluators
   if(m_queryModel) {
     //setup standard query evaluator
+#ifdef PMPCfg
     Query<VizmoTraits>* query = new Query<VizmoTraits>(m_queryFilename,
         vector<string>(1, "kClosest"));
     VizmoProblem::MapEvaluatorPointer mep(query);
     problem->AddMapEvaluator(mep, "Query");
+#endif
 
     //setup debugging evaluator
     vector<string> evals;
@@ -213,6 +219,7 @@ InitPMPL() {
         ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
     problem->AddMapEvaluator(bqe, "BoundedQuery");
 
+#ifdef PMPCfg
     //add basic extender for I-RRT
     VizmoProblem::ExtenderPointer bero(new BasicExtender<VizmoTraits>(
           "euclidean", "PQP_SOLID", 10., true));
@@ -238,9 +245,9 @@ InitPMPL() {
         new AutoRegionRRT<VizmoTraits>(query->GetQuery().front(),
           query->GetQuery().back()));
     problem->AddMPStrategy(arr, "AutoRegionRRT");
-
+#endif
   }
-
+#ifdef PMPCfg
   //add region strategy
   VizmoProblem::MPStrategyPointer rs(new RegionStrategy<VizmoTraits>());
   problem->AddMPStrategy(rs, "RegionStrategy");
@@ -264,6 +271,7 @@ InitPMPL() {
   //add path oracle
   VizmoProblem::MPStrategyPointer po(new PathOracle<VizmoTraits>());
   problem->AddMPStrategy(po, "PathOracle");
+#endif
 
   //avoid-region validity checker
   VizmoProblem::ValidityCheckerPointer arv(
@@ -294,9 +302,11 @@ InitPMPL() {
   problem->AddSampler(rus, "RegionUniformSampler");
 
   //region obstacle-based sampler
+#ifdef PMPCfg
   VizmoProblem::SamplerPointer robs(
       new ObstacleBasedSampler<VizmoTraits>("RegionValidity", "euclidean"));
   problem->AddSampler(robs, "RegionObstacleSampler");
+#endif
 
   //region neighborhood connector
   VizmoProblem::ConnectorPointer rc(

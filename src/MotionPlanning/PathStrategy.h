@@ -7,6 +7,7 @@
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
 
+#include "Utilities/MedialAxisUtilities.h"
 #include "ValidityCheckers/CollisionDetectionValidity.h"
 
 #include "Utilities/GLUtils.h"

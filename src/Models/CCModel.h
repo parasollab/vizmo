@@ -121,17 +121,16 @@ SetColor(const Color4& _c) {
   Model::SetColor(_c);
   m_colorIndex[m_rep] = _c;
 
-  typedef typename vector<VID>::iterator VIT;
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
-    GetCfg(*vit).SetColor(_c);
-
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
-    VI v = m_graph->find_vertex(*vit);
+  for(auto& vid : m_nodes) {
+    VI v = m_graph->find_vertex(vid);
+    v->property().SetColor(_c);
+    v->property().Lock();
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
       if((*ei).source() > (*ei).target())
         continue;
       (*ei).property().SetColor(_c);
     }
+    v->property().UnLock();
   }
 }
 
@@ -140,17 +139,16 @@ template <class CFG, class WEIGHT>
 void
 CCModel<CFG, WEIGHT>::
 GetChildren(list<Model*>& _models) {
-  typedef typename vector<VID>::iterator VIT;
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit)
-    _models.push_back(&GetCfg(*vit));
-
-  for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
-    VI v = m_graph->find_vertex(*vit);
+  for(auto& vid : m_nodes) {
+    VI v = m_graph->find_vertex(vid);
+    _models.push_back(&v->property());
+    v->property().Lock();
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
       if((*ei).source() > (*ei).target())
         continue;
       _models.push_back(&(*ei).property());
     }
+    v->property().UnLock();
   }
 }
 
@@ -191,6 +189,7 @@ DrawRender() {
   typedef typename vector<VID>::iterator VIT;
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
     VI v = m_graph->find_vertex(*vit);
+    v->property().Lock();
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
       if((*ei).source() > (*ei).target())
         continue;
@@ -200,6 +199,7 @@ DrawRender() {
       edge.Set(&v->property(), cfg2);
       edge.DrawRenderInCC();
     }
+    v->property().UnLock();
   }
   glEnd();
 }
@@ -239,6 +239,7 @@ DrawSelect() {
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
     glPushName(*vit);
     VI v = m_graph->find_vertex(*vit);
+    v->property().Lock();
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
       if((*ei).source() > (*ei).target())
         continue;
@@ -249,6 +250,7 @@ DrawSelect() {
       edge.DrawSelect();
       glPopName();
     }
+    v->property().UnLock();
     glPopName();
   }
   glPopName();

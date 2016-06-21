@@ -6,19 +6,17 @@
 #include "CfgModel.h"
 
 double EdgeModel::m_edgeThickness = 1;
-
+double EdgeModel::m_numIntermediates = .3;
 
 EdgeModel::
 EdgeModel(string _lpLabel, double _weight,
     const vector<CfgModel>& _intermediates) : Model(""),
-    DefaultWeight<CfgModel>(_lpLabel, _weight, _intermediates),
+    EdgeType(_lpLabel, _weight, _intermediates),
     m_id(-1), m_isValid(true) { }
-
 
 EdgeModel::
 EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""),
-    DefaultWeight<CfgModel>(_e), m_id(-1), m_isValid(true) { }
-
+    EdgeType(_e), m_id(-1), m_isValid(true) { }
 
 void
 EdgeModel::
@@ -28,7 +26,6 @@ SetName() {
   m_name = temp.str();
 }
 
-
 void
 EdgeModel::
 Set(CfgModel* _c1, CfgModel* _c2) {
@@ -36,15 +33,32 @@ Set(CfgModel* _c1, CfgModel* _c2) {
   m_endCfg = _c2;
 }
 
-
 void
 EdgeModel::
 Set(size_t _id, CfgModel* _c1, CfgModel* _c2) {
   m_id = _id;
   Set(_c1, _c2);
   SetName();
+
+#ifdef PMPState
+  RecalculateEdges(*_c1);
+#endif
 }
 
+void
+EdgeModel::
+RecalculateEdges(CfgModel _c) {
+#ifdef PMPState
+  double timeRes = CfgModel::GetTimeRes();
+  CfgModel tick = _c;
+
+  m_intermediates.clear();
+  for(int i = 0; i < m_timeStep; ++i) {
+    tick = tick.Apply(m_control, timeRes);
+    m_intermediates.push_back(tick);
+  }
+#endif
+}
 
 void
 EdgeModel::
@@ -63,16 +77,7 @@ DrawRender() {
     glVertex3dv(c.GetPoint());
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
-
-  //draw intermediate configurations
-  if(CfgModel::GetShape() == CfgModel::Robot) {
-    for(auto& c : m_intermediates) {
-      c.SetRenderMode(WIRE_MODE);
-      c.DrawRender();
-    }
-  }
 }
-
 
 void
 EdgeModel::
@@ -86,16 +91,7 @@ DrawSelect() {
     glVertex3dv(c.GetPoint());
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
-
-  //draw intermediate configurations
-  if(CfgModel::GetShape() == CfgModel::Robot) {
-    for(auto& c : m_intermediates) {
-      c.SetRenderMode(WIRE_MODE);
-      c.DrawSelect();
-    }
-  }
 }
-
 
 void
 EdgeModel::
@@ -110,33 +106,55 @@ DrawSelected() {
   glEnd();
 }
 
-
 void
 EdgeModel::
 Print(ostream& _os) const {
-  _os << "Edge ID= " << m_id << endl
-      << "Connects Nodes: " << m_startCfg->GetIndex() << " and "
-      << m_endCfg->GetIndex() << endl << "Intermediates: ";
+  if(m_id != (size_t)-1)
+    _os << "EID: " << m_id << endl;
 
+  if(m_startCfg->GetIndex() != (size_t)-1) {
+    _os << "Edge Connects: " << m_startCfg->GetIndex() << " to "
+      << m_endCfg->GetIndex() << endl;
+  }
+  else {
+    _os << "Edge Connects: " << endl;
+    m_startCfg->Print(_os);
+    _os << " to " << endl;
+    m_endCfg->Print(_os);
+  }
+
+  _os << "Weight: " << m_weight << endl;
+
+#ifdef PMPCfg
+  _os << "Intermediates: ";
   for(const auto& c : m_intermediates)
-    _os << c << " | ";
+    _os << "\t" << c << endl;
+#elif defined(PMPState)
+  _os << "Control: ";
+  for(const auto& c : m_control)
+    _os << c << " ";
+  _os << endl;
 
-  _os << endl << "Weight: " << m_weight << endl;
+  _os << "Time step: " << m_timeStep;
+#endif
 
   if(!m_isValid)
-    _os << "**** IS IN COLLISION!! ****" << endl;
+    _os << "**** Invalid! ****" << endl;
 }
-
 
 void
 EdgeModel::
 DrawRenderInCC() {
   glVertex3dv(m_startCfg->GetPoint());
-  for(const auto& c : m_intermediates) {
-    /// \todo Implementation appears to have a duplicated line - can anyone
-    ///       confirm that this is/isn't needed?
-    glVertex3dv(c.GetPoint());
-    glVertex3dv(c.GetPoint());
+
+  //Number of intermediates to keep
+  float k = m_numIntermediates == 0 ? 0 : 1 / m_numIntermediates;
+
+  for(float i = 0; i < m_intermediates.size() - k; i += k) {
+    int index = round(i);
+    glVertex3dv(m_intermediates[index].GetPoint());
+    glVertex3dv(m_intermediates[index].GetPoint());
   }
+
   glVertex3dv(m_endCfg->GetPoint());
 }
