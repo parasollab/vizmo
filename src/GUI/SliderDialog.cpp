@@ -16,7 +16,7 @@ SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
 
   m_value = new QLabel(this);
   m_value->setFixedWidth(70);
-  m_value->setText("100%");
+  m_value->setText("");
   layout->addWidget(m_value, 2, 1, 1, 1);
 
   m_slider = new QSlider(this);
@@ -27,7 +27,7 @@ SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
   m_oldValue = _startValue;
   layout->addWidget(m_slider, 2, 2, 1, 1);
 
-  //UpdatePercentile();
+  UpdatePercentile();
 
   QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
   okayCancel->setFixedSize(120, 32);
@@ -60,7 +60,7 @@ SliderDialog::reject(){
 void
 SliderDialog::UpdatePercentile(){
 
-  double proportion = (double)m_slider->value() / (double)m_startValue;
+  double proportion = m_slider->value() / double(m_slider->maximum());
   ostringstream oss;
   oss << proportion*100 << "%";
   QString qs((oss.str()).c_str());

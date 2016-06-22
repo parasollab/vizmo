@@ -69,12 +69,18 @@ DrawRender() {
   if(m_isValid)
     glColor4fv(m_color);
   else
-    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
+    glColor4f(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0);
 
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
-  for(const auto& c : m_intermediates)
-    glVertex3dv(c.GetPoint());
+
+  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
+
+  for(size_t i = 0; i < m_intermediates.size(); ++i) {
+    if(i % k == k/2)
+      glVertex3dv(m_intermediates[k].GetPoint());
+  }
+
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
 }
@@ -87,8 +93,14 @@ DrawSelect() {
 
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
-  for(const auto& c : m_intermediates)
-    glVertex3dv(c.GetPoint());
+
+  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
+
+  for(size_t i = 0; i < m_intermediates.size(); ++i) {
+    if(i % k == k/2)
+      glVertex3dv(m_intermediates[k].GetPoint());
+  }
+
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
 }
@@ -100,8 +112,14 @@ DrawSelected() {
 
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
-  for(const auto& c : m_intermediates)
-    glVertex3dv(c.GetPoint());
+
+  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
+
+  for(size_t i = 0; i < m_intermediates.size(); ++i) {
+    if(i % k == k/2)
+      glVertex3dv(m_intermediates[k].GetPoint());
+  }
+
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
 }
@@ -148,12 +166,13 @@ DrawRenderInCC() {
   glVertex3dv(m_startCfg->GetPoint());
 
   //Number of intermediates to keep
-  float k = m_numIntermediates == 0 ? 0 : 1 / m_numIntermediates;
+  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
 
-  for(float i = 0; i < m_intermediates.size() - k; i += k) {
-    int index = round(i);
-    glVertex3dv(m_intermediates[index].GetPoint());
-    glVertex3dv(m_intermediates[index].GetPoint());
+  for(size_t i = 0; i < m_intermediates.size(); ++i) {
+    if(i % k == k/2) {
+      glVertex3dv(m_intermediates[i].GetPoint());
+      glVertex3dv(m_intermediates[i].GetPoint());
+    }
   }
 
   glVertex3dv(m_endCfg->GetPoint());

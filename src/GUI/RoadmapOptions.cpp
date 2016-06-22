@@ -33,7 +33,7 @@ RoadmapOptions(QWidget* _parent) : OptionsBase(_parent, "Roadmap") {
   m_edgeThicknessDialog = new SliderDialog("Edge Thickness",
       "Edge Thickness", 100, 1000, 100, this);
   m_numIntermediatesDialog = new SliderDialog("Number of Intermediates",
-      "Number of Intermediates", 1, 100, 100, this);
+      "Number of Intermediates", 1, 1000, EdgeModel::m_numIntermediates*1000, this);
 
   CreateActions();
   SetHelpTips();
@@ -303,7 +303,7 @@ ShowNumIntermediatesDialog() {
 void
 RoadmapOptions::
 ChangeNumIntermediates() {
-  double num = m_numIntermediatesDialog->GetSliderValue() / 100;
+  double num = m_numIntermediatesDialog->GetSliderValue() / 1000;
   EdgeModel::m_numIntermediates = num;
 }
 

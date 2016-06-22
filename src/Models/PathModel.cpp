@@ -91,7 +91,7 @@ Build() {
   //for each color, draw the robot at each display interval
   for(CIT cit = allColors.begin(); cit!=allColors.end(); ++cit) {
     size_t i = cit-allColors.begin();
-    if(i % m_displayInterval == 0){
+    if(i % m_displayInterval == m_displayInterval/2){
       m_path[i].SetColor(*cit);
       m_path[i].DrawRender();
     }
