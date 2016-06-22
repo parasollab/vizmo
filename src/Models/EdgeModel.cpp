@@ -78,7 +78,7 @@ DrawRender() {
 
   for(size_t i = 0; i < m_intermediates.size(); ++i) {
     if(i % k == k/2)
-      glVertex3dv(m_intermediates[k].GetPoint());
+      glVertex3dv(m_intermediates[i].GetPoint());
   }
 
   glVertex3dv(m_endCfg->GetPoint());
@@ -98,7 +98,7 @@ DrawSelect() {
 
   for(size_t i = 0; i < m_intermediates.size(); ++i) {
     if(i % k == k/2)
-      glVertex3dv(m_intermediates[k].GetPoint());
+      glVertex3dv(m_intermediates[i].GetPoint());
   }
 
   glVertex3dv(m_endCfg->GetPoint());
@@ -117,7 +117,7 @@ DrawSelected() {
 
   for(size_t i = 0; i < m_intermediates.size(); ++i) {
     if(i % k == k/2)
-      glVertex3dv(m_intermediates[k].GetPoint());
+      glVertex3dv(m_intermediates[i].GetPoint());
   }
 
   glVertex3dv(m_endCfg->GetPoint());
