@@ -50,6 +50,7 @@ EdgeModel::
 RecalculateEdges(CfgModel _c) {
 #ifdef PMPState
   double timeRes = CfgModel::GetTimeRes();
+  cout << "timeRes: " << timeRes << endl;
   CfgModel tick = _c;
 
   m_intermediates.clear();
