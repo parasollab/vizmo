@@ -430,7 +430,7 @@ ExpandTree(CfgType& _dir) {
   string kcloseClockName = "kclosest time ";
   kcloseStatClass->StartClock(kcloseClockName);
   nf->FindNeighbors(this->GetRoadmap(), this->m_currentTree->begin(),
-      this->m_currentTree->end(), _dir, back_inserter(kClosest));
+      this->m_currentTree->end(), true, _dir, back_inserter(kClosest));
   kcloseStatClass->StopClock(kcloseClockName);
 
   CfgType nearest = g->GetVertex(kClosest[0].first);

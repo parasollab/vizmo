@@ -205,7 +205,7 @@ Run() {
   auto connector = this->GetConnector(m_connectorLabel);
   auto map = this->GetRoadmap();
   connector->Connect(map, m_endPoints.begin(), m_endPoints.end(),
-      m_endPoints.begin(), m_endPoints.end());
+      m_endPoints.begin(), m_endPoints.end(), false);
 }
 
 
