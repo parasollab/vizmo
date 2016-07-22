@@ -7,6 +7,7 @@ using namespace std;
 
 #include "GUI/MainWindow.h"
 #include "Models/Vizmo.h"
+#include "Vector.h"
 
 int
 main(int _argc, char** _argv) {
@@ -23,7 +24,6 @@ main(int _argc, char** _argv) {
         exit(1);
       }
       filename.push_back(optarg);
-      break;
     }
     else {
       noXML = true;
@@ -48,20 +48,13 @@ main(int _argc, char** _argv) {
 
   QApplication::setColorSpec(QApplication::CustomColor);
   QApplication app(_argc, _argv);
+  qRegisterMetaType<mathtool::Vector3d>("Vector3d");
 
   MainWindow*& window = GetMainWindow();
-  window = new MainWindow();
+  window = new MainWindow(filename);
   if(!window->Init()) {
     cerr << "Error: vizmo++ could not intialize main window." << endl;
     return 1;
-  }
-
-  if(!filename.empty()) {
-    // Directly open file dialog
-    window->ResetDialogs();
-    window->GetArgs().clear();
-    window->GetArgs() = filename;
-    window->SetVizmoInit(false);
   }
 
   //execute main window and application

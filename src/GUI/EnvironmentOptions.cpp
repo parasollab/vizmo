@@ -1,5 +1,8 @@
 #include "EnvironmentOptions.h"
 
+#include "Environment/FixedBody.h"
+#include "Environment/StaticMultiBody.h"
+
 #include "ChangeBoundaryDialog.h"
 #include "EditRobotDialog.h"
 #include "GLWidget.h"
@@ -14,7 +17,7 @@
 #include "Models/RegionBox2DModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
-#include "Models/RobotModel.h"
+#include "Models/StaticMultiBodyModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/AddObstacle.xpm"
@@ -210,19 +213,19 @@ AddObstacle() {
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
 
-    //create a new obstacle
-    MultiBodyModel* m = new MultiBodyModel(GetVizmo().GetEnv(),
-        fi.absolutePath().toStdString(), fi.fileName().toStdString(),
-        Transformation());
-
     //add the new obstacle to the environment and select it
-    GetVizmo().GetEnv()->AddMBModel(m);
-    GetVizmo().GetSelectedModels().clear();
-    GetVizmo().GetSelectedModels().push_back(m);
+    shared_ptr<StaticMultiBodyModel> m = GetVizmo().GetEnv()->AddObstacle(
+        fi.absolutePath().toStdString(),
+        fi.fileName().toStdString(),
+        Transformation());
     RefreshEnv();
 
+    //Select new obstacle
+    GetVizmo().GetSelectedModels().clear();
+    GetVizmo().GetSelectedModels().push_back(m.get());
+
     //open the obstacle position dialog for the new obstacle
-    vector<MultiBodyModel*> v(1, m);
+    vector<StaticMultiBodyModel*> v(1, m.get());
     ObstaclePosDialog* opd = new ObstaclePosDialog(GetMainWindow(), v);
     GetMainWindow()->ShowDialog(opd);
   }
@@ -234,26 +237,23 @@ AddObstacle() {
 void
 EnvironmentOptions::
 DeleteObstacle() {
-  vector<MultiBodyModel*> toDel;
+  vector<StaticMultiBodyModel*> toDel;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
   //grab the bodies from the selected vector
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toDel.push_back((MultiBodyModel*)*sit);
+  for(auto& s : sel)
+    if(s->Name() == "StaticMultiBody")
+      toDel.push_back(static_cast<StaticMultiBodyModel*>(s));
 
   //alert that only non-active multibodies can be selected
   if(toDel.empty() || toDel.size() != sel.size())
     GetMainWindow()->AlertUser(
-        "Must select one or more non-active multibodies only.");
+        "Must select one or more static multibodies only.");
 
   //successful selection, delete obstacle(s)
   else {
-    typedef vector<MultiBodyModel*>::iterator MIT;
-    for(MIT mit = toDel.begin(); mit != toDel.end(); ++mit)
-      GetVizmo().GetEnv()->DeleteMBModel(*mit);
-
+    for(auto& model : toDel)
+      GetVizmo().GetEnv()->DeleteObstacle(model);
     GetVizmo().GetSelectedModels().clear();
     RefreshEnv();
   }
@@ -263,14 +263,14 @@ DeleteObstacle() {
 void
 EnvironmentOptions::
 MoveObstacle() {
-  vector<MultiBodyModel*> toMove;
+  vector<StaticMultiBodyModel*> toMove;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
   //grab the bodies from the selected vector
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toMove.push_back((MultiBodyModel*)*sit);
+  for(auto& s : sel)
+    if(s->Name().find("MultiBody") != string::npos &&
+        s->Name() != "ActiveMultiBody")
+      toMove.push_back(static_cast<StaticMultiBodyModel*>(s));
 
   //alert that only non-active multibodies can be selected
   if(toMove.empty() || toMove.size() != sel.size())
@@ -288,12 +288,11 @@ MoveObstacle() {
 void
 EnvironmentOptions::
 DuplicateObstacles() {
-  vector<MultiBodyModel*> toCopy;
+  vector<StaticMultiBodyModel*> toCopy;
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  typedef vector<Model*>::iterator SIT;
-  for(SIT sit = sel.begin(); sit != sel.end(); ++sit)
-    if((*sit)->Name() == "MultiBody" && !((MultiBodyModel*)(*sit))->IsActive())
-      toCopy.push_back((MultiBodyModel*)(*sit));
+  for(auto& s : sel)
+    if(s->Name() == "StaticMultiBody")
+      toCopy.push_back(static_cast<StaticMultiBodyModel*>(s));
 
   //alert that only non-active multibodies can be selected
   if(toCopy.empty() || toCopy.size() != sel.size())
@@ -302,18 +301,21 @@ DuplicateObstacles() {
 
   //successful selection, copy and show ObstaclePosDialog
   else {
-    vector<MultiBodyModel*> copies;
-    typedef vector<MultiBodyModel*>::iterator MIT;
-    for(MIT mit = toCopy.begin(); mit != toCopy.end(); ++mit) {
-      MultiBodyModel* m = new MultiBodyModel(**mit);
-      copies.push_back(m);
-      GetVizmo().GetEnv()->AddMBModel(m);
+    vector<StaticMultiBodyModel*> copies;
+    for(auto& o : toCopy) {
+      auto body = o->GetStaticMultiBody()->GetFixedBody(0);
+      cout << "Filename: " << body->GetFileName() << endl;
+      shared_ptr<StaticMultiBodyModel> newo = GetVizmo().GetEnv()->AddObstacle(
+          "", body->GetFileName(), body->GetWorldTransformation()
+          );
+      copies.push_back(newo.get());
     }
     sel.clear();
     copy(copies.begin(), copies.end(), back_inserter(sel));
 
     ObstaclePosDialog* opd = new ObstaclePosDialog(GetMainWindow(), copies);
     GetMainWindow()->ShowDialog(opd);
+    RefreshEnv();
   }
 }
 
@@ -354,9 +356,7 @@ RefreshEnv() {
   GetVizmo().GetEnv()->SetRenderMode(SOLID_MODE);
   GetMainWindow()->GetModelSelectionWidget()->reset();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
-
 
 void
 EnvironmentOptions::
@@ -364,7 +364,6 @@ ClickRobot() {
   CfgModel::SetShape(CfgModel::Robot);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -374,7 +373,6 @@ ClickPoint() {
   CfgModel::SetShape(CfgModel::Point);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -382,5 +380,4 @@ void
 EnvironmentOptions::
 RandomizeEnvColors() {
   GetVizmo().GetEnv()->ChangeColor();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }

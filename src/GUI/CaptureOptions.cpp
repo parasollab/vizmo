@@ -62,8 +62,6 @@ CreateActions() {
       GetMainWindow()->GetGLWidget(), SLOT(ToggleSelectionSlot()));
   connect(this, SIGNAL(SimulateMouseUp()),
       GetMainWindow()->GetGLWidget(), SLOT(SimulateMouseUpSlot()));
-  connect(this, SIGNAL(CallUpdate()),
-      GetMainWindow(), SLOT(UpdateScreen()));
   connect(this, SIGNAL(UpdateFrame(int)),
       GetMainWindow()->GetAnimationWidget(), SLOT(GoToFrame(int)));
   connect(GetMainWindow()->GetGLWidget(), SIGNAL(Record()),
@@ -118,7 +116,6 @@ CropRegion() {
   if(!m_cropBox)
     emit SimulateMouseUp();
 
-  emit CallUpdate();
   emit ToggleSelectionSignal();
 }
 

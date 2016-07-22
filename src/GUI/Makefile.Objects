@@ -1,7 +1,7 @@
 SRCMOC += $(patsubst GUI/%.h, GUI/MOC/moc_%.cpp, $(shell grep -l Q_OBJECT GUI/*.h))
-OBJMOC = $(patsubst GUI/%.h, GUI/MOC/moc_%.o, $(shell grep -l Q_OBJECT GUI/*.h))
+GUIOBJMOC = $(patsubst GUI/%.h, GUI/MOC/moc_%.o, $(shell grep -l Q_OBJECT GUI/*.h))
 OBJECTS += \
-	   $(OBJMOC) \
+	   $(GUIOBJMOC) \
 	   GUI/AnimationWidget.o \
 	   GUI/BoundingBoxWidget.o \
 	   GUI/BoundingSphereWidget.o \

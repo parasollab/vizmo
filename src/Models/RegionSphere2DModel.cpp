@@ -2,10 +2,12 @@
 
 #include <QtGui>
 
+#include "Environment/BoundingSphere2D.h"
+
 #include "Utilities/Camera.h"
-#include "MPProblem/BoundingSphere.h"
 #include "Utilities/GLUtils.h"
 #include "Utilities/IO.h"
+
 
 RegionSphere2DModel::
 RegionSphere2DModel(const Point3d& _center, double _radius, bool _firstClick) :
@@ -15,18 +17,21 @@ RegionSphere2DModel(const Point3d& _center, double _radius, bool _firstClick) :
   m_center = _center;
 }
 
+
 shared_ptr<Boundary>
 RegionSphere2DModel::
 GetBoundary() const {
-  return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
+  return shared_ptr<Boundary>(new BoundingSphere2D(
+        Vector2d(m_center[0], m_center[1]), m_radius));
 }
+
 
 bool
 RegionSphere2DModel::
 operator==(const RegionModel& _other) const {
-
   if(_other.GetShape() == this->GetShape()) {
-    const RegionSphere2DModel* myModel = static_cast<const RegionSphere2DModel*>(&_other);
+    const RegionSphere2DModel* myModel =
+        static_cast<const RegionSphere2DModel*>(&_other);
     if(GetType() == myModel->GetType()) {
       bool result = true;
       result &= (m_centerOrig == myModel->m_centerOrig);
@@ -35,9 +40,9 @@ operator==(const RegionModel& _other) const {
       return result;
     }
   }
-
   return false;
 }
+
 
 void
 RegionSphere2DModel::
@@ -46,11 +51,13 @@ ApplyOffset(const Vector3d& _v) {
     m_centerOrig = m_center;
 }
 
+
 double
 RegionSphere2DModel::
 GetShortLength() const {
   return 2. * m_radius;
 }
+
 
 double
 RegionSphere2DModel::
@@ -58,11 +65,13 @@ GetLongLength() const {
   return 2. * m_radius;
 }
 
+
 //initialization of gl models
 void
 RegionSphere2DModel::
 Build() {
 }
+
 
 //determing if _index is this GL model
 void
@@ -71,6 +80,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
   if(_index)
     _sel.push_back(this);
 }
+
 
 //draw is called for the scene.
 void
@@ -82,9 +92,9 @@ DrawRender() {
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
   glColor4fv(m_color);
-  DrawCircle(m_radius, true);
+  GLUtils::DrawCircle(m_radius, true);
   glColor4f(.2, .2, .2, .5);
-  DrawCircle(m_radius, false);
+  GLUtils::DrawCircle(m_radius, false);
   glPopMatrix();
 
   //change cursor based on highlight
@@ -94,6 +104,7 @@ DrawRender() {
     QApplication::setOverrideCursor(Qt::SizeHorCursor);
 }
 
+
 void
 RegionSphere2DModel::
 DrawSelect() {
@@ -102,9 +113,10 @@ DrawSelect() {
 
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
-  DrawCircle(m_radius, true);
+  GLUtils::DrawCircle(m_radius, true);
   glPopMatrix();
 }
+
 
 //DrawSelect is only called if item is selected
 void
@@ -116,9 +128,10 @@ DrawSelected() {
   glLineWidth(4);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
-  DrawCircle(m_radius, false);
+  GLUtils::DrawCircle(m_radius, false);
   glPopMatrix();
 }
+
 
 //output model info
 void
@@ -128,11 +141,13 @@ Print(ostream& _os) const {
     << "[ " << m_center << " " << m_radius << " ]" << endl;
 }
 
+
 void
 RegionSphere2DModel::
 OutputDebugInfo(ostream& _os) const {
   _os << m_type << " SPHERE2D " << m_centerOrig << " " << m_radiusOrig << endl;
 }
+
 
 bool
 RegionSphere2DModel::
@@ -140,17 +155,18 @@ MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
-    m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
+    m_clicked = QPoint(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
     m_lmb = true;
     if(m_firstClick) {
       //set center and click spot
       int x = m_clicked.x(), y = m_clicked.y();
-      m_center = ProjectToWorld(x, y, Point3d(0, 0, 0), Vector3d(0, 0, 1));
+      m_center = GLUtils::ProjectToWorld(x, y);
     }
     return true;
   }
   return false;
 }
+
 
 bool
 RegionSphere2DModel::
@@ -171,6 +187,7 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
   return false;
 }
 
+
 bool
 RegionSphere2DModel::
 MouseMotion(QMouseEvent* _e, Camera* _c) {
@@ -178,14 +195,14 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     return false;
 
   if(m_lmb) {
-    Point3d prj = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
-        Point3d(0, 0, 0), Vector3d(0, 0, 1));
+    Point3d prj = GLUtils::ProjectToWorld(_e->pos().x(),
+        GLUtils::windowHeight - _e->pos().y());
     //resizing
     if(m_firstClick || m_highlightedPart == PERIMETER)
       m_radius = (m_center - prj).norm();
     //translation
     else if(m_highlightedPart == ALL) {
-      Point3d prjClicked = ProjectToWorld(m_clicked.x(), m_clicked.y(),
+      Point3d prjClicked = GLUtils::ProjectToWorld(m_clicked.x(), m_clicked.y(),
           Point3d(0, 0, 0), Vector3d(0, 0, 1));
       Vector3d diff = prj - prjClicked;
       m_center = m_centerOrig + diff;
@@ -197,14 +214,15 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
   return false;
 }
 
+
 bool
 RegionSphere2DModel::
 PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
   m_highlightedPart = NONE;
-  Point3d prj = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
-      Point3d(0, 0, 0), Vector3d(0, 0, 1));
+  Point3d prj = GLUtils::ProjectToWorld(_e->pos().x(),
+      GLUtils::windowHeight - _e->pos().y());
   double v = (prj - m_center).norm();
   if(v < m_radius - .5)
     m_highlightedPart = ALL;
@@ -216,6 +234,7 @@ PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
 
   return m_highlightedPart;
 }
+
 
 double
 RegionSphere2DModel::

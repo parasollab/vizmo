@@ -29,7 +29,7 @@ QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL
 #Vizmo Utilities - PMPL and from PMPL
 ################################################################################
 #PMPL
-ROBOT_DEF = PMPCfg
+parallel = 0
 PMPL_DIR = ${VIZMO_DIR}/../pmpl/src
 UTILS_DIR = ${PMPL_DIR}/../utils
 STAPL_DIR = $(UTILS_DIR)/stapl_release
@@ -37,8 +37,8 @@ STAPL_DIR = $(UTILS_DIR)/stapl_release
 include ${PMPL_DIR}/Makefile.PMPLdefaults
 
 MP_DEF = -D$(ROBOT_DEF) $(UTILS_DEF) $(CGAL_DEF)
-MP_INCL = $(MP_DEF) $(PMPL_INCL) $(UTILS_INCL) $(STAPL_INCL) $(BOOST_INCL) $(CGAL_INCL) $(MPNN_INCL)
-MP_LIBS = $(PMPL_LIB) $(UTILS_LIB) $(MPNN_LIB) $(BOOST_LIB)
+MP_INCL = $(MP_DEF) $(PMPL_INCL) $(UTILS_INCL) $(STAPL_INCL) $(BOOST_INCL) $(MPNN_INCL)
+MP_LIBS = $(PMPL_LIB) $(UTILS_LIB) $(BOOST_LIB) $(CGAL_LIB) $(MPNN_LIB)
 MP_LIBFILE = $(PMPL_DIR)/libobprm.a
 $(PMPL_DIR)/libobprm.a:
 	cd ${PMPL_DIR}; ${MAKE} ROBOT_DEF=$(ROBOT_DEF) platform=${platform} debug=${debug};
@@ -54,6 +54,16 @@ else
 endif
 
 ################################################################################
+# SpaceMouse DEFINES
+################################################################################
+ifeq ($(spacemouse), 1)
+  SPACEMOUSE_LIBS = -lspnav
+  MP_DEF += -DUSE_SPACEMOUSE
+else
+  SPACEMOUSE_LIBS =
+endif
+
+################################################################################
 #Vizmo src objects
 ################################################################################
 #Define Vizmo Objects
@@ -65,10 +75,13 @@ include $(VIZMO_DIR)/GUI/Makefile.Objects
 ifeq ($(phantom), 1)
   include $(VIZMO_DIR)/PHANToM/Makefile.Objects
 endif
+ifeq ($(spacemouse), 1)
+  include $(VIZMO_DIR)/SpaceMouse/Makefile.Objects
+endif
 VIZMO_OBJECTS = $(OBJECTS)
 VIZMO_SRCMOC = $(SRCMOC)
 VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(MP_INCL)
-VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS) $(PHANTOM_LIBS)
+VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS) $(PHANTOM_LIBS) $(SPACEMOUSE_LIBS)
 VIZMO_LIBFILE = $(VIZMO_DIR)/libvizmo.a
 $(VIZMO_DIR)/libvizmo.a: $(VIZMO_OBJECTS)
 	ar rc $@ $(VIZMO_OBJECTS)

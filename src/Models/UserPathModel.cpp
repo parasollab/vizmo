@@ -40,9 +40,8 @@ DrawRender() {
   glLineWidth(4);
 
   glBegin(GL_LINE_STRIP);
-  for(vector<Point3d>::iterator it = m_userPath.begin();
-      it != m_userPath.end(); ++it)
-    glVertex3dv(*it);
+  for(auto& point: m_userPath)
+    glVertex3dv(point);
   glEnd();
 }
 
@@ -130,8 +129,8 @@ UserPathModel::
 MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == Mouse && _e->buttons() == Qt::LeftButton && !m_finished) {
     //start drawing path
-    Point3d p = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
-        Point3d(), Vector3d(0, 0, 1));
+    Point3d p = GLUtils::ProjectToWorld(_e->pos().x(),
+        GLUtils::windowHeight - _e->pos().y());
     UpdatePositions(p);
     SendToPath(p);
     AvatarModel* avatar = GetVizmo().GetEnv()->GetAvatar();
@@ -161,12 +160,11 @@ UserPathModel::
 MouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == Mouse && !m_finished) {
     //get current mouse position
-    Point3d p = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
-        Point3d(), Vector3d(0, 0, 1));
+    Point3d p = GLUtils::ProjectToWorld(_e->pos().x(),
+        GLUtils::windowHeight - _e->pos().y());
     SendToPath(p);
     return true;
   }
-
   return false;
 }
 
@@ -185,6 +183,56 @@ KeyPressed(QKeyEvent* _e) {
   return false;
 }
 
+ostream&
+operator<<(ostream& _os, const UserPathModel& _upm) {
+  _os << "Type ";  
+  switch (_upm.m_type) {
+    case UserPathModel::Mouse:
+      _os << "Mouse" << endl;
+      break;
+    case UserPathModel::CameraPath:
+      _os << "CameraPath" << endl;
+      break;
+    case UserPathModel::Haptic:
+      _os << "Haptic" << endl;
+      break;
+  }
+  _os << "Validity " << _upm.m_valid << endl;
+  _os << "NumPoints " << _upm.m_userPath.size() << endl;
+
+  for(const auto& point: _upm.m_userPath)
+    _os << point << endl;
+  return _os;
+}
+
+istream& 
+operator>>(istream& _is, UserPathModel& _upm) {  
+  ///\todo Incorporate error checking into path format
+ 
+  // Reading input type
+  string temp;
+  _is >> temp >> temp;
+
+  if(temp == "Mouse") 
+    _upm.m_type = UserPathModel::Mouse;
+  else if(temp == "CameraPath")
+    _upm.m_type = UserPathModel::CameraPath;
+  else if(temp == "Haptic")
+    _upm.m_type = UserPathModel::Haptic;
+
+  //read validity
+  _is >> temp >> _upm.m_valid;
+  
+  //read points
+  size_t numpoints;
+  _is >> temp >> numpoints;
+  _upm.m_userPath.clear();
+  _upm.m_userPath.resize(numpoints);
+  for(auto& point : _upm.m_userPath)
+    _is >> point;
+  _upm.m_finished = true; 
+  return _is;
+}
 
 void
 UserPathModel::

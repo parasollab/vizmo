@@ -6,12 +6,13 @@
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 
+#include "Models/ActiveMultiBodyModel.h"
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
 #include "Models/CfgModel.h"
+#include "Models/EnvModel.h"
 #include "Models/MultiBodyModel.h"
 #include "Models/QueryModel.h"
-#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 
@@ -37,21 +38,22 @@ validate(QString& _s, int& _i) const {
 NodeEditSlider::
 NodeEditSlider(QWidget* _parent, string _label) : QWidget(_parent) {
   setStyleSheet("QLabel { font:8pt } QLineEdit { font:8pt }");
+  setMaximumHeight(60);
 
   QGridLayout* layout = new QGridLayout();
   this->setLayout(layout);
 
   QLabel* dofName = new QLabel(this);
   dofName->setText(QString::fromStdString(_label));
-  layout->addWidget(dofName, 1, 1, 1, 14);
+  layout->addWidget(dofName, 0, 0, 1, 14);
 
   m_slider = new QSlider(this);
   m_slider->setOrientation(Qt::Horizontal);
   m_slider->installEventFilter(this);
-  layout->addWidget(m_slider, 2, 1, 1, 14);
+  layout->addWidget(m_slider, 2, 0, 1, 10);
 
   m_dofValue = new QLineEdit(this);
-  layout->addWidget(m_dofValue, 3, 14);
+  layout->addWidget(m_dofValue, 2, 10, 1, 4);
 
   connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(UpdateDOFLabel(int)));
 }
@@ -227,7 +229,9 @@ Init() {
 
   SetUpSliders(m_sliders);
   for(SIT it = m_sliders.begin(); it != m_sliders.end(); it++)
-    scrollAreaBoxLayout->addWidget(*it);
+    scrollAreaBoxLayout->addWidget(*it, 1, Qt::AlignTop);
+
+  scrollAreaBox->setMaximumHeight(m_sliders.size() * 100);
 
   scrollArea->setWidget(scrollAreaBox);
   this->setLayout(overallLayout);
@@ -243,7 +247,8 @@ Init() {
 void
 NodeEditDialog::
 SetUpSliders(vector<NodeEditSlider*>& _sliders) {
-  vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
+  const vector<ActiveMultiBody::DOFInfo>& dofInfo =
+    GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->GetDOFInfo();
   QSignalMapper* sliderMapper = new QSignalMapper(this);
   connect(sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
 
@@ -290,25 +295,17 @@ UpdateDOF(int _id) {
 
   if(m_tempNode->IsQuery()) {
     GetVizmo().GetQry()->Build();
-    GetVizmo().PlaceRobot();
+    GetVizmo().PlaceRobots();
   }
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
 void
 NodeEditDialog::
 ValidityCheck() {
-  vector<MultiBodyModel::DOFInfo>& dofInfo = MultiBodyModel::GetDOFInfo();
-  bool collFound = false; //new or existing
-  for(size_t i = 0; i < dofInfo.size(); i++) {
-    if(((*m_tempNode)[i] <= dofInfo[i].m_minVal) ||
-        ((*m_tempNode)[i] >= dofInfo[i].m_maxVal)) {
-      m_tempNode->SetValidity(false);
-      collFound = true;
-    }
-  }
-  if(collFound == false) {
+  bool valid = GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->
+    InCSpace(m_tempNode->GetData());
+  if(valid) {
     m_tempNode->SetValidity(true);
     GetVizmo().CollisionCheck(*m_tempNode);
   }
@@ -396,11 +393,10 @@ FinalizeNodeEdit(int _accepted) {
 
     if(GetVizmo().GetQry()) {
       GetVizmo().GetQry()->Build();
-      GetVizmo().PlaceRobot();
+      GetVizmo().PlaceRobots();
     }
   }
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -421,7 +417,6 @@ FinalizeNodeAdd(int _accepted) {
         QMessageBox::about(this, "", "Cannot add invalid node!");
     }
     GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-    GetMainWindow()->GetGLWidget()->updateGL();
   }
 }
 
@@ -457,5 +452,4 @@ FinalizeNodeMerge(int _accepted) {
       QMessageBox::about(this, "", "Invalid merge!");
   }
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }

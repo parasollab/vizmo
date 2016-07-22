@@ -1,8 +1,8 @@
 #include "AnimationWidget.h"
 
 #include "Models/DebugModel.h"
+#include "Models/EnvModel.h"
 #include "Models/PathModel.h"
-#include "Models/RobotModel.h"
 #include "Models/Vizmo.h"
 
 #include "Icons/First.xpm"
@@ -76,13 +76,10 @@ GoToFrame(int _frame) {
   m_frameField->setText(QString::number(m_frame + 1)); //reset the number
 
   //update GUI
-  if(m_name == "Path") {
-    const vector<double>& cfg = GetVizmo().GetPath()->GetConfiguration(m_frame).GetData();
-    GetVizmo().GetRobot()->Configure(cfg);
-  }
+  if(m_name == "Path")
+    GetVizmo().GetPath()->ConfigureFrame(m_frame);
   else if(m_name == "Debug")
     GetVizmo().GetDebug()->ConfigureFrame(m_frame);
-  emit CallUpdate();
 }
 
 void

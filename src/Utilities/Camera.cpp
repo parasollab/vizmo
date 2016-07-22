@@ -8,48 +8,54 @@
 #include "Models/Vizmo.h"
 #include "PHANToM/Manager.h"
 
+
 Camera::
-Camera(const string& _name, const Point3d& _eye, const Vector3d& _at) :
-    m_name(_name),
-    m_up(0, 1, 0),
-    m_currEye(_eye), m_eye(_eye),
-    m_currDir((_at-_eye).normalize()), m_dir(m_currDir),
+Camera(const Point3d& _eye, const Vector3d& _at, const Vector3d& _up) :
+    QObject(NULL),
+    m_eye(_eye),
+    m_dir((_at - _eye).normalize()),
+    m_up(_up),
     m_speed(0.4),
-    m_mousePressed(false) {
+    m_mousePressed(false),
+    m_freeFloating(false) {
 }
+
 
 void
 Camera::
-Set(const Vector3d& _eye, const Vector3d& _at) {
+Set(const Vector3d& _eye, const Vector3d& _at, const Vector3d& _up) {
   /// Also adjusts the camera speed relative to the current EnvModel.
-  m_eye = m_currEye = _eye;
-  m_dir = m_currDir = (_at - _eye).normalize();
+  m_eye = _eye;
+  m_dir = (_at - _eye).normalize();
+  m_up  = _up.normalize();
 
   EnvModel* e = GetVizmo().GetEnv();
   m_speed = 1./e->GetRadius();
 }
+
 
 void
 Camera::
 Draw() {
   /// If haptics are in use, also informs the haptics manager that the viewing
   /// perspective has changed.
-  Vector3d c = m_currEye + m_currDir;
+  Vector3d c = m_eye + m_dir;
   gluLookAt(
-      m_currEye[0], m_currEye[1], m_currEye[2],
+      m_eye[0], m_eye[1], m_eye[2],
       c[0], c[1], c[2],
       m_up[0], m_up[1], m_up[2]
       );
 
   if(Haptics::UsingPhantom())
-    GetVizmo().GetManager()->UpdateWorkspace();
+    GetVizmo().GetPhantomManager()->UpdateWorkspace();
 }
+
 
 bool
 Camera::
 MousePressed(QMouseEvent* _e) {
   if(_e->buttons()) {
-    if(_e->modifiers() & Qt::ControlModifier){
+    if(_e->modifiers() & Qt::ControlModifier) {
       m_mousePressed = true;
       m_pressedPt = _e->pos();
       return true; //handled
@@ -58,17 +64,17 @@ MousePressed(QMouseEvent* _e) {
   return false;
 }
 
+
 bool
 Camera::
 MouseReleased(QMouseEvent* _e) {
   if(m_mousePressed) {
     m_mousePressed = false;
-    m_eye = m_currEye;
-    m_dir = m_currDir;
     return true;
   }
   return false;
 }
+
 
 bool
 Camera::
@@ -85,77 +91,81 @@ MouseMotion(QMouseEvent* _e) {
     QPoint drag = _e->pos() - m_pressedPt;
     double dx = drag.x();
     double dy = -drag.y();
+    const Vector3d xHat = Vector3d(1, 0, 0);
+    const Vector3d yHat = Vector3d(0, 1, 0);
+    const Vector3d zHat = Vector3d(0, 0, 1);
 
     //ctrl+shift+left
     //  Y - rotates at vector up/down
     //  X - rotates at vector right/left
     if(_e->modifiers() & Qt::ShiftModifier && _e->buttons() == Qt::LeftButton) {
-      double phi = degToRad(-dx * rotSpeed);
-      double theta = degToRad(dy * rotSpeed);
-      double beta = acos(m_up * m_dir);
-
-      Vector3d right = (m_dir % m_up).normalize();
-      m_currDir = m_dir;
-
-      //rotate at vector around right by theta
-      if((theta > 0 && beta - theta > 0.001) ||
-          (theta < 0 && beta - theta < PI - 0.001)) {
-        Rotate(m_currDir, right, theta);
-        m_currDir.selfNormalize();
-      }
-
-      //rotate at vector around up by phi
-      Rotate(m_currDir, m_up, phi);
-      m_currDir.selfNormalize();
+      //rotate about x-axis by theta
+      double xRot = degToRad( dy * rotSpeed);
+      Rotate(xHat, xRot);
+      //rotate about y-axis by phi
+      double yRot = degToRad(-dx * rotSpeed);
+      Rotate(yHat, yRot);
     }
+
     //ctrl+shift+right/middle
     //  not handled by camera
-    else if(_e->modifiers() & Qt::ShiftModifier) {
+    else if(_e->modifiers() & Qt::ShiftModifier)
       return false;
-    }
+
     //ctrl+left
     //  Y - changes elevation of camera
     //  X - changes azimuth of camera
     else if(_e->buttons() == Qt::LeftButton) {
-      double phi = degToRad(-dx * rotSpeed);
-      double theta = degToRad(dy * rotSpeed);
-
-      m_currEye = m_eye;
-      m_currDir = m_dir;
-
-      //rotate around Y-axis
-      m_currEye.rotateY(phi);
-      m_currDir.rotateY(phi);
-
-      //rotate camera position around right-axis
-      Vector3d right = (m_currDir % m_up).normalize();
-      Rotate(m_currEye, right, theta);
-      Rotate(m_currDir, right, theta);
-      m_currDir.selfNormalize();
+      // If camera is not free-floating, use old azimuthal controls.
+      if(!m_freeFloating) {
+        Vector3d temp;
+        const Vector3d& center = GetVizmo().GetEnv()->GetCenter();
+        //rotate about y-axis by phi and
+        double xRot = degToRad( dy * rotSpeed);
+        if(abs(xRot) > .001) {
+          temp = m_eye - center;
+          temp.rotate(GetWindowX(), xRot);
+          m_eye = center + temp;
+          m_dir.rotate(GetWindowX(), xRot);
+        }
+        double yRot = degToRad(-dx * rotSpeed);
+        if(abs(yRot) > .001) {
+          temp = m_eye - center;
+          temp.rotate(m_up, yRot);
+          m_eye = center + temp;
+          m_dir.rotateY(yRot).selfNormalize();
+        }
+      }
+      // Otherwise, control camera roll with this control.
+      else {
+        double zRot = degToRad(dx * rotSpeed);
+        m_up.rotate(m_dir, zRot).selfNormalize();
+      }
     }
+
     //ctrl+right
     //  Y - moves camera in/out of at direction
-    else if(_e->buttons() == Qt::RightButton) {
-      m_currEye = m_eye + m_dir*dy * trSpeed;
-    }
+    else if(_e->buttons() == Qt::RightButton)
+      Translate(-zHat * dy * trSpeed);
+
     //ctrl+middle
     //  Y - moves camera up/down of at direction
     //  X - moves camera right/left of at direction
-    else if(_e->buttons() == Qt::MidButton) {
-      Vector3d right = (m_dir % m_up).normalize();
-      Vector3d trueUp = (right % m_dir).normalize();
-      m_currEye = m_eye + right*dx*trSpeed + trueUp*dy*trSpeed;
-    }
+    else if(_e->buttons() == Qt::MidButton)
+      Translate(xHat * dx * trSpeed + yHat * dy * trSpeed);
+
     //not handled by camera
     else
       return false;
 
     //handled by camera successfully
+    m_pressedPt = _e->pos();
     return true;
   }
   //mouse not pressed, not handled by camera
   return false;
 }
+
 
 bool
 Camera::
@@ -166,121 +176,141 @@ KeyPressed(QKeyEvent* _e) {
   /// \arg <i>pan up/down</i>: <tt>Q/E</tt>
   /// \arg <i>look</i>: <tt>arrow keys</tt>
 
-  Vector3d right = (m_dir % m_up).normalize();
+  const Vector3d xHat(1, 0, 0);
+  const Vector3d yHat(0, 1, 0);
+  const Vector3d zHat(0, 0, 1);
 
-  switch(_e->key()){
-    //case 'h': PrintHelp();return true;
-    case '-': //half camera speed
+  switch(_e->key()) {
+    case '-':
+      // Half camera speed.
       m_speed *= 0.5;
       return true;
-    case '+': //double camera speed
+    case '+':
+      // Double camera speed.
       m_speed *= 2;
       return true;
-    case 'A': //move left
-      m_currEye = m_eye -= right * 10*m_speed;
+    case 'A':
+      // Move left.
+      Translate(-xHat * 10 * m_speed);
       return true;
-    case 'D': //move right
-      m_currEye = m_eye += right * 10*m_speed;
+    case 'D':
+      // Move right.
+      Translate(xHat * 10 * m_speed);
       return true;
-    case 'W': //move in
-      m_currEye = m_eye += m_dir * 10*m_speed;
+    case 'W':
+      // Move in.
+      Translate(-zHat * 10 * m_speed);
       return true;
-    case 'S': //move out
-      m_currEye = m_eye -= m_dir * 10*m_speed;
+    case 'S':
+      // Move out.
+      Translate(zHat * 10 * m_speed);
       return true;
-    case 'Q': //move up
-      m_currEye = m_eye += (right % m_dir).normalize() * 10*m_speed;
+    case 'Q':
+      // Move up.
+      Translate(yHat * 10 * m_speed);
       return true;
-    case 'E': //move down
-      m_currEye = m_eye -= (right % m_dir).normalize() * 10*m_speed;
+    case 'E':
+      // Move down.
+      Translate(-yHat * 10 * m_speed);
       return true;
-    case Qt::Key_Left: //look left
-      Rotate(m_dir, m_up, degToRad(10*m_speed));
-      m_currDir = m_dir.selfNormalize();
+    case Qt::Key_Left:
+      // Look left.
+      Rotate(yHat, degToRad(10 * m_speed));
       return true;
-    case Qt::Key_Right: //look right
-      Rotate(m_dir, m_up, degToRad(10*-m_speed));
-      m_currDir = m_dir.selfNormalize();
+    case Qt::Key_Right:
+      // Look right.
+      Rotate(yHat, degToRad(10 * -m_speed));
       return true;
-    case Qt::Key_Up: //look up
-      if(acos(m_up * m_dir) - 10*m_speed > 0.001) {
-        Rotate(m_dir, right, degToRad(10*m_speed));
-        m_currDir = m_dir.selfNormalize();
-      }
+    case Qt::Key_Up:
+      // Look up.
+      Rotate(xHat, degToRad(10 * m_speed));
       return true;
-    case Qt::Key_Down: //look down
-      if(acos(m_up * m_dir) + 10*m_speed < PI - 0.001) {
-        Rotate(m_dir, right, degToRad(10*-m_speed));
-        m_currDir = m_dir.selfNormalize();
-      }
+    case Qt::Key_Down:
+      // Look down.
+      Rotate(xHat, degToRad(10 * -m_speed));
       return true;
     default:
       return false;
   }
 }
 
+
 Vector3d
 Camera::
 GetWindowX() const {
-  /// \warning This is more like window -X in the standard OpenGL orientation.
-  return (m_up % m_currDir).normalize();
+  return (m_dir % m_up).normalize();
 }
+
 
 Vector3d
 Camera::
 GetWindowY() const {
-  return (m_currDir % m_up % m_currDir).normalize();
+  return (m_dir % m_up % m_dir).normalize();
 }
+
 
 Vector3d
 Camera::
 GetWindowZ() const {
-  /// \warning This is more like window -Z in the standard OpenGL orientation.
-  return m_currDir;
+  return -m_dir;
 }
+
 
 void
 Camera::
-Rotate(Vector3d& _vec, const Vector3d& _axis, double _theta) {
-  double u = _axis[0], v = _axis[1], w = _axis[2],
-         x = _vec[0],  y = _vec[1],  z = _vec[2],
-         c = cos(_theta), s = sin(_theta),
-         dot1c = _axis*_vec*(1-c);
-
-  _vec(
-      u*dot1c + x*c + (-w*y + v*z)*s,
-      v*dot1c + y*c + (w*x - u*z)*s,
-      w*dot1c + z*c + (-v*x + u*y)*s
-      );
+ToggleFreeFloat() {
+  if(m_freeFloating)
+    m_freeFloating = false;
+  else {
+    m_freeFloating = true;
+    m_up = GetWindowY();
+  }
 }
 
-/*-------------------------------Camera Factory-------------------------------*/
-
-CameraFactory::
-CameraFactory() {
-  /// Initialize with a default camera positioned at (0, 0, 500) and looking at
-  /// the origin.
-  AddCamera(Camera("default", Point3d(0, 0, 500), Vector3d(0, 0, 0)));
-  m_currentCam = &m_cameras.begin()->second;
-}
 
 void
-CameraFactory::
-AddCamera(const Camera& _camera) {
-  if(m_cameras.find(_camera.GetName()) == m_cameras.end())
-    m_cameras.insert(make_pair(_camera.GetName(), _camera));
+Camera::
+ResetUp() {
+  if(m_freeFloating) {
+    Vector3d xHat = GetWindowX();
+    m_up = Vector3d(0, 1, 0);
+    m_dir = (m_up % xHat).normalize();
+  }
   else
-    cerr << "Warning::Camera '" << _camera.GetName()
-         << "' already exists in CameraFactory." << endl;
+    m_up = Vector3d(0, 1, 0);
 }
 
+
+Vector3d
+Camera::
+ProjectToWorld(const Vector3d& _v) const {
+  return _v[0] * GetWindowX() + _v[1] * GetWindowY() + _v[2] * GetWindowZ();
+}
+
+
+/*---------------------------- Cross-thread Controls -------------------------*/
+
 void
-CameraFactory::
-SetCurrentCamera(const string& _name) {
-  map<string, Camera>::iterator c = m_cameras.find(_name);
-  if(c != m_cameras.end())
-    m_currentCam = &c->second;
-  else
-    cerr << "Warning::Camera '" << _name
-         << "' does not exist in CameraFactory." << endl;
+Camera::
+Translate(const Vector3d& _delta) {
+  m_eye += Camera::ProjectToWorld(_delta);
+}
+
+
+void
+Camera::
+Rotate(const Vector3d& _axis, double _theta) {
+  // Ignore rotations that are too small to reduce camera shake.
+  if(abs(_theta) < .001)
+    return;
+
+  // Transform _axis to world coordinates.
+  Vector3d worldAxis = Camera::ProjectToWorld(_axis);
+
+  // Apply rotation.
+  m_dir.rotate(worldAxis, _theta).selfNormalize();
+
+  // If free-floating, rotate the up direction as well.
+  if(m_freeFloating)
+    m_up.rotate(worldAxis, _theta).selfNormalize();
 }

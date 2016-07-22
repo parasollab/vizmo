@@ -6,36 +6,50 @@
 #include "Models/MapModel.h"
 
 RegionSamplerDialog::
-RegionSamplerDialog(const vector<string>& _samplers, QWidget* _parent) :
-    QDialog(_parent), m_samplerLabel("") {
-  //create widget layout
-  QVBoxLayout* layout = new QVBoxLayout(this);
+RegionSamplerDialog(QWidget* _parent) :
+  QDialog(_parent) {
 
-  //create radio buttons
-  for(vector<string>::const_iterator citer = _samplers.begin();
-      citer != _samplers.end(); ++citer) {
-    QRadioButton* button = new QRadioButton((*citer).c_str(), this);
-    connect(button, SIGNAL(clicked()), this, SLOT(ChangeSampler()));
-    layout->addWidget(button);
-    //set first button checked by default
-    if(citer == _samplers.begin())
-      button->setChecked(true);
+    setWindowTitle("Sampler Selection");
+
+    //create widget layout
+    const vector<string>& samplers = GetVizmo().GetAllSamplers();
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    m_radioGroup = new QButtonGroup;
+
+    //create radio buttons
+    for(const auto& s : samplers) {
+      QRadioButton* button = new QRadioButton(s.c_str(), this);
+      m_radioGroup->addButton(button);
+      layout->addWidget(button);
+    }
+
+    if(m_radioGroup->buttons().size())
+      m_radioGroup->buttons().first()->setChecked(true);
+    m_radioGroup->setExclusive(true);
+
+    //create accept button
+    QPushButton* setButton = new QPushButton("Set", this);
+    connect(setButton, SIGNAL(clicked()), this, SLOT(Accept()));
+    layout->addWidget(setButton);
+
+    //apply the layout
+    setLayout(layout);
+
+    if(m_radioGroup->buttons().size() < 2) {
+      setVisible(false);
+      QTimer::singleShot(0, this, SLOT(Accept()));
+    }
   }
 
-  //create accept button
-  QPushButton* setButton = new QPushButton("Set", this);
-  connect(setButton, SIGNAL(clicked()), this, SLOT(Accept()));
-  layout->addWidget(setButton);
-
-  //apply the layout
-  setLayout(layout);
-}
-
-void
+string
 RegionSamplerDialog::
-ChangeSampler() {
-  QRadioButton* button = static_cast<QRadioButton*>(sender());
-  m_samplerLabel = button->text().toStdString();
+GetSampler() {
+  if(m_radioGroup->buttons().size()) {
+    string temp = m_radioGroup->checkedButton()->text().toStdString();
+    return temp.substr(temp.rfind(':') + 1);
+  }
+  else
+    return "";
 }
 
 void
@@ -45,7 +59,7 @@ Accept() {
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
 
   RegionModel* r = (RegionModel*)sel[0];
-  r->SetSampler(m_samplerLabel);
+  r->SetSampler(GetSampler());
 
   accept();
 }

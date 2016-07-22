@@ -8,9 +8,19 @@ ifndef debug
   debug = 0
 endif
 
+ifndef ROBOT_DEF
+  ROBOT_DEF = PMPCfg
+  #ROBOT_DEF = PMPState
+endif
+
 # set PHANToM compile
 ifndef phantom
   phantom = 0
+endif
+
+# set SpaceMouse compile
+ifndef spacemouse
+  spacemouse = 0
 endif
 
 # set directory paths

@@ -47,9 +47,8 @@ class MapModel : public LoadableModel {
 
     //Access functions
     const string& GetEnvFileName() const {return m_envFileName;}
+    void SetEnvFileName(const string& _name) {m_envFileName = _name;}
     RGraph* GetGraph() {return m_graph;}
-    vector<CFG*>& GetTempCfgs() {return m_tempCfgs;}
-    vector<WEIGHT*>& GetTempEdges() {return m_tempEdges;}
 
     VID Cfg2VID(const CFG& _target);
 
@@ -76,7 +75,6 @@ class MapModel : public LoadableModel {
     //Only pass in false if you know better, e.g., directly after deleting nodes
     //and edges.
     void RefreshMap(bool lock = true);
-    void ClearTempItems();
 
     QMutex& AcquireMutex() {return m_lock;}
 
@@ -89,11 +87,6 @@ class MapModel : public LoadableModel {
     bool m_delGraph;
 
     mutable QMutex m_lock;
-    QMutexLocker* m_locker; //for acquire/release around get children
-
-    //Currently for preview in MergeNodes
-    vector<CFG*> m_tempCfgs;
-    vector<WEIGHT*> m_tempEdges;
 };
 
 template <class CFG, class WEIGHT>
@@ -140,7 +133,7 @@ ParseFile() {
   if(!FileExists(GetFilename()))
     throw ParseException(WHERE, "File '" + GetFilename() + "' does not exist");
 
-  ifstream ifs(GetFilename().c_str());
+  ifstream ifs(GetFilename());
 
   //parse env filename
   string s;
@@ -208,21 +201,6 @@ DrawRender() {
   //Draw each CC
   for(CCIT ic = m_ccModels.begin(); ic != m_ccModels.end(); ic++)
     (*ic)->DrawRender();
-
-  glLineWidth(2);
-  typedef typename vector<CFG*>::iterator NIT;
-  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++){
-    (*nit)->SetColor(Color4(0.0, 1.0, 0.0, 1.0));
-    (*nit)->SetRenderMode(WIRE_MODE);
-    (*nit)->DrawRender();
-  }
-
-  typedef typename vector<WEIGHT*>::iterator WIT;
-  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++){
-    (*wit)->SetColor(Color4(0.0, 1.0, 0.0, 1.0));
-    (*wit)->SetRenderMode(WIRE_MODE);
-    (*wit)->DrawRender();
-  }
 }
 
 template <class CFG, class WEIGHT>
@@ -239,14 +217,6 @@ DrawSelect() {
     (*ic)->DrawSelect();
     glPopName();
   }
-
-  typedef typename vector<CFG*>::iterator NIT;
-  for(NIT nit = m_tempCfgs.begin(); nit != m_tempCfgs.end(); nit++)
-    (*nit)->DrawSelect();
-
-  typedef typename vector<WEIGHT*>::iterator WIT;
-  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
-    (*wit)->DrawSelect();
 }
 
 template <class CFG, class WEIGHT>
@@ -314,21 +284,6 @@ RefreshMap(bool lock) {
     locker = new QMutexLocker(&m_lock);
   Build();
   delete locker;
-}
-
-template <class CFG, class WEIGHT>
-void
-MapModel<CFG, WEIGHT>::
-ClearTempItems() {
-  typedef typename vector<CFG*>::iterator CIT;
-  for(CIT cit = m_tempCfgs.begin(); cit != m_tempCfgs.end(); cit++)
-    delete *cit;
-  m_tempCfgs.clear();
-
-  typedef typename vector<WEIGHT*>::iterator WIT;
-  for(WIT wit = m_tempEdges.begin(); wit != m_tempEdges.end(); wit++)
-    delete *wit;
-  m_tempEdges.clear();
 }
 
 #endif

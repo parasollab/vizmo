@@ -78,7 +78,6 @@ PathOptions::
 ShowHidePath() {
   GetVizmo().GetPath()->SetRenderMode(m_actions["showHidePath"]->isChecked() ?
       SOLID_MODE : INVISIBLE_MODE);
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 

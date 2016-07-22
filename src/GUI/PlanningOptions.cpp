@@ -14,7 +14,6 @@
 #include "Models/RegionModel.h"
 #include "Models/RegionSphereModel.h"
 #include "Models/RegionSphere2DModel.h"
-#include "Models/RobotModel.h"
 #include "Models/QueryModel.h"
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
@@ -30,23 +29,27 @@
 #include "Icons/AvoidRegion.xpm"
 #include "Icons/DeleteRegion.xpm"
 #include "Icons/DeleteUserPath.xpm"
+#include "Icons/LoadCfg.xpm"
+#include "Icons/LoadPath.xpm"
 #include "Icons/LoadRegion.xpm"
 #include "Icons/DuplicateRegion.xpm"
 #include "Icons/MapEnv.xpm"
 #include "Icons/PrintUserPath.xpm"
+#include "Icons/SaveCfg.xpm"
 #include "Icons/SaveRegion.xpm"
+#include "Icons/SavePaths.xpm"
 #include "Icons/UserPath.xpm"
 #include "Icons/RecordPath.xpm"
 
 
 PlanningOptions::
 PlanningOptions(QWidget* _parent) : OptionsBase(_parent, "Planning"),
-    m_regionsStarted(false), m_cfgStarted(false), m_thread(NULL) {
-  CreateActions();
-  SetHelpTips();
-  SetUpSubmenu();
-  SetUpToolTab();
-}
+  m_userInputStarted(false), m_thread(NULL) {
+    CreateActions();
+    SetHelpTips();
+    SetUpSubmenu();
+    SetUpToolTab();
+  }
 
 
 PlanningOptions::
@@ -95,7 +98,14 @@ CreateActions() {
       tr("Load Region"), this);
   m_actions["placeCfgs"] = new QAction(QPixmap(addnode),
       tr("Place Cfgs"), this);
-
+  m_actions["saveCfgs"] = new QAction(QPixmap(savecfg),
+      tr("Save Cfgs"), this);
+  m_actions["loadCfgs"] = new QAction(QPixmap(loadcfg),
+      tr("Load Cfgs"), this);
+  m_actions["savePath"] = new QAction(QPixmap(savepaths),
+      tr("Save Path"), this);
+  m_actions["loadPath"] = new QAction(QPixmap(loadpath),
+      tr("Load Path"), this);
   m_actions["addUserPathMouse"] = new QAction(QPixmap(adduserpath),
       tr("Add User Path with Mouse"), this);
   m_actions["addUserPathCamera"] = new QAction(QPixmap(recordpath),
@@ -125,6 +135,10 @@ CreateActions() {
   m_actions["saveRegion"]->setEnabled(false);
   m_actions["loadRegion"]->setEnabled(false);
   m_actions["placeCfgs"]->setEnabled(false);
+  m_actions["saveCfgs"]->setEnabled(false);
+  m_actions["loadCfgs"]->setEnabled(false);
+  m_actions["savePath"]->setEnabled(false);
+  m_actions["loadPath"]->setEnabled(false);
 
   // 3. Make connections
   connect(m_actions["addRegionSphere"], SIGNAL(triggered()),
@@ -157,6 +171,16 @@ CreateActions() {
       this, SLOT(DeleteUserPath()));
   connect(m_actions["printUserPath"], SIGNAL(triggered()),
       this, SLOT(PrintUserPath()));
+  connect(m_actions["saveCfgs"], SIGNAL(triggered()),
+      this, SLOT(SaveCfg()));
+  connect(m_actions["loadCfgs"], SIGNAL(triggered()),
+      this, SLOT(LoadCfg()));
+  connect(m_actions["savePath"], SIGNAL(triggered()),
+      this, SLOT(SavePath()));
+  connect(m_actions["loadPath"], SIGNAL(triggered()),
+      this, SLOT(LoadPath()));
+
+
 }
 
 
@@ -189,8 +213,6 @@ SetHelpTips() {
       tr("Print selected user path to file"));
   m_actions["saveRegion"]->setWhatsThis(
       tr("Saves the regions drawn in the scene"));
-  m_actions["loadRegion"]->setWhatsThis(
-      tr("Loads saved regions to the scene"));
 }
 
 
@@ -209,9 +231,11 @@ SetUpSubmenu() {
   m_regionPropertiesMenu->addAction(m_actions["makeRegionAvoid"]);
   m_regionPropertiesMenu->addAction(m_actions["duplicateRegion"]);
   m_submenu->addMenu(m_regionPropertiesMenu);
-
   m_submenu->addAction(m_actions["placeCfgs"]);
-
+  m_submenu->addAction(m_actions["saveCfgs"]);
+  m_submenu->addAction(m_actions["loadCfgs"]);
+  m_submenu->addAction(m_actions["savePath"]);
+  m_submenu->addAction(m_actions["loadPath"]);
   m_submenu->addAction(m_actions["saveRegion"]);
   m_submenu->addAction(m_actions["loadRegion"]);
   m_submenu->addAction(m_actions["deleteRegion"]);
@@ -241,6 +265,8 @@ SetUpToolTab() {
   buttonList.push_back("addUserPathHaptic");
   buttonList.push_back("deleteUserPath");
   buttonList.push_back("printUserPath");
+  buttonList.push_back("savePath");
+  buttonList.push_back("loadPath");
 
   buttonList.push_back("_separator_");
 
@@ -254,8 +280,11 @@ SetUpToolTab() {
 
   buttonList.push_back("saveRegion");
   buttonList.push_back("loadRegion");
-  buttonList.push_back("placeCfgs");
 
+  buttonList.push_back("_separator_");
+  buttonList.push_back("placeCfgs");
+  buttonList.push_back("saveCfgs");
+  buttonList.push_back("loadCfgs");
   buttonList.push_back("_separator_");
 
   buttonList.push_back("mapEnvironment");
@@ -283,6 +312,10 @@ Reset() {
   m_actions["saveRegion"]->setEnabled(true);
   m_actions["loadRegion"]->setEnabled(true);
   m_actions["placeCfgs"]->setEnabled(true);
+  m_actions["saveCfgs"]->setEnabled(true);
+  m_actions["loadCfgs"]->setEnabled(true);
+  m_actions["savePath"]->setEnabled(true);
+  m_actions["loadPath"]->setEnabled(true);
   m_pathsMenu->setEnabled(true);
   m_addRegionMenu->setEnabled(true);
   m_regionPropertiesMenu->setEnabled(true);
@@ -291,21 +324,26 @@ Reset() {
 
 void
 PlanningOptions::
+StartPreInputTimer() {
+  if(!m_userInputStarted) {
+    GetVizmo().StartClock("Pre-input");
+    m_userInputStarted = true;
+  }
+}
+
+void
+PlanningOptions::
 AddRegionBox() {
   /// Automatically determines whether a 2D or 3D box is needed by checking
   /// whether the robot is planar. Additionally, the pre-regions timer will be
   /// started if it has not been already.
-  if(!m_regionsStarted) {
-    GetVizmo().StartClock("Pre-regions");
-    m_regionsStarted = true;
-  }
+  StartPreInputTimer();
 
   // Create new box region
   RegionModelPtr r;
 
   // Check if robot is 2D or 3D, set region to same
-  RobotModel* robot = GetVizmo().GetRobot();
-  if(robot->IsPlanar())
+  if(GetVizmo().GetEnv()->IsPlanar())
     r = RegionModelPtr(new RegionBox2DModel());
   else
     r = RegionModelPtr(new RegionBoxModel());
@@ -328,16 +366,13 @@ AddRegionSphere() {
   /// Automatically determines whether a 2D or 3D sphere is needed by checking
   /// whether the robot is planar. Additionally, the pre-regions timer will be
   /// started if it has not been already.
-  if(!m_regionsStarted) {
-    GetVizmo().StartClock("Pre-regions");
-    m_regionsStarted = true;
-  }
+  StartPreInputTimer();
+
   // Create new sphere region
   RegionModelPtr r;
 
   // Check to see if robot is 2D or 3D, set region to the same
-  RobotModel* robot = GetVizmo().GetRobot();
-  if(robot->IsPlanar())
+  if(GetVizmo().GetEnv()->IsPlanar())
     r = RegionModelPtr(new RegionSphere2DModel());
   else
     r = RegionModelPtr(new RegionSphereModel());
@@ -356,16 +391,46 @@ AddRegionSphere() {
 void
 PlanningOptions::
 PlaceCfg() {
-  if(!m_cfgStarted) {
-    GetVizmo().StartClock("Pre-cfgs");
-    m_cfgStarted = true;
-  }
-
+  StartPreInputTimer();
   GetVizmo().SetPMPLMap();
-
   NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Node");
   GetMainWindow()->ShowDialog(ned);
 }
+
+
+void
+PlanningOptions::
+SaveCfg() {
+  QString fn = QFileDialog::getSaveFileName(this, "Choose an cfg map file",
+      GetMainWindow()->GetLastDir(), "Cfg Map File (*.cfgmap)");
+
+  if(!fn.isEmpty()) {
+    string filename = fn.toStdString();
+    GetVizmo().GetMap()->Write(filename);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  }
+  else
+    GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
+}
+
+
+void
+PlanningOptions::
+LoadCfg() {
+  QString fn = QFileDialog::getOpenFileName(this, "Choose an cfg map file",
+      GetMainWindow()->GetLastDir(), "Cfg Map File (*.cfgmap)");
+  if(!fn.isEmpty()) {
+    string filename = fn.toStdString();
+    GetVizmo().ReadMap(filename);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  }
+  else
+    GetMainWindow()->statusBar()->showMessage("Loading aborted", 2000);
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+}
+
 
 void
 PlanningOptions::
@@ -394,12 +459,15 @@ DuplicateRegion() {
         else if(shape == RegionModel::SPHERE2D)
           r = RegionModelPtr(
               new RegionSphere2DModel(*static_cast<RegionSphere2DModel*>(*sit)));
+
+        r->ResetProcessed();
+
         if(r) {
           regionFound = true;
           dist = r->GetLongLength();
           r->SetType(RegionModel::NONCOMMIT);
           Camera* c = GetMainWindow()->GetGLWidget()->GetCurrentCamera();
-          Vector3d delta = -(c->GetWindowX() + c->GetWindowY() + c->GetWindowZ());
+          Vector3d delta = c->GetWindowX() - c->GetWindowY() + c->GetWindowZ();
           delta.selfNormalize();
           delta *= dist/3;
           r->ApplyOffset(delta);
@@ -454,7 +522,6 @@ MakeRegionAvoid() {
     ChangeRegionType(false);
 }
 
-
 void
 PlanningOptions::
 ChangeRegionType(bool _attract) {
@@ -472,7 +539,6 @@ ChangeRegionType(bool _attract) {
   }
 }
 
-
 void
 PlanningOptions::
 SaveRegion() {
@@ -481,29 +547,13 @@ SaveRegion() {
       GetMainWindow()->GetLastDir(), "Region File (*.regions)");
 
   if(!fn.isEmpty()) {
-    string filename = fn.toStdString();
-    ofstream ofs(filename.c_str());
-    ofs << "#####RegionFile#####" << endl;
-
-    EnvModel* env = GetVizmo().GetEnv();
-    const vector<RegionModelPtr>& nonCommit = env->GetNonCommitRegions();
-    const vector<RegionModelPtr>& attractRegion = env->GetAttractRegions();
-    const vector<RegionModelPtr>& avoidRegion = env->GetAvoidRegions();
-
-    typedef vector<RegionModelPtr>::const_iterator CRIT;
-    for(CRIT crit = nonCommit.begin(); crit != nonCommit.end(); ++crit)
-      (*crit)->OutputDebugInfo(ofs);
-    for(CRIT crit = attractRegion.begin(); crit != attractRegion.end(); ++crit)
-      (*crit)->OutputDebugInfo(ofs);
-    for(CRIT crit = avoidRegion.begin(); crit != avoidRegion.end(); ++crit)
-      (*crit)->OutputDebugInfo(ofs);
-
+    GetVizmo().GetEnv()->SaveRegions(fn.toStdString());
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
   }
-  GetMainWindow()->GetGLWidget()->updateGL();
+  else
+    GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
 }
-
 
 void
 PlanningOptions::
@@ -513,115 +563,24 @@ LoadRegion() {
       GetMainWindow()->GetLastDir(), "Region File (*.regions)");
 
   if(!fn.isEmpty()) {
-
-    string filename = fn.toStdString();
-    ifstream ifs(filename.c_str());
-
-    string line;
-    getline(ifs,line);
-
-    while(getline(ifs,line)) {
-
-      istringstream iss(line);
-
-      RegionModelPtr _mod;
-
-      int tempType;
-      iss >> tempType;
-
-      string modelShapeName;
-      iss >> modelShapeName;
-
-      RegionModel::Type modelType = static_cast<RegionModel::Type>(tempType);
-
-      if(modelShapeName == "BOX") {
-
-        Point3d min, max;
-        iss >> min >> max;
-
-        pair<double, double> xPair(min[0], max[0]);
-        pair<double, double> yPair(min[1], max[1]);
-        pair<double, double> zPair(min[2], max[2]);
-
-        _mod = RegionModelPtr(new RegionBoxModel(xPair, yPair, zPair));
-        _mod->SetType(modelType);
-        _mod->ChangeColor();
-      }
-      else if(modelShapeName == "BOX2D") {
-
-        Point2d min, max;
-        iss >> min >> max;
-
-        pair<double, double> xPair(min[0], max[0]);
-        pair<double, double> yPair(min[1], max[1]);
-
-        _mod = RegionModelPtr(new RegionBox2DModel(xPair, yPair));
-        _mod->SetType(modelType);
-        _mod->ChangeColor();
-
-      }
-      else if(modelShapeName == "SPHERE") {
-
-        Point3d tempCenter;
-        iss >> tempCenter;
-
-        double radius = -1;
-        iss >> radius;
-
-        _mod = RegionModelPtr(new RegionSphereModel(tempCenter, radius));
-        _mod->SetType(modelType);
-        _mod->ChangeColor();
-      }
-      else if(modelShapeName == "SPHERE2D") {
-
-        Point3d tempCenter;
-        iss >> tempCenter;
-
-        double radius = -1;
-        iss >> radius;
-
-        _mod = RegionModelPtr(new RegionSphere2DModel(tempCenter, radius));
-        _mod->SetType(modelType);
-        _mod->ChangeColor();
-      }
-
-      if(_mod != NULL) {
-        //Checks what type of region then adds
-        EnvModel* env = GetVizmo().GetEnv();
-        if(_mod->GetType() == 0)
-          env->AddAttractRegion(_mod);
-        else if(_mod->GetType() == 1)
-          env->AddAvoidRegion(_mod);
-        else if(_mod->GetType() == 2)
-          env->AddNonCommitRegion(_mod);
-      }
-    }
+    GetVizmo().GetEnv()->LoadRegions(fn.toStdString());
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
   }
   else
     GetMainWindow()->statusBar()->showMessage("Loading aborted", 2000);
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
-
 
 void
 PlanningOptions::
 ChooseSamplerStrategy() {
   /// Requires that a single region is selected.
   if(SingleRegionSelected()) {
-    const vector<string>& samplers = GetVizmo().GetLoadedSamplers();
+    RegionSamplerDialog rsDialog(GetMainWindow());
 
-    if(samplers.size() == 1)
-      GetMainWindow()->GetGLWidget()->GetCurrentRegion()->
-        SetSampler(samplers.front());
-    else {
-      RegionSamplerDialog rsDialog(samplers, GetMainWindow());
-
-      if(rsDialog.exec() != QDialog::Accepted)
-        cout << "Sampler selection dialog aborted." << endl << flush;
-    }
+    if(rsDialog.exec() != QDialog::Accepted)
+      cout << "Sampler selection dialog aborted." << endl << flush;
   }
 }
 
@@ -664,6 +623,8 @@ AddUserPath() {
   else
     p = new UserPathModel(UserPathModel::Mouse);
   GetVizmo().GetEnv()->AddUserPath(p);
+
+  StartPreInputTimer();
 
   // set mouse events to current path for GLWidget
   GetMainWindow()->GetGLWidget()->SetCurrentUserPath(p);
@@ -719,7 +680,7 @@ HapticPathCapture() {
   UserPathModel* p = GetMainWindow()->GetGLWidget()->GetCurrentUserPath();
   if(p) {
     if(!p->IsFinished())
-      p->SendToPath(GetVizmo().GetManager()->GetWorldPos());
+      p->SendToPath(GetVizmo().GetPhantomManager()->GetWorldPos());
     else
       disconnect(GetMainWindow()->GetMainClock(), SIGNAL(timeout()),
           this, SLOT(HapticPathCapture()));
@@ -750,6 +711,36 @@ CameraPathCapture() {
   }
 }
 
+void
+PlanningOptions::
+SavePath() {
+  QString fn = QFileDialog::getSaveFileName(this, "Choose an path map file",
+      GetMainWindow()->GetLastDir(), "Path Map File (*.pathmap)");
+
+  if(!fn.isEmpty()) {
+    GetVizmo().GetEnv()->SaveUserPaths(fn.toStdString());
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  }
+  else
+    GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
+}
+
+void
+PlanningOptions::
+LoadPath() {
+  QString fn = QFileDialog::getOpenFileName(this, "Choose an path file",
+      GetMainWindow()->GetLastDir(), "Path File (*.pathmap)");
+  if(!fn.isEmpty()) {
+    GetVizmo().GetEnv()->LoadUserPaths(fn.toStdString());
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  }
+  else
+    GetMainWindow()->statusBar()->showMessage("Loading aborted", 2000);
+  GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+}
+
 /*-------------------------- Common Planning Functions -----------------------*/
 
 void
@@ -758,10 +749,9 @@ ThreadDone() {
   /// Should be connected to the finish signal of \ref m_thread before executing
   /// a mapping strategy.
   m_thread = NULL;
-  m_regionsStarted = false;
+  m_userInputStarted = false;
 
   // Refresh scene + GUI
-  GetMainWindow()->GetGLWidget()->updateGL();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->m_mainMenu->CallReset();
 }
@@ -774,18 +764,18 @@ MapEnvironment() {
   /// one such mapping thread can be running at any time.
   if(!m_thread) {
 
-    //Stop pre-planning region timer.
-    if(!m_regionsStarted)
-      //start-stop when no regions were created
-      GetVizmo().StartClock("Pre-regions");
-    GetVizmo().StopClock("Pre-regions");
+    //Stop pre-planning inptu timer.
+    if(!m_userInputStarted)
+      //start-stop when no inputs were created
+      GetVizmo().StartClock("Pre-input");
+    GetVizmo().StopClock("Pre-input");
 
     GetVizmo().StartClock("StrategySelection");
     ChangePlannerDialog cpDialog(GetMainWindow());
 
     if(!cpDialog.exec()) {
       GetVizmo().StopClock("StrategySelection");
-      GetVizmo().AdjustClock("Pre-regions", "StrategySelection", "-");
+      GetVizmo().AdjustClock("Pre-input", "StrategySelection", "-");
       return;
     }
 
@@ -812,8 +802,8 @@ MapEnvironment() {
 
 MapEnvironmentWorker::
 MapEnvironmentWorker(string _strategyLabel)
-    : QObject(), m_strategyLabel(_strategyLabel) {}
-
+  : QObject(), m_strategyLabel(_strategyLabel) {
+  }
 
 void
 MapEnvironmentWorker::
@@ -821,3 +811,4 @@ Solve() {
   GetVizmo().Solve(m_strategyLabel);
   emit Finished();
 }
+

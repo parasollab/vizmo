@@ -6,126 +6,175 @@
 #include "CfgModel.h"
 
 double EdgeModel::m_edgeThickness = 1;
+double EdgeModel::m_numIntermediates = .3;
 
-EdgeModel::EdgeModel(string _lpLabel, double _weight, const vector<CfgModel>& _intermediates) :
-  Model(""), DefaultWeight<CfgModel>(_lpLabel, _weight, _intermediates), m_id(-1), m_isValid(true) {
-}
+EdgeModel::
+EdgeModel(string _lpLabel, double _weight,
+    const vector<CfgModel>& _intermediates) : Model(""),
+    EdgeType(_lpLabel, _weight, _intermediates),
+    m_id(-1), m_isValid(true) { }
 
-EdgeModel::EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""), DefaultWeight<CfgModel>(_e), m_id(-1), m_isValid(true) {
-}
+EdgeModel::
+EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""),
+    EdgeType(_e), m_id(-1), m_isValid(true) { }
 
 void
-EdgeModel::SetName() {
+EdgeModel::
+SetName() {
   ostringstream temp;
   temp << "Edge " << m_id;
   m_name = temp.str();
 }
 
 void
-EdgeModel::Print(ostream& _os) const {
-  _os << "Edge ID= " << m_id << endl
-    << "Connects Nodes: " << m_startCfg->GetIndex() << " and " << m_endCfg->GetIndex() << endl
-    << "Intermediates: ";
-
-  typedef vector<CfgModel>::const_iterator CFGIT;
-  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
-    _os << *c << " | ";
-
-  _os << endl;
-
-  _os << "Weight: " << m_weight << endl;
-
-  if(!m_isValid)
-    _os << "**** IS IN COLLISION!! ****" << endl;
+EdgeModel::
+Set(CfgModel* _c1, CfgModel* _c2) {
+  m_startCfg = _c1;
+  m_endCfg = _c2;
 }
 
 void
-EdgeModel::Set(size_t _id, CfgModel* _c1, CfgModel* _c2){
+EdgeModel::
+Set(size_t _id, CfgModel* _c1, CfgModel* _c2) {
   m_id = _id;
-  m_startCfg = _c1;
-  m_endCfg = _c2;
-
+  Set(_c1, _c2);
   SetName();
+
+#ifdef PMPState
+  RecalculateEdges(*_c1);
+#endif
 }
 
 void
-EdgeModel::Set(CfgModel* _c1, CfgModel* _c2){
-  m_startCfg = _c1;
-  m_endCfg = _c2;
+EdgeModel::
+RecalculateEdges(CfgModel _c) {
+#ifdef PMPState
+  double timeRes = CfgModel::GetTimeRes();
+  cout << "timeRes: " << timeRes << endl;
+  CfgModel tick = _c;
+
+  m_intermediates.clear();
+  for(int i = 0; i < m_timeStep; ++i) {
+    tick = tick.Apply(m_control, timeRes);
+    m_intermediates.push_back(tick);
+  }
+#endif
 }
 
 void
-EdgeModel::DrawRender() {
+EdgeModel::
+DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
-
-  typedef vector<CfgModel>::iterator CFGIT;
 
   if(m_isValid)
     glColor4fv(m_color);
   else
-    glColor4fv(Color4(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0));
+    glColor4f(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0);
 
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
-  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
-    glVertex3dv(c->GetPoint()); //starting point of next line
+
+  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
+
+  for(size_t i = 0; i < m_intermediates.size(); ++i) {
+    if(i % k == k/2)
+      glVertex3dv(m_intermediates[i].GetPoint());
+  }
+
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
-
-  //draw intermediate configurations
-  if(CfgModel::GetShape() == CfgModel::Robot) {
-    for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
-      c->SetRenderMode(WIRE_MODE);
-      c->DrawRender();
-    }
-  }
 }
 
 void
-EdgeModel::DrawSelect() {
+EdgeModel::
+DrawSelect() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
-  typedef vector<CfgModel>::iterator CFGIT;
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
-  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++)
-    glVertex3dv(c->GetPoint()); //starting point of next line
+
+  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
+
+  for(size_t i = 0; i < m_intermediates.size(); ++i) {
+    if(i % k == k/2)
+      glVertex3dv(m_intermediates[i].GetPoint());
+  }
+
   glVertex3dv(m_endCfg->GetPoint());
   glEnd();
-
-  //draw intermediate configurations
-  if(CfgModel::GetShape() == CfgModel::Robot) {
-    for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
-      c->SetRenderMode(WIRE_MODE);
-      c->DrawSelect();
-    }
-  }
 }
 
 void
-EdgeModel::DrawSelected(){
-  typedef vector<CfgModel>::iterator CFGIT;
+EdgeModel::
+DrawSelected() {
   glLineWidth(m_edgeThickness + 4);
 
   glBegin(GL_LINE_STRIP);
-    glVertex3dv(m_startCfg->GetPoint());
-    for(CFGIT c = m_intermediates.begin();
-        c != m_intermediates.end(); c++)
-      glVertex3dv(c->GetPoint()); //starting point of next line
-    glVertex3dv(m_endCfg->GetPoint());
+  glVertex3dv(m_startCfg->GetPoint());
+
+  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
+
+  for(size_t i = 0; i < m_intermediates.size(); ++i) {
+    if(i % k == k/2)
+      glVertex3dv(m_intermediates[i].GetPoint());
+  }
+
+  glVertex3dv(m_endCfg->GetPoint());
   glEnd();
 }
 
 void
-EdgeModel::DrawRenderInCC() {
-  typedef vector<CfgModel>::iterator CFGIT;
-  glVertex3dv(m_startCfg->GetPoint());
-  for(CFGIT c = m_intermediates.begin(); c != m_intermediates.end(); c++) {
-    glVertex3dv(c->GetPoint()); //starting point of next line
-    glVertex3dv(c->GetPoint()); //starting point of next line
+EdgeModel::
+Print(ostream& _os) const {
+  if(m_id != (size_t)-1)
+    _os << "EID: " << m_id << endl;
+
+  if(m_startCfg->GetIndex() != (size_t)-1) {
+    _os << "Edge Connects: " << m_startCfg->GetIndex() << " to "
+      << m_endCfg->GetIndex() << endl;
   }
-  glVertex3dv(m_endCfg->GetPoint());
+  else {
+    _os << "Edge Connects: " << endl;
+    m_startCfg->Print(_os);
+    _os << " to " << endl;
+    m_endCfg->Print(_os);
+  }
+
+  _os << "Weight: " << m_weight << endl;
+
+#ifdef PMPCfg
+  _os << "Intermediates: ";
+  for(const auto& c : m_intermediates)
+    _os << "\t" << c << endl;
+#elif defined(PMPState)
+  _os << "Control: ";
+  for(const auto& c : m_control)
+    _os << c << " ";
+  _os << endl;
+
+  _os << "Time step: " << m_timeStep;
+#endif
+
+  if(!m_isValid)
+    _os << "**** Invalid! ****" << endl;
 }
 
+void
+EdgeModel::
+DrawRenderInCC() {
+  glVertex3dv(m_startCfg->GetPoint());
+
+  //Number of intermediates to keep
+  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
+
+  for(size_t i = 0; i < m_intermediates.size(); ++i) {
+    if(i % k == k/2) {
+      glVertex3dv(m_intermediates[i].GetPoint());
+      glVertex3dv(m_intermediates[i].GetPoint());
+    }
+  }
+
+  glVertex3dv(m_endCfg->GetPoint());
+}

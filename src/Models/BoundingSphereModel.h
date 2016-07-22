@@ -1,27 +1,38 @@
-#ifndef BOUNDINGSPHEREMODEL_H_
-#define BOUNDINGSPHEREMODEL_H_
+#ifndef BOUNDING_SPHERE_MODEL_H_
+#define BOUNDING_SPHERE_MODEL_H_
+
+#include <memory>
+using namespace std;
 
 #include "BoundaryModel.h"
 
+class BoundingSphere;
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Implements a spherical boundary.
+////////////////////////////////////////////////////////////////////////////////
 class BoundingSphereModel : public BoundaryModel {
+
   public:
-    BoundingSphereModel();
+
+    // Construction
+    BoundingSphereModel(shared_ptr<BoundingSphere> _b);
     BoundingSphereModel(const Point3d& _c, double _r);
 
-    const Point3d& GetCenter() const {return m_center;}
-    double GetRadius() const {return m_radius;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the boundary radius.
+    double GetRadius() const;
 
-    virtual vector<pair<double, double> > GetRanges();
-    virtual bool Parse(istream& _is);
+    // BoundaryModel functions
+    virtual vector<pair<double, double> > GetRanges() const;
+    virtual double GetMaxDist();
+
+    // Model functions
     virtual void Build();
     virtual void Print(ostream& _os) const;
 
-  protected:
-    virtual void Write(ostream& _os) const;
-
   private:
-    Vector3d m_center;
-    double m_radius;
+    shared_ptr<BoundingSphere> m_boundingSphere;
 };
 
 #endif

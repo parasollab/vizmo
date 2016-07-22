@@ -16,10 +16,8 @@
 
 #include "PHANToM/Manager.h"
 
-#include "Utilities/Camera.h"
 #include "Utilities/Font.h"
 #include "Utilities/GLUtils.h"
-#include "Utilities/TransformTool.h"
 
 bool SHIFT_CLICK = false;
 
@@ -30,10 +28,9 @@ int bs = qRegisterMetaType<Point3d>("Point3d");
 //This class handle opengl features
 
 GLWidget::
-GLWidget(QWidget* _parent, MainWindow* _mainWindow) : QGLWidget(_parent),
-    m_transformTool(m_cameraFactory.GetCurrentCamera()), m_currentRegion(),
-    m_currentUserPath(NULL) {
-  m_mainWindow = _mainWindow;
+GLWidget(QWidget* _parent) : QGLWidget(_parent),
+    m_camera(Point3d(0, 0, 500), Vector3d(0, 0, 0)),
+    m_transformTool(NULL), m_currentRegion(), m_currentUserPath(NULL) {
   setMinimumSize(271, 211); //original size: 400 x 600
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   setFocusPolicy(Qt::StrongFocus);
@@ -59,37 +56,34 @@ void
 GLWidget::
 ResetCamera() {
   EnvModel* e = GetVizmo().GetEnv();
-  GetCurrentCamera()->Set(Point3d(0, 0, 2*(e ? e->GetRadius() : 100)), Point3d(0,0,0));
-}
-
-Camera*
-GLWidget::
-GetCurrentCamera() {
-  return m_cameraFactory.GetCurrentCamera();
+  if(e) {
+    const auto& center = e->GetCenter();
+    GetCurrentCamera()->Set(center + Point3d(0, 0, 1.5 * e->GetRadius()), center);
+  }
+  else
+    GetCurrentCamera()->Set(Vector3d(0, 0, 1), Vector3d());
 }
 
 void
 GLWidget::
 initializeGL() {
-  //Setup light and material properties
-  SetLight();
-
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glClearColor(1, 1, 1, 0);
-  //glEnable(GL_CULL_FACE);
-  //glCullFace(GL_BACK);
+  glEnable(GL_COLOR_MATERIAL);
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+
   glLineStipple(2, 0xAAAA);
 }
 
 void
 GLWidget::
 resizeGL(int _w, int _h) {
-  g_width = _w;
-  g_height = _h;
-  m_transformTool.ProjectToWindow();
+  GLUtils::windowWidth  = _w;
+  GLUtils::windowHeight = _h;
 
   glViewport(0, 0, _w, _h);
   glMatrixMode(GL_PROJECTION);
@@ -105,12 +99,12 @@ paintGL() {
 
   //Render haptics!
   if(Haptics::UsingPhantom())
-    GetVizmo().GetManager()->HapticRender();
+    GetVizmo().GetPhantomManager()->HapticRender();
 
   //Init Draw
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  m_mainWindow->InitVizmo();
+  //GetMainWindow()->InitVizmo();
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -122,20 +116,26 @@ paintGL() {
   m_pickBox.Draw();
 
   //draw transform tool
-  m_transformTool.Draw();
+  if(m_transformTool)
+    m_transformTool->Draw();
+
+  //draw cursor
+  #ifdef USE_SPACEMOUSE
+  m_cursor.Draw();
+  #endif
 
   //draw axis
   DrawAxis();
 
   //set lights
-  SetLightPos();
+  SetLights();
 
   //draw scene
   GetVizmo().Draw();
 
   //Render haptics!
   if(Haptics::UsingPhantom())
-    GetVizmo().GetManager()->DrawRender();
+    GetVizmo().GetPhantomManager()->DrawRender();
 
   if(m_recording)
     emit Record();
@@ -155,25 +155,18 @@ paintGL() {
 
 void
 GLWidget::
-SetLight() {
-  //glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-  glEnable(GL_COLOR_MATERIAL);
-
-  GLfloat WhiteLight[] =  { 0.9f, 0.9f, 0.9f, 1.0f };
-  glLightfv(GL_LIGHT0,GL_DIFFUSE,WhiteLight);
-  glLightfv(GL_LIGHT1,GL_DIFFUSE,WhiteLight);
-
-  glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHT1);
-}
-
-void
-GLWidget::
-SetLightPos() {
-  static GLfloat lightPosition[] = { 250.0f, 250.0f, 250.0f, 1.0f };
-  glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-  static GLfloat lightPosition2[] = { -250.0f, 250.0f, -250.0f, 1.0f };
-  glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
+SetLights() {
+  EnvModel* e = GetVizmo().GetEnv();
+  if(e) {
+    glEnable(GL_LIGHT0);
+    float r = e->GetRadius();
+    GLfloat lightPosition[] = {r, r, r, 1.f};
+    GLfloat lightAmbient[] = {0.1f, 0.1f, 0.1f, 1.f};
+    GLfloat lightDiffuse[] = {1.f, 1.f, 1.f, 1.f};
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+  }
 }
 
 void
@@ -183,10 +176,7 @@ mousePressEvent(QMouseEvent* _e) {
   SHIFT_CLICK = _e->modifiers() == Qt::ShiftModifier;
 
   //test camera motion first, then transform tool, then pick box
-  if(GetCurrentCamera()->MousePressed(_e)) {
-    m_transformTool.CameraMotion();
-  }
-  else if(!m_transformTool.MousePressed(_e)) {
+  if(!GetCurrentCamera()->MousePressed(_e) && !(m_transformTool && m_transformTool->MousePressed(_e))) {
     if((m_currentRegion && !m_currentRegion->MousePressed(_e, GetCurrentCamera()))
         || !m_currentRegion) {
       if((m_currentUserPath && !m_currentUserPath->MousePressed(_e, GetCurrentCamera())) ||
@@ -194,8 +184,6 @@ mousePressEvent(QMouseEvent* _e) {
         m_pickBox.MousePressed(_e);
     }
   }
-
-  updateGL();
 }
 
 void
@@ -209,19 +197,13 @@ GLWidget::
 SimulateMouseUpSlot() {
   //simulate pick mouse up
   m_pickBox.MouseReleased(NULL);
-
-  updateGL();
 }
 
 void
 GLWidget::
 mouseReleaseEvent(QMouseEvent* _e) {
   bool handled = false;
-  if(GetCurrentCamera()->MouseReleased(_e)) {
-    m_transformTool.CameraMotion();
-    handled = true;
-  }
-  else if(m_transformTool.MouseReleased(_e))
+  if(GetCurrentCamera()->MouseReleased(_e) || (m_transformTool && m_transformTool->MouseReleased(_e)))
     handled = true;
   else if(m_currentRegion)
     handled = m_currentRegion->MouseReleased(_e, GetCurrentCamera());
@@ -229,7 +211,6 @@ mouseReleaseEvent(QMouseEvent* _e) {
     handled = m_currentUserPath->MouseReleased(_e, GetCurrentCamera());
 
   if(handled){ //handled by gli
-    updateGL();
     emit MRbyGLI();
     return;
   }
@@ -278,8 +259,6 @@ mouseReleaseEvent(QMouseEvent* _e) {
 
       if(SHIFT_CLICK)
         newObjs = objs;
-
-      m_transformTool.CheckSelectObject();
     }
   }
 
@@ -296,41 +275,8 @@ mouseReleaseEvent(QMouseEvent* _e) {
     else
       emit clickByLMB();
   }
-
-  //Update rotation of object
-  /*if(objs.size()!=0){
-    vector<Model*>& sel=GetVizmo().GetSelectedModels();
-    typedef vector<Model*>::iterator OIT;
-    for(OIT oit = sel.begin(); oit != sel.end(); oit++){
-      if(((Model*)(*oit))->Name() != "Node") {
-        typedef vector<Model*>::iterator GIT;
-        MultiBodyModel* mbl;
-        list<Model*> modelList;
-        Model* gl;
-        int i=0;
-        for(GIT ig= GetVizmo().GetSelectedModels().begin();ig!=GetVizmo().GetSelectedModels().end();ig++){
-          if(!modelList.empty()){
-            i++;
-            mbl=(MultiBodyModel*)(*ig);
-            //get Polyhedron
-            mbl->GetChildren(modelList);
-            gl = modelList.front();
-
-            //multiply polyhedron0 and multiBody quaternions
-            //to get new rotation
-            Quaternion finalQ = objs[0]->RotationQ() * gl->RotationQ();
-            EulerAngle e;
-            convertFromQuaternion(e, finalQ);
-
-            mbl->Rotation()(e.alpha(), e.beta(), e.gamma());
-          }
-        }//end IF  ...actually, this appears to be end for -NJ
-      }//end for
-    }
-  }*/
-
-  updateGL();
 }
+
 
 void
 GLWidget::
@@ -341,62 +287,54 @@ mouseMoveEvent(QMouseEvent* _e) {
 
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion
-    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e, GetCurrentCamera()))
-        && !(m_currentUserPath && m_currentUserPath->PassiveMouseMotion(_e, GetCurrentCamera())))
+    if(!(m_currentRegion && m_currentRegion->PassiveMouseMotion(_e,
+        GetCurrentCamera())) &&
+        !(m_currentUserPath && m_currentUserPath->PassiveMouseMotion(_e,
+        GetCurrentCamera())))
       m_pickBox.PassiveMouseMotion(_e);
-    updateGL();
   }
   else {
     //handle active mouse motion
     //test camera motion first, then transform tool, then pick box
-    if(GetCurrentCamera()->MouseMotion(_e)) {
-      m_transformTool.CameraMotion();
-    }
-    else if(!m_transformTool.MouseMotion(_e)) {
-      if((m_currentRegion && !m_currentRegion->MouseMotion(_e, GetCurrentCamera()))
+    if(!GetCurrentCamera()->MouseMotion(_e) && !(m_transformTool && m_transformTool->MouseMotion(_e))) {
+      if((m_currentRegion
+          && !m_currentRegion->MouseMotion(_e, GetCurrentCamera()))
           || !m_currentRegion ) {
-        if((m_currentUserPath && !m_currentUserPath->MouseMotion(_e, GetCurrentCamera())) ||
-            !m_currentUserPath)
+        if((m_currentUserPath
+            && !m_currentUserPath->MouseMotion(_e, GetCurrentCamera()))
+            || !m_currentUserPath)
           m_pickBox.MouseMotion(_e);
       }
     }
-
-    updateGL();
   }
 }
+
 
 void
 GLWidget::
 keyPressEvent(QKeyEvent* _e) {
   //check for haptic toggle switch
   if(Haptics::UsingPhantom() && _e->key() == Qt::Key_QuoteLeft)
-    GetVizmo().GetManager()->ToggleForceOutput();
+    GetVizmo().GetPhantomManager()->ToggleForceOutput();
   //check camera then transform tool
   else if(!GetCurrentCamera()->KeyPressed(_e) &&
-      !m_transformTool.KeyPressed(_e) &&
+      !(m_transformTool && m_transformTool->KeyPressed(_e)) &&
       (!m_currentUserPath || !m_currentUserPath->KeyPressed(_e)))
     _e->ignore(); //not handled
-  updateGL();
 }
+
 
 void
 GLWidget::
 ShowAxis() {
   m_showAxis = !m_showAxis;
-  updateGL();
 }
+
 
 void
 GLWidget::
 ShowFrameRate() {
   m_showFrameRate = !m_showFrameRate;
-  updateGL();
-}
-
-void
-GLWidget::
-ResetTransTool() {
-  m_transformTool.ResetSelectedObj();
 }
 
 //save an image of the GL scene with the given filename
@@ -411,6 +349,7 @@ SaveImage(QString _filename, bool _crop) {
   QImage crop = grabFrameBuffer().copy(imageRect);
   crop.save(_filename);
 }
+
 
 //Grab the size of image for saving. If crop is true, use the cropBox to
 //size the image down.
@@ -430,6 +369,7 @@ GetImageRect(bool _crop) {
   else
     return QRect(0, 0, width(), height());
 }
+
 
 void
 GLWidget::
@@ -453,6 +393,7 @@ DrawFrameRate(double _frameRate) {
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
 }
+
 
 void
 GLWidget::
@@ -524,10 +465,12 @@ DrawAxis() {
   }
 }
 
+
 void
 GLWidget::
 SetMousePosImpl(Point3d _p) {
-  Point3d screenPos = ProjectToWindow(_p);
-  QPoint globalPos = this->mapToGlobal(QPoint(screenPos[0], g_height - screenPos[1]));
+  Point3d screenPos = GLUtils::ProjectToWindow(_p);
+  QPoint globalPos = this->mapToGlobal(QPoint(screenPos[0],
+      GLUtils::windowHeight - screenPos[1]));
   QCursor::setPos(globalPos);
 }

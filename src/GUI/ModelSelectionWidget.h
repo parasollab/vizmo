@@ -31,7 +31,6 @@ class ModelSelectionWidget : public QTreeWidget {
 
   signals:
     void ResetSignal();
-    void CallUpdate();
     void UpdateTextWidget();
     void ResetListsFromMPSig();
 

@@ -1,13 +1,15 @@
 #include "PathModel.h"
 
-#include "RobotModel.h"
+#include "ActiveMultiBodyModel.h"
+#include "EnvModel.h"
 #include "Vizmo.h"
 #include "Utilities/IO.h"
 #include "Utilities/IOUtils.h"
 
-PathModel::PathModel(const string& _filename) :
+PathModel::
+PathModel(const string& _filename) :
   LoadableModel("Path"),
-  m_glPathIndex(-1),
+  m_glPathIndex(-1), m_frame(0),
   m_lineWidth(1), m_displayInterval(3) {
     SetFilename(_filename);
     m_renderMode = INVISIBLE_MODE;
@@ -23,7 +25,14 @@ PathModel::PathModel(const string& _filename) :
   }
 
 void
-PathModel::ParseFile() {
+PathModel::
+ConfigureFrame(size_t _frame) {
+  m_frame = _frame;
+}
+
+void
+PathModel::
+ParseFile() {
   m_path.clear();
 
   //check input filename
@@ -49,7 +58,8 @@ PathModel::ParseFile() {
 }
 
 void
-PathModel::Build() {
+PathModel::
+Build() {
   CfgModel::Shape tmp = CfgModel::GetShape();
   CfgModel::SetShape(CfgModel::Robot);
 
@@ -81,7 +91,7 @@ PathModel::Build() {
   //for each color, draw the robot at each display interval
   for(CIT cit = allColors.begin(); cit!=allColors.end(); ++cit) {
     size_t i = cit-allColors.begin();
-    if(i % m_displayInterval == 0){
+    if(i % m_displayInterval == m_displayInterval/2){
       m_path[i].SetColor(*cit);
       m_path[i].DrawRender();
     }
@@ -103,16 +113,22 @@ PathModel::Build() {
   CfgModel::SetShape(tmp);
 }
 
-void PathModel::DrawRender() {
+void
+PathModel::
+DrawRender() {
+  m_path[m_frame].DrawPathRobot();
+
   if(m_renderMode == INVISIBLE_MODE)
-    return; //not draw any thing
+    return; //not draw any thing else
 
   //set to line represnet
   glLineWidth(m_lineWidth);
   glCallList(m_glPathIndex);
 }
 
-void PathModel::DrawSelect() {
+void
+PathModel::
+DrawSelect() {
   if(m_renderMode == INVISIBLE_MODE)
     return; //not draw any thing
 
@@ -122,14 +138,16 @@ void PathModel::DrawSelect() {
 }
 
 void
-PathModel::Print(ostream& _os) const {
+PathModel::
+Print(ostream& _os) const {
   _os << Name() << ": " << GetFilename() << endl
     << m_path.size() << " path frames" << endl;
 }
 
 
 Color4
-PathModel::Mix(Color4& _a, Color4& _b, float _percent){
+PathModel::
+Mix(Color4& _a, Color4& _b, float _percent) {
   return _a*(1-_percent) + _b*_percent;
 }
 
@@ -137,9 +155,5 @@ PathModel::Mix(Color4& _a, Color4& _b, float _percent){
 void
 PathModel::
 SavePath(const string& _filename) {
-  ofstream ofs (_filename.c_str());
-
-  //WritePath has 2 parameters (string _outputFile, const vector<CfgType>& _path)
-   WritePath(_filename, m_path);
-
+  WritePath(_filename, m_path);
 }

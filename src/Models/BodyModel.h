@@ -1,5 +1,8 @@
-#ifndef BODYMODEL_H_
-#define BODYMODEL_H_
+#ifndef BODY_MODEL_H_
+#define BODY_MODEL_H_
+
+#include <memory>
+using namespace std;
 
 #include <Transformation.h>
 using namespace mathtool;
@@ -7,66 +10,57 @@ using namespace mathtool;
 #include "Utilities/Color.h"
 #include "Models/PolyhedronModel.h"
 
+class Body;
 class ConnectionModel;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief A representation for primative physical objects.
+////////////////////////////////////////////////////////////////////////////////
 class BodyModel : public TransformableModel {
   public:
-    enum Base {PLANAR, VOLUMETRIC, FIXED, JOINT}; //2D, 3D, 0D, not a base
-    enum BaseMovement {ROTATIONAL, TRANSLATIONAL}; //rotation+translation, just translation, no movement
 
-    static Base GetBaseFromTag(const string& _tag);
-    static BaseMovement GetMovementFromTag(const string& _tag);
-
-    BodyModel(bool _isSurface = false);
-    BodyModel(const string& _modelDataDir, const string& _filename,
-        const Transformation& _t);
-    BodyModel(const BodyModel& _b);
+    // Construction
+    BodyModel(shared_ptr<Body> _b);
     ~BodyModel();
 
-    //properties
-    void GetChildren(list<Model*>& _models);
-    void SetRenderMode(RenderMode _mode);
-    void SetSelectable(bool _s);
-    void ToggleNormals();
+    // Model properties
+    void GetChildren(list<Model*>& _models);  ///< Get this model's children.
+    void SetRenderMode(RenderMode _mode);     ///< Set the rendering mode.
+    void SetSelectable(bool _s);              ///< Enable/disable selection.
+    void ToggleNormals();                     ///< Toggle display of normals.
 
+    // File information
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the directory of this object's input file.
     const string& GetDirectory() {return m_directory;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the filename of this object's input file.
     const string& GetFilename() const {return m_filename;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the relative path of this object's input file.
     const string& GetModelFilename() const {return m_modelFilename;}
-    PolyhedronModel* GetPolyhedronModel() const {return m_polyhedronModel;}
 
+    // PolyhedronModel info
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get a pointer to the drawable polyhedron model.
+    PolyhedronModel* GetPolyhedronModel() const {return m_polyhedronModel;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get this object's center of mass.
     const Point3d& GetCOM() const {return m_polyhedronModel->GetCOM();}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get this object's radius.
     double GetRadius() const {return m_polyhedronModel->GetRadius();}
 
-    //base properties
-    bool IsSurface() const {return m_isSurface;}
-    bool IsBase() const {return m_baseType != JOINT;}
-    bool IsBaseFixed() const {return m_baseType == FIXED;}
-    bool IsBasePlanar() const {return m_baseType == PLANAR;}
-    bool IsBaseVolumetric() const {return m_baseType == VOLUMETRIC;}
-    Base GetBase() const {return m_baseType;}
-    BaseMovement GetBaseMovement() const {return m_baseMovementType;}
-    bool IsBaseRotational() const {return m_baseMovementType == ROTATIONAL;}
-
-    //access to connections
-    typedef vector<ConnectionModel*>::const_iterator ConnectionIter;
-    ConnectionIter Begin() const {return m_connections.begin();}
-    ConnectionIter End() const {return m_connections.end();}
-    void AddConnection(ConnectionModel* _c) {m_connections.push_back(_c);}
-    void DeleteConnection(ConnectionModel* _c);
-
     //access to transformations
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the last computed transformation for this object.
     const Transformation& GetTransform() const {return m_currentTransform;}
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Set the current transformation for this object.
     void SetTransform(const Transformation& _t);
-    bool IsTransformDone() const {return m_transformDone;}
-    void SetPrevTransform(const Transformation& _t) {m_prevTransform = _t;}
-    void ResetTransform() {m_currentTransform = m_prevTransform = Transformation(); m_transformDone = false;}
 
-    //Return actual (previous*current) transformation
-    //Compute prevtranform * TDH * dh * TBody2
-    //receives the Body THIS body is connected to, the id of that connection
-    void ComputeTransform(const BodyModel* _body, size_t _nextBody);
-
-    void Build() {}
+    // Model functions
+    void Build();
     void Select(GLuint* _index, vector<Model*>& sel);
     void DrawRender();
     void DrawSelect();
@@ -74,23 +68,22 @@ class BodyModel : public TransformableModel {
     void DrawHaptics();
     void Print(ostream& _os) const;
 
-    //file IO
-    void ParseActiveBody(istream& _is, const string& _modelDataDir, const Color4 _color);
-    void ParseOtherBody(istream& _is, const string& _modelDataDir, const Color4 _color);
+    // File IO
     friend ostream& operator<<(ostream& _os, const BodyModel& _b);
 
   private:
-    string m_directory, m_filename, m_modelFilename; //dir, file, dir+'/'+file
-    PolyhedronModel* m_polyhedronModel;
 
-    bool m_isSurface;
-    Base m_baseType;
-    BaseMovement m_baseMovementType;
+    shared_ptr<Body> m_body;            ///< PMPL Body
 
-    vector<ConnectionModel*> m_connections;
+    string m_directory;                 ///< The file directory.
+    string m_filename;                  ///< The filename.
+    string m_modelFilename;             ///< The relative path.
 
-    Transformation m_currentTransform, m_prevTransform;
-    bool m_transformDone; //has current transform been computed?
+    PolyhedronModel* m_polyhedronModel; ///< The drawable polyhedron model.
+
+    Transformation m_currentTransform;  ///< The current transformation.
+
+    GLuint m_textureID;                 ///< GL context's ID for texture
 };
 
 #endif

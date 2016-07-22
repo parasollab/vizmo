@@ -18,9 +18,9 @@ class EditRobotDialog : public QDialog {
 
   public:
 
-    typedef MultiBodyModel::Joints Joints;
-    typedef MultiBodyModel::Robot Robot;
-    typedef MultiBodyModel::Robots Robots;
+    //typedef MultiBodyModel::Joints Joints;
+    //typedef MultiBodyModel::Robot Robot;
+    //typedef MultiBodyModel::Robots Robots;
 
     EditRobotDialog(MainWindow* _mainWindow);
 
@@ -61,7 +61,7 @@ class EditRobotDialog : public QDialog {
     bool JointParamChecked();
     string SaveMultiBody();
 
-    Robots m_newRobotModel, m_oldRobotModel;
+    //Robots m_newRobotModel, m_oldRobotModel;
     MultiBodyModel* m_robotBody;
     MainWindow* m_mainWindow;
     vector<string> m_oldJointsNames;

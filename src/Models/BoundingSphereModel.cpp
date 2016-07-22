@@ -1,38 +1,52 @@
 #include "BoundingSphereModel.h"
-#include "glut.h"
+
 #include <limits>
 #include <sstream>
 
-BoundingSphereModel::BoundingSphereModel() :
-  BoundaryModel("Bounding Sphere"), m_radius(numeric_limits<double>::max()) {
-  }
+#include "glut.h"
 
-BoundingSphereModel::BoundingSphereModel(const Point3d& _c, double _r) :
-  BoundaryModel("Bounding Sphere"), m_center(_c), m_radius(_r) {
-    Build();
-  }
+#include "Environment/BoundingSphere.h"
+
+BoundingSphereModel::
+BoundingSphereModel(shared_ptr<BoundingSphere> _b) :
+    BoundaryModel("Bounding Sphere", _b), m_boundingSphere(_b) {
+  m_center = m_boundingSphere->GetCenter();
+  Build();
+}
+
+BoundingSphereModel::
+BoundingSphereModel(const Point3d& _c, double _r) :
+    BoundaryModel("Bounding Sphere", NULL) {
+  m_boundingSphere = shared_ptr<BoundingSphere>(new BoundingSphere(_c, _r));
+  m_boundary = m_boundingSphere;
+  m_center = m_boundingSphere->GetCenter();
+  Build();
+}
+
+double
+BoundingSphereModel::
+GetRadius() const {
+  return m_boundingSphere->GetRadius();
+}
 
 vector<pair<double, double> >
-BoundingSphereModel::GetRanges(){
-
+BoundingSphereModel::
+GetRanges() const {
   vector<pair<double, double> > ranges;
+  const Vector3d& center = m_boundingSphere->GetCenter();
+  double radius = m_boundingSphere->GetRadius();
   for(int i=0; i<3; i++)
-    ranges.push_back(make_pair(m_center[i] - m_radius, m_center[i] + m_radius));
+    ranges.push_back(make_pair(center[i] - radius, center[i] + radius));
   return ranges;
 }
 
-bool
-BoundingSphereModel::Parse(istream& _is) {
-  if(!(_is >> m_center >> m_radius)){
-    cerr << "Error reading Bounding Sphere" << endl;
-    return false;
-  }
-  return true;
-}
-
 void
-BoundingSphereModel::Build() {
-  GLUquadricObj* quad =gluNewQuadric();
+BoundingSphereModel::
+Build() {
+  const Vector3d& center = m_boundingSphere->GetCenter();
+  double radius = m_boundingSphere->GetRadius();
+
+  GLUquadricObj* quad = gluNewQuadric();
 
   m_displayID = glGenLists(1);
   glNewList(m_displayID, GL_COMPILE);
@@ -41,8 +55,8 @@ BoundingSphereModel::Build() {
   glPolygonMode(GL_FRONT, GL_FILL);
   glColor3f(0.85, 0.85, 0.85);
   glPushMatrix();
-  glTranslatef(m_center[0], m_center[1], m_center[2]);
-  gluSphere(quad, m_radius, 20, 20);
+  glTranslatef(center[0], center[1], center[2]);
+  gluSphere(quad, radius, 20, 20);
   glPopMatrix();
   glDisable(GL_CULL_FACE);
   glEndList();
@@ -51,8 +65,8 @@ BoundingSphereModel::Build() {
   glNewList(m_linesID, GL_COMPILE);
   glColor3f(1.0, 1.0, 0.0);
   glPushMatrix();
-  glTranslatef(m_center[0], m_center[1], m_center[2]);
-  glutWireSphere(m_radius, 20, 20);
+  glTranslatef(center[0], center[1], center[2]);
+  glutWireSphere(radius, 20, 20);
   glPopMatrix();
   glEndList();
 
@@ -60,13 +74,14 @@ BoundingSphereModel::Build() {
 }
 
 void
-BoundingSphereModel::Print(ostream& _os) const {
+BoundingSphereModel::
+Print(ostream& _os) const {
   _os << Name() << endl
-    << "[ " << m_center << " " << m_radius << " ]" << endl;
+    << *m_boundingSphere << endl;
 }
 
-void
-BoundingSphereModel::Write(ostream& _os) const {
-  _os << "Sphere " << m_center << " " << m_radius;
+double
+BoundingSphereModel::
+GetMaxDist() {
+  return m_boundingSphere->GetMaxDist();
 }
-

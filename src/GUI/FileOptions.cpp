@@ -134,12 +134,10 @@ LoadFile() {
         " environment");
     GetMainWindow()->statusBar()->showMessage("File Loaded : "+fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
+    GetMainWindow()->InitVizmo();
   }
   else
     GetMainWindow()->statusBar()->showMessage("Loading aborted");
-
-  GetMainWindow()->GetGLWidget()->ResetTransTool();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -159,7 +157,7 @@ UpdateFiles() {
   GetMainWindow()->GetAnimationWidget()->Reset();
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   GetMainWindow()->m_mainMenu->CallReset();
-  GetMainWindow()->GetGLWidget()->ResetTransTool();
+  GetMainWindow()->GetGLWidget()->ResetCamera();
   GetMainWindow()->GetGLWidget()->SetCurrentRegion();
 }
 
@@ -173,15 +171,12 @@ SaveEnv() {
 
   if(!fn.isEmpty()){
     string filename = fn.toStdString();
-    const char* f;
-    f = filename.c_str();
-    GetVizmo().GetEnv()->SaveFile(f);
+    GetVizmo().GetEnv()->SaveFile(filename);
     QFileInfo fi(fn);
     GetMainWindow()->SetLastDir(fi.absolutePath());
   }
   else
     GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -219,7 +214,6 @@ SaveRoadmap() {
   }
   else
     GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -237,5 +231,4 @@ SavePath() {
   }
   else
     GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
-  GetMainWindow()->GetGLWidget()->updateGL();
 }

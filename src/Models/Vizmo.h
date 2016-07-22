@@ -8,6 +8,7 @@ using namespace std;
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
 
+//class ActiveMultiBodyModel;
 class Box;
 class DebugModel;
 class EnvModel;
@@ -15,8 +16,8 @@ template<typename, typename> class MapModel;
 class Model;
 class PathModel;
 class QueryModel;
-class RobotModel;
 namespace Haptics {class Manager;}
+class SpaceMouseManager;
 
 //Define singleton
 class Vizmo;
@@ -56,17 +57,17 @@ class Vizmo {
     EnvModel* GetEnv() const {return m_envModel;}
     const string& GetEnvFileName() const {return m_envFilename;}
     void SetEnvFileName(const string& _name) {m_envFilename = _name;}
+    void PlaceRobots(); ///< Position the robot in the Environment.
 
-    // Robot Related Functions
-    RobotModel* GetRobot() const {return m_robotModel;}
-    void PlaceRobot(); ///< Position the robot in the Environment.
-
-    Haptics::Manager* GetManager() const {return m_manager;}
+    // Input device manager access
+    Haptics::Manager* GetPhantomManager() const {return m_phantomManager;}
+    SpaceMouseManager* GetSpaceMouseManager() const {return m_spaceMouseManager;}
 
     // Roadmap Related Functions
     MapModel<CfgModel, EdgeModel>* GetMap() const {return m_mapModel;}
     const string& GetMapFileName() const {return m_mapFilename;}
     void SetMapFileName(const string& _name) {m_mapFilename = _name;}
+    void ReadMap(const string& _name);
     bool IsRoadMapLoaded(){return m_mapModel;}
 
     // Query Related Functions
@@ -105,15 +106,20 @@ class Vizmo {
     vector<Model*>& GetLoadedModels() {return m_loadedModels;}
     vector<Model*>& GetSelectedModels() {return m_selectedModels;}
 
-    const vector<string>& GetLoadedSamplers() {return m_loadedSamplers;}
-    void SetLoadedSamplers(const vector<string>& _samplers) {
-      m_loadedSamplers = _samplers;
-    }
+    void ProcessAvoidRegions();
+
 
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Get the name and label of a sampler from its label.
-    /// \param[in] \c _label The sampler's label.
-    string GetSamplerNameAndLabel(string _label);
+    /// \brief Get the name and label of all Samplers specified in the
+    ///        vizmo problem
+    /// \return All Sampler name and labels.
+    vector<string> GetAllSamplers() const;
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the name and label of all MP strategies specified in the
+    ///        vizmo problem
+    /// \return All MP strategy name and labels.
+    vector<string> GetAllStrategies() const;
 
     // Motion planning related functions
     void SetSeed(long _l) {m_seed = _l;}
@@ -164,11 +170,9 @@ class Vizmo {
     EnvModel* m_envModel;   ///< The current environment model.
     string m_envFilename;   ///< The current environment filename.
 
-    //robot & avatar
-    RobotModel* m_robotModel;  ///< The current robot model.
-
-    //PHANToM manager
-    Haptics::Manager* m_manager;  ///< The PHANToM manager.
+    //input device managers
+    Haptics::Manager* m_phantomManager;     ///< The PHANToM manager.
+    SpaceMouseManager* m_spaceMouseManager; ///< The space mouse manager.
 
     //map
     MapModel<CfgModel, EdgeModel>* m_mapModel;  ///< The current map model.
@@ -191,7 +195,6 @@ class Vizmo {
 
     vector<Model*> m_loadedModels;    ///< The currently loaded models.
     vector<Model*> m_selectedModels;  ///< The currently selected models.
-    vector<string> m_loadedSamplers;  ///< The labels for the available samplers.
 
     long m_seed;    ///< The program's random seed.
     map<string, pair<QTime, double> > m_timers; ///< A set of timers for stop-

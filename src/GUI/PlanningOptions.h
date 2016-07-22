@@ -4,7 +4,6 @@
 #include "OptionsBase.h"
 #include "Models/EnvModel.h"
 
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief This class provides access to the user-guided planning tools.
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +22,7 @@ class PlanningOptions : public OptionsBase {
     QThread* GetMPThread() {return m_thread ? m_thread : NULL;}
     void HaltMPThread(); ///< Deletes the current mapping thread if one exists.
 
-    void ResetRegionTimer() {m_regionsStarted = false;}
+    void StartPreInputTimer();
 
   private slots:
 
@@ -31,6 +30,8 @@ class PlanningOptions : public OptionsBase {
     void AddRegionSphere();   ///< Add a new sphere region to the workspace.
     void AddRegionBox();      ///< Add a new box region to the workspace.
     void PlaceCfg();          ///< Place any cfgs that will be used in the planer
+    void SaveCfg();           ///< Saves any cfgs placed in environment
+    void LoadCfg();           ///< Loads cfgs and places them in the roadmap
     void DuplicateRegion();   ///< Create a noncommit copy of the selected region.
     void DeleteRegion();      ///< Delete the selected region.
     void MakeRegionAttract(); ///< Set the selected region to attract.
@@ -49,6 +50,9 @@ class PlanningOptions : public OptionsBase {
     void PrintUserPath();     ///< Output the selected user path to a file.
     void HapticPathCapture(); ///< Build a user path from the haptic cursor.
     void CameraPathCapture(); ///< Build a user path from the camera position.
+    void SavePath();          ///< Saves and user paths specified
+    void LoadPath();          ///< Loads a set of user specified paths
+
 
     //Common planning functions
     void MapEnvironment();    ///< Start a mapping thread to run an MPStrategy.
@@ -73,8 +77,7 @@ class PlanningOptions : public OptionsBase {
     /// \return A \c bool indicating whether the test passed.
     bool SingleRegionSelected();
 
-    bool m_regionsStarted;         ///< Tracks whether pre-regions timer is running.
-    bool m_cfgStarted;             ///< Tracks whether pre-cfg timer is running.
+    bool m_userInputStarted;       ///< Tracks whether user input timer is running.
     QThread* m_thread;             ///< Points to the current mapping thread.
     QMenu* m_addRegionMenu;        ///< Menu for adding new regions.
     QMenu* m_regionPropertiesMenu; ///< Menu for modifying regions.
@@ -104,6 +107,7 @@ class MapEnvironmentWorker : public QObject {
   private:
 
     string m_strategyLabel; ///< The label of the strategy to execute.
+
 };
 
 #endif

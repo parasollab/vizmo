@@ -2,9 +2,10 @@
 
 #include <QtGui>
 
+#include "Environment/BoundingBox.h"
+
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
-#include "MPProblem/BoundingBox.h"
 #include "Utilities/Camera.h"
 #include "Utilities/GLUtils.h"
 #include "Utilities/IO.h"
@@ -14,6 +15,7 @@ RegionBoxModel() : RegionModel("Box Region", BOX),
     m_lmb(false), m_rmb(false), m_firstClick(true), m_highlightedPart(NONE),
     m_boxVertices(8), m_prevPos(8), m_winVertices(8),
     m_min(0, 0, 0), m_max(0, 0, 0), m_crosshair() {}
+
 
 RegionBoxModel::
 RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange,
@@ -35,6 +37,7 @@ RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange,
   m_prevPos = m_boxVertices;
 }
 
+
 shared_ptr<Boundary>
 RegionBoxModel::
 GetBoundary() const {
@@ -44,11 +47,13 @@ GetBoundary() const {
       make_pair(m_boxVertices[4][2], m_boxVertices[0][2])));
 }
 
+
 //initialization of gl models
 void
 RegionBoxModel::
 Build() {
 }
+
 
 //determing if _index is this GL model
 void
@@ -57,6 +62,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
   if(_index)
     _sel.push_back(this);
 }
+
 
 bool
 RegionBoxModel::
@@ -74,6 +80,7 @@ operator==(const RegionModel& _other) const {
   return false;
 }
 
+
 double
 RegionBoxModel::
 GetShortLength() const {
@@ -87,6 +94,7 @@ GetShortLength() const {
 
   return len;
 }
+
 
 double
 RegionBoxModel::
@@ -102,6 +110,7 @@ GetLongLength() const {
   return len;
 }
 
+
 void
 RegionBoxModel::
 ApplyOffset(const Vector3d& _v) {
@@ -110,6 +119,7 @@ ApplyOffset(const Vector3d& _v) {
   m_prevPos = m_boxVertices;
   m_highlightedPart = NONE;
 }
+
 
 //draw is called for the scene.
 void
@@ -201,6 +211,7 @@ DrawRender() {
     m_crosshair.DrawRender();
 }
 
+
 void
 RegionBoxModel::
 DrawSelect() {
@@ -268,6 +279,7 @@ DrawSelect() {
   glEnd();
 }
 
+
 //DrawSelect is only called if item is selected
 void
 RegionBoxModel::
@@ -303,6 +315,7 @@ DrawSelected() {
   glEnd();
 }
 
+
 //output model info
 void
 RegionBoxModel::
@@ -312,6 +325,7 @@ Print(ostream& _os) const {
     _os << "(" << m_boxVertices[i] << ")";
   _os << endl;
 }
+
 
 // output debug info
 void
@@ -326,33 +340,36 @@ OutputDebugInfo(ostream& _os) const {
       << m_prevPos[0][2] << endl;
 }
 
+
 bool
 RegionBoxModel::
 MousePressed(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
 
-
   if(_e->buttons() == Qt::LeftButton && (m_firstClick || m_highlightedPart)) {
-    m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
+    m_clicked = QPoint(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
     //if first click, set m_center for crosshair
     if(m_firstClick) {
       double disp = GetVizmo().GetMaxEnvDist() / 3.;
-      m_center = ProjectToWorld(m_clicked.x(), m_clicked.y(),
+      m_center = GLUtils::ProjectToWorld(m_clicked.x(), m_clicked.y(),
           _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
       m_crosshair.SetPos(m_center);
     }
     m_lmb = true;
+    m_crosshair.Enable();
     return true;
   }
   if(_e->buttons() == Qt::RightButton && !m_firstClick &&
       m_highlightedPart > NONE) {
-    m_clicked = QPoint(_e->pos().x(), g_height - _e->pos().y());
+    m_clicked = QPoint(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
     m_rmb = true;
+    m_crosshair.Enable();
     return true;
   }
   return false;
 }
+
 
 bool
 RegionBoxModel::
@@ -360,6 +377,7 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
   if(m_lmb || m_rmb) {
+    m_crosshair.Disable();
     if(!m_firstClick)
       VDRemoveRegion(this);
     m_lmb = false;
@@ -372,13 +390,14 @@ MouseReleased(QMouseEvent* _e, Camera* _c) {
   return false;
 }
 
+
 bool
 RegionBoxModel::
 MouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_type == AVOID)
     return false;
   //get mouse position
-  QPoint mousePos = QPoint(_e->pos().x(), g_height - _e->pos().y());
+  QPoint mousePos = QPoint(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
   if(m_lmb) {
     Point3d c; //click point
     Point3d m; //mouse point
@@ -387,9 +406,9 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     if(m_firstClick) {
       //create box: start from top left and draw CCW about vector (0, 0, 1)
       double disp = GetVizmo().GetMaxEnvDist() / 3.;
-      c = ProjectToWorld(m_clicked.x(), m_clicked.y(),
+      c = GLUtils::ProjectToWorld(m_clicked.x(), m_clicked.y(),
           _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
-      m = ProjectToWorld(mousePos.x(), mousePos.y(),
+      m = GLUtils::ProjectToWorld(mousePos.x(), mousePos.y(),
           _c->GetEye() + disp * (_c->GetDir()), -_c->GetDir());
       m_min[0] = min(c[0], m[0]), m_max[0] = max(c[0], m[0]);
       m_min[1] = min(c[1], m[1]), m_max[1] = max(c[1], m[1]);
@@ -406,8 +425,10 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
     //handle translating and resizing
     else if(m_highlightedPart > NONE) {
       //get click pos, mouse pos, and their difference
-      c = ProjectToWorld(m_clicked.x(), m_clicked.y(), m_center, -_c->GetDir());
-      m = ProjectToWorld(mousePos.x(), mousePos.y(), m_center, -_c->GetDir());
+      c = GLUtils::ProjectToWorld(m_clicked.x(), m_clicked.y(), m_center,
+          -_c->GetDir());
+      m = GLUtils::ProjectToWorld(mousePos.x(), mousePos.y(), m_center,
+          -_c->GetDir());
       Vector3d deltaMouse = m - c;
       //resizing
       if(m_highlightedPart < ALL) {
@@ -433,13 +454,15 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
   //translation in ~camera z
   if(m_rmb) {
     //get screen-y mouse and click positions
-    Point3d m = ProjectToWorld(0, mousePos.y(), m_center, -_c->GetDir());
-    Point3d c = ProjectToWorld(0, m_clicked.y(), m_center, -_c->GetDir());
+    Point3d m = GLUtils::ProjectToWorld(0, mousePos.y(), m_center,
+        -_c->GetDir());
+    Point3d c = GLUtils::ProjectToWorld(0, m_clicked.y(), m_center,
+        -_c->GetDir());
     //find the difference between m and c in the screen-y direction,
     //then multiply by the unit vector pointing from the camera to the
     //center to get delta
     Vector3d delta = (m_center - _c->GetEye()).normalize() *
-      ((m - c) * _c->GetWindowY());
+        ((m - c) * _c->GetWindowY());
     //translate region according to delta
     ApplyTransform(delta);
 
@@ -453,6 +476,7 @@ MouseMotion(QMouseEvent* _e, Camera* _c) {
   return false;
 }
 
+
 bool
 RegionBoxModel::
 PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
@@ -463,11 +487,11 @@ PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   m_highlightedPart = NONE;
 
   //Get mouse position, store as vector
-  Vector2d m(_e->pos().x(), g_height - _e->pos().y());
+  Vector2d m(_e->pos().x(), GLUtils::windowHeight - _e->pos().y());
 
   //Project vertices to viewscreen
   for(size_t i = 0; i < m_winVertices.size(); ++i) {
-    Point3d p = ProjectToWindow(m_boxVertices[i]);
+    Point3d p = GLUtils::ProjectToWindow(m_boxVertices[i]);
     m_winVertices[i][0] = p[0];
     m_winVertices[i][1] = p[1];
   }
@@ -552,7 +576,7 @@ PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   if(!m_highlightedPart) {
     //q is a vector pointing from box center to m
     //d is a vector pointing from box center to a corner
-    Vector3d center = ProjectToWindow(m_center);
+    Vector3d center = GLUtils::ProjectToWindow(m_center);
     Vector2d q(m[0] - center[0], m[1] - center[1]);
     Vector2d d(m_winVertices[0][0] - center[0], m_winVertices[0][1] - center[1]);
     if(q.norm() < d.norm() * .5)
@@ -565,6 +589,7 @@ PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   return m_highlightedPart;
 }
 
+
 double
 RegionBoxModel::
 WSpaceArea() const {
@@ -572,6 +597,7 @@ WSpaceArea() const {
     (m_boxVertices[0][1] - m_boxVertices[1][1]) *
     (m_boxVertices[0][2] - m_boxVertices[4][2]);
 }
+
 
 void
 RegionBoxModel::
@@ -592,9 +618,9 @@ MapControls(Camera* _c, const Vector3d& _deltaMouse,
   Vector3d zHat(0, 0, 1);
 
   //define unit vectors in the camera's coordinate system
-  Vector3d cameraX = -_c->GetWindowX();
+  Vector3d cameraX = _c->GetWindowX();
   Vector3d cameraY = _c->GetWindowY();
-  Vector3d cameraZ = -_c->GetWindowZ();
+  Vector3d cameraZ = _c->GetWindowZ();
 
   //find the world axis Q closest to cameraX and
   //set _delta[Q] = change in cameraX
@@ -667,6 +693,7 @@ MapControls(Camera* _c, const Vector3d& _deltaMouse,
       _deltaWorld[0] = _deltaMouse.comp(_axisCtrlDir[1]) * (cameraZ * xHat);
   }
 }
+
 
 void
 RegionBoxModel::

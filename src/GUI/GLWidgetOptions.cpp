@@ -11,7 +11,7 @@
 
 #include "Models/EnvModel.h"
 #include "Models/MapModel.h"
-#include "Models/RobotModel.h"
+#include "Models/ActiveMultiBodyModel.h"
 #include "Models/Vizmo.h"
 
 #include "Utilities/Camera.h"
@@ -19,14 +19,21 @@
 #include "Icons/Axis.xpm"
 #include "Icons/BgColor.xpm"
 #include "Icons/FrameRate.xpm"
+#include "Icons/FreeFloatingCamera.xpm"
 #include "Icons/MakeInvisible.xpm"
 #include "Icons/MakeSolid.xpm"
 #include "Icons/MakeWired.xpm"
 #include "Icons/Pallet.xpm"
 #include "Icons/ResetCamera.xpm"
+#include "Icons/ResetCameraUp.xpm"
 #include "Icons/SaveCameraPosition.xpm"
 #include "Icons/SetCameraPosition.xpm"
 #include "Icons/ShowNormals.xpm"
+
+#ifdef USE_SPACEMOUSE
+#include "Utilities/Cursor3d.h"
+#include "Icons/Cursor.xpm"
+#endif
 
 
 GLWidgetOptions::
@@ -56,6 +63,10 @@ CreateActions() {
       tr("Save camera position"), this);
   m_actions["loadCameraPosition"] = new QAction(QPixmap(savecameraposition),
       tr("Load camera position"), this);
+  m_actions["toggleCameraFree"] = new QAction(QPixmap(freeFloatingCamera),
+      tr("Toggle free-floating camera."), this);
+  m_actions["resetCameraUp"] = new QAction(QPixmap(resetCameraUp),
+      tr("Reset camera up direction."), this);
   m_actions["changeBGColor"] = new QAction(QPixmap(bgColor),
       tr("Change background color"), this);
   m_actions["makeSolid"] = new QAction(QPixmap(makeSolidIcon),
@@ -78,6 +89,9 @@ CreateActions() {
   m_actions["changeBGColor"]->setEnabled(false);
   m_actions["saveCameraPosition"]->setEnabled(false);
   m_actions["loadCameraPosition"]->setEnabled(false);
+  m_actions["toggleCameraFree"]->setEnabled(false);
+  m_actions["toggleCameraFree"]->setCheckable(true);
+  m_actions["resetCameraUp"]->setEnabled(false);
   m_actions["makeSolid"]->setShortcut(tr("CTRL+F"));
   m_actions["makeSolid"]->setEnabled(false);
   m_actions["makeWired"]->setShortcut(tr("CTRL+W"));
@@ -96,6 +110,10 @@ CreateActions() {
       this, SLOT(SaveCameraPosition()));
   connect(m_actions["loadCameraPosition"], SIGNAL(triggered()),
       this, SLOT(LoadCameraPosition()));
+  connect(m_actions["toggleCameraFree"], SIGNAL(triggered()),
+      this, SLOT(ToggleCameraFree()));
+  connect(m_actions["resetCameraUp"], SIGNAL(triggered()),
+      this, SLOT(ResetCameraUp()));
   connect(m_actions["changeBGColor"], SIGNAL(triggered()),
       this, SLOT(ChangeBGColor()));
   connect(m_actions["makeSolid"], SIGNAL(triggered()), this, SLOT(MakeSolid()));
@@ -114,6 +132,17 @@ CreateActions() {
       this, SLOT(ShowGeneralContextMenu()));
   connect(GetMainWindow()->GetGLWidget(), SIGNAL(selectByRMB()),
       this, SLOT(ShowGeneralContextMenu()));
+
+  // Enable Cursor3d if space mouse is in use
+  #ifdef USE_SPACEMOUSE
+  m_actions["toggleCursor"] = new QAction(QPixmap(cursorIcon),
+      tr("Toggle Cursor"), this);
+  m_actions["toggleCursor"]->setEnabled(false);
+  m_actions["toggleCursor"]->setCheckable(true);
+  m_actions["toggleCursor"]->setChecked(false);
+  connect(m_actions["toggleCursor"], SIGNAL(triggered()),
+      this, SLOT(ToggleCursor()));
+  #endif
 }
 
 
@@ -154,6 +183,15 @@ SetHelpTips() {
 
   m_actions["loadCameraPosition"]->setWhatsThis(tr("Click this button load the "
         " camera position."));
+
+  m_actions["toggleCameraFree"]->setWhatsThis(tr("Switch between free-floating "
+        "and restricted camera control."));
+
+  m_actions["resetCameraUp"]->setWhatsThis(tr("Reset the camera up direction"));
+
+  #ifdef USE_SPACEMOUSE
+  m_actions["toggleCursor"]->setWhatsThis(tr("Enable/disable the 3d cursor."));
+  #endif
 }
 
 
@@ -171,6 +209,10 @@ SetUpSubmenu() {
   m_submenu->addAction(m_actions["showObjectNormals"]);
   m_submenu->addAction(m_actions["resetCamera"]);
   m_submenu->addAction(m_actions["changeBGColor"]);
+
+  #ifdef USE_SPACEMOUSE
+  m_submenu->addAction(m_actions["toggleCursor"]);
+  #endif
 }
 
 
@@ -181,15 +223,23 @@ SetUpToolTab() {
   buttonList.push_back("setCameraPosition");
   buttonList.push_back("saveCameraPosition");
   buttonList.push_back("loadCameraPosition");
-  buttonList.push_back("showAxis");
-  buttonList.push_back("showFrameRate");
+  buttonList.push_back("resetCamera");
+  buttonList.push_back("resetCameraUp");
+  buttonList.push_back("toggleCameraFree");
+  buttonList.push_back("_separator_");
   buttonList.push_back("makeSolid");
   buttonList.push_back("makeWired");
   buttonList.push_back("makeInvisible");
   buttonList.push_back("changeObjectColor");
   buttonList.push_back("changeBGColor");
-  buttonList.push_back("resetCamera");
+  buttonList.push_back("_separator_");
+  buttonList.push_back("showAxis");
+  buttonList.push_back("showFrameRate");
   buttonList.push_back("showObjectNormals");
+  #ifdef USE_SPACEMOUSE
+  buttonList.push_back("_separator_");
+  buttonList.push_back("toggleCursor");
+  #endif
   CreateToolTab(buttonList);
 }
 
@@ -208,16 +258,21 @@ Reset() {
   m_actions["showObjectNormals"]->setEnabled(true);
   m_actions["saveCameraPosition"]->setEnabled(true);
   m_actions["loadCameraPosition"]->setEnabled(true);
-
+  m_actions["resetCameraUp"]->setEnabled(true);
+  m_actions["toggleCameraFree"]->setEnabled(true);
+  #ifdef USE_SPACEMOUSE
+  m_actions["toggleCursor"]->setEnabled(true);
+  m_actions["toggleCursor"]->setChecked(false);
+  #endif
 }
 
-/*----------------------------- GL Functions ---------------------------------*/
+
+/*--------------------------- Camera Functions -------------------------------*/
 
 void
 GLWidgetOptions::
 ResetCamera() {
   GetMainWindow()->GetGLWidget()->ResetCamera();
-  GetMainWindow()->GetGLWidget()->updateGL();
 }
 
 
@@ -256,6 +311,82 @@ LoadCameraPosition() {
 
 void
 GLWidgetOptions::
+ResetCameraUp() {
+  GetMainWindow()->GetGLWidget()->GetCurrentCamera()->ResetUp();
+}
+
+
+void
+GLWidgetOptions::
+ToggleCameraFree() {
+  GetMainWindow()->GetGLWidget()->GetCurrentCamera()->ToggleFreeFloat();
+}
+
+
+/*--------------------------- Cursor Functions -------------------------------*/
+#ifdef USE_SPACEMOUSE
+void
+GLWidgetOptions::
+ToggleCursor() {
+  GetMainWindow()->GetGLWidget()->GetCursor()->Toggle();
+}
+#endif
+/*---------------------------- Model Functions -------------------------------*/
+
+void
+GLWidgetOptions::
+MakeSolid() {
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(SOLID_MODE);
+}
+
+
+void
+GLWidgetOptions::
+MakeWired() {
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(WIRE_MODE);
+}
+
+
+void
+GLWidgetOptions::
+MakeInvisible() {
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetRenderMode(INVISIBLE_MODE);
+}
+
+
+void
+GLWidgetOptions::
+ChangeObjectColor() {
+  QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
+  double r, g, b;
+  if(color.isValid()) {
+    r = color.red() / 255.0;
+    g = color.green() / 255.0;
+    b = color.blue() / 255.0;
+  }
+  else
+    return;
+
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->SetColor(Color4(r, g, b, 1));
+}
+
+
+void
+GLWidgetOptions::
+ShowObjectNormals() {
+  for(auto& i : GetVizmo().GetSelectedModels())
+    i->ToggleNormals();
+}
+
+
+/*---------------------------- Other Functions -------------------------------*/
+
+void
+GLWidgetOptions::
 ChangeBGColor() {
   QColor color = QColorDialog::getColor(Qt::white, this);
   if (color.isValid()){
@@ -263,7 +394,6 @@ ChangeBGColor() {
         (double)(color.red()) / 255.0,
         (double)(color.green()) / 255.0,
         (double)(color.blue()) / 255.0);
-    GetMainWindow()->GetGLWidget()->updateGL();
   }
 }
 
@@ -307,65 +437,4 @@ ShowGeneralContextMenu() {
 
   //show menu
   cm.exec(QCursor::pos());
-}
-
-
-void
-GLWidgetOptions::
-MakeSolid() {
-  for(auto i : GetVizmo().GetSelectedModels())
-    i->SetRenderMode(SOLID_MODE);
-}
-
-
-void
-GLWidgetOptions::
-MakeWired() {
-  for(auto i : GetVizmo().GetSelectedModels())
-    i->SetRenderMode(WIRE_MODE);
-}
-
-
-void
-GLWidgetOptions::
-MakeInvisible() {
-  for(auto i : GetVizmo().GetSelectedModels())
-    i->SetRenderMode(INVISIBLE_MODE);
-}
-
-
-void
-GLWidgetOptions::
-ChangeObjectColor() {
-  QColor color = QColorDialog::getColor(Qt::white, this, "color dialog");
-  double r, g, b;
-  if(color.isValid()) {
-    r = color.red() / 255.0;
-    g = color.green() / 255.0;
-    b = color.blue() / 255.0;
-  }
-  else
-    return;
-
-  vector<Model*>& selectedModels = GetVizmo().GetSelectedModels();
-  for(MIT mit = selectedModels.begin(); mit != selectedModels.end(); ++mit) {
-    Model* model = *mit;
-    if(model->Name() == "Robot") {
-      model->SetColor(Color4(r, g, b, 1));
-      ((RobotModel*)model)->BackUp();
-    }
-    else
-      model->SetColor(Color4(r, g, b, 1));
-  }
-}
-
-
-void
-GLWidgetOptions::
-ShowObjectNormals() {
-  vector<Model*>& selectedModels = GetVizmo().GetSelectedModels();
-  for(MIT mit = selectedModels.begin(); mit != selectedModels.end(); ++mit) {
-    Model* model = *mit;
-    model->ToggleNormals();
-  }
 }

@@ -1,33 +1,34 @@
-#ifndef BOUNDINGBOXMODEL_H_
-#define BOUNDINGBOXMODEL_H_
+#ifndef BOUNDING_BOX_MODEL_H_
+#define BOUNDING_BOX_MODEL_H_
 
+#include <memory>
 using namespace std;
 
 #include "BoundaryModel.h"
 
+class BoundingBox;
+
 class BoundingBoxModel : public BoundaryModel {
+
   public:
-    BoundingBoxModel();
+
+    // Construction
+    BoundingBoxModel(shared_ptr<BoundingBox> _b);
     BoundingBoxModel(const pair<double, double>& _x,
         const pair<double, double>& _y,
-        const pair<double, double>& _z = pair<double, double>(
-          -numeric_limits<double>::max(),
-          numeric_limits<double>::max())
-        );
+        const pair<double, double>& _z);
 
-    virtual vector<pair<double, double> > GetRanges() { return m_bbx; }
-    virtual bool Parse(istream& _is);
+    // Model functions
     virtual void Build();
     virtual void DrawHaptics();
     virtual void Print(ostream& _os) const;
 
-  protected:
-    virtual void Write(ostream& _os) const;
+    // BoundaryModel functions
+    virtual vector<pair<double, double> > GetRanges() const;
+    virtual double GetMaxDist();
 
   private:
-    vector<pair<double, double> > m_bbx;
-
-    friend class BoundingBoxesModel;
+    shared_ptr<BoundingBox> m_boundingBox; ///< PMPL's BoundingBox
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "AvatarModel.h"
 
-#include "Models/RobotModel.h"
+#include "Models/ActiveMultiBodyModel.h"
+#include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
 
 #include "GUI/GLWidget.h"
@@ -11,18 +12,19 @@
 #include <QCursor>
 #include <QWidget>
 
+
 AvatarModel::
 AvatarModel(InputType _t, const CfgModel& _initialCfg) : CfgModel(_initialCfg),
     m_input(_t), m_tracking(false) {
   this->m_color = Color4(0., 1., 0., .8);
 }
 
+
 void
 AvatarModel::
 DrawRender() {
   if(m_tracking) {
-    RobotModel* robot = GetVizmo().GetRobot();
-    robot->BackUp();
+    shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
 
     if(this->m_isValid) {
       glColor4fv(m_color);
@@ -35,11 +37,11 @@ DrawRender() {
     }
 
     robot->SetRenderMode(WIRE_MODE);
-    robot->Configure(m_v);
+    robot->ConfigureRender(m_v);
     robot->DrawRender();
-    robot->Restore();
   }
 }
+
 
 void
 AvatarModel::
@@ -48,23 +50,25 @@ Print(ostream& _os) const {
   CfgModel::Print(_os);
 }
 
+
 bool
 AvatarModel::
 PassiveMouseMotion(QMouseEvent* _e, Camera* _c) {
   if(m_input == Mouse && m_tracking) {
-    Point3d worldPos = ProjectToWorld(_e->pos().x(), g_height - _e->pos().y(),
-        Point3d(), Vector3d(0, 0, 1));
+    Point3d worldPos = GLUtils::ProjectToWorld(_e->pos().x(),
+        GLUtils::windowHeight - _e->pos().y());
     UpdatePosition(worldPos);
     return true;
   }
   return false;
 }
 
+
 void
 AvatarModel::
 UpdatePosition(Point3d _p) {
   vector<double> data = this->GetDataCfg();
-  if(GetVizmo().GetRobot()->IsPlanar())
+  if(GetVizmo().GetEnv()->IsPlanar())
     copy(_p.begin(), _p.end() - 1, data.begin());
   else
     copy(_p.begin(), _p.end(), data.begin());

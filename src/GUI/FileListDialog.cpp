@@ -47,19 +47,27 @@ GetAssociatedFiles(const vector<string>& _filename) {
   }
   //grab new files
   else {
-    for(vector<string>::const_iterator myIter = _filename.begin();
-        myIter != _filename.end(); ++myIter) {
-      string name = (*myIter).substr(0, (*myIter).rfind('.'));
+    for(const auto& s : _filename) {
+      size_t pos = s.rfind('.');
+      string name = s.substr(0, pos);
+      if(s.substr(pos, s.length()) == ".path") {
+        size_t pos2 = name.rfind('.');
+        string subname = name.substr(pos2, name.length());
+        if(subname == ".full" || subname == ".rdmp")
+            name = name.substr(0, pos2);
+      }
       string envname = name + ".env";
       string mapname = name + ".map";
       string queryname = name + ".query";
       string pathname = name + ".path";
+      string path1name = name + ".full.path";
+      string path2name = name + ".rdmp.path";
       string debugname = name + ".vd";
       string xmlname = name + ".xml";
 
       //test if files exist
       //first, if xml file, load that only
-      if(FileExists(xmlname, false)) {
+      if(s == xmlname && FileExists(xmlname)) {
         m_xmlMode = true;
 
         SetUpSubwidgets();
@@ -73,7 +81,7 @@ GetAssociatedFiles(const vector<string>& _filename) {
         if(!m_setupWidgets)
           SetUpSubwidgets();
 
-        if(FileExists(mapname, false)) {
+        if(FileExists(mapname)) {
           m_mapFilename->setText(mapname.c_str());
           m_mapCheckBox->setChecked(true);
           envname = ParseMapHeader(mapname);
@@ -81,24 +89,30 @@ GetAssociatedFiles(const vector<string>& _filename) {
           cout << "EnvName::" << envname << endl;
         }
 
-        if(FileExists(envname, false)) {
+        if(FileExists(envname)) {
           m_envFilename->setText(envname.c_str());
           m_envCheckBox->setChecked(true);
         }
 
-        if(FileExists(queryname, false)) {
+        if(FileExists(queryname)) {
           m_queryFilename->setText(queryname.c_str());
           m_queryCheckBox->setChecked(true);
         }
 
-        bool p = FileExists(pathname, false);
-        bool d = FileExists(debugname, false);
+        bool p = FileExists(pathname);
+        bool p1 = FileExists(path1name);
+        bool p2 = FileExists(path2name);
+        bool d = FileExists(debugname);
         if(p)
           m_pathFilename->setText(pathname.c_str());
+        else if(p1)
+          m_pathFilename->setText(path1name.c_str());
+        else if(p2)
+          m_pathFilename->setText(path2name.c_str());
         if(d)
           m_debugFilename->setText(debugname.c_str());
-        m_pathCheckBox->setChecked(p && !d);
-        m_debugCheckBox->setChecked(d && !p);
+        m_pathCheckBox->setChecked(p || p1 || p2);
+        m_debugCheckBox->setChecked(d && !(p || p1 || p2));
       }
     }
   }
@@ -288,46 +302,38 @@ void
 FileListDialog::
 Accept() {
   if(m_xmlMode) {
-    GetVizmo().SetXMLFileName(m_xmlFilename->text().toStdString());
-    m_envFilename->setText(
-        SearchXML(m_xmlFilename->text().toStdString(), "Environment").c_str());
-    m_queryFilename->setText(
-        SearchXML(m_xmlFilename->text().toStdString(), "Query").c_str());
+    string xmlfile = m_xmlFilename->text().toStdString();
+    GetVizmo().SetXMLFileName(xmlfile);
+    m_envFilename->setText(SearchXML(xmlfile, "Environment").c_str());
+    m_queryFilename->setText(SearchXML(xmlfile, "Query").c_str());
 
-    if(!m_envFilename->text().toStdString().empty())
+    if(!m_envFilename->text().isEmpty())
       GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
 
-    if(!m_queryFilename->text().toStdString().empty())
+    if(!m_queryFilename->text().isEmpty())
       GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
-
-    // Pass list of sampler strategies read in from xml to Vizmo.
-    GetVizmo().SetLoadedSamplers(LoadXMLSamplers(
-        m_xmlFilename->text().toStdString()));
-
-    accept();
   }
   else if(m_envCheckBox->isChecked()) {
-    GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
+    string envfile = m_envFilename->text().toStdString();
+    string mapfile = m_mapCheckBox->isChecked() ?
+      m_mapFilename->text().toStdString() : "";
+    string queryfile = m_queryCheckBox->isChecked() ?
+      m_queryFilename->text().toStdString() : "";
+    string pathfile = m_pathCheckBox->isChecked() ?
+      m_pathFilename->text().toStdString() : "";
+    string debugfile = m_debugCheckBox->isChecked() ?
+      m_debugFilename->text().toStdString() : "";
 
-    GetVizmo().SetMapFileName("");
-    if(m_mapCheckBox->isChecked())
-      GetVizmo().SetMapFileName(m_mapFilename->text().toStdString());
-
-    GetVizmo().SetQryFileName("");
-    if(m_queryCheckBox->isChecked())
-      GetVizmo().SetQryFileName(m_queryFilename->text().toStdString());
-
-    GetVizmo().SetPathFileName("");
-    if(m_pathCheckBox->isChecked())
-      GetVizmo().SetPathFileName(m_pathFilename->text().toStdString());
-
-    GetVizmo().SetDebugFileName("");
-    if(m_debugCheckBox->isChecked())
-      GetVizmo().SetDebugFileName(m_debugFilename->text().toStdString());
-    accept();
+    //Set vizmo filenames
+    GetVizmo().SetEnvFileName(envfile);
+    GetVizmo().SetMapFileName(mapfile);
+    GetVizmo().SetQryFileName(queryfile);
+    GetVizmo().SetPathFileName(pathfile);
+    GetVizmo().SetDebugFileName(debugfile);
   }
   else
     GetMainWindow()->AlertUser("No Environment File Loaded.");
+  accept();
 }
 
 void
@@ -347,77 +353,34 @@ DebugChecked() {
 string
 FileListDialog::
 SearchXML(string _filename, string _key) {
-  TiXmlDocument doc(_filename);
-  bool loadOkay = doc.LoadFile();
-
-  string filename = "";
-
-  // if file is loades sucessfully
-  if(loadOkay) {
-    // read in the motion planning node
-    XMLNodeReader mpNode(_filename, doc, "MotionPlanning");
-    for(XMLNodeReader::childiterator prob = mpNode.children_begin();
-        prob != mpNode.children_end(); ++prob) {
-      // Read in the MPPRoblem node
-      if(prob->getName() == "MPProblem") {
-        for(XMLNodeReader::childiterator citr = (*prob).children_begin();
-            citr != (*prob).children_end(); ++ citr) {
-          // If the child node is the key, something likd Environment
-          if(citr->getName() == _key) {
-            // Handle Environment case
-            if(_key == "Environment") {
-              filename = (*citr).stringXMLParameter("filename", false, "",
-                  "env filename");
-            }
+  // read in the motion planning node
+  XMLNode mpNode(_filename, "MotionPlanning");
+  for(auto& child1 : mpNode) {
+    // Read in the MPPRoblem node
+    if(child1.Name() == "MPProblem") {
+      for(auto& child2 : child1) {
+        // If the child node is the key, something likd Environment
+        if(child2.Name() == _key) {
+          // Handle Environment case
+          if(_key == "Environment")
+            return child2.Read("filename", false, "", "env filename");
+        }
+        // Handle all other specific cases
+        else if(_key == "Query") {
+          if(child2.Name() == "MapEvaluators") {
+            for(auto& child3 : child2)
+              if(child3.Name() == _key)
+                return child3.Read("queryFile", false, "", "query filename");
           }
-          // Handle all other specific cases
-          else if(_key == "Query") {
-            if(citr->getName() == "MapEvaluators") {
-              for(XMLNodeReader::childiterator query = (*citr).children_begin();
-                  query != (*citr).children_end(); ++query) {
-                if(query->getName() == _key) {
-                  filename = (*query).stringXMLParameter("queryFile", false, "",
-                      "query filename");
-                }
-              }
-            }
+          else if(child2.Name() == "MPStrategies") {
+            for(auto& child3 : child2)
+              if(child3.Name().find("RRT") != string::npos)
+                return child3.Read("query", false, "", "Query filename");
           }
         }
       }
     }
   }
-  return filename;
+  return "";
 }
 
-vector<string>
-FileListDialog::
-LoadXMLSamplers(string _filename) {
-  TiXmlDocument doc(_filename);
-  bool loadOkay = doc.LoadFile();
-
-  vector<string> samplers;
-
-  // if file loads sucessfully
-  if(loadOkay) {
-    // Read in the motion planning node
-    XMLNodeReader mpNode(_filename, doc, "MotionPlanning");
-    for(XMLNodeReader::childiterator prob = mpNode.children_begin();
-        prob != mpNode.children_end(); ++prob) {
-      // Read in MPProblem node
-      if(prob->getName() == "MPProblem") {
-        for(XMLNodeReader::childiterator citr = (*prob).children_begin();
-            citr != (*prob).children_end(); ++citr) {
-          if(citr->getName() == "Samplers") {
-            for(XMLNodeReader::childiterator sampler = (*citr).children_begin();
-                sampler != (*citr).children_end(); ++sampler) {
-              samplers.push_back((*sampler).stringXMLParameter("label", "false",
-                    "", "sampler name"));
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return samplers;
-}

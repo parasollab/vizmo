@@ -1,23 +1,30 @@
 #include "CfgModel.h"
 
-#include "RobotModel.h"
+#include "ActiveMultiBodyModel.h"
+#include "EnvModel.h"
 #include "Vizmo.h"
 
-double CfgModel::m_defaultDOF = 0;
 CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
-bool CfgModel::m_isPlanarRobot = false;
-bool CfgModel::m_isVolumetricRobot = false;
-bool CfgModel::m_isRotationalRobot = false;
 
-CfgModel::CfgModel() : Model(""), Cfg() {
+CfgModel::
+CfgModel() : Model(""), CfgType(), m_mutex(new mutex()) {
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;
   m_isQuery = false;
 }
 
-CfgModel::CfgModel(const Cfg& _c) : Model(""), Cfg(_c) {
+CfgModel::
+CfgModel(const CfgType& _c) : Model(""), CfgType(_c), m_mutex(new mutex()) {
+  m_index = -1;
+  m_isValid = true;
+  m_cc = NULL;
+  m_isQuery = false;
+}
+
+CfgModel::
+CfgModel(const CfgModel& _c) : Model(""), CfgType(_c), m_mutex(new mutex()) {
   m_index = -1;
   m_isValid = true;
   m_cc = NULL;
@@ -25,88 +32,82 @@ CfgModel::CfgModel(const Cfg& _c) : Model(""), Cfg(_c) {
 }
 
 void
-CfgModel::SetName() {
+CfgModel::
+SetName() {
   ostringstream temp;
   temp << "Node " << m_index;
   m_name = temp.str();
 }
 
-// Fucntion not used:
-// this information is controlled by VizmoRoadmapGUI::printNodeCfg()
-// in roadmap.cpp, which calls CfgModel::GetNodeInfo()
 void
-CfgModel::Print(ostream& _os) const {
-  _os << "Node ID = " << m_index << endl
-    << "Cfg ( " << *this << " )" << endl;
-
-  if(!m_isValid)
-    _os << "**** IS IN COLLISION!! ****" << endl;
-}
-
-void
-CfgModel::SetCfg(const vector<double>& _newCfg) {
+CfgModel::
+SetCfg(const vector<double>& _newCfg) {
   m_v.assign(_newCfg.begin(), _newCfg.end());
 }
 
-void
-CfgModel::Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc){
-  m_index = _index;
-  SetName();
-  m_cc = _cc;
+Point3d
+CfgModel::
+GetPoint() const {
+  shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+  return Point3d(m_v[0], m_v[1], robot->IsPlanar() ? 0 : m_v[2]);
 }
 
 void
-CfgModel::Scale(float _scale){
+CfgModel::
+Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc) {
+  SetIndex(_index);
+  SetCCModel(_cc);
+}
+
+void
+CfgModel::
+Scale(float _scale) {
   m_pointScale = _scale*10;
 }
 
 void
-CfgModel::DrawRender(){
+CfgModel::
+DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
-  RobotModel* robot = GetVizmo().GetRobot();
-  if(m_isValid) {
-    glColor4fv(m_color);
-    robot->SetColor(m_color);
-  }
-  else {
-    Color4 ic(1.0-m_color[0], 1.0-m_color[1], 1.0-m_color[2], 0.0);
-    glColor4fv(ic);
-    robot->SetColor(ic); //Invert colors. Black case?
-  }
+  Color4 c = m_isValid ? m_color :
+    Color4(1 - m_color[0], 1 - m_color[1], 1 - m_color[2], 1);
 
-  switch(m_shape){
-    case Robot:
-      robot->BackUp();
-      robot->SetRenderMode(m_renderMode);
-      robot->Configure(m_v);
-      robot->DrawRender();
-      robot->Restore();
-      break;
-
-    case Point:
-      glBegin(GL_POINTS);
-      glVertex3dv(GetPoint());
-      glEnd();
-      break;
-  }
-}
-
-void
-CfgModel::DrawSelect() {
-  if(m_renderMode == INVISIBLE_MODE)
-    return;
-
-  switch(m_shape){
+  switch(m_shape) {
     case Robot:
       {
-        RobotModel* robot = GetVizmo().GetRobot();
-        robot->BackUp();
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+        robot->SetColor(c);
         robot->SetRenderMode(m_renderMode);
-        robot->Configure(m_v);
+        robot->ConfigureRender(m_v);
+        robot->DrawRender();
+        break;
+      }
+
+    case Point:
+      glColor4fv(c);
+      glBegin(GL_POINTS);
+      glVertex3dv(GetPoint());
+      glEnd();
+      break;
+  }
+}
+
+
+void
+CfgModel::
+DrawSelect() {
+  if(m_renderMode == INVISIBLE_MODE)
+    return;
+
+  switch(m_shape) {
+    case Robot:
+      {
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+        robot->SetRenderMode(m_renderMode);
+        robot->ConfigureRender(m_v);
         robot->DrawSelect();
-        robot->Restore();
       }
       break;
 
@@ -118,30 +119,58 @@ CfgModel::DrawSelect() {
   }
 }
 
+
 void
-CfgModel::DrawSelected(){
+CfgModel::
+DrawSelected() {
   glDisable(GL_LIGHTING);
-  switch(m_shape){
+  switch(m_shape) {
     case Robot:
       {
-        RobotModel* robot = GetVizmo().GetRobot();
-        robot->BackUp();
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->SetRenderMode(WIRE_MODE);
-        robot->Configure(m_v);
-        robot->DrawSelected();
-        robot->Restore();
+        robot->ConfigureRender(m_v);
+        robot->DrawSelectedImpl();
       }
       break;
-
     case Point:
       glPointSize(m_pointScale + 3);
       glDisable(GL_LIGHTING);
       glBegin(GL_POINTS);
-      if(m_isPlanarRobot)
-        glVertex3d(m_v[0], m_v[1], 0);
-      else if(m_isVolumetricRobot)
-        glVertex3d(m_v[0], m_v[1], m_v[2]);
+      glVertex3dv(GetPoint());
       glEnd();
       break;
   }
-} //end DrawSelected
+}
+
+void
+CfgModel::
+DrawPathRobot() {
+  shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+  robot->RestoreColor();
+  robot->SetRenderMode(SOLID_MODE);
+  robot->ConfigureRender(m_v);
+  robot->DrawRender();
+}
+
+void
+CfgModel::
+Print(ostream& _os) const {
+  if(m_index != (size_t)-1)
+    _os << "VID: " << m_index << endl;
+
+  _os << "Cfg: ";
+  for(const auto& v : m_v)
+    _os << v << " ";
+  _os << endl;
+
+#ifdef PMPState
+  _os << "Vel: ";
+  for(const auto& v : m_vel)
+    _os << v << " ";
+  _os << endl;
+#endif
+
+  if(!m_isValid)
+    _os << endl << "**** Invalid! ****" << endl;
+}
