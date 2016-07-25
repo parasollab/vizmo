@@ -1,10 +1,10 @@
 #!/bin/bash
 
-VERSION=0.2.0
+VERSION=0.3.4
 DATE=`date +"%Y.%m.%d"`
 BASENAME=vizmo++-$VERSION-$DATE
 TAR=$BASENAME.tar.gz
-RPMBUILDDIR=/scratch/jdenny/rpmbuild
+RPMBUILDDIR=/scratch/readamus/rpmbuild
 WORKINGDIR=/tmp
 RELEASEDIR=VizmoRelease
 
@@ -24,9 +24,9 @@ cd $BASENAME
 rm -rf `find -name .svn`
 
 echo Copying spec file
-sed -i "s/define date 0000.00.00/define date $DATE/" Release/vizmo++.spec
-sed -i "s/Version: 0/Version: $VERSION/" Release/vizmo++.spec
-cp Release/vizmo++.spec $RPMBUILDDIR/SPECS
+sed -i "s/define date 0000.00.00/define date $DATE/" release/vizmo++.spec
+sed -i "s/Version: 0/Version: $VERSION/" release/vizmo++.spec
+cp release/vizmo++.spec $RPMBUILDDIR/SPECS
 
 echo Creating TAR file:: $TAR
 cd ..

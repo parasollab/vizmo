@@ -14,11 +14,11 @@ Name: vizmo++
 Summary: vizmo++ - A visualization/authoring tool for motion planning
 Version: 0
 Release: %{date}%{dist}
-License: Copyright 2012, Parasol Lab, Texas A&M University.  All Rights Reserved.
+License: Copyright 2016, Parasol Lab, Texas A&M University. All Rights Reserved.
 Group: Application/Engineering
 Source: %{name}-%{version}-%{date}.tar.gz
 URL: http://parasol.tamu.edu/groups/amatogroup/research/vizmo++/
-Packager: Jory Denny <jdenny@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
+Packager: Read Sandstrom <readamus@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot/
 Requires: qt4
 BuildRequires: qt4-devel
@@ -65,6 +65,26 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Tue Jun 7 2016 Read Sandstrom <readamus@cse.tamu.edu> 6-7jun2016
+- Version 0.3.4 - Adding support workspace decomposition methods and auto-user
+  RRT.
+* Thu May 5 2016 Read Sandstrom <readamus@cse.tamu.edu> 5-5may2016
+- Version 0.3.3 - Release for CentOS 7.
+* Wed Jul 15 2015 Jory Denny <jdenny@cse.tamu.edu> 7-15jul2015
+- Version 0.3.2 - Fixing bugs in region steering dealing with Env merge. Fixing
+  bugs in region steering when loading from XML. Fixing bugs in path display.
+  Other miscellaneous minor changes and fixes.
+* Wed Jul 10 2015 Jory Denny <jdenny@cse.tamu.edu> 7-10jul2015
+- Version 0.3.1 - Fixing bug in env loading when no color option is specified
+  and -x translation is given.
+* Wed Jul 10 2015 Jory Denny <jdenny@cse.tamu.edu> 7-10jul2015
+- Version 0.3.0 - Merging Env data structures with PMPL counterparts.
+  Temporarily disabled functionality to add, copy, and delete obstacles as well
+  as editing robot. Env format is also being updated for boundaries and
+  color/texture options.
+* Wed Jul 1 2015 Jory Denny <jdenny@cse.tamu.edu> 7-1jul2015
+- Version 0.2.1 - Region Steering methods, few interface bug fixed, no major
+  file version updates.
 * Thu May 29 2014 Jory Denny <jdenny@cse.tamu.edu> 5-29may2014
 - Version 0.2.0 - New user interface. All buttons moved to side of window. Text
   GUI located at the bottom. All dialogs are attached to pop up on the right of
