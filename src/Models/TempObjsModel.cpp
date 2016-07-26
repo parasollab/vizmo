@@ -6,27 +6,32 @@
 
 TempObjsModel::
 TempObjsModel() : Model("TempObjs"), m_tempCfgs(), m_tempEdges() {
-  //Add self to env's temp objs list for display purposes
+  //Add self to env's temp objs list for display purposes.
   GetVizmo().GetEnv()->AddTempObjs(this);
 }
 
+
 TempObjsModel::
 ~TempObjsModel() {
-  //Remove self from env's temp obj list
+  // Remove self from env's temp obj list.
   GetVizmo().GetEnv()->RemoveTempObjs(this);
 
-  //Delete temporary cfgs
-  for(vector<CfgModel*>::iterator cit = m_tempCfgs.begin();
-      cit != m_tempCfgs.end(); ++cit)
-    delete *cit;
+  // Delete temporary cfgs.
+  for(auto cfg : m_tempCfgs)
+    delete cfg;
   m_tempCfgs.clear();
 
-  //Delete temporary edges
-  for(vector<EdgeModel*>::iterator eit = m_tempEdges.begin();
-      eit != m_tempEdges.end(); ++eit)
-    delete *eit;
+  // Delete temporary edges.
+  for(auto edge : m_tempEdges)
+    delete edge;
   m_tempEdges.clear();
+
+  // Delete temporary models.
+  for(auto model : m_tempModels)
+    delete model;
+  m_tempModels.clear();
 }
+
 
 void
 TempObjsModel::
@@ -35,19 +40,20 @@ DrawRender() {
     return;
 
   glLineWidth(2);
-  for(vector<CfgModel*>::iterator cit = m_tempCfgs.begin();
-      cit != m_tempCfgs.end(); ++cit) {
-    (*cit)->SetColor(Color4(0., 1., 0., 1.));
-    (*cit)->SetRenderMode(WIRE_MODE);
-    (*cit)->DrawRender();
+  for(auto cfg : m_tempCfgs) {
+    cfg->SetColor(Color4(0., 1., 0., 1.));
+    cfg->SetRenderMode(WIRE_MODE);
+    cfg->DrawRender();
   }
-  for(vector<EdgeModel*>::iterator eit = m_tempEdges.begin();
-      eit != m_tempEdges.end(); ++eit) {
-    (*eit)->SetColor(Color4(0., 1., 0., 1.));
-    (*eit)->SetRenderMode(WIRE_MODE);
-    (*eit)->DrawRender();
+  for(auto edge : m_tempEdges) {
+    edge->SetColor(Color4(0., 1., 0., 1.));
+    edge->SetRenderMode(WIRE_MODE);
+    edge->DrawRender();
   }
+  for(auto model : m_tempModels)
+    model->DrawRender();
 }
+
 
 void
 TempObjsModel::
@@ -55,13 +61,12 @@ DrawSelect() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
 
-  for(vector<CfgModel*>::iterator cit = m_tempCfgs.begin();
-      cit != m_tempCfgs.end(); ++cit)
-    (*cit)->DrawSelect();
-  for(vector<EdgeModel*>::iterator eit = m_tempEdges.begin();
-      eit != m_tempEdges.end(); ++eit)
-    (*eit)->DrawSelect();
+  for(auto cfg : m_tempCfgs)
+    cfg->DrawSelect();
+  for(auto edge : m_tempEdges)
+    edge->DrawSelect();
 }
+
 
 void
 TempObjsModel::

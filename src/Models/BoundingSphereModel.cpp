@@ -3,9 +3,8 @@
 #include <limits>
 #include <sstream>
 
-#include "glut.h"
-
 #include "Environment/BoundingSphere.h"
+#include "Utilities/GLUtils.h"
 
 BoundingSphereModel::
 BoundingSphereModel(shared_ptr<BoundingSphere> _b) :
@@ -66,7 +65,7 @@ Build() {
   glColor3f(1.0, 1.0, 0.0);
   glPushMatrix();
   glTranslatef(center[0], center[1], center[2]);
-  glutWireSphere(radius, 20, 20);
+  GLUtils::DrawWireSphere(radius);
   glPopMatrix();
   glEndList();
 

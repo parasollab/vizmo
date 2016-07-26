@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "GLUtils.h"
-#include <GL/glut.h>
 
 void
 PickBox::

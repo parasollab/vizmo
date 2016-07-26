@@ -45,12 +45,13 @@
 #include "MapEvaluators/ConditionalEvaluator.h"
 #include "MapEvaluators/PrintMapEvaluation.h"
 #include "MapEvaluators/Query.h"
+#include "MapEvaluators/RRTQuery.h"
 
 //mp strategies includes
 #include "MPStrategies/BasicRRTStrategy.h"
 #include "MPStrategies/BasicPRM.h"
+#include "MPStrategies/DynamicRegionRRT.h"
 #include "MPStrategies/SparkPRM.h"
-#include "AutoRegionRRT.h"
 #include "CfgOracle.h"
 #include "IRRTStrategy.h"
 #include "PathOracle.h"
@@ -130,15 +131,16 @@ struct VizmoTraits {
     ComposeEvaluator<VizmoTraits>,
     ConditionalEvaluator<VizmoTraits>,
     PrintMapEvaluation<VizmoTraits>,
-    Query<VizmoTraits>
+    Query<VizmoTraits>,
+    RRTQuery<VizmoTraits>
     > MapEvaluatorMethodList; ///< The available evaluators.
 
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
-    AutoRegionRRT<VizmoTraits>,
     BasicPRM<VizmoTraits>,
     BasicRRTStrategy<VizmoTraits>,
     CfgOracle<VizmoTraits>,
+    DynamicRegionRRT<VizmoTraits>,
     IRRTStrategy<VizmoTraits>,
     PathOracle<VizmoTraits>,
     PathStrategy<VizmoTraits>,

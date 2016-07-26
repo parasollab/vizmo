@@ -3,6 +3,8 @@
 
 #include "Vector.h"
 using namespace mathtool;
+#include <gl.h>
+#include <glu.h>
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +52,9 @@ namespace GLUtils {
   /// \param[in] _r    The radius of the circle.
   /// \param[in] _fill A bool indicating a filled circle (true) or outline
   ///                  only (false).
-  void DrawCircle(double _r, bool _fill);
+  /// \param[in] _segments The number of segments to use.
+  void DrawCircle(double _r, bool _fill, unsigned short _segments = 30);
+
   //////////////////////////////////////////////////////////////////////////////
   /// \brief Draw an arc in the OpenGL scene.
   /// \param[in] _r  The arc radius.
@@ -69,5 +73,16 @@ namespace GLUtils {
   /// @param _s Slices
   void DrawHollowCylinder(double _ir, double _or, double _h, double _s = 30);
 
+  //////////////////////////////////////////////////////////////////////////////
+  /// \brief Draw a solid sphere in the OpenGL scene at the current origin.
+  /// \param[in] _radius The sphere radius.
+  /// \param[in] _segments The number of latitude/longitude segments to use.
+  void DrawSphere(const double _radius, const unsigned short _segments = 20);
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// \brief Draw a wire sphere in the OpenGL scene at the current origin.
+  /// \param[in] _radius The sphere radius.
+  /// \param[in] _segments The number of latitude/longitude segments to use.
+  void DrawWireSphere(const double _radius, const unsigned short _segments = 20);
 }
 #endif

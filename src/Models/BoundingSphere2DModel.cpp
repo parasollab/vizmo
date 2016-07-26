@@ -3,8 +3,6 @@
 #include <limits>
 #include <sstream>
 
-#include "glut.h"
-
 #include "Environment/BoundingSphere2D.h"
 
 #include "Utilities/GLUtils.h"

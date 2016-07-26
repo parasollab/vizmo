@@ -146,172 +146,217 @@ InitPMPL() {
   problem = new VizmoProblem();
   problem->SetEnvironment(m_envModel->GetEnvironment());
 
-  //add PQP_SOLID collision detection validity
-  CollisionDetectionMethod* cd = new PQPSolid();
-  VizmoProblem::ValidityCheckerPointer vc(
-      new CollisionDetectionValidity<VizmoTraits>(cd));
-  problem->AddValidityChecker(vc, "PQP_SOLID");
+  // Add validity checkers.
+  using VCP = VizmoProblem::ValidityCheckerPointer;
 
-  //add uniform sampler
-  VizmoProblem::SamplerPointer sp(
-      new UniformRandomSampler<VizmoTraits>("PQP_SOLID"));
-  problem->AddSampler(sp, "Uniform");
+  problem->AddValidityChecker(
+      VCP(new CollisionDetectionValidity<VizmoTraits>(new PQPSolid())),
+      "PQP_SOLID");
 
-  //add distance metric
-  VizmoProblem::DistanceMetricPointer dm(new EuclideanDistance<VizmoTraits>());
-  problem->AddDistanceMetric(dm, "euclidean");
+  problem->AddValidityChecker(
+      VCP(new AvoidRegionValidity<VizmoTraits>()),
+      "AvoidRegionValidity");
 
-  //add straight line local planner
-  VizmoProblem::LocalPlannerPointer lp(
-      new StraightLine<VizmoTraits>("PQP_SOLID", true));
-  problem->AddLocalPlanner(lp, "sl");
+  problem->AddValidityChecker(
+      VCP(new ComposeValidity<VizmoTraits>(ComposeValidity<VizmoTraits>::AND,
+          vector<string>{"PQP_SOLID", "AvoidRegionValidity"})),
+      "RegionValidity");
 
-  //add neighborhood finder
-  VizmoProblem::NeighborhoodFinderPointer nfp(
-      new BruteForceNF<VizmoTraits>("euclidean", false, 10));
-  problem->AddNeighborhoodFinder(nfp, "BFNF");
+  // Add samplers.
+  using SP = VizmoProblem::SamplerPointer;
 
-  //add connector
-  VizmoProblem::ConnectorPointer cp(
-      new NeighborhoodConnector<VizmoTraits>("BFNF", "sl"));
-  problem->AddConnector(cp, "kClosest");
+  problem->AddSampler(
+      SP(new UniformRandomSampler<VizmoTraits>("PQP_SOLID")),
+      "Uniform");
 
-  //add num nodes metric for evaluator
-  VizmoProblem::MetricPointer mp(new NumNodesMetric<VizmoTraits>());
-  problem->AddMetric(mp, "NumNodes");
+  problem->AddSampler(
+      SP(new UniformRandomSampler<VizmoTraits>("RegionValidity")),
+      "RegionUniformSampler");
 
-  //add evaluator: if a query file is loaded, use Query evaluator. Otherwise,
-  //use nodes eval
-  VizmoProblem::MapEvaluatorPointer pme(
-      new PrintMapEvaluation<VizmoTraits>("debugmap"));
-  problem->AddMapEvaluator(pme, "PrintMap");
+#ifdef PMPCfg
+  problem->AddSampler(
+      SP(new ObstacleBasedSampler<VizmoTraits>("RegionValidity", "euclidean")),
+      "RegionObstacleSampler");
+#endif
 
-  //add NumNodes eval
-  VizmoProblem::MapEvaluatorPointer mep(
-      new ConditionalEvaluator<VizmoTraits>(
-        ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 7500));
-  problem->AddMapEvaluator(mep, "NodesEval");
+  // Add distance metrics.
+  using DMP = VizmoProblem::DistanceMetricPointer;
 
-  //set up query evaluators
+  problem->AddDistanceMetric(
+      DMP(new EuclideanDistance<VizmoTraits>()),
+      "euclidean");
+
+#ifdef PMPState
+  problem->AddDistanceMetric(
+      DMP(new WeightedEuclideanDistance<VizmoTraits>(.4, .4, .1, .1)),
+      "weuclidean");
+
+  problem->AddDistanceMetric(
+      DMP(new WeightedEuclideanDistance<VizmoTraits>(.5, .5, 0, 0)),
+      "weuclidean-pos");
+#endif
+
+  // Add local planners.
+  using LPP = VizmoProblem::LocalPlannerPointer;
+
+  problem->AddLocalPlanner(
+      LPP(new StraightLine<VizmoTraits>("PQP_SOLID", true)),
+      "sl");
+
+  problem->AddLocalPlanner(
+      LPP(new StraightLine<VizmoTraits>("AvoidRegionValidity", true)),
+      "AvoidRegionSL");
+
+  problem->AddLocalPlanner(
+      LPP(new StraightLine<VizmoTraits>("RegionValidity", true)),
+      "RegionSL");
+
+  // Add extenders.
+  using EXP = VizmoProblem::ExtenderPointer;
+
+#ifdef PMPCfg
+  problem->AddExtender(
+      EXP(new BasicExtender<VizmoTraits>("euclidean", "PQP_SOLID", .01, 10)),
+      "BERO");
+
+  problem->AddExtender(
+      EXP(new BasicExtender<VizmoTraits>("euclidean", "RegionValidity", .01, 10)),
+      "RegionBERO");
+#elif defined(PMPState)
+  problem->AddExtender(
+      EXP(new KinodynamicExtender<VizmoTraits>("weuclidean", "PQP_SOLID", .01, 30,
+          true, false)),
+      "KinodynamicExtender");
+#endif
+
+  // Add neighborhood finders.
+  using NFP = VizmoProblem::NeighborhoodFinderPointer;
+
+  problem->AddNeighborhoodFinder(
+      NFP(new BruteForceNF<VizmoTraits>("euclidean", false, 10)),
+      "BFNF");
+
+#ifndef PMPState
+  problem->AddNeighborhoodFinder(
+      NFP(new BruteForceNF<VizmoTraits>("euclidean", false, 1)),
+      "Nearest");
+#else
+  problem->AddNeighborhoodFinder(
+      NFP(new BruteForceNF<VizmoTraits>("weuclidean", false, 1)),
+      "Nearest");
+
+  problem->AddNeighborhoodFinder(
+      NFP(new BruteForceNF<VizmoTraits>("weuclidean-pos", false, 1)),
+      "NearestPosition");
+#endif
+
+  // Add connectors.
+  using CP = VizmoProblem::ConnectorPointer;
+
+  problem->AddConnector(
+      CP(new NeighborhoodConnector<VizmoTraits>("BFNF", "sl")),
+      "kClosest");
+
+  problem->AddConnector(
+      CP(new NeighborhoodConnector<VizmoTraits>("BFNF", "RegionSL")),
+      "RegionBFNFConnector");
+
+  // Add metrics.
+  using MP = VizmoProblem::MetricPointer;
+
+  problem->AddMetric(
+      MP(new NumNodesMetric<VizmoTraits>()),
+      "NumNodes");
+
+  // Add map evaluators.
+  using MEP = VizmoProblem::MapEvaluatorPointer;
+
+  problem->AddMapEvaluator(
+      MEP(new ConditionalEvaluator<VizmoTraits>(
+          ConditionalEvaluator<VizmoTraits>::GT, "NumNodes", 5000)),
+      "NodesEval");
+
   if(m_queryModel) {
-    //setup standard query evaluator
 #ifdef PMPCfg
-    Query<VizmoTraits>* query = new Query<VizmoTraits>(m_queryFilename,
-        vector<string>(1, "kClosest"));
-    VizmoProblem::MapEvaluatorPointer mep(query);
-    problem->AddMapEvaluator(mep, "Query");
+    problem->AddMapEvaluator(
+        MEP(new Query<VizmoTraits>(m_queryFilename, vector<string>{"kClosest"})),
+        "Query");
+
+    problem->AddMapEvaluator(
+        MEP(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR,
+            vector<string>{"NodesEval", "Query"})),
+        "BoundedQuery");
+
+    problem->AddMapEvaluator(
+        MEP(new RRTQuery<VizmoTraits>(m_queryFilename, 0., "Nearest")),
+        "RRTQuery");
+#elif defined(PMPState)
+    problem->AddMapEvaluator(
+        MEP(new RRTQuery<VizmoTraits>(m_queryFilename, 2., "NearestPosition")),
+        "RRTQuery");
 #endif
 
-    //setup debugging evaluator
-    vector<string> evals;
-    evals.push_back("PrintMap");
-    evals.push_back("Query");
-    VizmoProblem::MapEvaluatorPointer ce(
-        new ComposeEvaluator<VizmoTraits>(
-          ComposeEvaluator<VizmoTraits>::AND, evals));
-    problem->AddMapEvaluator(ce, "DebugQuery");
-
-    //set up bounded query evaluator
-    evals.clear();
-    evals.push_back("NodesEval");
-    evals.push_back("Query");
-    VizmoProblem::MapEvaluatorPointer bqe(new
-        ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR, evals));
-    problem->AddMapEvaluator(bqe, "BoundedQuery");
-
-#ifdef PMPCfg
-    //add basic extender for I-RRT
-    VizmoProblem::ExtenderPointer bero(new BasicExtender<VizmoTraits>(
-          "euclidean", "PQP_SOLID", 10., true));
-    problem->AddExtender(bero, "BERO");
-
-    //add basic extender for avoid region checking
-    VizmoProblem::ExtenderPointer arbero(new BasicExtender<VizmoTraits>(
-          "euclidean", "RegionValidity", 10., true));
-    problem->AddExtender(arbero, "RegionBERO");
-
-    //add I-RRT strategy
-    VizmoProblem::MPStrategyPointer irrt(
-        new IRRTStrategy<VizmoTraits>(query->GetQuery().front(),
-          query->GetQuery().back()));
-    problem->AddMPStrategy(irrt, "IRRT");
-
-    VizmoProblem::MPStrategyPointer rr(
-        new RegionRRT<VizmoTraits>(query->GetQuery().front(),
-          query->GetQuery().back()));
-    problem->AddMPStrategy(rr, "RegionRRT");
-
-    VizmoProblem::MPStrategyPointer arr(
-        new AutoRegionRRT<VizmoTraits>(query->GetQuery().front(),
-          query->GetQuery().back()));
-    problem->AddMPStrategy(arr, "AutoRegionRRT");
-#endif
+    problem->AddMapEvaluator(
+        MEP(new ComposeEvaluator<VizmoTraits>(ComposeEvaluator<VizmoTraits>::OR,
+            vector<string>{"NodesEval", "RRTQuery"})),
+        "BoundedRRTQuery");
   }
+
+  using MPSP = VizmoProblem::MPStrategyPointer;
+
 #ifdef PMPCfg
-  //add region strategy
-  VizmoProblem::MPStrategyPointer rs(new RegionStrategy<VizmoTraits>());
-  problem->AddMPStrategy(rs, "RegionStrategy");
+  problem->AddMPStrategy(
+      MPSP(new RegionStrategy<VizmoTraits>()),
+      "RegionStrategy");
 
-  //add path strategy
-  VizmoProblem::MPStrategyPointer ps(new PathStrategy<VizmoTraits>());
-  problem->AddMPStrategy(ps, "PathStrategy");
+  problem->AddMPStrategy(
+      MPSP(new PathStrategy<VizmoTraits>()),
+      "PathStrategy");
 
-  //add spark region strategy
-  VizmoProblem::MPStrategyPointer sr(new SparkPRM<VizmoTraits, SparkRegion>());
-  problem->AddMPStrategy(sr, "SparkRegion");
+  problem->AddMPStrategy(
+      MPSP(new SparkPRM<VizmoTraits, SparkRegion>()),
+      "SparkRegion");
 
-  //add Cfg oracle
-  VizmoProblem::MPStrategyPointer co(new CfgOracle<VizmoTraits>());
-  problem->AddMPStrategy(co, "CfgOracle");
+  problem->AddMPStrategy(
+      MPSP(new CfgOracle<VizmoTraits>()),
+      "CfgOracle");
 
-  //add region oracle
-  VizmoProblem::MPStrategyPointer ro(new RegionOracle<VizmoTraits>());
-  problem->AddMPStrategy(ro, "RegionOracle");
+  problem->AddMPStrategy(
+      MPSP(new RegionOracle<VizmoTraits>()),
+      "RegionOracle");
 
-  //add path oracle
-  VizmoProblem::MPStrategyPointer po(new PathOracle<VizmoTraits>());
-  problem->AddMPStrategy(po, "PathOracle");
+  problem->AddMPStrategy(
+      MPSP(new PathOracle<VizmoTraits>()),
+      "PathOracle");
+
+  problem->AddMPStrategy(
+      MPSP(new IRRTStrategy<VizmoTraits>("euclidean", "Nearest",
+          "PQP_SOLID", "kClosest", "BERO", vector<string>{"BoundedRRTQuery"})),
+      "IRRT");
+
+  problem->AddMPStrategy(
+      MPSP(new RegionRRT<VizmoTraits>("euclidean", "Nearest",
+          "PQP_SOLID", "kClosest", "BERO", vector<string>{"BoundedRRTQuery"})),
+      "RegionRRT");
+
+  problem->AddMPStrategy(
+      MPSP(new DynamicRegionRRT<VizmoTraits>("euclidean", "Nearest",
+          "PQP_SOLID", "kClosest", "BERO", vector<string>{"BoundedRRTQuery"})),
+      "DynamicRegionRRT");
+
+#elif defined(PMPState)
+  problem->AddMPStrategy(
+      MPSP(new RegionRRT<VizmoTraits>("weuclidean", "Nearest",
+          "PQP_SOLID", "kClosest", "KinodynamicExtender",
+          vector<string>{"BoundedRRTQuery"})),
+      "RegionRRT");
+
+  problem->AddMPStrategy(
+      MPSP(new DynamicRegionRRT<VizmoTraits>("weuclidean", "Nearest",
+          "PQP_SOLID", "kClosest", "KinodynamicExtender",
+          vector<string>{"BoundedRRTQuery"})),
+      "DynamicRegionRRT");
 #endif
-
-  //avoid-region validity checker
-  VizmoProblem::ValidityCheckerPointer arv(
-      new AvoidRegionValidity<VizmoTraits>());
-  problem->AddValidityChecker(arv, "AvoidRegionValidity");
-
-  //avoid-region (only) local planner
-  VizmoProblem::LocalPlannerPointer arsl(
-      new StraightLine<VizmoTraits>("AvoidRegionValidity", true));
-  problem->AddLocalPlanner(arsl, "AvoidRegionSL");
-
-  //avoid-region + PQP_SOLID validity checker
-  vector<string> vcList;
-  vcList.push_back("PQP_SOLID");
-  vcList.push_back("AvoidRegionValidity");
-  VizmoProblem::ValidityCheckerPointer rv(new ComposeValidity<VizmoTraits>(
-        ComposeValidity<VizmoTraits>::AND, vcList));
-  problem->AddValidityChecker(rv, "RegionValidity");
-
-  //avoid-region + PQP_SOLID local planner
-  VizmoProblem::LocalPlannerPointer rsl(
-      new StraightLine<VizmoTraits>("RegionValidity", true));
-  problem->AddLocalPlanner(rsl, "RegionSL");
-
-  //region uniform random sampler
-  VizmoProblem::SamplerPointer rus(
-      new UniformRandomSampler<VizmoTraits>("RegionValidity"));
-  problem->AddSampler(rus, "RegionUniformSampler");
-
-  //region obstacle-based sampler
-#ifdef PMPCfg
-  VizmoProblem::SamplerPointer robs(
-      new ObstacleBasedSampler<VizmoTraits>("RegionValidity", "euclidean"));
-  problem->AddSampler(robs, "RegionObstacleSampler");
-#endif
-
-  //region neighborhood connector
-  VizmoProblem::ConnectorPointer rc(
-      new NeighborhoodConnector<VizmoTraits>("BFNF", "RegionSL"));
-  problem->AddConnector(rc, "RegionBFNFConnector");
 
   //set the MPProblem pointer and build CD structures
   problem->SetMPProblem();

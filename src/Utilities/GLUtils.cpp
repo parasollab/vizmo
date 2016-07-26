@@ -1,6 +1,5 @@
 #include "GLUtils.h"
 
-#include "glut.h"
 #include "VizmoExceptions.h"
 
 
@@ -79,10 +78,11 @@ namespace GLUtils {
 
 
   void
-  DrawCircle(double _r, bool _fill) {
+  DrawCircle(double _r, bool _fill, unsigned short _segments) {
+    GLfloat incr = TWOPI / _segments;
     glBegin(_fill ? GL_POLYGON : GL_LINE_LOOP);
-    for(double t = 0; t < TWOPI; t += 0.2)
-      glVertex2f(_r*cos(t), _r*sin(t));
+    for(unsigned short t = 0; t < _segments; ++t)
+      glVertex2f(_r * cos(t * incr), _r * sin(t * incr));
     glEnd();
   }
 
@@ -171,5 +171,112 @@ namespace GLUtils {
       glVertex3d(_or * cos(frac), _or * sin(frac), -_h/2);
     }
     glEnd();
+  }
+
+
+  void
+  DrawSphere(const double _radius, const unsigned short _segments) {
+    GLfloat oIncr = 2 * PI / _segments; // Angle increment for x,y coords.
+    GLfloat zIncr = PI / _segments;     // Angle increment for z coords.
+    GLfloat x, y, z, r;
+
+    // Draw +zHat cap.
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0, 0, _radius); // The +zHat pole.
+    z = _radius * cos(zIncr);
+    r = _radius * sin(zIncr);
+    for(short i = 0; i <= _segments; ++i) {
+      x = r * cos(oIncr * i);
+      y = r * sin(oIncr * i);
+      glVertex3f(x, y, z);
+    }
+    glEnd();
+
+    // Draw main surface.
+    GLfloat z2, r2;
+    for(short j = 1; j < _segments; ++j) {
+      glBegin(GL_TRIANGLE_STRIP);
+      z  = _radius * cos(zIncr * j);
+      r  = _radius * sin(zIncr * j);
+      z2 = _radius * cos(zIncr * (j + 1));
+      r2 = _radius * sin(zIncr * (j + 1));
+      for(short i = 0; i <= _segments; ++i) {
+        x = cos(oIncr * i);
+        y = sin(oIncr * i);
+        glVertex3f(x * r , y * r ,  z);
+        glVertex3f(x * r2, y * r2, z2);
+      }
+      glEnd();
+    }
+
+    // Draw -zHat cap.
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0, 0, -_radius);
+    z = _radius * cos(zIncr * (_segments - 1));
+    r = _radius * sin(zIncr * (_segments - 1));
+    for(short i = _segments; i >= 0; --i) {
+      x = r * cos(oIncr * i);
+      y = r * sin(oIncr * i);
+      glVertex3f(x, y, z);
+    }
+    glEnd();
+  }
+
+
+  void
+  DrawWireSphere(const double _radius, const unsigned short _segments) {
+    GLfloat oIncr = 2 * PI / _segments; // Angle increment for x,y coords.
+    GLfloat zIncr = PI / _segments;     // Angle increment for z coords.
+    GLfloat x, y, z, r;
+
+    // Draw latitude lines.
+    glBegin(GL_LINES);
+
+    // Draw +zHat cap.
+    z = _radius * cos(zIncr);
+    r = _radius * sin(zIncr);
+    for(short i = 0; i < _segments; ++i) {
+      glVertex3f(0, 0, _radius);
+      x = r * cos(oIncr * i);
+      y = r * sin(oIncr * i);
+      glVertex3f(x, y, z);
+    }
+
+    // Draw main surface.
+    GLfloat z2, r2;
+    for(short j = 1; j < _segments; ++j) {
+      z  = _radius * cos(zIncr * j);
+      r  = _radius * sin(zIncr * j);
+      z2 = _radius * cos(zIncr * (j + 1));
+      r2 = _radius * sin(zIncr * (j + 1));
+      for(short i = 0; i <= _segments; ++i) {
+        x = cos(oIncr * i);
+        y = sin(oIncr * i);
+        glVertex3f(x * r , y * r , z);
+        glVertex3f(x * r2, y * r2, z2);
+      }
+    }
+
+    // Draw -zHat cap.
+    z = _radius * cos(zIncr * (_segments - 1));
+    r = _radius * sin(zIncr * (_segments - 1));
+    for(short i = _segments; i > 0; --i) {
+      x = r * cos(oIncr * i);
+      y = r * sin(oIncr * i);
+      glVertex3f(x, y, z);
+      glVertex3f(0, 0, -_radius);
+    }
+    glEnd();
+
+    // Draw longitude lines.
+    for(short i = 1; i < _segments; ++i) {
+      glPushMatrix();
+      z = _radius * cos(zIncr * i);
+      r = _radius * sin(zIncr * i);
+
+      glTranslatef(0, 0, z);
+      DrawCircle(r, false, _segments);
+      glPopMatrix();
+    }
   }
 }

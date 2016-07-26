@@ -1,7 +1,5 @@
 #include "RegionSphereModel.h"
 
-#include "glut.h"
-
 #include <QtGui>
 
 #include "Environment/BoundingSphere.h"
@@ -93,7 +91,7 @@ DrawRender() {
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
   glColor4fv(m_color);
-  glutSolidSphere(m_radius, 20, 20);
+  GLUtils::DrawSphere(m_radius);
   glColor4f(.2, .2, .2, .5);
   GLUtils::DrawArc(m_radius, 0, 2 * PI, Vector3d(1., 0., 0.),
       Vector3d(0., 1., 0.));
@@ -123,7 +121,7 @@ DrawSelect() {
 
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
-  glutSolidSphere(m_radius, 20, 20);
+  GLUtils::DrawSphere(m_radius);
   glPopMatrix();
 }
 

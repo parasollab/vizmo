@@ -2,6 +2,7 @@
 #define SPARK_REGION_H_
 
 #include "RegionStrategy.h"
+#include "GUI/GLWidget.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  Adds user-regions to SparkPRM.

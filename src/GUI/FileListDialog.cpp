@@ -305,7 +305,11 @@ Accept() {
     string xmlfile = m_xmlFilename->text().toStdString();
     GetVizmo().SetXMLFileName(xmlfile);
     m_envFilename->setText(SearchXML(xmlfile, "Environment").c_str());
+#ifdef PMPState
+    m_queryFilename->setText(SearchXML(xmlfile, "RRTQuery").c_str());
+#else
     m_queryFilename->setText(SearchXML(xmlfile, "Query").c_str());
+#endif
 
     if(!m_envFilename->text().isEmpty())
       GetVizmo().SetEnvFileName(m_envFilename->text().toStdString());
@@ -366,7 +370,11 @@ SearchXML(string _filename, string _key) {
             return child2.Read("filename", false, "", "env filename");
         }
         // Handle all other specific cases
+#ifdef PMPState
+        else if(_key == "RRTQuery") {
+#else
         else if(_key == "Query") {
+#endif
           if(child2.Name() == "MapEvaluators") {
             for(auto& child3 : child2)
               if(child3.Name() == _key)

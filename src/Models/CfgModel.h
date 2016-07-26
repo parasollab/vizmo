@@ -7,7 +7,6 @@
 using namespace std;
 
 #include <GL/gl.h>
-#include <GL/glut.h>
 
 #ifdef PMPCfg
 #include "Cfg/Cfg.h"

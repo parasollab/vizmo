@@ -13,6 +13,7 @@
 #include "Models/Vizmo.h"
 
 #include "Utilities/Camera.h"
+#include "Utilities/GLUtils.h"
 
 #include "SpaceMouse/SpaceMouseManager.h"
 
@@ -34,7 +35,7 @@ Draw() {
     glPushMatrix();
     glTranslatef(m_pos[0], m_pos[1], m_pos[2]);
     glColor4fv(m_currentRegion ? Color4(1, 1, 1, 1) - m_color : m_color);
-    glutSolidSphere(m_radius, 20, 20);
+    GLUtils::DrawSphere(m_radius);
     glPopMatrix();
   }
 }

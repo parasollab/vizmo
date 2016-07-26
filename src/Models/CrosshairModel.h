@@ -6,8 +6,8 @@
 #include "Model.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief Implements a 3D crosshair to help users visualize depth when
-///        manipulating 3D objects.
+/// \brief A 3D crosshair to help users visualize depth when manipulating 3D
+///        objects.
 ////////////////////////////////////////////////////////////////////////////////
 class CrosshairModel : public Model {
 

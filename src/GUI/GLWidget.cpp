@@ -3,7 +3,6 @@
 #include <numeric>
 #include <ctime>
 
-#include <glut.h>
 #include <GL/glu.h>
 
 #include "MainWindow.h"

@@ -7,7 +7,6 @@
 using namespace std;
 
 #include <GL/gl.h>
-#include <GL/glut.h>
 
 #include "CfgModel.h"
 #include "Model.h"

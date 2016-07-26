@@ -25,5 +25,6 @@ OBJECTS += \
 	   Models/SurfaceMultiBodyModel.o \
 	   Models/TempObjsModel.o \
 	   Models/TetGenDecompositionModel.o \
+	   Models/ThreadSafeSphereModel.o \
 	   Models/UserPathModel.o \
 	   Models/Vizmo.o

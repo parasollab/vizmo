@@ -42,11 +42,11 @@
 #include "MapEvaluators/ComposeEvaluator.h"
 #include "MapEvaluators/ConditionalEvaluator.h"
 #include "MapEvaluators/PrintMapEvaluation.h"
-//#include "MapEvaluators/Query.h"
+#include "MapEvaluators/RRTQuery.h"
 
 //mp strategies includes
-//#include "MPStrategies/KinodynamicRRTStrategy.h"
-#include "KinodynamicRegionRRT.h"
+#include "MPStrategies/DynamicRegionRRT.h"
+#include "RegionRRT.h"
 
 #include "MPProblem/MPProblem.h"
 
@@ -115,13 +115,14 @@ struct VizmoTraits {
   typedef boost::mpl::list<
     ComposeEvaluator<VizmoTraits>,
     ConditionalEvaluator<VizmoTraits>,
-    PrintMapEvaluation<VizmoTraits>//,
-    //Query<VizmoTraits>
+    PrintMapEvaluation<VizmoTraits>,
+    RRTQuery<VizmoTraits>
     > MapEvaluatorMethodList; ///< The available evaluators.
 
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
-    KinodynamicRegionRRT<VizmoTraits>
+    DynamicRegionRRT<VizmoTraits>,
+    RegionRRT<VizmoTraits>
     > MPStrategyMethodList; ///< The available strategies.
 
 };

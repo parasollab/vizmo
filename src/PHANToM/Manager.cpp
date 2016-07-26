@@ -71,10 +71,8 @@ namespace Haptics {
     //cursor
     glPushMatrix();
     glTranslatef(m_worldPos[0], m_worldPos[1], m_worldPos[2]);
-    //glutSolidSphere(1, 25, 25);
     glPointSize(5);
     glBegin(GL_POINTS);
-    //glVertex3f(m_worldPos[0], m_worldPos[1], m_worldPos[2]);
     glVertex3f(0, 0, 0);
     glEnd();
 
