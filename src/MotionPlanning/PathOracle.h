@@ -7,36 +7,56 @@
 #include "Models/UserPathModel.h"
 #include "Models/Vizmo.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Provide one or more paths to a planner prior to execution.
+////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class PathOracle : public OracleStrategy<MPTraits> {
-  public:
-    typedef typename MPTraits::MPProblemType MPProblemType;
-    typedef typename MPTraits::CfgType CfgType;
-    typedef typename MPTraits::WeightType WeightType;
 
-    PathOracle(const string& _inputPaths = "", const string& _strategy = "");
+  public:
+
+    ///\name Motion Planning Types
+    ///@{
+
+    typedef typename MPTraits::MPProblemType MPProblemType;
+    typedef typename MPTraits::CfgType       CfgType;
+    typedef typename MPTraits::WeightType    WeightType;
+
+    ///@}
+    ///\name Construction
+    ///@{
+
+    PathOracle(const string& _strategy = "", const string& _inputPaths = "");
     PathOracle(MPProblemType* _problem, XMLNode& _node);
 
-    void Initialize();
+    ///@}
+    ///\name MPStrategyMethod Overrides
+    ///@{
 
-  private:
-    string m_inputPaths;
+    virtual void Initialize() override;
+
+    ///@}
 };
+
+/*------------------------------- Construction -------------------------------*/
 
 template<class MPTraits>
 PathOracle<MPTraits>::
 PathOracle(const string& _inputPaths, const string& _strategy) :
-  OracleStrategy<MPTraits>(_strategy), m_inputPaths(_inputPaths) {
-    this->SetName("PathOracle");
-  }
+    OracleStrategy<MPTraits>(_strategy, _inputPaths) {
+  this->SetName("PathOracle");
+}
+
 
 template<class MPTraits>
 PathOracle<MPTraits>::
 PathOracle(MPProblemType* _problem, XMLNode& _node) :
-  OracleStrategy<MPTraits>(_problem, _node) {
-    this->SetName("PathOracle");
-    m_inputPaths = _node.Read("pathFile", false, "", "Path Filename");
-  }
+    OracleStrategy<MPTraits>(_problem, _node) {
+  this->SetName("PathOracle");
+  this->m_oracleInput = _node.Read("pathFile", false, "", "Path Filename");
+}
+
+/*------------------------- MPStrategyMethod Overrides -----------------------*/
 
 template<class MPTraits>
 void
@@ -47,9 +67,9 @@ Initialize() {
   auto g = this ->GetRoadmap()->GetGraph();
   g->clear();
 
-  if(!m_inputPaths.empty()) {
-    GetVizmo().GetEnv()->LoadUserPaths(m_inputPaths);
-    cout << "Input Path: " << m_inputPaths << endl;
+  if(!this->m_oracleInput.empty()) {
+    GetVizmo().GetEnv()->LoadUserPaths(this->m_oracleInput);
+    cout << "Input Path: " << this->m_oracleInput << endl;
   }
 
   const vector<UserPathModel*>& userPaths = GetVizmo().GetEnv()->GetUserPaths();
@@ -69,5 +89,7 @@ Initialize() {
   }
   GetVizmo().GetMap()->RefreshMap();
 }
+
+/*----------------------------------------------------------------------------*/
 
 #endif

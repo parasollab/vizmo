@@ -12,7 +12,7 @@ string ParseMapHeader(const string& _filename) {
   if(!FileExists(_filename))
     throw ParseException(WHERE, "File '" + _filename + "' does not exist.");
 
-  ifstream ifs(_filename.c_str());
+  ifstream ifs(_filename);
 
   //Open file for reading data
   string env, s;

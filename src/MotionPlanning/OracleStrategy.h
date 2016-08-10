@@ -8,37 +8,67 @@
 
 #include "Models/Vizmo.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Base strategy for supplying oracle information to the planner prior
+///        to runtime.
+////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class OracleStrategy : public MPStrategyMethod<MPTraits> {
+
   public:
+
+    ///\name Motion Planning Types
+    ///@{
+
     typedef typename MPTraits::MPProblemType MPProblemType;
 
-    OracleStrategy(const string& _strategy = "");
+    ///@}
+    ///\name Construction
+    ///@{
+
+    OracleStrategy(const string& _strategy = "", const string& _input = "");
     OracleStrategy(MPProblemType* _problem, XMLNode& _node);
-    virtual ~OracleStrategy() {}
+    virtual ~OracleStrategy() = default;
 
-    virtual void Initialize();
-    void Run();
-    void Finalize();
+    ///@}
+    ///\name MPStrategyMethod Overrides
+    ///@{
 
-  private:
-    string m_strategy;
+    virtual void Initialize() override;
+    virtual void Run() override;
+    virtual void Finalize() override;
+
+    ///@}
+
+  protected:
+
+    ///\name Internal State
+    ///@{
+
+    string m_strategy;    ///< The MPStrategy to run.
+    string m_oracleInput; ///< The oracle input file name.
+
+    ///@}
 };
+
+/*------------------------------- Construction -------------------------------*/
 
 template<class MPTraits>
 OracleStrategy<MPTraits>::
-OracleStrategy(const string& _strategy) :
-  MPStrategyMethod<MPTraits>(), m_strategy(_strategy) {
-    this->SetName("OracleStrategy");
-  }
+OracleStrategy(const string& _strategy, const string& _input) :
+    MPStrategyMethod<MPTraits>(), m_strategy(_strategy), m_oracleInput(_input) {
+  this->SetName("OracleStrategy");
+}
 
 template<class MPTraits>
 OracleStrategy<MPTraits>::
 OracleStrategy(MPProblemType* _problem, XMLNode& _node) :
-  MPStrategyMethod<MPTraits>(_problem, _node) {
-    this->SetName("OracleStrategy");
-    m_strategy = _node.Read("mps", true, "", "MPStrategy from VizmoXML");
-  }
+    MPStrategyMethod<MPTraits>(_problem, _node) {
+  this->SetName("OracleStrategy");
+  m_strategy = _node.Read("mps", true, "", "MPStrategy from VizmoXML");
+}
+
+/*------------------------- MPStrategyMethod Overrides -----------------------*/
 
 template<class MPTraits>
 void
@@ -50,6 +80,7 @@ Initialize() {
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
 }
+
 
 template<class MPTraits>
 void
@@ -71,6 +102,7 @@ Run() {
   GetVizmo().StopClock(name);
   this->GetStatClass()->StopClock(name + "MP");
 }
+
 
 template<class MPTraits>
 void
@@ -116,5 +148,7 @@ Finalize() {
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
 }
+
+/*----------------------------------------------------------------------------*/
 
 #endif

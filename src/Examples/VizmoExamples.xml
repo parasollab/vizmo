@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <MotionPlanning warnings="true" warningsAsErrors="true" print="false">
-  <MPProblem>
-
+  <Input>
     <Environment filename="2D/s.env" saveDofs="false"/>
+  </Input>
 
+  <MPProblem>
     <DistanceMetrics>
       <Euclidean label="euclidean"/>
     </DistanceMetrics>
@@ -14,20 +15,13 @@
       <CollisionDetection label="cd3" method="VCLIP"/>
       <CollisionDetection label="cd4" method="PQP_SOLID"/>
 
-      <!--Region Validity Checkers-->
+      <!-- Region Validity Checkers -->
       <AvoidRegionValidity label="AvoidRegionValidity" />
       <ComposeValidity label="RegionValidity" operator="AND">
         <ValidityChecker label="AvoidRegionValidity"/>
         <ValidityChecker label="cd4"/>
       </ComposeValidity>
     </ValidityCheckers>
-
-    <NeighborhoodFinders>
-      <BruteForceNF label="BFNF" dmLabel="euclidean" unconnected="false" k="10"/>
-      <BruteForceNF label="Nearest" dmLabel="euclidean" unconnected="false" k="1"/>
-      <BruteForceNF label="BFNFAll" dmLabel="euclidean" k="0"/>
-      <RadiusNF label="RadiusNF" dmLabel="euclidean" radius="5"/>
-    </NeighborhoodFinders>
 
     <Samplers>
       <UniformRandomSampler label="UniformRandomFree" vcLabel="cd1"/>
@@ -39,7 +33,7 @@
       <UniformObstacleBasedSampler label="UOBPRM" vcLabel="cd1" useBBX="false"
         dmLabel="euclidean" d="0.02" />
 
-      <!--Region Samplers-->
+      <!-- Region Samplers -->
       <UniformRandomSampler label="RegionUniformSampler"
         vcLabel="RegionValidity"/>
       <ObstacleBasedSampler label="RegionObstacleSampler"
@@ -51,57 +45,83 @@
     <LocalPlanners>
       <StraightLine label="sl" binaryEvaluation="true" vcLabel="cd1"/>
 
-      <!--Region Samplers-->
-      <StraightLine label="AvoidRegionSL" binaryEvaluation="true" vcLabel="AvoidRegionValidity"/>
-      <StraightLine label="RegionSL" binaryEvaluation="true" vcLabel="RegionValidity"/>
+      <!-- Region Local Planners -->
+      <StraightLine label="AvoidRegionSL" binaryEvaluation="true"
+        vcLabel="AvoidRegionValidity"/>
+      <StraightLine label="RegionSL" binaryEvaluation="true"
+        vcLabel="RegionValidity"/>
     </LocalPlanners>
 
     <Extenders>
       <BasicExtender label="BERO" debug="false"
-        dmLabel="euclidean" vcLabel="cd1" delta="1.0"/>
+        dmLabel="euclidean" vcLabel="cd4" minDist=".01" maxDist="1"/>
       <BasicExtender label="BESO" debug="false"
-        dmLabel="euclidean" vcLabel="cd1" delta="10.0" randomOrientation="false"/>
+        dmLabel="euclidean" vcLabel="cd1" minDist=".01" maxDist="1"
+        randomOrientation="false"/>
     </Extenders>
+
+    <NeighborhoodFinders>
+      <BruteForceNF label="BFNF" dmLabel="euclidean" unconnected="false" k="10"/>
+      <BruteForceNF label="Nearest" dmLabel="euclidean" unconnected="false"
+        k="1"/>
+      <BruteForceNF label="BFNFAll" dmLabel="euclidean" k="0"/>
+      <RadiusNF label="RadiusNF" dmLabel="euclidean" radius="5"/>
+    </NeighborhoodFinders>
+
+    <Connectors>
+      <NeighborhoodConnector label="Closest" nfLabel="BFNF" lpLabel="sl"
+        checkIfSameCC="false" debug="false"/>
+      <NeighborhoodConnector label="kClosest" nfLabel="BFNF" lpLabel="sl"/>
+      <NeighborhoodConnector label="SparkPRMConnector" nfLabel="Nearest"
+        lpLabel="sl" checkIfSameCC="true"/>
+      <NeighborhoodConnector label="ToggleConnect" nfLabel="BFNF" lpLabel="sl"
+        countFailures="true" fail="1" checkIfSameCC="false"/>
+      <NeighborhoodConnector label="ClosestAlwaysTrue" nfLabel="BFNF"
+        lpLabel="slAlwaysTrue" checkIfSameCC="false"/>
+      <NeighborhoodConnector label="AllToAll" nfLabel="BFNFAll" lpLabel="sl"
+        checkIfSameCC="false"/>
+
+      <!--Region Connectors-->
+      <NeighborhoodConnector label="RegionBFNFConnector" nfLabel="BFNF"
+        lpLabel="RegionSL"/>
+    </Connectors>
 
     <PathModifiers>
       <ShortcuttingPathModifier label="ShortcuttingPathModifier" lpLabel="sl"
         debug="false"/>
     </PathModifiers>
 
-    <Connectors>
-      <NeighborhoodConnector label="Closest" nfLabel="BFNF" lpLabel="sl" checkIfSameCC="false"
-        debug="false"/>
-      <NeighborhoodConnector label="SparkPRMConnector" nfLabel="Nearest"
-        lpLabel="sl" checkIfSameCC="true"/>
-      <NeighborhoodConnector label="ToggleConnect" nfLabel="BFNF" lpLabel="sl"
-        countFailures="true" fail="1" checkIfSameCC="false"/>
-      <NeighborhoodConnector label="ClosestAlwaysTrue" nfLabel="BFNF" lpLabel="slAlwaysTrue"
-        checkIfSameCC="false"/>
-      <NeighborhoodConnector label="AllToAll" nfLabel="BFNFAll" lpLabel="sl" checkIfSameCC="false"/>
-
-      <!--Region Connectors-->
-      <NeighborhoodConnector label="RegionBFNFConnector" nfLabel="BFNF" lpLabel="RegionSL"/>
-      <NeighborhoodConnector label="kClosest" nfLabel="BFNF" lpLabel="sl"/>
-    </Connectors>
-
     <Metrics>
       <NumNodesMetric label="NumNodes"/>
     </Metrics>
 
     <MapEvaluators>
-      <Query label="Query" queryFile="2D/s.query" dmLabel="euclidean"
-        lpLabel="sl" debug="false" pmLabel="ShortcuttingPathModifier">
+      <PRMQuery label="Query" dmLabel="euclidean" lpLabel="sl" debug="false">
         <NodeConnectionMethod method="Closest"/>
-      </Query>
+      </PRMQuery>
+      <RRTQuery label="RRTQuery" goalDist="0" nfLabel="Nearest" exLabel="BERO"
+        debug="false"/>
       <PrintMapEvaluation label="PrintMap" base_name="Basic"/>
-      <ConditionalEvaluator label="NodesEval" metric_method="NumNodes" value="10000" operator=">="/>
-      <ComposeEvaluator label="Com1" operator="or">
-        <Evaluator label="NodesEval"/>
+      <ConditionalEvaluator label="NodesEval" metric_method="NumNodes"
+        value="10000" operator=">="/>
+      <ComposeEvaluator label="BoundedQuery" operator="or">
         <Evaluator label="Query"/>
+        <Evaluator label="NodesEval"/>
+      </ComposeEvaluator>
+      <ComposeEvaluator label="BoundedRRTQuery" operator="or">
+        <Evaluator label="RRTQuery"/>
+        <Evaluator label="NodesEval"/>
       </ComposeEvaluator>
     </MapEvaluators>
 
     <MPStrategies>
+      <BasicRRTStrategy label="BasicRRT"
+        numRoots="1" m="1" growthFocus="0.01" dmLabel="euclidean"
+        nfLabel="Nearest" vcLabel="cd1" connectorLabel="Closest"
+        gtype="UNDIRECTED_TREE" debug="false"
+        growGoals="true" extenderLabel="BERO">
+        <Evaluator label="RRTQuery"/>
+      </BasicRRTStrategy>
 
       <CfgOracle label="CfgOracle" cfgFile="" mps="RegionStrategy"/>
 
@@ -116,17 +136,18 @@
       <PathStrategy label="PathStrategy" vcLabel="cd4" dmLabel="edclidean"/>
 
       <IRRTStrategy label="IRRT" vcLabel="cd4" nfLabel="BFNF"
-        dmLabel="euclidean" lpLabel="sl" gtype="UNDIRECTED_TREE"
-        query="2D/s.query" evaluateGoal="true"/>
+        dmLabel="euclidean" gtype="UNDIRECTED_TREE" extenderLabel="BERO">
+        <Evaluator label="RRTQuery"/>
+      </IRRTStrategy>
 
       <RegionRRT label="RegionRRT" vcLabel="cd4" nfLabel="BFNF"
-        dmLabel="euclidean" lpLabel="sl" gtype="UNDIRECTED_TREE"
-        extenderLabel="BERO" query="2D/s.query" evaluateGoal="true"/>
+        dmLabel="euclidean" gtype="UNDIRECTED_TREE" extenderLabel="BERO">
+        <Evaluator label="RRTQuery"/>
+      </RegionRRT>
 
       <SparkRegion label="SparkRegion" lpLabel="RegionSL"
         sLabel="RegionUniformSampler" vcLabel="RegionValidity"
         cLabel="RegionBFNFConnector"/>
-
     </MPStrategies>
 
     <Solver mpStrategyLabel="RegionStrategy" seed="12345678"  baseFilename="s"

@@ -5,34 +5,54 @@
 
 #include "Models/Vizmo.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Provide one or more configurations to the planner prior to execution.
+////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class CfgOracle : public OracleStrategy<MPTraits> {
+
   public:
+
+    ///\name Motion Planning Types
+    ///@{
+
     typedef typename MPTraits::MPProblemType MPProblemType;
 
-    CfgOracle(const string& _inputCfgs = "", const string& _strategy = "");
+    ///@}
+    ///\name Construction
+    ///@{
+
+    CfgOracle(const string& _strategy = "", const string& _inputCfgs = "");
     CfgOracle(MPProblemType* _problem, XMLNode& _node);
 
-    void Initialize();
+    ///@}
+    ///\name MPStrategyMethod Overrides
+    ///@{
 
-  private:
-    string m_inputCfgs;
+    virtual void Initialize() override;
+
+    ///@}
 };
+
+/*------------------------------- Construction -------------------------------*/
 
 template<class MPTraits>
 CfgOracle<MPTraits>::
-CfgOracle(const string& _inputCfgs, const string& _strategy) :
-  OracleStrategy<MPTraits>(_strategy), m_inputCfgs(_inputCfgs) {
+CfgOracle(const string& _strategy, const string& _inputCfgs) :
+    OracleStrategy<MPTraits>(_strategy, _inputCfgs) {
   this->SetName("CfgOracle");
 }
+
 
 template<class MPTraits>
 CfgOracle<MPTraits>::
 CfgOracle(MPProblemType* _problem, XMLNode& _node) :
-  OracleStrategy<MPTraits>(_problem, _node) {
-    this->SetName("CfgOracle");
-    m_inputCfgs = _node.Read("cfgFile", false, "", "Cfg Map Filename");
-  }
+    OracleStrategy<MPTraits>(_problem, _node) {
+  this->SetName("CfgOracle");
+  this->m_oracleInput = _node.Read("cfgFile", false, "", "Cfg Map Filename");
+}
+
+/*------------------------- MPStrategyMethod Overrides -----------------------*/
 
 template<class MPTraits>
 void
@@ -40,12 +60,14 @@ CfgOracle<MPTraits>::
 Initialize() {
   OracleStrategy<MPTraits>::Initialize();
 
-  if(!m_inputCfgs.empty()) {
+  if(!this->m_oracleInput.empty()) {
     auto r = this->GetRoadmap();
-    r->Read(m_inputCfgs);
-    cout << "Input Map: " << m_inputCfgs << endl;
+    r->Read(this->m_oracleInput);
+    cout << "Input Map: " << this->m_oracleInput << endl;
     GetVizmo().GetMap()->RefreshMap();
   }
 }
+
+/*----------------------------------------------------------------------------*/
 
 #endif

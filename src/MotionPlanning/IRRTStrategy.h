@@ -110,7 +110,7 @@ IRRTStrategy(string _dm, string _nf, string _vc, string _nc, string _ex,
 template <typename MPTraits>
 IRRTStrategy<MPTraits>::
 IRRTStrategy(MPProblemType* _problem, XMLNode& _node) :
-  BasicRRTStrategy<MPTraits>(_problem, _node, true) {
+    BasicRRTStrategy<MPTraits>(_problem, _node) {
   this->SetName("IRRTStrategy");
   m_alpha = _node.Read("alpha", false, 0.5, 0.0, 1.0, "Alpha");
   m_sigma = _node.Read("sigma", false, 0.5, 0.0, 1.0, "Sigma");
@@ -159,7 +159,6 @@ void
 IRRTStrategy<MPTraits>::
 Iterate() {
   BasicRRTStrategy<MPTraits>::Iterate();
-  usleep(10000);
 }
 
 

@@ -5,14 +5,16 @@
 #include "GUI/GLWidget.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief  Adds user-regions to SparkPRM.
+/// \brief Adds user-regions to SparkPRM.
 ////////////////////////////////////////////////////////////////////////////////
 template<class MPTraits>
 class SparkRegion : public RegionStrategy<MPTraits> {
 
   public:
 
-    // Local types.
+    ///\name Motion Planning Types
+    ///@{
+
     typedef typename MPTraits::MPProblemType MPProblemType;
     typedef typename MPTraits::CfgType CfgType;
     typedef typename MPTraits::WeightType WeightType;
@@ -20,21 +22,25 @@ class SparkRegion : public RegionStrategy<MPTraits> {
     typedef typename MPProblemType::GraphType GraphType;
     typedef EnvModel::RegionModelPtr RegionModelPtr;
 
-    // Construction
+    ///@}
+    ///\name Construction
+    ///@{
+
     SparkRegion();
     SparkRegion(MPProblemType* _problem, XMLNode& _node);
 
-    // Inherited functions
-    void Run();
-    void Finalize();
+    ///@}
+    ///\name MPStrategyMethod Overrides
+    ///@{
 
-  protected:
+    virtual void Initialize() override;
+    virtual void Iterate() override;
+    virtual void Finalize() override;
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief  Delete the region with index \c _index.
-    void DeleteRegion(size_t _index);
+    ///@}
 };
 
+/*------------------------------- Construction -------------------------------*/
 
 template<class MPTraits>
 SparkRegion<MPTraits>::
@@ -50,46 +56,42 @@ SparkRegion(MPProblemType* _problem, XMLNode& _node) :
   this->SetName("SparkRegion");
 }
 
+/*------------------------ MPStrategyMethod Overrides ------------------------*/
 
 template<class MPTraits>
 void
 SparkRegion<MPTraits>::
-Run() {
+Initialize() {
   cout << "Running Spark Region Strategy." << endl;
 
-  //start clock
   GetVizmo().StartClock("SparkRegion");
   this->GetStatClass()->StartClock("SparkRegionMP");
+}
 
-  size_t iter = 0;
-  while(!this->EvaluateMap()) {
 
-    vector<CfgType> samples;
-    size_t index = this->SelectRegion();
-    this->SampleRegion(index, samples);
+template<class MPTraits>
+void
+SparkRegion<MPTraits>::
+Iterate() {
+  vector<CfgType> samples;
+  size_t index = this->SelectRegion();
+  this->SampleRegion(index, samples);
 
-    GetVizmo().ProcessAvoidRegions();
+  GetVizmo().ProcessAvoidRegions();
 
-    vector<VID> vids;
-    this->AddToRoadmap(samples, vids);
+  vector<VID> vids;
+  this->AddToRoadmap(samples, vids);
 
-    this->Connect(vids, iter);
+  this->Connect(vids, this->m_iteration);
 
-    if(samples.size() && index != GetVizmo().GetEnv()->GetAttractRegions().size()) {
-      typedef typename vector<VID>::iterator VIT;
-      for(VIT vit = vids.begin(); vit != vids.end(); ++vit)
-        this->CheckNarrowPassageSample(*vit);
-      //DeleteRegion(index);
-    }
-
-    //if(++iter % 20 == 0)
-      GetVizmo().GetMap()->RefreshMap();
-    //usleep(10000);
+  if(samples.size() &&
+      index != GetVizmo().GetEnv()->GetAttractRegions().size()) {
+    typedef typename vector<VID>::iterator VIT;
+    for(VIT vit = vids.begin(); vit != vids.end(); ++vit)
+      this->CheckNarrowPassageSample(*vit);
   }
 
-  //stop clock
-  GetVizmo().StopClock("SparkRegion");
-  this->GetMPProblem()->GetStatClass()->StopClock("SparkRegionMP");
+  GetVizmo().GetMap()->RefreshMap();
 }
 
 
@@ -97,7 +99,11 @@ template<class MPTraits>
 void
 SparkRegion<MPTraits>::
 Finalize() {
+  GetVizmo().StopClock("SparkRegion");
+  this->GetMPProblem()->GetStatClass()->StopClock("SparkRegionMP");
+
   cout << "Finalizing Spark Region Strategy." << endl;
+
   //redraw finished map
   GetVizmo().GetMap()->RefreshMap();
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
@@ -134,15 +140,6 @@ Finalize() {
   GetVizmo().GetEnv()->SetSelectable(true);
 }
 
-
-template<class MPTraits>
-void
-SparkRegion<MPTraits>::
-DeleteRegion(size_t _index) {
-  const vector<RegionModelPtr>& r = GetVizmo().GetEnv()->GetAttractRegions();
-  GetVizmo().GetSelectedModels().clear();
-  GetMainWindow()->GetGLWidget()->SetCurrentRegion();
-  GetVizmo().GetEnv()->DeleteRegion(r[_index]);
-}
+/*----------------------------------------------------------------------------*/
 
 #endif

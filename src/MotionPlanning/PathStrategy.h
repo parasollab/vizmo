@@ -27,12 +27,14 @@
 ///          code. Once the fixes are checked in (from the MA planning journal
 ///          branch), we can repair this functionality.
 ////////////////////////////////////////////////////////////////////////////////
-template<class MPTraits>
+template <typename MPTraits>
 class PathStrategy : public MPStrategyMethod<MPTraits> {
 
   public:
 
-    // Local types.
+    ///\name Motion Planning Types
+    ///@{
+
     typedef typename MPTraits::MPProblemType     MPProblemType;
     typedef typename MPTraits::CfgType           CfgType;
     typedef typename MPTraits::WeightType        WeightType;
@@ -40,93 +42,103 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
     typedef typename RoadmapType::VID            VID;
     typedef typename RoadmapType::GraphType      GraphType;
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The default constructor uses pqp_solid collision checking,
-    ///        uniform random sampling, straight-line local planning, k-closest
-    ///        connector, and max nodes evaluation.
+    ///@}
+    ///\name Construction
+    ///@{
+
     PathStrategy();
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The XML constructor uses defaults if values are not provided.
-    /// \param[in] _problem The current MPProblem.
-    /// \param[in] _node The XML node reader.
     PathStrategy(MPProblemType* _problem, XMLNode& _node);
 
-    void Initialize(); ///< Fetch data and start clocks.
-    void Run();        ///< Execute path planning.
-    void Finalize();   ///< Stop clocks and generate output files.
+    ///@}
+    ///\name MPBaseObject Overrides
+    ///@{
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Print name, label, and component information.
-    /// \param[in] _os The ostream to print to.
-    void Print(ostream& _os) const;
+    virtual void Print(ostream& _os) const override;
+
+    ///@}
+    ///\name MPStrategyMethod Overrides
+    ///@{
+
+    virtual void Initialize() override;
+    virtual void Run() override;
+    virtual void Finalize() override;
+
+    ///@}
 
   protected:
 
-    //helper functions
+    ///\name Helpers
+    ///@{
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Check the configuration's validity. If invalid, push it to the
-    /// medial axis.
+    ///        medial axis.
     /// \param[in/out] _cfg The configuration to validate.
-    /// \return A \c bool indicating whether the configuration was successfully
-    /// validated.
+    /// \return A bool indicating whether the configuration was successfully
+    ///         validated.
     bool ValidateCfg(CfgType& _cfg);
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Validate and add configurations to the roadmap. Store their VID's
-    /// for connection.
+    ///        for connection.
     /// \param[in] _samples Configurations to add.
     /// \param[out] _vids   The corresponding VID's in the roadmap.
     void AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids);
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Try to connect new nodes to the roadmap in the path sequence. If
-    /// a connection attempt fails, attempt to create intermediates.
+    ///        a connection attempt fails, attempt to create intermediates.
     /// \param[in] _vids The VID's of the path nodes, in path order.
     void ConnectPath(const vector<VID>& _vids);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Try to connect new nodes to the roadmap using standard connector.
-    /// \param[in] _vids The VID's of the new nodes.
-    void Connect(vector<VID>& _vids);
+
+    ///@}
 
   private:
 
-    //data objects
+    ///\name PMPL Object Labels
+    ///@{
+
+    string m_vcLabel{"cd4"};            ///< The ValidityChecker label.
+    string m_dmLabel{"euclidean"};      ///< The DistanceMetric label.
+    string m_lpLabel{"sl"};             ///< The LocalPlanner label.
+    string m_ncLabel{"Closest"};        ///< The Connector label.
+
+    ///@}
+    ///\name Internal State
+    ///@{
+
     vector<UserPathModel*> m_userPaths; ///< The set of all existing user paths.
     vector<VID>            m_endPoints; ///< The set of all path heads/tails.
-    Query<MPTraits>*       m_query;     ///< The PMPL Query.
-
-    //pmpl function object labels
-    string m_vcLabel;                   ///< The ValidityChecker label.
-    string m_dmLabel;                   ///< The DistanceMetric label.
-    string m_lpLabel;                   ///< The LocalPlanner label.
-    string m_connectorLabel;            ///< The Connector label.
-
-    //pmpl function objects
+    PRMQuery<MPTraits>*    m_query;     ///< The PMPL Query.
     MedialAxisUtility<MPTraits> m_medialAxisUtility; ///< For pushing to the MA.
+
+    ///@}
 };
 
+/*------------------------------- Construction -------------------------------*/
 
-template<class MPTraits>
+template <typename MPTraits>
 PathStrategy<MPTraits>::
-PathStrategy() :
-    m_vcLabel("PQP_SOLID"), m_dmLabel("euclidean"), m_lpLabel("sl"),
-    m_connectorLabel("kClosest") {
+PathStrategy() : MPStrategyMethod<MPTraits>() {
   this->SetName("PathStrategy");
 }
 
 
-template<class MPTraits>
+template <typename MPTraits>
 PathStrategy<MPTraits>::
-PathStrategy (MPProblemType* _problem, XMLNode& _node) :
+PathStrategy(MPProblemType* _problem, XMLNode& _node) :
     MPStrategyMethod<MPTraits>(_problem, _node) {
   this->SetName("PathStrategy");
-  m_vcLabel = _node.Read("vcLabel", false, "PQP_SOLID", "Validity Checker");
-  m_dmLabel = _node.Read("dmLabel", false, "euclidean", "Distance Metric");
-  m_lpLabel = _node.Read("lpLabel", false, "sl", "Local Planner");
-  m_connectorLabel = _node.Read("connectionLabel", false, "kClosest",
+  m_vcLabel = _node.Read("vcLabel", false, m_vcLabel, "Validity Checker");
+  m_dmLabel = _node.Read("dmLabel", false, m_dmLabel, "Distance Metric");
+  m_lpLabel = _node.Read("lpLabel", false, m_lpLabel, "Local Planner");
+  m_ncLabel = _node.Read("connectionLabel", false, "kClosest",
       "Connector");
 }
 
+/*--------------------------- MPBaseObject Overrides -------------------------*/
 
-template<class MPTraits>
+template <typename MPTraits>
 void
 PathStrategy<MPTraits>::
 Print(ostream& _os) const {
@@ -134,36 +146,38 @@ Print(ostream& _os) const {
       << "\n\tValidity Checker: " << m_vcLabel
       << "\n\tDistance Metric:  " << m_dmLabel
       << "\n\tLocal Planner:    " << m_lpLabel
-      << "\n\tConnector:        " << m_connectorLabel
-      << endl << flush;
+      << "\n\tConnector:        " << m_ncLabel
+      << endl;
 }
 
+/*------------------------- MPStrategyMethod Overrides -----------------------*/
 
-template<class MPTraits>
+template <typename MPTraits>
 void
 PathStrategy<MPTraits>::
 Initialize() {
-  /// This function is a no-op if no paths exist.
+  // This function is a no-op if no paths exist.
   m_userPaths = GetVizmo().GetEnv()->GetUserPaths();
   if(m_userPaths.empty())
     return;
 
   cout << "Initializing Path Strategy." << endl;
 
-  //get function objects
-  m_query     = NULL;
+  // Create medial axis utility.
   m_medialAxisUtility = MedialAxisUtility<MPTraits>(this->GetMPProblem(),
       m_vcLabel, m_dmLabel, false, false);
 
-  //if a vizmo query is loaded, add the query cfgs to the map and set the map
-  //evaluator to bounded query
-  if(GetVizmo().IsQueryLoaded()) {
-    m_query = &*(static_pointer_cast<Query<MPTraits> >(
-        this->GetMapEvaluator("Query")));
-    AddToRoadmap(m_query->GetQuery(), m_endPoints); //store vids with path ends
+  // If a query is requested, add the query cfgs to the map.
+  m_query = nullptr;
+  if(this->UsingQuery()) {
+    m_query = &*(static_pointer_cast<PRMQuery<MPTraits> >(
+        this->GetMapEvaluator("PRMQuery")));
+    auto g = this->GetRoadmap()->GetGraph();
+    for(const auto& q : m_query->GetQuery())
+      m_endPoints.push_back(g->AddVertex(q));
   }
 
-  //Make non-user objects non-selectable while PathStrategy is running
+  // Make non-user objects non-selectable while PathStrategy is running.
   GetVizmo().GetMap()->SetSelectable(false);
   GetVizmo().GetEnv()->SetSelectable(false);
 
@@ -173,11 +187,11 @@ Initialize() {
 }
 
 
-template<class MPTraits>
+template <typename MPTraits>
 void
 PathStrategy<MPTraits>::
 Run() {
-  /// This function is a no-op if no paths exist.
+  // This function is a no-op if no paths exist.
   if(m_userPaths.empty())
     return;
 
@@ -202,73 +216,65 @@ Run() {
   }
 
   //try to connect all endpoints
-  auto connector = this->GetConnector(m_connectorLabel);
+  auto connector = this->GetConnector(m_ncLabel);
   auto map = this->GetRoadmap();
   connector->Connect(map, m_endPoints.begin(), m_endPoints.end(),
       m_endPoints.begin(), m_endPoints.end(), false);
 }
 
 
-template<class MPTraits>
+template <typename MPTraits>
 void
 PathStrategy<MPTraits>::
 Finalize() {
-  /// If no paths exist, alert user that planner did not run.
+  // If no paths exist, alert user that planner did not run.
   if(m_userPaths.empty()) {
     GetMainWindow()->AlertUser("Error: no user-path exists!");
     return;
   }
 
   cout << "Finalizing Path Strategy." << endl;
-  GetVizmo().StopClock("PathStrategy");
+
   auto stats = this->GetStatClass();
+  GetVizmo().StopClock("PathStrategy");
   stats->StopClock("PathStrategyMP");
 
-  //redraw finished map
+  // Redraw finished map.
   GetVizmo().GetMap()->RefreshMap();
   GetMainWindow()->GetModelSelectionWidget()->CallResetLists();
 
-  //print clocks to terminal
+  // Print clocks to terminal.
   GetVizmo().PrintClock("PathStrategy", cout);
   stats->PrintClock("PathStrategyMP", cout);
 
-  //base filename
   string basename = this->GetBaseFilename();
 
-  //output stats
-  ofstream ostats((basename + ".stat").c_str());
+  // Output stats.
+  ofstream ostats(basename + ".stat");
   ostats << "Sampling and Connection Stats:" << endl;
   auto map = this->GetRoadmap();
   stats->PrintAllStats(ostats, map);
   GetVizmo().PrintClock("PathStrategy", ostats);
   stats->PrintClock("PathStrategyMP", ostats);
 
-  //output roadmap
+  // Output roadmap.
   Environment* env = this->GetEnvironment();
   map->Write(basename + ".map", env);
 
-  //output a path file if a query was loaded
+  // Show results pop-up.
   ostringstream results;
-  if(m_query != NULL) {
-    if(!m_query->PerformQuery(map))
-      results << "Planning Failed!" << endl;
-    else
-      results << "Planning Complete!" << endl;
-  }
-  else
-    results << "Planning Complete!" << endl;
-
-  //show results pop-up
+  results << "Planning Complete!" << endl;
   GetVizmo().PrintClock("PathStrategy", results);
   GetMainWindow()->AlertUser(results.str());
 
-  //Make things selectable again
+  // Make things selectable again.
   GetVizmo().GetMap()->SetSelectable(true);
   GetVizmo().GetEnv()->SetSelectable(true);
 }
 
+/*--------------------------------- Helpers ----------------------------------*/
 
-template<class MPTraits>
+template <typename MPTraits>
 bool
 PathStrategy<MPTraits>::
 ValidateCfg(CfgType& _cfg) {
@@ -295,7 +301,7 @@ ValidateCfg(CfgType& _cfg) {
 }
 
 
-template<class MPTraits>
+template <typename MPTraits>
 void
 PathStrategy<MPTraits>::
 AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
@@ -310,7 +316,7 @@ AddToRoadmap(vector<CfgType>& _samples, vector<VID>& _vids) {
 }
 
 
-template<class MPTraits>
+template <typename MPTraits>
 void
 PathStrategy<MPTraits>::
 ConnectPath(const vector<VID>& _vids) {
@@ -348,5 +354,7 @@ ConnectPath(const vector<VID>& _vids) {
     }
   }
 }
+
+/*----------------------------------------------------------------------------*/
 
 #endif

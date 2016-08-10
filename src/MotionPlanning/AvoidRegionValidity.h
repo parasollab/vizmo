@@ -18,23 +18,33 @@ class AvoidRegionValidity : public ValidityCheckerMethod<MPTraits> {
 
   public:
 
+    ///\name Motion Planning Types
+    ///@{
+
     typedef typename MPTraits::MPProblemType MPProblemType;
-    typedef typename MPTraits::CfgType CfgType;
+    typedef typename MPTraits::CfgType       CfgType;
+
+    ///@}
+    ///\name Construction
+    ///@{
 
     AvoidRegionValidity();
     AvoidRegionValidity(MPProblemType* _problem, XMLNode& _node);
 
+    ///@}
+
   protected:
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief The implementation function for this method, which is called by
-    ///        the base class's IsValid method.
-    /// \param[in] _cfg      The configuration to check.
-    /// \param[out] _cdInfo  Required by base class but not used for this method.
-    /// \param[in] _callName The name of the calling method.
-    bool IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName);
+    ///\name ValidityCheckerMethod Overrides
+    ///@{
+
+    virtual bool IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo,
+        const string& _callName) override;
+
+    ///@}
 };
 
+/*----------------------------- Construction ---------------------------------*/
 
 template<class MPTraits>
 AvoidRegionValidity<MPTraits>::
@@ -50,6 +60,8 @@ AvoidRegionValidity(MPProblemType* _problem, XMLNode& _node) :
   this->m_name = "AvoidRegionValidity";
 }
 
+
+/*------------------------------- Helpers ------------------------------------*/
 
 template<class MPTraits>
 bool
@@ -98,5 +110,7 @@ IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName) {
   }
   return true;
 }
+
+/*----------------------------------------------------------------------------*/
 
 #endif

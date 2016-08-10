@@ -4,10 +4,22 @@
 #include "Model.h"
 #include "CfgModel.h"
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Graphic representation of a PMPL query.
+////////////////////////////////////////////////////////////////////////////////
 class QueryModel : public LoadableModel {
+
   public:
+
+    ///\name Construction
+    ///@{
+
     QueryModel(const string& _filename);
     ~QueryModel();
+
+    ///@}
+    ///\name Interface
+    ///@{
 
     size_t GetQuerySize() {return m_cfgs.size();}
     CfgModel& GetQueryCfg(size_t _i) {return m_cfgs[_i];}
@@ -16,8 +28,12 @@ class QueryModel : public LoadableModel {
     void SwapUp(size_t _i) {swap(m_cfgs[_i], m_cfgs[_i-1]);}
     void SwapDown(size_t _i) {swap(m_cfgs[_i], m_cfgs[_i+1]);}
     void DeleteQuery(size_t _i) {m_cfgs.erase(m_cfgs.begin()+_i);}
+    void SaveQuery(const string& _filename);
 
-    void ParseFile();
+    ///@}
+    ///\name Model Overrides
+    ///@{
+
     void Build();
     void Select(GLuint* _index, vector<Model*>& _sel) {}
     void DrawRender();
@@ -25,11 +41,22 @@ class QueryModel : public LoadableModel {
     void DrawSelected() {}
     void Print(ostream& _os) const;
 
-    void SaveQuery(const string& _filename);
+    ///\name LoadableModel Overrides
+    ///@{
+
+    virtual void ParseFile() override;
+
+    ///@}
 
   private:
-    vector<CfgModel> m_cfgs; //query points
-    size_t m_glQueryIndex; //Display list index
+
+    ///\name Internal State
+    ///@{
+
+    vector<CfgModel> m_cfgs;           ///< Query points.
+    size_t m_glQueryIndex{(size_t)-1}; ///< Display list index.
+
+    ///@}
 };
 
 #endif
