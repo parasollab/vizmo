@@ -1,5 +1,5 @@
 #include "ReebGraphModel.h"
-
+#include "Models/Vizmo.h"
 #include "Utilities/ReebGraphConstruction.h"
 
 ReebGraphModel::
@@ -23,19 +23,42 @@ Build() {
 
   glDisable(GL_LIGHTING);
 
-  glPointSize(4);
+  glPointSize(6);
   glLineWidth(3);
 
   glBegin(GL_POINTS);
   for(auto v = reebGraph.begin(); v != reebGraph.end(); ++v) {
+    CfgModel* cfg = new CfgModel(v->property().m_vertex);
+    if(GetVizmo().IsInsideCheck(*cfg)) {
+      m_temp.AddModel(cfg, Color4(1,0, 0, 0));
+      glColor3f(1., 0., 0.);
+    }
+    else {
+      delete cfg; 
+      glColor3f(0., 1., 0.);
+    }
     glVertex3dv(v->property().m_vertex);
   }
   glEnd();
 
+  glPointSize(4);
+
+  glColor3f(1.,1.,0.);
+
   for(auto e = reebGraph.edges_begin(); e != reebGraph.edges_end(); ++e) {
     glBegin(GL_LINE_STRIP);
-    for(auto& v : e->property().m_path)
+    for(auto& v : e->property().m_path) {
+      CfgModel* cfg = new CfgModel(v);
+      if(GetVizmo().IsInsideCheck(*cfg)) {
+        m_temp.AddModel(cfg, Color4(1,0, 0, 0));
+        glColor3f(1., 0., 0.);
+      }
+      else {
+        glColor3f(0., 1., 0.);
+        delete cfg;
+      }
       glVertex3dv(v);
+    } 
     glEnd();
   }
 

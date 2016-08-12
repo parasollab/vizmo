@@ -342,6 +342,20 @@ CollisionCheck(CfgModel& _c) {
   return false;
 }
 
+bool
+Vizmo::
+IsInsideCheck(CfgModel& _c1) {
+  if(m_envModel) {
+    VizmoProblem::ValidityCheckerPointer vc;
+    vc = GetVizmoProblem()->GetValidityChecker("cd4");
+    return vc->IsInsideObstacle(_c1);
+  }
+  cerr << "Warning::Collision checking when there is no environment. "
+    << "Returning false." << endl;
+  return false;
+
+}
+
 pair<bool, double>
 Vizmo::
 VisibilityCheck(CfgModel& _c1, CfgModel& _c2) {

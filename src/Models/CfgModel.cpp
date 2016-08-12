@@ -11,6 +11,13 @@ CfgModel::
 CfgModel(size_t _index) : Model("Cfg"), CfgType(_index), m_mutex(new mutex()) { }
 
 CfgModel::
+CfgModel(Vector3d _vec): Model("Cfg"), CfgType(), m_mutex(new mutex()) {
+  m_v[0] = _vec[0]; 
+  m_v[1] = _vec[1]; 
+  m_v[2] = _vec[2];  
+}
+
+CfgModel::
 CfgModel(const CfgType& _c) : Model("Cfg"), CfgType(_c), m_mutex(new mutex()) { }
 
 CfgModel::

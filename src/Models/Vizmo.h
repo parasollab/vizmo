@@ -149,7 +149,8 @@ class Vizmo {
     /// \brief Check a configuration for collision with the environment.
     /// \param[in] _c The configuration to check.
     bool CollisionCheck(CfgModel& _c1);
-
+    
+    bool IsInsideCheck(CfgModel& _c1);
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Check for a valid local plan from one configuration to another.
     /// \param[in] _c1 The start configuration.

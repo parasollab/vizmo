@@ -2,7 +2,7 @@
 #define REEB_GRAPH_MODEL_H_
 
 #include "Model.h"
-
+#include "Models/TempObjsModel.h"
 class ReebGraphConstruction;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@ class ReebGraphModel : public Model {
     ReebGraphConstruction* m_reebGraph; ///< Embedded reeb graph
 
     GLuint m_reebGraphID; ///< Compiled GL call list for reeb graph
+
+    TempObjsModel m_temp;
 };
+
 
 #endif

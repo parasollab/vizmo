@@ -10,7 +10,7 @@
     </DistanceMetrics>
 
     <ValidityCheckers>
-      <CollisionDetection label="cd1" method="RAPID"/>
+      <CollisionDetection label="cd4" method="RAPID"/>
       <CollisionDetection label="cd2" method="PQP"/>
       <CollisionDetection label="cd3" method="VCLIP"/>
       <CollisionDetection label="cd4" method="PQP_SOLID"/>
@@ -24,13 +24,13 @@
     </ValidityCheckers>
 
     <Samplers>
-      <UniformRandomSampler label="UniformRandomFree" vcLabel="cd1"/>
-      <ObstacleBasedSampler label="OBPRM" vcLabel="cd1" useBBX="false"
+      <UniformRandomSampler label="UniformRandomFree" vcLabel="cd4"/>
+      <ObstacleBasedSampler label="OBPRM" vcLabel="cd4" useBBX="false"
         pointSelection="cspace" dmLabel="euclidean" stepSize="0.0"
         nShellsColl="0" nShellsFree="1" debug="false"/>
-      <GaussianSampler label="Gauss" vcLabel="cd1" d="0.2" dmLabel="euclidean"
+      <GaussianSampler label="Gauss" vcLabel="cd4" d="0.2" dmLabel="euclidean"
         useBBX="false"/>
-      <UniformObstacleBasedSampler label="UOBPRM" vcLabel="cd1" useBBX="false"
+      <UniformObstacleBasedSampler label="UOBPRM" vcLabel="cd4" useBBX="false"
         dmLabel="euclidean" d="0.02" />
 
       <!-- Region Samplers -->
@@ -43,7 +43,7 @@
     </Samplers>
 
     <LocalPlanners>
-      <StraightLine label="sl" binaryEvaluation="true" vcLabel="cd1"/>
+      <StraightLine label="sl" binaryEvaluation="true" vcLabel="cd4"/>
 
       <!-- Region Local Planners -->
       <StraightLine label="AvoidRegionSL" binaryEvaluation="true"
@@ -56,7 +56,7 @@
       <BasicExtender label="BERO" debug="false"
         dmLabel="euclidean" vcLabel="cd4" minDist=".01" maxDist="1"/>
       <BasicExtender label="BESO" debug="false"
-        dmLabel="euclidean" vcLabel="cd1" minDist=".01" maxDist="1"
+        dmLabel="euclidean" vcLabel="cd4" minDist=".01" maxDist="1"
         randomOrientation="false"/>
     </Extenders>
 
@@ -96,7 +96,7 @@
     </Metrics>
 
     <MapEvaluators>
-      <PRMQuery label="Query" dmLabel="euclidean" lpLabel="sl" debug="false">
+      <PRMQuery label="Query" debug="false">
         <NodeConnectionMethod method="Closest"/>
       </PRMQuery>
       <RRTQuery label="RRTQuery" goalDist="0" nfLabel="Nearest" exLabel="BERO"
@@ -115,9 +115,17 @@
     </MapEvaluators>
 
     <MPStrategies>
+      <DynamicRegionRRT label="DynamicRegionRRT"
+        growthFocus="0.01" dmLabel="euclidean"
+        nfLabel="Nearest" vcLabel="cd4"
+        gtype="UNDIRECTED_TREE" debug="false"
+        growGoals="false" extenderLabel="BERO">
+        <Evaluator label="BoundedRRTQuery"/>
+      </DynamicRegionRRT>
+
       <BasicRRTStrategy label="BasicRRT"
         numRoots="1" m="1" growthFocus="0.01" dmLabel="euclidean"
-        nfLabel="Nearest" vcLabel="cd1" connectorLabel="Closest"
+        nfLabel="Nearest" vcLabel="cd4" connectorLabel="Closest"
         gtype="UNDIRECTED_TREE" debug="false"
         growGoals="true" extenderLabel="BERO">
         <Evaluator label="RRTQuery"/>
@@ -148,6 +156,8 @@
       <SparkRegion label="SparkRegion" lpLabel="RegionSL"
         sLabel="RegionUniformSampler" vcLabel="RegionValidity"
         cLabel="RegionBFNFConnector"/>
+
+
     </MPStrategies>
 
     <Solver mpStrategyLabel="RegionStrategy" seed="12345678"  baseFilename="s"
