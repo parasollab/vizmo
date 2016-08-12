@@ -101,7 +101,7 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
 
     //Set temporary cfg for editing
     m_tempNode = new CfgModel(*_originalNode);
-    m_tempObjs.AddCfg(m_tempNode);
+    m_tempObjs.AddModel(m_tempNode);
 
     //Set temporary edges
     if(GetVizmo().GetMap()) {
@@ -112,7 +112,7 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
         EdgeModel* tempEdge = new EdgeModel((*eit).property());
         CfgModel* targetCfg = &(graph->find_vertex((*eit).target())->property());
         tempEdge->Set(m_tempNode, targetCfg);
-        m_tempObjs.AddEdge(tempEdge);
+        m_tempObjs.AddModel(tempEdge);
       }
     }
   }
@@ -137,9 +137,9 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
           end = &(*(iit + 1));
         startEdge->Set(start, m_tempNode);
         endEdge->Set(m_tempNode, end);
-        m_tempObjs.AddCfg(m_tempNode);
-        m_tempObjs.AddEdge(startEdge);
-        m_tempObjs.AddEdge(endEdge);
+        m_tempObjs.AddModel(m_tempNode);
+        m_tempObjs.AddModel(startEdge);
+        m_tempObjs.AddModel(endEdge);
       }
     }
   }
@@ -160,7 +160,7 @@ NodeEditDialog(MainWindow* _mainWindow, string _title)
     m_nodesToConnect(), m_nodesToDelete(), m_tempObjs() {
   //Set temporary cfg for editing
   m_tempNode = new CfgModel();
-  m_tempObjs.AddCfg(m_tempNode);
+  m_tempObjs.AddModel(m_tempNode);
 
   //Set up dialog widget
   Init();
@@ -178,7 +178,7 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _tempNode,
     m_tempNode(_tempNode), m_originalNode(NULL),
     m_nodesToConnect(_toConnect), m_nodesToDelete(_toDelete), m_tempObjs() {
   //Set temporary cfg for editing
-  m_tempObjs.AddCfg(m_tempNode);
+  m_tempObjs.AddModel(m_tempNode);
 
   //Set temporary edges
   Graph* graph = GetVizmo().GetMap()->GetGraph();
@@ -187,7 +187,7 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _tempNode,
     EdgeModel* tempEdge = new EdgeModel();
     CfgModel* targetCfg = &(graph->find_vertex(*vit)->property());
     tempEdge->Set(m_tempNode, targetCfg);
-    m_tempObjs.AddEdge(tempEdge);
+    m_tempObjs.AddModel(tempEdge);
   }
 
   //Set up dialog Widget
@@ -303,59 +303,39 @@ UpdateDOF(int _id) {
 void
 NodeEditDialog::
 ValidityCheck() {
-  bool valid = GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->
-    InCSpace(m_tempNode->GetData());
-  if(valid) {
+  // Check temp node.
+  if(GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->
+      InCSpace(m_tempNode->GetData())) {
     m_tempNode->SetValidity(true);
     GetVizmo().CollisionCheck(*m_tempNode);
   }
 
-  if(m_tempObjs.GetEdges().size() > 0) {
-    typedef vector<EdgeModel*>::iterator EIT;
-    typedef vector<CfgModel>::iterator IIT;
+  // Check edges.
+  for(auto m : m_tempObjs) {
+    // Skip non-edge models.
+    if(m->Name().substr(0, 4) != "Edge")
+      continue;
+    auto edge = static_cast<EdgeModel*>(m);
+    edge->SetValidity(true);
+    edge->SetWeight(0);
 
-    for(EIT eit = m_tempObjs.GetEdges().begin();
-        eit != m_tempObjs.GetEdges().end(); eit++) {
-      //If no intermediates, just check start and end
-      double weight = 0.0;
-      vector<CfgModel>& intermediates = (*eit)->GetIntermediates();
+    // Define function for validating an edge.
+    auto validate = [&edge](CfgModel& _c1, CfgModel& _c2) {
+      pair<bool, double> visibility = GetVizmo().VisibilityCheck(_c1, _c2);
+      edge->SetValidity(edge->IsValid() && visibility.first);
+      edge->SetWeight(edge->GetWeight() + visibility.second);
+    };
 
-      if(intermediates.empty()) {
-        pair<bool, double> visibility = GetVizmo().VisibilityCheck(
-            *(*eit)->GetStartCfg(), *(*eit)->GetEndCfg());
-        (*eit)->SetValidity(visibility.first);
-        weight = visibility.second;
-      }
-
-      else {
-        //Check boundary intermediates
-        pair<bool, double> startVis = GetVizmo().VisibilityCheck(
-            *(*eit)->GetStartCfg(), intermediates[0]);
-        (*eit)->SetValidity(startVis.first);
-        if(!startVis.first)
-          break;
-        weight += startVis.second;
-
-        pair<bool, double> endVis = GetVizmo().VisibilityCheck(
-            intermediates[intermediates.size() - 1], *(*eit)->GetEndCfg());
-        (*eit)->SetValidity(endVis.first);
-        if(!endVis.first)
-          break;
-        weight += endVis.second;
-
-        //Check intermediates in between
-        for(IIT it = intermediates.begin(), it2 = it + 1;
-            it2 != intermediates.end(); it++, it2++) {
-          pair<bool, double> betweenVis = GetVizmo().VisibilityCheck(*it, *it2);
-          (*eit)->SetValidity(betweenVis.first);
-          if(!betweenVis.first)
-            break;
-          weight += betweenVis.second;
-        }
-      }
-
-      (*eit)->SetWeight(weight);
-    } //end for all current edges
+    // Validate intermediate edges.
+    vector<CfgModel>& intermediates = edge->GetIntermediates();
+    if(intermediates.empty())
+      validate(*edge->GetStartCfg(), *edge->GetEndCfg());
+    else {
+      validate(*edge->GetStartCfg(), intermediates.front());
+      for(auto i = intermediates.begin() + 1; i != intermediates.end(); ++i)
+        validate(*(i - 1), *i);
+      validate(intermediates.back(), *edge->GetEndCfg());
+    }
   }
 }
 
@@ -374,11 +354,15 @@ FinalizeNodeEdit(int _accepted) {
       //delete edges that are no longer valid
       if(map) {
         Graph* graph = map->GetGraph();
-        for(vector<EdgeModel*>::iterator eit = m_tempObjs.GetEdges().begin();
-            eit != m_tempObjs.GetEdges().end(); ++eit) {
-          if((*eit)->IsValid() == false) {
-            VID start = map->Cfg2VID(*((*eit)->GetStartCfg()));
-            VID end = map->Cfg2VID(*((*eit)->GetEndCfg()));
+        for(auto& m : m_tempObjs) {
+          // Skip non-edges.
+          if(m->Name().substr(0, 4) != "Edge")
+            continue;
+          auto edge = static_cast<EdgeModel*>(m);
+
+          if(!edge->IsValid()) {
+            VID start = map->Cfg2VID(*(edge->GetStartCfg()));
+            VID end = map->Cfg2VID(*(edge->GetEndCfg()));
             graph->delete_edge(start, end);
             graph->delete_edge(end, start);
           }
@@ -434,17 +418,21 @@ FinalizeNodeMerge(int _accepted) {
       Map::VID superID = graph->add_vertex(super);
 
       //Add the valid new edges
-      for(vector<EdgeModel*>::iterator vit = m_tempObjs.GetEdges().begin();
-          vit != m_tempObjs.GetEdges().end(); vit++) {
-        if((*vit)->IsValid()) {
-          graph->add_edge(superID, map->Cfg2VID(*((*vit)->GetEndCfg())));
-          graph->add_edge(map->Cfg2VID(*((*vit)->GetEndCfg())), superID);
+      for(auto m : m_tempObjs) {
+        // Skip non-edges.
+        if(m->Name().substr(0, 4) != "Edge")
+          continue;
+        auto edge = static_cast<EdgeModel*>(m);
+
+        if(edge->IsValid()) {
+          graph->add_edge(superID, map->Cfg2VID(*edge->GetEndCfg()));
+          graph->add_edge(map->Cfg2VID(*edge->GetEndCfg()), superID);
         }
       }
+
       //Remove selected vertices
-      for(vector<VID>::iterator it = m_nodesToDelete.begin();
-          it != m_nodesToDelete.end(); it++)
-        graph->delete_vertex(*it);
+      for(const auto vid : m_nodesToDelete)
+        graph->delete_vertex(vid);
 
       map->RefreshMap();
     }

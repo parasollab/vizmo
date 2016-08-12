@@ -40,7 +40,7 @@ EdgeEditDialog(MainWindow* _mainWindow, EdgeModel* _originalEdge)
   //make a working copy of the edge to be modified
   m_tempEdge = new EdgeModel(*_originalEdge);
   m_tempEdge->Set(m_originalEdge->GetStartCfg(), m_originalEdge->GetEndCfg());
-  m_tempObjs.AddEdge(m_tempEdge);
+  m_tempObjs.AddModel(m_tempEdge);
 
   setWindowTitle("Modify Edge");
   setFixedSize(200, 350);

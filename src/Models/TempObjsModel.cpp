@@ -4,8 +4,10 @@
 #include "TempObjsModel.h"
 #include "Vizmo.h"
 
+/*---------------------------- Construction ----------------------------------*/
+
 TempObjsModel::
-TempObjsModel() : Model("TempObjs"), m_tempCfgs(), m_tempEdges() {
+TempObjsModel() : Model("TempObjs") {
   //Add self to env's temp objs list for display purposes.
   GetVizmo().GetEnv()->AddTempObjs(this);
 }
@@ -13,63 +15,58 @@ TempObjsModel() : Model("TempObjs"), m_tempCfgs(), m_tempEdges() {
 
 TempObjsModel::
 ~TempObjsModel() {
+  // Acquire mutex for remainder of object life.
+  m_lock.lock();
+
   // Remove self from env's temp obj list.
   GetVizmo().GetEnv()->RemoveTempObjs(this);
 
-  // Delete temporary cfgs.
-  for(auto cfg : m_tempCfgs)
-    delete cfg;
-  m_tempCfgs.clear();
-
-  // Delete temporary edges.
-  for(auto edge : m_tempEdges)
-    delete edge;
-  m_tempEdges.clear();
-
   // Delete temporary models.
-  for(auto model : m_tempModels)
+  for(auto model : m_models)
     delete model;
-  m_tempModels.clear();
+  m_models.clear();
 }
 
+/*------------------------------ Interface -----------------------------------*/
+
+void
+TempObjsModel::
+AddModel(Model* _m, const Color4& _col) {
+  m_lock.lock();
+  _m->SetColor(_col);
+  _m->SetRenderMode(WIRE_MODE);
+  m_models.push_back(_m);
+  m_lock.unlock();
+}
+
+
+void
+TempObjsModel::
+RemoveModel(Model* _m) {
+  m_lock.lock();
+  auto m = find(m_models.begin(), m_models.end(), _m);
+  if(m == m_models.end())
+    throw RunTimeException(WHERE, "Removal of temporary model with name '" +
+        _m->Name() + "requested, but the model wasn't found.");
+  m_models.erase(m);
+  delete _m;
+  m_lock.unlock();
+}
+
+/*---------------------------- Model Functions -------------------------------*/
 
 void
 TempObjsModel::
 DrawRender() {
-  if(m_renderMode == INVISIBLE_MODE)
+  // Don't draw if mutex is already locked or render mode is invisible.
+  if(!m_lock.try_lock() || m_renderMode == INVISIBLE_MODE)
     return;
 
   glLineWidth(2);
-  for(auto cfg : m_tempCfgs) {
-    cfg->SetColor(Color4(0., 1., 0., 1.));
-    cfg->SetRenderMode(WIRE_MODE);
-    cfg->DrawRender();
-  }
-  for(auto edge : m_tempEdges) {
-    edge->SetColor(Color4(0., 1., 0., 1.));
-    edge->SetRenderMode(WIRE_MODE);
-    edge->DrawRender();
-  }
-  for(auto model : m_tempModels)
+  for(auto model : m_models)
     model->DrawRender();
+
+  m_lock.unlock();
 }
 
-
-void
-TempObjsModel::
-DrawSelect() {
-  if(m_renderMode == INVISIBLE_MODE)
-    return;
-
-  for(auto cfg : m_tempCfgs)
-    cfg->DrawSelect();
-  for(auto edge : m_tempEdges)
-    edge->DrawSelect();
-}
-
-
-void
-TempObjsModel::
-Print(ostream& _os) const {
-  _os << Name() << endl;
-}
+/*----------------------------------------------------------------------------*/

@@ -10,12 +10,12 @@ double EdgeModel::m_numIntermediates = .3;
 
 EdgeModel::
 EdgeModel(string _lpLabel, double _weight,
-    const vector<CfgModel>& _intermediates) : Model(""),
+    const vector<CfgModel>& _intermediates) : Model("Edge"),
     EdgeType(_lpLabel, _weight, _intermediates),
     m_id(-1), m_isValid(true) { }
 
 EdgeModel::
-EdgeModel(const DefaultWeight<CfgModel>& _e) : Model(""),
+EdgeModel(const DefaultWeight<CfgModel>& _e) : Model("Edge"),
     EdgeType(_e), m_id(-1), m_isValid(true) { }
 
 void

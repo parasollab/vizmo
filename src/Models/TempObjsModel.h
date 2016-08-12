@@ -1,56 +1,76 @@
 #ifndef TEMP_OBJS_MODEL_H
 #define TEMP_OBJS_MODEL_H
 
+#include <mutex>
+
 #include "Model.h"
 
 class CfgModel;
 class EdgeModel;
 
-
 ////////////////////////////////////////////////////////////////////////////////
-/// This class provides a container for temporary CfgModels and EdgeModels.
-/// These temporary objects should be created dynamically and then added to
-/// this container with AddCfg/Edge. TempObjsModel will then handle their
-/// drawing (via the EnvironmentModel) and eventual deletion. Valid temporary
-/// objects are displayed green, while invalid objects are colored magenta.
+/// This class provides a container for rendering temporary Models. Populate it
+/// by dynamically creating a model and adding it with AddModel. All added
+/// models become owned by this container and will be de-allocated when it is
+/// deleted.
 ////////////////////////////////////////////////////////////////////////////////
 class TempObjsModel : public Model {
 
   public:
 
+    ///\name Construction
+    ///@{
+
     TempObjsModel();
     ~TempObjsModel();
 
-    //Temp object access
-    vector<CfgModel*>& GetCfgs() {return m_tempCfgs;}
-    vector<EdgeModel*>& GetEdges() {return m_tempEdges;}
-    vector<Model*>& GetOthers() {return m_tempModels;}
+    ///@}
+    ///\name Interface
+    ///@{
 
-    //Add new temporary cfgs/edges. These will be deleted on destruction of the
-    //TempObjsModel.
-    void AddCfg(CfgModel* _c) {m_tempCfgs.push_back(_c);}
-    void AddEdge(EdgeModel* _e) {m_tempEdges.push_back(_e);}
-    void AddOther(Model* _m) {m_tempModels.push_back(_m);}
-    void RemoveOther(Model* _m) {
-      m_tempModels.erase(find(m_tempModels.begin(), m_tempModels.end(), _m));
-      delete _m;
-      _m = nullptr;
-    }
+    vector<Model*>::iterator begin() {return m_models.begin();}
+    vector<Model*>::iterator end() {return m_models.end();}
+    vector<Model*>::const_iterator begin() const {return m_models.begin();}
+    vector<Model*>::const_iterator end() const {return m_models.end();}
 
-    //Standard Model functions
-    void Build() {}
-    void Select(GLuint* _index, vector<Model*>& _sel) {}
-    void DrawRender();
-    void DrawSelect();
-    void DrawSelected() {}
-    void Print(ostream& _os) const;
+    ////////////////////////////////////////////////////////////////////////////
+    /// Get a copy of the temporary model list.
+    vector<Model*> GetModels() {return m_models;}
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Add a temporary model.
+    /// \param[in] _m The model to add.
+    /// \param[in] _col The model display color.
+    void AddModel(Model* _m, const Color4& _col = Color4(0., 1., 0., 0.));
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// Remove a temporary model.
+    /// \param[in] _m The model to remove.
+    void RemoveModel(Model* _m);
+
+    ///@}
+    ///\name Model Overrides
+    ///@{
+
+    virtual void Build() override {}
+    virtual void Select(GLuint* _index, vector<Model*>& _sel) override {}
+    virtual void DrawRender() override;
+    virtual void DrawSelect() override {}
+    virtual void DrawSelected() override {}
+    virtual void Print(ostream& _os) const override {_os << Name() << endl;}
+
+    ///@}
 
   private:
 
-    vector<CfgModel*> m_tempCfgs;
-    vector<EdgeModel*> m_tempEdges;
-    vector<Model*> m_tempModels;
+    ///@}
+    ///\name Internal State
+    ///@{
 
+    vector<Model*> m_models; ///< Owned models.
+    mutable mutex m_lock;    ///< Lock for thread-safety.
+
+    ///@}
 };
 
 #endif

@@ -38,7 +38,7 @@ class CfgModel : public Model, public CfgType {
     };
 
     // Construction
-    CfgModel();
+    explicit CfgModel(size_t _index = 0);
     CfgModel(const CfgType& _c);
     CfgModel(const CfgModel& _c);
 
@@ -114,7 +114,7 @@ class CfgModel : public Model, public CfgType {
 
   protected:
 
-    bool m_isValid; ///< Indicates whether last collision check was valid.
+    bool m_isValid{true}; ///< Was the last collision check valid?
 
   private:
 
@@ -123,9 +123,9 @@ class CfgModel : public Model, public CfgType {
     static float m_pointScale;       ///< The size for point mode display.
 
     // Local data
-    bool m_isQuery; ///< Indicates whether this configuration is part of a query.
-    size_t m_index; ///< Indicates this configuration's VID in the graph.
-    CCModel<CfgModel, EdgeModel>* m_cc; ///< Points to this configuration's CC.
+    bool m_isQuery{false};        ///< Is this configuration is part of a query?
+    size_t m_index{(size_t)-1};   ///< This configuration's VID in the roadmap.
+    CCModel<CfgModel, EdgeModel>* m_cc{nullptr}; ///< This configuration's CC.
 
     shared_ptr<mutex> m_mutex;
 };
