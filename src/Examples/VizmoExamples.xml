@@ -10,7 +10,7 @@
     </DistanceMetrics>
 
     <ValidityCheckers>
-      <CollisionDetection label="cd4" method="RAPID"/>
+      <CollisionDetection label="cd1" method="RAPID"/>
       <CollisionDetection label="cd2" method="PQP"/>
       <CollisionDetection label="cd3" method="VCLIP"/>
       <CollisionDetection label="cd4" method="PQP_SOLID"/>
