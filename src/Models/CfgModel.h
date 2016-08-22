@@ -51,9 +51,6 @@ class CfgModel : public Model, public CfgType {
     /// \brief Get the data for this configuration.
     vector<double> GetDataCfg() {return m_v;}
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Get the center of the robot's base.
-    Point3d GetPoint() const;
-    ////////////////////////////////////////////////////////////////////////////
     /// \brief Label this cfg as valid or invalid.
     void SetValidity(bool _validity) {m_isValid = _validity;}
     ////////////////////////////////////////////////////////////////////////////
