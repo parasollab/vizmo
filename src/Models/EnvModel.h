@@ -20,8 +20,8 @@ class ReebGraphModel;
 class StaticMultiBodyModel;
 class SurfaceMultiBodyModel;
 class TempObjsModel;
-class TetGenDecomposition;
-class TetGenDecompositionModel;
+class WorkspaceDecomposition;
+class WorkspaceDecompositionModel;
 class UserPathModel;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ class EnvModel : public Model {
       AvoidRegions,
       NonCommitRegions,
       UserPaths,
-      TetGen,
+      Decomposition,
       ReebGraph
     };
 
@@ -188,8 +188,8 @@ class EnvModel : public Model {
 
     // Decomposition
     ////////////////////////////////////////////////////////////////////////////
-    /// @brief Add TetGen Decomposition Model to environment
-    void AddTetGenDecompositionModel(TetGenDecomposition* _tetgen);
+    /// @brief Add workspace decomposition model to environment
+    void AddWorkspaceDecompositionModel(const WorkspaceDecomposition* _wd);
     ////////////////////////////////////////////////////////////////////////////
     /// @brief Add Reeb Graph Model to environment
     void AddReebGraphModel(ReebGraphConstruction* _reebGraph);
@@ -215,25 +215,25 @@ class EnvModel : public Model {
     vector<shared_ptr<StaticMultiBodyModel>> m_obstacles; ///< All obstacles.
     vector<shared_ptr<SurfaceMultiBodyModel>> m_surfaces; ///< All surfaces.
 
-    double m_radius;        ///< Stores an approximate environment radius.
+    double m_radius{0};     ///< Stores an approximate environment radius.
     Point3d m_centerOfMass; ///< Stores the COM for all loaded multibodies.
 
     shared_ptr<BoundaryModel> m_boundary;    ///< Stores the environment boundary model.
 
-    AvatarModel* m_avatar;                     ///< Stores the user avatar.
+    AvatarModel* m_avatar{nullptr};            ///< The user avatar.
 
-    vector<RegionModelPtr> m_attractRegions;   ///< Stores attract regions.
-    vector<RegionModelPtr> m_avoidRegions;     ///< Stores avoid regions.
-    vector<RegionModelPtr> m_nonCommitRegions; ///< Stores non-commit regions.
+    vector<RegionModelPtr> m_attractRegions;   ///< Attract regions.
+    vector<RegionModelPtr> m_avoidRegions;     ///< Avoid regions.
+    vector<RegionModelPtr> m_nonCommitRegions; ///< Non-commit regions.
     mutable QMutex m_regionLock;               ///< Region Lock
 
-    vector<UserPathModel*> m_userPaths; ///< Stores user paths.
-    vector<TempObjsModel*> m_tempObjs;  ///< Stores temporary objects.
+    vector<UserPathModel*> m_userPaths;        ///< User paths.
+    vector<TempObjsModel*> m_tempObjs;         ///< Temporary objects.
 
-    TetGenDecompositionModel* m_tetgenModel; ///< TetGen Model
-    ReebGraphModel* m_reebGraphModel;        ///< Reeb Graph Model
+    WorkspaceDecompositionModel* m_decompositionModel{nullptr}; ///< Decomp Model.
+    ReebGraphModel* m_reebGraphModel{nullptr};        ///< Reeb Graph Model.
 
-    Environment* m_environment; ///< The PMPL environment.
+    Environment* m_environment{nullptr}; ///< The PMPL environment.
 };
 
 #endif

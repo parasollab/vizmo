@@ -24,7 +24,7 @@ OBJECTS += \
 	   Models/StaticMultiBodyModel.o \
 	   Models/SurfaceMultiBodyModel.o \
 	   Models/TempObjsModel.o \
-	   Models/TetGenDecompositionModel.o \
+	   Models/WorkspaceDecompositionModel.o \
 	   Models/ThreadSafeSphereModel.o \
 	   Models/UserPathModel.o \
 	   Models/Vizmo.o

@@ -26,50 +26,50 @@
 #include "StaticMultiBodyModel.h"
 #include "SurfaceMultiBodyModel.h"
 #include "TempObjsModel.h"
-#include "TetGenDecompositionModel.h"
+#include "WorkspaceDecompositionModel.h"
 #include "UserPathModel.h"
 #include "Utilities/VizmoExceptions.h"
 
-EnvModel::
-EnvModel(const string& _filename) : Model("Environment"),
-  m_radius(0), m_boundary(nullptr),
-  m_tetgenModel(nullptr), m_reebGraphModel(nullptr) {
-
-    m_environment = new Environment();
-    m_environment->Read(_filename);
-
-    Build();
-
-    //create avatar
-    m_avatar = new AvatarModel(AvatarModel::None);
-  }
+/*------------------------------- Construction -------------------------------*/
 
 EnvModel::
-EnvModel(Environment* _env) : Model("Environment"),
-  m_radius(0), m_boundary(nullptr),
-  m_tetgenModel(nullptr), m_reebGraphModel(nullptr),
-  m_environment(_env) {
+EnvModel(const string& _filename) : Model("Environment") {
+  m_environment = new Environment();
+  m_environment->Read(_filename);
 
-    Build();
+  Build();
 
-    //create avatar
-    m_avatar = new AvatarModel(AvatarModel::None);
-  }
+  //create avatar
+  m_avatar = new AvatarModel(AvatarModel::None);
+}
+
+
+EnvModel::
+EnvModel(Environment* _env) : Model("Environment"), m_environment(_env) {
+  Build();
+
+  //create avatar
+  m_avatar = new AvatarModel(AvatarModel::None);
+}
+
 
 EnvModel::
 ~EnvModel() {
   delete m_avatar;
   for(auto& p : m_userPaths)
     delete p;
-  delete m_tetgenModel;
+  delete m_decompositionModel;
   delete m_reebGraphModel;
 }
+
+/*----------------------------------------------------------------------------*/
 
 const Point3d&
 EnvModel::
 GetCenter() const {
   return m_boundary->GetCenter();
 }
+
 
 bool
 EnvModel::
@@ -79,6 +79,7 @@ IsPlanar() const {
       return false;
   return true;
 }
+
 
 void
 EnvModel::
@@ -97,11 +98,13 @@ PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
   }
 }
 
+
 void
 EnvModel::
 ConfigureRender(const CfgModel& _c) {
   m_robots[_c.GetRobotIndex()]->ConfigureRender(_c.GetData());
 }
+
 
 shared_ptr<StaticMultiBodyModel>
 EnvModel::
@@ -125,6 +128,7 @@ AddObstacle(const string& _dir, const string& _filename,
   return m_obstacles.back();
 }
 
+
 void
 EnvModel::
 DeleteObstacle(StaticMultiBodyModel* _m) {
@@ -137,6 +141,7 @@ DeleteObstacle(StaticMultiBodyModel* _m) {
   }
 }
 
+
 void
 EnvModel::
 SetBoundary(shared_ptr<BoundaryModel> _b) {
@@ -144,12 +149,14 @@ SetBoundary(shared_ptr<BoundaryModel> _b) {
   m_environment->SetBoundary(m_boundary->GetBoundary());
 }
 
+
 bool
 EnvModel::
 IsNonCommitRegion(RegionModelPtr _r) const {
   return find(m_nonCommitRegions.begin(), m_nonCommitRegions.end(), _r)
     != m_nonCommitRegions.end();
 }
+
 
 void
 EnvModel::
@@ -163,6 +170,7 @@ AddAttractRegion(RegionModelPtr _r, bool _lock) {
   delete lock;
 }
 
+
 void
 EnvModel::
 AddAvoidRegion(RegionModelPtr _r, bool _lock) {
@@ -175,6 +183,7 @@ AddAvoidRegion(RegionModelPtr _r, bool _lock) {
   delete lock;
 }
 
+
 void
 EnvModel::
 AddNonCommitRegion(RegionModelPtr _r) {
@@ -182,6 +191,7 @@ AddNonCommitRegion(RegionModelPtr _r) {
   _r->SetColor(Color4(0, 0, 1, 0.8));
   m_nonCommitRegions.push_back(_r);
 }
+
 
 void
 EnvModel::
@@ -197,6 +207,7 @@ ChangeRegionType(RegionModelPtr _r, bool _attract) {
       AddAvoidRegion(_r, false);
   }
 }
+
 
 void
 EnvModel::
@@ -223,6 +234,7 @@ DeleteRegion(RegionModelPtr _r) {
   }
 }
 
+
 EnvModel::RegionModelPtr
 EnvModel::
 GetRegion(Model* _model) {
@@ -243,6 +255,7 @@ GetRegion(Model* _model) {
   return RegionModelPtr();
 }
 
+
 void
 EnvModel::
 SaveRegions(const string& _filename) {
@@ -257,6 +270,7 @@ SaveRegions(const string& _filename) {
   for(auto& r : m_avoidRegions)
     r->OutputDebugInfo(ofs);
 }
+
 
 void
 EnvModel::
@@ -347,6 +361,7 @@ LoadRegions(const string& _filename) {
   }
 }
 
+
 void
 EnvModel::
 DeleteUserPath(UserPathModel* _p) {
@@ -357,6 +372,7 @@ DeleteUserPath(UserPathModel* _p) {
     m_userPaths.erase(pit);
   }
 }
+
 
 void
 EnvModel::
@@ -369,6 +385,7 @@ SaveUserPaths(const string& _filename) {
   for(const auto& path : m_userPaths)
     ofs << *path << endl ;
 }
+
 
 void
 EnvModel::
@@ -390,6 +407,7 @@ LoadUserPaths(const string& _filename) {
   GetVizmo().GetEnv()->GetAvatar()->Disable();
 }
 
+
 void
 EnvModel::
 RemoveTempObjs(TempObjsModel* _t) {
@@ -403,17 +421,22 @@ RemoveTempObjs(TempObjsModel* _t) {
   }
 }
 
+
 void
 EnvModel::
-AddTetGenDecompositionModel(TetGenDecomposition* _tetgen) {
-  m_tetgenModel = new TetGenDecompositionModel(_tetgen);
+AddWorkspaceDecompositionModel(const WorkspaceDecomposition* _wd) {
+  delete m_decompositionModel;
+  m_decompositionModel = new WorkspaceDecompositionModel(_wd);
 }
+
 
 void
 EnvModel::
 AddReebGraphModel(ReebGraphConstruction* _reebGraph) {
+  delete m_reebGraphModel;
   m_reebGraphModel = new ReebGraphModel(_reebGraph);
 }
+
 
 void
 EnvModel::
@@ -526,8 +549,8 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     case EnvObjectName::UserPaths:
       m_userPaths[*(_index + 1)]->Select(_index + 2, _sel);
       break;
-    case EnvObjectName::TetGen:
-      m_tetgenModel->Select(_index + 1, _sel);
+    case EnvObjectName::Decomposition:
+      m_decompositionModel->Select(_index + 1, _sel);
       break;
     case EnvObjectName::ReebGraph:
       m_reebGraphModel->Select(_index + 1, _sel);
@@ -576,8 +599,8 @@ DrawRender() {
   for(auto& t : m_tempObjs)
     t->DrawRender();
 
-  if(m_tetgenModel)
-    m_tetgenModel->DrawRender();
+  if(m_decompositionModel)
+    m_decompositionModel->DrawRender();
   if(m_reebGraphModel)
     m_reebGraphModel->DrawRender();
 }
@@ -663,9 +686,9 @@ DrawSelect() {
   glDisable(GL_BLEND);
   glDisable(GL_CULL_FACE);
 
-  glPushName(EnvObjectName::TetGen);
-  if(m_tetgenModel)
-    m_tetgenModel->DrawSelect();
+  glPushName(EnvObjectName::Decomposition);
+  if(m_decompositionModel)
+    m_decompositionModel->DrawSelect();
   glPopName();
 
   glPushName(EnvObjectName::ReebGraph);
@@ -714,8 +737,8 @@ SetSelectable(bool _s) {
     o->SetSelectable(_s);
   for(const auto& s : m_surfaces)
     s->SetSelectable(_s);
-  if(m_tetgenModel)
-    m_tetgenModel->SetSelectable(_s);
+  if(m_decompositionModel)
+    m_decompositionModel->SetSelectable(_s);
   if(m_reebGraphModel)
     m_reebGraphModel->SetSelectable(_s);
   m_boundary->SetSelectable(_s);
@@ -744,11 +767,12 @@ GetChildren(list<Model*>& _models) {
   for(const auto& p : m_userPaths)
     _models.push_back(p);
   _models.push_back(m_boundary.get());
-  if(m_tetgenModel)
-    _models.push_back(m_tetgenModel);
+  if(m_decompositionModel)
+    _models.push_back(m_decompositionModel);
   if(m_reebGraphModel)
     _models.push_back(m_reebGraphModel);
 }
+
 
 void
 EnvModel::
@@ -756,4 +780,3 @@ SaveFile(const string& _filename) const {
   ofstream ofs(_filename);
   m_environment->Write(ofs);
 }
-
