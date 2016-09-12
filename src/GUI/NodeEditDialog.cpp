@@ -216,6 +216,9 @@ Init() {
   QGroupBox* scrollAreaBox = new QGroupBox(this);
   scrollAreaBox->setLayout(scrollAreaBoxLayout);
 
+  QPushButton* exportButton = new QPushButton("E&xport", this);
+  connect(exportButton, SIGNAL(clicked()), this, SLOT(DumpRobotInfo()));
+
   QDialogButtonBox* okayCancel = new QDialogButtonBox(this);
   okayCancel->setOrientation(Qt::Horizontal);
   okayCancel->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
@@ -225,6 +228,7 @@ Init() {
   QVBoxLayout* overallLayout = new QVBoxLayout();
   overallLayout->addWidget(nodeLabel);
   overallLayout->addWidget(scrollArea);
+  overallLayout->addWidget(exportButton);
   overallLayout->addWidget(okayCancel);
 
   SetUpSliders(m_sliders);
@@ -440,4 +444,19 @@ FinalizeNodeMerge(int _accepted) {
       QMessageBox::about(this, "", "Invalid merge!");
   }
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+}
+
+
+void
+NodeEditDialog::
+DumpRobotInfo() {
+  auto robot = m_tempNode->GetRobot();
+  cout << "Robot info (as in env file):\n\n";
+  robot->Write(std::cout);
+
+  cout << "\nBody transforms:";
+  for(size_t i = 0; i < robot->NumFreeBody(); ++i)
+    cout << "\n\tBody " << i << ": "
+         << robot->GetFreeBody(i)->GetWorldTransformation();
+  cout << endl;
 }

@@ -93,6 +93,8 @@ class NodeEditDialog : public QDialog {
     void FinalizeNodeAdd(int _accepted);  //For using dialog to add new nodes
     void FinalizeNodeMerge(int _accepted);  //For using dialog to merge nodes
 
+    void DumpRobotInfo(); ///< Dump robot info to standard out.
+
   private:
 
     void Init();
