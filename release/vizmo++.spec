@@ -65,6 +65,10 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Fri Sep 16 2016 Read Sandstrom <readamus@cse.tamu.edu> 9-16sep2016
+- Version 0.3.5 - Vizmo now always loads an XML file to setup its pmpl object.
+  Added 'export' button to the node edit dialog to dump all robot info regarding
+  the edited configuration to stdout. Some minor bug fixes.
 * Tue Jun 7 2016 Read Sandstrom <readamus@cse.tamu.edu> 6-7jun2016
 - Version 0.3.4 - Adding support workspace decomposition methods and auto-user
   RRT.
