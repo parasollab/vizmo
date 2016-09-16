@@ -37,7 +37,7 @@ validate(QString& _s, int& _i) const {
 
 NodeEditSlider::
 NodeEditSlider(QWidget* _parent, string _label) : QWidget(_parent) {
-  setStyleSheet("QLabel { font:8pt } QLineEdit { font:8pt }");
+  setStyleSheet("QLabel { font:11pt } QLineEdit { font:11pt }");
   setMaximumHeight(60);
 
   QGridLayout* layout = new QGridLayout();
@@ -202,8 +202,7 @@ void
 NodeEditDialog::
 Init() {
   setWindowTitle("Modify Node");
-  setFixedWidth(200);
-  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
 
   QLabel* nodeLabel = new QLabel(this);
   QScrollArea* scrollArea = new QScrollArea(this);

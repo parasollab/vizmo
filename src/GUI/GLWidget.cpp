@@ -280,9 +280,12 @@ mouseReleaseEvent(QMouseEvent* _e) {
 void
 GLWidget::
 mouseMoveEvent(QMouseEvent* _e) {
+  // Ignore mouse movement when no environment is loaded.
+  if(!GetVizmo().GetEnv())
+    return;
+
   //handle avatar
-  if(GetVizmo().GetEnv())
-    GetVizmo().GetEnv()->GetAvatar()->PassiveMouseMotion(_e, GetCurrentCamera());
+  GetVizmo().GetEnv()->GetAvatar()->PassiveMouseMotion(_e, GetCurrentCamera());
 
   if(_e->buttons() == Qt::NoButton) {
     //handle all passive motion

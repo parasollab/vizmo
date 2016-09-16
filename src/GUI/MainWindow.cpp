@@ -11,54 +11,43 @@
 #include "ToolTabOptions.h"
 #include "ToolTabWidget.h"
 #include "Models/Vizmo.h"
+#include "Utilities/PMPLExceptions.h"
 
 #include "Icons/Vizmo.xpm"
 
-//Define singleton
+/*--------------------------- Singleton Definition ---------------------------*/
+
 MainWindow* window;
 MainWindow*& GetMainWindow() {return window;}
 
+/*------------------------------- Construction -------------------------------*/
+
 MainWindow::
-MainWindow(const vector<string>& _filenames, QWidget* _parent) :
-  QMainWindow(_parent), m_args(_filenames), m_vizmoInit(false) {
-    setMinimumSize(960, 700);
-    setWindowTitle("Vizmo++");
-    m_gl = NULL;
-    m_animationWidget = NULL;
-    m_setQS = false;
-    m_setQG = false;
-    m_command = "";
-    m_mainMenu = NULL;
-    m_textWidget = NULL;
-    m_modelSelectionWidget = NULL;
-    m_toolTabWidget = NULL;
-    m_dialogDock = NULL;
-    QTimer::singleShot(0, this, SLOT(InitVizmo()));
-  }
+MainWindow(const vector<string>& _filenames) : QMainWindow(nullptr),
+    m_args(_filenames) {
+  // Enforce singleton and set to this.
+  if(GetMainWindow())
+    throw RunTimeException(WHERE, "MainWindow error: there can only be one "
+        "MainWindow.");
+  GetMainWindow() = this;
 
-bool
-MainWindow::
-Init() {
-  this->setWindowIcon(QPixmap(vizmoIcon));
+  setMinimumSize(960, 700);
+  setWindowTitle("Vizmo++");
+  setWindowIcon(QPixmap(vizmoIcon));
 
-  //Create Model
-  if((m_gl = new GLWidget(this)) == NULL)
-    return false;
-
-  // Create Other GUI
   CreateGUI();
   SetUpLayout();
+  InitVizmo();
   statusBar()->showMessage("Ready");
-  return true;
 }
+
 
 bool
 MainWindow::
 InitVizmo() {
   if(m_vizmoInit)
     return true;
-
-  m_vizmoInit=true;
+  m_vizmoInit = true;
 
   if(m_args.empty())
     return true; //nothing to init...
@@ -87,6 +76,7 @@ InitVizmo() {
   return true;
 }
 
+
 void
 MainWindow::
 closeEvent(QCloseEvent* _event) {
@@ -96,9 +86,11 @@ closeEvent(QCloseEvent* _event) {
   QMainWindow::closeEvent(_event);
 }
 
+
 void
 MainWindow::
 CreateGUI() {
+  m_gl = new GLWidget(this);
   m_animationWidget = new AnimationWidget("Animation", this);
   m_modelSelectionWidget = new ModelSelectionWidget(m_gl, this);
   m_mainMenu = new MainMenu(this);  //also creates the toolbars
@@ -120,6 +112,7 @@ CreateGUI() {
   connect(m_gl, SIGNAL(selectByLMB()), m_textWidget, SLOT(SetText()));
   connect(this, SIGNAL(Alert(QString)), this, SLOT(ShowAlert(QString)));
 }
+
 
 void
 MainWindow::
@@ -165,8 +158,8 @@ SetUpLayout() {
 
   //The dialog dock. All dialogs built to width 200.
   QTabWidget* dialogTab = new QTabWidget(m_dialogDock);
-  dialogTab->setFixedWidth(205);
-  m_dialogDock->setFixedWidth(205);
+  dialogTab->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
+  m_dialogDock->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
   m_dialogDock->setWidget(dialogTab);
   m_dialogDock->setVisible(false);
   addDockWidget(Qt::RightDockWidgetArea, m_dialogDock);
@@ -175,15 +168,7 @@ SetUpLayout() {
   setCentralWidget(layoutWidget);
 }
 
-void
-MainWindow::
-keyPressEvent(QKeyEvent* _e) {
-  /// Currently, the only available command is \c esc, which terminates the
-  /// application.
-  switch(_e->key()){
-    case Qt::Key_Escape: qApp->quit();
-  }
-}
+/*--------------------------------- Dialogs ----------------------------------*/
 
 void
 MainWindow::
@@ -198,6 +183,7 @@ HideDialogDock() {
     m_dialogDock->hide();
 }
 
+
 void
 MainWindow::
 ShowDialog(QDialog* _dialog) {
@@ -210,6 +196,7 @@ ShowDialog(QDialog* _dialog) {
   _dialog->show();
 }
 
+
 void
 MainWindow::
 ResetDialogs() {
@@ -218,6 +205,8 @@ ResetDialogs() {
     tabs->currentWidget()->close();
   m_dialogDock->hide();
 }
+
+/*---------------------------------- Alerts ----------------------------------*/
 
 void
 MainWindow::
@@ -228,6 +217,7 @@ AlertUser(string _s) {
   emit Alert(QString(_s.c_str()));
 }
 
+
 void
 MainWindow::
 ShowAlert(QString _s) {
@@ -235,3 +225,5 @@ ShowAlert(QString _s) {
   m.setText(_s);
   m.exec();
 }
+
+/*----------------------------------------------------------------------------*/

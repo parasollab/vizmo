@@ -43,22 +43,19 @@ main(int _argc, char** _argv) {
 
   GetVizmo().SetSeed(seed);
 
-  //initialize gui, qapp, and main window
+  // Initialize glut.
   glutInit(&_argc, _argv);
 
+  // Initialize application object.
   QApplication::setColorSpec(QApplication::CustomColor);
   QApplication app(_argc, _argv);
   qRegisterMetaType<mathtool::Vector3d>("Vector3d");
 
-  MainWindow*& window = GetMainWindow();
-  window = new MainWindow(filename);
-  if(!window->Init()) {
-    cerr << "Error: vizmo++ could not intialize main window." << endl;
-    return 1;
-  }
+  // Initialize main window.
+  MainWindow window(filename);
 
-  //execute main window and application
-  window->show();
+  // Execute.
+  window.show();
   app.exec();
   return 0;
 }

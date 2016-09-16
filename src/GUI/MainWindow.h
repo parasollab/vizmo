@@ -41,41 +41,60 @@ class MainWindow : public QMainWindow {
 
   public:
 
-    MainWindow(const vector<string>& _filenames, QWidget* _parent = 0);
+    ///@name Construction
+    ///@{
 
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Create the GUI and OpenGL scene.
-    /// \return A \c bool indicating success or failure.
-    bool Init();
+    MainWindow(const vector<string>& _filenames);
 
-    vector<string>& GetArgs() { return m_args; }
-    void SetVizmoInit(bool _tf) { m_vizmoInit = _tf; }
-    bool GetVizmoInit() { return m_vizmoInit; }
-    GLWidget* GetGLWidget() { return m_gl; }
-    AnimationWidget* GetAnimationWidget() { return m_animationWidget; }
+    ///@}
+    ///@name Application State
+    ///@{
+
+    vector<string>& GetArgs() {return m_args;}
+    void SetVizmoInit(bool _i) {m_vizmoInit = _i;}
+    bool GetVizmoInit() {return m_vizmoInit;}
+
+    const QString& GetLastDir() const {return m_lastDir;}
+    void SetLastDir(const QString& _dir) {m_lastDir = _dir;}
+
+    ///@}
+    ///@name Public Subwidgets and Components
+    ///@{
+
+    MainMenu* m_mainMenu{nullptr};           ///< The top menu bar.
+    ToolTabWidget* m_toolTabWidget{nullptr}; ///< The tool tab widget.
+
+    GLWidget* GetGLWidget() {return m_gl;}
+    AnimationWidget* GetAnimationWidget() {return m_animationWidget;}
     ModelSelectionWidget* GetModelSelectionWidget() {
       return m_modelSelectionWidget;
     }
-    QDockWidget* GetDialogDock() { return m_dialogDock; }
+
     QTimer* GetMainClock() {return m_timer;}
-    const QString& GetLastDir() const {return m_lastDir;}
-    void SetLastDir(const QString& _dir) {m_lastDir = _dir;}
+
+    ///@}
+    ///@name Dialog Dock
+    ///@{
+
+    QDockWidget* GetDialogDock() {return m_dialogDock;}
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Display a dialog in the dialog dock.
     /// \param[in] _dialog The dialog to display.
     void ShowDialog(QDialog* _dialog);
+
     void ResetDialogs(); ///< Close all dialog tabs and hide the dialog dock.
+
+    ///@}
+    ///@name Alerts
+    ///@{
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Display a pop-up message.
     /// \param[in] _s The message to display.
     void AlertUser(string _s);
-    ////////////////////////////////////////////////////////////////////////////
-    /// \brief Handle unexpected close events.
-    /// \param[in] _event The close event to handle.
-    void closeEvent(QCloseEvent* _event);
 
-    MainMenu* m_mainMenu;   ///< The top menu bar. Manages options classes.
-    ToolTabWidget* m_toolTabWidget; ///< The tool tab widget. Owns tool tabs.
+    ///@}
 
   public slots:
 
@@ -94,6 +113,7 @@ class MainWindow : public QMainWindow {
     /// \brief Hides the dialog calling this signal, and also the dialog dock if
     /// no other dialogs are visible.
     void HideDialogDock();
+
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Displays a pop-up message.
     /// \param[in] _s The message to display.
@@ -101,29 +121,38 @@ class MainWindow : public QMainWindow {
 
   private:
 
+    ///@name Construction Helpers
+    ///@{
+
     void CreateGUI();   ///< Create the various GUI elements.
+
     void SetUpLayout(); ///< Create the GUI layout.
+
     ////////////////////////////////////////////////////////////////////////////
-    /// \brief Handle keyboard events.
-    /// \param[in] _e The keyboard event to handle.
-    void keyPressEvent(QKeyEvent* _e);
+    /// \brief Handle unexpected close events.
+    /// \param[in] _event The close event to handle.
+    virtual void closeEvent(QCloseEvent* _event) override;
 
-    string m_command;  ///< Terminal command to make a new roadmap.
-    bool m_setQS;  ///< Determines if values in window will need to be updated.
-    bool m_setQG;  ///< Determines if values in window will need to be updated.
-    string m_firstQryFile; ///< Holds the name of the first query file.
+    ///@}
+    ///@name Internal State
+    ///@{
 
-    vector<string> m_args; ///< User input arguments.
-    bool m_vizmoInit;      ///< True if Vizmo is initialized.
+    string m_command;        ///< Terminal command to make a new roadmap.
+    string m_firstQryFile;   ///< Holds the name of the first query file.
 
-    GLWidget* m_gl;                     ///< Displays the OpenGL scene.
-    AnimationWidget* m_animationWidget; ///< Provides controls playable files.
-    ModelSelectionWidget* m_modelSelectionWidget; ///< Displays model list.
-    QDockWidget* m_dialogDock; ///< Displays dialogs in a tabbed dock.
-    TextWidget* m_textWidget;  ///< Displays info on the current selection.
+    vector<string> m_args;   ///< User input arguments.
+    bool m_vizmoInit{false}; ///< True if Vizmo is initialized.
 
-    QTimer* m_timer;   ///< The main rendering clock.
-    QString m_lastDir; ///< The last directory used in a load/save operation.
+    GLWidget* m_gl{nullptr};            ///< Displays the OpenGL scene.
+    AnimationWidget* m_animationWidget{nullptr}; ///< Controls playable files.
+    ModelSelectionWidget* m_modelSelectionWidget{nullptr}; ///< Lists models.
+    QDockWidget* m_dialogDock{nullptr}; ///< Displays dialogs in a tabbed dock.
+    TextWidget* m_textWidget{nullptr};  ///< Displays info on current selection.
+
+    QTimer* m_timer{nullptr};   ///< The main rendering clock.
+    QString m_lastDir;     ///< The last directory used in a load/save operation.
+
+    ///@}
 };
 
 #endif

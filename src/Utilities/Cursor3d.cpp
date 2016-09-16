@@ -65,11 +65,14 @@ void
 Cursor3d::
 Reset() {
   m_enable = false;
-  m_radius = .02 * GetVizmo().GetEnv()->GetRadius();
+
+  // Reset cursor sphere radius if an environment is available.
+  if(GetVizmo().GetEnv())
+    m_radius = .02 * GetVizmo().GetEnv()->GetRadius();
 
   // Check that the space mouse is active.
   SpaceMouseManager* smm = GetVizmo().GetSpaceMouseManager();
-  if(smm->IsEnabled() && smm->IsEnabledCursor())
+  if(smm && smm->IsEnabled() && smm->IsEnabledCursor())
     smm->DisableCursor();
 }
 
