@@ -65,6 +65,9 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Tue Sep 20 2016 Read Sandstrom <readamus@cse.tamu.edu> 9-20sep2016
+- Version 0.3.6 - Last build was apparently bad due to package differences on
+  machines. Retrying.
 * Fri Sep 16 2016 Read Sandstrom <readamus@cse.tamu.edu> 9-16sep2016
 - Version 0.3.5 - Vizmo now always loads an XML file to setup its pmpl object.
   Added 'export' button to the node edit dialog to dump all robot info regarding
