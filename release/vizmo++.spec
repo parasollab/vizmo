@@ -20,8 +20,8 @@ Source: %{name}-%{version}-%{date}.tar.gz
 URL: http://parasol.tamu.edu/groups/amatogroup/research/vizmo++/
 Packager: Read Sandstrom <readamus@cse.tamu.edu>, Parasol Laboratory, Texas A&M University -- http://parasol.tamu.edu/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{date}-buildroot/
-Requires: qt4
-BuildRequires: qt4-devel
+Requires: qt >= 4.8, mesa-libGL, freeglut
+BuildRequires: qt-devel >= 4.8, mesa-libGL-devel, freeglut-devel
 %ifarch x86_64
 %define PLATFORM LINUX_gcc
 %else
@@ -49,9 +49,10 @@ make platform=%{PLATFORM} -j4
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/bin
-rm -f %{buildroot}/usr/bin/vizmo++
+mkdir -p %{buildroot}/usr/bin %{buildroot}/usr/share/vizmo
+#rm -f %{buildroot}/usr/bin/vizmo++
 install src/%{name} %{buildroot}/usr/bin
+install -m 644 src/Examples/VizmoExamples.xml %{buildroot}/usr/share/vizmo
 cd ..
 
 %clean
@@ -65,6 +66,11 @@ rm -rf %{buildroot}
 /usr/bin/%{name}
 
 %changelog
+* Tue Sep 20 2016 Read Sandstrom <readamus@cse.tamu.edu> 9-22sep2016
+- Version 0.3.7 - Previous two bad builds were due to my failure to include the default
+  XML file as part of the build. Corrected that, improved dependencies, and
+  adjusted build script to create RPM on the current machine as opposed to always using
+  zenigata.
 * Tue Sep 20 2016 Read Sandstrom <readamus@cse.tamu.edu> 9-20sep2016
 - Version 0.3.6 - Last build was apparently bad due to package differences on
   machines. Retrying.

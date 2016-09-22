@@ -255,9 +255,16 @@ FileListDialog::
 GetAssociatedFiles(const vector<string>& _filename) {
   // First get XML file and associated env and query.
   string envname, queryname, xmlname = GetVizmo().GetXMLFileName();
-  if(xmlname.empty())
-    xmlname = QCoreApplication::applicationDirPath().toStdString() +
-        "/Examples/VizmoExamples.xml";
+  if(xmlname.empty()) {
+    // If no XML file is specified, load the default.
+    const string path = QCoreApplication::applicationDirPath().toStdString();
+    if(path == "/usr/bin")
+      // This is a system-installed version.
+      xmlname = "/usr/share/vizmo/VizmoExamples.xml";
+    else
+      // This is a working copy.
+      xmlname = path + "/Examples/VizmoExamples.xml";
+  }
   ParseXML(xmlname, envname, queryname);
 
 

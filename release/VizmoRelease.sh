@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.3.6
+VERSION=0.3.7
 DATE=`date +"%Y.%m.%d"`
 BASENAME=vizmo++-$VERSION-$DATE
 TAR=$BASENAME.tar.gz
