@@ -7,11 +7,13 @@ GL_LIBS = -lglut -lGLU -lGL
 
 #qt
 ifeq ($(platform), LINUX_gcc)
-  MOC = /usr/lib64/qt4/bin/moc
+  MOC := $(shell find /usr/lib64/qt4/bin/moc)
+  MOC ?= $(shell find /usr -name 'moc' -type f)
   QT4DIR = /usr
 else
   ifeq ($(platform), LINUX_64_gcc)
-  MOC = /usr/lib64/qt4/bin/moc
+  MOC := $(shell find /usr/lib64/qt4/bin/moc)
+  MOC ?= $(shell find /usr -name 'moc' -type f)
   QT4DIR = /usr
 else
   ifeq ($(platform), MACOS_gcc)
