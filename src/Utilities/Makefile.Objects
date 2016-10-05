@@ -14,6 +14,3 @@ OBJECTS += \
 
 ####### MOC
 .SECONDARY: $(SRCMOC)
-
-moc_%.cpp: ../%.h
-	$(MOC) $< -o $@

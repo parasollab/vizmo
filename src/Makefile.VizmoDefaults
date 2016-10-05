@@ -5,15 +5,17 @@
 GL_INCL = -I/usr/include/GL
 GL_LIBS = -lglut -lGLU -lGL
 
-#qt
+# Qt
+
+# The moc is assumed to either be in the standard redhat location
+# (/usr/lib64/qt4/bin/moc) or to be the only 'moc' file in the /usr directory.
+# Probably not a good assumption, but it works for our current use cases.
+
 ifeq ($(platform), LINUX_gcc)
-  MOC := $(shell find /usr/lib64/qt4/bin/moc)
-  MOC ?= $(shell find /usr -name 'moc' -type f)
-  QT4DIR = /usr
-else
-  ifeq ($(platform), LINUX_64_gcc)
-  MOC := $(shell find /usr/lib64/qt4/bin/moc)
-  MOC ?= $(shell find /usr -name 'moc' -type f)
+  MOC := $(shell find /usr/lib64/qt4/bin/moc 2> /dev/null)
+  ifndef MOC
+    MOC := $(shell find /usr -name 'moc' -type f -print -quit 2> /dev/null)
+  endif
   QT4DIR = /usr
 else
   ifeq ($(platform), MACOS_gcc)
@@ -23,7 +25,11 @@ else
   $(error Qt and moc are undefined for platform: $(platform).)
 endif
 endif
-endif
+
+moc_%.cpp: ../%.h
+	@echo Moc\'ing $< ...
+	@$(MOC) $< -o $@ $(MP_DEF)
+
 QT_INCL = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL
 QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL
 
