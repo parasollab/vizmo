@@ -10,28 +10,27 @@
     </DistanceMetrics>
 
     <ValidityCheckers>
-      <CollisionDetection label="cd1" method="RAPID"/>
-      <CollisionDetection label="cd2" method="PQP"/>
-      <CollisionDetection label="cd3" method="VCLIP"/>
-      <CollisionDetection label="cd4" method="PQP_SOLID"/>
+      <CollisionDetection label="rapid" method="RAPID"/>
+      <CollisionDetection label="pqp" method="PQP"/>
+      <CollisionDetection label="pqp_solid" method="PQP_SOLID"/>
 
       <!-- Region Validity Checkers -->
       <AvoidRegionValidity label="AvoidRegionValidity" />
       <ComposeValidity label="RegionValidity" operator="AND">
         <ValidityChecker label="AvoidRegionValidity"/>
-        <ValidityChecker label="cd4"/>
+        <ValidityChecker label="pqp_solid"/>
       </ComposeValidity>
     </ValidityCheckers>
 
     <Samplers>
-      <UniformRandomSampler label="UniformRandomFree" vcLabel="cd4"/>
-      <ObstacleBasedSampler label="OBPRM" vcLabel="cd4" useBBX="false"
+      <UniformRandomSampler label="UniformRandomFree" vcLabel="pqp_solid"/>
+      <ObstacleBasedSampler label="OBPRM" vcLabel="pqp_solid" useBBX="false"
         pointSelection="cspace" dmLabel="euclidean" stepSize="0.0"
         nShellsColl="0" nShellsFree="1" debug="false"/>
-      <GaussianSampler label="Gauss" vcLabel="cd4" d="0.2" dmLabel="euclidean"
-        useBBX="false"/>
-      <UniformObstacleBasedSampler label="UOBPRM" vcLabel="cd4" useBBX="false"
-        dmLabel="euclidean" d="0.02" />
+      <GaussianSampler label="Gauss" vcLabel="pqp_solid" d="0.2"
+        dmLabel="euclidean" useBBX="false"/>
+      <UniformObstacleBasedSampler label="UOBPRM" vcLabel="pqp_solid"
+        useBBX="false" dmLabel="euclidean" d="0.02" />
 
       <!-- Region Samplers -->
       <UniformRandomSampler label="RegionUniformSampler"
@@ -43,7 +42,7 @@
     </Samplers>
 
     <LocalPlanners>
-      <StraightLine label="sl" binaryEvaluation="true" vcLabel="cd4"/>
+      <StraightLine label="sl" binaryEvaluation="true" vcLabel="pqp_solid"/>
 
       <!-- Region Local Planners -->
       <StraightLine label="AvoidRegionSL" binaryEvaluation="true"
@@ -54,9 +53,9 @@
 
     <Extenders>
       <BasicExtender label="BERO" debug="false"
-        dmLabel="euclidean" vcLabel="cd4" minDist=".01" maxDist="1"/>
+        dmLabel="euclidean" vcLabel="pqp_solid" minDist=".01" maxDist="1"/>
       <BasicExtender label="BESO" debug="false"
-        dmLabel="euclidean" vcLabel="cd4" minDist=".01" maxDist="1"
+        dmLabel="euclidean" vcLabel="pqp_solid" minDist=".01" maxDist="1"
         randomOrientation="false"/>
     </Extenders>
 
@@ -117,7 +116,7 @@
     <MPStrategies>
       <DynamicRegionRRT label="DynamicRegionRRT"
         growthFocus="0.01" dmLabel="euclidean"
-        nfLabel="Nearest" vcLabel="cd4"
+        nfLabel="Nearest" vcLabel="pqp_solid"
         gtype="UNDIRECTED_TREE" debug="false"
         growGoals="false" extenderLabel="BERO">
         <Evaluator label="BoundedRRTQuery"/>
@@ -125,7 +124,7 @@
 
       <BasicRRTStrategy label="BasicRRT"
         numRoots="1" m="1" growthFocus="0.01" dmLabel="euclidean"
-        nfLabel="Nearest" vcLabel="cd4" connectorLabel="Closest"
+        nfLabel="Nearest" vcLabel="pqp_solid" connectorLabel="Closest"
         gtype="UNDIRECTED_TREE" debug="false"
         growGoals="true" extenderLabel="BERO">
         <Evaluator label="RRTQuery"/>
@@ -141,14 +140,14 @@
         sLabel="RegionUniformSampler" vcLabel="RegionValidity"
         cLabel = "RegionBFNFConnector"/>
 
-      <PathStrategy label="PathStrategy" vcLabel="cd4" dmLabel="edclidean"/>
+      <PathStrategy label="PathStrategy" vcLabel="pqp_solid" dmLabel="edclidean"/>
 
-      <IRRTStrategy label="IRRT" vcLabel="cd4" nfLabel="BFNF"
+      <IRRTStrategy label="IRRT" vcLabel="pqp_solid" nfLabel="BFNF"
         dmLabel="euclidean" gtype="UNDIRECTED_TREE" extenderLabel="BERO">
         <Evaluator label="RRTQuery"/>
       </IRRTStrategy>
 
-      <RegionRRT label="RegionRRT" vcLabel="cd4" nfLabel="BFNF"
+      <RegionRRT label="RegionRRT" vcLabel="pqp_solid" nfLabel="BFNF"
         dmLabel="euclidean" gtype="UNDIRECTED_TREE" extenderLabel="BERO">
         <Evaluator label="RRTQuery"/>
       </RegionRRT>
