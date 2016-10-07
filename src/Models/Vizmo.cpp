@@ -331,7 +331,7 @@ Vizmo::
 CollisionCheck(CfgModel& _c) {
   if(m_envModel) {
     VizmoProblem::ValidityCheckerPointer vc;
-    vc = GetVizmoProblem()->GetValidityChecker("cd4");
+    vc = GetVizmoProblem()->GetValidityChecker("pqp_solid");
 
     bool b = vc->IsValid(_c, "Vizmo");
     _c.SetValidity(b);
@@ -347,7 +347,7 @@ Vizmo::
 IsInsideCheck(CfgModel& _c1) {
   if(m_envModel) {
     VizmoProblem::ValidityCheckerPointer vc;
-    vc = GetVizmoProblem()->GetValidityChecker("cd4");
+    vc = GetVizmoProblem()->GetValidityChecker("pqp_solid");
     return vc->IsInsideObstacle(_c1);
   }
   cerr << "Warning::Collision checking when there is no environment. "

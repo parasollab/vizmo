@@ -98,7 +98,7 @@ class PathStrategy : public MPStrategyMethod<MPTraits> {
     ///\name PMPL Object Labels
     ///@{
 
-    string m_vcLabel{"cd4"};            ///< The ValidityChecker label.
+    string m_vcLabel{"pqp_solid"};            ///< The ValidityChecker label.
     string m_dmLabel{"euclidean"};      ///< The DistanceMetric label.
     string m_lpLabel{"sl"};             ///< The LocalPlanner label.
     string m_ncLabel{"Closest"};        ///< The Connector label.
