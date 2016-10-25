@@ -12,11 +12,11 @@ OBJECTS += \
 	   Models/DebugModel.o \
 	   Models/EdgeModel.o \
 	   Models/EnvModel.o \
+	   Models/GraphModel.o \
 	   Models/MultiBodyModel.o \
 	   Models/PathModel.o \
 	   Models/PolyhedronModel.o \
 	   Models/QueryModel.o \
-	   Models/ReebGraphModel.o \
 	   Models/RegionBoxModel.o \
 	   Models/RegionBox2DModel.o \
 	   Models/RegionSphereModel.o \

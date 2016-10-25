@@ -38,8 +38,8 @@ class CfgModel : public Model, public CfgType {
     };
 
     // Construction
-    explicit CfgModel(size_t _index = 0);
-    explicit CfgModel(Vector3d _vec);
+    explicit CfgModel(const size_t _index = 0);
+    explicit CfgModel(const Vector3d& _vec, const size_t _index = 0);
     CfgModel(const CfgType& _c);
     CfgModel(const CfgModel& _c);
 

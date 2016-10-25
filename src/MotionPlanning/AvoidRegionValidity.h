@@ -73,7 +73,7 @@ IsValidImpl(CfgType& _cfg, CDInfo& _cdInfo, const string& _callName) {
     GetVizmo().GetEnv()->GetAvoidRegions();
   shared_ptr<ActiveMultiBody> robot = env->GetRobot(_cfg.GetRobotIndex());
 
-  _cfg.ConfigEnvironment(); // Config the robot in the environment.
+  _cfg.ConfigureRobot();
 
   //check each region to ensure _cfg does not enter it
   for(auto& r : avoidRegions) {

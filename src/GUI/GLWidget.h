@@ -89,14 +89,14 @@ class GLWidget : public QGLWidget {
 
     /////////////////////////////////////////////
     //overridden from qglwidget
-    void initializeGL();
-    void resizeGL(int _w, int _h);
-    void paintGL();
-    void mousePressEvent(QMouseEvent* _e);
-    void mouseDoubleClickEvent(QMouseEvent* _e);
-    void mouseReleaseEvent(QMouseEvent* _e);
-    void mouseMoveEvent(QMouseEvent* _e);
-    void keyPressEvent(QKeyEvent* _e);
+    virtual void initializeGL() override;
+    virtual void resizeGL(int _w, int _h) override;
+    virtual void paintGL() override;
+    virtual void mousePressEvent(QMouseEvent* _e) override;
+    virtual void mouseDoubleClickEvent(QMouseEvent* _e) override;
+    virtual void mouseReleaseEvent(QMouseEvent* _e) override;
+    virtual void mouseMoveEvent(QMouseEvent* _e) override;
+    virtual void keyPressEvent(QKeyEvent* _e) override;
     /////////////////////////////////////////////
 
     //setup for lighting

@@ -15,16 +15,13 @@ TempObjsModel() : Model("TempObjs") {
 
 TempObjsModel::
 ~TempObjsModel() {
-  // Acquire mutex for remainder of object life.
+  Clear();
+
+  // Grab lock for remainder of object life.
   m_lock.lock();
 
   // Remove self from env's temp obj list.
   GetVizmo().GetEnv()->RemoveTempObjs(this);
-
-  // Delete temporary models.
-  for(auto model : m_models)
-    delete model;
-  m_models.clear();
 }
 
 /*------------------------------ Interface -----------------------------------*/
@@ -50,6 +47,20 @@ RemoveModel(Model* _m) {
         _m->Name() + "requested, but the model wasn't found.");
   m_models.erase(m);
   delete _m;
+  m_lock.unlock();
+}
+
+
+void
+TempObjsModel::
+Clear() {
+  m_lock.lock();
+
+  // Delete temporary models.
+  for(auto model : m_models)
+    delete model;
+  m_models.clear();
+
   m_lock.unlock();
 }
 

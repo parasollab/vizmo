@@ -48,6 +48,10 @@ class TempObjsModel : public Model {
     /// \param[in] _m The model to remove.
     void RemoveModel(Model* _m);
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// Remove all models and reset this.
+    void Clear();
+
     ///@}
     ///\name Model Overrides
     ///@{

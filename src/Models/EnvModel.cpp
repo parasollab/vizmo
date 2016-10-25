@@ -18,7 +18,6 @@
 #include "BoundingSphereModel.h"
 #include "BoundingSphere2DModel.h"
 #include "CfgModel.h"
-#include "ReebGraphModel.h"
 #include "RegionBoxModel.h"
 #include "RegionBox2DModel.h"
 #include "RegionSphereModel.h"
@@ -59,7 +58,7 @@ EnvModel::
   for(auto& p : m_userPaths)
     delete p;
   delete m_decompositionModel;
-  delete m_reebGraphModel;
+  delete m_graphModel;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -432,14 +431,6 @@ AddWorkspaceDecompositionModel(const WorkspaceDecomposition* _wd) {
 
 void
 EnvModel::
-AddReebGraphModel(ReebGraphConstruction* _reebGraph) {
-  delete m_reebGraphModel;
-  m_reebGraphModel = new ReebGraphModel(_reebGraph);
-}
-
-
-void
-EnvModel::
 Build() {
   //construct boundary
   //auto bounds = m_environment->GetBoundary();
@@ -552,8 +543,8 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     case EnvObjectName::Decomposition:
       m_decompositionModel->Select(_index + 1, _sel);
       break;
-    case EnvObjectName::ReebGraph:
-      m_reebGraphModel->Select(_index + 1, _sel);
+    case EnvObjectName::Graph:
+      m_graphModel->Select(_index + 1, _sel);
       break;
     default:
       break;
@@ -601,8 +592,8 @@ DrawRender() {
 
   if(m_decompositionModel)
     m_decompositionModel->DrawRender();
-  if(m_reebGraphModel)
-    m_reebGraphModel->DrawRender();
+  if(m_graphModel)
+    m_graphModel->DrawRender();
 }
 
 
@@ -691,9 +682,9 @@ DrawSelect() {
     m_decompositionModel->DrawSelect();
   glPopName();
 
-  glPushName(EnvObjectName::ReebGraph);
-  if(m_reebGraphModel)
-    m_reebGraphModel->DrawSelect();
+  glPushName(EnvObjectName::Graph);
+  if(m_graphModel)
+    m_graphModel->DrawSelect();
   glPopName();
 
   glPushName(EnvObjectName::BoundaryObj);
@@ -739,8 +730,8 @@ SetSelectable(bool _s) {
     s->SetSelectable(_s);
   if(m_decompositionModel)
     m_decompositionModel->SetSelectable(_s);
-  if(m_reebGraphModel)
-    m_reebGraphModel->SetSelectable(_s);
+  if(m_graphModel)
+    m_graphModel->SetSelectable(_s);
   m_boundary->SetSelectable(_s);
 }
 
@@ -769,8 +760,8 @@ GetChildren(list<Model*>& _models) {
   _models.push_back(m_boundary.get());
   if(m_decompositionModel)
     _models.push_back(m_decompositionModel);
-  if(m_reebGraphModel)
-    _models.push_back(m_reebGraphModel);
+  if(m_graphModel)
+    _models.push_back(m_graphModel);
 }
 
 

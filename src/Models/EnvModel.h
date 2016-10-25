@@ -8,6 +8,7 @@
 
 #include "Model.h"
 #include "BoundaryModel.h"
+#include "GraphModel.h"
 
 #include "Utilities/IO.h"
 
@@ -15,8 +16,6 @@ class ActiveMultiBodyModel;
 class AvatarModel;
 class BoundaryModel;
 class CfgModel;
-class ReebGraphConstruction;
-class ReebGraphModel;
 class StaticMultiBodyModel;
 class SurfaceMultiBodyModel;
 class TempObjsModel;
@@ -44,7 +43,7 @@ class EnvModel : public Model {
       NonCommitRegions,
       UserPaths,
       Decomposition,
-      ReebGraph
+      Graph
     };
 
     // Construction
@@ -190,9 +189,14 @@ class EnvModel : public Model {
     ////////////////////////////////////////////////////////////////////////////
     /// @brief Add workspace decomposition model to environment
     void AddWorkspaceDecompositionModel(const WorkspaceDecomposition* _wd);
+
     ////////////////////////////////////////////////////////////////////////////
     /// @brief Add Reeb Graph Model to environment
-    void AddReebGraphModel(ReebGraphConstruction* _reebGraph);
+    template <typename GraphType>
+    void AddGraphModel(GraphType& _g) {
+      delete m_graphModel;
+      m_graphModel = new GraphModel<GraphType>(_g);
+    }
 
     // Display functions
     void ChangeColor(); ///< Change all objects' colors randomly.
@@ -231,7 +235,7 @@ class EnvModel : public Model {
     vector<TempObjsModel*> m_tempObjs;         ///< Temporary objects.
 
     WorkspaceDecompositionModel* m_decompositionModel{nullptr}; ///< Decomp Model.
-    ReebGraphModel* m_reebGraphModel{nullptr};        ///< Reeb Graph Model.
+    Model* m_graphModel{nullptr};        ///< Graph Model.
 
     Environment* m_environment{nullptr}; ///< The PMPL environment.
 };

@@ -8,14 +8,12 @@ CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
 float CfgModel::m_pointScale = 10;
 
 CfgModel::
-CfgModel(size_t _index) : Model("Cfg"), CfgType(_index), m_mutex(new mutex()) { }
+CfgModel(const size_t _index) : Model("Cfg"), CfgType(_index),
+    m_mutex(new mutex()) { }
 
 CfgModel::
-CfgModel(Vector3d _vec): Model("Cfg"), CfgType(), m_mutex(new mutex()) {
-  m_v[0] = _vec[0];
-  m_v[1] = _vec[1];
-  m_v[2] = _vec[2];
-}
+CfgModel(const Vector3d& _vec, const size_t _index) : Model("Cfg"),
+    CfgType(_vec, _index), m_mutex(new mutex()) { }
 
 CfgModel::
 CfgModel(const CfgType& _c) : Model("Cfg"), CfgType(_c), m_mutex(new mutex()) { }
