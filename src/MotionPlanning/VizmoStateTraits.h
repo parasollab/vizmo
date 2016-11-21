@@ -7,11 +7,12 @@
 //#include "Edges/StateEdge.h"
 
 //distance metric includes
-#include "DistanceMetrics/EuclideanDistance.h"
+#include "DistanceMetrics/ExperimentalDistance.h"
 #include "DistanceMetrics/WeightedEuclideanDistance.h"
 
 //validity checker includes
 #include "AvoidRegionValidity.h"
+#include "ValidityCheckers/AlwaysTrueValidity.h"
 #include "ValidityCheckers/CollisionDetectionValidity.h"
 #include "ValidityCheckers/ComposeValidity.h"
 
@@ -27,6 +28,7 @@
 
 //extenders includes
 #include "Extenders/KinodynamicExtender.h"
+#include "Extenders/MixExtender.h"
 
 //path smoothing includes
 #include "PathModifiers/ShortcuttingPathModifier.h"
@@ -43,9 +45,13 @@
 #include "MapEvaluators/ConditionalEvaluator.h"
 #include "MapEvaluators/PrintMapEvaluation.h"
 #include "MapEvaluators/RRTQuery.h"
+#include "MapEvaluators/TimeEvaluator.h"
 
 //mp strategies includes
+#include "MPStrategies/BasicRRTStrategy.h"
+#include "MPStrategies/DynamicDomainRRT.h"
 #include "MPStrategies/DynamicRegionRRT.h"
+#include "MPStrategies/Syclop.h"
 #include "RegionRRT.h"
 
 #include "MPProblem/MPProblem.h"
@@ -63,13 +69,14 @@ struct VizmoTraits {
 
   //types of distance metrics available in our world
   typedef boost::mpl::list<
-    EuclideanDistance<VizmoTraits>,
+    ExperimentalDistance<VizmoTraits>,
     WeightedEuclideanDistance<VizmoTraits>
     > DistanceMetricMethodList;   ///< The available distance metrics.
 
   //types of validity checkers available in our world
   typedef boost::mpl::list<
     AvoidRegionValidity<VizmoTraits>,
+    AlwaysTrueValidity<VizmoTraits>,
     CollisionDetectionValidity<VizmoTraits>,
     ComposeValidity<VizmoTraits>
     > ValidityCheckerMethodList; ///< The available validity checkers.
@@ -92,7 +99,8 @@ struct VizmoTraits {
 
   //types of extenders avaible in our world
   typedef boost::mpl::list<
-    KinodynamicExtender<VizmoTraits>
+    KinodynamicExtender<VizmoTraits>,
+    MixExtender<VizmoTraits>
     > ExtenderMethodList; ///< The available extenders.
 
   //types of path smoothing available in our world
@@ -116,12 +124,16 @@ struct VizmoTraits {
     ComposeEvaluator<VizmoTraits>,
     ConditionalEvaluator<VizmoTraits>,
     PrintMapEvaluation<VizmoTraits>,
-    RRTQuery<VizmoTraits>
+    RRTQuery<VizmoTraits>,
+    TimeEvaluator<VizmoTraits>
     > MapEvaluatorMethodList; ///< The available evaluators.
 
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
+    BasicRRTStrategy<VizmoTraits>,
+    DynamicDomainRRT<VizmoTraits>,
     DynamicRegionRRT<VizmoTraits>,
+    Syclop<VizmoTraits>,
     RegionRRT<VizmoTraits>
     > MPStrategyMethodList; ///< The available strategies.
 

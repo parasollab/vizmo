@@ -260,10 +260,18 @@ GetAssociatedFiles(const vector<string>& _filename) {
     const string path = QCoreApplication::applicationDirPath().toStdString();
     if(path == "/usr/bin")
       // This is a system-installed version.
+#ifdef PMPState
+      xmlname = "/usr/share/vizmo/StateExamples.xml";
+#else
       xmlname = "/usr/share/vizmo/VizmoExamples.xml";
+#endif
     else
       // This is a working copy.
+#ifdef PMPState
+      xmlname = path + "/Examples/StateExamples.xml";
+#else
       xmlname = path + "/Examples/VizmoExamples.xml";
+#endif
   }
   ParseXML(xmlname, envname, queryname);
 
