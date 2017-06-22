@@ -37,7 +37,11 @@ class GraphModel : public Model {
     virtual void DrawSelect() override;
     virtual void DrawSelected() override;
     virtual void Print(ostream& _os) const override;
-
+    //revision
+    //virtual void SaveFile(ostream& _os) const;
+    //virtual void SaveSkeleton(ostream& _os) const override;
+    virtual GraphType GetGraph();
+    //virtual void HighlightVertices() const;
     ///@}
 
   private:
@@ -55,6 +59,14 @@ class GraphModel : public Model {
 };
 
 /*----------------------------------------------------------------------------*/
+
+//revisions
+template<typename GraphType>
+GraphType
+GraphModel<GraphType>::
+GetGraph()  {
+  return m_graph;
+}
 
 template <typename GraphType>
 void
@@ -135,6 +147,17 @@ Print(ostream& _os) const {
       << "\tNum edges: " << m_graph.get_num_edges() << endl;
 }
 
+//revision
+
+/*
+template <typename GraphType>
+void
+GraphModel<GraphType>::
+SaveSkeleton(ostream& _os) const {
+  _os << "Graph" << endl
+      << "\tNum vertices: " << m_graph.get_num_vertices() << endl
+      << "\tNum edges: " << m_graph.get_num_edges() << endl;
+}*/
 /*----------------------------------------------------------------------------*/
 
 #endif

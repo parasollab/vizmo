@@ -1,3 +1,6 @@
+//Revised
+#include <fstream>
+
 #include "EnvironmentOptions.h"
 
 #include "Environment/FixedBody.h"
@@ -5,6 +8,7 @@
 
 #include "ChangeBoundaryDialog.h"
 #include "EditRobotDialog.h"
+#include "FileListDialog.h"
 #include "GLWidget.h"
 #include "MainMenu.h"
 #include "MainWindow.h"
@@ -28,6 +32,7 @@
 #include "Icons/MoveObstacle.xpm"
 #include "Icons/RandEnv.xpm"
 #include "Icons/RefreshEnv.xpm"
+//#include "Icons/Skeleton.xpm"
 
 #include "Icons/PointMode.xpm"
 #include "Icons/RobotMode.xpm"
@@ -66,6 +71,15 @@ CreateActions() {
       tr("Edit the Robot"), this);
   m_actions["robotView"] = new QAction(QPixmap(robotmode), tr("Robot"), this);
   m_actions["pointView"] = new QAction(QPixmap(pointmode), tr("Point"), this);
+  //revisons
+  m_actions["addSkeleton"] = new QAction(QPixmap(editrobot),
+      tr("Add a Skeleton"),this);
+  m_actions["saveSkeleton"] = new QAction(QPixmap(addobstacle),
+      tr("Save the Skeleton"),this);
+  m_actions["skeletonInfo"] = new QAction(QPixmap(changeboundary),
+      tr("Toggle Skeleton Info"), this);
+  m_actions["addVertex"] = new QAction(QPixmap(addobstacle),
+      tr("Add a node to the skeleton"), this);
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -78,6 +92,11 @@ CreateActions() {
   m_actions["changeBoundary"]->setEnabled(false);
   m_actions["editRobot"]->setEnabled(false);
   m_actions["randEnvColors"]->setEnabled(false);
+  //revisions
+  m_actions["addSkeleton"]->setEnabled(false);
+  m_actions["saveSkeleton"]->setEnabled(false);
+  m_actions["skeletonInfo"]->setEnabled(false);
+  m_actions["addVertex"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()),
@@ -100,6 +119,16 @@ CreateActions() {
       this, SLOT(ChangeBoundaryForm()));
   connect(m_actions["editRobot"], SIGNAL(triggered()),
       this, SLOT(EditRobot()));
+  //revisions
+  connect(m_actions["addSkeleton"],SIGNAL(triggered()),
+      this, SLOT(AddSkeleton()));
+  connect(m_actions["saveSkeleton"],SIGNAL(triggered()),
+      this, SLOT(SaveSkeleton()));
+  connect(m_actions["skeletonInfo"],SIGNAL(triggered()),
+      this, SLOT(ShowSkeletonInfo()));
+  connect(m_actions["addVertex"],SIGNAL(triggered()),
+      this, SLOT(AddVertex()));
+
 }
 
 
@@ -124,6 +153,11 @@ SetHelpTips() {
   m_actions["duplicateObstacle"]->setWhatsThis(tr("duplicate obstacle button"));
   m_actions["changeBoundary"]->setWhatsThis(tr("Change the boundary"));
   m_actions["editRobot"]->setWhatsThis(tr("Edit the robot"));
+  //revisions
+  m_actions["addSkeleton"]->setWhatsThis(tr("Add a skeleton"));
+  m_actions["saveSkeleton"]->setWhatsThis(tr("Save your Skeleton"));
+  m_actions["addVertex"]->setWhatsThis(tr("Add a node to the Skeleton"));
+  m_actions["skeletonInfo"]->setWhatsThis(tr("Toggle Skeleton Information"));
 }
 
 
@@ -148,6 +182,14 @@ SetUpSubmenu() {
   m_submenu->addAction(m_actions["changeBoundary"]);
   m_submenu->addAction(m_actions["editRobot"]);
   m_obstacleMenu->setEnabled(false);
+  //revisions
+  m_skeletonMenu = new QMenu("Skeleton Tools", this);
+  m_skeletonMenu->addAction(m_actions["saveSkeleton"]);
+  m_skeletonMenu->addAction(m_actions["addSkeleton"]);
+  m_skeletonMenu->addAction(m_actions["addVertex"]);
+  m_skeletonMenu->addAction(m_actions["skeletonInfo"]);
+  m_submenu->addMenu(m_skeletonMenu);
+  m_skeletonMenu->setEnabled(false);
 
   m_nodeShape->setEnabled(false);
 }
@@ -174,6 +216,12 @@ SetUpToolTab() {
 
   buttonList.push_back("editRobot");
   buttonList.push_back("_separator_");
+  //revisions
+  buttonList.push_back("addSkeleton");
+  buttonList.push_back("saveSkeleton");
+  buttonList.push_back("addVertex");
+  buttonList.push_back("skeletonInfo");
+  buttonList.push_back("_separator_");
 
   CreateToolTab(buttonList);
 }
@@ -196,10 +244,167 @@ Reset() {
   m_actions["duplicateObstacle"]->setEnabled(true);
   m_actions["changeBoundary"]->setEnabled(true);
   m_actions["editRobot"]->setEnabled(true);
+  //revisions
+  m_actions["addSkeleton"]->setEnabled(true);
+  m_actions["saveSkeleton"]->setEnabled(true);
+  m_actions["addVertex"]->setEnabled(true);
+  m_actions["skeletonInfo"]->setEnabled(true);
+
   m_obstacleMenu->setEnabled(true);
 }
 
 /*----------------------- Environment Editing --------------------------------*/
+
+//revisions
+void
+EnvironmentOptions::
+AddSkeleton() {
+
+  /// Handles all local data types, including:
+  /// \arg \c .env
+  /// \arg \c .map
+  /// \arg \c .query
+  /// \arg \c .path
+  /// \arg \c .vd
+  /// \arg \c .xml
+  //  \arg \c .graph
+  QString fn = QFileDialog::getOpenFileName(this,
+      "Choose a skeleton to open", GetMainWindow()->GetLastDir(),
+      "Files (*.env *.map *.query *.path *.vd *.xml *.graph)");
+  typedef stapl::sequential::directed_preds_graph<
+   stapl::MULTIEDGES, Point3d, vector<Point3d>> GraphType;
+  if(!fn.isEmpty()){
+    QFileInfo fi(fn);
+    GetMainWindow()->statusBar()->showMessage("Loading:"+fi.absoluteFilePath());
+    GetMainWindow()->AlertUser("Loaded Skeleton: "+fi.fileName().toStdString());
+
+    //Read the file
+    ifstream input(fi.absoluteFilePath().toStdString());
+    if(!input.good())
+      GetMainWindow()->AlertUser("File Not Good");
+    GraphType _g;
+    size_t _numVert, _numEdges;
+    input >> _numVert >> _numEdges;
+    //Get points
+    for(size_t i = 0; i < _numVert; i++){
+      Point3d _p1;
+      size_t index;
+      input >> index >> _p1 ;
+      _g.add_vertex(index, _p1);
+    }
+    //Get Edges
+    for(size_t i = 0; i < _numEdges; i++){
+      size_t _v1, _v2;
+      input >> _v1 >> _v2;
+      size_t _interVerts;
+      vector<Point3d> _edge;
+      input >> _interVerts;
+      for(size_t j = 0; j < _interVerts; j++){
+        Point3d _p;
+        input >> _p;
+        _edge.push_back(_p);
+      }
+      _g.add_edge(_v1,_v2,_edge);
+    }
+    //Make A Graph Model
+    EnvModel* env = GetVizmo().GetEnv();
+    env->AddGraphModel(_g);
+    auto _gm = env->GetGraphModel();
+    //Update Environment
+    if(_gm)
+      _gm->SetRenderMode(SOLID_MODE);
+
+  }
+  else
+    GetMainWindow()->statusBar()->showMessage("Loading aborted");
+
+}
+//revisions
+void
+EnvironmentOptions::
+SaveSkeleton() {
+  //save skeleton in the workspace
+
+  QString fn = QFileDialog::getSaveFileName(this, "Chose a file name for the Skeleton",
+      GetMainWindow()->GetLastDir(), "Files  (*.graph)");
+
+  if(!fn.isEmpty()){
+     EnvModel* env = GetVizmo().GetEnv();
+     QFileInfo fi(fn);
+     ofstream output(fi.absoluteFilePath().toStdString());
+     env->SaveGraphFile(output);
+   }
+   else
+     GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
+}
+
+void
+EnvironmentOptions::
+ShowSkeletonInfo()  {
+  //Show Skeleton Info
+
+}
+
+
+//revisions
+void
+EnvironmentOptions::
+AddVertex()  {
+  //Adds a vertex to the skeleton
+  /*
+  NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Node");
+  GetMainWindow()->ShowDialog(ned);
+  */
+}
+
+void
+EnvironmentOptions::
+DeleteSelectedItems() {
+  //Deletes selected items from the skeleton
+  /*
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  Map* map = GetVizmo().GetMap();
+  Graph* graph = map->GetGraph();
+
+  bool selectionValid = false;
+  vector<VID> nodesToDelete;
+  vector<pair<VID, VID> > edgesToDelete;
+
+  //Mark selected items for removal
+  for(MIT it = sel.begin(); it != sel.end(); it++) {
+    string objName = (*it)->Name();
+    if(objName.substr(0, 4) == "Node") {
+      selectionValid = true;
+      VID vid = ((CfgModel*)(*it))->GetIndex();
+      nodesToDelete.push_back(vid);
+    }
+    else if(objName.substr(0, 4) == "Edge") {
+      selectionValid = true;
+      EdgeModel* e = (EdgeModel*)(*it);
+      edgesToDelete.push_back(make_pair(e->GetStartCfg()->GetIndex(),
+            e->GetEndCfg()->GetIndex()));
+    }
+  }
+  if(selectionValid == false)
+    GetMainWindow()->AlertUser("Please select a group of nodes and edges to"
+        " remove.");
+  else {
+    //Remove selected vertices
+    typedef vector<VID>::iterator VIT;
+    for(VIT it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
+      graph->delete_vertex(*it);
+    //Remove selected edges
+    typedef vector<pair<VID, VID> >::iterator EIT;
+    for(EIT it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
+      graph->delete_edge(it->first, it->second);
+      graph->delete_edge(it->second, it->first);
+    }
+    map->RefreshMap();
+    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+    sel.clear();
+  }
+  */
+}
 
 void
 EnvironmentOptions::

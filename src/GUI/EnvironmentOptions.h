@@ -29,7 +29,12 @@ class EnvironmentOptions : public OptionsBase {
     void DuplicateObstacles();  ///< Duplicate the selected obstacles.
     void ChangeBoundaryForm();  ///< Launch a ChangeBoundaryDialog.
     void EditRobot();           ///< Launch an EditRobotDialog.
-
+    //Revisions
+    void AddSkeleton();         ///< Adds a skeleton
+    void SaveSkeleton();        ///< Saves current skeleton
+    void AddVertex();           ///< Adds a vertex to the skeleton
+    void ShowSkeletonInfo();    ///< Toggle showing skeleton information.
+    void DeleteSelectedItems();  ///< Deletes selected items
     //environment display functions
     void RefreshEnv();    ///< Reset the rendering mode and ModelSelectionWidget.
     void ClickRobot();          ///< Display configurations in robot mode.
@@ -47,6 +52,8 @@ class EnvironmentOptions : public OptionsBase {
 
     QMenu* m_obstacleMenu;  ///< Menu for obstacle manipulation.
     QMenu* m_nodeShape;     ///< Menu for selecting robot display mode.
+    //Revisions
+    QMenu* m_skeletonMenu;  ///< Menu for selecting skelton for workspace.
 
     ////////////////////////////////////////////////////////////////////////////
     /// \brief The boundary editing dialog.

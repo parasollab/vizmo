@@ -196,9 +196,19 @@ class EnvModel : public Model {
     void AddGraphModel(GraphType& _g) {
       delete m_graphModel;
       m_graphModel = new GraphModel<GraphType>(_g);
+    //  m_graphModel->SetRenderMode(SOLID_MODE);
     }
 
-    // Display functions
+    //revised
+    Model* GetGraphModel(){
+      return m_graphModel;
+    }
+//revised
+    void SaveGraphModel(ostream&  _os) {
+    if(m_graphModel)
+      m_graphModel->Print(_os);
+    }
+      // Display functions
     void ChangeColor(); ///< Change all objects' colors randomly.
 
     // Model functions
@@ -210,9 +220,10 @@ class EnvModel : public Model {
     void DrawSelect();
     void DrawSelected() {}
     void Print(ostream& _os) const;
-
     void SaveFile(const string& _filename) const;
-
+    //revised
+    void SaveGraphFile(ostream& _os) const;
+    void HighlightSkeleton() const;
   private:
 
     vector<shared_ptr<ActiveMultiBodyModel>> m_robots;    ///< All robots.

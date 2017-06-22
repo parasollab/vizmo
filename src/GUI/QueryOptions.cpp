@@ -66,6 +66,9 @@ Reset() {
   if(m_actions["showHideQuery"] != NULL) {
     m_actions["showHideQuery"]->setEnabled(GetVizmo().IsQueryLoaded());
     m_actions["showHideQuery"]->setChecked(false);
+
+    //Revised
+    //m_actions["editQuery"]->setEnabled(m_actions["showHideQuery"]->isChecked());
     m_actions["editQuery"]->setEnabled(GetVizmo().IsQueryLoaded());
   }
 }
@@ -77,6 +80,13 @@ QueryOptions::
 ShowHideQuery() {
   GetVizmo().GetQry()->SetRenderMode(m_actions["showHideQuery"]->isChecked() ?
       SOLID_MODE : INVISIBLE_MODE);
+  //revision
+  /*
+   if(m_actions["showHideQuery"]->isChecked())
+    m_actions["editQuery"]->setEnabled(true);
+  else
+    m_actions["editQuery"]->setEnabled(false);
+    */
 }
 
 

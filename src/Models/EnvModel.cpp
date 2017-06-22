@@ -705,6 +705,24 @@ Print(ostream& _os) const {
     _os << "\t" << m_surfaces.size() << " surfaces" << endl;
 }
 
+//revision
+void
+//GraphModel<ReebGraphConstruction::FlowGraph>
+EnvModel::
+SaveGraphFile(ostream& _os) const {
+  if(m_graphModel)
+    m_graphModel->Print(_os);
+}
+//revised
+
+void
+EnvModel::
+HighlightSkeleton() const{
+  if(m_graphModel)  {
+    //m_graphModel->HighlightVetices();
+  }
+}
+
 
 void
 EnvModel::
