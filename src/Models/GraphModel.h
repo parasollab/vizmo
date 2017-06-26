@@ -9,17 +9,22 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Display model of embedded graph.
 ////////////////////////////////////////////////////////////////////////////////
-template <typename GraphType>
 class GraphModel : public Model {
 
   public:
+		///@name Local Types
+		///@{
+			typedef stapl::sequential::directed_preds_graph<stapl::MULTIEDGES, CfgModel, EdgeModel> SkeletonGraphType;
 
+		///@}
     ///@name Construction
     ///@{
 
     ////////////////////////////////////////////////////////////////////////////
     /// @param _g The graph to model.
-    GraphModel(const GraphType& _g) : Model("Graph"), m_graph(_g) {
+		template <typename GraphType>
+    GraphModel(const GraphType& _g) : Model("Graph") {
+			BuildGraph(_g);
       SetRenderMode(INVISIBLE_MODE);
     }
 
@@ -37,22 +42,23 @@ class GraphModel : public Model {
     virtual void DrawSelect() override;
     virtual void DrawSelected() override;
     virtual void Print(ostream& _os) const override;
+
     //revision
-    //virtual void SaveFile(ostream& _os) const;
-    //virtual void SaveSkeleton(ostream& _os) const override;
-    virtual GraphType GetGraph();
+    virtual void SaveSkeleton(ostream& _os) const;
+    virtual SkeletonGraphType GetGraph() { return m_graph; }
     //virtual void HighlightVertices() const;
     ///@}
 
   private:
-
-    void BuildGraph();
+		template <typename GraphType>
+    void BuildGraph(const GraphType& _g);
+		void DrawGraph();
 
     ///@}
     ///@name Internal State
     ///@{
 
-    GraphType m_graph;      ///< Graph to model.
+    SkeletonGraphType m_graph;      ///< Graph to model.
     GLuint m_callList{0};    ///< Compiled GL call list for  graph.
 
     ///@}
@@ -60,92 +66,6 @@ class GraphModel : public Model {
 
 /*----------------------------------------------------------------------------*/
 
-//revisions
-template<typename GraphType>
-GraphType
-GraphModel<GraphType>::
-GetGraph()  {
-  return m_graph;
-}
-
-template <typename GraphType>
-void
-GraphModel<GraphType>::
-Build() {
-  // Start the call list.
-  m_callList = glGenLists(1);
-  if(m_callList == 0) {
-    cerr << "Error:\n\tIn GraphModel::Build(), cannot draw the model "
-         << "because we could not allocate a GL call list." << endl;
-    return;
-  }
-  glNewList(m_callList, GL_COMPILE);
-
-  glDisable(GL_LIGHTING);
-
-  glPointSize(9);
-  glLineWidth(3);
-  glColor3f(0, 1, 0);
-
-  BuildGraph();
-
-  glEnable(GL_LIGHTING);
-
-  glEndList();
-}
-
-
-template <typename GraphType>
-void
-GraphModel<GraphType>::
-Select(GLuint* _index, vector<Model*>& _sel) {
-  if(m_selectable && _index)
-    _sel.push_back(this);
-}
-
-
-template <typename GraphType>
-void
-GraphModel<GraphType>::
-DrawRender() {
-  if(m_renderMode == INVISIBLE_MODE)
-    return;
-  if(m_callList == 0)
-    Build();
-  glCallList(m_callList);
-}
-
-
-template <typename GraphType>
-void
-GraphModel<GraphType>::
-DrawSelect() {
-  if(m_renderMode == INVISIBLE_MODE)
-    return;
-  if(m_callList == 0)
-    Build();
-  glCallList(m_callList);
-}
-
-
-template <typename GraphType>
-void
-GraphModel<GraphType>::
-DrawSelected() {
-  if(m_callList == 0)
-    Build();
-  glCallList(m_callList);
-}
-
-
-template <typename GraphType>
-void
-GraphModel<GraphType>::
-Print(ostream& _os) const {
-  _os << "Graph" << endl
-      << "\tNum vertices: " << m_graph.get_num_vertices() << endl
-      << "\tNum edges: " << m_graph.get_num_edges() << endl;
-}
 
 //revision
 

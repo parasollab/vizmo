@@ -707,11 +707,10 @@ Print(ostream& _os) const {
 
 //revision
 void
-//GraphModel<ReebGraphConstruction::FlowGraph>
 EnvModel::
 SaveGraphFile(ostream& _os) const {
   if(m_graphModel)
-    m_graphModel->Print(_os);
+    m_graphModel->SaveSkeleton(_os);
 }
 //revised
 

@@ -194,21 +194,17 @@ class EnvModel : public Model {
     /// @brief Add Reeb Graph Model to environment
     template <typename GraphType>
     void AddGraphModel(GraphType& _g) {
-      delete m_graphModel;
-      m_graphModel = new GraphModel<GraphType>(_g);
-    //  m_graphModel->SetRenderMode(SOLID_MODE);
+      if(m_graphModel)
+				delete m_graphModel;
+      m_graphModel = new GraphModel(_g);
     }
 
     //revised
     Model* GetGraphModel(){
       return m_graphModel;
     }
-//revised
-    void SaveGraphModel(ostream&  _os) {
-    if(m_graphModel)
-      m_graphModel->Print(_os);
-    }
-      // Display functions
+
+    // Display functions
     void ChangeColor(); ///< Change all objects' colors randomly.
 
     // Model functions
@@ -246,7 +242,7 @@ class EnvModel : public Model {
     vector<TempObjsModel*> m_tempObjs;         ///< Temporary objects.
 
     WorkspaceDecompositionModel* m_decompositionModel{nullptr}; ///< Decomp Model.
-    Model* m_graphModel{nullptr};        ///< Graph Model.
+    GraphModel* m_graphModel{nullptr};        ///< Graph Model.
 
     Environment* m_environment{nullptr}; ///< The PMPL environment.
 };
