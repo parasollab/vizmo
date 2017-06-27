@@ -42,6 +42,7 @@ class GraphModel : public Model {
     virtual void DrawSelect() override;
     virtual void DrawSelected() override;
     virtual void Print(ostream& _os) const override;
+		virtual void GetChildren(list<Model*>& _models) override;
 
     //revision
     virtual void SaveSkeleton(ostream& _os) const;
@@ -52,7 +53,7 @@ class GraphModel : public Model {
   private:
 		template <typename GraphType>
     void BuildGraph(const GraphType& _g);
-		void DrawGraph();
+		void DrawGraph(bool _selected = false);
 
     ///@}
     ///@name Internal State
