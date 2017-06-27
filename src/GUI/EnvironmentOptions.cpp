@@ -313,7 +313,7 @@ AddSkeleton() {
     //Update Environment
     if(_gm)
       _gm->SetRenderMode(SOLID_MODE);
-
+		RefreshEnv();
   }
   else
     GetMainWindow()->statusBar()->showMessage("Loading aborted");

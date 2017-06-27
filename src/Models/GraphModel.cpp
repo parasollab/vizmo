@@ -30,8 +30,8 @@ Select(GLuint* _index, vector<Model*>& _sel) {
   else {
     SkeletonGraphType::vertex_iterator vi;
     SkeletonGraphType:: adj_edge_iterator ei;
-    m_graph.find_edge(SkeletonGraphType::edge_descriptor(_index[1], _index[2], _index[3]), vi, ei);
-    _sel.push_back(&(*ei).property());
+		m_graph.find_edge(SkeletonGraphType::edge_descriptor(_index[1], _index[2], _index[3]), vi, ei);
+		_sel.push_back(&(*ei).property());
   }
 }
 
@@ -103,14 +103,16 @@ void GraphModel::DrawGraph(bool _selected)	{
 	if(_selected)
 		glPushName(3);
   for(auto e = m_graph.edges_begin(); e != m_graph.edges_end(); ++e) {
+		if(_selected)	{
+			glPushName(e->source());
+			glPushName(e->target());
+			glPushName(e->id());
+		}
     glBegin(GL_LINE_STRIP);
     for(auto& v : e->property().GetIntermediates())
       glVertex3dv(v.GetPoint());
     glEnd();
 		if(_selected)	{
-			glPushName(e->source());
-			glPushName(e->target());
-			glPushName(e->id());
 			glPopName();
 			glPopName();
 			glPopName();
