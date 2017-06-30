@@ -108,7 +108,10 @@ DrawSelect() {
 void
 EdgeModel::
 DrawSelected() {
-  glLineWidth(m_edgeThickness + 4);
+	bool planar = (m_startCfg->GetPoint()[2] == 0)? true : false;
+	if(planar)
+		glDisable(GL_LIGHTING);
+	glLineWidth(m_edgeThickness + 4);
 
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
@@ -121,6 +124,8 @@ DrawSelected() {
   }
 
   glVertex3dv(m_endCfg->GetPoint());
+	if(planar)
+		glEnable(GL_LIGHTING);
   glEnd();
 }
 
