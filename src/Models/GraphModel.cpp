@@ -80,6 +80,13 @@ Print(ostream& _os) const {
 void GraphModel::DrawGraph(bool _selected)	{
 	glDisable(GL_LIGHTING);
 
+	//Draw vertices label
+	for(auto v = m_graph.begin(); v != m_graph.end(); ++v)  {
+  	Point3d pos = v->property().GetPoint();
+  	glColor3d(0.1, 0.1, 0.1);
+  	DrawStr(pos[0]-0.75, pos[1]-0.75, pos[2], to_string(v->descriptor()));
+  }
+
   glPointSize(9);
   glLineWidth(3);
   glColor3f(0, 1, 0);
@@ -99,7 +106,15 @@ void GraphModel::DrawGraph(bool _selected)	{
   if(_selected)
 		glPopName();
 
+	//Draw vertices label
+	for(auto v = m_graph.begin(); v != m_graph.end(); ++v)  {
+  	Point3d pos = v->property().GetPoint();
+  	glColor3d(0.1, 0.1, 0.1);
+  	DrawStr(pos[0]-0.75, pos[1]-0.75, pos[2], to_string(v->descriptor()));
+  }
+	
   // Draw  graph edges.
+	glColor3f(0, 1, 0);
 	if(_selected)
 		glPushName(3);
   for(auto e = m_graph.edges_begin(); e != m_graph.edges_end(); ++e) {
@@ -121,13 +136,6 @@ void GraphModel::DrawGraph(bool _selected)	{
 	if(_selected)
 		glPopName();
 	
-
-	//Draw vertices label
-	for(auto v = m_graph.begin(); v != m_graph.end(); ++v)  {
-  	Point3d pos = v->property().GetPoint();
-  	glColor3d(0.1, 0.1, 0.1);
-  	DrawStr(pos[0]-0.75, pos[1]-0.75, pos[2], to_string(v->descriptor()));
-  }
 
 	glEnable(GL_LIGHTING);
 
