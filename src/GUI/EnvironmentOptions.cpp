@@ -24,6 +24,8 @@
 #include "Models/StaticMultiBodyModel.h"
 #include "Models/Vizmo.h"
 
+
+#include "NodeEditDialog.h"//new
 #include "Icons/AddObstacle.xpm"
 #include "Icons/ChangeBoundary.xpm"
 #include "Icons/DeleteObstacle.xpm"
@@ -272,7 +274,7 @@ AddSkeleton() {
       "Choose a skeleton to open", GetMainWindow()->GetLastDir(),
       "Files (*.env *.map *.query *.path *.vd *.xml *.graph)");
   typedef stapl::sequential::directed_preds_graph<
-   stapl::MULTIEDGES, Point3d, vector<Point3d>> GraphType;
+   stapl::MULTIEDGES, Point3d,vector<Point3d>> GraphType;
   if(!fn.isEmpty()){
     QFileInfo fi(fn);
     GetMainWindow()->statusBar()->showMessage("Loading:"+fi.absoluteFilePath());
@@ -284,13 +286,13 @@ AddSkeleton() {
       GetMainWindow()->AlertUser("File Not Good");
     GraphType _g;
     size_t _numVert, _numEdges;
-    input >> _numVert >> _numEdges;
+    input >> _numVert >> _numEdges;//extract from file the number of v and e
     //Get points
     for(size_t i = 0; i < _numVert; i++){
       Point3d _p1;
       size_t index;
       input >> index >> _p1 ;
-      _g.add_vertex(index, _p1);
+      _g.add_vertex(index, _p1);// THIS IS WHAT I NEED
     }
     //Get Edges
     for(size_t i = 0; i < _numEdges; i++){
@@ -351,11 +353,30 @@ void
 EnvironmentOptions::
 AddVertex()  {
   //Adds a vertex to the skeleton
+
+    NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Vertex");
+    GetMainWindow()->ShowDialog(ned);
+
   /*
-  NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Node");
-  GetMainWindow()->ShowDialog(ned);
-  */
-}
+  //new idk
+  //  auto _gm = env->GetGraphModel();
+//get env
+
+    EnvModel* env = GetVizmo().GetEnv();
+    //get the graph
+auto  _gm =env->GetGraphModel();//change to return GraphType*
+//add(new vertex)
+//how to get coordinates
+Point3d _p1;
+_gm->AddVertex(_p1);
+
+    //Update Environment
+    if(_gm)
+      _gm->SetRenderMode(SOLID_MODE);
+		RefreshEnv();
+ // GetMainWindow()->ShowDialog(ned);
+*/
+ }
 
 void
 EnvironmentOptions::

@@ -50,6 +50,7 @@ class GraphModel : public Model {
     //virtual void HighlightVertices() const;
     ///@}
 
+    void AddVertex(Point3d _p );
   private:
 		template <typename GraphType>
     void BuildGraph(const GraphType& _g);

@@ -383,6 +383,9 @@ FinalizeNodeEdit(int _accepted) {
       GetVizmo().PlaceRobots();
     }
   }
+
+  //till here
+  //
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
 }
 
@@ -390,6 +393,16 @@ FinalizeNodeEdit(int _accepted) {
 void
 NodeEditDialog::
 FinalizeNodeAdd(int _accepted) {
+ if(m_title.find("Vertex")!=string::npos){
+  GetMainWindow()->AlertUser("Adding Skeleton Vertex");
+ }
+
+ if(_accepted==1){
+   Point3d p= m_tempNode->GetPoint();
+   GetVizmo().GetEnv()->GetGraphModel()->AddVertex(p);
+ }
+ else{
+
   Map* map = GetVizmo().GetMap();
   if(map) {
     Graph* graph = map->GetGraph();
@@ -403,6 +416,9 @@ FinalizeNodeAdd(int _accepted) {
       else
         QMessageBox::about(this, "", "Cannot add invalid node!");
     }
+  }
+   //till here
+   //2
     GetMainWindow()->GetModelSelectionWidget()->ResetLists();
   }
 }

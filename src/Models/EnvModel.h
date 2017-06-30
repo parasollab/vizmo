@@ -200,7 +200,7 @@ class EnvModel : public Model {
     }
 
     //revised
-    Model* GetGraphModel(){
+    GraphModel* GetGraphModel(){
       return m_graphModel;
     }
 

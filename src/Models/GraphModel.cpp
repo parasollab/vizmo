@@ -2,6 +2,16 @@
 #include "Utilities/Font.h"
 
 
+
+
+
+void
+GraphModel::
+AddVertex(Point3d _p) {
+  auto vd= m_graph.add_vertex(CfgModel(_p));
+  m_graph.find_vertex(vd)->property().SetIndex(vd);
+}
+
 void
 GraphModel::
 Build() {
@@ -13,7 +23,7 @@ Build() {
     return;
   }
   glNewList(m_callList, GL_COMPILE);
- 
+
 }
 
 
@@ -21,7 +31,7 @@ void
 GraphModel::
 Select(GLuint* _index, vector<Model*>& _sel) {
   /*if(m_selectable && _index)
-    _sel.push_back(this);*/ 
+    _sel.push_back(this);*/
 	if(!m_selectable || _index == NULL)
     return;
 
@@ -42,7 +52,7 @@ GraphModel::
 DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return;
-  if(m_callList == 0)	
+  if(m_callList == 0)
     Build();
 	DrawGraph();
   glCallList(m_callList);
@@ -112,7 +122,7 @@ void GraphModel::DrawGraph(bool _selected)	{
   	glColor3d(0.1, 0.1, 0.1);
   	DrawStr(pos[0]-0.75, pos[1]-0.75, pos[2], to_string(v->descriptor()));
   }
-	
+
   // Draw  graph edges.
 	glColor3f(0, 1, 0);
 	if(_selected)
@@ -135,7 +145,7 @@ void GraphModel::DrawGraph(bool _selected)	{
   }
 	if(_selected)
 		glPopName();
-	
+
 
 	glEnable(GL_LIGHTING);
 
@@ -154,7 +164,7 @@ BuildGraph<ReebGraphConstruction::ReebGraph>(const ReebGraphConstruction::ReebGr
 		m_graph.find_vertex(vd)->property().SetIndex(vd);
 	}
 
-	// Add graph edges 
+	// Add graph edges
 	size_t edgeId = 0;
 	for(auto e = _g.edges_begin(); e != _g.edges_end(); ++e) {
 		vector<CfgModel> intermediates;
@@ -173,7 +183,7 @@ template <>
 void
 GraphModel::
 BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGraph& _g) {
-	
+
 	// Add graph vertices
 	for(auto v = _g.begin(); v != _g.end(); ++v)	{
 		auto vd = (*v).descriptor();
@@ -182,7 +192,7 @@ BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGr
 
 	}
 
-	// Add graph edges 
+	// Add graph edges
 	size_t edgeId = 0;
 	for(auto e = _g.edges_begin(); e != _g.edges_end(); ++e) {
 		vector<CfgModel> intermediates;
@@ -223,7 +233,7 @@ GraphModel::
 GetChildren(list<Model*>& _models) {
 	for(auto v = m_graph.begin(); v != m_graph.end(); ++v)
     _models.push_back(&(*v).property());
-  for(auto e = m_graph.edges_begin(); e != m_graph.edges_end(); ++e)  
+  for(auto e = m_graph.edges_begin(); e != m_graph.edges_end(); ++e)
 		_models.push_back(&(*e).property());
 }
 
