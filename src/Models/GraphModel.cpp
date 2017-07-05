@@ -1,10 +1,6 @@
 #include "GraphModel.h"
 #include "Utilities/Font.h"
 
-
-
-
-
 void
 GraphModel::
 AddVertex(Point3d _p) {
@@ -90,14 +86,7 @@ Print(ostream& _os) const {
 void GraphModel::DrawGraph(bool _selected)	{
 	glDisable(GL_LIGHTING);
 
-	//Draw vertices label
-	for(auto v = m_graph.begin(); v != m_graph.end(); ++v)  {
-  	Point3d pos = v->property().GetPoint();
-  	glColor3d(0.1, 0.1, 0.1);
-  	DrawStr(pos[0]-0.75, pos[1]-0.75, pos[2], to_string(v->descriptor()));
-  }
-
-  glPointSize(9);
+	glPointSize(9);
   glLineWidth(3);
   glColor3f(0, 1, 0);
 
@@ -158,24 +147,18 @@ void
 GraphModel::
 BuildGraph<ReebGraphConstruction::ReebGraph>(const ReebGraphConstruction::ReebGraph& _g) {
 	// Add graph vertices
-	for(auto v = _g.begin(); v != _g.end(); ++v) {
-		auto vd = (*v).descriptor();
-		m_graph.add_vertex(vd, CfgModel((*v).property().m_vertex));
-		m_graph.find_vertex(vd)->property().SetIndex(vd);
-	}
-
+	for(auto v = _g.begin(); v != _g.end(); ++v) 
+		m_graph.add_vertex((*v).descriptor(), CfgModel((*v).property().m_vertex));
+	
 	// Add graph edges
-	size_t edgeId = 0;
 	for(auto e = _g.edges_begin(); e != _g.edges_end(); ++e) {
 		vector<CfgModel> intermediates;
 		for(auto& v : e->property().m_path)
 			intermediates.emplace_back(CfgModel(v));
-		EdgeModel edge("",1, intermediates);
-		auto src = m_graph.find_vertex(e->source());
-		auto trgt = m_graph.find_vertex(e->target());
-		edge.Set(edgeId++, &((*src).property()), &((*trgt).property()));
-		m_graph.add_edge(e->source(), e->target(), edge);
+		m_graph.add_edge(e->source(), e->target(),  EdgeModel("",1, intermediates));
 	}
+	
+	SetIndices();
 }
 
 
@@ -185,24 +168,32 @@ GraphModel::
 BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGraph& _g) {
 
 	// Add graph vertices
-	for(auto v = _g.begin(); v != _g.end(); ++v)	{
-		auto vd = (*v).descriptor();
-		m_graph.add_vertex(vd, CfgModel((*v).property()));
-		m_graph.find_vertex(vd)->property().SetIndex(vd);
-
-	}
+	for(auto v = _g.begin(); v != _g.end(); ++v)	
+		m_graph.add_vertex((*v).descriptor(), CfgModel((*v).property()));
 
 	// Add graph edges
-	size_t edgeId = 0;
 	for(auto e = _g.edges_begin(); e != _g.edges_end(); ++e) {
 		vector<CfgModel> intermediates;
 		for(auto& v : e->property())
 			intermediates.emplace_back(CfgModel(v));
-		EdgeModel edge("",1, intermediates);
+		m_graph.add_edge(e->source(), e->target(), EdgeModel("",1, intermediates));
+	}
+	
+	SetIndices();
+}
+
+void 
+GraphModel::
+SetIndices()	{
+	// Set names for vertices
+	for(auto v = m_graph.begin(); v != m_graph.end(); ++v)
+		v->property().SetIndex(v->descriptor());
+
+	// Set edges 
+	for(auto e = m_graph.edges_begin(); e != m_graph.edges_end(); ++e)	{
 		auto src = m_graph.find_vertex(e->source());
 		auto trgt = m_graph.find_vertex(e->target());
-		edge.Set(edgeId++, &((*src).property()), &((*trgt).property()));
-		m_graph.add_edge(e->source(), e->target(), edge);
+		e->property().Set(e->descriptor().id(), &((*src).property()), &((*trgt).property()));
 	}
 
 }

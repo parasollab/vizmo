@@ -46,15 +46,18 @@ class GraphModel : public Model {
 
     //revision
     virtual void SaveSkeleton(ostream& _os) const;
-    virtual SkeletonGraphType GetGraph() { return m_graph; }
+    virtual SkeletonGraphType* GetGraph() { return &m_graph; }
     //virtual void HighlightVertices() const;
     ///@}
 
     void AddVertex(Point3d _p );
+
   private:
+
 		template <typename GraphType>
     void BuildGraph(const GraphType& _g);
 		void DrawGraph(bool _selected = false);
+		void SetIndices();
 
     ///@}
     ///@name Internal State
@@ -65,21 +68,5 @@ class GraphModel : public Model {
 
     ///@}
 };
-
-/*----------------------------------------------------------------------------*/
-
-
-//revision
-
-/*
-template <typename GraphType>
-void
-GraphModel<GraphType>::
-SaveSkeleton(ostream& _os) const {
-  _os << "Graph" << endl
-      << "\tNum vertices: " << m_graph.get_num_vertices() << endl
-      << "\tNum edges: " << m_graph.get_num_edges() << endl;
-}*/
-/*----------------------------------------------------------------------------*/
 
 #endif
