@@ -3,6 +3,10 @@
 
 #include "EnvironmentOptions.h"
 
+#include "Utilities/ReebGraphConstruction.h"
+#include "Models/GraphModel.h"
+#include <vector>
+
 #include "Environment/FixedBody.h"
 #include "Environment/StaticMultiBody.h"
 
@@ -13,6 +17,7 @@
 #include "MainMenu.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
+#include "NodeEditDialog.h"
 #include "ObstaclePosDialog.h"
 
 #include "Models/EnvModel.h"
@@ -78,7 +83,7 @@ CreateActions() {
       tr("Add a Skeleton"),this);
   m_actions["saveSkeleton"] = new QAction(QPixmap(addobstacle),
       tr("Save the Skeleton"),this);
-  m_actions["skeletonInfo"] = new QAction(QPixmap(changeboundary),
+  m_actions["deleteSelected"] = new QAction(QPixmap(changeboundary),
       tr("Toggle Skeleton Info"), this);
   m_actions["addVertex"] = new QAction(QPixmap(addobstacle),
       tr("Add a node to the skeleton"), this);
@@ -97,7 +102,7 @@ CreateActions() {
   //revisions
   m_actions["addSkeleton"]->setEnabled(false);
   m_actions["saveSkeleton"]->setEnabled(false);
-  m_actions["skeletonInfo"]->setEnabled(false);
+  m_actions["deleteSelected"]->setEnabled(false);
   m_actions["addVertex"]->setEnabled(false);
 
   //3. Make connections
@@ -126,8 +131,8 @@ CreateActions() {
       this, SLOT(AddSkeleton()));
   connect(m_actions["saveSkeleton"],SIGNAL(triggered()),
       this, SLOT(SaveSkeleton()));
-  connect(m_actions["skeletonInfo"],SIGNAL(triggered()),
-      this, SLOT(ShowSkeletonInfo()));
+  connect(m_actions["deleteSelected"],SIGNAL(triggered()),
+      this, SLOT(DeleteSelectedItems()));
   connect(m_actions["addVertex"],SIGNAL(triggered()),
       this, SLOT(AddVertex()));
 
@@ -159,7 +164,7 @@ SetHelpTips() {
   m_actions["addSkeleton"]->setWhatsThis(tr("Add a skeleton"));
   m_actions["saveSkeleton"]->setWhatsThis(tr("Save your Skeleton"));
   m_actions["addVertex"]->setWhatsThis(tr("Add a node to the Skeleton"));
-  m_actions["skeletonInfo"]->setWhatsThis(tr("Toggle Skeleton Information"));
+  m_actions["deleteSelected"]->setWhatsThis(tr("Delete Selected Items"));
 }
 
 
@@ -189,7 +194,7 @@ SetUpSubmenu() {
   m_skeletonMenu->addAction(m_actions["saveSkeleton"]);
   m_skeletonMenu->addAction(m_actions["addSkeleton"]);
   m_skeletonMenu->addAction(m_actions["addVertex"]);
-  m_skeletonMenu->addAction(m_actions["skeletonInfo"]);
+  m_skeletonMenu->addAction(m_actions["deleteSelected"]);
   m_submenu->addMenu(m_skeletonMenu);
   m_skeletonMenu->setEnabled(false);
 
@@ -222,7 +227,7 @@ SetUpToolTab() {
   buttonList.push_back("addSkeleton");
   buttonList.push_back("saveSkeleton");
   buttonList.push_back("addVertex");
-  buttonList.push_back("skeletonInfo");
+  buttonList.push_back("deleteSelected");
   buttonList.push_back("_separator_");
 
   CreateToolTab(buttonList);
@@ -250,7 +255,7 @@ Reset() {
   m_actions["addSkeleton"]->setEnabled(true);
   m_actions["saveSkeleton"]->setEnabled(true);
   m_actions["addVertex"]->setEnabled(true);
-  m_actions["skeletonInfo"]->setEnabled(true);
+  m_actions["deleteSelected"]->setEnabled(true);
 
   m_obstacleMenu->setEnabled(true);
 }
@@ -340,12 +345,6 @@ SaveSkeleton() {
      GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
 }
 
-void
-EnvironmentOptions::
-ShowSkeletonInfo()  {
-  //Show Skeleton Info
-
-}
 
 
 //revisions
@@ -356,47 +355,26 @@ AddVertex()  {
 
     NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Vertex");
     GetMainWindow()->ShowDialog(ned);
-
-  /*
-  //new idk
-  //  auto _gm = env->GetGraphModel();
-//get env
-
-    EnvModel* env = GetVizmo().GetEnv();
-    //get the graph
-auto  _gm =env->GetGraphModel();//change to return GraphType*
-//add(new vertex)
-//how to get coordinates
-Point3d _p1;
-_gm->AddVertex(_p1);
-
-    //Update Environment
-    if(_gm)
-      _gm->SetRenderMode(SOLID_MODE);
-		RefreshEnv();
- // GetMainWindow()->ShowDialog(ned);
-*/
  }
 
 void
 EnvironmentOptions::
 DeleteSelectedItems() {
   //Deletes selected items from the skeleton
-  /*
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  Map* map = GetVizmo().GetMap();
-  Graph* graph = map->GetGraph();
+  EnvModel* env = GetVizmo().GetEnv();
+  GraphModel::SkeletonGraphType _gm = env-> GetGraphModel()->GetGraph();
 
   bool selectionValid = false;
-  vector<VID> nodesToDelete;
-  vector<pair<VID, VID> > edgesToDelete;
+  vector<GraphModel::SkeletonGraphType::vertex_descriptor> nodesToDelete;
+  vector<pair<GraphModel::SkeletonGraphType::vertex_descriptor, GraphModel::SkeletonGraphType::vertex_descriptor> > edgesToDelete;
 
   //Mark selected items for removal
-  for(MIT it = sel.begin(); it != sel.end(); it++) {
+  for(auto it = sel.begin(); it != sel.end(); it++) {
     string objName = (*it)->Name();
     if(objName.substr(0, 4) == "Node") {
       selectionValid = true;
-      VID vid = ((CfgModel*)(*it))->GetIndex();
+      auto vid = ((CfgModel*)(*it))->GetIndex();
       nodesToDelete.push_back(vid);
     }
     else if(objName.substr(0, 4) == "Edge") {
@@ -406,25 +384,26 @@ DeleteSelectedItems() {
             e->GetEndCfg()->GetIndex()));
     }
   }
+
   if(selectionValid == false)
     GetMainWindow()->AlertUser("Please select a group of nodes and edges to"
         " remove.");
   else {
     //Remove selected vertices
-    typedef vector<VID>::iterator VIT;
-    for(VIT it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
-      graph->delete_vertex(*it);
+    typedef vector<size_t>::iterator VIT;
+    for(auto it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
+       _gm.delete_vertex(*it);
     //Remove selected edges
-    typedef vector<pair<VID, VID> >::iterator EIT;
-    for(EIT it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
-      graph->delete_edge(it->first, it->second);
-      graph->delete_edge(it->second, it->first);
+    typedef vector<pair<size_t, size_t> >::iterator EIT;
+    for(auto it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
+       _gm.delete_edge(it->first, it->second);
     }
-    map->RefreshMap();
+    RefreshEnv();
     GetMainWindow()->GetModelSelectionWidget()->ResetLists();
     sel.clear();
+    cout << "deleted" << endl;
   }
-  */
+
 }
 
 void

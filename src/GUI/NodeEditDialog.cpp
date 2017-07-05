@@ -107,12 +107,14 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
     if(GetVizmo().GetMap()) {
       Graph* graph = GetVizmo().GetMap()->GetGraph();
       VI vit = graph->find_vertex(m_originalNode->GetIndex());
-      for(EI eit = vit->begin(); eit != vit->end(); ++eit) {
-        m_nodesToConnect.push_back((*eit).target());
-        EdgeModel* tempEdge = new EdgeModel((*eit).property());
-        CfgModel* targetCfg = &(graph->find_vertex((*eit).target())->property());
-        tempEdge->Set(m_tempNode, targetCfg);
-        m_tempObjs.AddModel(tempEdge);
+      if(vit != graph->end()) {
+        for(EI eit = vit->begin(); eit != vit->end(); ++eit) {
+          m_nodesToConnect.push_back((*eit).target());
+          EdgeModel* tempEdge = new EdgeModel((*eit).property());
+          CfgModel* targetCfg = &(graph->find_vertex((*eit).target())->property());
+          tempEdge->Set(m_tempNode, targetCfg);
+          m_tempObjs.AddModel(tempEdge);
+        }
       }
     }
   }
@@ -250,8 +252,8 @@ Init() {
 void
 NodeEditDialog::
 SetUpSliders(vector<NodeEditSlider*>& _sliders) {
-  const vector<ActiveMultiBody::DOFInfo>& dofInfo =
-    GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->GetDOFInfo();
+    const vector<ActiveMultiBody::DOFInfo>& dofInfo =
+      GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->GetDOFInfo();
   QSignalMapper* sliderMapper = new QSignalMapper(this);
   connect(sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
 
@@ -346,7 +348,17 @@ ValidityCheck() {
 void
 NodeEditDialog::
 FinalizeNodeEdit(int _accepted) {
+  if(m_title == "New Vertex") {
+    //Access Skeleton
+    if(_accepted == 1)  { //user pressed okay
+      if(m_tempNode->IsValid()) {
+       // GetVizmo().GetEnv()->AddVertex();
+      }
+    }
+  }
+  else {
 
+  }
   Map* map = GetVizmo().GetMap();
 
   if(_accepted == 1) {  //user pressed okay
@@ -393,35 +405,33 @@ FinalizeNodeEdit(int _accepted) {
 void
 NodeEditDialog::
 FinalizeNodeAdd(int _accepted) {
-	// Check adding vertex in skeleton graph or roadmap graph
-	if(m_title.find("Vertex")!=string::npos)	{
-		GetMainWindow()->AlertUser("Adding Skeleton Vertex");
-		if(_accepted==1){
-   		Point3d p= m_tempNode->GetPoint();
-			auto skeleton = GetVizmo().GetEnv()->GetGraphModel();
-			if(skeleton)	{
-   			skeleton->AddVertex(p);
-				GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-			}
- 		}
-	}
-	else	{
-		Map* map = GetVizmo().GetMap();
-  	if(map) {
-    	Graph* graph = map->GetGraph();
-    	if(_accepted == 1) {
-      	if(m_tempNode->IsValid()) {
-        	CfgModel newNode = *m_tempNode;
-        	newNode.SetRenderMode(SOLID_MODE);
-        	graph->add_vertex(newNode);
-        	map->RefreshMap();
-      	}
-      	else
-        	QMessageBox::about(this, "", "Cannot add invalid node!");
-    	}
-			GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-		}
-	}
+ if(m_title.find("Vertex")!=string::npos){
+    if(_accepted==1){
+       GetMainWindow()->AlertUser("Adding Skeleton Vertex");
+       Point3d p= m_tempNode->GetPoint();
+       GetVizmo().GetEnv()->GetGraphModel()->AddVertex(p);
+       GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+    }
+ }
+ else{
+  Map* map = GetVizmo().GetMap();
+  if(map) {
+    Graph* graph = map->GetGraph();
+    if(_accepted == 1) {
+      if(m_tempNode->IsValid()) {
+        CfgModel newNode = *m_tempNode;
+        newNode.SetRenderMode(SOLID_MODE);
+        graph->add_vertex(newNode);
+        map->RefreshMap();
+      }
+      else
+        QMessageBox::about(this, "", "Cannot add invalid node!");
+    }
+  }
+   //till here
+   //2
+    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  }
 }
 
 
