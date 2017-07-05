@@ -393,34 +393,35 @@ FinalizeNodeEdit(int _accepted) {
 void
 NodeEditDialog::
 FinalizeNodeAdd(int _accepted) {
- if(m_title.find("Vertex")!=string::npos){
-  GetMainWindow()->AlertUser("Adding Skeleton Vertex");
- }
-
- if(_accepted==1){
-   Point3d p= m_tempNode->GetPoint();
-   GetVizmo().GetEnv()->GetGraphModel()->AddVertex(p);
- }
- else{
-
-  Map* map = GetVizmo().GetMap();
-  if(map) {
-    Graph* graph = map->GetGraph();
-    if(_accepted == 1) {
-      if(m_tempNode->IsValid()) {
-        CfgModel newNode = *m_tempNode;
-        newNode.SetRenderMode(SOLID_MODE);
-        graph->add_vertex(newNode);
-        map->RefreshMap();
-      }
-      else
-        QMessageBox::about(this, "", "Cannot add invalid node!");
-    }
-  }
-   //till here
-   //2
-    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  }
+	// Check adding vertex in skeleton graph or roadmap graph
+	if(m_title.find("Vertex")!=string::npos)	{
+		GetMainWindow()->AlertUser("Adding Skeleton Vertex");
+		if(_accepted==1){
+   		Point3d p= m_tempNode->GetPoint();
+			auto skeleton = GetVizmo().GetEnv()->GetGraphModel();
+			if(skeleton)	{
+   			skeleton->AddVertex(p);
+				GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+			}
+ 		}
+	}
+	else	{
+		Map* map = GetVizmo().GetMap();
+  	if(map) {
+    	Graph* graph = map->GetGraph();
+    	if(_accepted == 1) {
+      	if(m_tempNode->IsValid()) {
+        	CfgModel newNode = *m_tempNode;
+        	newNode.SetRenderMode(SOLID_MODE);
+        	graph->add_vertex(newNode);
+        	map->RefreshMap();
+      	}
+      	else
+        	QMessageBox::about(this, "", "Cannot add invalid node!");
+    	}
+			GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+		}
+	}
 }
 
 
