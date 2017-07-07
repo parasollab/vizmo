@@ -199,10 +199,10 @@ class EnvModel : public Model {
       m_graphModel = new GraphModel(_g);
     }
 
-    //revised
-    GraphModel* GetGraphModel(){
-      return m_graphModel;
-    }
+    /// @brief Get the skeleton graph model
+    GraphModel* GetGraphModel()	{ 
+			return m_graphModel;  
+		}
 
     // Display functions
     void ChangeColor(); ///< Change all objects' colors randomly.
@@ -217,9 +217,10 @@ class EnvModel : public Model {
     void DrawSelected() {}
     void Print(ostream& _os) const;
     void SaveFile(const string& _filename) const;
-    //revised
+
+    // Skeleton functions
     void SaveGraphFile(ostream& _os) const;
-    void HighlightSkeleton() const;
+
   private:
 
     vector<shared_ptr<ActiveMultiBodyModel>> m_robots;    ///< All robots.

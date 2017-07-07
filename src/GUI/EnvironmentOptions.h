@@ -29,13 +29,15 @@ class EnvironmentOptions : public OptionsBase {
     void DuplicateObstacles();  ///< Duplicate the selected obstacles.
     void ChangeBoundaryForm();  ///< Launch a ChangeBoundaryDialog.
     void EditRobot();           ///< Launch an EditRobotDialog.
-    //Revisions
-    void AddSkeleton();         ///< Adds a skeleton
-    void SaveSkeleton();        ///< Saves current skeleton
-    void AddVertex();           ///< Adds a vertex to the skeleton
-    void ShowSkeletonInfo(){};    ///< Toggle showing skeleton information.
-    void AddStraightLineEdge();//Adds an edge
-    void DeleteSelectedItems();  ///< Deletes selected items
+
+    //skeleton functions
+    void AddSkeleton();         	///< Adds a skeleton
+    void SaveSkeleton();        	///< Saves current skeleton
+		void ShowSkeletonInfo(){};  	///< Toggle showing skeleton information.
+    void AddVertex();           	///< Adds a vertex to the skeleton
+    void AddStraightLineEdge();		///< Adds an edge
+    void DeleteSelectedItems();		///< Deletes selected items
+
     //environment display functions
     void RefreshEnv();    ///< Reset the rendering mode and ModelSelectionWidget.
     void ClickRobot();          ///< Display configurations in robot mode.

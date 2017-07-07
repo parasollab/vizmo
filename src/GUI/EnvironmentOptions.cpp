@@ -270,9 +270,8 @@ Reset() {
   m_obstacleMenu->setEnabled(true);
 }
 
-/*----------------------- Environment Editing --------------------------------*/
+/*----------------------- Skeleton Editing --------------------------------*/
 
-//revisions
 void
 EnvironmentOptions::
 AddSkeleton() {
@@ -285,132 +284,136 @@ AddSkeleton() {
   /// \arg \c .vd
   /// \arg \c .xml
   //  \arg \c .graph
-  QString fn = QFileDialog::getOpenFileName(this,
+	QString fn = QFileDialog::getOpenFileName(this,
       "Choose a skeleton to open", GetMainWindow()->GetLastDir(),
       "Files (*.env *.map *.query *.path *.vd *.xml *.graph)");
-  typedef stapl::sequential::directed_preds_graph<
+	typedef stapl::sequential::directed_preds_graph<
    stapl::MULTIEDGES, Point3d,vector<Point3d>> GraphType;
-  if(!fn.isEmpty()){
-    QFileInfo fi(fn);
-    GetMainWindow()->statusBar()->showMessage("Loading:"+fi.absoluteFilePath());
-    GetMainWindow()->AlertUser("Loaded Skeleton: "+fi.fileName().toStdString());
 
-    //Read the file
-    ifstream input(fi.absoluteFilePath().toStdString());
-    if(!input.good())
-      GetMainWindow()->AlertUser("File Not Good");
-    GraphType _g;
-    size_t _numVert, _numEdges;
-    input >> _numVert >> _numEdges;//extract from file the number of v and e
-    //Get points
-    for(size_t i = 0; i < _numVert; i++){
-      Point3d _p1;
-      size_t index;
-      input >> index >> _p1 ;
-      _g.add_vertex(index, _p1);// THIS IS WHAT I NEED
-    }
-    //Get Edges
-    for(size_t i = 0; i < _numEdges; i++){
-      size_t _v1, _v2;
-      input >> _v1 >> _v2;
-      size_t _interVerts;
-      vector<Point3d> _edge;
-      input >> _interVerts;
-      for(size_t j = 0; j < _interVerts; j++){
-        Point3d _p;
-        input >> _p;
-        _edge.push_back(_p);
-      }
-      _g.add_edge(_v1,_v2,_edge);
-    }
-    //Make A Graph Model
-    EnvModel* env = GetVizmo().GetEnv();
-    env->AddGraphModel(_g);
-    auto _gm = env->GetGraphModel();
-    //Update Environment
-    if(_gm)
-      _gm->SetRenderMode(SOLID_MODE);
+	if(!fn.isEmpty()) {
+		QFileInfo fi(fn);
+		GetMainWindow()->statusBar()->showMessage("Loading:"+fi.absoluteFilePath());
+		GetMainWindow()->AlertUser("Loaded Skeleton: "+fi.fileName().toStdString());
+
+		// Read the file
+		ifstream input(fi.absoluteFilePath().toStdString());
+		if(!input.good())
+			GetMainWindow()->AlertUser("File Not Good");
+		GraphType g;
+		size_t numVert, numEdges;
+		// Extract from file the number of vertices and edges
+		input >> numVert >> numEdges;
+
+		// Get vertices
+		for(size_t i = 0; i < numVert; i++)	{
+			Point3d p;
+			size_t index;
+			// Read the vertex descriptor and the co-ordinates
+			input >> index >> p;
+			g.add_vertex(index, p);
+		}
+
+		// Get edges
+		for(size_t i = 0; i < numEdges; i++){
+			size_t v1, v2;
+			// Get source and target descriptor
+			input >> v1 >> v2;
+			size_t interVerts;
+			vector<Point3d> edge;
+			// Get number of intermediates
+			input >> interVerts;
+			// Get the intermediates coordinates
+			for(size_t j = 0; j < interVerts; j++){
+				Point3d p;
+				input >> p;
+				edge.push_back(p);
+			}
+			// Add edge
+			g.add_edge(v1,v2,edge);
+		}
+
+		// Make a graph model
+		EnvModel* env = GetVizmo().GetEnv();
+		env->AddGraphModel(g);
+		auto gm = env->GetGraphModel();
+
+		// Update environment
+		if(gm)
+			gm->SetRenderMode(SOLID_MODE);
 		RefreshEnv();
-  }
-  else
-    GetMainWindow()->statusBar()->showMessage("Loading aborted");
-
+	}
+	else
+		GetMainWindow()->statusBar()->showMessage("Loading aborted");
 }
-//revisions
+
 void
 EnvironmentOptions::
 SaveSkeleton() {
-  //save skeleton in the workspace
+	//save skeleton in the workspace
 
-  QString fn = QFileDialog::getSaveFileName(this, "Chose a file name for the Skeleton",
+	QString fn = QFileDialog::getSaveFileName(this, "Chose a file name for the Skeleton",
       GetMainWindow()->GetLastDir(), "Files  (*.graph)");
 
-  if(!fn.isEmpty()){
-     EnvModel* env = GetVizmo().GetEnv();
-     QFileInfo fi(fn);
-     ofstream output(fi.absoluteFilePath().toStdString());
-     env->SaveGraphFile(output);
-   }
-   else
-     GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
+	if(!fn.isEmpty()) {
+		EnvModel* env = GetVizmo().GetEnv();
+		QFileInfo fi(fn);
+		ofstream output(fi.absoluteFilePath().toStdString());
+		env->SaveGraphFile(output);
+	}
+	else
+		GetMainWindow()->statusBar()->showMessage("Saving aborted", 2000);
 }
 
+void
+EnvironmentOptions::
+AddVertex()	{
+	//Adds a vertex to the skeleton
+	NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Vertex");
+	GetMainWindow()->ShowDialog(ned);
+}
 
-
-//revisions
 void
 EnvironmentOptions::
 AddStraightLineEdge() {
-  //By default, just attempts straight line and does not pop up EdgeEditDialog
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  vector<CfgModel*> selNodes;
-  EnvModel* env = GetVizmo().GetEnv();
-  GraphModel::SkeletonGraphType*  _gm = env->GetGraphModel()->GetGraph();
+	// By default, just attempts straight line and does not pop up EdgeEditDialog
+	vector<Model*>& sel = GetVizmo().GetSelectedModels();
+	vector<CfgModel*> selNodes;
+	EnvModel* env = GetVizmo().GetEnv();
+	GraphModel::SkeletonGraphType*  gm = env->GetGraphModel()->GetGraph();
 
-//  Filter away selected edges, but still enforce two nodes
-for(auto it = sel.begin(); it != sel.end(); it++)
-    if((*it)->Name().substr(0, 4) == "Node")
-      selNodes.push_back((CfgModel*)*it);
+	// Filter away selected edges, but still enforce two nodes
+	for(auto it = sel.begin(); it != sel.end(); it++)
+		if((*it)->Name().substr(0, 4) == "Node")
+			selNodes.push_back((CfgModel*)*it);
 
-  if(selNodes.size() != 2) {
-    GetMainWindow()->AlertUser("Please select exactly two nodes.");
-    return;
-  }
+	// Enforce the selction of exactly two nodes
+	if(selNodes.size() != 2) {
+		GetMainWindow()->AlertUser("Please select exactly two nodes.");
+		return;
+	}
 
-       size_t v0 = selNodes[0]->GetIndex();
-    size_t v1 = selNodes[1]->GetIndex();
-//    _gm->add_edge(v0, v1);
-    vector<CfgModel> intermediates;
-   intermediates.push_back((*_gm->find_vertex(v0)).property());
-         intermediates.push_back((*_gm->find_vertex(v1)).property());
+	// Get the source and target descriptor
+	size_t v0 = selNodes[0]->GetIndex();
+	size_t v1 = selNodes[1]->GetIndex();
 
-//SkeletonGraphType::vertex_iterator viTemp, viTemp2;
- //   _gm->add_edge(v0, v1);
- // _gm->AddEdge(v0,v1);
-// SkeletonGraphType:: adj_edge_iterator eiTemp; //eiTemp2;
+	// Create the intermediate list with source and target as initial list
+	vector<CfgModel> intermediates;
+	intermediates.push_back((*gm->find_vertex(v0)).property());
+	intermediates.push_back((*gm->find_vertex(v1)).property());
 
-//*_gm->find_edge(SkeletonGraphType::edge_descriptor(v1,v2), viTemp, eiTemp);
-         _gm->add_edge(v0, v1, EdgeModel("",1, intermediates));
-    //Set edge weights in underlying graph
- // _gm->AddEdge(v0,v1);
-    env->GetGraphModel()->Build();
-    RefreshEnv();
-    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-  sel.clear();
+	// Add the edge in the graph
+	auto ed = gm->add_edge(v0, v1, EdgeModel("",1, intermediates));
+	GraphModel::SkeletonGraphType::vertex_iterator vi;
+	GraphModel::SkeletonGraphType::adj_edge_iterator ei;
+	gm->find_edge(ed, vi, ei);
+	ei->property().Set(ed.id(), &((*gm->find_vertex(v0)).property()), 
+				&((*gm->find_vertex(v1)).property()));
 
-
-
-
+	// Refresh the environment
+	env->GetGraphModel()->Refresh();
+	RefreshEnv();
+	sel.clear();
 }
-
-void
-EnvironmentOptions::
-AddVertex()  {
-  //Adds a vertex to the skeleton
-
-    NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Vertex");
-    GetMainWindow()->ShowDialog(ned);
- }
 
 void
 EnvironmentOptions::
@@ -418,11 +421,14 @@ DeleteSelectedItems() {
   //Deletes selected items from the skeleton
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   EnvModel* env = GetVizmo().GetEnv();
-  GraphModel::SkeletonGraphType* _gm = env-> GetGraphModel()->GetGraph();
+  GraphModel::SkeletonGraphType* _gm = env->GetGraphModel()->GetGraph();
+
 
   bool selectionValid = false;
-  vector<GraphModel::SkeletonGraphType::vertex_descriptor> nodesToDelete;
-  vector<pair<GraphModel::SkeletonGraphType::vertex_descriptor, GraphModel::SkeletonGraphType::vertex_descriptor> > edgesToDelete;
+	typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
+	typedef GraphModel::SkeletonGraphType::vertex_descriptor  VD;
+  vector<VD> nodesToDelete;
+  vector<ED> edgesToDelete;
 
   //Mark selected items for removal
   for(auto it = sel.begin(); it != sel.end(); it++) {
@@ -435,8 +441,8 @@ DeleteSelectedItems() {
     else if(objName.substr(0, 4) == "Edge") {
       selectionValid = true;
       EdgeModel* e = (EdgeModel*)(*it);
-      edgesToDelete.push_back(make_pair(e->GetStartCfg()->GetIndex(),
-            e->GetEndCfg()->GetIndex()));
+      edgesToDelete.push_back(ED(e->GetStartCfg()->GetIndex(),
+            e->GetEndCfg()->GetIndex(),e->GetID()));
     }
   }
 
@@ -445,22 +451,22 @@ DeleteSelectedItems() {
         " remove.");
   else {
     //Remove selected vertices
-    typedef vector<size_t>::iterator VIT;
-    for(auto it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
-       _gm->delete_vertex(*it);
+   	for(auto it = nodesToDelete.begin(); it != nodesToDelete.end(); it++) 
+		   _gm->delete_vertex(*it);
+	
     //Remove selected edges
-    typedef vector<pair<size_t, size_t> >::iterator EIT;
     for(auto it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
-       _gm->delete_edge(it->first, it->second);
+       _gm->delete_edge(*it);
     }
-    env-> GetGraphModel()->Build();
-    RefreshEnv();
-    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+       
+		env->GetGraphModel()->Refresh();
+		RefreshEnv();
     sel.clear();
-    cout << "deleted" << endl;
   }
 
 }
+
+/*----------------------- Environment Editing --------------------------------*/
 
 void
 EnvironmentOptions::

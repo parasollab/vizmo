@@ -44,20 +44,24 @@ class GraphModel : public Model {
     virtual void Print(ostream& _os) const override;
 		virtual void GetChildren(list<Model*>& _models) override;
 
-    //revision
-    virtual void SaveSkeleton(ostream& _os) const;
-    virtual SkeletonGraphType* GetGraph() { return &m_graph; }
-    //virtual void HighlightVertices() const;
-    ///@}
-    void AddEdge(size_t v1, size_t v2);
-    void AddVertex(Point3d _p );
+		///@}
+  	///name Accessor Functions
+    ///@{
+    virtual void SaveSkeleton(ostream& _os) const;	///< Save the skleton in a file
+    virtual SkeletonGraphType* GetGraph() { return &m_graph; }	///< Get the underlying graph
+    void AddEdge(size_t _v1, size_t _v2);		///< Add an edge
+    void AddVertex(Point3d _p);						///< Add a vertex
+		void Refresh();						///< Refresh the skeleton
 
   private:
+		///@}
+		///name Helper Functions
+		///@{
 
 		template <typename GraphType>
-    void BuildGraph(const GraphType& _g);
-		void DrawGraph(bool _selected = false);
-		void SetIndices();
+    void BuildGraph(const GraphType& _g);			///< Build the graph model from a given graph
+		void DrawGraph();													///< Underlying draw function
+		void SetIndices();												///< Set the other parameters of the vertices and edges
 
     ///@}
     ///@name Internal State
@@ -65,6 +69,7 @@ class GraphModel : public Model {
 
     SkeletonGraphType m_graph;      ///< Graph to model.
     GLuint m_callList{0};    ///< Compiled GL call list for  graph.
+		bool m_selected{false};
 
     ///@}
 };
