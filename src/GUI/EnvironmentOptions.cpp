@@ -17,10 +17,12 @@
 #include "MainMenu.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
+#include "EdgeEditDialog.h"
 #include "NodeEditDialog.h"
 #include "ObstaclePosDialog.h"
 
 #include "Models/EnvModel.h"
+#include "Models/EdgeModel.h"
 #include "Models/QueryModel.h"
 #include "Models/RegionBoxModel.h"
 #include "Models/RegionBox2DModel.h"
@@ -30,7 +32,6 @@
 #include "Models/Vizmo.h"
 
 
-#include "NodeEditDialog.h"//new
 #include "Icons/AddObstacle.xpm"
 #include "Icons/ChangeBoundary.xpm"
 #include "Icons/DeleteObstacle.xpm"
@@ -87,6 +88,8 @@ CreateActions() {
       tr("Toggle Skeleton Info"), this);
   m_actions["addVertex"] = new QAction(QPixmap(addobstacle),
       tr("Add a node to the skeleton"), this);
+  m_actions["addEdge"] = new QAction(QPixmap(addobstacle),
+      tr("Add a edge to the skeleton"), this);
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -104,6 +107,7 @@ CreateActions() {
   m_actions["saveSkeleton"]->setEnabled(false);
   m_actions["deleteSelected"]->setEnabled(false);
   m_actions["addVertex"]->setEnabled(false);
+  m_actions["addEdge"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()),
@@ -135,6 +139,8 @@ CreateActions() {
       this, SLOT(DeleteSelectedItems()));
   connect(m_actions["addVertex"],SIGNAL(triggered()),
       this, SLOT(AddVertex()));
+  connect(m_actions["addEdge"],SIGNAL(triggered()),
+      this, SLOT(AddStraightLineEdge()));
 
 }
 
@@ -165,6 +171,7 @@ SetHelpTips() {
   m_actions["saveSkeleton"]->setWhatsThis(tr("Save your Skeleton"));
   m_actions["addVertex"]->setWhatsThis(tr("Add a node to the Skeleton"));
   m_actions["deleteSelected"]->setWhatsThis(tr("Delete Selected Items"));
+  m_actions["addEdge"]->setWhatsThis(tr("Add Edge"));
 }
 
 
@@ -195,6 +202,7 @@ SetUpSubmenu() {
   m_skeletonMenu->addAction(m_actions["addSkeleton"]);
   m_skeletonMenu->addAction(m_actions["addVertex"]);
   m_skeletonMenu->addAction(m_actions["deleteSelected"]);
+  m_skeletonMenu->addAction(m_actions["addEdge"]);
   m_submenu->addMenu(m_skeletonMenu);
   m_skeletonMenu->setEnabled(false);
 
@@ -228,6 +236,7 @@ SetUpToolTab() {
   buttonList.push_back("saveSkeleton");
   buttonList.push_back("addVertex");
   buttonList.push_back("deleteSelected");
+  buttonList.push_back("addEdge");
   buttonList.push_back("_separator_");
 
   CreateToolTab(buttonList);
@@ -256,6 +265,7 @@ Reset() {
   m_actions["saveSkeleton"]->setEnabled(true);
   m_actions["addVertex"]->setEnabled(true);
   m_actions["deleteSelected"]->setEnabled(true);
+  m_actions["addEdge"]->setEnabled(true);
 
   m_obstacleMenu->setEnabled(true);
 }
@@ -350,6 +360,51 @@ SaveSkeleton() {
 //revisions
 void
 EnvironmentOptions::
+AddStraightLineEdge() {
+  //By default, just attempts straight line and does not pop up EdgeEditDialog
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  vector<CfgModel*> selNodes;
+  EnvModel* env = GetVizmo().GetEnv();
+  GraphModel::SkeletonGraphType*  _gm = env->GetGraphModel()->GetGraph();
+
+//  Filter away selected edges, but still enforce two nodes
+for(auto it = sel.begin(); it != sel.end(); it++)
+    if((*it)->Name().substr(0, 4) == "Node")
+      selNodes.push_back((CfgModel*)*it);
+
+  if(selNodes.size() != 2) {
+    GetMainWindow()->AlertUser("Please select exactly two nodes.");
+    return;
+  }
+
+       size_t v0 = selNodes[0]->GetIndex();
+    size_t v1 = selNodes[1]->GetIndex();
+//    _gm->add_edge(v0, v1);
+    vector<CfgModel> intermediates;
+   intermediates.push_back((*_gm->find_vertex(v0)).property());
+         intermediates.push_back((*_gm->find_vertex(v1)).property());
+
+//SkeletonGraphType::vertex_iterator viTemp, viTemp2;
+ //   _gm->add_edge(v0, v1);
+ // _gm->AddEdge(v0,v1);
+// SkeletonGraphType:: adj_edge_iterator eiTemp; //eiTemp2;
+
+//*_gm->find_edge(SkeletonGraphType::edge_descriptor(v1,v2), viTemp, eiTemp);
+         _gm->add_edge(v0, v1, EdgeModel("",1, intermediates));
+    //Set edge weights in underlying graph
+ // _gm->AddEdge(v0,v1);
+    env->GetGraphModel()->Build();
+    RefreshEnv();
+    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  sel.clear();
+
+
+
+
+}
+
+void
+EnvironmentOptions::
 AddVertex()  {
   //Adds a vertex to the skeleton
 
@@ -363,7 +418,7 @@ DeleteSelectedItems() {
   //Deletes selected items from the skeleton
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   EnvModel* env = GetVizmo().GetEnv();
-  GraphModel::SkeletonGraphType _gm = env-> GetGraphModel()->GetGraph();
+  GraphModel::SkeletonGraphType* _gm = env-> GetGraphModel()->GetGraph();
 
   bool selectionValid = false;
   vector<GraphModel::SkeletonGraphType::vertex_descriptor> nodesToDelete;
@@ -392,12 +447,13 @@ DeleteSelectedItems() {
     //Remove selected vertices
     typedef vector<size_t>::iterator VIT;
     for(auto it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
-       _gm.delete_vertex(*it);
+       _gm->delete_vertex(*it);
     //Remove selected edges
     typedef vector<pair<size_t, size_t> >::iterator EIT;
     for(auto it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
-       _gm.delete_edge(it->first, it->second);
+       _gm->delete_edge(it->first, it->second);
     }
+    env-> GetGraphModel()->Build();
     RefreshEnv();
     GetMainWindow()->GetModelSelectionWidget()->ResetLists();
     sel.clear();

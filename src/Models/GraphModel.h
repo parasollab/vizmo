@@ -49,7 +49,7 @@ class GraphModel : public Model {
     virtual SkeletonGraphType* GetGraph() { return &m_graph; }
     //virtual void HighlightVertices() const;
     ///@}
-
+    void AddEdge(size_t v1, size_t v2);
     void AddVertex(Point3d _p );
 
   private:

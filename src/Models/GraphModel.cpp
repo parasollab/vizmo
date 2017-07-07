@@ -1,6 +1,50 @@
 #include "GraphModel.h"
 #include "Utilities/Font.h"
 
+
+void
+GraphModel::
+AddEdge(size_t v1, size_t v2) {
+  vector<CfgModel> intermediates;
+  intermediates.push_back((*m_graph.find_vertex(v1)).property());
+ intermediates.push_back((*m_graph.find_vertex(v2)).property());
+
+
+  /*
+
+  //VI viTemp, viTemp2;
+    //EI eiTemp, eiTemp2;
+    graph->find_edge(EID(v0, v1), viTemp, eiTemp);
+    graph->find_edge(EID(v1, v0), viTemp2, eiTemp2);
+    (*eiTemp).property().SetWeight(visibility.second);
+    (*eiTemp2).property().SetWeight(visibility.second);
+    //idk ^^^^^^^^^^^^^^^
+*/
+
+    SkeletonGraphType::vertex_iterator viTemp, viTemp2;
+    SkeletonGraphType:: adj_edge_iterator eiTemp; //eiTemp2;
+    m_graph.find_edge(SkeletonGraphType::edge_descriptor(v1,v2), viTemp, eiTemp);
+    (*eiTemp).property().SetIntermediates(intermediates);
+ //   (*eiTemp).property().SetIntermediates(intermediates);
+  //  m_graph.find_edge(SkeletonGraphType::edge_descriptor(v2,v1), viTemp2, eiTemp2);
+
+//    (*eiTemp).property().SetWeight(visibility.second);
+   // (*eiTemp2).property().SetWeight(visibility.second);
+
+ // Add graph edges
+//for(auto e = v1; e != v2; ++e) {
+//  vector<CfgModel> intermediates;
+                 //for(auto& v : e.property().m_path)
+                     // intermediates.emplace_back(CfgModel(v));
+                 m_graph.add_edge(v1, v2, EdgeModel("",1, intermediates));
+
+         //}
+ // 193
+ // 194         SetIndices();
+
+}
+
+
 void
 GraphModel::
 AddVertex(Point3d _p) {
@@ -147,9 +191,9 @@ void
 GraphModel::
 BuildGraph<ReebGraphConstruction::ReebGraph>(const ReebGraphConstruction::ReebGraph& _g) {
 	// Add graph vertices
-	for(auto v = _g.begin(); v != _g.end(); ++v) 
+	for(auto v = _g.begin(); v != _g.end(); ++v)
 		m_graph.add_vertex((*v).descriptor(), CfgModel((*v).property().m_vertex));
-	
+
 	// Add graph edges
 	for(auto e = _g.edges_begin(); e != _g.edges_end(); ++e) {
 		vector<CfgModel> intermediates;
@@ -157,7 +201,7 @@ BuildGraph<ReebGraphConstruction::ReebGraph>(const ReebGraphConstruction::ReebGr
 			intermediates.emplace_back(CfgModel(v));
 		m_graph.add_edge(e->source(), e->target(),  EdgeModel("",1, intermediates));
 	}
-	
+
 	SetIndices();
 }
 
@@ -168,7 +212,7 @@ GraphModel::
 BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGraph& _g) {
 
 	// Add graph vertices
-	for(auto v = _g.begin(); v != _g.end(); ++v)	
+	for(auto v = _g.begin(); v != _g.end(); ++v)
 		m_graph.add_vertex((*v).descriptor(), CfgModel((*v).property()));
 
 	// Add graph edges
@@ -178,18 +222,18 @@ BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGr
 			intermediates.emplace_back(CfgModel(v));
 		m_graph.add_edge(e->source(), e->target(), EdgeModel("",1, intermediates));
 	}
-	
+
 	SetIndices();
 }
 
-void 
+void
 GraphModel::
 SetIndices()	{
 	// Set names for vertices
 	for(auto v = m_graph.begin(); v != m_graph.end(); ++v)
 		v->property().SetIndex(v->descriptor());
 
-	// Set edges 
+	// Set edges
 	for(auto e = m_graph.edges_begin(); e != m_graph.edges_end(); ++e)	{
 		auto src = m_graph.find_vertex(e->source());
 		auto trgt = m_graph.find_vertex(e->target());
