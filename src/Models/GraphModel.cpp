@@ -155,11 +155,6 @@ AddEdge(size_t _v1, size_t _v2) {
 	intermediates.push_back((*m_graph.find_vertex(_v1)).property());
 	intermediates.push_back((*m_graph.find_vertex(_v2)).property());
 
-
-	SkeletonGraphType::vertex_iterator viTemp, viTemp2;
-	SkeletonGraphType:: adj_edge_iterator eiTemp; 
-	m_graph.find_edge(SkeletonGraphType::edge_descriptor(_v1,_v2), viTemp, eiTemp);
-	(*eiTemp).property().SetIntermediates(intermediates);
 	m_graph.add_edge(_v1, _v2, EdgeModel("",1, intermediates));
 }
 
@@ -167,8 +162,7 @@ AddEdge(size_t _v1, size_t _v2) {
 void
 GraphModel::
 AddVertex(Point3d _p) {
-  auto vd = m_graph.add_vertex(CfgModel(_p));
-  m_graph.find_vertex(vd)->property().SetIndex(vd);
+	m_graph.add_vertex(CfgModel(_p));
 }
 
 // This funtion will write to a file formating it in the way that info is
@@ -194,6 +188,7 @@ void
 GraphModel::
 Refresh()	{
 	Build();
+	SetIndices();
 	DrawGraph();
 }
 

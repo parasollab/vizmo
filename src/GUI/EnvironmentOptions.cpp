@@ -402,13 +402,8 @@ AddStraightLineEdge() {
 	intermediates.push_back((*gm->find_vertex(v1)).property());
 
 	// Add the edge in the graph
-	auto ed = gm->add_edge(v0, v1, EdgeModel("",1, intermediates));
-	GraphModel::SkeletonGraphType::vertex_iterator vi;
-	GraphModel::SkeletonGraphType::adj_edge_iterator ei;
-	gm->find_edge(ed, vi, ei);
-	ei->property().Set(ed.id(), &((*gm->find_vertex(v0)).property()), 
-				&((*gm->find_vertex(v1)).property()));
-
+	gm->add_edge(v0, v1, EdgeModel("",1, intermediates));
+	
 	// Refresh the environment
 	env->GetGraphModel()->Refresh();
 	RefreshEnv();

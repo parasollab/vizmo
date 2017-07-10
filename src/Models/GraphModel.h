@@ -20,6 +20,8 @@ class GraphModel : public Model {
     ///@name Construction
     ///@{
 
+		GraphModel() : Model("Graph")	{}
+
     ////////////////////////////////////////////////////////////////////////////
     /// @param _g The graph to model.
 		template <typename GraphType>
@@ -62,7 +64,7 @@ class GraphModel : public Model {
     void BuildGraph(const GraphType& _g);			///< Build the graph model from a given graph
 		void DrawGraph();													///< Underlying draw function
 		void SetIndices();												///< Set the other parameters of the vertices and edges
-
+	
     ///@}
     ///@name Internal State
     ///@{

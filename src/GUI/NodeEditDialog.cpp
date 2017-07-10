@@ -348,17 +348,6 @@ ValidityCheck() {
 void
 NodeEditDialog::
 FinalizeNodeEdit(int _accepted) {
-  if(m_title == "New Vertex") {
-    //Access Skeleton
-    if(_accepted == 1)  { //user pressed okay
-      if(m_tempNode->IsValid()) {
-       // GetVizmo().GetEnv()->AddVertex();
-      }
-    }
-  }
-  else {
-
-  }
   Map* map = GetVizmo().GetMap();
 
   if(_accepted == 1) {  //user pressed okay
@@ -406,11 +395,13 @@ FinalizeNodeAdd(int _accepted) {
 		if(_accepted == 1)	{
     	Point3d p = m_tempNode->GetPoint();
 			auto graph = GetVizmo().GetEnv()->GetGraphModel();
-			if(graph)	{
-    		graph->AddVertex(p);
-				graph->Refresh();
-    		GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+			if(!graph)	{	
+				GetVizmo().GetEnv()->AddEmptyGraphModel();
+				graph = GetVizmo().GetEnv()->GetGraphModel();
 			}
+    	graph->AddVertex(p);
+			graph->Refresh();
+    	GetMainWindow()->GetModelSelectionWidget()->ResetLists();
 		}
 	}
 	else	{

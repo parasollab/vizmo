@@ -198,6 +198,8 @@ class EnvModel : public Model {
 				delete m_graphModel;
       m_graphModel = new GraphModel(_g);
     }
+		/// @brief Create an empty Graph Model 
+		void AddEmptyGraphModel();
 
     /// @brief Get the skeleton graph model
     GraphModel* GetGraphModel()	{ 

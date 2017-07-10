@@ -428,6 +428,14 @@ AddWorkspaceDecompositionModel(const WorkspaceDecomposition* _wd) {
   m_decompositionModel = new WorkspaceDecompositionModel(_wd);
 }
 
+void
+EnvModel::
+AddEmptyGraphModel() {
+	if(m_graphModel)
+		delete m_graphModel;
+	m_graphModel = new GraphModel();
+}
+
 
 void
 EnvModel::
