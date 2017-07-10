@@ -375,40 +375,62 @@ AddVertex()	{
 void
 EnvironmentOptions::
 AddStraightLineEdge() {
-	// By default, just attempts straight line and does not pop up EdgeEditDialog
-	vector<Model*>& sel = GetVizmo().GetSelectedModels();
-	vector<CfgModel*> selNodes;
-	EnvModel* env = GetVizmo().GetEnv();
-	GraphModel::SkeletonGraphType*  gm = env->GetGraphModel()->GetGraph();
+  // By default, just attempts straight line and does not pop up EdgeEditDialog
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  vector<CfgModel*> selNodes;
+  EnvModel* env = GetVizmo().GetEnv();
+  GraphModel::SkeletonGraphType*  gm = env->GetGraphModel()->GetGraph();
 
-	// Filter away selected edges, but still enforce two nodes
-	for(auto it = sel.begin(); it != sel.end(); it++)
-		if((*it)->Name().substr(0, 4) == "Node")
-			selNodes.push_back((CfgModel*)*it);
+  // Filter away selected edges, but still enforce two nodes
+  for(auto it = sel.begin(); it != sel.end(); it++)
+    if((*it)->Name().substr(0, 4) == "Node")
+      selNodes.push_back((CfgModel*)*it);
 
-	// Enforce the selction of exactly two nodes
-	if(selNodes.size() != 2) {
-		GetMainWindow()->AlertUser("Please select exactly two nodes.");
-		return;
-	}
+    // Enforce the selction of exactly two nodes
+    if(selNodes.size() != 2) {
+      GetMainWindow()->AlertUser("Please select exactly two nodes.");
+      return;
+    }
 
-	// Get the source and target descriptor
-	size_t v0 = selNodes[0]->GetIndex();
-	size_t v1 = selNodes[1]->GetIndex();
+    // Get the source and target descriptor
+    size_t v0 = selNodes[0]->GetIndex();
+    size_t v1 = selNodes[1]->GetIndex();
 
-	// Create the intermediate list with source and target as initial list
-	vector<CfgModel> intermediates;
-	intermediates.push_back((*gm->find_vertex(v0)).property());
-	intermediates.push_back((*gm->find_vertex(v1)).property());
+    // Create the intermediate list with source and target as initial list
+    vector<CfgModel> intermediates;
+    intermediates.push_back((*gm->find_vertex(v0)).property());
+    intermediates.push_back((*gm->find_vertex(v1)).property());
 
-	// Add the edge in the graph
-	gm->add_edge(v0, v1, EdgeModel("",1, intermediates));
-	
-	// Refresh the environment
-	env->GetGraphModel()->Refresh();
-	RefreshEnv();
-	sel.clear();
-}
+    // Add the edge in the graph
+    auto ed = gm->add_edge(v0, v1, EdgeModel("",1, intermediates));
+    GraphModel::SkeletonGraphType::vertex_iterator vi;
+    GraphModel::SkeletonGraphType::adj_edge_iterator ei;
+    gm->find_edge(ed, vi, ei);
+    ei->property().Set(ed.id(), &((*gm->find_vertex(v0)).property()),
+				&((*gm->find_vertex(v1)).property()));
+
+    // Refresh the environment
+    env->GetGraphModel()->Refresh();
+    RefreshEnv();
+    sel.clear();
+
+    QMessageBox msgBox;
+    msgBox.setText("Do you want to add intermediates?");
+    msgBox.setStandardButtons(QMessageBox::Yes| QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+
+    int ret= msgBox.exec();
+    //User replies yes
+    if(ret==16384){
+      //add intermediates
+
+      msgBox.setText("Please select the new edge so that we may add an intermediate.");
+      msgBox.exec();
+
+      EdgeModel* actualEdge= &ei->property();
+      EdgeEditDialog* eed = new EdgeEditDialog(GetMainWindow(), actualEdge);
+      GetMainWindow()->ShowDialog(eed);
+    }
 
 void
 EnvironmentOptions::
@@ -446,14 +468,14 @@ DeleteSelectedItems() {
         " remove.");
   else {
     //Remove selected vertices
-   	for(auto it = nodesToDelete.begin(); it != nodesToDelete.end(); it++) 
+   	for(auto it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
 		   _gm->delete_vertex(*it);
-	
+
     //Remove selected edges
     for(auto it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
        _gm->delete_edge(*it);
     }
-       
+
 		env->GetGraphModel()->Refresh();
 		RefreshEnv();
     sel.clear();
