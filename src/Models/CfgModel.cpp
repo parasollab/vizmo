@@ -19,7 +19,9 @@ CfgModel::
 CfgModel(const CfgType& _c) : Model("Cfg"), CfgType(_c), m_mutex(new mutex()) { }
 
 CfgModel::
-CfgModel(const CfgModel& _c) : Model("Cfg"), CfgType(_c), m_mutex(new mutex()) { }
+CfgModel(const CfgModel& _c) : Model("Cfg"), CfgType(_c), m_mutex(new mutex()) {
+	SetColor(_c.m_color);
+}
 
 void
 CfgModel::
