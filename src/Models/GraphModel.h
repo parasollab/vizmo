@@ -57,6 +57,7 @@ class GraphModel : public Model {
     void AddEdge(size_t _v1, size_t _v2);		///< Add an edge
     void AddVertex(Point3d _p);						///< Add a vertex
 		void Refresh();						///< Refresh the skeleton
+                bool GetSelected(){return m_selected;}
 
   private:
 		///@}
@@ -67,7 +68,7 @@ class GraphModel : public Model {
     void BuildGraph(const GraphType& _g);			///< Build the graph model from a given graph
 		void DrawGraph();													///< Underlying draw function
 		void SetIndices();												///< Set the other parameters of the vertices and edges
-	
+
     ///@}
     ///@name Internal State
     ///@{

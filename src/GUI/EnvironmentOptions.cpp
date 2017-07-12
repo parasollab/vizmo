@@ -85,11 +85,13 @@ CreateActions() {
   m_actions["saveSkeleton"] = new QAction(QPixmap(addobstacle),
       tr("Save the Skeleton"),this);
   m_actions["deleteSelected"] = new QAction(QPixmap(changeboundary),
-      tr("Toggle Skeleton Info"), this);
+      tr("Delete Selected"), this);
   m_actions["addVertex"] = new QAction(QPixmap(addobstacle),
       tr("Add a node to the skeleton"), this);
   m_actions["addEdge"] = new QAction(QPixmap(addobstacle),
       tr("Add a edge to the skeleton"), this);
+  m_actions["colors"] = new QAction(QPixmap(editrobot),
+      tr("Change Color"),this);
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -108,6 +110,7 @@ CreateActions() {
   m_actions["deleteSelected"]->setEnabled(false);
   m_actions["addVertex"]->setEnabled(false);
   m_actions["addEdge"]->setEnabled(false);
+  m_actions["colors"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()),
@@ -141,6 +144,8 @@ CreateActions() {
       this, SLOT(AddVertex()));
   connect(m_actions["addEdge"],SIGNAL(triggered()),
       this, SLOT(AddStraightLineEdge()));
+  connect(m_actions["colors"], SIGNAL(triggered()),
+      this, SLOT(ChangeColor()));
 
 }
 
@@ -172,6 +177,7 @@ SetHelpTips() {
   m_actions["addVertex"]->setWhatsThis(tr("Add a node to the Skeleton"));
   m_actions["deleteSelected"]->setWhatsThis(tr("Delete Selected Items"));
   m_actions["addEdge"]->setWhatsThis(tr("Add Edge"));
+  m_actions["colors"]->setWhatsThis(tr("Set Color"));
 }
 
 
@@ -203,6 +209,7 @@ SetUpSubmenu() {
   m_skeletonMenu->addAction(m_actions["addVertex"]);
   m_skeletonMenu->addAction(m_actions["deleteSelected"]);
   m_skeletonMenu->addAction(m_actions["addEdge"]);
+  m_skeletonMenu->addAction(m_actions["colors"]);
   m_submenu->addMenu(m_skeletonMenu);
   m_skeletonMenu->setEnabled(false);
 
@@ -237,6 +244,7 @@ SetUpToolTab() {
   buttonList.push_back("addVertex");
   buttonList.push_back("deleteSelected");
   buttonList.push_back("addEdge");
+  buttonList.push_back("colors");
   buttonList.push_back("_separator_");
 
   CreateToolTab(buttonList);
@@ -266,6 +274,7 @@ Reset() {
   m_actions["addVertex"]->setEnabled(true);
   m_actions["deleteSelected"]->setEnabled(true);
   m_actions["addEdge"]->setEnabled(true);
+  m_actions["colors"]->setEnabled(true);
 
   m_obstacleMenu->setEnabled(true);
 }
@@ -283,7 +292,7 @@ AddSkeleton() {
   /// \arg \c .path
   /// \arg \c .vd
   /// \arg \c .xml
-  //  \arg \c .graph
+  ///  \arg \c .graph
 	QString fn = QFileDialog::getOpenFileName(this,
       "Choose a skeleton to open", GetMainWindow()->GetLastDir(),
       "Files (*.env *.map *.query *.path *.vd *.xml *.graph)");
@@ -423,15 +432,12 @@ AddStraightLineEdge() {
     //User replies yes
     if(ret==16384){
       //add intermediates
-
-      msgBox.setText("Please select the new edge so that we may add an intermediate.");
-      msgBox.exec();
-
       EdgeModel* actualEdge= &ei->property();
-      EdgeEditDialog* eed = new EdgeEditDialog(GetMainWindow(), actualEdge);
+      string name = "Skeleton";
+      EdgeEditDialog* eed = new EdgeEditDialog(name, GetMainWindow(), actualEdge);
       GetMainWindow()->ShowDialog(eed);
     }
-
+}
 void
 EnvironmentOptions::
 DeleteSelectedItems() {
@@ -481,6 +487,27 @@ DeleteSelectedItems() {
     sel.clear();
   }
 
+}
+
+void
+EnvironmentOptions::
+ChangeColor() {
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  if(sel.size() != 0) {
+    QColor color = QColorDialog::getColor(Qt::white,this,"color dialog");
+    if(color.isValid()) {
+      float r = color.red()/255.0;
+      float g = color.green()/255.0;
+      float b = color.blue()/255.0;
+      for(auto it = sel.begin(); it != sel.end(); it++) {
+        (*it)->SetColor(Color4(r,g,b,1));
+      }
+    }
+    GetVizmo().GetEnv()->GetGraphModel()->Refresh();
+  }
+  else
+    GetMainWindow()->AlertUser(
+        "Please select one or more items");
 }
 
 /*----------------------- Environment Editing --------------------------------*/

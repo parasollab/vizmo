@@ -196,7 +196,7 @@ SaveSkeleton(ostream& _os) const {
   }
 }
 
-void 
+void
 GraphModel::
 Refresh()	{
 	Build();

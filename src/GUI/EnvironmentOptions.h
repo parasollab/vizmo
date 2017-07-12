@@ -33,10 +33,10 @@ class EnvironmentOptions : public OptionsBase {
     //skeleton functions
     void AddSkeleton();         	///< Adds a skeleton
     void SaveSkeleton();        	///< Saves current skeleton
-		void ShowSkeletonInfo(){};  	///< Toggle showing skeleton information.
     void AddVertex();           	///< Adds a vertex to the skeleton
     void AddStraightLineEdge();		///< Adds an edge
     void DeleteSelectedItems();		///< Deletes selected items
+    void ChangeColor();                 ///< Changes Color of Selected Items
 
     //environment display functions
     void RefreshEnv();    ///< Reset the rendering mode and ModelSelectionWidget.

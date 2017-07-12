@@ -7,6 +7,7 @@
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
+#include "Models/EnvModel.h"
 #include "Models/EdgeModel.h"
 #include "Models/MapModel.h"
 #include "Models/Vizmo.h"
@@ -37,6 +38,23 @@ EdgeEditDialog(MainWindow* _mainWindow, EdgeModel* _originalEdge)
     m_originalEdge(_originalEdge), m_glScene(_mainWindow->GetGLWidget()),
     m_tempObjs(), m_nodeEditDialog(NULL) {
 
+    Init("Map", _mainWindow, _originalEdge);
+}
+//Revision
+EdgeEditDialog::
+EdgeEditDialog(string _type , MainWindow* _mainWindow, EdgeModel* _originalEdge)
+    : QDialog(_mainWindow), m_mainWindow(_mainWindow),
+    m_originalEdge(_originalEdge), m_glScene(_mainWindow->GetGLWidget()),
+    m_tempObjs(), m_nodeEditDialog(NULL) {
+      Init(_type, _mainWindow, _originalEdge);
+    }
+
+EdgeEditDialog::~EdgeEditDialog(){}
+
+void
+EdgeEditDialog::
+Init(string _type, MainWindow* _mainWindow, EdgeModel* _originalEdge)  {
+  m_title = _type;
   //make a working copy of the edge to be modified
   m_tempEdge = new EdgeModel(*_originalEdge);
   m_tempEdge->Set(m_originalEdge->GetStartCfg(), m_originalEdge->GetEndCfg());
@@ -78,20 +96,15 @@ EdgeEditDialog(MainWindow* _mainWindow, EdgeModel* _originalEdge)
   this->setLayout(overallLayout);
 
   ResetIntermediates();
-
   connect(editIntermediateButton, SIGNAL(clicked()), this, SLOT(EditIntermediate()));
   connect(addIntermediateButton, SIGNAL(clicked()), this, SLOT(AddIntermediate()));
   connect(removeIntermediateButton, SIGNAL(clicked()), this, SLOT(RemoveIntermediate()));
   connect(doneButton, SIGNAL(clicked()), this, SLOT(accept()));
   connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-
   //Set end behavior
   connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeEdgeEdit(int)));
   setAttribute(Qt::WA_DeleteOnClose);
 }
-
-EdgeEditDialog::~EdgeEditDialog(){}
-
 void
 EdgeEditDialog::
 ClearIntermediates() {
@@ -133,13 +146,18 @@ ResetIntermediates() {
 void
 EdgeEditDialog::
 EditIntermediate() {
+
   if(m_nodeEditDialog == NULL) {
     vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
 
     for(IIT it = listItems.begin(); it != listItems.end(); it++){
       if((*it)->isSelected() && (*it)->m_cfg != m_tempEdge->GetStartCfg()){
-        m_nodeEditDialog = new NodeEditDialog(m_mainWindow,
-            "Intermediate Configuration", (*it)->m_cfg, m_tempEdge);
+        if(m_title == "Skeleton")
+          m_nodeEditDialog = new NodeEditDialog(m_mainWindow,
+              "Intermediate Vertex", (*it)->m_cfg, m_tempEdge);
+        else
+          m_nodeEditDialog = new NodeEditDialog(m_mainWindow,
+              "Intermediate Configuration", (*it)->m_cfg, m_tempEdge);
         m_mainWindow->ShowDialog(m_nodeEditDialog);
         break;
       }
@@ -150,6 +168,7 @@ EditIntermediate() {
 void
 EdgeEditDialog::
 AddIntermediate() {
+
 
   vector<CfgListItem*>& listItems = m_intermediatesList->GetListItems();
   int indexAhead = 1;
@@ -200,11 +219,16 @@ void
 EdgeEditDialog::
 FinalizeEdgeEdit(int _accepted) {
   if(_accepted == 1) {
-    if(m_tempEdge->IsValid())
+    if(m_tempEdge->IsValid() || m_title == "Skeleton"){
       m_originalEdge->SetIntermediates(m_tempEdge->GetIntermediates());
+      if(m_title == "Skeleton")
+          GetVizmo().GetEnv()->GetGraphModel()->Refresh();
+      }
     else
       //For now, user must start all over again in this case
       QMessageBox::about(this, "", "Invalid edge!");
   }
   m_mainWindow->GetModelSelectionWidget()->ResetLists();
 }
+
+

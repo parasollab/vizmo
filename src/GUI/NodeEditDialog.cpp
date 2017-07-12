@@ -351,12 +351,11 @@ FinalizeNodeEdit(int _accepted) {
   Map* map = GetVizmo().GetMap();
 
   if(_accepted == 1) {  //user pressed okay
-    if(m_tempNode->IsValid()) {
+    if(m_tempNode->IsValid() || m_title.find("Vertex") != string::npos) {
       //set data for original node to match temp
       m_originalNode->SetCfg(m_tempNode->GetDataCfg());
-
+      if(map && m_title.find("Vertex") == string::npos)  {
       //delete edges that are no longer valid
-      if(map) {
         Graph* graph = map->GetGraph();
         for(auto& m : m_tempObjs) {
           // Skip non-edges.
@@ -395,7 +394,7 @@ FinalizeNodeAdd(int _accepted) {
 		if(_accepted == 1)	{
     	Point3d p = m_tempNode->GetPoint();
 			auto graph = GetVizmo().GetEnv()->GetGraphModel();
-			if(!graph)	{	
+			if(!graph)	{
 				GetVizmo().GetEnv()->AddEmptyGraphModel();
 				graph = GetVizmo().GetEnv()->GetGraphModel();
 			}

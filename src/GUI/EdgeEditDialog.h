@@ -52,6 +52,7 @@ class EdgeEditDialog : public QDialog {
   public:
     typedef vector<CfgListItem*>::iterator IIT;
 
+    EdgeEditDialog(string _var, MainWindow* _mainWindow, EdgeModel* _originalEdge);
     EdgeEditDialog(MainWindow* _mainWindow, EdgeModel* _originalEdge);
     ~EdgeEditDialog();
 
@@ -65,6 +66,7 @@ class EdgeEditDialog : public QDialog {
     void FinalizeEdgeEdit(int _accepted);
 
   private:
+    void Init(string _type, MainWindow* _mainWindow, EdgeModel* _originalEdge);
     CfgListWidget* m_intermediatesList;
     MainWindow* m_mainWindow;
     EdgeModel* m_originalEdge;
@@ -72,6 +74,7 @@ class EdgeEditDialog : public QDialog {
     GLWidget* m_glScene;
     TempObjsModel m_tempObjs;
     QPointer<NodeEditDialog> m_nodeEditDialog;
+    string m_title;
 };
 
 #endif
