@@ -102,13 +102,13 @@ void GraphModel::DrawGraph()	{
 	}
   if(m_selected)
 		glPopName();
-
+  /*
 	//Draw vertices label
 	for(auto v = m_graph->begin(); v != m_graph->end(); ++v)  {
   	Point3d pos = v->property().GetPoint();
   	glColor3d(0.1, 0.1, 0.1);
   	DrawStr(pos[0]-0.75, pos[1]-0.75, pos[2], to_string(v->descriptor()));
-  }
+  }*/
 
   // Draw  graph edges.
 	//glColor3f(0, 1, 0);
@@ -149,7 +149,7 @@ GetChildren(list<Model*>& _models) {
 		_models.push_back(&(*e).property());
 }
 
-void 
+void
 GraphModel::
 SetColor(const Color4& _c)	{
 	for(auto v = m_graph->begin(); v != m_graph->end(); ++v)
@@ -232,9 +232,9 @@ void
 GraphModel::
 BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGraph& _g) {
 	// Add graph vertices
-	for(auto v = _g.begin(); v != _g.end(); ++v)	
+	for(auto v = _g.begin(); v != _g.end(); ++v)
 		m_graph->add_vertex((*v).descriptor(), CfgModel((*v).property()));
-	
+
 	// Add graph edges
 	for(auto e = _g.edges_begin(); e != _g.edges_end(); ++e) {
 		vector<CfgModel> intermediates;

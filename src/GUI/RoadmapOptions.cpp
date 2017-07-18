@@ -360,7 +360,7 @@ ShowEdgeEditDialog() {
 void
 RoadmapOptions::
 AddNode() {
-  NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Node");
+  NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "New Vertex");
   GetMainWindow()->ShowDialog(ned);
 }
 

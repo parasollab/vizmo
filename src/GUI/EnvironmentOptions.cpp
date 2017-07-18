@@ -40,7 +40,12 @@
 #include "Icons/MoveObstacle.xpm"
 #include "Icons/RandEnv.xpm"
 #include "Icons/RefreshEnv.xpm"
-//#include "Icons/Skeleton.xpm"
+#include "Icons/AddSkeleton.xpm"
+#include "Icons/SaveSkeleton.xpm"
+#include "Icons/AddVertex.xpm"
+#include "Icons/DeleteSelected.xpm"
+#include "Icons/AddEdge.xpm"
+#include "Icons/CCsOneColor.xpm"
 
 #include "Icons/PointMode.xpm"
 #include "Icons/RobotMode.xpm"
@@ -80,17 +85,17 @@ CreateActions() {
   m_actions["robotView"] = new QAction(QPixmap(robotmode), tr("Robot"), this);
   m_actions["pointView"] = new QAction(QPixmap(pointmode), tr("Point"), this);
   //revisons
-  m_actions["addSkeleton"] = new QAction(QPixmap(editrobot),
+  m_actions["addSkeleton"] = new QAction(QPixmap(addskeleton),
       tr("Add a Skeleton"),this);
-  m_actions["saveSkeleton"] = new QAction(QPixmap(addobstacle),
+  m_actions["saveSkeleton"] = new QAction(QPixmap(saveskeleton),
       tr("Save the Skeleton"),this);
-  m_actions["deleteSelected"] = new QAction(QPixmap(changeboundary),
+  m_actions["deleteSelected"] = new QAction(QPixmap(deleteselected),
       tr("Delete Selected"), this);
-  m_actions["addVertex"] = new QAction(QPixmap(addobstacle),
+  m_actions["addVertex"] = new QAction(QPixmap(addvertex),
       tr("Add a node to the skeleton"), this);
-  m_actions["addEdge"] = new QAction(QPixmap(addobstacle),
+  m_actions["addEdge"] = new QAction(QPixmap(addedge),
       tr("Add a edge to the skeleton"), this);
-  m_actions["colors"] = new QAction(QPixmap(editrobot),
+  m_actions["colors"] = new QAction(QPixmap(ccsOneColorIcon),
       tr("Change Color"),this);
 
   //2. Set other specifications as necessary
