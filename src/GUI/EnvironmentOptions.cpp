@@ -212,8 +212,8 @@ SetUpSubmenu() {
   m_skeletonMenu->addAction(m_actions["saveSkeleton"]);
   m_skeletonMenu->addAction(m_actions["addSkeleton"]);
   m_skeletonMenu->addAction(m_actions["addVertex"]);
-  m_skeletonMenu->addAction(m_actions["deleteSelected"]);
   m_skeletonMenu->addAction(m_actions["addEdge"]);
+  m_skeletonMenu->addAction(m_actions["deleteSelected"]);
   m_skeletonMenu->addAction(m_actions["colors"]);
   m_submenu->addMenu(m_skeletonMenu);
   m_skeletonMenu->setEnabled(false);
@@ -389,11 +389,13 @@ AddVertex()	{
 void
 EnvironmentOptions::
 AddStraightLineEdge() {
+  EnvModel* env = GetVizmo().GetEnv();
+  GraphModel::SkeletonGraphType*  gm = env->GetGraphModel()->GetGraph();
+  if(gm->get_num_vertices() >= 2){
+
   // By default, just attempts straight line and does not pop up EdgeEditDialog
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   vector<CfgModel*> selNodes;
-  EnvModel* env = GetVizmo().GetEnv();
-  GraphModel::SkeletonGraphType*  gm = env->GetGraphModel()->GetGraph();
 
   // Filter away selected edges, but still enforce two nodes
   for(auto it = sel.begin(); it != sel.end(); it++)
@@ -442,6 +444,9 @@ AddStraightLineEdge() {
       EdgeEditDialog* eed = new EdgeEditDialog(name, GetMainWindow(), actualEdge);
       GetMainWindow()->ShowDialog(eed);
     }
+  }
+  else
+    GetMainWindow()->AlertUser("Please add 2 vertices first");
 }
 void
 EnvironmentOptions::

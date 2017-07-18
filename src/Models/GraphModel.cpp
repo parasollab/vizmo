@@ -173,6 +173,8 @@ AddEdge(size_t _v1, size_t _v2) {
 void
 GraphModel::
 AddVertex(Point3d _p) {
+        if(!m_graph)
+          m_graph = new SkeletonGraphType();
 	auto vd = m_graph->add_vertex(CfgModel(_p));
 	m_graph->find_vertex(vd)->property().SetColor(Color4(0,1,0));
 }

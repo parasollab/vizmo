@@ -390,36 +390,38 @@ FinalizeNodeEdit(int _accepted) {
 void
 NodeEditDialog::
 FinalizeNodeAdd(int _accepted) {
-	if(m_title.find("Vertex") != string::npos)	{
-		if(_accepted == 1)	{
-    	Point3d p = m_tempNode->GetPoint();
-			auto graph = GetVizmo().GetEnv()->GetGraphModel();
-			if(!graph)	{
-				GetVizmo().GetEnv()->AddEmptyGraphModel();
-				graph = GetVizmo().GetEnv()->GetGraphModel();
-			}
-    	graph->AddVertex(p);
-			graph->Refresh();
-    	GetMainWindow()->GetModelSelectionWidget()->ResetLists();
-		}
+  if(m_title.find("Vertex") != string::npos)	{
+    if(_accepted == 1)	{
+      Point3d p = m_tempNode->GetPoint();
+      auto graph = GetVizmo().GetEnv()->GetGraphModel();
+      /*
+      if(!graph)	{
+	GetVizmo().GetEnv()->AddEmptyGraphModel();
+	graph = GetVizmo().GetEnv()->GetGraphModel();
+      }
+      */
+      graph->AddVertex(p);
+      graph->Refresh();
+      GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+    }
+  }
+  else	{
+    Map* map = GetVizmo().GetMap();
+    if(map) {
+      Graph* graph = map->GetGraph();
+      if(_accepted == 1) {
+	if(m_tempNode->IsValid()) {
+  	  CfgModel newNode = *m_tempNode;
+	  newNode.SetRenderMode(SOLID_MODE);
+	  graph->add_vertex(newNode);
+	  map->RefreshMap();
 	}
-	else	{
-		Map* map = GetVizmo().GetMap();
-		if(map) {
-			Graph* graph = map->GetGraph();
-			if(_accepted == 1) {
-				if(m_tempNode->IsValid()) {
-					CfgModel newNode = *m_tempNode;
-					newNode.SetRenderMode(SOLID_MODE);
-					graph->add_vertex(newNode);
-					map->RefreshMap();
-				}
       	else
-        	QMessageBox::about(this, "", "Cannot add invalid node!");
-			}
-		}
-		GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+          QMessageBox::about(this, "", "Cannot add invalid node!");
 	}
+    }
+    GetMainWindow()->GetModelSelectionWidget()->ResetLists();
+  }
 }
 
 
