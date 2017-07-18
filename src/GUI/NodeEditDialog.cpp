@@ -394,12 +394,12 @@ FinalizeNodeAdd(int _accepted) {
     if(_accepted == 1)	{
       Point3d p = m_tempNode->GetPoint();
       auto graph = GetVizmo().GetEnv()->GetGraphModel();
-      /*
+      
       if(!graph)	{
-	GetVizmo().GetEnv()->AddEmptyGraphModel();
-	graph = GetVizmo().GetEnv()->GetGraphModel();
+				GetVizmo().GetEnv()->AddEmptyGraphModel();
+				graph = GetVizmo().GetEnv()->GetGraphModel();
       }
-      */
+      
       graph->AddVertex(p);
       graph->Refresh();
       GetMainWindow()->GetModelSelectionWidget()->ResetLists();

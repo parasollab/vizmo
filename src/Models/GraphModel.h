@@ -20,7 +20,11 @@ class GraphModel : public Model {
     ///@name Construction
     ///@{
 
-		GraphModel() : Model("Graph")	{}
+		GraphModel() : Model("Graph")	{
+			if(m_graph)
+				delete m_graph;
+			m_graph = new SkeletonGraphType();
+		}
 
     ////////////////////////////////////////////////////////////////////////////
     /// @param _g The graph to model.

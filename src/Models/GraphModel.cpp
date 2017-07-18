@@ -104,7 +104,7 @@ void GraphModel::DrawGraph()	{
 		glPopName();
   /*
 	//Draw vertices label
-	for(auto v = m_graph->begin(); v != m_graph->end(); ++v)  {
+/*	for(auto v = m_graph->begin(); v != m_graph->end(); ++v)  {
   	Point3d pos = v->property().GetPoint();
   	glColor3d(0.1, 0.1, 0.1);
   	DrawStr(pos[0]-0.75, pos[1]-0.75, pos[2], to_string(v->descriptor()));
@@ -245,7 +245,7 @@ BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGr
 		m_graph->add_edge(e->source(), e->target(), EdgeModel("",1, intermediates));
 	}
 	SetIndices();
-	SetColor(Color4(0,1,0));
+	SetColor(Color4(1,0,0));
 }
 
 void
