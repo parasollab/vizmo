@@ -97,6 +97,8 @@ CreateActions() {
       tr("Add a edge to the skeleton"), this);
   m_actions["colors"] = new QAction(QPixmap(ccsOneColorIcon),
       tr("Change Color"),this);
+  m_actions["mergeEdges"] = new QAction(QPixmap(ccsOneColorIcon),
+      tr("Merge Edges"),this);
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -116,6 +118,7 @@ CreateActions() {
   m_actions["addVertex"]->setEnabled(false);
   m_actions["addEdge"]->setEnabled(false);
   m_actions["colors"]->setEnabled(false);
+  m_actions["mergeEdges"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()),
@@ -151,6 +154,8 @@ CreateActions() {
       this, SLOT(AddStraightLineEdge()));
   connect(m_actions["colors"], SIGNAL(triggered()),
       this, SLOT(ChangeColor()));
+  connect(m_actions["mergeEdges"], SIGNAL(triggered()),
+      this, SLOT(MergeEdges()));
 
 }
 
@@ -183,6 +188,7 @@ SetHelpTips() {
   m_actions["deleteSelected"]->setWhatsThis(tr("Delete Selected Items"));
   m_actions["addEdge"]->setWhatsThis(tr("Add Edge"));
   m_actions["colors"]->setWhatsThis(tr("Set Color"));
+  m_actions["mergeEdges"]->setWhatsThis(tr("Merge Edges"));
 }
 
 
@@ -215,6 +221,7 @@ SetUpSubmenu() {
   m_skeletonMenu->addAction(m_actions["addEdge"]);
   m_skeletonMenu->addAction(m_actions["deleteSelected"]);
   m_skeletonMenu->addAction(m_actions["colors"]);
+  m_skeletonMenu->addAction(m_actions["mergeEdges"]);
   m_submenu->addMenu(m_skeletonMenu);
   m_skeletonMenu->setEnabled(false);
 
@@ -250,6 +257,7 @@ SetUpToolTab() {
   buttonList.push_back("deleteSelected");
   buttonList.push_back("addEdge");
   buttonList.push_back("colors");
+  buttonList.push_back("mergeEdges");
   buttonList.push_back("_separator_");
 
   CreateToolTab(buttonList);
@@ -280,6 +288,7 @@ Reset() {
   m_actions["deleteSelected"]->setEnabled(true);
   m_actions["addEdge"]->setEnabled(true);
   m_actions["colors"]->setEnabled(true);
+  m_actions["mergeEdges"]->setEnabled(true);
 
   m_obstacleMenu->setEnabled(true);
 }
@@ -448,6 +457,108 @@ AddStraightLineEdge() {
   else
     GetMainWindow()->AlertUser("Please add 2 vertices first");
 }
+
+
+void
+EnvironmentOptions::
+AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
+  EnvModel* env = GetVizmo().GetEnv();
+  GraphModel::SkeletonGraphType*  gm = env->GetGraphModel()->GetGraph();
+
+  //Get intermediates
+  auto i1 = _e1->GetIntermediates();
+  auto i2 = _e2->GetIntermediates();
+
+  // Get the source and target descriptor
+  size_t vs0 = _e1->GetStartCfg()->GetIndex();
+  size_t vs1 = _e2->GetStartCfg()->GetIndex();
+
+  // Create the intermediate list with source and target as initial list
+  vector<CfgModel> intermediates;
+  if(_i < 2)
+    intermediates.insert(intermediates.end(), i1.begin(), i1.end());
+  else
+    intermediates.insert(intermediates.end(), i1.rbegin(), i1.rend());
+  if(_i % 2 == 0)
+    intermediates.insert(intermediates.end(), ++i2.begin(), i2.end());
+  else
+    intermediates.insert(intermediates.end(), ++i2.rbegin(), i2.rend());
+
+  // Add the edge in the graph
+  auto ed = gm->add_edge(vs0, vs1, EdgeModel("",1, intermediates));
+  GraphModel::SkeletonGraphType::vertex_iterator vi;
+  GraphModel::SkeletonGraphType::adj_edge_iterator ei;
+  gm->find_edge(ed, vi, ei);
+  ei->property().Set(ed.id(), &((*gm->find_vertex(vs0)).property()),
+				&((*gm->find_vertex(vs1)).property()));
+}
+void
+EnvironmentOptions::
+MergeEdges() {
+
+  //Get selected items from the skeleton
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  EnvModel* env = GetVizmo().GetEnv();
+  GraphModel::SkeletonGraphType* _gm = env->GetGraphModel()->GetGraph();
+
+ // bool selectionValid = false;
+  typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
+  vector<ED> edgesToMerge;//vector of edge descriptors
+
+  //Select edges to merge
+  for(auto it = sel.begin(); it != sel.end(); it++) {
+    string objName = (*it)->Name();
+    if(objName.substr(0, 4) == "Edge") {
+   //   selectionValid = true;//if its an edge it is valid selection
+      EdgeModel* e = (EdgeModel*)(*it);//store the edge in e variable
+      edgesToMerge.push_back(ED(e->GetStartCfg()->GetIndex(),
+      e->GetEndCfg()->GetIndex(),e->GetID()));//add the edge descriptor to the vector
+    }
+  }
+  //two edges selected varified
+  if( edgesToMerge.size() == 2 ) {
+    typedef GraphModel::SkeletonGraphType GT;
+    GT::vertex_iterator vi1, vi2;
+    GT::adj_edge_iterator ei1, ei2;
+    _gm->find_edge(edgesToMerge[0], vi1, ei1);
+    _gm->find_edge(edgesToMerge[1], vi2, ei2);
+    EdgeModel* e1= &(ei1->property());//(EdgeModel*)(*sel.begin());//->target();
+    EdgeModel* e2= &(ei2->property());//(EdgeModel*)(*sel.end());//->target();
+    bool connect=false;
+
+    if(ei1->source()==ei2->target()){
+      connect=true;
+      AddSpecificEdge(e1, e2,3);
+    }
+    else if(ei1->target()==ei2->target()){
+      connect=true;
+      AddSpecificEdge(e1, e2, 1);
+    }
+    else if(ei1->source()==ei2->source()){
+      connect=true;
+      AddSpecificEdge(e1, e2, 2);
+    }
+    else if(ei1->target()==ei2->source()){
+      connect=true;
+      AddSpecificEdge(e1, e2, 0);
+    }
+    else
+      GetMainWindow()->AlertUser("Please select two connected Edges to merge");
+
+    for(auto it = edgesToMerge.begin(); connect && it != edgesToMerge.end(); it++) {
+      _gm->delete_edge(*it);
+    }
+  }
+  else
+    GetMainWindow()->AlertUser("Please select two connected Edges to merge");
+
+
+  env->GetGraphModel()->Refresh();
+  RefreshEnv();
+  //sel.clear();
+}
+
+
 void
 EnvironmentOptions::
 DeleteSelectedItems() {
@@ -702,3 +813,5 @@ EnvironmentOptions::
 RandomizeEnvColors() {
   GetVizmo().GetEnv()->ChangeColor();
 }
+
+
