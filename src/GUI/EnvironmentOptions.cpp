@@ -470,19 +470,26 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
   auto i2 = _e2->GetIntermediates();
 
   // Get the source and target descriptor
-  size_t vs0 = _e1->GetStartCfg()->GetIndex();
-  size_t vs1 = _e2->GetStartCfg()->GetIndex();
+  size_t vs0 ,vs1;
 
   // Create the intermediate list with source and target as initial list
   vector<CfgModel> intermediates;
-  if(_i < 2)
+  if(_i < 2) {
+		vs0 = _e1->GetStartCfg()->GetIndex();
     intermediates.insert(intermediates.end(), i1.begin(), i1.end());
-  else
+	}
+  else	{
+		vs0 = _e1->GetEndCfg()->GetIndex();
     intermediates.insert(intermediates.end(), i1.rbegin(), i1.rend());
-  if(_i % 2 == 0)
+	}
+  if(_i % 2 == 0)	{
+		vs1 = _e2->GetEndCfg()->GetIndex();
     intermediates.insert(intermediates.end(), ++i2.begin(), i2.end());
-  else
+	}
+  else	{
+		vs1 = _e2->GetStartCfg()->GetIndex();
     intermediates.insert(intermediates.end(), ++i2.rbegin(), i2.rend());
+	}
 
   // Add the edge in the graph
   auto ed = gm->add_edge(vs0, vs1, EdgeModel("",1, intermediates));
@@ -492,14 +499,16 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
   ei->property().Set(ed.id(), &((*gm->find_vertex(vs0)).property()),
 				&((*gm->find_vertex(vs1)).property()));
 }
+
 void
 EnvironmentOptions::
 MergeEdges() {
+	typedef GraphModel::SkeletonGraphType GT;
 
   //Get selected items from the skeleton
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   EnvModel* env = GetVizmo().GetEnv();
-  GraphModel::SkeletonGraphType* _gm = env->GetGraphModel()->GetGraph();
+  GT* _gm = env->GetGraphModel()->GetGraph();
 
  // bool selectionValid = false;
   typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
@@ -517,18 +526,17 @@ MergeEdges() {
   }
   //two edges selected varified
   if( edgesToMerge.size() == 2 ) {
-    typedef GraphModel::SkeletonGraphType GT;
     GT::vertex_iterator vi1, vi2;
     GT::adj_edge_iterator ei1, ei2;
     _gm->find_edge(edgesToMerge[0], vi1, ei1);
     _gm->find_edge(edgesToMerge[1], vi2, ei2);
-    EdgeModel* e1= &(ei1->property());//(EdgeModel*)(*sel.begin());//->target();
-    EdgeModel* e2= &(ei2->property());//(EdgeModel*)(*sel.end());//->target();
+    EdgeModel* e1= &(ei1->property());
+    EdgeModel* e2= &(ei2->property());
     bool connect=false;
 
     if(ei1->source()==ei2->target()){
       connect=true;
-      AddSpecificEdge(e1, e2,3);
+      AddSpecificEdge(e1, e2, 3);
     }
     else if(ei1->target()==ei2->target()){
       connect=true;
@@ -543,10 +551,10 @@ MergeEdges() {
       AddSpecificEdge(e1, e2, 0);
     }
     else
-      GetMainWindow()->AlertUser("Please select two connected Edges to merge");
+      GetMainWindow()->AlertUser("Two edges need to be adjacent to be merged");
 
-    for(auto it = edgesToMerge.begin(); connect && it != edgesToMerge.end(); it++) {
-      _gm->delete_edge(*it);
+		for(auto it = edgesToMerge.begin(); connect && it != edgesToMerge.end(); it++) {
+      	_gm->delete_edge(*it);
     }
   }
   else
@@ -555,7 +563,7 @@ MergeEdges() {
 
   env->GetGraphModel()->Refresh();
   RefreshEnv();
-  //sel.clear();
+  sel.clear();
 }
 
 
