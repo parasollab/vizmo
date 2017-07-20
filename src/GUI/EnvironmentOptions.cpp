@@ -46,6 +46,7 @@
 #include "Icons/DeleteSelected.xpm"
 #include "Icons/AddEdge.xpm"
 #include "Icons/CCsOneColor.xpm"
+#include "Icons/MergeEdge.xpm"
 
 #include "Icons/PointMode.xpm"
 #include "Icons/RobotMode.xpm"
@@ -97,7 +98,7 @@ CreateActions() {
       tr("Add a edge to the skeleton"), this);
   m_actions["colors"] = new QAction(QPixmap(ccsOneColorIcon),
       tr("Change Color"),this);
-  m_actions["mergeEdges"] = new QAction(QPixmap(ccsOneColorIcon),
+  m_actions["mergeEdges"] = new QAction(QPixmap(mergeedge),
       tr("Merge Edges"),this);
 
   //2. Set other specifications as necessary
@@ -503,13 +504,16 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
 void
 EnvironmentOptions::
 MergeEdges() {
+  EnvModel* env = GetVizmo().GetEnv();
+  GraphModel::SkeletonGraphType*  gm = env->GetGraphModel()->GetGraph();
+  if(gm->get_num_edges() >= 2){
 	typedef GraphModel::SkeletonGraphType GT;
 
   //Get selected items from the skeleton
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   EnvModel* env = GetVizmo().GetEnv();
   GT* _gm = env->GetGraphModel()->GetGraph();
-
+  if(sel.size() != 0) {
  // bool selectionValid = false;
   typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
   vector<ED> edgesToMerge;//vector of edge descriptors
@@ -564,6 +568,12 @@ MergeEdges() {
   env->GetGraphModel()->Refresh();
   RefreshEnv();
   sel.clear();
+  }
+  else
+    GetMainWindow()->AlertUser("You need to add 2 edges before merging");
+  }
+  else
+    GetMainWindow()->AlertUser("Please select 2 edges to merge");
 }
 
 
