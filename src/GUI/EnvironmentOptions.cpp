@@ -476,21 +476,21 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
   // Create the intermediate list with source and target as initial list
   vector<CfgModel> intermediates;
   if(_i < 2) {
-		vs0 = _e1->GetStartCfg()->GetIndex();
+    vs0 = _e1->GetStartCfg()->GetIndex();
     intermediates.insert(intermediates.end(), i1.begin(), i1.end());
-	}
+  }
   else	{
-		vs0 = _e1->GetEndCfg()->GetIndex();
+    vs0 = _e1->GetEndCfg()->GetIndex();
     intermediates.insert(intermediates.end(), i1.rbegin(), i1.rend());
-	}
-  if(_i % 2 == 0)	{
-		vs1 = _e2->GetEndCfg()->GetIndex();
+  }
+  if(_i % 2 == 0) {
+    vs1 = _e2->GetEndCfg()->GetIndex();
     intermediates.insert(intermediates.end(), ++i2.begin(), i2.end());
-	}
-  else	{
-		vs1 = _e2->GetStartCfg()->GetIndex();
+  }
+  else  {
+    vs1 = _e2->GetStartCfg()->GetIndex();
     intermediates.insert(intermediates.end(), ++i2.rbegin(), i2.rend());
-	}
+  }
 
   // Add the edge in the graph
   auto ed = gm->add_edge(vs0, vs1, EdgeModel("",1, intermediates));
@@ -557,7 +557,7 @@ MergeEdges() {
     else
       GetMainWindow()->AlertUser("Two edges need to be adjacent to be merged");
 
-		for(auto it = edgesToMerge.begin(); connect && it != edgesToMerge.end(); it++) {
+    for(auto it = edgesToMerge.begin(); connect && it != edgesToMerge.end(); it++) {
       	_gm->delete_edge(*it);
     }
   }
