@@ -63,11 +63,16 @@ void
 AnimationWidget::
 GoToFrame(int _frame) {
   //update frame value
-  m_frame = _frame;
-  if(m_frame >= m_maxFrame)
-    m_frame -= m_maxFrame;
-  else if(m_frame < 0)
-    m_frame += m_maxFrame;
+  if(_frame >= m_maxFrame - 1) {
+    m_frame = m_maxFrame - 1;
+    PauseAnimate();
+  }
+  else if(_frame <= 0) {
+    m_frame = 0;
+    PauseAnimate();
+  }
+  else
+    m_frame = _frame;
 
   //update slider and frame display
   m_slider->blockSignals(true);
