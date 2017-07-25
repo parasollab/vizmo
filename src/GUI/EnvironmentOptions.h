@@ -37,7 +37,8 @@ class EnvironmentOptions : public OptionsBase {
     void AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i);
     void DeleteSelectedItems();		///< Deletes selected items
     void ChangeColor();                 ///< Changes Color of Selected Items
-    void MergeEdges();                 ///< Changes Color of Selected Items
+    void MergeEdges();                  ///< Merges two edges
+    void CollapseEdge();                ///< Collapses an Edge
 
     //environment display functions
     void RefreshEnv();    ///< Reset the rendering mode and ModelSelectionWidget.

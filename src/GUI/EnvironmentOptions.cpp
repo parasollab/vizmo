@@ -513,142 +513,129 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
 void
 EnvironmentOptions::
 CollapseEdge()  {
-//  if(sel.size() != 0) {
-
-	typedef GraphModel::SkeletonGraphType GT;
-
   //Get selected items from the skeleton
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  EnvModel* env = GetVizmo().GetEnv();
-  GT* _gm = env->GetGraphModel()->GetGraph();
+  if(sel.size() != 0) {
 
- // bool selectionValid = false;
-  typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
-  vector<ED> edgesToMerge;//vector of edge descriptors
+    typedef GraphModel::SkeletonGraphType GT;
 
-  //Select edges to collapse
-  for(auto it = sel.begin(); it != sel.end(); it++) {
-    string objName = (*it)->Name();
-    if(objName.substr(0, 4) == "Edge") {
-   //   selectionValid = true;//if its an edge it is valid selection
-       EdgeModel* e = (EdgeModel*)(*it);//store the edge in e variable
-      edgesToMerge.push_back(ED(e->GetStartCfg()->GetIndex(),
-      e->GetEndCfg()->GetIndex(),e->GetID()));//add the edge descriptor to the vector
+    EnvModel* env = GetVizmo().GetEnv();
+    GT* _gm = env->GetGraphModel()->GetGraph();
+
+    typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
+    vector<ED> edgesToCollapse;//vector of edge descriptors
+
+    //Select edges to collapse
+    for(auto it = sel.begin(); it != sel.end(); it++) {
+      string objName = (*it)->Name();
+      if(objName.substr(0, 4) == "Edge") {
+        EdgeModel* e = (EdgeModel*)(*it);//store the edge in e variable
+        edgesToCollapse.push_back(ED(e->GetStartCfg()->GetIndex(),
+        e->GetEndCfg()->GetIndex(),e->GetID()));//add the edge descriptor to the vector
+      }
     }
-  }
-  //one edge selected varified
-  if( edgesToMerge.size() == 1) {
-    GT::vertex_iterator vi1;
-    GT::adj_edge_iterator ei1;
-    _gm->find_edge(edgesToMerge[0], vi1, ei1);
-    //_gm->find_edge(edgesToMerge[1], vi2, ei2);
-//    EdgeModel* e1= &(ei1->property());
-   // EdgeModel* e2= &(ei2->property());
-//    bool connect=false;
+    //one edge selected varified
+    if( edgesToCollapse.size() == 1) {
+      GT::vertex_iterator vi1;
+      GT::adj_edge_iterator ei1;
+      _gm->find_edge(edgesToCollapse[0], vi1, ei1);
 
-auto v0= ei1->source();
-auto v1= ei1->target();
-auto VID0=_gm->find_vertex(v0);//get all the edges connected to the selected edge
-auto VID1=_gm->find_vertex(v1);
-	for(auto it = VID0->begin(); it != VID0->end(); it++) {
-  cout<<"Hello Kiffany "<<endl;
-          // check the source to see if it is the collapsing edge
- // if (){
+      auto v0= ei1->source();
+      auto v1= ei1->target();
+      auto VID0=_gm->find_vertex(v0);//get all the edges connected to the selected edge
+      auto VID1=_gm->find_vertex(v1);
+      //iterate through the edges connected to the source
+      for(auto it = VID0->begin(); it != VID0->end(); it++) {
+        _gm->AddEdge(ED(it->source(), v1));
 
- // }
-//  _gm->delete_vertex(v0);
-  //_gm->delete_vertex(v1);
+      }
+
+
+
     }
-	for(auto it = VID1->begin(); it != VID1->end(); it++) {
-  cout<<"Hello Kiffany "<<endl;//relocate the target
-	NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "Edit Vertex");
-	GetMainWindow()->ShowDialog(ned);
-        }
+    else
+      GetMainWindow()->AlertUser("Please select an Edge to collapse");
+
+
+    env->GetGraphModel()->Refresh();
+    RefreshEnv();
+    sel.clear();
   }
-  else
-    GetMainWindow()->AlertUser("Please select an Edge to collapse");
-
-
-  env->GetGraphModel()->Refresh();
-  RefreshEnv();
-  sel.clear();
 }
-//}
 void
 EnvironmentOptions::
 MergeEdges() {
   EnvModel* env = GetVizmo().GetEnv();
   GraphModel::SkeletonGraphType*  gm = env->GetGraphModel()->GetGraph();
   if(gm->get_num_edges() >= 2){
-	typedef GraphModel::SkeletonGraphType GT;
+    typedef GraphModel::SkeletonGraphType GT;
 
-  //Get selected items from the skeleton
-  vector<Model*>& sel = GetVizmo().GetSelectedModels();
-  EnvModel* env = GetVizmo().GetEnv();
-  GT* _gm = env->GetGraphModel()->GetGraph();
-  if(sel.size() != 0) {
- // bool selectionValid = false;
-  typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
-  vector<ED> edgesToMerge;//vector of edge descriptors
+    //Get selected items from the skeleton
+    vector<Model*>& sel = GetVizmo().GetSelectedModels();
+    EnvModel* env = GetVizmo().GetEnv();
+    GT* _gm = env->GetGraphModel()->GetGraph();
+    if(sel.size() != 0) {
+      //bool selectionValid = false;
+      typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
+      vector<ED> edgesToMerge;//vector of edge descriptors
 
-  //Select edges to merge
-  for(auto it = sel.begin(); it != sel.end(); it++) {
-    string objName = (*it)->Name();
-    if(objName.substr(0, 4) == "Edge") {
-   //   selectionValid = true;//if its an edge it is valid selection
-      EdgeModel* e = (EdgeModel*)(*it);//store the edge in e variable
-      edgesToMerge.push_back(ED(e->GetStartCfg()->GetIndex(),
-      e->GetEndCfg()->GetIndex(),e->GetID()));//add the edge descriptor to the vector
-    }
-  }
-  //two edges selected varified
-  if( edgesToMerge.size() == 2 ) {
-    GT::vertex_iterator vi1, vi2;
-    GT::adj_edge_iterator ei1, ei2;
-    _gm->find_edge(edgesToMerge[0], vi1, ei1);
-    _gm->find_edge(edgesToMerge[1], vi2, ei2);
-    EdgeModel* e1= &(ei1->property());
-    EdgeModel* e2= &(ei2->property());
-    bool connect=false;
+      //Select edges to merge
+      for(auto it = sel.begin(); it != sel.end(); it++) {
+        string objName = (*it)->Name();
+        if(objName.substr(0, 4) == "Edge") {
+          //selectionValid = true;//if its an edge it is valid selection
+          EdgeModel* e = (EdgeModel*)(*it);//store the edge in e variable
+          edgesToMerge.push_back(ED(e->GetStartCfg()->GetIndex(),
+          e->GetEndCfg()->GetIndex(),e->GetID()));//add the edge descriptor to the vector
+        }
+      }
+      //two edges selected varified
+      if( edgesToMerge.size() == 2 ) {
+        GT::vertex_iterator vi1, vi2;
+        GT::adj_edge_iterator ei1, ei2;
+        _gm->find_edge(edgesToMerge[0], vi1, ei1);
+        _gm->find_edge(edgesToMerge[1], vi2, ei2);
+        EdgeModel* e1= &(ei1->property());
+        EdgeModel* e2= &(ei2->property());
+        bool connect=false;
 
-    if(ei1->source()==ei2->target()){
-      connect=true;
-      AddSpecificEdge(e1, e2, 3);
-    }
-    else if(ei1->target()==ei2->target()){
-      connect=true;
-      AddSpecificEdge(e1, e2, 1);
-    }
-    else if(ei1->source()==ei2->source()){
-      connect=true;
-      AddSpecificEdge(e1, e2, 2);
-    }
-    else if(ei1->target()==ei2->source()){
-      connect=true;
-      AddSpecificEdge(e1, e2, 0);
+        if(ei1->source()==ei2->target()){
+          connect=true;
+          AddSpecificEdge(e1, e2, 3);
+        }
+        else if(ei1->target()==ei2->target()){
+          connect=true;
+          AddSpecificEdge(e1, e2, 1);
+        }
+        else if(ei1->source()==ei2->source()){
+          connect=true;
+          AddSpecificEdge(e1, e2, 2);
+        }
+        else if(ei1->target()==ei2->source()){
+          connect=true;
+          AddSpecificEdge(e1, e2, 0);
+        }
+        else
+          GetMainWindow()->AlertUser("Two edges need to be adjacent to be merged");
+
+        for(auto it = edgesToMerge.begin(); connect && it != edgesToMerge.end(); it++) {
+      	  _gm->delete_edge(*it);
+        }
+      }
+      else
+        GetMainWindow()->AlertUser("Please select two connected Edges to merge");
+
+
+      env->GetGraphModel()->Refresh();
+      RefreshEnv();
+      sel.clear();
     }
     else
-      GetMainWindow()->AlertUser("Two edges need to be adjacent to be merged");
-
-    for(auto it = edgesToMerge.begin(); connect && it != edgesToMerge.end(); it++) {
-      	_gm->delete_edge(*it);
-    }
-  }
-  else
-    GetMainWindow()->AlertUser("Please select two connected Edges to merge");
-
-
-  env->GetGraphModel()->Refresh();
-  RefreshEnv();
-  sel.clear();
-  }
-  else
     GetMainWindow()->AlertUser("You need to add 2 edges before merging");
   }
   else
     GetMainWindow()->AlertUser("Please select 2 edges to merge");
 }
-
 
 void
 EnvironmentOptions::
