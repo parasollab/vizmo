@@ -31,7 +31,7 @@
 #include "Models/StaticMultiBodyModel.h"
 #include "Models/Vizmo.h"
 
-
+#include "Icons/CollapseEdge.xpm"
 #include "Icons/AddObstacle.xpm"
 #include "Icons/ChangeBoundary.xpm"
 #include "Icons/DeleteObstacle.xpm"
@@ -100,6 +100,8 @@ CreateActions() {
       tr("Change Color"),this);
   m_actions["mergeEdges"] = new QAction(QPixmap(mergeedge),
       tr("Merge Edges"),this);
+  m_actions["collapseEdge"] = new QAction(QPixmap(collapseedge),
+      tr("Collapse Edge"),this);
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -120,6 +122,7 @@ CreateActions() {
   m_actions["addEdge"]->setEnabled(false);
   m_actions["colors"]->setEnabled(false);
   m_actions["mergeEdges"]->setEnabled(false);
+  m_actions["collapseEdge"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()),
@@ -157,6 +160,8 @@ CreateActions() {
       this, SLOT(ChangeColor()));
   connect(m_actions["mergeEdges"], SIGNAL(triggered()),
       this, SLOT(MergeEdges()));
+  connect(m_actions["collapseEdge"], SIGNAL(triggered()),
+      this, SLOT(CollapseEdge()));
 
 }
 
@@ -190,6 +195,7 @@ SetHelpTips() {
   m_actions["addEdge"]->setWhatsThis(tr("Add Edge"));
   m_actions["colors"]->setWhatsThis(tr("Set Color"));
   m_actions["mergeEdges"]->setWhatsThis(tr("Merge Edges"));
+  m_actions["collapseEdge"]->setWhatsThis(tr("Collapse Edge"));
 }
 
 
@@ -223,6 +229,7 @@ SetUpSubmenu() {
   m_skeletonMenu->addAction(m_actions["deleteSelected"]);
   m_skeletonMenu->addAction(m_actions["colors"]);
   m_skeletonMenu->addAction(m_actions["mergeEdges"]);
+  m_skeletonMenu->addAction(m_actions["collapseEdge"]);
   m_submenu->addMenu(m_skeletonMenu);
   m_skeletonMenu->setEnabled(false);
 
@@ -259,6 +266,7 @@ SetUpToolTab() {
   buttonList.push_back("addEdge");
   buttonList.push_back("colors");
   buttonList.push_back("mergeEdges");
+  buttonList.push_back("collapseEdge");
   buttonList.push_back("_separator_");
 
   CreateToolTab(buttonList);
@@ -290,6 +298,7 @@ Reset() {
   m_actions["addEdge"]->setEnabled(true);
   m_actions["colors"]->setEnabled(true);
   m_actions["mergeEdges"]->setEnabled(true);
+  m_actions["collapseEdge"]->setEnabled(true);
 
   m_obstacleMenu->setEnabled(true);
 }
@@ -501,6 +510,70 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
 				&((*gm->find_vertex(vs1)).property()));
 }
 
+void
+EnvironmentOptions::
+CollapseEdge()  {
+//  if(sel.size() != 0) {
+
+	typedef GraphModel::SkeletonGraphType GT;
+
+  //Get selected items from the skeleton
+  vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  EnvModel* env = GetVizmo().GetEnv();
+  GT* _gm = env->GetGraphModel()->GetGraph();
+
+ // bool selectionValid = false;
+  typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
+  vector<ED> edgesToMerge;//vector of edge descriptors
+
+  //Select edges to collapse
+  for(auto it = sel.begin(); it != sel.end(); it++) {
+    string objName = (*it)->Name();
+    if(objName.substr(0, 4) == "Edge") {
+   //   selectionValid = true;//if its an edge it is valid selection
+       EdgeModel* e = (EdgeModel*)(*it);//store the edge in e variable
+      edgesToMerge.push_back(ED(e->GetStartCfg()->GetIndex(),
+      e->GetEndCfg()->GetIndex(),e->GetID()));//add the edge descriptor to the vector
+    }
+  }
+  //one edge selected varified
+  if( edgesToMerge.size() == 1) {
+    GT::vertex_iterator vi1;
+    GT::adj_edge_iterator ei1;
+    _gm->find_edge(edgesToMerge[0], vi1, ei1);
+    //_gm->find_edge(edgesToMerge[1], vi2, ei2);
+//    EdgeModel* e1= &(ei1->property());
+   // EdgeModel* e2= &(ei2->property());
+//    bool connect=false;
+
+auto v0= ei1->source();
+auto v1= ei1->target();
+auto VID0=_gm->find_vertex(v0);//get all the edges connected to the selected edge
+auto VID1=_gm->find_vertex(v1);
+	for(auto it = VID0->begin(); it != VID0->end(); it++) {
+  cout<<"Hello Kiffany "<<endl;
+          // check the source to see if it is the collapsing edge
+ // if (){
+
+ // }
+//  _gm->delete_vertex(v0);
+  //_gm->delete_vertex(v1);
+    }
+	for(auto it = VID1->begin(); it != VID1->end(); it++) {
+  cout<<"Hello Kiffany "<<endl;//relocate the target
+	NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(), "Edit Vertex");
+	GetMainWindow()->ShowDialog(ned);
+        }
+  }
+  else
+    GetMainWindow()->AlertUser("Please select an Edge to collapse");
+
+
+  env->GetGraphModel()->Refresh();
+  RefreshEnv();
+  sel.clear();
+}
+//}
 void
 EnvironmentOptions::
 MergeEdges() {
