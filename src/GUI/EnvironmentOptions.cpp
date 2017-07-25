@@ -482,7 +482,11 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
   // Get the source and target descriptor
   size_t vs0 ,vs1;
 
-  // Create the intermediate list with source and target as initial list
+	cout<<"Intermediates for first:"<<endl;
+	for(auto v: i1)
+		cout<<v.GetPoint()<<endl;
+
+	// Create the intermediate list with source and target as initial list
   vector<CfgModel> intermediates;
   if(_i < 2) {
     vs0 = _e1->GetStartCfg()->GetIndex();
@@ -542,14 +546,32 @@ CollapseEdge()  {
 
       auto v0= ei1->source();
       auto v1= ei1->target();
-      auto VID0=_gm->find_vertex(v0);//get all the edges connected to the selected edge
-      auto VID1=_gm->find_vertex(v1);
+      auto vit0=_gm->find_vertex(v0);//get all the edges connected to the selected edge
+      auto vit1=_gm->find_vertex(v1);
       //iterate through the edges connected to the source
-      for(auto it = VID0->begin(); it != VID0->end(); it++) {
-        _gm->AddEdge(ED(it->source(), v1));
-
-      }
-
+      for(auto it = vit0->begin(); it != vit0->end(); it++) {
+				// if the edge is not the edge to be collapsed
+				if(it->descriptor() != edgesToCollapse[0])	{
+					// Change the end vertex of the edges adjacent to source as target
+					vector<CfgModel> intermediates = it->property().GetIntermediates();
+					// If the source vertex is the source of the edge
+					if(it->source() == v0)	{
+						// Replace the current source from intermediates as the target vertex
+					  intermediates.erase(intermediates.begin());
+					 	intermediates.insert(intermediates.begin(), vit1->property());
+        		_gm->add_edge(v1, it->target(),  EdgeModel("",1, intermediates));
+					}
+					// If the source vertex is the target of the edge
+					else if(it->target() == v0)	{
+						// Replace the current target from intermediates as the target vertex
+						intermediates.pop_back();
+					 	intermediates.push_back(vit1->property());
+        		_gm->add_edge(it->source(), v1,  EdgeModel("",1, intermediates));
+					}
+				}
+			}
+			// Delete the source vertex and hence its adjacent edges
+			_gm->delete_vertex(v0);
 
 
     }

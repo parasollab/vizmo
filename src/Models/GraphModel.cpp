@@ -161,10 +161,14 @@ SetColor(const Color4& _c)	{
 /*********************** Accessor Functions *************************************/
 void
 GraphModel::
-AddEdge(size_t _v1, size_t _v2) {
+AddEdge(size_t _v1, size_t _v2, vector<CfgModel>  _in) {
 	vector<CfgModel> intermediates;
-	intermediates.push_back((*m_graph->find_vertex(_v1)).property());
-	intermediates.push_back((*m_graph->find_vertex(_v2)).property());
+	if(_in.empty())	{
+		intermediates.push_back((*m_graph->find_vertex(_v1)).property());
+		intermediates.push_back((*m_graph->find_vertex(_v2)).property());
+	}
+	else
+		intermediates.assign(_in.begin(), _in.end());
 
 	m_graph->add_edge(_v1, _v2, EdgeModel("",1, intermediates));
 }
@@ -245,7 +249,7 @@ BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGr
 		m_graph->add_edge(e->source(), e->target(), EdgeModel("",1, intermediates));
 	}
 	SetIndices();
-	SetColor(Color4(1,0,0));
+	SetColor(Color4(0,1,0));
 }
 
 void

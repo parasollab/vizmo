@@ -58,7 +58,7 @@ class GraphModel : public Model {
     ///@{
     virtual void SaveSkeleton(ostream& _os) const;	///< Save the skleton in a file
     virtual SkeletonGraphType* GetGraph() { return m_graph; }	///< Get the underlying graph
-    void AddEdge(size_t _v1, size_t _v2);		///< Add an edge
+    void AddEdge(size_t _v1, size_t _v2, vector<CfgModel>  _in = vector<CfgModel>());		///< Add an edge
     void AddVertex(Point3d _p);						///< Add a vertex
 		void Refresh();						///< Refresh the skeleton
                 bool GetSelected(){return m_selected;}
