@@ -548,31 +548,35 @@ CollapseEdge()  {
       auto v1= ei1->target();
       auto vit0=_gm->find_vertex(v0);//get all the edges connected to the selected edge
       auto vit1=_gm->find_vertex(v1);
-      //iterate through the edges connected to the source
+      // iterate through the edges with source as the source vertex
       for(auto it = vit0->begin(); it != vit0->end(); it++) {
 				// if the edge is not the edge to be collapsed
 				if(it->descriptor() != edgesToCollapse[0])	{
 					// Change the end vertex of the edges adjacent to source as target
 					vector<CfgModel> intermediates = it->property().GetIntermediates();
-					// If the source vertex is the source of the edge
-					if(it->source() == v0)	{
-						// Replace the current source from intermediates as the target vertex
-					  intermediates.erase(intermediates.begin());
-					 	intermediates.insert(intermediates.begin(), vit1->property());
-        		_gm->add_edge(v1, it->target(),  EdgeModel("",1, intermediates));
-					}
-					// If the source vertex is the target of the edge
-					else if(it->target() == v0)	{
-						// Replace the current target from intermediates as the target vertex
-						intermediates.pop_back();
-					 	intermediates.push_back(vit1->property());
-        		_gm->add_edge(it->source(), v1,  EdgeModel("",1, intermediates));
-					}
+					// Replace the current source from intermediates as the target vertex
+					intermediates.erase(intermediates.begin());
+					intermediates.insert(intermediates.begin(), vit1->property());
+        	_gm->add_edge(v1, it->target(),  EdgeModel("",1, intermediates));
+				}
+			}
+			// iterate through the edges where source is the target vertex
+			for(auto pit = vit0->predecessors().begin(); pit != vit0->predecessors().end(); ++pit)	{
+				GT::vertex_iterator vi;
+      	GT::adj_edge_iterator it;
+				_gm->find_edge(ED(*pit,v0), vi, it);
+				// if the edge is not the edge to be collapsed
+				if(it->descriptor() != edgesToCollapse[0])	{
+					// Change the end vertex of the edges adjacent to source as target
+					vector<CfgModel> intermediates = it->property().GetIntermediates();
+					// Replace the current target from intermediates as the target vertex
+					intermediates.pop_back();
+					intermediates.push_back(vit1->property());
+        	_gm->add_edge(it->source(), v1,  EdgeModel("",1, intermediates));
 				}
 			}
 			// Delete the source vertex and hence its adjacent edges
 			_gm->delete_vertex(v0);
-
 
     }
     else
