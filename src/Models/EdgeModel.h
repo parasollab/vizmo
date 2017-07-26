@@ -30,7 +30,8 @@ class EdgeModel : public Model, public EdgeType {
 
     // Construction
     EdgeModel(string _lpLabel = "", double _weight = 1,
-        const vector<CfgModel>& _intermediates = vector<CfgModel>());
+        const vector<CfgModel>& _intermediates = vector<CfgModel>(), 
+				bool _isSkeleton = false);
     EdgeModel(const DefaultWeight<CfgModel>& _e);
 
 
@@ -86,6 +87,7 @@ class EdgeModel : public Model, public EdgeType {
     CfgModel* m_endCfg;   ///< Points to the target vertex.
     size_t m_id;          ///< This edge's EID in the RoadmapGraph.
     bool m_isValid;       ///< Indicates whether this edge is valid.
+		bool m_isSkeleton{false};	///< Indicates whether this edge is from skeleton
 };
 
 #endif

@@ -437,7 +437,7 @@ AddStraightLineEdge() {
     intermediates.push_back((*gm->find_vertex(v1)).property());
 
     // Add the edge in the graph
-    auto ed = gm->add_edge(v0, v1, EdgeModel("",1, intermediates));
+    auto ed = gm->add_edge(v0, v1, EdgeModel("",1, intermediates, true));
     GraphModel::SkeletonGraphType::vertex_iterator vi;
     GraphModel::SkeletonGraphType::adj_edge_iterator ei;
     gm->find_edge(ed, vi, ei);
@@ -482,10 +482,6 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
   // Get the source and target descriptor
   size_t vs0 ,vs1;
 
-	cout<<"Intermediates for first:"<<endl;
-	for(auto v: i1)
-		cout<<v.GetPoint()<<endl;
-
 	// Create the intermediate list with source and target as initial list
   vector<CfgModel> intermediates;
   if(_i < 2) {
@@ -506,7 +502,7 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
   }
 
   // Add the edge in the graph
-  auto ed = gm->add_edge(vs0, vs1, EdgeModel("",1, intermediates));
+  auto ed = gm->add_edge(vs0, vs1, EdgeModel("",1, intermediates, true));
   GraphModel::SkeletonGraphType::vertex_iterator vi;
   GraphModel::SkeletonGraphType::adj_edge_iterator ei;
   gm->find_edge(ed, vi, ei);
@@ -557,7 +553,7 @@ CollapseEdge()  {
 					// Replace the current source from intermediates as the target vertex
 					intermediates.erase(intermediates.begin());
 					intermediates.insert(intermediates.begin(), vit1->property());
-        	_gm->add_edge(v1, it->target(),  EdgeModel("",1, intermediates));
+        	_gm->add_edge(v1, it->target(),  EdgeModel("",1, intermediates, true));
 				}
 			}
 			// iterate through the edges where source is the target vertex
@@ -572,7 +568,7 @@ CollapseEdge()  {
 					// Replace the current target from intermediates as the target vertex
 					intermediates.pop_back();
 					intermediates.push_back(vit1->property());
-        	_gm->add_edge(it->source(), v1,  EdgeModel("",1, intermediates));
+        	_gm->add_edge(it->source(), v1,  EdgeModel("",1, intermediates, true));
 				}
 			}
 			// Delete the source vertex and hence its adjacent edges

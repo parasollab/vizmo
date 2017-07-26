@@ -170,7 +170,7 @@ AddEdge(size_t _v1, size_t _v2, vector<CfgModel>  _in) {
 	else
 		intermediates.assign(_in.begin(), _in.end());
 
-	m_graph->add_edge(_v1, _v2, EdgeModel("",1, intermediates));
+	m_graph->add_edge(_v1, _v2, EdgeModel("",1, intermediates, true));
 }
 
 
@@ -226,7 +226,7 @@ BuildGraph<ReebGraphConstruction::ReebGraph>(const ReebGraphConstruction::ReebGr
 		vector<CfgModel> intermediates;
 		for(auto& v : e->property().m_path)
 			intermediates.emplace_back(CfgModel(v));
-		m_graph->add_edge(e->source(), e->target(),  EdgeModel("",1, intermediates));
+		m_graph->add_edge(e->source(), e->target(),  EdgeModel("",1, intermediates, true));
 	}
 	SetIndices();
 	SetColor(Color4(0,1,0));
@@ -246,7 +246,7 @@ BuildGraph<ReebGraphConstruction::FlowGraph>(const ReebGraphConstruction::FlowGr
 		vector<CfgModel> intermediates;
 		for(auto& v : e->property())
 			intermediates.emplace_back(CfgModel(v));
-		m_graph->add_edge(e->source(), e->target(), EdgeModel("",1, intermediates));
+		m_graph->add_edge(e->source(), e->target(), EdgeModel("",1, intermediates, true));
 	}
 	SetIndices();
 	SetColor(Color4(0,1,0));

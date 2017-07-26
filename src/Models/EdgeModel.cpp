@@ -10,9 +10,9 @@ double EdgeModel::m_numIntermediates = .3;
 
 EdgeModel::
 EdgeModel(string _lpLabel, double _weight,
-    const vector<CfgModel>& _intermediates) : Model("Edge"),
-    EdgeType(_lpLabel, _weight, _intermediates),
-    m_id(-1), m_isValid(true) { }
+    const vector<CfgModel>& _intermediates, bool _isSkeleton) : Model("Edge"),
+    EdgeType(_lpLabel, _weight, _intermediates), 
+    m_id(-1), m_isValid(true), m_isSkeleton(_isSkeleton) { }
 
 EdgeModel::
 EdgeModel(const DefaultWeight<CfgModel>& _e) : Model("Edge"),
@@ -119,7 +119,7 @@ DrawSelected() {
   size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
 
   for(size_t i = 0; i < m_intermediates.size(); ++i) {
-    if(i % k == k/2)
+    if(m_isSkeleton || i % k == k/2)
       glVertex3dv(m_intermediates[i].GetPoint());
   }
 
