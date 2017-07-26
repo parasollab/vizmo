@@ -494,11 +494,11 @@ AddSpecificEdge(EdgeModel* _e1, EdgeModel* _e2, int _i) {
   }
   if(_i % 2 == 0) {
     vs1 = _e2->GetEndCfg()->GetIndex();
-    intermediates.insert(intermediates.end(), ++i2.begin(), i2.end());
+    intermediates.insert(intermediates.end(), i2.begin(), i2.end());
   }
   else  {
     vs1 = _e2->GetStartCfg()->GetIndex();
-    intermediates.insert(intermediates.end(), ++i2.rbegin(), i2.rend());
+    intermediates.insert(intermediates.end(), i2.rbegin(), i2.rend());
   }
 
   // Add the edge in the graph
@@ -526,10 +526,11 @@ CollapseEdge()  {
     vector<ED> edgesToCollapse;//vector of edge descriptors
 
     //Select edges to collapse
+    EdgeModel* e;
     for(auto it = sel.begin(); it != sel.end(); it++) {
       string objName = (*it)->Name();
       if(objName.substr(0, 4) == "Edge") {
-        EdgeModel* e = (EdgeModel*)(*it);//store the edge in e variable
+        e = (EdgeModel*)(*it);//store the edge in e variable
         edgesToCollapse.push_back(ED(e->GetStartCfg()->GetIndex(),
         e->GetEndCfg()->GetIndex(),e->GetID()));//add the edge descriptor to the vector
       }
@@ -539,12 +540,16 @@ CollapseEdge()  {
       GT::vertex_iterator vi1;
       GT::adj_edge_iterator ei1;
       _gm->find_edge(edgesToCollapse[0], vi1, ei1);
-
       auto v0= ei1->source();
       auto v1= ei1->target();
       auto vit0=_gm->find_vertex(v0);//get all the edges connected to the selected edge
       auto vit1=_gm->find_vertex(v1);
-      // iterate through the edges with source as the source vertex
+      /*
+      NodeEditDialog* ned = new NodeEditDialog(GetMainWindow(),
+          "Collapse Vertex", e, vit1);
+      GetMainWindow()->ShowDialog(ned);
+      */
+      //iterate through the edges connected to the source
       for(auto it = vit0->begin(); it != vit0->end(); it++) {
 				// if the edge is not the edge to be collapsed
 				if(it->descriptor() != edgesToCollapse[0])	{
@@ -619,30 +624,38 @@ MergeEdges() {
         _gm->find_edge(edgesToMerge[1], vi2, ei2);
         EdgeModel* e1= &(ei1->property());
         EdgeModel* e2= &(ei2->property());
-        bool connect=false;
+        bool _connect=false;
+        size_t _vertex;
 
         if(ei1->source()==ei2->target()){
-          connect=true;
+          _connect = true;
+          _vertex = ei1->source();
           AddSpecificEdge(e1, e2, 3);
         }
         else if(ei1->target()==ei2->target()){
-          connect=true;
+          _connect=true;
+          _vertex = ei1->target();
           AddSpecificEdge(e1, e2, 1);
         }
         else if(ei1->source()==ei2->source()){
-          connect=true;
+          _connect=true;
+          _vertex = ei1->source();
           AddSpecificEdge(e1, e2, 2);
         }
         else if(ei1->target()==ei2->source()){
-          connect=true;
+          _connect=true;
+          _vertex = ei1->target();
           AddSpecificEdge(e1, e2, 0);
         }
         else
           GetMainWindow()->AlertUser("Two edges need to be adjacent to be merged");
 
-        for(auto it = edgesToMerge.begin(); connect && it != edgesToMerge.end(); it++) {
+        for(auto it = edgesToMerge.begin(); _connect && it != edgesToMerge.end(); it++) {
       	  _gm->delete_edge(*it);
         }
+
+        if(_gm->get_in_degree(_vertex) + _gm->get_out_degree(_vertex)== 0)
+          _gm->delete_vertex(_vertex);
       }
       else
         GetMainWindow()->AlertUser("Please select two connected Edges to merge");
@@ -664,6 +677,8 @@ EnvironmentOptions::
 DeleteSelectedItems() {
   //Deletes selected items from the skeleton
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
+  if(sel.size() != 0) {
+
   EnvModel* env = GetVizmo().GetEnv();
   GraphModel::SkeletonGraphType* _gm = env->GetGraphModel()->GetGraph();
 
@@ -707,6 +722,9 @@ DeleteSelectedItems() {
 		RefreshEnv();
     sel.clear();
   }
+  }
+  else
+    GetMainWindow()->AlertUser("Please select an item to delete");
 
 }
 
