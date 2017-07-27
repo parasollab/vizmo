@@ -328,10 +328,12 @@ void
 NodeEditDialog::
 UpdateDOF(int _id) {
   if(m_title=="Collapse Edge"){
-    auto temp= m_tempObjs.GetModels();
-  auto s=static_cast<CfgModel*>(temp[0]);
-  auto t=static_cast<CfgModel*>(temp[1]);
-   ( *m_tempNode) =(*s) +  m_sliders[0]->GetSlider()->value()/100000.0)* (*t-*s);
+    auto temp = m_tempObjs.GetModels();
+  	auto s= *(static_cast<CfgModel*>(temp[0]));
+  	auto t= *(static_cast<CfgModel*>(temp[1]));
+		size_t num = GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->GetDOFInfo().size();
+		for(size_t i = 0; i < num; ++i)
+   		( *m_tempNode)[i] = s[i] + (m_sliders[0]->GetSlider()->value()/100000.0) * (t[i] - s[i]);
 
   }
   //Also assumes index alignment
