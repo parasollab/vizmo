@@ -153,6 +153,15 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
   connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeNodeEdit(int)));
 }
 
+//Edge Collapse Constructor
+NodeEditDialog::
+NodeEditDialog(MainWindow* _mainWindow, string _title,
+    EdgeModel* _edge, CfgModel* _newNode) : QDialog(_mainWindow), m_title(_title),
+    m_tempNode(NULL), m_originalNode(_newNode),
+    m_nodesToConnect(), m_nodesToDelete(), m_tempObjs() {
+    m_tempObjs.AddModel(_edge->GetStartCfg());
+    m_tempObjs.AddModel(_edge->GetEndCfg());
+}
 
 //Add new node constructor
 NodeEditDialog::
@@ -252,6 +261,30 @@ Init() {
 void
 NodeEditDialog::
 SetUpSliders(vector<NodeEditSlider*>& _sliders) {
+  if(m_title == "Collapse Edge")  {
+    const vector<ActiveMultiBody::DOFInfo>& dofInfo =
+      GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->GetDOFInfo();
+    QSignalMapper* sliderMapper = new QSignalMapper(this);
+    connect(sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
+
+    NodeEditSlider* s = new NodeEditSlider(this, "Position");
+    QSlider* actualSlider = s->GetSlider();
+    QLineEdit* dofValue = s->GetDOFValue();
+
+
+    double minVal = dofInfo[0].m_minVal;
+    double maxVal = dofInfo[0].m_maxVal;
+    actualSlider->setRange(minVal, maxVal);
+    dofValue->setValidator(new NodeEditValidator(minVal, maxVal, 5, dofValue));
+
+    connect(actualSlider, SIGNAL(valueChanged(int)), sliderMapper, SLOT(map()));
+    connect(dofValue, SIGNAL(textEdited(const QString&)),
+        s, SLOT(MoveSlider(QString)));
+
+    sliderMapper->setMapping(actualSlider, 0);
+    _sliders.push_back(s);
+  }
+  else  {
     const vector<ActiveMultiBody::DOFInfo>& dofInfo =
       GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->GetDOFInfo();
   QSignalMapper* sliderMapper = new QSignalMapper(this);
@@ -274,6 +307,7 @@ SetUpSliders(vector<NodeEditSlider*>& _sliders) {
     sliderMapper->setMapping(actualSlider, i);
     _sliders.push_back(s);
   }
+  }
 }
 
 
@@ -293,6 +327,13 @@ InitSliderValues(const vector<double>& _vals) {
 void
 NodeEditDialog::
 UpdateDOF(int _id) {
+  if(m_title=="Collapse Edge"){
+    auto temp= m_tempObjs.GetModels();
+  auto s=static_cast<CfgModel*>(temp[0]);
+  auto t=static_cast<CfgModel*>(temp[1]);
+   ( *m_tempNode) =(*s) +  m_sliders[0]->GetSlider()->value()/100000.0)* (*t-*s);
+
+  }
   //Also assumes index alignment
   (*m_tempNode)[_id] = m_sliders[_id]->GetSlider()->value() / 100000.0;
 
@@ -394,12 +435,12 @@ FinalizeNodeAdd(int _accepted) {
     if(_accepted == 1)	{
       Point3d p = m_tempNode->GetPoint();
       auto graph = GetVizmo().GetEnv()->GetGraphModel();
-      
+
       if(!graph)	{
 				GetVizmo().GetEnv()->AddEmptyGraphModel();
 				graph = GetVizmo().GetEnv()->GetGraphModel();
       }
-      
+
       graph->AddVertex(p);
       graph->Refresh();
       GetMainWindow()->GetModelSelectionWidget()->ResetLists();
@@ -461,7 +502,6 @@ FinalizeNodeMerge(int _accepted) {
   }
   GetMainWindow()->GetModelSelectionWidget()->ResetLists();
 }
-
 
 void
 NodeEditDialog::
