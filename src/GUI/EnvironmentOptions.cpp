@@ -681,7 +681,7 @@ DeleteSelectedItems() {
 
   EnvModel* env = GetVizmo().GetEnv();
   GraphModel::SkeletonGraphType* _gm = env->GetGraphModel()->GetGraph();
-
+  if(_gm) {
 
   bool selectionValid = false;
 	typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
@@ -722,6 +722,8 @@ DeleteSelectedItems() {
 		RefreshEnv();
     sel.clear();
   }
+  else
+    GetMainWindow()->AlertUser("No graph items to delete");
   }
   else
     GetMainWindow()->AlertUser("Please select an item to delete");
@@ -745,8 +747,7 @@ ChangeColor() {
     GetVizmo().GetEnv()->GetGraphModel()->Refresh();
   }
   else
-    GetMainWindow()->AlertUser(
-        "Please select one or more items");
+    GetMainWindow()->AlertUser("Please select one or more items");
 }
 
 /*----------------------- Environment Editing --------------------------------*/
