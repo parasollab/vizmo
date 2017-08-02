@@ -722,8 +722,10 @@ DeleteSelectedItems() {
 		RefreshEnv();
     sel.clear();
   }
+  }
   else
     GetMainWindow()->AlertUser("No graph items to delete");
+
   }
   else
     GetMainWindow()->AlertUser("Please select an item to delete");
@@ -744,7 +746,10 @@ ChangeColor() {
         (*it)->SetColor(Color4(r,g,b,1));
       }
     }
-    GetVizmo().GetEnv()->GetGraphModel()->Refresh();
+    EnvModel* env = GetVizmo().GetEnv();
+    GraphModel::SkeletonGraphType* _gm = env->GetGraphModel()->GetGraph();
+    if(_gm)
+      GetVizmo().GetEnv()->GetGraphModel()->Refresh();
   }
   else
     GetMainWindow()->AlertUser("Please select one or more items");

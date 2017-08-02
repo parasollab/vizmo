@@ -102,13 +102,12 @@ void GraphModel::DrawGraph()	{
 	}
   if(m_selected)
 		glPopName();
-  /*
 	//Draw vertices label
-/*	for(auto v = m_graph->begin(); v != m_graph->end(); ++v)  {
+for(auto v = m_graph->begin(); v != m_graph->end(); ++v)  {
   	Point3d pos = v->property().GetPoint();
   	glColor3d(0.1, 0.1, 0.1);
   	DrawStr(pos[0]-0.75, pos[1]-0.75, pos[2], to_string(v->descriptor()));
-  }*/
+  }
 
   // Draw  graph edges.
 	//glColor3f(0, 1, 0);

@@ -153,15 +153,6 @@ NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _originalNode,
   connect(this, SIGNAL(finished(int)), this, SLOT(FinalizeNodeEdit(int)));
 }
 
-//Edge Collapse Constructor
-NodeEditDialog::
-NodeEditDialog(MainWindow* _mainWindow, string _title,
-    EdgeModel* _edge, CfgModel* _newNode) : QDialog(_mainWindow), m_title(_title),
-    m_tempNode(NULL), m_originalNode(_newNode),
-    m_nodesToConnect(), m_nodesToDelete(), m_tempObjs() {
-    m_tempObjs.AddModel(_edge->GetStartCfg());
-    m_tempObjs.AddModel(_edge->GetEndCfg());
-}
 
 //Add new node constructor
 NodeEditDialog::

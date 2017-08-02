@@ -79,9 +79,6 @@ class NodeEditDialog : public QDialog {
     //Edit node constructor
     NodeEditDialog(MainWindow* _mainWindow, string _title,
         CfgModel* _originalNode, EdgeModel* _parentEdge = NULL);
-    //Collapse Edge constructor
-    NodeEditDialog(MainWindow* _mainWindow, string _title,
-        EdgeModel* _edge, CfgModel* _newNode);
     //Add new node constructor
     NodeEditDialog(MainWindow* _mainWindow, string _title);
     //Merge nodes constructor
