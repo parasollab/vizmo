@@ -9,6 +9,7 @@
 #include "Model.h"
 #include "BoundaryModel.h"
 #include "GraphModel.h"
+#include "EllipsoidModel.h"
 
 #include "Utilities/IO.h"
 
@@ -177,6 +178,9 @@ class EnvModel : public Model {
     /// \param _filename File name
     void LoadUserPaths(const string& _filename);
 
+    //revision
+    void SetEllipses(vector<EllipsoidModel*> _ve) {m_ellipses = _ve;}
+
     // Temporary Objects
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Add a set of temporary objects to the environment.
@@ -198,12 +202,12 @@ class EnvModel : public Model {
 				delete m_graphModel;
       m_graphModel = new GraphModel(_g);
     }
-		/// @brief Create an empty Graph Model 
+		/// @brief Create an empty Graph Model
 		void AddEmptyGraphModel();
 
     /// @brief Get the skeleton graph model
-    GraphModel* GetGraphModel()	{ 
-			return m_graphModel;  
+    GraphModel* GetGraphModel()	{
+			return m_graphModel;
 		}
 
     // Display functions
@@ -248,6 +252,8 @@ class EnvModel : public Model {
     GraphModel* m_graphModel{nullptr};        ///< Graph Model.
 
     Environment* m_environment{nullptr}; ///< The PMPL environment.
+
+    vector<EllipsoidModel*> m_ellipses; ///< The Ellipses
 };
 
 #endif

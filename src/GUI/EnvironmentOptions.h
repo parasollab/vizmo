@@ -28,6 +28,8 @@ class EnvironmentOptions : public OptionsBase {
     void DuplicateObstacles();  ///< Duplicate the selected obstacles.
     void ChangeBoundaryForm();  ///< Launch a ChangeBoundaryDialog.
     void EditRobot();           ///< Launch an EditRobotDialog.
+    //revision
+    void LoadEllipses();        ///< Loads shapes from a file
 
     //skeleton functions
     void AddSkeleton();         	///< Adds a skeleton

@@ -30,6 +30,7 @@
 #include "Models/RegionSphere2DModel.h"
 #include "Models/StaticMultiBodyModel.h"
 #include "Models/Vizmo.h"
+#include "Models/EllipsoidModel.h"
 
 #include "Icons/CollapseEdge.xpm"
 #include "Icons/AddObstacle.xpm"
@@ -102,6 +103,8 @@ CreateActions() {
       tr("Merge Edges"),this);
   m_actions["collapseEdge"] = new QAction(QPixmap(collapseedge),
       tr("Collapse Edge"),this);
+  m_actions["loadEllipse"] = new QAction(QPixmap(addskeleton),
+      tr("loadEllipse"),this);
 
   //2. Set other specifications as necessary
   m_actions["refreshEnv"]->setEnabled(false);
@@ -123,6 +126,7 @@ CreateActions() {
   m_actions["colors"]->setEnabled(false);
   m_actions["mergeEdges"]->setEnabled(false);
   m_actions["collapseEdge"]->setEnabled(false);
+  m_actions["loadEllipse"]->setEnabled(false);
 
   //3. Make connections
   connect(m_actions["refreshEnv"], SIGNAL(triggered()),
@@ -162,6 +166,8 @@ CreateActions() {
       this, SLOT(MergeEdges()));
   connect(m_actions["collapseEdge"], SIGNAL(triggered()),
       this, SLOT(CollapseEdge()));
+  connect(m_actions["loadEllipse"], SIGNAL(triggered()),
+      this, SLOT(LoadEllipses()));
 
 }
 
@@ -196,6 +202,7 @@ SetHelpTips() {
   m_actions["colors"]->setWhatsThis(tr("Set Color"));
   m_actions["mergeEdges"]->setWhatsThis(tr("Merge Edges"));
   m_actions["collapseEdge"]->setWhatsThis(tr("Collapse Edge"));
+  m_actions["loadEllipse"]->setWhatsThis(tr("Load Ellipses"));
 }
 
 
@@ -219,6 +226,7 @@ SetUpSubmenu() {
   m_submenu->addMenu(m_obstacleMenu);
   m_submenu->addAction(m_actions["changeBoundary"]);
   m_submenu->addAction(m_actions["editRobot"]);
+  m_submenu->addAction(m_actions["loadEllipse"]);
   m_obstacleMenu->setEnabled(false);
   //revisions
   m_skeletonMenu = new QMenu("Skeleton Tools", this);
@@ -257,6 +265,7 @@ SetUpToolTab() {
   buttonList.push_back("_separator_");
 
   buttonList.push_back("editRobot");
+  buttonList.push_back("loadEllipse");
   buttonList.push_back("_separator_");
   //revisions
   buttonList.push_back("addSkeleton");
@@ -299,6 +308,7 @@ Reset() {
   m_actions["colors"]->setEnabled(true);
   m_actions["mergeEdges"]->setEnabled(true);
   m_actions["collapseEdge"]->setEnabled(true);
+  m_actions["loadEllipse"]->setEnabled(true);
 
   m_obstacleMenu->setEnabled(true);
 }
@@ -756,6 +766,62 @@ ChangeColor() {
 }
 
 /*----------------------- Environment Editing --------------------------------*/
+
+void
+EnvironmentOptions::
+LoadEllipses()  {
+  QString fn = QFileDialog::getOpenFileName(this, "Choose a file to load Ellipses",
+      GetMainWindow()->GetLastDir(), "Files (*.e)");
+
+  if(!fn.isEmpty()) {
+    //save last directory
+    QFileInfo fi(fn);
+    GetMainWindow()->statusBar()->showMessage("Loading:"+fi.absoluteFilePath());
+    GetMainWindow()->AlertUser("Loaded file: "+fi.fileName().toStdString());
+
+    //Read the file
+    ifstream input(fi.absoluteFilePath().toStdString());
+    if(!input.good())
+        GetMainWindow()->AlertUser("File Not Good");
+
+    int d, size;      //dimension for the file
+    input >> d >> size;
+
+    vector<EllipsoidModel*> ellipses;
+    for (int i = 0; i < size; i++)  {
+      char type, s = 's', e = 'e';              //the type is 's' for sphere and 'e' for ellipse
+      input >> type;
+      Point3d p;
+      input >> p;
+      vector<double> center;
+      for(int j = 0; j < 3; j++)  {
+        center.push_back(p[j]);
+      }
+      EllipsoidModel* elli;
+
+      if (type == s) {
+        double r;
+        input >> r;
+        vector<double> axes(d,r);
+        elli = new EllipsoidModel(center, axes);
+      }
+      else if (type == e) {
+        vector<double> axes;
+        for(int j = 0; j < d; j++)  {
+          double temp;
+          input >> temp;
+          axes.push_back(temp);
+        }
+        EulerAngle eAngle;
+        input >> eAngle;
+        elli = new EllipsoidModel(center, axes, eAngle);
+      }
+      ellipses.push_back(elli);
+    }
+    GetVizmo().GetEnv()->SetEllipses(ellipses);
+    RefreshEnv();
+  }
+}
 
 void
 EnvironmentOptions::

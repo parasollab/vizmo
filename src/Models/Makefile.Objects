@@ -11,6 +11,7 @@ OBJECTS += \
 	   Models/CrosshairModel.o \
 	   Models/DebugModel.o \
 	   Models/EdgeModel.o \
+	   Models/EllipsoidModel.o\
 	   Models/EnvModel.o \
 	   Models/GraphModel.o \
 	   Models/MultiBodyModel.o \

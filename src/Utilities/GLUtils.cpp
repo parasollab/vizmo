@@ -86,6 +86,33 @@ namespace GLUtils {
     glEnd();
   }
 
+  //revision
+  void
+  DrawEllipse(double _rx, double _ry, bool _fill,
+      unsigned short _segments) {
+    GLfloat incr = TWOPI / _segments;
+    glBegin(_fill ? GL_POLYGON : GL_LINE_LOOP);
+    for(unsigned short t = 0; t < _segments; ++t)
+      glVertex2f(_rx * cos(t * incr), _ry * sin(t * incr));
+    glEnd();
+  }
+
+  void
+  DrawEllipsoid(double a, double b, double c, unsigned short _segments) {
+    GLfloat tIncr = PI/_segments;
+    GLfloat sIncr = PI/_segments;
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    for(double t = -PI/2; t <= (PI/2)+0.0001; t += tIncr) {
+      glBegin(GL_TRIANGLE_STRIP);
+      for(double s = -PI; s <= PI+0.0001; s+= sIncr)  {
+        glVertex3f(a * cos(t) * cos(s), b * cos(t) * sin(s),
+            c * sin(t));
+        glVertex3f(a * cos(t+tIncr) * cos(s), b * cos(t+tIncr) * sin(s),
+            c * sin(t+tIncr));
+      }
+      glEnd();
+    }
+  }
 
   void
   DrawArc(double _r, double _s, double _e, const Vector3d& _v1,

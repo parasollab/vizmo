@@ -478,6 +478,12 @@ Build() {
     m_surfaces.emplace_back(
         new SurfaceMultiBodyModel(m_environment->GetSurface(i)));
 
+  //revision
+  for(size_t i = 0; i < m_ellipses.size(); i++) {
+    m_ellipses[i]->Build();
+  }
+
+
   //Build boundary model
   if(!m_boundary)
     throw BuildException(WHERE, "Boundary is NULL");
@@ -597,6 +603,11 @@ DrawRender() {
 
   for(auto& t : m_tempObjs)
     t->DrawRender();
+
+  //revision
+  for(auto& e : m_ellipses) {
+    e->DrawRender();
+  }
 
   if(m_decompositionModel)
     m_decompositionModel->DrawRender();

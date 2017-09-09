@@ -55,6 +55,27 @@ namespace GLUtils {
   /// \param[in] _segments The number of segments to use.
   void DrawCircle(double _r, bool _fill, unsigned short _segments = 30);
 
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// \brief Draw a ellipse in the OpenGL scene.
+  /// \param[in] _rx    The radius for the x component.
+  /// \param{in{ _ry    The radius for the y component.
+  /// \param[in] _fill A bool indicating a filled circle (true) or outline
+  ///                  only (false).
+  /// \param[in] _segments The number of segments to use.
+  void DrawEllipse(double _rx, double _ry, bool _fill,
+      unsigned short _segments = 30);
+
+  //////////////////////////////////////////////////////////////////////////////
+  /// \brief Draw a ellipse in the OpenGL scene.
+  /// \param[in] _rx    The radius for the x component.
+  /// \param{in{ _ry    The radius for the y component.
+  /// \param[in] _fill A bool indicating a filled circle (true) or outline
+  ///                  only (false).
+  /// \param[in] _segments The number of segments to use.
+  void DrawEllipsoid(double a, double b, double c,
+      unsigned short _segments = 30);
+
   //////////////////////////////////////////////////////////////////////////////
   /// \brief Draw an arc in the OpenGL scene.
   /// \param[in] _r  The arc radius.
