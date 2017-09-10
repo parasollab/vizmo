@@ -4,7 +4,7 @@
 #include <memory>
 using namespace std;
 
-#include "../../../../../PMPL/trunk/utils/mathtool/Orientation.h"
+#include "Orientation.h"
 #include "BoundaryModel.h"
 
 //class NEllipsoid;

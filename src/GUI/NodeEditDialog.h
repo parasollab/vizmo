@@ -84,8 +84,6 @@ class NodeEditDialog : public QDialog {
     //Merge nodes constructor
     NodeEditDialog(MainWindow* _mainWindow, string _title, CfgModel* _tempNode,
         vector<VID> _nodesToConnect, vector<VID> _nodesToDelte);
-		NodeEditDialog(MainWindow* _mainWindow, string _title,
-    		EdgeModel* _edge, CfgModel* _newNode);
 
   private slots:
 

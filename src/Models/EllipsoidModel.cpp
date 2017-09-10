@@ -45,9 +45,11 @@ Build() {
     glNewList(m_displayID, GL_COMPILE);
     glLineWidth(2);
     glColor3d(0.0, 0.0, 0.0);
-    glTranslatef(m_center.at(0), m_center.at(1), m_center.at(2));
+		glPushMatrix();
+    glTranslatef(m_center.at(0), m_center.at(1), m_center.at(2)); 
     glRotatef(m_orientation.alpha() * 180 / PI, 0, 0, 1);
     GLUtils::DrawEllipse(m_radii[0], m_radii[1], false);
+		glPopMatrix();
     glEndList();
   }
   if(m_radii.size() == 3) {
@@ -55,10 +57,12 @@ Build() {
     glNewList(m_displayID, GL_COMPILE);
     glLineWidth(2);
     glColor3d(0.0, 0.0, 0.0);
+		glPushMatrix();
     glTranslatef(m_center.at(0), m_center.at(1), m_center.at(2));
     glRotatef(m_orientation.alpha()*180/PI, 0, 0, 1);
     glRotatef(m_orientation.beta()*180/PI, 0, 1, 0);
     GLUtils::DrawEllipsoid(m_radii[0], m_radii[1], m_radii[2]);
+		glPopMatrix();
     glEndList();
   }
   /*

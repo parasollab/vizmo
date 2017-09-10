@@ -688,45 +688,43 @@ DeleteSelectedItems() {
   //Deletes selected items from the skeleton
   vector<Model*>& sel = GetVizmo().GetSelectedModels();
   if(sel.size() != 0) {
+	  EnvModel* env = GetVizmo().GetEnv();
+  	GraphModel::SkeletonGraphType* _gm = env->GetGraphModel()->GetGraph();
+  	if(_gm) {
+	  	bool selectionValid = false;
+			typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
+			typedef GraphModel::SkeletonGraphType::vertex_descriptor  VD;
+  		vector<VD> nodesToDelete;
+  		vector<ED> edgesToDelete;
 
-  EnvModel* env = GetVizmo().GetEnv();
-  GraphModel::SkeletonGraphType* _gm = env->GetGraphModel()->GetGraph();
-  if(_gm) {
-
-  bool selectionValid = false;
-	typedef GraphModel::SkeletonGraphType::edge_descriptor  ED;
-	typedef GraphModel::SkeletonGraphType::vertex_descriptor  VD;
-  vector<VD> nodesToDelete;
-  vector<ED> edgesToDelete;
-
-  //Mark selected items for removal
-  for(auto it = sel.begin(); it != sel.end(); it++) {
-    string objName = (*it)->Name();
-    if(objName.substr(0, 4) == "Node") {
-      selectionValid = true;
-      auto vid = ((CfgModel*)(*it))->GetIndex();
-      nodesToDelete.push_back(vid);
-    }
-    else if(objName.substr(0, 4) == "Edge") {
-      selectionValid = true;
-      EdgeModel* e = (EdgeModel*)(*it);
-      edgesToDelete.push_back(ED(e->GetStartCfg()->GetIndex(),
+ 			//Mark selected items for removal
+  		for(auto it = sel.begin(); it != sel.end(); it++) {
+    		string objName = (*it)->Name();
+    		if(objName.substr(0, 4) == "Node") {
+      		selectionValid = true;
+      		auto vid = ((CfgModel*)(*it))->GetIndex();
+      		nodesToDelete.push_back(vid);
+    		}
+    		else if(objName.substr(0, 4) == "Edge") {
+      		selectionValid = true;
+      		EdgeModel* e = (EdgeModel*)(*it);
+      		edgesToDelete.push_back(ED(e->GetStartCfg()->GetIndex(),
             e->GetEndCfg()->GetIndex(),e->GetID()));
-    }
-  }
+    		}
+  		}
 
-  if(selectionValid == false)
-    GetMainWindow()->AlertUser("Please select a group of nodes and edges to"
-        " remove.");
-  else {
-    //Remove selected vertices
-   	for(auto it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
-		   _gm->delete_vertex(*it);
+  		if(selectionValid == false)
+    		GetMainWindow()->AlertUser("Please select a group of nodes and edges to"
+        	" remove.");
+  		else {
+    		//Remove selected vertices
+   			for(auto it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
+		   		_gm->delete_vertex(*it);
 
-    //Remove selected edges
-    for(auto it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
-       _gm->delete_edge(*it);
-    }
+    		//Remove selected edges
+    		for(auto it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
+       		_gm->delete_edge(*it);
+    		}
 
 		env->GetGraphModel()->Refresh();
 		RefreshEnv();
@@ -812,8 +810,10 @@ LoadEllipses()  {
           input >> temp;
           axes.push_back(temp);
         }
-        EulerAngle eAngle;
-        input >> eAngle;
+        
+				double alpha, beta, gamma; // Not using the euler angle >> operator as it reads in different order than <<
+				input >> alpha >> beta >> gamma;
+				EulerAngle eAngle(fmod(degToRad(alpha), TWOPI), fmod(degToRad(beta), TWOPI), fmod(degToRad(gamma), TWOPI)); 
         elli = new EllipsoidModel(center, axes, eAngle);
       }
       ellipses.push_back(elli);
