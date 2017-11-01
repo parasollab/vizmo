@@ -61,14 +61,14 @@ Build() {
   glDisable(GL_CULL_FACE);
   glEndList();
 
-  m_linesID = glGenLists(1);
+  /*m_linesID = glGenLists(1);
   glNewList(m_linesID, GL_COMPILE);
   glColor3f(1.0, 1.0, 0.0);
   glPushMatrix();
   glTranslatef(center[0], center[1], center[2]);
   glutWireSphere(radius, 20, 20);
   glPopMatrix();
-  glEndList();
+  glEndList();*/
 
   gluDeleteQuadric(quad);
 }

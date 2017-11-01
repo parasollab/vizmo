@@ -423,6 +423,7 @@ Build() {
   shared_ptr<Boundary> bounds = m_environment->GetBoundary();
   string type = bounds->Type();
   if(type == "Box") {
+    cout << "Making a bounding box" << endl;
     m_boundary = shared_ptr<BoundingBoxModel>(
         new BoundingBoxModel(dynamic_pointer_cast<BoundingBox>(bounds))
         );
@@ -445,6 +446,18 @@ Build() {
   else
     throw RunTimeException(WHERE, "Failed casting Boundary.");
 
+  //if there are spherical regions, draw thos boundaries as well
+  ifstream regionsFile("regionsFile.txt");
+  if(regionsFile) {
+    double centerX, centerY, centerZ, radius;
+    regionsFile >> centerX >> centerY >> centerZ >> radius;
+    while(!regionsFile.eof()) {
+      boundaries.push_back(shared_ptr<BoundaryModel>(
+          new BoundingSphereModel(Vector3d(centerX, centerY, centerZ), radius)));
+      regionsFile >> centerX >> centerY >> centerZ >> radius;
+    }
+  }
+
   //construct multibody model
   for(size_t i = 0; i < m_environment->NumRobots(); ++i)
     m_robots.emplace_back(
@@ -460,6 +473,10 @@ Build() {
   if(!m_boundary)
     throw BuildException(WHERE, "Boundary is NULL");
   m_boundary->Build();
+
+  //build spherical boundary models
+  for(auto& boundary : boundaries)
+    boundary->Build();
 
   //Build each
   //MultiBodyModel::ClearDOFInfo();
@@ -544,7 +561,9 @@ DrawRender() {
   m_avatar->DrawRender();
 
   m_boundary->DrawRender();
-
+  for(auto& boundary : boundaries) {
+    boundary->DrawRender();
+  }
   glLineWidth(1);
   for(auto& r : m_robots) {
     r->Restore();
@@ -676,6 +695,12 @@ DrawSelect() {
   glPushName(EnvObjectName::BoundaryObj);
   m_boundary->DrawSelect();
   glPopName();
+
+  for(auto& boundary : boundaries) {
+    glPushName(EnvObjectName::BoundaryObj);
+    boundary->DrawSelect();
+    glPopName();
+  }
 }
 
 
@@ -719,6 +744,8 @@ SetSelectable(bool _s) {
   if(m_reebGraphModel)
     m_reebGraphModel->SetSelectable(_s);
   m_boundary->SetSelectable(_s);
+  for(auto& boundary : boundaries)
+    boundary->SetSelectable(_s);
 }
 
 

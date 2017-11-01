@@ -219,6 +219,7 @@ class EnvModel : public Model {
     Point3d m_centerOfMass; ///< Stores the COM for all loaded multibodies.
 
     shared_ptr<BoundaryModel> m_boundary;    ///< Stores the environment boundary model.
+    vector<shared_ptr<BoundaryModel> > boundaries;
 
     AvatarModel* m_avatar;                     ///< Stores the user avatar.
 
