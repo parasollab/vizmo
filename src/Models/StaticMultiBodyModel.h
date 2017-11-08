@@ -16,6 +16,7 @@ class StaticMultiBodyModel : public MultiBodyModel {
     shared_ptr<StaticMultiBody> GetStaticMultiBody() {return m_staticMultiBody;}
 
     void SetTransform(Transformation& _t);
+    virtual void DrawRender();
 
   protected:
     StaticMultiBodyModel(string _name, shared_ptr<StaticMultiBody> _s);

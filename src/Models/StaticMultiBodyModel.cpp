@@ -32,3 +32,17 @@ SetTransform(Transformation& _t) {
   m_bodies[0]->SetTransform(_t);
   m_staticMultiBody->GetFixedBody(0)->PutWorldTransformation(_t);
 }
+
+void
+StaticMultiBodyModel::
+DrawRender() {
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glDepthMask(GL_FALSE);
+  glColor4fv(GetColor());
+  for(auto& body : *this)
+    body->DrawRender();
+  glDepthMask(GL_TRUE);
+  glDisable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
+}
