@@ -41,7 +41,7 @@ INCL = $(VIZMO_INCL)
 LIBS = $(VIZMO_LIBS)
 DEFS += -DVIZMO
 
-default_target: vizmo++
+.DEFAULT_GOAL := vizmo++
 
 $(VIZMO_OBJECTS): $(MP_LIBFILE)
 
@@ -56,7 +56,8 @@ vizmo++: $(VIZMO_LIBFILE) main.cpp
 	cat $*.d >> Dependencies
 	rm -f $*.d
 
-CLEAN= $(VIZMO_LIBFILE) vizmo++
+clean:
+	rm -rf $(VIZMO_LIBFILE) vizmo++
 
 reallyclean:
 	@${MAKE} clean

@@ -6,7 +6,6 @@
 #include "CfgModel.h"
 
 double EdgeModel::m_edgeThickness = 1;
-double EdgeModel::m_numIntermediates = .3;
 
 EdgeModel::
 EdgeModel(string _lpLabel, double _weight,
@@ -74,11 +73,8 @@ DrawRender() {
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
 
-  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
-
   for(size_t i = 0; i < m_intermediates.size(); ++i) {
-    if(i % k == k/2)
-      glVertex3dv(m_intermediates[i].GetPoint());
+    glVertex3dv(m_intermediates[i].GetPoint());
   }
 
   glVertex3dv(m_endCfg->GetPoint());
@@ -94,11 +90,8 @@ DrawSelect() {
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
 
-  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
-
   for(size_t i = 0; i < m_intermediates.size(); ++i) {
-    if(i % k == k/2)
-      glVertex3dv(m_intermediates[i].GetPoint());
+    glVertex3dv(m_intermediates[i].GetPoint());
   }
 
   glVertex3dv(m_endCfg->GetPoint());
@@ -113,11 +106,8 @@ DrawSelected() {
   glBegin(GL_LINE_STRIP);
   glVertex3dv(m_startCfg->GetPoint());
 
-  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
-
   for(size_t i = 0; i < m_intermediates.size(); ++i) {
-    if(i % k == k/2)
-      glVertex3dv(m_intermediates[i].GetPoint());
+    glVertex3dv(m_intermediates[i].GetPoint());
   }
 
   glVertex3dv(m_endCfg->GetPoint());
@@ -165,14 +155,9 @@ EdgeModel::
 DrawRenderInCC() {
   glVertex3dv(m_startCfg->GetPoint());
 
-  //Number of intermediates to keep
-  size_t k = m_numIntermediates == 0 ? 0 : floor(1 / m_numIntermediates);
-
   for(size_t i = 0; i < m_intermediates.size(); ++i) {
-    if(i % k == k/2) {
-      glVertex3dv(m_intermediates[i].GetPoint());
-      glVertex3dv(m_intermediates[i].GetPoint());
-    }
+    glVertex3dv(m_intermediates[i].GetPoint());
+    glVertex3dv(m_intermediates[i].GetPoint());
   }
 
   glVertex3dv(m_endCfg->GetPoint());

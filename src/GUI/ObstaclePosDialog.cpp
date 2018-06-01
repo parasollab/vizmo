@@ -238,7 +238,7 @@ RefreshPosition(bool _emit) {
     m_multiBody[0]->SetTransform(t);
     if(_emit) {
       Quaternion q;
-      convertFromEuler(q, e);
+      convertFromEulerAngle(q, e);
 
       emit TranslationChanged(translation);
       emit RotationChanged(q);

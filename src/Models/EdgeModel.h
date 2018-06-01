@@ -78,7 +78,6 @@ class EdgeModel : public Model, public EdgeType {
 
     // Class properties
     static double m_edgeThickness; ///< Rendering thickness for edge lines.
-    static double m_numIntermediates; ///< Rendering for number of intermediates
 
   private:
 
