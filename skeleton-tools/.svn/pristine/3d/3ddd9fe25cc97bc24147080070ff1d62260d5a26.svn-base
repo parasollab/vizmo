@@ -1,0 +1,96 @@
+################################################################################
+#GL and QT
+################################################################################
+#open gl
+GL_INCL = -I/usr/include/GL
+GL_LIBS = -lglut -lGLU -lGL
+
+# Qt
+
+# The moc is assumed to either be in the standard redhat location
+# (/usr/lib64/qt4/bin/moc) or to be the only 'moc' file in the /usr directory.
+# Probably not a good assumption, but it works for our current use cases.
+
+ifeq ($(platform), LINUX_gcc)
+  MOC := $(shell find /usr/lib64/qt4/bin/moc 2> /dev/null)
+  ifndef MOC
+    MOC := $(shell find /usr -name 'moc' -type f -print -quit 2> /dev/null)
+  endif
+  QT4DIR = /usr
+else
+  ifeq ($(platform), MACOS_gcc)
+  MOC = /sw/lib/qt4-x11/bin/moc
+  QT4DIR = /sw/lib/qt4-x11/
+else
+  $(error Qt and moc are undefined for platform: $(platform).)
+endif
+endif
+
+moc_%.cpp: ../%.h
+	@echo Moc\'ing $< ...
+	@$(MOC) $< -o $@ $(MP_DEF)
+
+QT_INCL = -I$(QT4DIR)/include -I$(QT4DIR)/include/QtCore -I$(QT4DIR)/include/QtGui -I$(QT4DIR)/include/QtOpenGL
+QT_LIBS = -L$(QT4DIR)/lib -lQtCore -lQtGui -lQtOpenGL
+
+################################################################################
+#Vizmo Utilities - PMPL and from PMPL
+################################################################################
+#PMPL
+parallel = 0
+PMPL_DIR = ${VIZMO_DIR}/../pmpl/src
+UTILS_DIR = ${PMPL_DIR}/../utils
+STAPL_DIR = $(UTILS_DIR)/stapl_release
+
+include ${PMPL_DIR}/Makefile.PMPLdefaults
+
+MP_DEF = -D$(ROBOT_DEF) $(UTILS_DEF) $(CGAL_DEF) $(BOOST_DEF)
+MP_INCL = $(MP_DEF) $(PMPL_INCL) $(UTILS_INCL) $(STAPL_INCL) $(BOOST_INCL) $(MPNN_INCL)
+MP_LIBS = $(PMPL_LIB) $(UTILS_LIB) $(BOOST_LIB) $(CGAL_LIB) $(MPNN_LIB)
+MP_LIBFILE = $(PMPL_DIR)/libobprm.a
+$(PMPL_DIR)/libobprm.a:
+	cd ${PMPL_DIR}; ${MAKE} ROBOT_DEF=$(ROBOT_DEF) platform=${platform} debug=${debug};
+
+################################################################################
+# PHANToM DEFINES
+################################################################################
+ifeq ($(phantom), 1)
+  PHANTOM_LIBS = -lHD -lHDU -lHL -lHLU -lrt
+  MP_DEF += -DUSE_HAPTICS
+else
+  PHANTOM_LIBS =
+endif
+
+################################################################################
+# SpaceMouse DEFINES
+################################################################################
+ifeq ($(spacemouse), 1)
+  SPACEMOUSE_LIBS = -lspnav
+  MP_DEF += -DUSE_SPACEMOUSE
+else
+  SPACEMOUSE_LIBS =
+endif
+
+################################################################################
+#Vizmo src objects
+################################################################################
+#Define Vizmo Objects
+OBJECTS =
+SRCMOC =
+include $(VIZMO_DIR)/Utilities/Makefile.Objects
+include $(VIZMO_DIR)/Models/Makefile.Objects
+include $(VIZMO_DIR)/GUI/Makefile.Objects
+ifeq ($(phantom), 1)
+  include $(VIZMO_DIR)/PHANToM/Makefile.Objects
+endif
+ifeq ($(spacemouse), 1)
+  include $(VIZMO_DIR)/SpaceMouse/Makefile.Objects
+endif
+VIZMO_OBJECTS = $(OBJECTS)
+VIZMO_SRCMOC = $(SRCMOC)
+VIZMO_INCL = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(MP_INCL)
+VIZMO_LIBS = -L$(VIZMO_DIR) -lvizmo $(GL_LIBS) $(QT_LIBS) $(MP_LIBS) $(PHANTOM_LIBS) $(SPACEMOUSE_LIBS)
+VIZMO_LIBFILE = $(VIZMO_DIR)/libvizmo.a
+$(VIZMO_DIR)/libvizmo.a: $(VIZMO_OBJECTS)
+	ar rc $@ $(VIZMO_OBJECTS)
+

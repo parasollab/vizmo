@@ -1,0 +1,131 @@
+# Info~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+# What is this:
+#   This file defines platform-specific compiler and linker options. Include it
+#   in other makefiles to set these things consistently across multiple projects.
+#
+# Input Variables:
+#   platform (string specifing which platform you want to compile for)
+#   debug (debugging mode on/off, default is 0/off)
+#   asan  (use address sanitizer, default is 0/off).
+#
+# Options:
+#   CC       (name of the c compiler)
+#   CXX      (name of the c++ compiler)
+#   CFLAGS   (flags for the c compiler)
+#   CXXFLAGS (flags for the C++ compiler)
+#   OPTS     (debugging/optimization options)
+#   DEFS     (-D directives)
+#   INCL     (include commands)
+#   AR       (library linker name and flags)
+
+# Default Compiler Configuration ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+CFLAGS := -Wall -Werror -Wno-misleading-indentation -Wno-unused-local-typedefs \
+	  -Wno-unknown-pragmas -Wno-error=deprecated-declarations \
+	  -Wno-deprecated -Wno-comment -Wno-terminate
+CXXFLAGS := -std=c++11 $(CFLAGS)
+
+# Debug Mode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+debug ?= 0
+ifeq ($(debug), 0)
+  OPTS := -O3
+else
+  OPTS := -g3 -O0
+endif
+
+asan ?= 0
+ifneq ($(asan), 0)
+  OPTS += -fsanitize=address -g3
+endif
+
+# Platform Detection ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+PLATFORMS = "LINUX_gcc LINUX_gcc_mh MACOS_gcc AIX_64_gcc AIX_64_xlC LINUX_gcc_brazos LINUX_gcc_hopper CRAY_gcc"
+
+FOUNDPLAT = 0
+
+ifeq ($(platform), $(filter $(platform), LINUX_gcc MACOS_gcc CRAY_gcc))
+  FOUNDPLAT := 1
+  CC := gcc
+  AR := ar rc
+  ifeq ($(parallel), 1)
+    CXX := mpic++
+  else
+    CXX := g++
+  endif
+endif
+
+ifeq ($(platform), LINUX_gcc_mh)
+  FOUNDPLAT := 1
+  CC  := gcc
+  CXX := mpiCC
+  AR  := ar rc
+endif
+
+ifeq ($(platform), LINUX_gcc_brazos)
+  FOUNDPLAT := 1
+  CC  := gcc
+  CXX := mpiCC
+  AR  := ar rc
+endif
+
+ifeq ($(platform), LINUX_gcc_hopper)
+  FOUNDPLAT := 1
+  CC  := cc
+  CXX := CC
+  AR  := ar rc
+endif
+
+ifeq ($(platform), AIX_64_gcc)
+  FOUNDPLAT := 1
+  CC     := /usr/local/bin/gcc
+  CXX    := /usr/local/bin/g++
+  CFLAGS += -maix64
+  AR     := ld -b64 -r -o
+endif
+
+ifeq ($(platform), AIX_64_xlC)
+  FOUNDPLAT := 1
+  CC     := xlc
+  CXX    := xlc++
+  CFLAGS += -q64 -qarch=auto
+  AR     := ar -X64 rc
+  ifeq ($(debug), 0)
+    OPTS := -O4 -qstrict -w
+  else
+    OPTS := -g -qwarn64 -qflag=w:w
+  endif
+endif
+
+ifeq ($(platform), CRAY_gcc)
+  CXX := CC
+endif
+
+# This rule helps check that we are compiling on a supported platform.
+.PHONY: check_platform
+check_platform:
+ifeq ($(FOUNDPLAT), 0)
+	@echo ""
+	@echo "platform \"$(platform)\" not supported"
+	@echo "available platforms: $(PLATFORMS)"
+	@echo ""
+	@exit 2
+endif
+
+# Standard Compile Rules ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+# C++
+%.o: %.cpp
+	@$(MAKE) -s check_platform
+	@echo Compiling $@...
+	@$(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $< -o $@
+
+# C
+%.o: %.c
+	@$(MAKE) -s check_platform
+	@echo Compiling $@...
+	@$(CC) -c $(CFLAGS) $(OPTS) $(DEFS) $(INCL) $< -o $@
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#

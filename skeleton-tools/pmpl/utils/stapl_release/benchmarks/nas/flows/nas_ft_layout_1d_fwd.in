@@ -1,0 +1,6 @@
+input = [x1 x2]
+v1 = zip<2>(cffts1()) [x1 x1]
+v2 = zip<3>(cffts2()) [v1 x1 x1]
+v3 = transpose_3d()   [v2 x1 x2]
+v4 = zip<3>(cffts1()) [v3 x2 x2]
+output = [v4]

@@ -1,0 +1,92 @@
+{
+  "size" : 6,
+  "description" : [
+    "IS (Integer Sort) is one of the benchmarks in the NAS",
+    "benchmark and the below flows struct is specific to IS.",
+    "",
+    "The goal in IS is to sort an input key sequence and to",
+    "store it in the output. For that to happen, the benchmark",
+    "first determines how many elements will be in each bucket per",
+    "partition. Then it computes the number of elements in each bucket",
+    "on all partitions (@c allreduce). After that it determines a",
+    "redistribution strategy in which each partition will get roughly",
+    "the same number of elements. Then an @c alltoallv happens in the",
+    "next stage and each partition will get the chunk of input sequence",
+    "for which it is responsible for. Finally, using the information",
+    "obtained in 2nd and 4th steps, the final sorting is done by simply",
+    "writing to the output in the right offset for each partition. The",
+    "following flow shows the flow of data in the algorithm as described",
+    "above."
+  ],
+  "inflow" : {
+    "output" : [
+      {"to" : "0"},
+      {"to" : "3", "filter" : "back"}
+    ]
+  },
+  "0" : {
+    "input" : [
+      {"to" : "inflow", "filter" : "front"}
+    ],
+    "output" : [
+      {"to" : "1"},
+      {"to" : "3", "filter" : {"index": "1"}}
+    ],
+    "description" : "Bucket Cardinality"
+  },
+  "1" : {
+    "input" : [
+      {"to" : "0"}
+    ],
+    "output" : [
+      {"to" : "2"}
+    ],
+    "description" : "AllReduce"
+  },
+  "2" : {
+    "input" : [
+      {"to" : "1"}
+    ],
+    "output" : [
+      {"to" : "3", "filter" : "front"},
+      {"to" : "5", "filter" : "back"}
+    ],
+    "description" : "Redistribution Info"
+  },
+  "3" : {
+    "input" : [
+      {"to" : "2"},
+      {"to" : "0"},
+      {"to" : "inflow", "filter" : "front"}
+    ],
+    "output" : [
+      {"to" : "4"}
+    ],
+    "description" : "Prepare for AllToAll"
+  },
+  "4" : {
+    "input" : [
+      {"to" : "3"}
+    ],
+    "output" : [
+      {"to" : "5", "filter" : "front"}
+    ],
+    "description" : "AllToAll"
+  },
+  "5" : {
+    "input" : [
+      {"to" : "4"},
+      {"to" : "2"},
+      {"to" : "inflow", "filter" : "back"}
+    ],
+    "output" : [
+      {"to" : "outflow"}
+    ],
+    "description" : "Final Sort"
+  },
+  "outflow" : {
+    "input": [
+      {"to" : "5"}
+    ]
+  }
+}

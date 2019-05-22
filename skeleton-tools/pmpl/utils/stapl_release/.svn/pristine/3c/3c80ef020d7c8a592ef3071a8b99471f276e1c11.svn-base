@@ -1,0 +1,8 @@
+input = [keys_view  make_repeat_view(ranks_view)]
+v0 = map(bucket_cardinality(traits.num_buckets(), shift)) [keys_view]
+v1 = allreduce<tags::right_aligned>(vec_plus_t()) [v0]
+v2 = map(bucket_and_element_offset(keys_array_size, n_locs)) [v1]
+v3 = zip<3>(prepare_for_alltoall<alltoall_val_t>(traits.num_buckets(),shift)) [v2 v0 keys_view]
+v4 = alltoall<alltoall_val_t, tags::ALLTOALL_TAG>() [v3]
+v5 = zip<3>(final_sort(loc_id, traits.num_buckets(),traits.max_key() / traits.num_buckets())) [v4 v2 make_repeat_view(ranks_view)]
+output = [v5]

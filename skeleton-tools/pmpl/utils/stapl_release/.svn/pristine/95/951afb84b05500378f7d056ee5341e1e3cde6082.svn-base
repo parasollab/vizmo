@@ -1,0 +1,74 @@
+/*
+// Copyright (c) 2000-2009, Texas Engineering Experiment Station (TEES), a
+// component of the Texas A&M University System.
+
+// All rights reserved.
+
+// The information and source code contained herein is the exclusive
+// property of TEES and may not be disclosed, examined or reproduced
+// in whole or in part without explicit written authorization from TEES.
+*/
+
+#ifndef STAPL_UTILITY_TUPLE_POP_BACK_HPP
+#define STAPL_UTILITY_TUPLE_POP_BACK_HPP
+
+#include <tuple>
+#include <stapl/utility/integer_sequence.hpp>
+#include <stapl/utility/tuple/tuple_element.hpp>
+
+namespace stapl {
+namespace tuple_ops {
+
+namespace result_of {
+
+template <typename Tuple,
+          typename IdxList = make_index_sequence<tuple_size<Tuple>::value - 1>>
+struct pop_back;
+
+
+template<typename ...Elements, std::size_t... Indices>
+struct pop_back<const std::tuple<Elements...>, index_sequence<Indices...>>
+{
+  using type = std::tuple<
+                 typename std::tuple_element<
+                   Indices, std::tuple<Elements...>>::type...>;
+
+  static type call(std::tuple<Elements...> const& elements)
+  {
+    return type(std::get<Indices>(elements)...);
+  }
+};
+
+template<typename ...Elements, std::size_t... Indices>
+struct pop_back<std::tuple<Elements...>, index_sequence<Indices...>>
+{
+  using type = std::tuple<
+                 typename std::tuple_element<
+                   Indices, std::tuple<Elements...>>::type...>;
+
+  static type call(std::tuple<Elements...> const& elements)
+  {
+    return type(std::get<Indices>(elements)...);
+  }
+};
+
+
+} // namespace result_of
+
+//////////////////////////////////////////////////////////////////////
+/// @brief Returns a new tuple, with the last element of the original
+/// removed.
+///
+/// @param t a tuple
+//////////////////////////////////////////////////////////////////////
+template<typename Tuple>
+auto
+pop_back(Tuple const& t)
+STAPL_AUTO_RETURN((
+  result_of::pop_back<Tuple>::call(t)
+))
+
+} // namespace tuple_ops
+} // namespace stapl
+
+#endif // STAPL_UTILITY_TUPLE_POP_BACK_HPP

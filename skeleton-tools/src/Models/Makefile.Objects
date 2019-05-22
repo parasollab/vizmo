@@ -1,0 +1,31 @@
+OBJECTS += \
+	   Models/ActiveMultiBodyModel.o \
+	   Models/AvatarModel.o \
+	   Models/BodyModel.o \
+	   Models/BoundingBoxModel.o \
+	   Models/BoundingBox2DModel.o \
+	   Models/BoundaryModel.o \
+	   Models/BoundingSphereModel.o \
+	   Models/BoundingSphere2DModel.o \
+	   Models/CfgModel.o \
+	   Models/CrosshairModel.o \
+	   Models/DebugModel.o \
+	   Models/EdgeModel.o \
+	   Models/EllipsoidModel.o\
+	   Models/EnvModel.o \
+	   Models/GraphModel.o \
+	   Models/MultiBodyModel.o \
+	   Models/PathModel.o \
+	   Models/PolyhedronModel.o \
+	   Models/QueryModel.o \
+	   Models/RegionBoxModel.o \
+	   Models/RegionBox2DModel.o \
+	   Models/RegionSphereModel.o \
+	   Models/RegionSphere2DModel.o \
+	   Models/StaticMultiBodyModel.o \
+	   Models/SurfaceMultiBodyModel.o \
+	   Models/TempObjsModel.o \
+	   Models/WorkspaceDecompositionModel.o \
+	   Models/ThreadSafeSphereModel.o \
+	   Models/UserPathModel.o \
+	   Models/Vizmo.o

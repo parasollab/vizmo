@@ -1,0 +1,5 @@
+input = [x1 x2]
+v1 = zip<2>(cffts1()) [x1 x1]
+v2 = zip<3>(cffts2()) [v1 x1 x1]
+v3 = zip<3>(cffts3()) [v2 x1 x2]
+output = [v3]

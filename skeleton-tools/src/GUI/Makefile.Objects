@@ -1,0 +1,40 @@
+SRCMOC += $(patsubst GUI/%.h, GUI/MOC/moc_%.cpp, $(shell grep -l Q_OBJECT GUI/*.h))
+GUIOBJMOC = $(patsubst GUI/%.h, GUI/MOC/moc_%.o, $(shell grep -l Q_OBJECT GUI/*.h))
+OBJECTS += \
+	   $(GUIOBJMOC) \
+	   GUI/AnimationWidget.o \
+	   GUI/BoundingBoxWidget.o \
+	   GUI/BoundingSphereWidget.o \
+	   GUI/CameraPosDialog.o \
+	   GUI/CaptureOptions.o \
+	   GUI/ChangeBoundaryDialog.o \
+	   GUI/ChangePlannerDialog.o \
+	   GUI/CustomizePathDialog.o \
+	   GUI/EdgeEditDialog.o \
+	   GUI/EditRobotDialog.o \
+	   GUI/EnvironmentOptions.o \
+	   GUI/FileListDialog.o \
+	   GUI/FileOptions.o \
+	   GUI/GLWidget.o \
+	   GUI/GLWidgetOptions.o \
+	   GUI/HelpOptions.o \
+	   GUI/MainMenu.o \
+	   GUI/MainWindow.o \
+	   GUI/ModelSelectionWidget.o \
+	   GUI/MovieSaveDialog.o \
+	   GUI/ObstaclePosDialog.o \
+	   GUI/OptionsBase.o \
+	   GUI/NodeEditDialog.o \
+	   GUI/PathOptions.o \
+	   GUI/PlanningOptions.o \
+	   GUI/QueryEditDialog.o \
+	   GUI/QueryOptions.o \
+	   GUI/RegionSamplerDialog.o \
+	   GUI/RoadmapOptions.o \
+	   GUI/SliderDialog.o \
+	   GUI/TextWidget.o \
+	   GUI/ToolTabOptions.o \
+	   GUI/ToolTabWidget.o \
+
+####### MOC
+.SECONDARY: $(SRCMOC)

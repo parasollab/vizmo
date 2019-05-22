@@ -1,0 +1,34 @@
+To Create a Vizmo Release:
+
+Setup:
+
+1) Make sure ~/.rpmmacros is set correctly. Should look like:
+
+%_topdir		/scratch/jdenny/rpmbuild
+%dist .fc20.jdenny
+
+2) Make sure you have the correct rpm build directories set up.
+Mine look like:
+
+Root is /scratch/jdenny/rpmbuild
+
+then the next level has these folders in all capital letters:
+
+BUILD  BUILDROOT  RPMS  SOURCES  SPECS  SRPMS
+
+In RPMS and specify the architectures as folders:
+
+i386  x86_64
+
+Making a release:
+
+1) Open VizmoRelease.sh and set the version number for the release.
+2) Open vizmo++.spec and add to the change log for new version. Check in this
+file.
+3) Set the RPMBUILDDIR to be the root of the rpmbuild directory on your machine.
+4) Type make to create the rpms, which will be located in
+RPMBUILDDIR/RPMS/<arch> where <arch> is the architecture for the computer.
+5) Get approval for a new release to be sent out.
+6) Send the rpms to parasol-support@cse.tamu.edu requesting a new release to be
+installed.
+7) Email OBPRM@listserv.tamu.edu that a new vizmo release is out.

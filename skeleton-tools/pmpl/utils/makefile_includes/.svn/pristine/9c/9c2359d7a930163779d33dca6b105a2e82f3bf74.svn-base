@@ -1,0 +1,136 @@
+##########################################################
+# Platform specific flags are maintained here
+##########################################################
+# Instructions:
+#   Include this file as the first line in your Makefile.
+#   Create a default target called "default_target".
+#   Define any macros needed (see Macros To Define below).
+##########################################################
+# Input Variables:
+#   platform (string specifing which platform you want
+#             to compile for)
+#   debug (debugging mode on/off, default is 0/off)
+##########################################################
+# Macros Defined:
+#   CC (name of the c compiler)
+#   CXX (name of the c++ compiler)
+#   CFLAGS (flags for the c compiler)
+#   CXXFLAGS (flags for the C++ compiler)
+#   OPTS (debugging/optimization options)
+#   AR (library linker name and flags)
+##########################################################
+# Macros To Define:
+#   CLEAN (files to remove in a "make clean")
+#   DEFS (-D directives)
+#   INCL (include commands)
+##########################################################
+
+
+# available platforms
+PLATFORMS = "LINUX_gcc LINUX_gcc_mh MACOS_gcc AIX_64_gcc AIX_64_xlC LINUX_gcc_brazos LINUX_gcc_hopper CRAY_gcc"
+
+
+ifndef debug
+  debug = 0
+endif
+
+ifeq (${debug}, 0)
+  OPTS = -O3
+else
+  OPTS = -g -O0
+endif
+OPTS +=
+CFLAGS = -Wall -Werror -Wno-misleading-indentation -Wno-unused-local-typedefs \
+	 -Wno-unknown-pragmas -Wno-error=deprecated-declarations \
+	 -Wno-comment
+CXXFLAGS := -std=c++11 ${CFLAGS}
+
+# set platform-specific variables
+FOUNDPLAT = 0
+
+ifeq (${platform}, $(filter ${platform}, LINUX_gcc MACOS_gcc CRAY_gcc))
+  FOUNDPLAT = 1
+  CC  = gcc
+  ifeq (${parallel}, 1)
+    CXX = mpic++
+  else
+    CXX = g++
+  endif
+  AR = ar rc
+endif
+
+ifeq (${platform}, LINUX_gcc_mh)
+  FOUNDPLAT = 1
+  CC  = gcc
+  CXX = mpiCC
+  AR = ar rc
+endif
+
+ifeq (${platform}, LINUX_gcc_brazos)
+  FOUNDPLAT = 1
+  CC  = gcc
+  CXX = mpiCC
+  AR = ar rc
+endif
+
+ifeq (${platform}, LINUX_gcc_hopper)
+  FOUNDPLAT = 1
+  CC  = cc
+  CXX = CC
+  AR = ar rc
+endif
+
+ifeq (${platform}, AIX_64_gcc)
+  FOUNDPLAT = 1
+  CC  = /usr/local/bin/gcc
+  CXX = /usr/local/bin/g++
+  CFLAGS += -maix64
+  AR = ld -b64 -r -o
+endif
+
+ifeq (${platform}, AIX_64_xlC)
+  FOUNDPLAT = 1
+  CC  = xlc
+  CXX = xlc++
+  CFLAGS += -q64 -qarch=auto
+  ifeq (${debug}, 0)
+    OPTS = -O4 -qstrict -w
+  else
+    OPTS = -g -qwarn64 -qflag=w:w
+  endif
+  AR = ar -X64 rc
+endif
+
+ifeq (${platform}, CRAY_gcc)
+  CXX = CC
+endif
+# default target
+default: default_target
+
+# check platform
+.PHONY: check_platform
+check_platform:
+ifeq (${FOUNDPLAT}, 0)
+	@echo ""
+	@echo "platform \"${platform}\" not supported"
+	@echo "available platforms: ${PLATFORMS}"
+	@echo ""
+	@exit 2
+endif
+
+# clean target
+.PHONY: clean
+clean::
+	/bin/rm -rf ${CLEAN}
+
+.SUFFIXES: .o .c .cpp
+
+#c++ compile rule
+.cpp.o:
+	@${MAKE} -s check_platform
+	${CXX} -c ${CXXFLAGS} ${OPTS} ${DEFS} ${INCL} $< -o $@
+
+#c compile rule
+.c.o:
+	@${MAKE} -s check_platform
+	${CC} -c ${CFLAGS} ${OPTS} ${DEFS} ${INCL} $< -o $@

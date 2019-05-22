@@ -1,0 +1,16 @@
+SRCMOC += $(patsubst Utilities/%.h, Utilities/MOC/moc_%.cpp, $(shell grep -l Q_OBJECT Utilities/*.h))
+UTILOBJMOC = $(patsubst Utilities/%.h, Utilities/MOC/moc_%.o, $(shell grep -l Q_OBJECT Utilities/*.h))
+OBJECTS += \
+	  $(UTILOBJMOC) \
+	  Utilities/Camera.o \
+	  Utilities/Cursor3d.o \
+	  Utilities/Font.o \
+	  Utilities/GLUtils.o \
+	  Utilities/ImageFilters.o \
+	  Utilities/IO.o \
+	  Utilities/LoadTexture.o \
+	  Utilities/PickBox.o \
+	  Utilities/TransformTool.o
+
+####### MOC
+.SECONDARY: $(SRCMOC)

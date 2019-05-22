@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<MotionPlanning warnings="true" warningsAsErrors="true" print="false">
+  <Input>
+    <Environment filename="2D/s.env" saveDofs="false"/>
+  </Input>
+
+  <MPProblem>
+    <DistanceMetrics>
+      <WeightedEuclidean label="weuclidean"
+        posWeight=".4" rotWeight=".4" velWeight=".1" avlWeight=".1"/>
+      <WeightedEuclidean label="weuclidean-pos"
+        posWeight=".5" rotWeight=".5" velWeight="0" avlWeight="0"/>
+      <ExperimentalDistance label="experimental"
+        posWeight=".4" rotWeight=".4" velWeight=".1" avlWeight=".1"
+        timestep="30"/>
+    </DistanceMetrics>
+
+    <ValidityCheckers>
+      <CollisionDetection label="rapid" method="RAPID"/>
+      <CollisionDetection label="pqp_solid" method="PQP_SOLID"/>
+      <AlwaysTrueValidity label="alwaysTrue"/>
+    </ValidityCheckers>
+
+    <NeighborhoodFinders>
+      <BruteForceNF label="Nearest"
+        dmLabel="weuclidean" unconnected="false" k="1"/>
+      <BruteForceNF label="NearestPosition"
+        dmLabel="weuclidean-pos" unconnected="false" k="1"/>
+      <BruteForceNF label="NearestExperimental"
+        dmLabel="experimental" unconnected="false" k="1"/>
+      <BruteForceNF label="knnExperimental"
+        dmLabel="experimental" unconnected="false" k="10"/>
+    </NeighborhoodFinders>
+
+    <Samplers>
+      <UniformRandomSampler label="UniformRandom" vcLabel="alwaysTrue"/>
+    </Samplers>
+
+    <Extenders>
+      <KinodynamicExtender label="FixedRandom"
+        dmLabel="weuclidean" vcLabel="rapid" timeStep="30.0" fixed="true"
+        best="false" minDist="0.05"/>
+      <KinodynamicExtender label="FixedBest"
+        dmLabel="weuclidean" vcLabel="rapid" timeStep="30.0" fixed="true"
+        best="true" minDist="0.05"/>
+      <KinodynamicExtender label="VariRandom"
+        dmLabel="weuclidean" vcLabel="rapid" timeStep="30.0" fixed="false"
+        best="false" minDist="0.05"/>
+      <KinodynamicExtender label="VariBest"
+        dmLabel="weuclidean" vcLabel="rapid" timeStep="30.0" fixed="false"
+        best="true" minDist="0.05"/>
+
+      <MixExtender label="Schmorgasbord">
+        <Extender label="FixedRandom" probability=".5"/>
+        <Extender label="FixedBest" probability=".5"/>
+        <Extender label="VariRandom" probability="1"/>
+        <Extender label="VariBest" probability="1"/>
+      </MixExtender>
+    </Extenders>
+
+    <Metrics>
+      <NumNodesMetric label="NumNodes"/>
+    </Metrics>
+
+    <MapEvaluators>
+      <RRTQuery label="RRTQuery"
+        goalDist=".1" nfLabel="NearestPosition" exLabel="BERO" debug="false"/>
+      <ConditionalEvaluator label="NodesEval" metric_method="NumNodes"
+        value="5000" operator=">="/>
+
+      <ComposeEvaluator label="BoundedRRTQuery" operator="or">
+        <Evaluator label="RRTQuery"/>
+        <Evaluator label="NodesEval"/>
+      </ComposeEvaluator>
+    </MapEvaluators>
+
+    <MPStrategies>
+      <DynamicRegionRRT label="DynamicRegionRRT"
+        growthFocus="0.05" dmLabel="weuclidean" nfLabel="knnExperimental"
+        vcLabel="rapid" gtype="UNDIRECTED_TREE" extenderLabel="Schmorgasbord"
+        debug="false" regionFactor="2.5">
+        <Evaluator label="BoundedRRTQuery"/>
+      </DynamicRegionRRT>
+
+      <BasicRRTStrategy label="RRT"
+        growthFocus="0.05" dmLabel="weuclidean" nfLabel="knnExperimental"
+        vcLabel="rapid" gtype="UNDIRECTED_TREE" extenderLabel="Schmorgasbord">
+        <Evaluator label="BoundedRRTQuery"/>
+      </BasicRRTStrategy>
+
+      <Syclop label="Syclop"
+        growthFocus="0.05" dmLabel="weuclidean" nfLabel="knnExperimental"
+        vcLabel="rapid" gtype="UNDIRECTED_TREE" extenderLabel="Schmorgasbord">
+        <Evaluator label="BoundedRRTQuery"/>
+      </Syclop>
+    </MPStrategies>
+
+    <Solver mpStrategyLabel="DynamicRegionRRT" seed="12345678"
+      baseFilename="Vizmo" vizmoDebug="true"/>
+
+  </MPProblem>
+</MotionPlanning>
