@@ -315,12 +315,12 @@ SampleRegion(size_t _index, vector<CfgType>& _samples) {
       m_samplingRegion->IncreaseFACount(col.size());
   }
   //catch Boundary too small exception
-  catch(PMPLException _e) {
+  catch(const PMPLException& _e) {
     m_samplingRegion->IncreaseFACount(1000000);
     return;
   }
   //catch all others and exit
-  catch(exception _e) {
+  catch(const std::exception& _e) {
     cerr << _e.what() << endl;
     exit(1);
   }
