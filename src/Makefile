@@ -1,7 +1,7 @@
 # Configuration Options ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 # Set platform and debug mode if not already set.
-platform ?= LINUX_gcc
+platform ?= MACOS_gcc
 debug    ?= 0
 asan     ?= 0
 
@@ -75,6 +75,7 @@ VIZMO_LIBFILE = $(VIZMO_DIR)/libvizmo.a
 $(VIZMO_LIBFILE): $(VIZMO_OBJS) $(MOC_OBJS) \
                 | $(patsubst %,$(MOC_DIR)/%,$(MOC_SRCS))
 	@echo Linking vizmo library...
+	@echo $(AR) $@ $^
 	@$(AR) $@ $^
 
 
@@ -85,6 +86,7 @@ VIZMO_EXEC    := vizmo++
 .DEFAULT_GOAL := $(VIZMO_EXEC)
 $(VIZMO_EXEC): $(MAIN) $(VIZMO_LIBFILE)
 	@echo Linking $@...
+	@echo $(CXX) $(CXXFLAGS) $(OPTS) $^ $(LIBS) -o $@
 	@$(CXX) $(CXXFLAGS) $(OPTS) $^ $(LIBS) -o $@
 
 
@@ -93,11 +95,14 @@ $(VIZMO_EXEC): $(MAIN) $(VIZMO_LIBFILE)
 # This recipe runs headers with Q_OBJECT through the qt MOC.
 $(MOC_DIR)/moc_%.cpp: %.h | $(MOC_DIR)
 	@echo Moc\'ing $(shell echo $< | sed 's|.*/||' )...
+	@mkdir -p $(MOC_DIR)/moc_$(shell dirname $<)
+	@echo $(QT_MOC) $< -o $@
 	@$(QT_MOC) $< -o $@
 
 # This recipe is for MOC sources.
 $(MOC_DIR)/moc_%.o: $(MOC_DIR)/moc_%.cpp %.h | $(MOC_DIR)
 	@echo Compiling Moc\'d source $(shell echo $< | sed 's|.*/||' )...
+	@echo $(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) $< -o $@
 	@$(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) $< -o $@
 	@cat $(DEPS_OUT) >> $(DEPENDENCY_FILE)
 	@rm -f $(DEPS_OUT)
@@ -106,6 +111,7 @@ $(MOC_DIR)/moc_%.o: $(MOC_DIR)/moc_%.cpp %.h | $(MOC_DIR)
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	@$(MAKE) -s check_platform
 	@echo Compiling $<...
+	@echo $(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) $< -o $@
 	@$(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) $< -o $@
 	@cat $(DEPS_OUT) >> $(DEPENDENCY_FILE)
 	@rm -f $(DEPS_OUT)

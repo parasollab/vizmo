@@ -2,7 +2,12 @@
 #define CAMERA_POS_DIALOG_H
 
 #include <QtGui>
+#include <QDialog>
+
 #include <fstream>
+
+class QLineEdit;
+
 class Camera;
 class MainWindow;
 

@@ -1,6 +1,10 @@
 #include "Font.h"
 
-#include <GL/glut.h>
+#ifdef __APPLE__
+  #include <GLUT/glut.h>
+#else
+  #include <GL/glut.h>
+#endif
 
 GLvoid* fontStyle = GLUT_BITMAP_HELVETICA_12;
 

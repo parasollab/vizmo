@@ -2,6 +2,13 @@
 
 #include <iostream>
 
+#include <QColorDialog>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QDialogButtonBox>
+#include <QLineEdit>
+
 #include "MainWindow.h"
 #include "Models/PathModel.h"
 #include "Models/Vizmo.h"

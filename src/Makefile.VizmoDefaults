@@ -3,24 +3,45 @@
 ################################################################################
 GL_INCL := -I/usr/include/GL
 GL_LIBS := -lglut -lGLU -lGL
+ifeq ($(platform), MACOS_gcc)
+  GL_LIBS := -framework GLUT -framework OpenGL
+endif
 
 ################################################################################
 # Qt4
 ################################################################################
 QT_BASE := /usr/include
+ifeq ($(platform), MACOS_gcc)
+  QT_BASE := /usr/local/opt/qt/include
+endif
+
 QT_INCL := -I$(QT_BASE)/Qt -I$(QT_BASE)/QtCore -I$(QT_BASE)/QtGui \
            -I$(QT_BASE)/QtOpenGL
 QT_LIBS := -lQtGui -lQtOpenGL -lQtCore
+ifeq ($(platform), MACOS_gcc)
+  QT_INCL := -I$(QT_BASE) -I$(QT_BASE)/QtCore -I$(QT_BASE)/QtGui \
+	     -I$(QT_BASE)/QtOpenGL -I$(QT_BASE)/QtWidgets
+  QT_LIBS := -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtOpenGL -framework QtWidgets
+endif
 
 # Ensure the moc (metaobject compiler) is found.
-QT_MOC := $(shell find /usr/lib64/qt4/bin/moc 2> /dev/null)
+QT_MOC_BASE = /usr/lib64/qt4/bin
+ifeq ($(platform), MACOS_gcc)
+  QT_MOC_BASE = /usr/local/opt/qt/bin
+endif
+QT_MOC := $(shell find $(QT_MOC_BASE)/moc 2> /dev/null)
 ifndef QT_MOC
-  $(error Qt moc not found at /usr/lib64/qt4/bin/moc.)
+  $(error Qt moc not found at $(QT_MOC_BASE)/moc.)
 endif
 
 # Find the header files with Q_OBJECT.
-MOC_SRCS := $(patsubst ./%.h,moc_%.cpp, $(shell find . -type f \
-                -name '*.h' -execdir grep -rl Q_OBJECT \{} + ))
+ifeq ($(platform), MACOS_gcc)
+  MOC_SRCS := $(patsubst ./%.h,moc_%.cpp, $(shell find . -type f \
+                  -name '*.h' -exec grep -rl Q_OBJECT \{} + ))
+else
+  MOC_SRCS := $(patsubst ./%.h,moc_%.cpp, $(shell find . -type f \
+                  -name '*.h' -execdir grep -rl Q_OBJECT \{} + ))
+endif
 
 # Create the list of objects which must be built from MOC_SRCS.
 MOC_OBJS := $(patsubst %.cpp,$(MOC_DIR)/%.o, $(MOC_SRCS))

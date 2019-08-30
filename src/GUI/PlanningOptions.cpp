@@ -1,5 +1,10 @@
 #include "PlanningOptions.h"
 
+#include <QAction>
+#include <QMenu>
+#include <QStatusBar>
+#include <QFileDialog>
+
 #include "ChangePlannerDialog.h"
 #include "GLWidget.h"
 #include "MainMenu.h"

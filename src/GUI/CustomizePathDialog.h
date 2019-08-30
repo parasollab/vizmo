@@ -7,6 +7,9 @@
 #define CUSTOMIZE_PATH_DIALOG_H
 
 #include <QtGui>
+#include <QDialog>
+
+class QLineEdit;
 
 class MainWindow;
 

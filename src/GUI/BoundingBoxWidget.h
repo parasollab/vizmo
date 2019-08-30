@@ -2,6 +2,10 @@
 #define BOUNDING_BOX_WIDGET_H_
 
 #include <QtGui>
+#include <QWidget>
+
+class QCheckBox;
+class QLineEdit;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Helper widget for modifying a bounding box within a

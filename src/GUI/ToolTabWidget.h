@@ -8,6 +8,7 @@
 #define TOOLTABWIDGET_H_
 
 #include <QtGui>
+#include <QTabWidget>
 
 class MainWindow;
 

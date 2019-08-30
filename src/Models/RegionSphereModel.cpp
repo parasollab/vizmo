@@ -1,6 +1,7 @@
 #include "RegionSphereModel.h"
 
 #include <QtGui>
+#include <QApplication>
 
 #include "Environment/BoundingSphere.h"
 

@@ -4,6 +4,11 @@
 #include <string>
 
 #include <QtGui>
+#include <QToolBar>
+
+class QSlider;
+class QLineEdit;
+class QLabel;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Animation bar located above GLWidget

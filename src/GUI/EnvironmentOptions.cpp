@@ -1,5 +1,10 @@
 #include "EnvironmentOptions.h"
 
+#include <QFileDialog>
+#include <QStatusBar>
+#include <QAction>
+#include <QMenu>
+
 #include "Environment/FixedBody.h"
 #include "Environment/StaticMultiBody.h"
 

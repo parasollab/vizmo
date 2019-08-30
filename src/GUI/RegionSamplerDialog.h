@@ -2,6 +2,10 @@
 #define REGION_SAMPLER_DIALOG_H_
 
 #include <QtGui>
+#include <QDialog>
+
+class QWidget;
+class QButtonGroup;
 
 class RegionSamplerDialog : public QDialog {
 

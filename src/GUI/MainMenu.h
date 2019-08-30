@@ -2,6 +2,7 @@
 #define MAIN_MENU_H_
 
 #include <QtGui>
+#include <QWidget>
 
 class MainWindow;
 class OptionsBase;

@@ -1,6 +1,7 @@
 #include "QueryOptions.h"
 
 #include <QtGui>
+#include <QAction>
 
 #include "CustomizePathDialog.h"
 #include "GLWidget.h"

@@ -5,6 +5,7 @@
 #define TEXTWIDGET_H_
 
 #include <QtGui>
+#include <QTextEdit>
 
 class TextWidget : public QTextEdit {
 

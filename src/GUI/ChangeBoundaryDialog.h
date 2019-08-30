@@ -2,6 +2,7 @@
 #define CHANGE_BOUNDARY_DIALOG_H_
 
 #include <QtGui>
+#include <QDialog>
 
 class BoundingBoxWidget;
 class BoundingSphereWidget;

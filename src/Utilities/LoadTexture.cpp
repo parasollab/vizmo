@@ -4,7 +4,12 @@ using namespace std;
 
 #include <QImageReader>
 #include <qimage.h>
-#include <glu.h>
+
+#ifdef __APPLE__
+  #include <OpenGL/glu.h>
+#else
+  #include <glu.h>
+#endif
 
 #include "VizmoExceptions.h"
 

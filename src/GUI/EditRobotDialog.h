@@ -4,6 +4,15 @@
 using namespace std;
 
 #include <QtGui>
+#include <QDialog>
+#include <QScrollArea>
+
+class QLabel;
+class QListWidget;
+class QCheckBox;
+class QLineEdit;
+class QDoubleSpinBox;
+class QPushButton;
 
 #include "Models/MultiBodyModel.h"
 
