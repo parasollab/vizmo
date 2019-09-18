@@ -1,7 +1,7 @@
 # Configuration Options ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 # Set platform and debug mode if not already set.
-platform ?= MACOS_gcc
+platform ?= LINUX_gcc
 debug    ?= 0
 asan     ?= 0
 
