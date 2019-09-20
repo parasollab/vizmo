@@ -100,6 +100,7 @@ VIZMO_SRCS := \
   Models/RegionBox2DModel.cpp \
   Models/RegionSphereModel.cpp \
   Models/RegionSphere2DModel.cpp \
+  Models/RVModel.cpp \
   Models/StaticMultiBodyModel.cpp \
   Models/SurfaceMultiBodyModel.cpp \
   Models/TempObjsModel.cpp \
@@ -136,6 +137,7 @@ VIZMO_SRCS := \
   GUI/QueryOptions.cpp \
   GUI/RegionSamplerDialog.cpp \
   GUI/RoadmapOptions.cpp \
+  GUI/RVOptions.cpp \
   GUI/SliderDialog.cpp \
   GUI/TextWidget.cpp \
   GUI/ToolTabOptions.cpp \
