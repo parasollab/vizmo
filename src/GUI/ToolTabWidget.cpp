@@ -19,6 +19,8 @@ ToolTabWidget(MainWindow* _mainWindow) : QTabWidget() {
       _mainWindow->m_mainMenu->m_pathOptions->GetToolTab());
   m_tabs["Query"] = make_pair("Query Tools",
       _mainWindow->m_mainMenu->m_queryOptions->GetToolTab());
+  m_tabs["RV"] = make_pair("RV Tools",
+      _mainWindow->m_mainMenu->m_rvOptions->GetToolTab());
   m_tabs["Planning"] = make_pair("Planning Tools",
       _mainWindow->m_mainMenu->m_planningOptions->GetToolTab());
 

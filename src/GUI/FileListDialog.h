@@ -27,6 +27,7 @@ class FileListDialog : public QDialog {
     void ChangeMap();     ///< Select a Map file to load.
     void ChangeQuery();   ///< Select a Query file to load.
     void ChangePath();    ///< Select a Path file to load.
+    void ChangeRV();      ///< Select a RV file to load.
     void ChangeDebug();   ///< Select a debug file to load.
     void ChangeXML();     ///< Select an XML file to load.
     void Accept();        ///< Load selected files.
@@ -52,6 +53,7 @@ class FileListDialog : public QDialog {
     QCheckBox* m_mapCheckBox;   ///< Indicate whether a map will be loaded.
     QCheckBox* m_queryCheckBox; ///< Indicate whether a query will be loaded.
     QCheckBox* m_pathCheckBox;  ///< Indicate whether a path will be loaded.
+    QCheckBox* m_rvCheckBox;    ///< Indicate whether a rv will be loaded.
     QCheckBox* m_debugCheckBox; ///< Indicate whether a debug file will be loaded.
 
     //The actual displayed file names/paths
@@ -59,6 +61,7 @@ class FileListDialog : public QDialog {
     QLabel* m_mapFilename;   ///< The map file to load.
     QLabel* m_queryFilename; ///< The query file to load.
     QLabel* m_pathFilename;  ///< The path file to load.
+    QLabel* m_rvFilename;    ///< The rv file to load.
     QLabel* m_debugFilename; ///< The debug file to load.
     QLabel* m_xmlFilename;   ///< The XML file to load.
 };

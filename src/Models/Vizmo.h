@@ -17,6 +17,7 @@ class EnvModel;
 template<typename, typename> class MapModel;
 class Model;
 class PathModel;
+class RVModel;
 class QueryModel;
 namespace Haptics {class Manager;}
 class SpaceMouseManager;
@@ -124,6 +125,15 @@ class Vizmo {
     const string& GetPathFileName() const {return m_pathFilename;}
     void SetPathFileName(const string& name) {m_pathFilename = name;}
     bool IsPathLoaded() const {return m_pathModel;}
+
+    ///@}
+    ///\name RV Functions
+    ///@{
+
+    RVModel* GetRV() const {return m_rvModel;}
+    const string& GetRVFileName() const {return m_rvFilename;}
+    void SetRVFileName(const string& name) {m_rvFilename = name;}
+    bool IsRVLoaded() const {return m_rvModel;}
 
     ///@}
     ///\name Debug Functions
@@ -235,6 +245,7 @@ class Vizmo {
     string m_mapFilename;       ///< The map filename.
     string m_queryFilename;     ///< The query filename.
     string m_pathFilename;      ///< The path filename.
+    string m_rvFilename;        ///< The rv filename.
     string m_debugFilename;     ///< The debug filename.
     string m_xmlFilename;       ///< The XML filename. Defaults to CfgExamples.
 
@@ -246,6 +257,7 @@ class Vizmo {
     MapModel<CfgModel, EdgeModel>* m_mapModel{nullptr};///< The map model.
     QueryModel* m_queryModel{nullptr};                 ///< The query model.
     PathModel* m_pathModel{nullptr};                   ///< The path model.
+    RVModel* m_rvModel{nullptr};                       ///< The rv model.
     DebugModel* m_debugModel{nullptr};                 ///< The debug model.
 
     ///@}

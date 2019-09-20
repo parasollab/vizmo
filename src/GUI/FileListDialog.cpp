@@ -49,6 +49,11 @@ FileListDialog(const vector<string>& _filename, QWidget* _parent, Qt::WindowFlag
   QLabel* pathLabel = new QLabel("<b>Path File</b>:", this);
   QPushButton* pathButton = new QPushButton(QIcon(QString((const char*)(folder))), "Browse", this);
 
+  m_rvCheckBox = new QCheckBox(this);
+  m_rvFilename = new QLabel(this);
+  QLabel* rvLabel = new QLabel("<b>RV File</b>:", this);
+  QPushButton* rvButton = new QPushButton(QIcon(QString((const char*)(folder))), "Browse", this);
+
   m_debugCheckBox = new QCheckBox(this);
   m_debugFilename = new QLabel(this);
   QLabel* debugLabel = new QLabel("<b>Debug File</b>:", this);
@@ -61,39 +66,45 @@ FileListDialog(const vector<string>& _filename, QWidget* _parent, Qt::WindowFlag
   layout->addWidget(m_envCheckBox, 0, 0);
   layout->addWidget(m_envFilename, 0, 2, 1, 3);
   layout->addWidget(envLabel, 0, 1);
-  layout->addWidget(envButton, 0, 5);
+  layout->addWidget(envButton, 0, 6);
 
   layout->addWidget(m_mapCheckBox, 1, 0);
   layout->addWidget(m_mapFilename, 1, 2, 1, 3);
   layout->addWidget(mapLabel, 1, 1);
-  layout->addWidget(mapButton, 1, 5);
+  layout->addWidget(mapButton, 1, 6);
 
   layout->addWidget(m_queryCheckBox, 2, 0);
   layout->addWidget(m_queryFilename, 2, 2, 1, 3);
   layout->addWidget(queryLabel, 2, 1);
-  layout->addWidget(queryButton, 2, 5);
+  layout->addWidget(queryButton, 2, 6);
 
   layout->addWidget(m_pathCheckBox, 3, 0);
   layout->addWidget(m_pathFilename, 3, 2, 1, 3);
   layout->addWidget(pathLabel, 3, 1);
-  layout->addWidget(pathButton, 3, 5);
+  layout->addWidget(pathButton, 3, 6);
+
+  layout->addWidget(m_rvCheckBox, 5, 0);
+  layout->addWidget(m_rvFilename, 5, 2, 1, 3);
+  layout->addWidget(rvLabel, 5, 1);
+  layout->addWidget(rvButton, 5, 6);
 
   layout->addWidget(m_debugCheckBox, 4, 0);
   layout->addWidget(m_debugFilename, 4, 2, 1, 3);
   layout->addWidget(debugLabel, 4, 1);
-  layout->addWidget(debugButton, 4, 5);
+  layout->addWidget(debugButton, 4, 6);
 
-  layout->addWidget(m_xmlFilename, 5, 2, 1, 3);
-  layout->addWidget(xmlLabel, 5, 1);
-  layout->addWidget(xmlButton, 5, 5);
+  layout->addWidget(m_xmlFilename, 6, 2, 1, 3);
+  layout->addWidget(xmlLabel, 6, 1);
+  layout->addWidget(xmlButton, 6, 6);
 
   loadButton->setFixedWidth(cancelButton->width());
-  layout->addWidget(loadButton, 6, 4);
-  layout->addWidget(cancelButton, 6, 5);
+  layout->addWidget(loadButton, 7, 5);
+  layout->addWidget(cancelButton, 7, 6);
 
   connect(mapButton, SIGNAL(clicked()), this, SLOT(ChangeMap()));
   connect(envButton, SIGNAL(clicked()), this, SLOT(ChangeEnv()));
   connect(pathButton, SIGNAL(clicked()), this, SLOT(ChangePath()));
+  connect(rvButton, SIGNAL(clicked()), this, SLOT(ChangeRV()));
   connect(debugButton, SIGNAL(clicked()), this, SLOT(ChangeDebug()));
   connect(queryButton, SIGNAL(clicked()), this, SLOT(ChangeQuery()));
   connect(xmlButton, SIGNAL(clicked()), this, SLOT(ChangeXML()));
@@ -167,6 +178,20 @@ ChangePath() {
 
 void
 FileListDialog::
+ChangeRV() {
+  QString fn = QFileDialog::getOpenFileName(this, "Choose a rv file",
+      GetMainWindow()->GetLastDir(), "RV File (*.rv)");
+  if(!fn.isEmpty()) {
+    m_rvFilename->setText(fn);
+    m_rvCheckBox->setChecked(true);
+    QFileInfo fi(fn);
+    GetMainWindow()->SetLastDir(fi.absolutePath());
+  }
+}
+
+
+void
+FileListDialog::
 ChangeDebug() {
   QString fn = QFileDialog::getOpenFileName(this, "Choose a debug file",
       GetMainWindow()->GetLastDir(), "Debug File (*.vd)");
@@ -207,6 +232,8 @@ Accept() {
       m_queryFilename->text().toStdString() : "");
   GetVizmo().SetPathFileName(m_pathCheckBox->isChecked() ?
       m_pathFilename->text().toStdString() : "");
+  GetVizmo().SetRVFileName(m_rvCheckBox->isChecked() ?
+      m_rvFilename->text().toStdString() : "");
   GetVizmo().SetDebugFileName(m_debugCheckBox->isChecked() ?
       m_debugFilename->text().toStdString() : "");
   GetVizmo().SetXMLFileName(m_xmlFilename->text().toStdString());
@@ -290,6 +317,7 @@ GetAssociatedFiles(const vector<string>& _filename) {
 
   string mapname = GetVizmo().GetMapFileName();
   string pathname = GetVizmo().GetPathFileName();
+  string rvname = GetVizmo().GetRVFileName();
   string debugname = GetVizmo().GetDebugFileName();
 
   // Grab new files

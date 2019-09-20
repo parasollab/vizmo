@@ -28,6 +28,7 @@ class MainMenu : public QWidget {
     OptionsBase* m_environmentOptions;  ///< Environment functions.
     OptionsBase* m_roadmapOptions;      ///< Roadmap functions.
     OptionsBase* m_pathOptions;         ///< Path functions.
+    OptionsBase* m_rvOptions;           ///< RV functions.
     OptionsBase* m_planningOptions;     ///< Motion planning functions.
     OptionsBase* m_queryOptions;        ///< Query functions.
     OptionsBase* m_captureOptions;      ///< Movie/screenshot functions.

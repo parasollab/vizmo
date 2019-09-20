@@ -11,6 +11,7 @@
 #include "GLWidgetOptions.h"
 #include "HelpOptions.h"
 #include "PathOptions.h"
+#include "RVOptions.h"
 #include "PlanningOptions.h"
 #include "QueryOptions.h"
 #include "RoadmapOptions.h"
@@ -29,6 +30,7 @@ MainMenu(MainWindow* _mainWindow) : QWidget(_mainWindow) {
   m_environmentOptions = new EnvironmentOptions(this);
   m_roadmapOptions = new RoadmapOptions(this);
   m_pathOptions = new PathOptions(this);
+  m_rvOptions = new RVOptions(this);
   m_planningOptions = new PlanningOptions(this);
   m_queryOptions = new QueryOptions(this);
   m_captureOptions = new CaptureOptions(this);
@@ -42,6 +44,7 @@ MainMenu(MainWindow* _mainWindow) : QWidget(_mainWindow) {
   m_menuBar->addMenu(m_glWidgetOptions->GetSubMenu());
   m_menuBar->addMenu(m_environmentOptions->GetSubMenu());
   m_menuBar->addMenu(m_pathOptions->GetSubMenu());
+  m_menuBar->addMenu(m_rvOptions->GetSubMenu());
   m_menuBar->addMenu(m_planningOptions->GetSubMenu());
   m_menuBar->addMenu(m_queryOptions->GetSubMenu());
   m_menuBar->addMenu(m_roadmapOptions->GetSubMenu());
@@ -58,6 +61,7 @@ CallReset() {
   m_environmentOptions->Reset();
   m_roadmapOptions->Reset();
   m_pathOptions->Reset();
+  m_rvOptions->Reset();
   m_planningOptions->Reset();
   m_queryOptions->Reset();
   m_captureOptions->Reset();

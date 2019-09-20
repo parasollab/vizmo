@@ -11,6 +11,7 @@ using namespace std;
 #include "EnvModel.h"
 #include "Model.h"
 #include "PathModel.h"
+#include "RVModel.h"
 #include "QueryModel.h"
 #include "ActiveMultiBodyModel.h"
 
@@ -93,6 +94,13 @@ InitModels() {
       cout << "Loaded Path File : " << m_pathFilename << endl;
     }
 
+    // Create rv model.
+    if(!m_rvFilename.empty()) {
+      m_rvModel = new RVModel(m_rvFilename);
+      m_loadedModels.push_back(m_rvModel);
+      cout << "Loaded RV File : " << m_rvFilename << endl;
+    }
+
     // Create debug model.
     if(!m_debugFilename.empty()){
       m_debugModel = new DebugModel(m_debugFilename);
@@ -127,6 +135,7 @@ Clean() {
   delete m_mapModel;
   delete m_queryModel;
   delete m_pathModel;
+  delete m_rvModel;
   delete m_debugModel;
   m_envModel = nullptr;
   m_phantomManager = nullptr;
@@ -134,6 +143,7 @@ Clean() {
   m_mapModel = nullptr;
   m_queryModel = nullptr;
   m_pathModel = nullptr;
+  m_rvModel = nullptr;
   m_debugModel = nullptr;
 
   m_loadedModels.clear();
