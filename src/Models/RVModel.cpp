@@ -109,9 +109,9 @@ Build() {
     Vector3d center = m_rv[rvSetIndex][i];
 
     vector< pair<double, double> > bbx;
-    bbx.push_back(make_pair(center[0] - m_voxel_dimensions[0]/2, center[0] + m_voxel_dimensions[0]/2));
-    bbx.push_back(make_pair(center[1] - m_voxel_dimensions[1]/2, center[1] + m_voxel_dimensions[1]/2));
-    bbx.push_back(make_pair(center[2] - m_voxel_dimensions[2]/2, center[2] + m_voxel_dimensions[2]/2));
+    bbx.push_back(make_pair(center[0] - m_voxel_dimensions[0]/2., center[0] + m_voxel_dimensions[0]/2.));
+    bbx.push_back(make_pair(center[1] - m_voxel_dimensions[1]/2., center[1] + m_voxel_dimensions[1]/2.));
+    bbx.push_back(make_pair(center[2] - m_voxel_dimensions[2]/2., center[2] + m_voxel_dimensions[2]/2.));
 
     GLdouble vertices[] = {
       bbx[0].first,  bbx[1].first, bbx[2].first,
