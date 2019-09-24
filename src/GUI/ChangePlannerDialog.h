@@ -2,7 +2,11 @@
 #define CHANGE_PLANNER_DIALOG_H_
 
 #include <QtGui>
+#include <QDialog>
+
 #include <string>
+
+class QButtonGroup;
 
 class MainWindow;
 

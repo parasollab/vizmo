@@ -2,6 +2,16 @@
 
 #include <iostream>
 
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QScrollBar>
+#include <QPushButton>
+#include <QLabel>
+#include <QListWidget>
+#include <QCheckBox>
+#include <QDoubleSpinBox>
+#include <QLineEdit>
+
 #include "MainWindow.h"
 #include "GLWidget.h"
 #include "ModelSelectionWidget.h"

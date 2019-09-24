@@ -1,6 +1,7 @@
 #include "RegionBox2DModel.h"
 
 #include <QtGui>
+#include <QApplication>
 
 #include "Environment/BoundingBox2D.h"
 

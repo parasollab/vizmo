@@ -4,6 +4,10 @@
 using namespace std;
 
 #include <QtGui>
+#include <QDialog>
+
+class QCheckBox;
+class QLabel;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Provides a file selection pop-up for loading data files.
@@ -15,7 +19,7 @@ class FileListDialog : public QDialog {
   public:
 
     FileListDialog(const vector<string>& _filename, QWidget* _parent,
-        Qt::WFlags _f = 0);
+        Qt::WindowFlags _f = 0);
 
   public slots:
 

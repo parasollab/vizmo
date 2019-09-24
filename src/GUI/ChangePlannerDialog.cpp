@@ -1,5 +1,11 @@
 #include "ChangePlannerDialog.h"
 
+#include <QVBoxLayout>
+#include <QRadioButton>
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
+#include <QButtonGroup>
+
 #include "GUI/MainWindow.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"

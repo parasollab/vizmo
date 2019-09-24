@@ -1,6 +1,9 @@
 #include "RoadmapOptions.h"
 
 #include <QtGui>
+#include <QAction>
+#include <QMenu>
+#include <QColorDialog>
 
 #include "EdgeEditDialog.h"
 #include "GLWidget.h"

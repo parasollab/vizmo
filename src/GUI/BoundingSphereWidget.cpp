@@ -1,5 +1,9 @@
 #include "BoundingSphereWidget.h"
 
+#include <QLabel>
+#include <QGridLayout>
+#include <QLineEdit>
+
 #include "Models/BoundingSphereModel.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"

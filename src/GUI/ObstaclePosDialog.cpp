@@ -1,5 +1,11 @@
 #include "ObstaclePosDialog.h"
 
+#include <QGridLayout>
+#include <QPushButton>
+#include <QSlider>
+#include <QLineEdit>
+#include <QLabel>
+
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "Transformation.h"

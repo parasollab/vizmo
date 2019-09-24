@@ -1,5 +1,10 @@
 #include "RegionSamplerDialog.h"
 
+#include <QVBoxLayout>
+#include <QButtonGroup>
+#include <QRadioButton>
+#include <QPushButton>
+
 #include "Models/Vizmo.h"
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"

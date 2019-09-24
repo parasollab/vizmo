@@ -11,6 +11,8 @@
 #include <vector>
 
 #include <QtGui>
+#include <QListWidget>
+#include <QDialog>
 
 #include "Models/TempObjsModel.h"
 

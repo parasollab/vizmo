@@ -1,5 +1,8 @@
 #include "CaptureOptions.h"
 
+#include <QFileDialog>
+#include <QProgressDialog>
+
 #include "AnimationWidget.h"
 #include "GLWidget.h"
 #include "MainWindow.h"
@@ -127,14 +130,14 @@ CapturePicture() {
   //Set up the file dialog to select image filename
   QFileDialog fd(GetMainWindow(), "Choose a name", GetMainWindow()->GetLastDir());
   fd.setFileMode(QFileDialog::AnyFile);
-  fd.setFilters(imageFilters);
+  fd.setNameFilters(imageFilters);
   fd.setAcceptMode(QFileDialog::AcceptSave);
 
   //If filename exists save image
   if(fd.exec() == QDialog::Accepted) {
     QStringList files = fd.selectedFiles();
     if(!files.empty()) {
-      QString filename = GrabFilename(files[0], fd.selectedFilter());
+      QString filename = GrabFilename(files[0], fd.selectedNameFilter());
       GetMainWindow()->GetGLWidget()->SaveImage(filename, m_cropBox);
       QFileInfo fi(filename);
       GetMainWindow()->SetLastDir(fi.absolutePath());
@@ -198,14 +201,14 @@ StartLiveRecording() {
   //Set up the file dialog to select image filename
   QFileDialog fd(GetMainWindow(), "Choose a name", GetMainWindow()->GetLastDir());
   fd.setFileMode(QFileDialog::AnyFile);
-  fd.setFilters(imageFilters);
+  fd.setNameFilters(imageFilters);
   fd.setAcceptMode(QFileDialog::AcceptSave);
 
   //if filename exists save image
   if(fd.exec() == QDialog::Accepted) {
     QStringList files = fd.selectedFiles();
     if(!files.isEmpty()) {
-      m_filename = GrabFilename(files[0], fd.selectedFilter());
+      m_filename = GrabFilename(files[0], fd.selectedNameFilter());
       QFileInfo fi(m_filename);
       GetMainWindow()->SetLastDir(fi.absolutePath());
 

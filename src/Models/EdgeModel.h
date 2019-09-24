@@ -6,7 +6,11 @@
 #include <vector>
 using namespace std;
 
-#include <GL/gl.h>
+#ifdef __APPLE__
+  #include <OpenGL/gl.h>
+#else
+  #include <GL/gl.h>
+#endif
 
 #include "CfgModel.h"
 #include "Model.h"

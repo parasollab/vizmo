@@ -2,6 +2,13 @@
 
 #include <limits>
 
+#include <QLineEdit>
+#include <QFontDialog>
+#include <QLabel>
+#include <QPushButton>
+#include <QGridLayout>
+#include <QFileDialog>
+
 #include "MainWindow.h"
 #include "Models/DebugModel.h"
 #include "Models/PathModel.h"
@@ -9,7 +16,7 @@
 #include "Utilities/ImageFilters.h"
 
 MovieSaveDialog::
-MovieSaveDialog(MainWindow* _mainWindow, Qt::WFlags _f) :
+MovieSaveDialog(MainWindow* _mainWindow, Qt::WindowFlags _f) :
     QDialog(_mainWindow, _f),
     m_startFrame(0), m_endFrame(-1), m_stepSize(10),
     m_frameDigits(5), m_frameDigitStart(11),
@@ -93,13 +100,13 @@ ShowFileDialog() {
   QFileDialog fd(this, "Choose a name", GetMainWindow()->GetLastDir());
   fd.setFileMode(QFileDialog::AnyFile);
   fd.setAcceptMode(QFileDialog::AcceptSave);
-  fd.setFilters(imageFilters);
+  fd.setNameFilters(imageFilters);
 
   //if filename exists save image
   if(fd.exec() == QDialog::Accepted){
     QStringList files = fd.selectedFiles();
     if(!files.isEmpty()) {
-      m_filename = GrabFilename(files[0], fd.selectedFilter());
+      m_filename = GrabFilename(files[0], fd.selectedNameFilter());
       m_fileNameLabel->setText(m_filename);
       QFileInfo fi(m_filename);
       GetMainWindow()->SetLastDir(fi.absolutePath());

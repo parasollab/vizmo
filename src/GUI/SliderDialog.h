@@ -7,6 +7,10 @@
 #define SLIDER_DIALOG_H
 
 #include <QtGui>
+#include <QDialog>
+#include <QSlider>
+
+class QLabel;
 
 using namespace std;
 

@@ -5,6 +5,8 @@
 
 #include "GLUtils.h"
 
+#include <QApplication>
+
 void
 PickBox::
 Draw() {

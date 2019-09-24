@@ -4,6 +4,8 @@
 #include "ToolTabOptions.h"
 #include "ToolTabWidget.h"
 
+#include <QAction>
+
 ToolTabWidget::
 ToolTabWidget(MainWindow* _mainWindow) : QTabWidget() {
   //map tabs for each option class to their names

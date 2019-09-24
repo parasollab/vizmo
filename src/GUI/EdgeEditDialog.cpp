@@ -3,6 +3,11 @@
 #include <sstream>
 #include <algorithm>
 
+#include <QPushButton>
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QMessageBox>
+
 #include "NodeEditDialog.h"
 #include "GLWidget.h"
 #include "MainWindow.h"

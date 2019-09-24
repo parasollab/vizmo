@@ -1,6 +1,8 @@
 #include "PathOptions.h"
 
 #include <QtGui>
+#include <QAction>
+#include <QLineEdit>
 
 #include "CustomizePathDialog.h"
 #include "GLWidget.h"

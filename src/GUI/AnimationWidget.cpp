@@ -1,5 +1,9 @@
 #include "AnimationWidget.h"
 
+#include <QSlider>
+#include <QLabel>
+#include <QLineEdit>
+
 #include "Models/DebugModel.h"
 #include "Models/EnvModel.h"
 #include "Models/PathModel.h"
