@@ -32,36 +32,36 @@ FileListDialog(const vector<string>& _filename, QWidget* _parent, Qt::WindowFlag
   m_envCheckBox = new QCheckBox(this);
   m_envFilename = new QLabel(this);
   QLabel* envLabel = new QLabel("<b>Env File</b>:", this);
-  QPushButton* envButton = new QPushButton(QIcon(QString((const char*)(folder))), "Browse", this);
+  QPushButton* envButton = new QPushButton(QIcon(QPixmap(folder)), "Browse", this);
 
   m_mapCheckBox = new QCheckBox(this);
   m_mapFilename = new QLabel(this);
   QLabel* mapLabel = new QLabel("<b>Map File</b>:", this);
-  QPushButton* mapButton = new QPushButton(QIcon(QString((const char*)(folder))),"Browse", this);
+  QPushButton* mapButton = new QPushButton(QIcon(QPixmap(folder)),"Browse", this);
 
   m_queryCheckBox = new QCheckBox(this);
   m_queryFilename = new QLabel(this);
   QLabel* queryLabel = new QLabel("<b>Query File</b>:", this);
-  QPushButton* queryButton = new QPushButton(QIcon(QString((const char*)(folder))), "Browse", this);
+  QPushButton* queryButton = new QPushButton(QIcon(QPixmap(folder)), "Browse", this);
 
   m_pathCheckBox = new QCheckBox(this);
   m_pathFilename = new QLabel(this);
   QLabel* pathLabel = new QLabel("<b>Path File</b>:", this);
-  QPushButton* pathButton = new QPushButton(QIcon(QString((const char*)(folder))), "Browse", this);
+  QPushButton* pathButton = new QPushButton(QIcon(QPixmap(folder)), "Browse", this);
 
   m_rvCheckBox = new QCheckBox(this);
   m_rvFilename = new QLabel(this);
   QLabel* rvLabel = new QLabel("<b>RV File</b>:", this);
-  QPushButton* rvButton = new QPushButton(QIcon(QString((const char*)(folder))), "Browse", this);
+  QPushButton* rvButton = new QPushButton(QIcon(QPixmap(folder)), "Browse", this);
 
   m_debugCheckBox = new QCheckBox(this);
   m_debugFilename = new QLabel(this);
   QLabel* debugLabel = new QLabel("<b>Debug File</b>:", this);
-  QPushButton* debugButton = new QPushButton(QIcon(QString((const char*)(folder))), "Browse", this);
+  QPushButton* debugButton = new QPushButton(QIcon(QPixmap(folder)), "Browse", this);
 
   m_xmlFilename = new QLabel(this);
   QLabel* xmlLabel = new QLabel("<b>XML File</b>:", this);
-  QPushButton* xmlButton = new QPushButton(QIcon(QString((const char*)(folder))), "Browse", this);
+  QPushButton* xmlButton = new QPushButton(QIcon(QPixmap(folder)), "Browse", this);
 
   layout->addWidget(m_envCheckBox, 0, 0);
   layout->addWidget(m_envFilename, 0, 2, 1, 3);

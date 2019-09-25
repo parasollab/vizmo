@@ -95,7 +95,7 @@ $(VIZMO_EXEC): $(MAIN) $(VIZMO_LIBFILE)
 # This recipe runs headers with Q_OBJECT through the qt MOC.
 $(MOC_DIR)/moc_%.cpp: %.h | $(MOC_DIR)
 	@echo Moc\'ing $(shell echo $< | sed 's|.*/||' )...
-	@mkdir -p $(MOC_DIR)/moc_$(shell dirname $<)
+	@mkdir -p $(MOC_DIR)/moc_$(shell dirname $<) #needed for MACOS support
 	@echo $(QT_MOC) $< -o $@
 	@$(QT_MOC) $< -o $@
 
