@@ -105,7 +105,9 @@ Build() {
   GLubyte id5[] = { 1, 5, 4, 0 }; //back
   GLubyte id6[] = { 7, 6, 2, 3 }; //front
 
-  for (size_t i = 0; rvSetIndex < m_rv.size(); ++i){
+  cout << "mrv size: " << m_rv.size() << endl;
+
+  while (rvSetIndex < m_rv.size()){
 	  for(size_t i=0; i<m_rv[rvSetIndex].size(); ++i) { 
 	    Vector3d center = m_rv[rvSetIndex][i];
 
@@ -133,6 +135,7 @@ Build() {
 	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id5);
 	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id6);
 	  }
+	  rvSetIndex++;
   }
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisable(GL_POLYGON_OFFSET_FILL);
