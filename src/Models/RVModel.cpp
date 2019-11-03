@@ -74,8 +74,8 @@ Build() {
  
   //clear old display list, create a new display list 
   if(m_glRVIndex != 0)
-    glDeleteLists(m_glRVIndex, 1);
-  m_glRVIndex = glGenLists(1);
+    glDeleteLists(m_glRVIndex, m_rv.size());
+  m_glRVIndex = glGenLists(m_rv.size());
   glNewList(m_glRVIndex, GL_COMPILE);
   glDisable(GL_LIGHTING);
 
@@ -105,32 +105,34 @@ Build() {
   GLubyte id5[] = { 1, 5, 4, 0 }; //back
   GLubyte id6[] = { 7, 6, 2, 3 }; //front
 
-  for(size_t i=0; i<m_rv[rvSetIndex].size(); ++i) { 
-    Vector3d center = m_rv[rvSetIndex][i];
+  for (size_t i = 0; rvSetIndex < m_rv.size(); ++i){
+	  for(size_t i=0; i<m_rv[rvSetIndex].size(); ++i) { 
+	    Vector3d center = m_rv[rvSetIndex][i];
 
-    vector< pair<double, double> > bbx;
-    bbx.push_back(make_pair(center[0] - m_voxel_dimensions[0]/2., center[0] + m_voxel_dimensions[0]/2.));
-    bbx.push_back(make_pair(center[1] - m_voxel_dimensions[1]/2., center[1] + m_voxel_dimensions[1]/2.));
-    bbx.push_back(make_pair(center[2] - m_voxel_dimensions[2]/2., center[2] + m_voxel_dimensions[2]/2.));
+	    vector< pair<double, double> > bbx;
+	    bbx.push_back(make_pair(center[0] - m_voxel_dimensions[0]/2., center[0] + m_voxel_dimensions[0]/2.));
+	    bbx.push_back(make_pair(center[1] - m_voxel_dimensions[1]/2., center[1] + m_voxel_dimensions[1]/2.));
+	    bbx.push_back(make_pair(center[2] - m_voxel_dimensions[2]/2., center[2] + m_voxel_dimensions[2]/2.));
 
-    GLdouble vertices[] = {
-      bbx[0].first,  bbx[1].first, bbx[2].first,
-      bbx[0].second, bbx[1].first, bbx[2].first,
-      bbx[0].second, bbx[1].first, bbx[2].second,
-      bbx[0].first,  bbx[1].first, bbx[2].second,
-      bbx[0].first,  bbx[1].second, bbx[2].first,
-      bbx[0].second, bbx[1].second, bbx[2].first,
-      bbx[0].second, bbx[1].second, bbx[2].second,
-      bbx[0].first,  bbx[1].second, bbx[2].second
-    };
+	    GLdouble vertices[] = {
+	      bbx[0].first,  bbx[1].first, bbx[2].first,
+	      bbx[0].second, bbx[1].first, bbx[2].first,
+	      bbx[0].second, bbx[1].first, bbx[2].second,
+	      bbx[0].first,  bbx[1].first, bbx[2].second,
+	      bbx[0].first,  bbx[1].second, bbx[2].first,
+	      bbx[0].second, bbx[1].second, bbx[2].first,
+	      bbx[0].second, bbx[1].second, bbx[2].second,
+	      bbx[0].first,  bbx[1].second, bbx[2].second
+	    };
 
-    glVertexPointer(3, GL_DOUBLE, 0, vertices);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id1);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id2);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id3);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id4);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id5);
-    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id6);
+	    glVertexPointer(3, GL_DOUBLE, 0, vertices);
+	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id1);
+	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id2);
+	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id3);
+	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id4);
+	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id5);
+	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id6);
+	  }
   }
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisable(GL_POLYGON_OFFSET_FILL);

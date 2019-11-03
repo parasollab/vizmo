@@ -19,6 +19,7 @@ class RVOptions : public OptionsBase {
 
     //query functions
     void ShowHideRV();   ///< Toggle query display on or off.
+    void NextRV();   ///< Toggle query display on or off.
 
   private:
 

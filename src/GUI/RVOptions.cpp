@@ -30,13 +30,22 @@ CreateActions() {
   m_actions["showHideRV"] = new QAction(QPixmap(flag),
       tr("Show/Hide RV"), this);
 
+  m_actions["nextRV"] = new QAction(QPixmap(flag),
+      tr("Display next RV"), this);
+
   //2. Set other specifications as necessary
   m_actions["showHideRV"]->setCheckable(true);
   m_actions["showHideRV"]->setEnabled(false);
 
+  m_actions["nextRV"]->setCheckable(true);
+  m_actions["nextRV"]->setEnabled(false);
+
   //3. Make connections
   connect(m_actions["showHideRV"], SIGNAL(triggered()),
       this, SLOT(ShowHideRV()));
+
+  connect(m_actions["nextRV"], SIGNAL(triggered()),
+      this, SLOT(NextRV()));
 }
 
 
@@ -48,6 +57,9 @@ SetHelpTips() {
         " <b>Reachable Volume</b> map.<br>"
         "You can also select the <b>Show/Hide RV</b> option "
         "from the <b>Path</b> menu."));
+
+  m_actions["nextRV"]->setStatusTip(tr("Display the next RV"));
+  m_actions["nextRV"]->setWhatsThis(tr("If there are multiple Reachable Volumes, scroll to the next one."));
 }
 
 
@@ -69,3 +81,9 @@ ShowHideRV() {
       SOLID_MODE : INVISIBLE_MODE);
 }
 
+void
+RVOptions::
+NextRV() {
+  GetVizmo().GetRV()->SetRenderMode(m_actions["showHideRV"]->isChecked() ?
+      SOLID_MODE : INVISIBLE_MODE);
+}
