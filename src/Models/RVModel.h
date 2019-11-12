@@ -19,6 +19,8 @@ class RVModel : public LoadableModel {
     void DrawSelected() {}
 
     void Print(ostream& _os) const;
+    void IncrementIndex();
+    void DecrementIndex();
   
   private:
     mathtool::Vector3d m_voxel_dimensions;     ///< how large the voxels are
@@ -27,6 +29,7 @@ class RVModel : public LoadableModel {
     vector<vector<mathtool::Vector3d> > m_rv;  ///< rv storage: sets of rvs
 
     size_t m_glRVIndex;                        ///< Display list index.
+    size_t m_currentIndex;                        ///< current Index
 };
 
 #endif

@@ -43,8 +43,10 @@ ParseFile() {
   m_rv.resize(numRVSets);
 
   for(size_t i=0; i < numRVSets && ifs; ++i) {
+    cout << "i: " << i << endl;
     //Throw out next line (comment)
     getline(ifs, garbage);
+    //cout << "garbage1: " << garbage << endl;
 
     size_t numVoxels;
     size_t duration;
@@ -53,15 +55,22 @@ ParseFile() {
     getline(ifs, garbage); //throw out rest of line
     m_rv_duration.push_back(duration);
     m_rv_placement.push_back(placement);    
+    //cout << "numVoxels: " << numVoxels << endl;
 
     //Throw out next line (comment)
     getline(ifs, garbage);
+    //cout << "garbage2: " << garbage << endl;
 
     for(size_t j=0; j<numVoxels && ifs; ++j) {
       mathtool::Vector3d voxel;
       ifs >> voxel;
       m_rv[i].push_back(voxel);
     }
+    getline(ifs, garbage);
+    getline(ifs, garbage);
+    //cout << "garbage3: " << garbage << endl;
+
+
   }
 }
 
@@ -70,45 +79,51 @@ RVModel::
 Build() {
   size_t rvSetIndex = 0; //later update this to include them all (make multiple GenLists and not 1 etc)
   
-  glMatrixMode(GL_MODELVIEW);
- 
-  //clear old display list, create a new display list 
-  if(m_glRVIndex != 0)
-    glDeleteLists(m_glRVIndex, m_rv.size());
-  m_glRVIndex = glGenLists(m_rv.size());
-  glNewList(m_glRVIndex, GL_COMPILE);
-  glDisable(GL_LIGHTING);
 
-  //set color
-  glColor4f(61./255., 127./255., 191./255., 0.4);
-
-  /*  
-  //add rv points to display list
-  glPointSize(9);
-  glBegin(GL_POINTS);
-  for(size_t i=0; i<m_rv[rvSetIndex].size(); ++i) 
-    glVertex3dv(m_rv[rvSetIndex][i]);
-  glEnd();
-  */
-
-  //add rv voxels to display list
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glPolygonMode(GL_FRONT, GL_FILL);
-  glEnableClientState(GL_VERTEX_ARRAY);
-
-  //Face index
-  GLubyte id1[] = { 3, 2, 1, 0 }; //bottom
-  GLubyte id2[] = { 4, 5, 6, 7 }; //top
-  GLubyte id3[] = { 2, 6, 5, 1 }; //left
-  GLubyte id4[] = { 0, 4, 7, 3 }; //right
-  GLubyte id5[] = { 1, 5, 4, 0 }; //back
-  GLubyte id6[] = { 7, 6, 2, 3 }; //front
-
-  cout << "mrv size: " << m_rv.size() << endl;
+	  glMatrixMode(GL_MODELVIEW);
+	  //clear old display list, create a new display list 
+	  if(m_glRVIndex != 0)
+	    glDeleteLists(m_glRVIndex, m_rv.size());
+	  m_glRVIndex = glGenLists(m_rv.size());
+	  m_currentIndex = m_glRVIndex;
 
   while (rvSetIndex < m_rv.size()){
+	  glNewList(m_glRVIndex + rvSetIndex, GL_COMPILE);
+	  glDisable(GL_LIGHTING);
+
+	  //set color
+
+	  glColor4f(61./255., 127./255., 191./255., 0.4);
+
+	  /*  
+	  //add rv points to display list
+	  glPointSize(9);
+	  glBegin(GL_POINTS);
+	  for(size_t i=0; i<m_rv[rvSetIndex].size(); ++i) 
+	    glVertex3dv(m_rv[rvSetIndex][i]);
+	  glEnd();
+	  */
+
+	  //add rv voxels to display list
+	  glEnable(GL_BLEND);
+	  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	  glPolygonMode(GL_FRONT, GL_FILL);
+	  glEnableClientState(GL_VERTEX_ARRAY);
+
+	  //Face index
+	  GLubyte id1[] = { 3, 2, 1, 0 }; //bottom
+	  GLubyte id2[] = { 4, 5, 6, 7 }; //top
+	  GLubyte id3[] = { 2, 6, 5, 1 }; //left
+	  GLubyte id4[] = { 0, 4, 7, 3 }; //right
+	  GLubyte id5[] = { 1, 5, 4, 0 }; //back
+	  GLubyte id6[] = { 7, 6, 2, 3 }; //front
+
+	//  if (rvSetIndex == 1)
+	//	  glColor4f(127./255., 61./255., 191./255., 0.4);
 	  for(size_t i=0; i<m_rv[rvSetIndex].size(); ++i) { 
+	    //cout << "rvSetindex: " << rvSetIndex << endl;
+	    //if (rvSetIndex == 1)
+	    //    cout << m_rv[rvSetIndex][i] << endl;
 	    Vector3d center = m_rv[rvSetIndex][i];
 
 	    vector< pair<double, double> > bbx;
@@ -135,14 +150,28 @@ Build() {
 	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id5);
 	    glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, id6);
 	  }
+
+	  glDisableClientState(GL_VERTEX_ARRAY);
+	  glDisable(GL_POLYGON_OFFSET_FILL);
+	  glDisable(GL_BLEND);
+
+	  glEnable(GL_LIGHTING);
+	  glEndList();
+
 	  rvSetIndex++;
   }
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisable(GL_POLYGON_OFFSET_FILL);
-  glDisable(GL_BLEND);
+}
 
-  glEnable(GL_LIGHTING);
-  glEndList();
+void RVModel::IncrementIndex(){
+	m_currentIndex++;
+	if (m_currentIndex > (m_glRVIndex + m_rv.size() - 1))
+		m_currentIndex = m_glRVIndex;
+}
+
+void RVModel::DecrementIndex(){
+	m_currentIndex--;
+	if (m_currentIndex < m_glRVIndex)
+		m_currentIndex = m_glRVIndex + m_rv.size() - 1;
 }
 
 void
@@ -151,7 +180,7 @@ DrawRender() {
   if(m_renderMode == INVISIBLE_MODE)
     return; //not draw any thing else
 
-  glCallList(m_glRVIndex);
+  glCallList(m_currentIndex);
 }
 
 void
@@ -160,7 +189,7 @@ DrawSelect() {
   if(m_renderMode == INVISIBLE_MODE)
     return; //not draw any thing else
 
-  glCallList(m_glRVIndex);
+  glCallList(m_currentIndex);
 }
 
 void
