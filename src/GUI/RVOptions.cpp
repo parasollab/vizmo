@@ -10,7 +10,9 @@
 #include "Models/RVModel.h"
 #include "Models/Vizmo.h"
 
-#include "Icons/Flag.xpm"
+#include "Icons/Navigate.xpm"
+#include "Icons/Next.xpm"
+#include "Icons/Previous.xpm"
 
 
 RVOptions::
@@ -27,24 +29,25 @@ void
 RVOptions::
 CreateActions() {
   //1. Create actions and add them to map
-  m_actions["showHideRV"] = new QAction(QPixmap(flag),
+  // buttons ordered alphabetically by action keyword
+  m_actions["displayHideRV"] = new QAction(QPixmap(navigate),
       tr("Show/Hide RV"), this);
 
-  m_actions["nextRV"] = new QAction(QPixmap(flag),
+  m_actions["nextRV"] = new QAction(QPixmap(next1),
       tr("Display next RV"), this);
 
-  m_actions["prevRV"] = new QAction(QPixmap(flag),
+  m_actions["prevRV"] = new QAction(QPixmap(previous),
       tr("Display previous RV"), this);
 
   //2. Set other specifications as necessary
-  m_actions["showHideRV"]->setCheckable(true);
-  m_actions["showHideRV"]->setEnabled(false);
+  m_actions["displayHideRV"]->setCheckable(true);
+  m_actions["displayHideRV"]->setEnabled(false);
 
   m_actions["nextRV"]->setEnabled(false);
   m_actions["prevRV"]->setEnabled(false);
 
   //3. Make connections
-  connect(m_actions["showHideRV"], SIGNAL(triggered()),
+  connect(m_actions["displayHideRV"], SIGNAL(triggered()),
       this, SLOT(ShowHideRV()));
 
   connect(m_actions["nextRV"], SIGNAL(triggered()),
@@ -58,8 +61,8 @@ CreateActions() {
 void
 RVOptions::
 SetHelpTips() {
-  m_actions["showHideRV"]->setStatusTip(tr("Show or hide the rv map"));
-  m_actions["showHideRV"]->setWhatsThis(tr("Click this button to visualize the"
+  m_actions["displayHideRV"]->setStatusTip(tr("Show or hide the rv map"));
+  m_actions["displayHideRV"]->setWhatsThis(tr("Click this button to visualize the"
         " <b>Reachable Volume</b> map.<br>"
         "You can also select the <b>Show/Hide RV</b> option "
         "from the <b>Path</b> menu."));
@@ -75,9 +78,9 @@ SetHelpTips() {
 void
 RVOptions::
 Reset() {
-  if(m_actions["showHideRV"] != NULL) {
-    m_actions["showHideRV"]->setEnabled(GetVizmo().IsRVLoaded());
-    m_actions["showHideRV"]->setChecked(false);
+  if(m_actions["displayHideRV"] != NULL) {
+    m_actions["displayHideRV"]->setEnabled(GetVizmo().IsRVLoaded());
+    m_actions["displayHideRV"]->setChecked(false);
   }
 
   if(m_actions["nextRV"] != NULL) {
@@ -97,7 +100,7 @@ Reset() {
 void
 RVOptions::
 ShowHideRV() {
-  GetVizmo().GetRV()->SetRenderMode(m_actions["showHideRV"]->isChecked() ?
+  GetVizmo().GetRV()->SetRenderMode(m_actions["displayHideRV"]->isChecked() ?
       SOLID_MODE : INVISIBLE_MODE);
 }
 
