@@ -2,6 +2,15 @@
 
 #include <sstream>
 
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QScrollArea>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QDialogButtonBox>
+#include <QMessageBox>
+
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"

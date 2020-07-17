@@ -1,5 +1,8 @@
 #include "ToolTabOptions.h"
 
+#include <QAction>
+#include <QMenuBar>
+
 #include "MainMenu.h"
 #include "MainWindow.h"
 #include "ToolTabWidget.h"

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <QtGui>
+#include <QDialog>
 
 #include "Models/MapModel.h"
 #include "Models/CfgModel.h"
@@ -13,6 +14,8 @@
 
 using namespace std;
 
+class QSlider;
+class QLineEdit;
 class GLWidget;
 class MainWindow;
 

@@ -4,6 +4,9 @@
 #include <sstream>
 
 #include <QtGui>
+#include <QColorDialog>
+#include <QAction>
+#include <QMenu>
 
 #include "CameraPosDialog.h"
 #include "GLWidget.h"

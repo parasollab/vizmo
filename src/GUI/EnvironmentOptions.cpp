@@ -3,9 +3,10 @@
 
 #include "EnvironmentOptions.h"
 
-#include "Utilities/ReebGraphConstruction.h"
-#include "Models/GraphModel.h"
-#include <vector>
+#include <QFileDialog>
+#include <QStatusBar>
+#include <QAction>
+#include <QMenu>
 
 #include "Environment/FixedBody.h"
 #include "Environment/StaticMultiBody.h"
@@ -810,10 +811,10 @@ LoadEllipses()  {
           input >> temp;
           axes.push_back(temp);
         }
-        
+
 				double alpha, beta, gamma; // Not using the euler angle >> operator as it reads in different order than <<
 				input >> alpha >> beta >> gamma;
-				EulerAngle eAngle(fmod(degToRad(alpha), TWOPI), fmod(degToRad(beta), TWOPI), fmod(degToRad(gamma), TWOPI)); 
+				EulerAngle eAngle(fmod(degToRad(alpha), TWOPI), fmod(degToRad(beta), TWOPI), fmod(degToRad(gamma), TWOPI));
         elli = new EllipsoidModel(center, axes, eAngle);
       }
       ellipses.push_back(elli);

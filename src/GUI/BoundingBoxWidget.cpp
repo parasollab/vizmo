@@ -1,5 +1,10 @@
 #include "BoundingBoxWidget.h"
 
+#include <QLabel>
+#include <QGridLayout>
+#include <QLineEdit>
+#include <QCheckBox>
+
 #include "Models/BoundingBoxModel.h"
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"

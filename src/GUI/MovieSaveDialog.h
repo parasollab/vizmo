@@ -2,6 +2,7 @@
 #define MOVIE_SAVE_DIALOG_H
 
 #include <QtGui>
+#include <QDialog>
 
 class MainWindow;
 class QGridLayout;
@@ -19,7 +20,7 @@ class MovieSaveDialog : public QDialog {
 
   public:
 
-    MovieSaveDialog(MainWindow* _mainWindow, Qt::WFlags _f = 0);
+    MovieSaveDialog(MainWindow* _mainWindow, Qt::WindowFlags _f = 0);
 
     size_t m_startFrame;      ///< The start frame.
     size_t m_endFrame;        ///< The end frame.

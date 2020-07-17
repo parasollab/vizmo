@@ -1,6 +1,10 @@
 #include "ChangeBoundaryDialog.h"
 #include "ModelSelectionWidget.h"
 
+#include <QPushButton>
+#include <QRadioButton>
+#include <QGridLayout>
+
 #include "GUI/BoundingBoxWidget.h"
 #include "GUI/BoundingSphereWidget.h"
 #include "GUI/GLWidget.h"

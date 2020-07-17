@@ -175,14 +175,14 @@ SelectDirection() {
     return mySample;
   }
   //catch Boundary too small exception
-  catch(PMPLException _e) {
+  catch(const PMPLException& _e) {
     m_samplingRegion->SetColor(Color4(1, 0, 0, 1));
     CfgType mySample;
     mySample.GetRandomCfg(env);
     return mySample;
   }
   //catch all others and exit
-  catch(exception _e) {
+  catch(const std::exception& _e) {
     cerr << _e.what() << endl;
     exit(1);
   }

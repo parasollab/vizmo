@@ -1,5 +1,10 @@
 #include "OptionsBase.h"
 
+#include <QMenu>
+#include <QToolBar>
+#include <QGridLayout>
+#include <QToolButton>
+
 #include "MainWindow.h"
 
 

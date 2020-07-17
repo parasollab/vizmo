@@ -26,7 +26,7 @@ class CCModel : public Model {
 
     // Local types
     typedef MapModel<CFG, WEIGHT> MM;
-    typedef typename MM::Graph Graph;
+    typedef typename MM::RGraph Graph;
     typedef typename MM::VID VID;
     typedef typename MM::VI VI;
     typedef typename MM::EID EID;
@@ -50,6 +50,12 @@ class CCModel : public Model {
     virtual void GetChildren(list<Model*>& _models);
 
   private:
+
+    /// Check if we should skip this edge when drawing.
+    /// @param _edgeIter The edge iterator.
+    /// @return True if this edge should be skipped because it appears twice
+    ///         as a bi-directional edge.
+    bool SkipEdge(EI _edgeIter) const;
 
     CFG& GetCfg(VID _v);
 
@@ -98,7 +104,7 @@ Build() {
   for(VIT vit = m_nodes.begin(); vit != m_nodes.end(); ++vit) {
     VI v = m_graph->find_vertex(*vit);
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
-      if((*ei).source() > (*ei).target())
+      if(SkipEdge(ei))
         continue;
 
       CFG* cfg2 = &GetCfg((*ei).target());
@@ -126,7 +132,7 @@ SetColor(const Color4& _c) {
     v->property().SetColor(_c);
     v->property().Lock();
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
-      if((*ei).source() > (*ei).target())
+      if(SkipEdge(ei))
         continue;
       (*ei).property().SetColor(_c);
     }
@@ -144,12 +150,23 @@ GetChildren(list<Model*>& _models) {
     _models.push_back(&v->property());
     v->property().Lock();
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
-      if((*ei).source() > (*ei).target())
+      if(SkipEdge(ei))
         continue;
       _models.push_back(&(*ei).property());
     }
     v->property().UnLock();
   }
+}
+
+
+template <class CFG, class WEIGHT>
+bool
+CCModel<CFG, WEIGHT>::
+SkipEdge(EI _edgeIter) const {
+  const VID source = _edgeIter->source(),
+            target = _edgeIter->target();
+
+  return source > target and m_graph->IsEdge(target, source);
 }
 
 
@@ -191,7 +208,7 @@ DrawRender() {
     VI v = m_graph->find_vertex(*vit);
     v->property().Lock();
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
-      if((*ei).source() > (*ei).target())
+      if(SkipEdge(ei))
         continue;
 
       CFG* cfg2 = &GetCfg((*ei).target());
@@ -241,7 +258,7 @@ DrawSelect() {
     VI v = m_graph->find_vertex(*vit);
     v->property().Lock();
     for(EI ei = v->begin(); ei != v->end(); ++ei) {
-      if((*ei).source() > (*ei).target())
+      if(SkipEdge(ei))
         continue;
       glPushName((*ei).target());
       CFG* cfg2 = &GetCfg((*ei).target());

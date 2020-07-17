@@ -4,6 +4,7 @@
 using namespace std;
 
 #include <QtGui>
+#include <QMainWindow>
 
 class QAction;
 class QGridLayout;

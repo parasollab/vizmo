@@ -2,6 +2,9 @@
 #define BOUNDING_SPHERE_WIDGET_H_
 
 #include <QtGui>
+#include <QWidget>
+
+class QLineEdit;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Helper widget for modifying a bounding sphere within a

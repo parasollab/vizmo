@@ -9,6 +9,7 @@
 using namespace std;
 
 #include <QtGui>
+#include <QTreeWidget>
 
 class Model;
 class GLWidget;

@@ -35,8 +35,6 @@ class RoadmapOptions : public OptionsBase {
     void ScaleNodes();          ///< Change the rendering size of nodes.
     void ShowEdgeThicknessDialog(); ///< Show dialog for edge thickness.
     void ChangeEdgeThickness(); ///< Change the rendering thickness of edges.
-    void ShowNumIntermediatesDialog(); ///< Show dialog for changing the number of intermediates
-    void ChangeNumIntermediates(); ///< Change the number of intermediates displayed per edge
     void ShowNodeEditDialog();  ///< Show the node edit dialog.
     void ShowEdgeEditDialog();  ///< Show the edge edit dialog.
     void AddNode();             ///< Add a new node to the roadmap.
@@ -59,7 +57,6 @@ class RoadmapOptions : public OptionsBase {
 
     SliderDialog* m_nodeSizeDialog;      ///< Slider for scaling nodes.
     SliderDialog* m_edgeThicknessDialog; ///< Slider for scaling edges.
-    SliderDialog* m_numIntermediatesDialog; ///< Slider for number of intermediates
 };
 
 #endif

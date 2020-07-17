@@ -1,5 +1,8 @@
 #include "FileOptions.h"
 
+#include <QFileDialog>
+#include <QStatusBar>
+
 #include "AnimationWidget.h"
 #include "FileListDialog.h"
 #include "GLWidget.h"

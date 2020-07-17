@@ -3,8 +3,14 @@
 
 #include "Vector.h"
 using namespace mathtool;
-#include <gl.h>
-#include <glu.h>
+
+#ifdef __APPLE__
+  #include <OpenGL/gl.h>
+  #include <OpenGL/glu.h>
+#else
+  #include <gl.h>
+  #include <glu.h>
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////

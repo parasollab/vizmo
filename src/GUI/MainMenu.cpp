@@ -1,5 +1,7 @@
 #include "MainMenu.h"
 
+#include <QMenuBar>
+
 #include "MainWindow.h"
 #include "OptionsBase.h"
 

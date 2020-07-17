@@ -3,6 +3,8 @@
 #include <iostream>
 using namespace std;
 
+#include <QTreeWidget>
+
 #include "AvatarModel.h"
 #include "CfgModel.h"
 #include "DebugModel.h"

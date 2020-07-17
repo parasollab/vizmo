@@ -1,7 +1,11 @@
 #include <iostream>
 using namespace std;
 
-#include <glut.h>
+#ifdef __APPLE__
+  #include <GLUT/glut.h>
+#else
+  #include <glut.h>
+#endif
 
 #include <QApplication>
 

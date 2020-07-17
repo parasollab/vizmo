@@ -2,10 +2,14 @@
 #define OBSTACLE_POS_DIALOG_H_
 
 #include <QtGui>
+#include <QDialog>
 
 #include "Models/BodyModel.h"
 
 #include "Utilities/TransformTool.h"
+
+class QLineEdit;
+class QSlider;
 
 class EnvModel;
 class MainWindow;

@@ -2,6 +2,10 @@
 #define OPTIONS_BASE_H_
 
 #include <QtGui>
+#include <QWidget>
+
+class QMenu;
+class QToolBar;
 
 using namespace std;
 

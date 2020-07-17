@@ -2,12 +2,12 @@
 #define QUERY_EDIT_DIALOG_H_
 
 #include <QtGui>
+#include <QDialog>
 
 #include "Models/QueryModel.h"
 
 using namespace std;
 
-class QPushButton;
 class QListWidget;
 class QueryModel;
 class MainWindow;

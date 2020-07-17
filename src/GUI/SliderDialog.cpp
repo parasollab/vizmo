@@ -1,6 +1,10 @@
+#include "SliderDialog.h"
+
 #include <sstream>
 
-#include "SliderDialog.h"
+#include <QGridLayout>
+#include <QLabel>
+#include <QDialogButtonBox>
 
 SliderDialog::SliderDialog(QString _windowTitle, QString _instructions,
   int _rangeStart, int _rangeEnd, int _startValue,

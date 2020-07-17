@@ -6,7 +6,11 @@
 #include <vector>
 using namespace std;
 
-#include <GL/gl.h>
+#ifdef __APPLE__
+  #include <OpenGL/gl.h>
+#else
+  #include <GL/gl.h>
+#endif
 
 #include "CfgModel.h"
 #include "Model.h"
@@ -79,7 +83,6 @@ class EdgeModel : public Model, public EdgeType {
 
     // Class properties
     static double m_edgeThickness; ///< Rendering thickness for edge lines.
-    static double m_numIntermediates; ///< Rendering for number of intermediates
 
   private:
 

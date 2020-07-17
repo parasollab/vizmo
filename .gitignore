@@ -1,0 +1,11 @@
+*.swp
+*.swo
+vizmo++
+pmpl
+*.o
+Dependencies
+build
+libvizmo.a
+*.map
+*.path
+*.stat

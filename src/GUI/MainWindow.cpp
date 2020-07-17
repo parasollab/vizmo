@@ -1,5 +1,11 @@
 #include "MainWindow.h"
 
+#include <QStatusBar>
+#include <QDockWidget>
+#include <QGridLayout>
+#include <QMessageBox>
+#include <QMenuBar>
+
 #include "AnimationWidget.h"
 #include "FileListDialog.h"
 #include "GLWidget.h"
