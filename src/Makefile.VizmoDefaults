@@ -90,6 +90,7 @@ VIZMO_SRCS := \
   Models/CrosshairModel.cpp \
   Models/DebugModel.cpp \
   Models/EdgeModel.cpp \
+  Models/EllipsoidModel.cpp \
   Models/EnvModel.cpp \
   Models/GraphModel.cpp \
   Models/MultiBodyModel.cpp \
