@@ -1,7 +1,13 @@
 //Revised
 #include <fstream>
+#include <map>
+#include <algorithm>
 
 #include "EnvironmentOptions.h"
+
+#include "Utilities/ReebGraphConstruction.h"
+#include "Models/GraphModel.h"
+#include <vector>
 
 #include <QFileDialog>
 #include <QStatusBar>
@@ -316,6 +322,321 @@ Reset() {
 
 /*----------------------- Skeleton Editing --------------------------------*/
 
+void EnvironmentOptions::
+AddAnnotations() {
+  /* Instructions and Key
+   *
+   * What the code does:
+   *  This code will read in an annotation file and color
+   *  in the skeleton in vizmo. It must correspond with a
+   *  skeleton file.
+   *
+   *  This currently only works for clearance and energy,
+   *  since it needs to decide the intervals. The clearance
+   *  interval is decided based on the max and min values
+   *  whereas the energy intervals are hardcoded since the
+   *  energy function is weird.
+   *
+   * What you should check:
+   *  There are two variables in this function called energy
+   *  and detailed. If energy is false it will interpret the
+   *  annotation as a clearance annotation. If energy is true
+   *  it will interpret it as energy. There is an extra detailed
+   *  variable I used for energy when I wanted an annotation
+   *  that had more colors, but this is really easy to add for
+   *  clearance.
+   *
+   *  Note: Sorry for not automating this process! Currently
+   *  it is very bulky and excessive. You do need to recompile
+   *  after you change the two variables. I ended up just having
+   *  multiple vizmo executables: energy & clearance.
+   *
+   * How to use it in vizmo:
+   *  When you add a skeleton into vizmo, it will prompt you for
+   *  an annotation file. If you don't want one just click cancel.
+   *
+   */
+
+    // Here are the two variables you need to manually change
+    bool energy = false;
+    bool detailed = false;
+
+    // Gets annotations and adds it visually to the skeleton
+    QString fn = QFileDialog::getOpenFileName(this,
+  "Choose an annotation to open", GetMainWindow()->GetLastDir(),
+  "Files (*.map)");
+
+    if(!fn.isEmpty()) {
+          QFileInfo fi(fn);
+          GetMainWindow()->statusBar()->showMessage("Loading:"+fi.absoluteFilePath());
+          GetMainWindow()->AlertUser("Loaded Skeleton: "+fi.fileName().toStdString());
+
+          // Read the file
+          ifstream annotationsInput(fi.absoluteFilePath().toStdString());
+          if(!annotationsInput.good())
+                  GetMainWindow()->AlertUser("File Not Good");
+
+          //Metrics to decide the interval
+          double maxEl = -10.0, minEl = 10.0, averageEl = 0.0;
+          size_t numEl = 0;
+
+
+          // Extract from file the number of vertices and edges
+          size_t numVert, numEdges;
+          annotationsInput >> numVert >> numEdges;
+
+          m_vertexMap.clear();
+          m_edgeMap.clear();
+
+          // Add values to m_vertexMap and m_edgeMap
+          for(size_t i = 0; i < numVert; i++) {
+                  size_t index, size;
+                  double value; // e.g. energy
+
+                  // Read the vertex descriptor and the co-ordinates
+                  annotationsInput >> index >> size >> value;
+
+                  // Add vertex to m_vertexMap
+                  m_vertexMap.emplace(index, value);
+
+                  // Metrics for intervals
+                  maxEl = std::max(maxEl, value);
+                  minEl = std::min(minEl, value);
+                  averageEl += value;
+                  ++numEl;
+          }
+
+          for(size_t i = 0; i < numEdges; i++) {
+                    // Get index, source and target descriptor
+                    size_t index, v1, v2;
+                    annotationsInput >> index >> v1 >> v2;
+
+                    // Get number of intermediates
+                    size_t interVerts;
+                    annotationsInput >> interVerts;
+                    double tempMax = -10.0;
+                    double tempMin = 10.0;
+                    // Get the intermediates coordinates
+                    for(size_t j = 0; j < interVerts; j++) {
+                            size_t sz;
+                            double value;
+                            annotationsInput >> sz >> value;
+                            if (energy)
+                              tempMax = std::max(tempMax, value);
+                            else
+                              tempMin = std::min(tempMin, value);
+
+                            // Metrics for intervals
+                            maxEl = std::max(maxEl, value);
+                            minEl = std::min(minEl, value);
+                            averageEl += value;
+                            ++numEl;
+                    }
+                    // Add edge to m_edgeMap
+                    if (energy)
+                       m_edgeMap.emplace(std::make_pair(v2, v1), tempMax);
+                    else
+                       m_edgeMap.emplace(std::make_pair(v2, v1), tempMin);
+                    //std::cout << tempMax << std::endl;
+            }
+
+          auto graph = GetVizmo().GetEnv()->GetGraphModel()->GetGraph();
+
+          std::cout << "max: " << maxEl << ", min: " << minEl << ", average: " << averageEl / numEl << std::endl;
+
+          // Setting the colors
+
+          if (!energy && !detailed) {
+              for(auto v = graph->begin(); v != graph->end(); ++v) {
+                  if (m_vertexMap.find(v->descriptor()) != m_vertexMap.end()) {
+                      double value = m_vertexMap[v->descriptor()];
+
+                      // This is the clearance annotation with 4 intervals
+
+                      double interval = (maxEl - minEl)/3;
+
+                      if (value > interval*2 + minEl)
+                        v->property().SetColor(Color4(0, 1, 0));
+                      /*else if (value > interval*3 + minEl)
+                        v->property().SetColor(Color4(0, 1, 1));*/
+                      else if (value > interval + minEl)
+                        v->property().SetColor(Color4(1, 1, 0));
+                      else
+                        v->property().SetColor(Color4(1, 0, 0));
+                  }
+              }
+
+              for(auto e = graph->edges_begin(); e != graph->edges_end(); ++e) {
+                auto id = std::make_pair(e->source(), e->target());
+                auto id2 = std::make_pair(e->target(), e->source());
+                if (m_edgeMap.find(id = id) != m_edgeMap.end() || m_edgeMap.find(id = id2) != m_edgeMap.end()) {
+                      double value = m_edgeMap[id];
+                      double interval = (maxEl - minEl)/3;
+
+                      if (value > interval*2 + minEl)
+                        e->property().SetColor(Color4(0, 1, 0));
+                      /*else if (value > interval*2 + minEl)
+                        e->property().SetColor(Color4(0, 1, 1));*/
+                      else if (value > interval + minEl)
+                        e->property().SetColor(Color4(1, 1, 0));
+                      else
+                        e->property().SetColor(Color4(1, 0, 0));
+                  }
+              }
+          }
+          if (!energy && detailed) {
+              for(auto v = graph->begin(); v != graph->end(); ++v) {
+                  if (m_vertexMap.find(v->descriptor()) != m_vertexMap.end()) {
+                      double value = m_vertexMap[v->descriptor()];
+
+                      // This is the clearance annotation with 8 intervals
+
+                      double interval = (maxEl - minEl)/8;
+
+                      if (value > interval*7 + minEl)
+                        v->property().SetColor(Color4(0.7, 0, 0.3));
+                      else if (value > interval*6 + minEl)
+                        v->property().SetColor(Color4(1, 0, 0));
+                      else if (value > interval*5 + minEl)
+                        v->property().SetColor(Color4(0.7, 0.3, 0));
+                      else if (value > interval*4 + minEl)
+                        v->property().SetColor(Color4(0.55, 0.45, 0));
+                      else if (value > interval*3 + minEl)
+                        v->property().SetColor(Color4(0, 0.7, 0.3));
+                      else if (value > interval*2 + minEl)
+                        v->property().SetColor(Color4(0, 0.3, 0.7));
+                      else if (value > interval + minEl)
+                        v->property().SetColor(Color4(0, 0.1, 0.9));
+                      else
+                        v->property().SetColor(Color4(0.3, 0, 0.7));
+
+                  }
+              }
+
+              for(auto e = graph->edges_begin(); e != graph->edges_end(); ++e) {
+                auto id = std::make_pair(e->source(), e->target());
+                auto id2 = std::make_pair(e->target(), e->source());
+                if (m_edgeMap.find(id = id) != m_edgeMap.end() || m_edgeMap.find(id = id2) != m_edgeMap.end()) {
+                      double value = m_edgeMap[id];
+                      double interval = (maxEl - minEl)/8;
+
+                      if (value > interval*7 + minEl)
+                        e->property().SetColor(Color4(0.7, 0, 0.3));
+                      else if (value > interval*6 + minEl)
+                        e->property().SetColor(Color4(1, 0, 0));
+                      else if (value > interval*5 + minEl)
+                        e->property().SetColor(Color4(0.7, 0.3, 0));
+                      else if (value > interval*4 + minEl)
+                        e->property().SetColor(Color4(0.55, 0.45, 0));
+                      else if (value > interval*3 + minEl)
+                        e->property().SetColor(Color4(0, 0.7, 0.3));
+                      else if (value > interval*2 + minEl)
+                        e->property().SetColor(Color4(0, 0.3, 0.7));
+                      else if (value > interval + minEl)
+                        e->property().SetColor(Color4(0, 0.1, 0.9));
+                      else
+                        e->property().SetColor(Color4(0.3, 0, 0.7));
+
+                  }
+              }
+          }
+          else if (energy && !detailed) {
+              for(auto v = graph->begin(); v != graph->end(); ++v) {
+                  if (m_vertexMap.find(v->descriptor()) != m_vertexMap.end()) {
+                      double value = m_vertexMap[v->descriptor()];
+
+                      // This is the energy annotation with 4 intervals
+
+                      if (value < -1e-03)
+                        v->property().SetColor(Color4(1, 0, 0));
+                      else if (value < -1e-05)
+                        v->property().SetColor(Color4(0.6, 0.4, 0));
+                      else if (value < -1e-07)
+                        v->property().SetColor(Color4(0, 0.7, 0.3));
+                      else
+                        v->property().SetColor(Color4(0, 0, 1));
+                  }
+              }
+
+              for(auto e = graph->edges_begin(); e != graph->edges_end(); ++e) {
+                auto id = std::make_pair(e->source(), e->target());
+                auto id2 = std::make_pair(e->target(), e->source());
+                if (m_edgeMap.find(id = id) != m_edgeMap.end() || m_edgeMap.find(id = id2) != m_edgeMap.end()) {
+                      double value = m_edgeMap[id];
+
+                      if (value < -1e-03)
+                        e->property().SetColor(Color4(1, 0, 0));
+                      else if (value < -1e-05)
+                        e->property().SetColor(Color4(0.6, 0.4, 0));
+                      else if (value < -1e-07)
+                        e->property().SetColor(Color4(0, 0.7, 0.3));
+                      else
+                        e->property().SetColor(Color4(0, 0, 1));
+                  }
+              }
+          }
+          else if (energy && detailed) {
+              for(auto v = graph->begin(); v != graph->end(); ++v) {
+                  if (m_vertexMap.find(v->descriptor()) != m_vertexMap.end()) {
+                      double value = m_vertexMap[v->descriptor()];
+
+                      // This is the energy annotation with 8 intervals
+
+                      if (value < -0.1)
+                        v->property().SetColor(Color4(0.7, 0, 0.3));
+                      else if (value < -1e-03)
+                        v->property().SetColor(Color4(1, 0, 0));
+                      else if (value < -1e-05)
+                        v->property().SetColor(Color4(0.7, 0.3, 0));
+                      else if (value < -1e-06)
+                        v->property().SetColor(Color4(0.55, 0.45, 0));
+                      else if (value < -1e-07)
+                        v->property().SetColor(Color4(0, 0.7, 0.3));
+                      else if (value < 0)
+                        v->property().SetColor(Color4(0, 0.3, 0.7));
+                      else if (value < 1000)
+                        v->property().SetColor(Color4(0, 0.1, 0.9));
+                      else
+                        v->property().SetColor(Color4(0.3, 0, 0.7));
+
+                  }
+              }
+
+              for(auto e = graph->edges_begin(); e != graph->edges_end(); ++e) {
+                auto id = std::make_pair(e->source(), e->target());
+                auto id2 = std::make_pair(e->target(), e->source());
+                if (m_edgeMap.find(id = id) != m_edgeMap.end() || m_edgeMap.find(id = id2) != m_edgeMap.end()) {
+                  double value = m_edgeMap[id];
+
+                      if (value < -0.1)
+                        e->property().SetColor(Color4(0.7, 0, 0.3));
+                      else if (value < -1e-03)
+                        e->property().SetColor(Color4(1, 0, 0));
+                      else if (value < -1e-05)
+                        e->property().SetColor(Color4(0.7, 0.3, 0));
+                      else if (value < -1e-06)
+                        e->property().SetColor(Color4(0.55, 0.45, 0));
+                      else if (value < -1e-07)
+                        e->property().SetColor(Color4(0, 0.7, 0.3));
+                      else if (value < 0)
+                        e->property().SetColor(Color4(0, 0.3, 0.7));
+                      else if (value < 1000)
+                        e->property().SetColor(Color4(0, 0.1, 0.9));
+                      else
+                        e->property().SetColor(Color4(0.3, 0, 0.7));
+                  }
+              }
+
+
+          }
+
+    }
+    else
+          GetMainWindow()->statusBar()->showMessage("Loading aborted");
+
+}
+
+
 void
 EnvironmentOptions::
 AddSkeleton() {
@@ -385,6 +706,8 @@ AddSkeleton() {
 		if(gm)
 			gm->SetRenderMode(SOLID_MODE);
 		RefreshEnv();
+
+                this->AddAnnotations();
 	}
 	else
 		GetMainWindow()->statusBar()->showMessage("Loading aborted");

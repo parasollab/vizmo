@@ -18,6 +18,8 @@ class EnvironmentOptions : public OptionsBase {
   public:
 
     EnvironmentOptions(QWidget* _parent);
+    std::map<size_t, double> m_vertexMap;
+    std::map<std::pair<size_t, size_t>, double> m_edgeMap;
 
   private slots:
 
@@ -33,6 +35,7 @@ class EnvironmentOptions : public OptionsBase {
 
     //skeleton functions
     void AddSkeleton();         	///< Adds a skeleton
+    void AddAnnotations();
     void SaveSkeleton();        	///< Saves current skeleton
     void AddVertex();           	///< Adds a vertex to the skeleton
     void AddStraightLineEdge();		///< Adds an edge
