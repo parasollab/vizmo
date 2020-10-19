@@ -59,6 +59,7 @@
 #include "Icons/PointMode.xpm"
 #include "Icons/RobotMode.xpm"
 
+const NUM_COLORS = 4;
 
 EnvironmentOptions::
 EnvironmentOptions(QWidget* _parent) : OptionsBase(_parent, "Environment"),
@@ -320,6 +321,32 @@ Reset() {
   m_obstacleMenu->setEnabled(true);
 }
 
+// Color interpolation helper function 
+Color4 
+EnvironmentOptions::
+InterpolateColor(double value, double maxEl, double minEl) 
+    const Color4 RED = Color4(1, 0, 0); // very red
+    const Color4 YELLOW = Color4(1, 1, 0); // pure yellow
+    const Color4 GREEN = Color4(0, 1, 0); // fluorescent green
+    
+    // The only reason the below code works is because 
+    // the blue channel is 0. 
+    // Should the blue channel != 0, we will need to convert to HSV
+    // for interpolation. And that's gross.
+    
+    double half = (maxEl - minEl) / 2.;
+        
+    if (value <= half) { // between red and yellow
+        double yellow = value / half;
+        return Color4(1, yellow, 0);
+    }
+    else { // between yellow and green
+        double red = (value - half) / (2 * half);
+        return Color4(1-red, 1, 0);
+    }
+
+}
+
 /*----------------------- Skeleton Editing --------------------------------*/
 
 void EnvironmentOptions::
@@ -446,23 +473,12 @@ AddAnnotations() {
 
           // Setting the colors
 
-          if (!energy && !detailed) {
+          if (!energy) {
               for(auto v = graph->begin(); v != graph->end(); ++v) {
                   if (m_vertexMap.find(v->descriptor()) != m_vertexMap.end()) {
                       double value = m_vertexMap[v->descriptor()];
 
-                      // This is the clearance annotation with 4 intervals
-
-                      double interval = (maxEl - minEl)/3;
-
-                      if (value > interval*2 + minEl)
-                        v->property().SetColor(Color4(0, 1, 0));
-                      /*else if (value > interval*3 + minEl)
-                        v->property().SetColor(Color4(0, 1, 1));*/
-                      else if (value > interval + minEl)
-                        v->property().SetColor(Color4(1, 1, 0));
-                      else
-                        v->property().SetColor(Color4(1, 0, 0));
+                      v->property().SetColor(InterpolateColor(value, maxEl, minEl));
                   }
               }
 
@@ -471,72 +487,7 @@ AddAnnotations() {
                 auto id2 = std::make_pair(e->target(), e->source());
                 if (m_edgeMap.find(id = id) != m_edgeMap.end() || m_edgeMap.find(id = id2) != m_edgeMap.end()) {
                       double value = m_edgeMap[id];
-                      double interval = (maxEl - minEl)/3;
-
-                      if (value > interval*2 + minEl)
-                        e->property().SetColor(Color4(0, 1, 0));
-                      /*else if (value > interval*2 + minEl)
-                        e->property().SetColor(Color4(0, 1, 1));*/
-                      else if (value > interval + minEl)
-                        e->property().SetColor(Color4(1, 1, 0));
-                      else
-                        e->property().SetColor(Color4(1, 0, 0));
-                  }
-              }
-          }
-          if (!energy && detailed) {
-              for(auto v = graph->begin(); v != graph->end(); ++v) {
-                  if (m_vertexMap.find(v->descriptor()) != m_vertexMap.end()) {
-                      double value = m_vertexMap[v->descriptor()];
-
-                      // This is the clearance annotation with 8 intervals
-
-                      double interval = (maxEl - minEl)/8;
-
-                      if (value > interval*7 + minEl)
-                        v->property().SetColor(Color4(0.7, 0, 0.3));
-                      else if (value > interval*6 + minEl)
-                        v->property().SetColor(Color4(1, 0, 0));
-                      else if (value > interval*5 + minEl)
-                        v->property().SetColor(Color4(0.7, 0.3, 0));
-                      else if (value > interval*4 + minEl)
-                        v->property().SetColor(Color4(0.55, 0.45, 0));
-                      else if (value > interval*3 + minEl)
-                        v->property().SetColor(Color4(0, 0.7, 0.3));
-                      else if (value > interval*2 + minEl)
-                        v->property().SetColor(Color4(0, 0.3, 0.7));
-                      else if (value > interval + minEl)
-                        v->property().SetColor(Color4(0, 0.1, 0.9));
-                      else
-                        v->property().SetColor(Color4(0.3, 0, 0.7));
-
-                  }
-              }
-
-              for(auto e = graph->edges_begin(); e != graph->edges_end(); ++e) {
-                auto id = std::make_pair(e->source(), e->target());
-                auto id2 = std::make_pair(e->target(), e->source());
-                if (m_edgeMap.find(id = id) != m_edgeMap.end() || m_edgeMap.find(id = id2) != m_edgeMap.end()) {
-                      double value = m_edgeMap[id];
-                      double interval = (maxEl - minEl)/8;
-
-                      if (value > interval*7 + minEl)
-                        e->property().SetColor(Color4(0.7, 0, 0.3));
-                      else if (value > interval*6 + minEl)
-                        e->property().SetColor(Color4(1, 0, 0));
-                      else if (value > interval*5 + minEl)
-                        e->property().SetColor(Color4(0.7, 0.3, 0));
-                      else if (value > interval*4 + minEl)
-                        e->property().SetColor(Color4(0.55, 0.45, 0));
-                      else if (value > interval*3 + minEl)
-                        e->property().SetColor(Color4(0, 0.7, 0.3));
-                      else if (value > interval*2 + minEl)
-                        e->property().SetColor(Color4(0, 0.3, 0.7));
-                      else if (value > interval + minEl)
-                        e->property().SetColor(Color4(0, 0.1, 0.9));
-                      else
-                        e->property().SetColor(Color4(0.3, 0, 0.7));
-
+                      e->property().SetColor(InterpolateColor(value, maxEl, minEl));
                   }
               }
           }
