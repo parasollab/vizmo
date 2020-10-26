@@ -2,6 +2,8 @@
 #define ENVIRONMENT_OPTIONS_H_
 #include "OptionsBase.h"
 
+#include "Utilities/Color.h"
+  
 using namespace std;
 
 class ChangeBoundaryDialog;
@@ -69,6 +71,9 @@ class EnvironmentOptions : public OptionsBase {
     /// \brief The boundary editing dialog.
     QPointer<ChangeBoundaryDialog> m_changeBoundaryDialog;
     QPointer<EditRobotDialog> m_editRobotDialog; ///< The robot editing dialog.
+
+    Color4 InterpolateColor(double value, double maxEl, double minEl);
+
 };
 
 #endif

@@ -59,8 +59,6 @@
 #include "Icons/PointMode.xpm"
 #include "Icons/RobotMode.xpm"
 
-const NUM_COLORS = 4;
-
 EnvironmentOptions::
 EnvironmentOptions(QWidget* _parent) : OptionsBase(_parent, "Environment"),
     m_changeBoundaryDialog(NULL), m_editRobotDialog(NULL) {
@@ -324,10 +322,10 @@ Reset() {
 // Color interpolation helper function 
 Color4 
 EnvironmentOptions::
-InterpolateColor(double value, double maxEl, double minEl) 
-    const Color4 RED = Color4(1, 0, 0); // very red
-    const Color4 YELLOW = Color4(1, 1, 0); // pure yellow
-    const Color4 GREEN = Color4(0, 1, 0); // fluorescent green
+InterpolateColor(double value, double maxEl, double minEl) {
+    // const Color4 RED = Color4(1, 0, 0); // very red
+    // const Color4 YELLOW = Color4(1, 1, 0); // pure yellow
+    // const Color4 GREEN = Color4(0, 1, 0); // fluorescent green
     
     // The only reason the below code works is because 
     // the blue channel is 0. 
