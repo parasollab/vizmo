@@ -331,9 +331,8 @@ InterpolateColor(double value, double maxEl, double minEl) {
     // the blue channel is 0. 
     // Should the blue channel != 0, we will need to convert to HSV
     // for interpolation. And that's gross.
-    
+
     double half = (maxEl - minEl) / 2.;
-        
     if (value <= half) { // between red and yellow
         double yellow = value / half;
         return Color4(1, yellow, 0);
@@ -468,14 +467,13 @@ AddAnnotations() {
           auto graph = GetVizmo().GetEnv()->GetGraphModel()->GetGraph();
 
           std::cout << "max: " << maxEl << ", min: " << minEl << ", average: " << averageEl / numEl << std::endl;
-
+          std::cout << "energy:" << energy << ", detailed" << detailed << std::endl;
           // Setting the colors
 
           if (!energy) {
               for(auto v = graph->begin(); v != graph->end(); ++v) {
                   if (m_vertexMap.find(v->descriptor()) != m_vertexMap.end()) {
                       double value = m_vertexMap[v->descriptor()];
-
                       v->property().SetColor(InterpolateColor(value, maxEl, minEl));
                   }
               }
@@ -485,6 +483,7 @@ AddAnnotations() {
                 auto id2 = std::make_pair(e->target(), e->source());
                 if (m_edgeMap.find(id = id) != m_edgeMap.end() || m_edgeMap.find(id = id2) != m_edgeMap.end()) {
                       double value = m_edgeMap[id];
+                      
                       e->property().SetColor(InterpolateColor(value, maxEl, minEl));
                   }
               }
@@ -529,24 +528,25 @@ AddAnnotations() {
                   if (m_vertexMap.find(v->descriptor()) != m_vertexMap.end()) {
                       double value = m_vertexMap[v->descriptor()];
 
+                      v->property().SetColor(Color4(.7, 0*value, 0.7));
                       // This is the energy annotation with 8 intervals
 
-                      if (value < -0.1)
-                        v->property().SetColor(Color4(0.7, 0, 0.3));
-                      else if (value < -1e-03)
-                        v->property().SetColor(Color4(1, 0, 0));
-                      else if (value < -1e-05)
-                        v->property().SetColor(Color4(0.7, 0.3, 0));
-                      else if (value < -1e-06)
-                        v->property().SetColor(Color4(0.55, 0.45, 0));
-                      else if (value < -1e-07)
-                        v->property().SetColor(Color4(0, 0.7, 0.3));
-                      else if (value < 0)
-                        v->property().SetColor(Color4(0, 0.3, 0.7));
-                      else if (value < 1000)
-                        v->property().SetColor(Color4(0, 0.1, 0.9));
-                      else
-                        v->property().SetColor(Color4(0.3, 0, 0.7));
+                      // if (value < -0.1)
+                      //   v->property().SetColor(Color4(0.7, 0, 0.3));
+                      // else if (value < -1e-03)
+                      //   v->property().SetColor(Color4(1, 0, 0));
+                      // else if (value < -1e-05)
+                      //   v->property().SetColor(Color4(0.7, 0.3, 0));
+                      // else if (value < -1e-06)
+                      //   v->property().SetColor(Color4(0.55, 0.45, 0));
+                      // else if (value < -1e-07)
+                      //   v->property().SetColor(Color4(0, 0.7, 0.3));
+                      // else if (value < 0)
+                      //   v->property().SetColor(Color4(0, 0.3, 0.7));
+                      // else if (value < 1000)
+                      //   v->property().SetColor(Color4(0, 0.1, 0.9));
+                      // else
+                      //   v->property().SetColor(Color4(0.3, 0, 0.7));
 
                   }
               }
@@ -555,24 +555,25 @@ AddAnnotations() {
                 auto id = std::make_pair(e->source(), e->target());
                 auto id2 = std::make_pair(e->target(), e->source());
                 if (m_edgeMap.find(id = id) != m_edgeMap.end() || m_edgeMap.find(id = id2) != m_edgeMap.end()) {
-                  double value = m_edgeMap[id];
+                        double value = m_edgeMap[id];
+                        e->property().SetColor(Color4(.7, 0*value, 0.7));
 
-                      if (value < -0.1)
-                        e->property().SetColor(Color4(0.7, 0, 0.3));
-                      else if (value < -1e-03)
-                        e->property().SetColor(Color4(1, 0, 0));
-                      else if (value < -1e-05)
-                        e->property().SetColor(Color4(0.7, 0.3, 0));
-                      else if (value < -1e-06)
-                        e->property().SetColor(Color4(0.55, 0.45, 0));
-                      else if (value < -1e-07)
-                        e->property().SetColor(Color4(0, 0.7, 0.3));
-                      else if (value < 0)
-                        e->property().SetColor(Color4(0, 0.3, 0.7));
-                      else if (value < 1000)
-                        e->property().SetColor(Color4(0, 0.1, 0.9));
-                      else
-                        e->property().SetColor(Color4(0.3, 0, 0.7));
+                      // if (value < -0.1)
+                      //   e->property().SetColor(Color4(0.7, 0, 0.3));
+                      // else if (value < -1e-03)
+                      //   e->property().SetColor(Color4(1, 0, 0));
+                      // else if (value < -1e-05)
+                      //   e->property().SetColor(Color4(0.7, 0.3, 0));
+                      // else if (value < -1e-06)
+                      //   e->property().SetColor(Color4(0.55, 0.45, 0));
+                      // else if (value < -1e-07)
+                      //   e->property().SetColor(Color4(0, 0.7, 0.3));
+                      // else if (value < 0)
+                      //   e->property().SetColor(Color4(0, 0.3, 0.7));
+                      // else if (value < 1000)
+                      //   e->property().SetColor(Color4(0, 0.1, 0.9));
+                      // else
+                      //   e->property().SetColor(Color4(0.3, 0, 0.7));
                   }
               }
 
