@@ -14,6 +14,9 @@ QT_BASE := /usr/include
 ifeq ($(platform), MACOS_gcc)
   QT_BASE := /usr/local/opt/qt/include
 endif
+ifeq ($(platform), Ubuntu)
+  QT_BASE := /usr/include/qt4
+endif
 
 QT_INCL := -I$(QT_BASE)/Qt -I$(QT_BASE)/QtCore -I$(QT_BASE)/QtGui \
            -I$(QT_BASE)/QtOpenGL
@@ -23,11 +26,19 @@ ifeq ($(platform), MACOS_gcc)
 	     -I$(QT_BASE)/QtOpenGL -I$(QT_BASE)/QtWidgets
   QT_LIBS := -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtOpenGL -framework QtWidgets
 endif
+ifeq ($(platform), Ubuntu)
+  QT_INCL := -I$(QT_BASE) -I$(QT_BASE)/Qt -I$(QT_BASE)/QtCore -I$(QT_BASE)/QtGui \
+             -I$(QT_BASE)/QtOpenGL
+  QT_LIBS := -lQtGui -lQtOpenGL -lQtCore
+endif
 
 # Ensure the moc (metaobject compiler) is found.
 QT_MOC_BASE = /usr/lib64/qt4/bin
 ifeq ($(platform), MACOS_gcc)
   QT_MOC_BASE = /usr/local/opt/qt/bin
+endif
+ifeq ($(platform), Ubuntu)
+  QT_MOC_BASE = /usr/share/qt4/bin
 endif
 QT_MOC := $(shell find $(QT_MOC_BASE)/moc 2> /dev/null)
 ifndef QT_MOC
