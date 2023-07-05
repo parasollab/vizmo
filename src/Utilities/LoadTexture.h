@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <qgl.h>
+#include <QtOpenGL>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Load texture from file into open GL context

@@ -1,6 +1,7 @@
 #ifndef VIZMO_EXCEPTIONS_H_
 #define VIZMO_EXCEPTIONS_H_
 
+#include <string>
 #include "Utilities/PMPLExceptions.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10,7 +11,7 @@ class BuildException : public PMPLException {
 
   public:
 
-    BuildException(const string& _where, const string& _message) :
+    BuildException(const std::string& _where, const std::string& _message) :
         PMPLException("BuildError", _where, _message) {}
 };
 
@@ -22,7 +23,7 @@ class DrawException : public PMPLException {
 
   public:
 
-    DrawException(const string& _where, const string& _message) :
+    DrawException(const std::string& _where, const std::string& _message) :
         PMPLException("DrawError", _where, _message) {}
 };
 

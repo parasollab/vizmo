@@ -1,0 +1,11 @@
+{
+    "version": 4,
+    "vendor": {
+        "conan": {}
+    },
+    "include": [
+        "/mnt/h/src_repos/pmpl/build/Release/generators/CMakePresets.json",
+        "/mnt/h/src_repos/pmpl/cmake-build-debug_docker_conan/build/Release/generators/CMakePresets.json",
+        "/mnt/h/src_repos/pmpl/cmake-build-debug_docker_conan/CMakePresets.json"
+    ]
+}

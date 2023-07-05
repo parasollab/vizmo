@@ -12,3 +12,20 @@ After cloning this repo:
 - Switch to the PMPL root directory `cd pmpl`.
 - Soft-link to your pmpl\_utils copy `ln -s ../../pmpl_utils`.
 - Go to `vizmo/src` and build everything with `make`.
+
+
+## Install
+
+```bash
+conan install . --install-folder cmake-build-release --build=missing -e CONAN_CMAKE_GENERATOR=Ninja -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=true
+```
+
+## Run
+```bash
+cmake . -DCMAKE_TOOLCHAIN_FILE=cmake-build-release/conan_toolchain.cmake
+cmake --build .
+```
+
+```bash
+apt-get install libva-dev libvdpau-dev libfontenc-dev, libxaw7-dev, libxkbfile-dev, libxmu-dev, libxmuu-dev, libxpm-dev, libxres-dev, libxss-dev, libxtst-dev, libxv-dev, libxvmc-dev, libxxf86vm-dev, libxcb-dri3-dev
+```

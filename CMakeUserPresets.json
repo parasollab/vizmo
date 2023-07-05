@@ -1,0 +1,9 @@
+{
+    "version": 4,
+    "vendor": {
+        "conan": {}
+    },
+    "include": [
+        "/mnt/h/src_repos/vizmo/cmake-build-debug_docker/CMakePresets.json"
+    ]
+}

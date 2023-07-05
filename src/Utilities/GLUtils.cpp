@@ -69,7 +69,7 @@ namespace GLUtils {
 
     Vector3d ray = (e - s).normalize();
     Vector3d norm = _n.normalize();
-    if(fabs(ray * norm) < numeric_limits<double>::epsilon() )
+    if(fabs(ray * norm) < std::numeric_limits<double>::epsilon() )
       throw DrawException(WHERE,
           "\nCannot unproject: the plane is perpendicular to the ray.\n");
     double rayFactor = (_ref - s) * norm / (ray * norm);
