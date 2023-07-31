@@ -1,7 +1,7 @@
 #ifndef ACTIVE_MULTIBODY_MODEL_H_
 #define ACTIVE_MULTIBODY_MODEL_H_
 
-#include "Environment/ActiveMultiBody.h"
+#include "MPProblem/Environment/Environment.h"
 
 #include "MultiBodyModel.h"
 

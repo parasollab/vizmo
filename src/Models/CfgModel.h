@@ -13,11 +13,11 @@ using namespace std;
 #endif
 
 #ifdef PMPCfg
-#include "Cfg/Cfg.h"
-typedef Cfg CfgType;
+  #include "ConfigurationSpace/Cfg.h"
+  typedef Cfg CfgType;
 #elif defined(PMPState)
-#include "Cfg/State.h"
-typedef State CfgType;
+  #include "Cfg/State.h"
+  typedef State CfgType;
 #endif
 
 #include "EdgeModel.h"

@@ -1,0 +1,10 @@
+{
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://gitlab.engr.illinois.edu/ari-cnice/vcpkg_registry",
+      "baseline": "badf1003f60e5cb49feec93e8a303c3b24786b75",
+      "packages": [ "ppl" ]
+    }
+  ]
+}

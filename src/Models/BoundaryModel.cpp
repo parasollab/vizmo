@@ -1,6 +1,6 @@
 #include "BoundaryModel.h"
 
-#include "Environment/Boundary.h"
+#include "Geometry/Boundaries/Boundary.h"
 
 BoundaryModel::
 BoundaryModel(const string& _name, shared_ptr<Boundary> _b) :
