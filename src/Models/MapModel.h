@@ -1,7 +1,8 @@
 #ifndef MAP_MODEL_H_
 #define MAP_MODEL_H_
 
-#include "MPProblem/RoadmapGraph.h"
+//#include "MPProblem/RoadmapGraph.h"
+#include "ConfigurationSpace/GenericStateGraph.h"
 
 #include <containers/sequential/graph/graph.h>
 #include <containers/sequential/graph/algorithms/connected_components.h>
@@ -31,7 +32,8 @@ class MapModel : public LoadableModel {
   public:
     typedef CCModel<CFG, WEIGHT> CCM;
     typedef typename vector<CCM*>::iterator CCIT;
-    typedef RoadmapGraph<CFG, WEIGHT> RGraph;
+    //typedef RoadmapGraph<CFG, WEIGHT> RGraph;
+    typedef GenericStateGraph<CFG, WEIGHT> RGraph;
     typedef typename RGraph::GRAPH  Graph;
     typedef typename Graph::vertex_descriptor VID;
     typedef typename Graph::vertex_iterator VI;

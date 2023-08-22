@@ -9,10 +9,11 @@
   #include <GL/glut.h>
 #endif
 
-#include "Environment/BoundingBox2D.h"
+//#include "Environment/WorkspaceBoundingBox.h"
+#include "Geometry/Boundaries/WorkspaceBoundingBox.h"
 
 BoundingBox2DModel::
-BoundingBox2DModel(shared_ptr<BoundingBox2D> _b) :
+BoundingBox2DModel(shared_ptr<WorkspaceBoundingBox> _b) :
   BoundaryModel("Bounding Box", _b),
   m_boundingBox(_b) {
     Build();
@@ -22,7 +23,10 @@ BoundingBox2DModel::
 BoundingBox2DModel(const pair<double, double>& _x,
     const pair<double, double>& _y) :
   BoundaryModel("Bounding Box", NULL) {
-    m_boundingBox = shared_ptr<BoundingBox2D>(new BoundingBox2D(_x, _y));
+    std::vector<double> center = {0.,0.};
+    std::vector<std::pair<double,double>> bbx = {_x,_y};
+    m_boundingBox = shared_ptr<WorkspaceBoundingBox>(new WorkspaceBoundingBox(center));
+    m_boundingBox->ResetBoundary(bbx,0.);
     m_boundary = m_boundingBox;
     Build();
   }
@@ -30,19 +34,19 @@ BoundingBox2DModel(const pair<double, double>& _x,
 void
 BoundingBox2DModel::
 Build() {
-  pair<double, double> x = m_boundingBox->GetRange(0);
-  pair<double, double> y = m_boundingBox->GetRange(1);
+  auto x = m_boundingBox->GetRange(0);
+  auto y = m_boundingBox->GetRange(1);
 
   // Compute center
-  m_center[0] = (x.first + x.second) / 2.;
-  m_center[1] = (y.first + y.second) / 2.;
+  m_center[0] = (x.min + x.max) / 2.;
+  m_center[1] = (y.min + y.max) / 2.;
   m_center[2] = 0;
 
   GLdouble vertices[] = {
-    x.first,  y.first, 0,
-    x.first,  y.second, 0,
-    x.second, y.first, 0,
-    x.second, y.second, 0,
+    x.min,  y.min, 0,
+    x.min,  y.max, 0,
+    x.max, y.min, 0,
+    x.max, y.max, 0,
   };
 
   //line index
@@ -77,12 +81,12 @@ Build() {
 void
 BoundingBox2DModel::
 DrawHaptics() {
-  pair<double, double> x = m_boundingBox->GetRange(0);
-  pair<double, double> y = m_boundingBox->GetRange(1);
+  auto x = m_boundingBox->GetRange(0);
+  auto y = m_boundingBox->GetRange(1);
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
-  glScalef( x.second - x.first,
-      y.second - y.first,
+  glScalef( x.max - x.min,
+      y.max - y.min,
       1);
   glutSolidCube(1);
   glPopMatrix();
@@ -99,11 +103,11 @@ Print(ostream& _os) const {
 vector<pair<double, double> >
 BoundingBox2DModel::
 GetRanges() const {
-  pair<double, double> x = m_boundingBox->GetRange(0);
-  pair<double, double> y = m_boundingBox->GetRange(1);
+  auto x = m_boundingBox->GetRange(0);
+  auto y = m_boundingBox->GetRange(1);
   vector<pair<double, double>> ranges;
-  ranges.push_back(x);
-  ranges.push_back(y);
+  ranges.emplace_back(x.min,x.max);
+  ranges.emplace_back(y.min,y.max);
   ranges.push_back(make_pair(
         -numeric_limits<double>::max(), numeric_limits<double>::max()));
   return ranges;

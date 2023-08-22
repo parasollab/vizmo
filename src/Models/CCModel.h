@@ -179,7 +179,7 @@ DrawRender() {
   glColor4fv(GetColor());
 
   switch(CFG::GetShape()){
-    case CFG::Robot:
+    case CFG::RobotShape:
       glEnable(GL_LIGHTING);
       glLineWidth(1);
       typedef typename vector<VID>::iterator VIT;
@@ -187,7 +187,7 @@ DrawRender() {
         GetCfg(*vit).DrawRender();
       break;
 
-    case CFG::Point:
+    case CFG::PointShape:
       glDisable(GL_LIGHTING);
       glPointSize(CFG::GetPointSize());
       glBegin(GL_POINTS);
@@ -233,11 +233,11 @@ DrawSelect() {
   //draw nodes
   glPushName(1);
   switch(CFG::GetShape()){
-    case CFG::Robot:
+    case CFG::RobotShape:
       glLineWidth(1);
       break;
 
-    case CFG::Point:
+    case CFG::PointShape:
       glPointSize(CFG::GetPointSize());
       break;
   }

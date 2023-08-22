@@ -9,10 +9,10 @@
   #include <GL/glut.h>
 #endif
 
-#include "Environment/BoundingBox.h"
+#include "Geometry/Boundaries/WorkspaceBoundingBox.h"
 
 BoundingBoxModel::
-BoundingBoxModel(shared_ptr<BoundingBox> _b) :
+BoundingBoxModel(shared_ptr<WorkspaceBoundingBox> _b) :
   BoundaryModel("Bounding Box", _b),
   m_boundingBox(_b) {
     Build();
@@ -22,7 +22,10 @@ BoundingBoxModel::
 BoundingBoxModel(const pair<double, double>& _x, const pair<double, double>& _y,
     const pair<double, double>& _z) :
   BoundaryModel("Bounding Box", NULL) {
-    m_boundingBox = shared_ptr<BoundingBox>(new BoundingBox(_x, _y, _z));
+    std::vector<double> center = {0.0,0.0,0.0};
+    std::vector<std::pair<double,double>> bbx = {_x,_y,_z};
+    m_boundingBox = shared_ptr<WorkspaceBoundingBox>(new WorkspaceBoundingBox(center));
+    m_boundingBox->ResetBoundary(bbx,0.);
     m_boundary = m_boundingBox;
     Build();
   }
@@ -30,7 +33,8 @@ BoundingBoxModel(const pair<double, double>& _x, const pair<double, double>& _y,
 void
 BoundingBoxModel::
 Build() {
-  const pair<double, double>* const bbx = m_boundingBox->GetBox();
+  //const pair<double, double>* const bbx = m_boundingBox->GetBox();
+  const auto bbx = this->GetRanges();
 
   // Compute center
   m_center[0] = (bbx[0].first + bbx[0].second) / 2.;
@@ -110,7 +114,8 @@ Build() {
 void
 BoundingBoxModel::
 DrawHaptics() {
-  const pair<double, double>* const bbx = m_boundingBox->GetBox();
+  //const pair<double, double>* const bbx = m_boundingBox->GetBox();
+  const auto bbx = this->GetRanges();
   glPushMatrix();
   glTranslatef(m_center[0], m_center[1], m_center[2]);
   glScalef( bbx[0].second - bbx[0].first,
@@ -131,8 +136,18 @@ Print(ostream& _os) const {
 vector<pair<double, double> >
 BoundingBoxModel::
 GetRanges() const {
-  const pair<double, double>* const bbx = m_boundingBox->GetBox();
-  return vector<pair<double, double>>(bbx, bbx+3);
+  // const pair<double, double>* const bbx = m_boundingBox->GetBox();
+  // return vector<pair<double, double>>(bbx, bbx+3);
+
+  vector<pair<double,double>> ranges;
+  const size_t dim = m_boundingBox->GetDimension();
+
+  for(size_t i = 0; i < dim; i++) {
+    auto range = m_boundingBox->GetRange(i);
+    ranges.emplace_back(range.min,range.max);
+  }
+
+  return ranges;
 }
 
 double

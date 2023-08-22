@@ -20,7 +20,7 @@ class BodyModel : public TransformableModel {
   public:
 
     // Construction
-    BodyModel(shared_ptr<Body> _b);
+    BodyModel(Body* _b);
     ~BodyModel();
 
     // Model properties

@@ -252,7 +252,7 @@ RoadmapOptions::
 ShowNodeSizeDialog() {
   //For now, resizing only enabled for point abstraction. For robot,
   //would require extensive local coordinate system aspects
-  if(CfgModel::GetShape() != CfgModel::Robot)
+  if(CfgModel::GetShape() != CfgModel::RobotShape)
     GetMainWindow()->ShowDialog(m_nodeSizeDialog);
   else
     GetMainWindow()->AlertUser("You can only resize nodes in <b>Point</b> mode.");

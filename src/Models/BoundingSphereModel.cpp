@@ -3,22 +3,24 @@
 #include <limits>
 #include <sstream>
 
-#include "Environment/BoundingSphere.h"
+#include "Geometry/Boundaries/WorkspaceBoundingSphere.h"
 #include "Utilities/GLUtils.h"
 
 BoundingSphereModel::
-BoundingSphereModel(shared_ptr<BoundingSphere> _b) :
+BoundingSphereModel(shared_ptr<WorkspaceBoundingSphere> _b) :
     BoundaryModel("Bounding Sphere", _b), m_boundingSphere(_b) {
-  m_center = m_boundingSphere->GetCenter();
+  auto center = m_boundingSphere->GetCenter();
+  m_center = Point3d(center[0],center[1],center[2]);
   Build();
 }
 
 BoundingSphereModel::
 BoundingSphereModel(const Point3d& _c, double _r) :
     BoundaryModel("Bounding Sphere", NULL) {
-  m_boundingSphere = shared_ptr<BoundingSphere>(new BoundingSphere(_c, _r));
+  m_boundingSphere = shared_ptr<WorkspaceBoundingSphere>(new WorkspaceBoundingSphere(_c, _r));
   m_boundary = m_boundingSphere;
-  m_center = m_boundingSphere->GetCenter();
+  auto center = m_boundingSphere->GetCenter();
+  m_center = Point3d(center[0],center[1],center[2]);
   Build();
 }
 
@@ -32,7 +34,7 @@ vector<pair<double, double> >
 BoundingSphereModel::
 GetRanges() const {
   vector<pair<double, double> > ranges;
-  const Vector3d& center = m_boundingSphere->GetCenter();
+  const auto center = m_boundingSphere->GetCenter();
   double radius = m_boundingSphere->GetRadius();
   for(int i=0; i<3; i++)
     ranges.push_back(make_pair(center[i] - radius, center[i] + radius));
@@ -42,7 +44,7 @@ GetRanges() const {
 void
 BoundingSphereModel::
 Build() {
-  const Vector3d& center = m_boundingSphere->GetCenter();
+  const auto center = m_boundingSphere->GetCenter();
   double radius = m_boundingSphere->GetRadius();
 
   GLUquadricObj* quad = gluNewQuadric();

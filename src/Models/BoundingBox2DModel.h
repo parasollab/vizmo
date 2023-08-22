@@ -6,14 +6,14 @@ using namespace std;
 
 #include "BoundaryModel.h"
 
-class BoundingBox2D;
+class WorkspaceBoundingBox;
 
 class BoundingBox2DModel : public BoundaryModel {
 
   public:
 
     // Construction
-    BoundingBox2DModel(shared_ptr<BoundingBox2D> _b);
+    BoundingBox2DModel(shared_ptr<WorkspaceBoundingBox> _b);
     BoundingBox2DModel(const pair<double, double>& _x,
         const pair<double, double>& _y);
 
@@ -27,7 +27,7 @@ class BoundingBox2DModel : public BoundaryModel {
     virtual double GetMaxDist();
 
   private:
-    shared_ptr<BoundingBox2D> m_boundingBox; ///< PMPL's BoundingBox
+    shared_ptr<WorkspaceBoundingBox> m_boundingBox; ///< PMPL's BoundingBox
 };
 
 #endif

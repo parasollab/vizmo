@@ -4,7 +4,7 @@
 #include "Model.h"
 #include "Models/Vizmo.h"
 
-#include "Utilities/ReebGraphConstruction.h"
+#include "MPLibrary/MPTools/ReebGraphConstruction.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Display model of embedded graph.

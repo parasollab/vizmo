@@ -18,7 +18,8 @@ using namespace std;
 class CfgModel;
 
 #ifdef PMPCfg
-#include "MPProblem/Weight.h"
+//#include "MPProblem/Weight.h"
+#include "ConfigurationSpace/Weight.h"
 typedef DefaultWeight<CfgModel> EdgeType;
 #elif defined(PMPState)
 #include "Edges/StateEdge.h"

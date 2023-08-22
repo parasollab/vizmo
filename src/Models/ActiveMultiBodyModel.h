@@ -1,6 +1,7 @@
 #ifndef ACTIVE_MULTIBODY_MODEL_H_
 #define ACTIVE_MULTIBODY_MODEL_H_
 
+#include "Geometry/Bodies/MultiBody.h"
 #include "MPProblem/Environment/Environment.h"
 
 #include "MultiBodyModel.h"
@@ -8,7 +9,7 @@
 class ActiveMultiBodyModel : public MultiBodyModel {
   public:
 
-    ActiveMultiBodyModel(shared_ptr<ActiveMultiBody> _a);
+    ActiveMultiBodyModel(shared_ptr<MultiBody> _a);
 
     size_t Dofs() const;
     bool IsPlanar() const;
@@ -28,10 +29,10 @@ class ActiveMultiBodyModel : public MultiBodyModel {
     virtual void DrawSelected();
     void DrawSelectedImpl();
 
-    const vector<ActiveMultiBody::DOFInfo>& GetDOFInfo() const;
+    const vector<DofInfo>& GetDOFInfo() const;
 
   private:
-    shared_ptr<ActiveMultiBody> m_activeMultiBody;
+    shared_ptr<MultiBody> m_activeMultiBody;
 
     vector<double> m_initCfg, m_currCfg;
 

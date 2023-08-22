@@ -3,23 +3,25 @@
 #include <limits>
 #include <sstream>
 
-#include "Environment/BoundingSphere2D.h"
+//#include "Environment/WorkspaceBoundingSphere.h"
+#include "Geometry/Boundaries/WorkspaceBoundingSphere.h"
 
 #include "Utilities/GLUtils.h"
 
 BoundingSphere2DModel::
-BoundingSphere2DModel(shared_ptr<BoundingSphere2D> _b) :
+BoundingSphere2DModel(shared_ptr<WorkspaceBoundingSphere> _b) :
     BoundaryModel("Bounding Sphere", _b), m_boundingSphere(_b) {
-  m_center = m_boundingSphere->GetCenter();
+  m_center = Point2d(0,0); //m_boundingSphere->GetCenter();
   Build();
 }
 
 BoundingSphere2DModel::
 BoundingSphere2DModel(const Point2d& _c, double _r) :
     BoundaryModel("Bounding Sphere", NULL) {
-  m_boundingSphere = shared_ptr<BoundingSphere2D>(new BoundingSphere2D(_c, _r));
+    Point3d c(_c[0],_c[1],0);
+  m_boundingSphere = shared_ptr<WorkspaceBoundingSphere>(new WorkspaceBoundingSphere(c, _r));
   m_boundary = m_boundingSphere;
-  m_center = m_boundingSphere->GetCenter();
+  m_center = _c; //m_boundingSphere->GetCenter();
   Build();
 }
 
@@ -33,7 +35,7 @@ vector<pair<double, double> >
 BoundingSphere2DModel::
 GetRanges() const {
   vector<pair<double, double> > ranges;
-  const Vector3d& center = m_boundingSphere->GetCenter();
+  const auto& center = m_boundingSphere->GetCenter();
   double radius = m_boundingSphere->GetRadius();
   for(int i=0; i<2; i++)
     ranges.push_back(make_pair(center[i] - radius, center[i] + radius));
@@ -45,7 +47,7 @@ GetRanges() const {
 void
 BoundingSphere2DModel::
 Build() {
-  const Vector3d& center = m_boundingSphere->GetCenter();
+  const auto& center = m_boundingSphere->GetCenter();
   double radius = m_boundingSphere->GetRadius();
 
   m_displayID = glGenLists(1);

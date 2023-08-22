@@ -1,19 +1,21 @@
 #include "CfgModel.h"
 
+#include "MPProblem/Robot/Robot.h"
+
 #include "ActiveMultiBodyModel.h"
 #include "EnvModel.h"
 #include "Vizmo.h"
 
-CfgModel::Shape CfgModel::m_shape = CfgModel::Point;
+CfgModel::Shape CfgModel::m_shape = CfgModel::PointShape;
 float CfgModel::m_pointScale = 10;
 
 CfgModel::
-CfgModel(const size_t _index) : Model("Cfg"), CfgType(_index),
+CfgModel(Robot* const _robot) : Model("Cfg"), CfgType(_index),
     m_mutex(new mutex()) { }
 
 CfgModel::
-CfgModel(const Vector3d& _vec, const size_t _index) : Model("Cfg"),
-    CfgType(_vec, _index), m_mutex(new mutex()) { }
+CfgModel(const Vector3d& _vec, Robot* const _robot) : Model("Cfg"),
+    CfgType(_vec, _robot), m_mutex(new mutex()) { }
 
 CfgModel::
 CfgModel(const CfgType& _c) : Model("Cfg"), CfgType(_c), m_mutex(new mutex()) { }
@@ -32,7 +34,7 @@ SetName() {
 void
 CfgModel::
 SetCfg(const vector<double>& _newCfg) {
-  m_v.assign(_newCfg.begin(), _newCfg.end());
+  m_dofs.assign(_newCfg.begin(), _newCfg.end());
 }
 
 void
@@ -58,17 +60,17 @@ DrawRender() {
     Color4(1 - m_color[0], 1 - m_color[1], 1 - m_color[2], 1);
 
   switch(m_shape) {
-    case Robot:
+    case RobotShape:
       {
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->SetColor(c);
         robot->SetRenderMode(m_renderMode);
-        robot->ConfigureRender(m_v);
+        robot->ConfigureRender(m_dofs);
         robot->DrawRender();
         break;
       }
 
-    case Point:
+    case PointShape:
       glColor4fv(c);
       glBegin(GL_POINTS);
       glVertex3dv(GetPoint());
@@ -85,16 +87,16 @@ DrawSelect() {
     return;
 
   switch(m_shape) {
-    case Robot:
+    case RobotShape:
       {
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->SetRenderMode(m_renderMode);
-        robot->ConfigureRender(m_v);
+        robot->ConfigureRender(m_dofs);
         robot->DrawSelect();
       }
       break;
 
-    case Point:
+    case PointShape:
       glBegin(GL_POINTS);
       glVertex3dv(GetPoint());
       glEnd();
@@ -108,15 +110,15 @@ CfgModel::
 DrawSelected() {
   glDisable(GL_LIGHTING);
   switch(m_shape) {
-    case Robot:
+    case RobotShape:
       {
         shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
         robot->SetRenderMode(WIRE_MODE);
-        robot->ConfigureRender(m_v);
+        robot->ConfigureRender(m_dofs);
         robot->DrawSelectedImpl();
       }
       break;
-    case Point:
+    case PointShape:
       glPointSize(m_pointScale + 3);
       glDisable(GL_LIGHTING);
       glBegin(GL_POINTS);
@@ -132,7 +134,7 @@ DrawPathRobot() {
   shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
   robot->RestoreColor();
   robot->SetRenderMode(SOLID_MODE);
-  robot->ConfigureRender(m_v);
+  robot->ConfigureRender(m_dofs);
   robot->DrawRender();
 }
 
@@ -143,7 +145,7 @@ Print(ostream& _os) const {
     _os << "VID: " << m_index << endl;
 
   _os << "Cfg: ";
-  for(const auto& v : m_v)
+  for(const auto& v : m_dofs)
     _os << v << " ";
   _os << endl;
 

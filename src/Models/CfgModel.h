@@ -20,11 +20,13 @@ using namespace std;
   typedef State CfgType;
 #endif
 
+
 #include "EdgeModel.h"
 #include "Model.h"
 
 template<typename, typename> class CCModel;
 class EdgeModel;
+class Robot;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A drawable configuration model.
@@ -37,13 +39,15 @@ class CfgModel : public Model, public CfgType {
     /// @brief Supported rendering modes for configurations.
     ////////////////////////////////////////////////////////////////////////////
     enum Shape {
-      Robot, ///< Robot rendered at Cfg
-      Point  ///< Point rendered at center of robot's base
+      RobotShape, ///< Robot rendered at Cfg
+      PointShape  ///< Point rendered at center of robot's base
     };
 
     // Construction
-    explicit CfgModel(const size_t _index = 0);
-    explicit CfgModel(const Vector3d& _vec, const size_t _index = 0);
+    //explicit CfgModel(const size_t _index = 0);
+    //explicit CfgModel(const Vector3d& _vec, const size_t _index = 0);
+    explicit CfgModel(Robot* const _robot = nullptr);
+    explicit CfgModel(const Vector3d& _vec, Robot* const _robot = nullptr);
     CfgModel(const CfgType& _c);
     CfgModel(const CfgModel& _c);
 
@@ -53,7 +57,7 @@ class CfgModel : public Model, public CfgType {
     void SetCfg(const vector<double>& _newCfg);
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the data for this configuration.
-    vector<double> GetDataCfg() {return m_v;}
+    vector<double> GetDataCfg() {return m_dofs;}
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Label this cfg as valid or invalid.
     void SetValidity(bool _validity) {m_isValid = _validity;}

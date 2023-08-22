@@ -3,7 +3,8 @@
 
 #include <memory>
 
-#include "Environment/Boundary.h"
+//include "Environment/Boundary.h"
+#include "Geometry/Boundaries/Boundary.h"
 
 #include "Model.h"
 #include "Utilities/Color.h"

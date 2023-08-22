@@ -61,7 +61,7 @@ void
 PathModel::
 Build() {
   CfgModel::Shape tmp = CfgModel::GetShape();
-  CfgModel::SetShape(CfgModel::Robot);
+  CfgModel::SetShape(CfgModel::RobotShape);
 
   glMatrixMode(GL_MODELVIEW);
 

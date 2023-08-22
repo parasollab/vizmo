@@ -6,7 +6,7 @@ using namespace std;
 
 #include "BoundaryModel.h"
 
-class BoundingSphere2D;
+class WorkspaceBoundingSphere;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Implements a spherical boundary.
@@ -16,7 +16,7 @@ class BoundingSphere2DModel : public BoundaryModel {
   public:
 
     // Construction
-    BoundingSphere2DModel(shared_ptr<BoundingSphere2D> _b);
+    BoundingSphere2DModel(shared_ptr<WorkspaceBoundingSphere> _b);
     BoundingSphere2DModel(const Point2d& _c, double _r);
 
     ////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ class BoundingSphere2DModel : public BoundaryModel {
     virtual void Print(ostream& _os) const;
 
   private:
-    shared_ptr<BoundingSphere2D> m_boundingSphere;
+    shared_ptr<WorkspaceBoundingSphere> m_boundingSphere;
 };
 
 #endif

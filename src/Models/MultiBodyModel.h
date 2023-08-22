@@ -7,7 +7,8 @@
 #include <Transformation.h>
 using namespace mathtool;
 
-#include "Environment/MultiBody.h"
+//#include "Environment/MultiBody.h"
+#include "Geometry/Bodies/MultiBody.h"
 
 #include "Model.h"
 

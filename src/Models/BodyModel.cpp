@@ -6,14 +6,16 @@
   #include <GL/glu.h>
 #endif
 
-#include "Environment/Body.h"
-#include "MPProblem/MPProblemBase.h"
+//#include "Environment/Body.h"
+#include "Geometry/Bodies/Body.h"
+//#include "MPProblem/MPProblemBase.h"
+#include "MPProblem/MPProblem.h"
 
 #include "Models/PolyhedronModel.h"
 #include "Utilities/LoadTexture.h"
 
 BodyModel::
-BodyModel(shared_ptr<Body> _b) : TransformableModel("Body"), m_body(_b),
+BodyModel(Body* _b) : TransformableModel("Body"), m_body(_b),
   m_polyhedronModel(new PolyhedronModel(
         (Body::m_modelDataDir == "/" || _b->GetFileName()[0] == '/' ?
          "" : Body::m_modelDataDir) + _b->GetFileName(), _b->GetCOMAdjust())),
@@ -151,7 +153,7 @@ void
 BodyModel::
 Build() {
   if(m_body->IsTextureLoaded()) {
-    m_textureID = LoadTexture(MPProblemBase::GetPath(m_body->GetTexture()));
+    m_textureID = LoadTexture(MPProblem::GetPath(m_body->GetTexture()));
     SetColor(Color4(1, 1, 1, 1));
   }
 }

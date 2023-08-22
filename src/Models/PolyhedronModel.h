@@ -3,7 +3,8 @@
 
 #include <containers/sequential/graph/graph.h>
 
-#include "Environment/GMSPolyhedron.h"
+//#include "Environment/GMSPolyhedron.h"
+#include "Geometry/GMSPolyhedron.h"
 
 #include "Model.h"
 

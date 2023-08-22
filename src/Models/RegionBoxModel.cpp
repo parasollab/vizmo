@@ -3,7 +3,7 @@
 #include <QtGui>
 #include <QApplication>
 
-#include "Environment/BoundingBox.h"
+#include "Geometry/Boundaries/WorkspaceBoundingBox.h"
 
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
@@ -42,7 +42,7 @@ RegionBoxModel(pair<double, double> _xRange, pair<double, double> _yRange,
 shared_ptr<Boundary>
 RegionBoxModel::
 GetBoundary() const {
-  return shared_ptr<Boundary>(new BoundingBox(
+  return shared_ptr<Boundary>(new WorkspaceBoundingBox(
       make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
       make_pair(m_boxVertices[1][1], m_boxVertices[0][1]),
       make_pair(m_boxVertices[4][2], m_boxVertices[0][2])));

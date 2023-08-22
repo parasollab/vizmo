@@ -366,7 +366,7 @@ RefreshEnv() {
 void
 EnvironmentOptions::
 ClickRobot() {
-  CfgModel::SetShape(CfgModel::Robot);
+  CfgModel::SetShape(CfgModel::RobotShape);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
 }
@@ -375,7 +375,7 @@ ClickRobot() {
 void
 EnvironmentOptions::
 ClickPoint() {
-  CfgModel::SetShape(CfgModel::Point);
+  CfgModel::SetShape(CfgModel::PointShape);
   if(GetVizmo().IsQueryLoaded())
     GetVizmo().GetQry()->Build();
 }

@@ -4,7 +4,8 @@
 #include <QMutex>
 #include <QMutexLocker>
 
-#include "Environment/Environment.h"
+//#include "Environment/Environment.h"
+#include "MPProblem/Environment/Environment.h"
 
 #include "Model.h"
 #include "BoundaryModel.h"
