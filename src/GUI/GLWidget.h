@@ -10,6 +10,8 @@
 #include "Utilities/PickBox.h"
 #include "Utilities/TransformTool.h"
 
+#include <QGLWidget>
+
 #ifdef USE_SPACEMOUSE
 #include "Utilities/Cursor3d.h"
 #endif

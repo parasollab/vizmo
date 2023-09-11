@@ -19,8 +19,7 @@ find_library(STAPL ${STAPL_PATH})
 # Add Packages (needs to be installed)
 find_package(Qt6 CONFIG COMPONENTS Core Gui Widgets OpenGL OpenGLWidgets REQUIRED)
 find_package(Eigen3 CONFIG REQUIRED)
-find_package(Bullet CONFIG REQUIRED
-        LinearMath Bullet3Common BulletDynamics BulletSoftBody BulletCollision BulletInverseDynamics)
+find_package(Bullet CONFIG REQUIRED LinearMath Bullet3Common BulletDynamics BulletSoftBody BulletCollision BulletInverseDynamics)
 find_package(modelloader CONFIG REQUIRED)
 find_package(RAPID CONFIG REQUIRED)
 find_package(Tetgen CONFIG REQUIRED)
@@ -62,9 +61,10 @@ target_include_directories(${EXEC}
         PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/stapl/stapl>
-        )
+)
+
 target_include_directories(${EXEC}
         PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/stapl>
-        )
+)
