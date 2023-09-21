@@ -32,7 +32,7 @@ EditRobotDialog(MainWindow* _mainWindow) : QDialog(_mainWindow) {
     if((*mit)->IsActive())
       m_robotBody = *mit;
   */
-  //m_newRobotModel = m_robotBody->GetRobots();
+  //m_newRobotModel = m_robotBody->GetRobotModels();
   m_jointIsInit = false;
   m_baseIsInit = false;
   m_mainWindow = _mainWindow;
@@ -691,7 +691,7 @@ AddBase() {
       bodyCount += rit->second.size() + 1;
     m_robotBody->AddBody(newBase, bodyCount);
     m_robotBody->AddBase(newBase);
-    m_newRobotModel=m_robotBody->GetRobots();
+    m_newRobotModel=m_robotBody->GetRobotModels();
     m_baseList->clear();
     DisplayBases();
     RefreshVizmo();
@@ -748,7 +748,7 @@ AddJoint() {
       m_robotBody->GetBodies()[bodyCount - 1]->AddConnection(c);
       m_newRobotModel[indexBase].second.push_back(c);
       m_robotBody->AddJoint(c, indexBase, jointCount, bodyCount);
-      m_newRobotModel = m_robotBody->GetRobots();
+      m_newRobotModel = m_robotBody->GetRobotModels();
       m_jointList->clear();
       ShowBase();
       RefreshVizmo();
@@ -793,7 +793,7 @@ DeleteJoint() {
     m_robotBody->DeleteJoint(indexBase, indexJoint, bodyNumber);
     m_robotBody->DeleteBody(bodyNumber);
     delete m_jointList->item(indexJoint);
-    m_newRobotModel = m_robotBody->GetRobots();
+    m_newRobotModel = m_robotBody->GetRobotModels();
     DisplayHideJointAttributes(false);
     RefreshVizmo();
   }
@@ -824,7 +824,7 @@ DeleteBase() {
     }
     m_robotBody->DeleteRobot(index);
     m_robotBody->DeleteBody(bodyCount);
-    m_newRobotModel=m_robotBody->GetRobots();
+    m_newRobotModel=m_robotBody->GetRobotModels();
     m_baseList->clear();
     m_jointList->clear();
     DisplayBases();
@@ -844,7 +844,7 @@ CreateNewRobot() {
   m_baseList->clear();
   DisplayHideJointAttributes(false);
   DisplayHideBaseAttributes(false);
-  m_newRobotModel = m_robotBody->GetRobots();
+  m_newRobotModel = m_robotBody->GetRobotModels();
   DisplayBases();*/
 }
 

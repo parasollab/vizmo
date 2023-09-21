@@ -6,6 +6,7 @@
 
 //#include "Environment/Environment.h"
 #include "MPProblem/Environment/Environment.h"
+#include "MPProblem/MPProblem.h"
 
 #include "Model.h"
 #include "BoundaryModel.h"
@@ -72,8 +73,12 @@ class EnvModel : public Model {
     // Robot functions
     ////////////////////////////////////////////////////////////////////////////
     /// @param _i Index of robot
+    /// @return Robot of index @p _i
+    Robot* GetRobot(size_t _i) {return m_problem->GetRobot(_i);}
+    ////////////////////////////////////////////////////////////////////////////
+    /// @param _i Index of robot
     /// @return Robot model of index @p _i
-    shared_ptr<ActiveMultiBodyModel> GetRobot(size_t _i) {return m_robots[_i];}
+    shared_ptr<ActiveMultiBodyModel> GetRobotModel(size_t _i) {return m_robotModels[_i];}
     ////////////////////////////////////////////////////////////////////////////
     /// @brief Initialize robot model positions in environment
     /// @param _cfgs CfgModels to initialize
@@ -216,7 +221,7 @@ class EnvModel : public Model {
 
   private:
 
-    vector<shared_ptr<ActiveMultiBodyModel>> m_robots;    ///< All robots.
+    vector<shared_ptr<ActiveMultiBodyModel>> m_robotModels;    ///< All robots.
     vector<shared_ptr<StaticMultiBodyModel>> m_obstacles; ///< All obstacles.
     vector<shared_ptr<SurfaceMultiBodyModel>> m_surfaces; ///< All surfaces.
 
@@ -239,6 +244,8 @@ class EnvModel : public Model {
     Model* m_graphModel{nullptr};        ///< Graph Model.
 
     Environment* m_environment{nullptr}; ///< The PMPL environment.
+
+    MPProblem* m_problem{nullptr};
 };
 
 #endif

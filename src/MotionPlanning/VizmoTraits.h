@@ -4,6 +4,7 @@
 #include "Cfg/Cfg.h"
 #include "MPProblem/Weight.h"
 
+/*
 //distance metric includes
 #include "DistanceMetrics/BinaryLPSweptDistance.h"
 #include "DistanceMetrics/CenterOfMassDistance.h"
@@ -136,6 +137,7 @@
 #include "RegionStrategy.h"
 #include "RegionRRT.h"
 #include "SparkRegion.h"
+*/
 
 #include "MPProblem/MPProblem.h"
 
@@ -152,6 +154,7 @@ struct VizmoTraits {
 
   //types of distance metrics available in our world
   typedef boost::mpl::list<
+  /*
     BinaryLPSweptDistance<VizmoTraits>,
     CenterOfMassDistance<VizmoTraits>,
     EuclideanDistance<VizmoTraits>,
@@ -161,10 +164,12 @@ struct VizmoTraits {
     MinkowskiDistance<VizmoTraits>,
     RMSDDistance<VizmoTraits>,
     ScaledEuclideanDistance<VizmoTraits>
+    */
       > DistanceMetricMethodList;
 
   //types of validity checkers available in our world
   typedef boost::mpl::list<
+  /*
     AlwaysTrueValidity<VizmoTraits>,
     AvoidRegionValidity<VizmoTraits>,
     CollisionDetectionValidity<VizmoTraits>,
@@ -177,6 +182,7 @@ struct VizmoTraits {
 
   //types of neighborhood finders available in our world
   typedef boost::mpl::list<
+  /*
     BandsNF<VizmoTraits>,
     BruteForceNF<VizmoTraits>,
     CGALNF<VizmoTraits>,
@@ -187,10 +193,12 @@ struct VizmoTraits {
     OptimalNF<VizmoTraits>,
     RadiusNF<VizmoTraits>//,
     //RandomNF<VizmoTraits>
+    */
     > NeighborhoodFinderMethodList;
 
   //types of samplers available in our world
   typedef boost::mpl::list<
+  /*
     BridgeTestSampler<VizmoTraits>,
     GaussianSampler<VizmoTraits>,
     GridSampler<VizmoTraits>,
@@ -202,10 +210,12 @@ struct VizmoTraits {
     UniformObstacleBasedSampler<VizmoTraits>,
     UniformRandomSampler<VizmoTraits>,
     WorkspaceImportanceSampler<VizmoTraits>
+    */
       > SamplerMethodList;
 
   //types of local planners available in our world
   typedef boost::mpl::list<
+  /*
     AStarClearance<VizmoTraits>,
     AStarDistance<VizmoTraits>,
     HierarchicalLP<VizmoTraits>,
@@ -215,10 +225,12 @@ struct VizmoTraits {
     ToggleLP<VizmoTraits>,
     TransformAtS<VizmoTraits>,
     ApproxSpheres<VizmoTraits>
+    */
       > LocalPlannerMethodList;
 
   //types of extenders avaible in our world
   typedef boost::mpl::list<
+  /*
     BasicExtender<VizmoTraits>,
     MedialAxisExtender<VizmoTraits>,
     MixExtender<VizmoTraits>,
@@ -227,19 +239,23 @@ struct VizmoTraits {
     TraceCSpaceObstacle<VizmoTraits>,
     TraceMAPush<VizmoTraits>,
     TraceObstacle<VizmoTraits>
+    */
       > ExtenderMethodList;
 
   //types of path smoothing available in our world
   typedef boost::mpl::list<
+  /*
     CRetractionPathModifier<VizmoTraits>,
     CombinedPathModifier<VizmoTraits>,
     MedialAxisPathModifier<VizmoTraits>,
     ResamplePathModifier<VizmoTraits>,
     ShortcuttingPathModifier<VizmoTraits>
+    */
       > PathModifierMethodList;
 
   //types of connectors available in our world
   typedef boost::mpl::list<
+  /*
     //AdaptiveConnector<VizmoTraits>,
     CCExpansion<VizmoTraits>,
     CCsConnector<VizmoTraits>,
@@ -248,6 +264,7 @@ struct VizmoTraits {
     //PreferentialAttachment<VizmoTraits>,
     //RewireConnector<VizmoTraits>,
     //RRTConnect<VizmoTraits>
+    */
       > ConnectorMethodList;
 
   typedef ConnectivityMetric<VizmoTraits, RoadmapSet<VizmoTraits>>
@@ -266,6 +283,7 @@ struct VizmoTraits {
 
   //types of metrics available in our world
   typedef boost::mpl::list<
+  /*
     CCDistanceMetric<VizmoTraits>,
     ConnectivityMetricRoadmapSet,
     CoverageDistanceMetricRoadmapSet,
@@ -277,10 +295,12 @@ struct VizmoTraits {
     NumEdgesMetric<VizmoTraits>,
     NumNodesMetric<VizmoTraits>,
     TimeMetric<VizmoTraits>
+    */
       > MetricMethodList;
 
   //types of map evaluators available in our world
   typedef boost::mpl::list<
+  /*
     ComposeEvaluator<VizmoTraits>,
     ConditionalEvaluator<VizmoTraits>,
     LazyQuery<VizmoTraits>,
@@ -291,10 +311,12 @@ struct VizmoTraits {
     RRTQuery<VizmoTraits>,
     TimeEvaluator<VizmoTraits>,
     TrueEvaluation<VizmoTraits>
+    */
       > MapEvaluatorMethodList;
 
   //types of motion planning strategies available in our world
   typedef boost::mpl::list<
+  /*
     AdaptiveRRT<VizmoTraits>,
     BasicPRM<VizmoTraits>,
     BasicRRTStrategy<VizmoTraits>,
@@ -321,6 +343,7 @@ struct VizmoTraits {
     RegionStrategy<VizmoTraits>,
     SparkRegion<VizmoTraits>,
     SparkPRM<VizmoTraits, SparkRegion>
+    */
     > MPStrategyMethodList;
 
 };

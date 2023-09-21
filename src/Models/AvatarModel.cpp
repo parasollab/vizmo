@@ -24,7 +24,7 @@ void
 AvatarModel::
 DrawRender() {
   if(m_tracking) {
-    shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+    shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobotModel(m_robotIndex);
 
     if(this->m_isValid) {
       glColor4fv(m_color);

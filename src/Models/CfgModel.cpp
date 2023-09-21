@@ -10,18 +10,22 @@ CfgModel::Shape CfgModel::m_shape = CfgModel::PointShape;
 float CfgModel::m_pointScale = 10;
 
 CfgModel::
-CfgModel(Robot* const _robot) : Model("Cfg"), CfgType(_index),
-    m_mutex(new mutex()) { }
+CfgModel(const size_t _index) : Model("Cfg"), 
+    CfgType(GetVizmo()->GetEnv()->GetRobotModel(_index)),
+    m_robotIndex(_index), m_mutex(new mutex())  { }
 
 CfgModel::
-CfgModel(const Vector3d& _vec, Robot* const _robot) : Model("Cfg"),
-    CfgType(_vec, _robot), m_mutex(new mutex()) { }
+CfgModel(const Vector3d& _vec, const size_t _index) : Model("Cfg"),
+    CfgType(_vec, GetVizmo()->GetEnv()->GetRobotModel(_index)), 
+    m_robotIndex(_index), m_mutex(new mutex()) { }
 
 CfgModel::
-CfgModel(const CfgType& _c) : Model("Cfg"), CfgType(_c), m_mutex(new mutex()) { }
+CfgModel(const CfgType& _c) : Model("Cfg"), CfgType(_c), 
+    m_robotIndex(_c.m_robotIndex), m_mutex(new mutex()) { }
 
 CfgModel::
-CfgModel(const CfgModel& _c) : Model("Cfg"), CfgType(_c), m_mutex(new mutex()) { }
+CfgModel(const CfgModel& _c) : Model("Cfg"), CfgType(_c),
+    m_robotIndex(_c.m_robotIndex), m_mutex(new mutex()) { }
 
 void
 CfgModel::
@@ -62,7 +66,7 @@ DrawRender() {
   switch(m_shape) {
     case RobotShape:
       {
-        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobotModel(m_robotIndex);
         robot->SetColor(c);
         robot->SetRenderMode(m_renderMode);
         robot->ConfigureRender(m_dofs);
@@ -89,7 +93,7 @@ DrawSelect() {
   switch(m_shape) {
     case RobotShape:
       {
-        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobotModel(m_robotIndex);
         robot->SetRenderMode(m_renderMode);
         robot->ConfigureRender(m_dofs);
         robot->DrawSelect();
@@ -112,7 +116,7 @@ DrawSelected() {
   switch(m_shape) {
     case RobotShape:
       {
-        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+        shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobotModel(m_robotIndex);
         robot->SetRenderMode(WIRE_MODE);
         robot->ConfigureRender(m_dofs);
         robot->DrawSelectedImpl();
@@ -131,7 +135,7 @@ DrawSelected() {
 void
 CfgModel::
 DrawPathRobot() {
-  shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobot(m_robotIndex);
+  shared_ptr<ActiveMultiBodyModel> robot = GetVizmo().GetEnv()->GetRobotModel(m_robotIndex);
   robot->RestoreColor();
   robot->SetRenderMode(SOLID_MODE);
   robot->ConfigureRender(m_dofs);

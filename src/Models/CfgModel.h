@@ -26,7 +26,6 @@ using namespace std;
 
 template<typename, typename> class CCModel;
 class EdgeModel;
-class Robot;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A drawable configuration model.
@@ -44,10 +43,8 @@ class CfgModel : public Model, public CfgType {
     };
 
     // Construction
-    //explicit CfgModel(const size_t _index = 0);
-    //explicit CfgModel(const Vector3d& _vec, const size_t _index = 0);
-    explicit CfgModel(Robot* const _robot = nullptr);
-    explicit CfgModel(const Vector3d& _vec, Robot* const _robot = nullptr);
+    explicit CfgModel(const size_t _index = 0);
+    explicit CfgModel(const Vector3d& _vec, const size_t _index = 0);
     CfgModel(const CfgType& _c);
     CfgModel(const CfgModel& _c);
 
@@ -85,6 +82,8 @@ class CfgModel : public Model, public CfgType {
     /// \brief Set this configuration's VID and CC.
     void Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc);
 
+    size_t GetRobotIndex() {return m_robotIndex;}
+
     // Class functions - rendering
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Set the current cfg rendering mode.
@@ -121,6 +120,8 @@ class CfgModel : public Model, public CfgType {
   protected:
 
     bool m_isValid{true}; ///< Was the last collision check valid?
+
+    size_t m_robotIndex;
 
   private:
 

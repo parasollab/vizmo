@@ -33,8 +33,11 @@
 
 EnvModel::
 EnvModel(const string& _filename) : Model("Environment") {
-  m_environment = new Environment();
-  m_environment->Read(_filename);
+  //m_environment = new Environment();
+  //m_environment->Read(_filename);
+
+  m_problem = new MPProblem(_filename);
+  m_environment = m_problem->GetEnvironment();
 
   Build();
 
@@ -44,7 +47,10 @@ EnvModel(const string& _filename) : Model("Environment") {
 
 
 EnvModel::
-EnvModel(Environment* _env) : Model("Environment"), m_environment(_env) {
+//EnvModel(Environment* _env) : Model("Environment"), m_environment(_env) {
+EnvModel(MPProblem* _prob) : Model("Environment"), m_problem(_prob) {
+  m_environment = m_problem->GetEnvironment();
+
   Build();
 
   //create avatar
@@ -73,7 +79,7 @@ GetCenter() const {
 bool
 EnvModel::
 IsPlanar() const {
-  for(auto& r : m_robots)
+  for(auto& r : m_robotModels)
     if(!r->IsPlanar())
       return false;
   return true;
@@ -83,7 +89,7 @@ IsPlanar() const {
 void
 EnvModel::
 PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
-  for(auto& r : m_robots) {
+  for(auto& r : m_robotModels) {
     vector<double> cfg(r->Dofs(), 0);
     r->SetInitialCfg(cfg);
     if(_invisible)
@@ -92,7 +98,7 @@ PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
     m_avatar->SetCfg(cfg);
   }
   for(const auto& cfg : _cfgs) {
-    m_robots[cfg.GetRobotIndex()]->SetInitialCfg(cfg.GetData());
+    m_robotModels[cfg.GetRobotIndex()]->SetInitialCfg(cfg.GetData());
     m_avatar->SetCfg(cfg.GetData());
   }
 }
@@ -101,7 +107,7 @@ PlaceRobots(vector<CfgModel>& _cfgs, bool _invisible) {
 void
 EnvModel::
 ConfigureRender(const CfgModel& _c) {
-  m_robots[_c.GetRobotIndex()]->ConfigureRender(_c.GetData());
+  m_robotModels[_c.GetRobotIndex()]->ConfigureRender(_c.GetData());
 }
 
 
@@ -460,9 +466,9 @@ Build() {
     throw RunTimeException(WHERE, "Failed casting Boundary.");
 
   //construct multibody model
-  for(size_t i = 0; i < m_environment->NumRobots(); ++i)
-    m_robots.emplace_back(
-        new ActiveMultiBodyModel(m_environment->GetRobot(i)));
+  for(size_t i = 0; i < m_problem->NumRobots(); ++i)
+    m_robotModels.emplace_back(
+        new ActiveMultiBodyModel(m_problem->GetRobot(i)->GetMultiBody()));
   for(size_t i = 0; i < m_environment->NumObstacles(); ++i)
     m_obstacles.emplace_back(
         new StaticMultiBodyModel(m_environment->GetObstacle(i)));
@@ -477,7 +483,7 @@ Build() {
 
   //Build each
   //MultiBodyModel::ClearDOFInfo();
-  for(auto& r : m_robots)
+  for(auto& r : m_robotModels)
     r->Build();
   for(auto& o : m_obstacles) {
     o->Build();
@@ -520,7 +526,7 @@ Select(GLuint* _index, vector<Model*>& _sel) {
       m_boundary->Select(_index + 1, _sel);
       break;
     case EnvObjectName::Robots:
-      m_robots[*(_index + 1)]->Select(_index + 2, _sel);
+      m_robotModels[*(_index + 1)]->Select(_index + 2, _sel);
       break;
     case EnvObjectName::Obstacles:
       m_obstacles[*(_index + 1)]->Select(_index + 2, _sel);
@@ -560,7 +566,7 @@ DrawRender() {
   m_boundary->DrawRender();
 
   glLineWidth(1);
-  for(auto& r : m_robots) {
+  for(auto& r : m_robotModels) {
     r->Restore();
     r->DrawRender();
   }
@@ -605,7 +611,7 @@ DrawSelect() {
   size_t nameIndx = 0;
 
   glPushName(EnvObjectName::Robots);
-  for(auto& r : m_robots) {
+  for(auto& r : m_robotModels) {
     glPushName(nameIndx++);
     r->Restore();
     r->DrawSelect();
@@ -698,7 +704,7 @@ EnvModel::
 Print(ostream& _os) const {
   _os << Name() << endl
     << "\t" << m_environment->GetEnvFileName() << endl
-    << "\t" << m_robots.size() << " robots" << endl;
+    << "\t" << m_robotModels.size() << " robots" << endl;
   if(!m_obstacles.empty())
     _os << "\t" << m_obstacles.size() << " obstacles" << endl;
   if(!m_surfaces.empty())
@@ -709,7 +715,7 @@ Print(ostream& _os) const {
 void
 EnvModel::
 ChangeColor() {
-  for(const auto& r : m_robots)
+  for(const auto& r : m_robotModels)
     r->SetColor(Color4(DRand(), DRand(), DRand(), 1));
   for(const auto& o : m_obstacles)
     o->SetColor(Color4(DRand(), DRand(), DRand(), 1));
@@ -722,7 +728,7 @@ void
 EnvModel::
 SetSelectable(bool _s) {
   m_selectable = _s;
-  for(const auto& r : m_robots)
+  for(const auto& r : m_robotModels)
     r->SetSelectable(_s);
   for(const auto& o : m_obstacles)
     o->SetSelectable(_s);
@@ -739,7 +745,7 @@ SetSelectable(bool _s) {
 void
 EnvModel::
 GetChildren(list<Model*>& _models) {
-  for(const auto& r : m_robots)
+  for(const auto& r : m_robotModels)
     _models.push_back(r.get());
   for(const auto& o : m_obstacles)
     _models.push_back(o.get());
