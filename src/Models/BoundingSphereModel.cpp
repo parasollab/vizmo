@@ -7,7 +7,7 @@
 #include "Utilities/GLUtils.h"
 
 BoundingSphereModel::
-BoundingSphereModel(shared_ptr<WorkspaceBoundingSphere> _b) :
+BoundingSphereModel(WorkspaceBoundingSphere* _b) :
     BoundaryModel("Bounding Sphere", _b), m_boundingSphere(_b) {
   auto center = m_boundingSphere->GetCenter();
   m_center = Point3d(center[0],center[1],center[2]);
@@ -17,7 +17,8 @@ BoundingSphereModel(shared_ptr<WorkspaceBoundingSphere> _b) :
 BoundingSphereModel::
 BoundingSphereModel(const Point3d& _c, double _r) :
     BoundaryModel("Bounding Sphere", NULL) {
-  m_boundingSphere = shared_ptr<WorkspaceBoundingSphere>(new WorkspaceBoundingSphere(_c, _r));
+  //m_boundingSphere = shared_ptr<WorkspaceBoundingSphere>(new WorkspaceBoundingSphere(_c, _r));
+  m_boundingSphere = new WorkspaceBoundingSphere(_c, _r);
   m_boundary = m_boundingSphere;
   auto center = m_boundingSphere->GetCenter();
   m_center = Point3d(center[0],center[1],center[2]);

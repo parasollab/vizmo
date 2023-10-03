@@ -303,8 +303,8 @@ BuildForward() {
 
       VID svId = m_mapModel->Cfg2VID(ae->m_source);
       VID tvId = m_mapModel->Cfg2VID(ae->m_target);
-      CfgModel& source = m_mapModel->GetGraph()->find_vertex(svId)->property();
-      CfgModel& target = m_mapModel->GetGraph()->find_vertex(tvId)->property();
+      CfgModel& source = m_mapModel->GetGraph()->GetVertex(svId);
+      CfgModel& target = m_mapModel->GetGraph()->GetVertex(tvId);
 
       //set properties of edge and increase the edge count
       edge.Set(m_edgeNum++, &source, &target);
@@ -340,15 +340,15 @@ BuildForward() {
       //set color of new edge to that of larger cc
       edge.SetColor(color);
       //add edge
-      m_mapModel->GetGraph()->add_edge(svId, tvId, edge);
-      m_mapModel->GetGraph()->add_edge(tvId, svId, edge);
+      m_mapModel->GetGraph()->AddEdge(svId, tvId, edge);
+      m_mapModel->GetGraph()->AddEdge(tvId, svId, edge);
     }
     else if(ins->m_name == "AddTempCfg"){
       //add temporary cfg
       AddTempCfg* atc = static_cast<AddTempCfg*>(ins);
       m_tempCfgs.push_back(atc->m_cfg);
       m_tempCfgs.back().Set(0, NULL);
-      m_tempCfgs.back().SetShape(CfgModel::Robot);
+      m_tempCfgs.back().SetShape(CfgModel::RobotShape);
       if(!atc->m_valid)
         m_tempCfgs.back().SetColor(Color4(1, 0, 0, 1));
     }
@@ -413,7 +413,7 @@ BuildForward() {
       //remove an existing node
       RemoveNode* rn = static_cast<RemoveNode*>(ins);
       VID xvId = m_mapModel->Cfg2VID(rn->m_cfg);
-      m_mapModel->GetGraph()->delete_vertex(xvId);
+      m_mapModel->GetGraph()->DeleteVertex(xvId);
     }
     else if(ins->m_name == "RemoveEdge"){
       //remove an existing edge
@@ -423,14 +423,16 @@ BuildForward() {
 
       //store ID of edge being removed
       //to be restored in BuildBackward
-      EID eid(svId, tvId);
-      VI vi;
-      EI ei;
-      m_mapModel->GetGraph()->find_edge(eid,vi,ei);
-      re->m_edgeNum = (*ei).property().GetID();
+      //EID eid(svId, tvId);
+      //VI vi;
+      //EI ei;
+      //m_mapModel->GetGraph()->GetEdge(eid,vi,ei);
+      auto edge = m_mapModel->GetGraph()->GetEdge(svId,tvId);
+      //re->m_edgeNum = (*ei).property().GetID();
+      re->m_edgeNum = edge.GetID();
 
-      m_mapModel->GetGraph()->delete_edge(svId, tvId);
-      m_mapModel->GetGraph()->delete_edge(tvId, svId);
+      m_mapModel->GetGraph()->DeleteEdge(svId, tvId);
+      m_mapModel->GetGraph()->DeleteEdge(tvId, svId);
     }
     else if(ins->m_name == "Comment") {
       //add comment
@@ -457,7 +459,7 @@ BuildForward() {
       CfgModel target;
       if(path.size()>0) {
         for(ITVID pit = path.begin()+1; pit != path.end(); pit++){
-          target = m_mapModel->GetGraph()->find_vertex(*pit)->property();
+          target = m_mapModel->GetGraph()->GetVertex(*pit);
           EdgeModel e("", 1);
           e.Set(1, &source, &target);
           m_query.push_back(e);
@@ -507,7 +509,7 @@ BuildBackward() {
       //undo addition of specified node
       AddNode* an = static_cast<AddNode*>(ins);
       VID xvId = m_mapModel->Cfg2VID(an->m_cfg);
-      m_mapModel->GetGraph()->delete_vertex(xvId);
+      m_mapModel->GetGraph()->DeleteVertex(xvId);
     }
     else if(ins->m_name == "AddEdge"){
       //undo addition of edge and restore original colors of CCs
@@ -517,8 +519,8 @@ BuildBackward() {
       Color4 color;
 
       //remove both the forward and reverse edge
-      m_mapModel->GetGraph()->delete_edge(svId, tvId);
-      m_mapModel->GetGraph()->delete_edge(tvId, svId);
+      m_mapModel->GetGraph()->DeleteEdge(svId, tvId);
+      m_mapModel->GetGraph()->DeleteEdge(tvId, svId);
 
       vector<VID> nIdCC1; //node id in this cc
       vector<VID> nIdCC2; //node id in this cc
@@ -627,8 +629,8 @@ BuildBackward() {
 
       //restore edge number of edge
       edge.Set(re->m_edgeNum, &re->m_source, &re->m_target);
-      m_mapModel->GetGraph()->add_edge(svId, tvId, edge);
-      m_mapModel->GetGraph()->add_edge(tvId, svId, edge);
+      m_mapModel->GetGraph()->AddEdge(svId, tvId, edge);
+      m_mapModel->GetGraph()->AddEdge(tvId, svId, edge);
     }
     else if(ins->m_name == "Comment") {
       //undo addition of comment

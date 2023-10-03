@@ -13,19 +13,20 @@
 #include "Geometry/Boundaries/WorkspaceBoundingBox.h"
 
 BoundingBox2DModel::
-BoundingBox2DModel(shared_ptr<WorkspaceBoundingBox> _b) :
+BoundingBox2DModel(WorkspaceBoundingBox* _b) :
   BoundaryModel("Bounding Box", _b),
   m_boundingBox(_b) {
     Build();
   }
 
+// See comments for same constructor in BoundingBoxModel
 BoundingBox2DModel::
 BoundingBox2DModel(const pair<double, double>& _x,
     const pair<double, double>& _y) :
   BoundaryModel("Bounding Box", NULL) {
     std::vector<double> center = {0.,0.};
     std::vector<std::pair<double,double>> bbx = {_x,_y};
-    m_boundingBox = shared_ptr<WorkspaceBoundingBox>(new WorkspaceBoundingBox(center));
+    m_boundingBox = new WorkspaceBoundingBox(center);
     m_boundingBox->ResetBoundary(bbx,0.);
     m_boundary = m_boundingBox;
     Build();

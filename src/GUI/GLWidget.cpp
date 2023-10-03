@@ -31,7 +31,7 @@ int bs = qRegisterMetaType<Point3d>("Point3d");
 //This class handle opengl features
 
 GLWidget::
-GLWidget(QWidget* _parent) : QGLWidget(_parent),
+GLWidget(QWidget* _parent) : QOpenGLWidget(_parent),
     m_camera(Point3d(0, 0, 500), Vector3d(0, 0, 0)),
     m_transformTool(NULL), m_currentRegion(), m_currentUserPath(NULL) {
   setMinimumSize(271, 211); //original size: 400 x 600
@@ -352,7 +352,7 @@ SaveImage(QString _filename, bool _crop) {
   //grab the gl scene. Copy into new QImage with size of imageRect. This will
   //crop the image appropriately.
   QRect imageRect = GetImageRect(_crop);
-  QImage crop = grabFrameBuffer().copy(imageRect);
+  QImage crop = grabFramebuffer().copy(imageRect);
   crop.save(_filename);
 }
 

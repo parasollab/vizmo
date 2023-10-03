@@ -19,7 +19,7 @@ class FileListDialog : public QDialog {
   public:
 
     FileListDialog(const vector<string>& _filename, QWidget* _parent,
-        Qt::WindowFlags _f = 0);
+        Qt::WindowFlags _f = Qt::WindowFlags());
 
   public slots:
 

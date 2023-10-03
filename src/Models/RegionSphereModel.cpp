@@ -3,7 +3,7 @@
 #include <QtGui>
 #include <QApplication>
 
-#include "Environment/BoundingSphere.h"
+#include "Geometry/Boundaries/WorkspaceBoundingSphere.h"
 
 #include "Models/Vizmo.h"
 #include "Utilities/Camera.h"
@@ -22,7 +22,7 @@ RegionSphereModel(const Point3d& _center, double _radius, bool _firstClick) :
 shared_ptr<Boundary>
 RegionSphereModel::
 GetBoundary() const {
-  return shared_ptr<Boundary>(new BoundingSphere(m_center, m_radius));
+  return shared_ptr<Boundary>(new WorkspaceBoundingSphere(m_center, m_radius));
 }
 
 //initialization of gl models

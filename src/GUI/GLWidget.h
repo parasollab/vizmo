@@ -10,7 +10,7 @@
 #include "Utilities/PickBox.h"
 #include "Utilities/TransformTool.h"
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
 
 #ifdef USE_SPACEMOUSE
 #include "Utilities/Cursor3d.h"
@@ -25,7 +25,7 @@ class UserPathModel;
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  Creates and manages Vizmo's OpenGL scene.
 ////////////////////////////////////////////////////////////////////////////////
-class GLWidget : public QGLWidget {
+class GLWidget : public QOpenGLWidget {
 
   Q_OBJECT
 

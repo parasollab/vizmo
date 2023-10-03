@@ -5,10 +5,16 @@
 #include <string>
 using namespace std;
 
-#include <QTime>
+#include <QElapsedTimer>
 
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
+
+#ifdef PMPCfg
+#include "MotionPlanning/VizmoTraits.h"
+#elif defined(PMPState)
+#include "MotionPlanning/VizmoStateTraits.h"
+#endif
 
 //class ActiveMultiBodyModel;
 class Box;
@@ -20,6 +26,7 @@ class PathModel;
 class QueryModel;
 namespace Haptics {class Manager;}
 class SpaceMouseManager;
+template <typename> class MPLibraryType;
 
 //Define singleton
 class Vizmo;
@@ -216,6 +223,8 @@ class Vizmo {
 
     ///@}
 
+    MPLibraryType<VizmoTraits>* GetMPLibrary() const {return m_library;}
+
   private:
 
     ////////////////////////////////////////////////////////////////////////////
@@ -267,7 +276,9 @@ class Vizmo {
     ///@{
 
     long m_seed;                               ///< The program's random seed.
-    map<string, pair<QTime, double>> m_timers; ///< Timers.
+    map<string, pair<QElapsedTimer, double>> m_timers; ///< Timers.
+
+    MPLibraryType<VizmoTraits>* m_library{nullptr};
 
     ///@}
 };

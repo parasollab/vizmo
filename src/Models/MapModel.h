@@ -33,8 +33,8 @@ class MapModel : public LoadableModel {
     typedef CCModel<CFG, WEIGHT> CCM;
     typedef typename vector<CCM*>::iterator CCIT;
     //typedef RoadmapGraph<CFG, WEIGHT> RGraph;
-    typedef GenericStateGraph<CFG, WEIGHT> RGraph;
-    typedef typename RGraph::GRAPH  Graph;
+    typedef GenericStateGraph<CFG, WEIGHT> Graph;
+    //typedef typename RGraph::GRAPH  Graph;
     typedef typename Graph::vertex_descriptor VID;
     typedef typename Graph::vertex_iterator VI;
     typedef typename Graph::edge_descriptor EID;
@@ -43,14 +43,14 @@ class MapModel : public LoadableModel {
     typedef stapl::sequential::edge_property_map<Graph, EdgeAccess> EdgeMap;
 
     MapModel();
-    MapModel(RGraph* _g);
+    MapModel(Graph* _g);
     MapModel(const string& _filename);
     ~MapModel();
 
     //Access functions
     const string& GetEnvFileName() const {return m_envFileName;}
     void SetEnvFileName(const string& _name) {m_envFileName = _name;}
-    RGraph* GetGraph() {return m_graph;}
+    Graph* GetGraph() {return m_graph;}
 
     VID Cfg2VID(const CFG& _target);
 
@@ -84,7 +84,7 @@ class MapModel : public LoadableModel {
     string m_envFileName;
 
     vector<CCM*> m_ccModels;
-    RGraph* m_graph;
+    Graph* m_graph;
 
     bool m_delGraph;
 
@@ -95,12 +95,12 @@ template <class CFG, class WEIGHT>
 MapModel<CFG, WEIGHT>::
 MapModel() : LoadableModel("Map"), m_delGraph(true) {
   m_renderMode = INVISIBLE_MODE;
-  m_graph = new RGraph();
+  m_graph = new Graph();
 }
 
 template <class CFG, class WEIGHT>
 MapModel<CFG, WEIGHT>::
-MapModel(RGraph* _g) : LoadableModel("Map"), m_graph(_g), m_delGraph(false) {
+MapModel(Graph* _g) : LoadableModel("Map"), m_graph(_g), m_delGraph(false) {
   m_renderMode = SOLID_MODE;
   Build();
 }
@@ -111,7 +111,7 @@ MapModel<CFG, WEIGHT>::
 MapModel(const string& _filename) : LoadableModel("Map"), m_delGraph(true) {
   SetFilename(_filename);
   m_renderMode = INVISIBLE_MODE;
-  m_graph = new RGraph();
+  m_graph = new Graph();
 
   ParseFile();
   Build();
@@ -144,7 +144,7 @@ ParseFile() {
   getline(ifs, s);
 
   //Get Graph Data
-  read_graph(*m_graph, ifs);
+  Read(m_graph, GetFilename());
 }
 
 template <class CFG, class WEIGHT>
@@ -281,11 +281,13 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::
 RefreshMap(bool lock) {
-  QMutexLocker* locker = NULL;
-  if(lock)
-    locker = new QMutexLocker(&m_lock);
-  Build();
-  delete locker;
+  //QMutexLocker* locker = NULL;
+  if(lock) {
+    QMutexLocker locker(&m_lock);
+    Build();
+  }
+  else
+    Build();
 }
 
 #endif

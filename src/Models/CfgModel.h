@@ -45,6 +45,7 @@ class CfgModel : public Model, public CfgType {
     // Construction
     explicit CfgModel(const size_t _index = 0);
     explicit CfgModel(const Vector3d& _vec, const size_t _index = 0);
+    explicit CfgModel(Robot* _robot);
     CfgModel(const CfgType& _c);
     CfgModel(const CfgModel& _c);
 
@@ -82,7 +83,7 @@ class CfgModel : public Model, public CfgType {
     /// \brief Set this configuration's VID and CC.
     void Set(size_t _index, CCModel<CfgModel, EdgeModel>* _cc);
 
-    size_t GetRobotIndex() {return m_robotIndex;}
+    size_t GetRobotIndex() const {return m_robotIndex;}
 
     // Class functions - rendering
     ////////////////////////////////////////////////////////////////////////////

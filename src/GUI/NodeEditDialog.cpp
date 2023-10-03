@@ -15,6 +15,8 @@
 #include "MainWindow.h"
 #include "ModelSelectionWidget.h"
 
+#include "Geometry/Boundaries/CSpaceBoundingBox.h"
+
 #include "Models/ActiveMultiBodyModel.h"
 #include "Models/BoundingBoxModel.h"
 #include "Models/BoundingSphereModel.h"
@@ -259,18 +261,19 @@ Init() {
 void
 NodeEditDialog::
 SetUpSliders(vector<NodeEditSlider*>& _sliders) {
-  const vector<ActiveMultiBody::DofInfo>& dofInfo =
+  //const vector<ActiveMultiBody::DofInfo>& dofInfo =
+  const vector<DofInfo>& dofInfo =
     GetVizmo().GetEnv()->GetRobotModel(m_tempNode->GetRobotIndex())->GetDOFInfo();
   QSignalMapper* sliderMapper = new QSignalMapper(this);
   connect(sliderMapper, SIGNAL(mapped(int)), this, SLOT(UpdateDOF(int)));
 
   for(size_t i = 0; i < dofInfo.size(); i++) {
-    NodeEditSlider* s = new NodeEditSlider(this, dofInfo[i].m_name);
+    NodeEditSlider* s = new NodeEditSlider(this, dofInfo[i].name);
     QSlider* actualSlider = s->GetSlider();
     QLineEdit* dofValue = s->GetDOFValue();
 
-    double minVal = dofInfo[i].m_minVal;
-    double maxVal = dofInfo[i].m_maxVal;
+    double minVal = dofInfo[i].range.min;
+    double maxVal = dofInfo[i].range.max;
     actualSlider->setRange(100000*minVal, 100000*maxVal);
     dofValue->setValidator(new NodeEditValidator(minVal, maxVal, 5, dofValue));
 
@@ -317,7 +320,7 @@ NodeEditDialog::
 ValidityCheck() {
   // Check temp node.
   if(GetVizmo().GetEnv()->GetRobot(m_tempNode->GetRobotIndex())->
-      InCSpace(m_tempNode->GetData())) {
+      GetCSpace()->InBoundary(m_tempNode->GetData())) {
     m_tempNode->SetValidity(true);
     GetVizmo().CollisionCheck(*m_tempNode);
   }
@@ -375,8 +378,10 @@ FinalizeNodeEdit(int _accepted) {
           if(!edge->IsValid()) {
             VID start = map->Cfg2VID(*(edge->GetStartCfg()));
             VID end = map->Cfg2VID(*(edge->GetEndCfg()));
-            graph->delete_edge(start, end);
-            graph->delete_edge(end, start);
+            //graph->delete_edge(start, end);
+            //graph->delete_edge(end, start);
+            graph->DeleteEdge(start, end);
+            graph->DeleteEdge(end, start);
           }
         }
       }
@@ -406,7 +411,8 @@ FinalizeNodeAdd(int _accepted) {
       if(m_tempNode->IsValid()) {
         CfgModel newNode = *m_tempNode;
         newNode.SetRenderMode(SOLID_MODE);
-        graph->add_vertex(newNode);
+        //graph->add_vertex(newNode);
+        graph->AddVertex(newNode);
         map->RefreshMap();
       }
       else
@@ -427,7 +433,8 @@ FinalizeNodeMerge(int _accepted) {
     if(m_tempNode->IsValid()) {
       CfgModel super = *m_tempNode;
       super.SetRenderMode(SOLID_MODE);
-      Map::VID superID = graph->add_vertex(super);
+      //Map::VID superID = graph->add_vertex(super);
+      Map::VID superID = graph->AddVertex(super);
 
       //Add the valid new edges
       for(auto m : m_tempObjs) {
@@ -437,14 +444,17 @@ FinalizeNodeMerge(int _accepted) {
         auto edge = static_cast<EdgeModel*>(m);
 
         if(edge->IsValid()) {
-          graph->add_edge(superID, map->Cfg2VID(*edge->GetEndCfg()));
-          graph->add_edge(map->Cfg2VID(*edge->GetEndCfg()), superID);
+          //graph->add_edge(superID, map->Cfg2VID(*edge->GetEndCfg()));
+          //graph->add_edge(map->Cfg2VID(*edge->GetEndCfg()), superID);
+          graph->AddEdge(superID, map->Cfg2VID(*edge->GetEndCfg()));
+          graph->AddEdge(map->Cfg2VID(*edge->GetEndCfg()), superID);
         }
       }
 
       //Remove selected vertices
       for(const auto vid : m_nodesToDelete)
-        graph->delete_vertex(vid);
+        graph->DeleteVertex(vid);
+        //graph->delete_vertex(vid);
 
       map->RefreshMap();
     }
@@ -458,13 +468,13 @@ FinalizeNodeMerge(int _accepted) {
 void
 NodeEditDialog::
 DumpRobotInfo() {
-  auto robot = m_tempNode->GetRobot();
+  auto robot = m_tempNode->GetRobot()->GetMultiBody();
   cout << "Robot info (as in env file):\n\n";
   robot->Write(std::cout);
 
   cout << "\nBody transforms:";
-  for(size_t i = 0; i < robot->NumFreeBody(); ++i)
+  for(size_t i = 0; i < robot->GetNumBodies(); ++i)
     cout << "\n\tBody " << i << ": "
-         << robot->GetFreeBody(i)->GetWorldTransformation();
+         << robot->GetBody(i)->GetWorldTransformation();
   cout << endl;
 }

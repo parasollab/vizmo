@@ -16,7 +16,7 @@ class BoundaryModel : public Model {
   public:
 
     // Construction
-    BoundaryModel(const string& _name, shared_ptr<Boundary> _b);
+    BoundaryModel(const string& _name, Boundary* _b);
     virtual ~BoundaryModel();
 
     // Model functions
@@ -37,10 +37,10 @@ class BoundaryModel : public Model {
 
     const Point3d& GetCenter() const {return m_center;} ///< Get the center point.
 
-    shared_ptr<Boundary>& GetBoundary() {return m_boundary;}
+    Boundary* GetBoundary() {return m_boundary;}
 
   protected:
-    shared_ptr<Boundary> m_boundary;
+    Boundary* m_boundary;
 
     size_t m_displayID; ///< This model's ID in the rendering call list.
     size_t m_linesID;   ///< This model's ID in the selection call list.

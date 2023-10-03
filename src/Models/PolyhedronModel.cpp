@@ -342,8 +342,9 @@ BuildModelGraph(IModel* _model) {
   const TriVector& tris = _model->GetTriP();
 
   //create nodes
-  for(size_t i = 0; i < points.size(); ++i)
+  for(size_t i = 0; i < points.size(); ++i) {
     m_modelGraph.add_vertex(i, i);
+  }
 
   //create edge from triangles
   for(size_t i = 0; i < tris.size(); ++i) {

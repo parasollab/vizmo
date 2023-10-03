@@ -3,14 +3,14 @@
 
 #include "StaticMultiBodyModel.h"
 
-class SurfaceMultiBody;
+class MultiBody;
 
 class SurfaceMultiBodyModel : public StaticMultiBodyModel {
   public:
-    SurfaceMultiBodyModel(shared_ptr<SurfaceMultiBody> _s);
+    SurfaceMultiBodyModel(MultiBody* _s);
 
   private:
-    shared_ptr<SurfaceMultiBody> m_surfaceMultiBody;
+    MultiBody* m_surfaceMultiBody;
 };
 
 #endif

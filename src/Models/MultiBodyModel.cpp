@@ -14,7 +14,7 @@
 //vector<MultiBodyModel::DOFInfo> MultiBodyModel::m_dofInfo = vector<MultiBodyModel::DOFInfo>();
 
 MultiBodyModel::
-MultiBodyModel(string _name, shared_ptr<MultiBody> _m) :
+MultiBodyModel(string _name, MultiBody* _m) :
   Model(_name), m_multiBody(_m) {
   }
 

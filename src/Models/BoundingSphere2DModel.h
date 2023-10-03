@@ -16,7 +16,7 @@ class BoundingSphere2DModel : public BoundaryModel {
   public:
 
     // Construction
-    BoundingSphere2DModel(shared_ptr<WorkspaceBoundingSphere> _b);
+    BoundingSphere2DModel(WorkspaceBoundingSphere* _b);
     BoundingSphere2DModel(const Point2d& _c, double _r);
 
     ////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ class BoundingSphere2DModel : public BoundaryModel {
     virtual void Print(ostream& _os) const;
 
   private:
-    shared_ptr<WorkspaceBoundingSphere> m_boundingSphere;
+    WorkspaceBoundingSphere* m_boundingSphere;
 };
 
 #endif

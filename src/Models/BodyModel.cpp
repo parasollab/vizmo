@@ -18,7 +18,9 @@ BodyModel::
 BodyModel(Body* _b) : TransformableModel("Body"), m_body(_b),
   m_polyhedronModel(new PolyhedronModel(
         (Body::m_modelDataDir == "/" || _b->GetFileName()[0] == '/' ?
-         "" : Body::m_modelDataDir) + _b->GetFileName(), _b->GetCOMAdjust())),
+        // TODO::Either remove COMadjust in PPL or make is accessible through body again
+         "" : Body::m_modelDataDir) + _b->GetFileName(), GMSPolyhedron::COMAdjust::None)),
+         //"" : Body::m_modelDataDir) + _b->GetFileName(), _b->GetCOMAdjust())),
   m_textureID(-1) {
     SetTransform(_b->GetWorldTransformation());
   }
@@ -153,7 +155,9 @@ void
 BodyModel::
 Build() {
   if(m_body->IsTextureLoaded()) {
-    m_textureID = LoadTexture(MPProblem::GetPath(m_body->GetTexture()));
+    // TODO::Get proper path to texture file
+    //m_textureID = LoadTexture(MPProblem::GetPath(m_body->GetTexture()));
+    m_textureID = LoadTexture(m_body->GetTexture());
     SetColor(Color4(1, 1, 1, 1));
   }
 }

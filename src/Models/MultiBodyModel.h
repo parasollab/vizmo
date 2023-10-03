@@ -19,7 +19,7 @@ class EnvModel;
 class MultiBodyModel : public Model {
   public:
 
-    MultiBodyModel(string _name, shared_ptr<MultiBody> _m);
+    MultiBodyModel(string _name, MultiBody* _m);
     ~MultiBodyModel();
 
     //access properties
@@ -59,7 +59,7 @@ class MultiBodyModel : public Model {
   protected:
     vector<BodyModel*> m_bodies;       //complete list of all bodies
   private:
-    shared_ptr<MultiBody> m_multiBody;
+    MultiBody* m_multiBody;
 };
 
 #endif

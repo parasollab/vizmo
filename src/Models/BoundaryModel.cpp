@@ -3,7 +3,7 @@
 #include "Geometry/Boundaries/Boundary.h"
 
 BoundaryModel::
-BoundaryModel(const string& _name, shared_ptr<Boundary> _b) :
+BoundaryModel(const string& _name, Boundary* _b) :
   Model(_name), m_boundary(_b),
   m_displayID(-1), m_linesID(-1) {
   }

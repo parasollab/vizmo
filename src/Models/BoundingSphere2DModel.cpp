@@ -9,7 +9,7 @@
 #include "Utilities/GLUtils.h"
 
 BoundingSphere2DModel::
-BoundingSphere2DModel(shared_ptr<WorkspaceBoundingSphere> _b) :
+BoundingSphere2DModel(WorkspaceBoundingSphere* _b) :
     BoundaryModel("Bounding Sphere", _b), m_boundingSphere(_b) {
   m_center = Point2d(0,0); //m_boundingSphere->GetCenter();
   Build();
@@ -19,7 +19,7 @@ BoundingSphere2DModel::
 BoundingSphere2DModel(const Point2d& _c, double _r) :
     BoundaryModel("Bounding Sphere", NULL) {
     Point3d c(_c[0],_c[1],0);
-  m_boundingSphere = shared_ptr<WorkspaceBoundingSphere>(new WorkspaceBoundingSphere(c, _r));
+  m_boundingSphere = new WorkspaceBoundingSphere(c, _r);
   m_boundary = m_boundingSphere;
   m_center = _c; //m_boundingSphere->GetCenter();
   Build();

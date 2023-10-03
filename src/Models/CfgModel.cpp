@@ -11,21 +11,38 @@ float CfgModel::m_pointScale = 10;
 
 CfgModel::
 CfgModel(const size_t _index) : Model("Cfg"), 
-    CfgType(GetVizmo()->GetEnv()->GetRobotModel(_index)),
+    CfgType(GetVizmo().GetEnv()->GetRobot(_index)),
     m_robotIndex(_index), m_mutex(new mutex())  { }
 
 CfgModel::
 CfgModel(const Vector3d& _vec, const size_t _index) : Model("Cfg"),
-    CfgType(_vec, GetVizmo()->GetEnv()->GetRobotModel(_index)), 
+    CfgType(_vec, GetVizmo().GetEnv()->GetRobot(_index)), 
     m_robotIndex(_index), m_mutex(new mutex()) { }
 
 CfgModel::
+CfgModel(Robot* _robot) : Model("Cfg"), 
+    CfgType(_robot),
+    m_mutex(new mutex())  { 
+  const auto& robots = GetVizmo().GetEnv()->GetProblem()->GetRobots();
+  for(size_t i = 0; i < robots.size(); i++) {
+    if(robots[i].get() == _robot) {
+      m_robotIndex = i;
+      break;
+    }
+  }
+}
+
+//TODO::Add a way to get robot index out of Cfg. 
+//      For now, it is always 0 in our current uses anyways
+CfgModel::
 CfgModel(const CfgType& _c) : Model("Cfg"), CfgType(_c), 
-    m_robotIndex(_c.m_robotIndex), m_mutex(new mutex()) { }
+    m_robotIndex(0), m_mutex(new mutex()) { }
+    //m_robotIndex(_c.m_robotIndex), m_mutex(new mutex()) { }
 
 CfgModel::
 CfgModel(const CfgModel& _c) : Model("Cfg"), CfgType(_c),
-    m_robotIndex(_c.m_robotIndex), m_mutex(new mutex()) { }
+    m_robotIndex(0), m_mutex(new mutex()) { }
+    //m_robotIndex(_c.m_robotIndex), m_mutex(new mutex()) { }
 
 void
 CfgModel::

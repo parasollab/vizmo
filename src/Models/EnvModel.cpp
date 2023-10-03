@@ -2,13 +2,17 @@
 
 #include <fstream>
 
-#include "Environment/BoundingBox.h"
-#include "Environment/BoundingBox2D.h"
-#include "Environment/BoundingSphere.h"
-#include "Environment/BoundingSphere2D.h"
-#include "Environment/ActiveMultiBody.h"
-#include "Environment/StaticMultiBody.h"
-#include "Environment/SurfaceMultiBody.h"
+//#include "Environment/BoundingBox.h"
+//#include "Environment/BoundingBox2D.h"
+//#include "Environment/BoundingSphere.h"
+//#include "Environment/BoundingSphere2D.h"
+//#include "Environment/ActiveMultiBody.h"
+//#include "Environment/StaticMultiBody.h"
+//#include "Environment/SurfaceMultiBody.h"
+
+#include "Geometry/Boundaries/WorkspaceBoundingBox.h"
+#include "Geometry/Boundaries/WorkspaceBoundingSphere.h"
+#include "Geometry/Bodies/MultiBody.h"
 
 #include "ActiveMultiBodyModel.h"
 #include "AvatarModel.h"
@@ -23,7 +27,7 @@
 #include "RegionSphereModel.h"
 #include "RegionSphere2DModel.h"
 #include "StaticMultiBodyModel.h"
-#include "SurfaceMultiBodyModel.h"
+//#include "SurfaceMultiBodyModel.h"
 #include "TempObjsModel.h"
 #include "WorkspaceDecompositionModel.h"
 #include "UserPathModel.h"
@@ -115,15 +119,16 @@ shared_ptr<StaticMultiBodyModel>
 EnvModel::
 AddObstacle(const string& _dir, const string& _filename,
     const Transformation& _t) {
-  m_centerOfMass *= m_obstacles.size() + m_surfaces.size();
+  m_centerOfMass *= m_obstacles.size();// + m_surfaces.size();
 
-  shared_ptr<StaticMultiBody> o =
-    m_environment->AddObstacle(_dir, _filename, _t).second;
-  m_obstacles.emplace_back(new StaticMultiBodyModel(o));
+  //shared_ptr<MultiBody> o =
+  size_t index  =
+    m_environment->AddObstacle(_dir, _filename, _t);
+  m_obstacles.emplace_back(new StaticMultiBodyModel(m_environment->GetObstacle(index)));
   m_obstacles.back()->Build();
 
   m_centerOfMass += m_obstacles.back()->GetCOM();
-  m_centerOfMass /= m_obstacles.size() + m_surfaces.size();
+  m_centerOfMass /= m_obstacles.size();// + m_surfaces.size();
 
   double dist = (m_obstacles.back()->GetCOM() - m_centerOfMass).norm() +
     m_obstacles.back()->GetRadius();
@@ -151,7 +156,7 @@ void
 EnvModel::
 SetBoundary(shared_ptr<BoundaryModel> _b) {
   m_boundary = _b;
-  m_environment->SetBoundary(m_boundary->GetBoundary());
+  m_environment->SetBoundary(std::move(m_boundary->GetBoundary()->Clone()));
 }
 
 
@@ -166,26 +171,38 @@ IsNonCommitRegion(RegionModelPtr _r) const {
 void
 EnvModel::
 AddAttractRegion(RegionModelPtr _r, bool _lock) {
-  QMutexLocker* lock = NULL;
-  if(_lock)
-    lock = new QMutexLocker(&m_regionLock);
-  _r->SetColor(Color4(0, 1, 0, 0.5));
-  m_attractRegions.push_back(_r);
-  VDAddRegion(_r.get());
-  delete lock;
+  //QMutexLocker* lock = NULL;
+  if(_lock) {
+    auto lock = new QMutexLocker(&m_regionLock);
+    _r->SetColor(Color4(0, 1, 0, 0.5));
+    m_attractRegions.push_back(_r);
+    VDAddRegion(_r.get());
+    delete lock;
+  }
+  else {
+    _r->SetColor(Color4(0, 1, 0, 0.5));
+    m_attractRegions.push_back(_r);
+    VDAddRegion(_r.get());
+  }
 }
 
 
 void
 EnvModel::
 AddAvoidRegion(RegionModelPtr _r, bool _lock) {
-  QMutexLocker* lock = NULL;
-  if(_lock)
-    lock = new QMutexLocker(&m_regionLock);
-  _r->SetColor(Color4(0, 0, 0, 0.5));
-  m_avoidRegions.push_back(_r);
-  VDAddRegion(_r.get());
-  delete lock;
+  //QMutexLocker* lock = NULL;
+  if(_lock) {
+    auto lock = new QMutexLocker(&m_regionLock);
+    _r->SetColor(Color4(0, 0, 0, 0.5));
+    m_avoidRegions.push_back(_r);
+    VDAddRegion(_r.get());
+    delete lock;
+  }
+  else {
+    _r->SetColor(Color4(0, 0, 0, 0.5));
+    m_avoidRegions.push_back(_r);
+    VDAddRegion(_r.get());
+  }
 }
 
 
@@ -440,26 +457,32 @@ EnvModel::
 Build() {
   //construct boundary
   //auto bounds = m_environment->GetBoundary();
-  shared_ptr<Boundary> bounds = m_environment->GetBoundary();
-  string type = bounds->Type();
-  if(type == "Box") {
+  Boundary* bounds = m_environment->GetBoundary();
+  //string type = bounds->Type();
+  string name = bounds->Name();
+  bool is2D = bounds->GetDimension() == 2;
+  //if(type == "Box") {
+  if(name == "WorkspaceBonudingBox" and !is2D) {
     m_boundary = shared_ptr<BoundingBoxModel>(
-        new BoundingBoxModel(dynamic_pointer_cast<BoundingBox>(bounds))
+        new BoundingBoxModel(dynamic_cast<WorkspaceBoundingBox*>(bounds))
         );
   }
-  else if(type == "Box2D") {
+  //else if(type == "Box2D") {
+  else if(name == "WorkspaceBonudingBox" and is2D) {
     m_boundary = shared_ptr<BoundingBox2DModel>(
-        new BoundingBox2DModel(dynamic_pointer_cast<BoundingBox2D>(bounds))
+        new BoundingBox2DModel(dynamic_cast<WorkspaceBoundingBox*>(bounds))
         );
   }
-  else if(type == "Sphere") {
+  //else if(type == "Sphere") {
+  else if(name == "WorkspaceBonudingSphere" and !is2D) {
     m_boundary = shared_ptr<BoundingSphereModel>(
-        new BoundingSphereModel(dynamic_pointer_cast<BoundingSphere>(bounds))
+        new BoundingSphereModel(dynamic_cast<WorkspaceBoundingSphere*>(bounds))
         );
   }
-  else if(type == "Sphere2D") {
+  //else if(type == "Sphere2D") {
+  else if(name == "WorkspaceBonudingSphere" and is2D) {
     m_boundary = shared_ptr<BoundingSphere2DModel>(
-        new BoundingSphere2DModel(dynamic_pointer_cast<BoundingSphere2D>(bounds))
+        new BoundingSphere2DModel(dynamic_cast<WorkspaceBoundingSphere*>(bounds))
         );
   }
   else
@@ -472,9 +495,9 @@ Build() {
   for(size_t i = 0; i < m_environment->NumObstacles(); ++i)
     m_obstacles.emplace_back(
         new StaticMultiBodyModel(m_environment->GetObstacle(i)));
-  for(size_t i = 0; i < m_environment->NumSurfaces(); ++i)
-    m_surfaces.emplace_back(
-        new SurfaceMultiBodyModel(m_environment->GetSurface(i)));
+  //for(size_t i = 0; i < m_environment->NumSurfaces(); ++i)
+  //  m_surfaces.emplace_back(
+  //      new SurfaceMultiBodyModel(m_environment->GetSurface(i)));
 
   //Build boundary model
   if(!m_boundary)
@@ -489,12 +512,12 @@ Build() {
     o->Build();
     m_centerOfMass += o->GetCOM();
   }
-  for(auto& s : m_surfaces) {
-    s->Build();
-    m_centerOfMass += s->GetCOM();
-  }
+  //for(auto& s : m_surfaces) {
+  //  s->Build();
+  //  m_centerOfMass += s->GetCOM();
+  //}
 
-  m_centerOfMass /= m_obstacles.size() + m_surfaces.size();
+  m_centerOfMass /= m_obstacles.size();// + m_surfaces.size();
 
   //Compute radius
   for(auto& o : m_obstacles) {
@@ -502,11 +525,11 @@ Build() {
     if(dist > m_radius)
       m_radius = dist;
   }
-  for(auto& s : m_surfaces) {
-    double dist = (s->GetCOM() - m_centerOfMass).norm() + s->GetRadius();
-    if(dist > m_radius)
-      m_radius = dist;
-  }
+  //for(auto& s : m_surfaces) {
+  //  double dist = (s->GetCOM() - m_centerOfMass).norm() + s->GetRadius();
+  //  if(dist > m_radius)
+  //    m_radius = dist;
+  //}
   double dist = m_boundary->GetMaxDist() / 2;
   if(dist > m_radius)
     m_radius = dist;
@@ -531,9 +554,9 @@ Select(GLuint* _index, vector<Model*>& _sel) {
     case EnvObjectName::Obstacles:
       m_obstacles[*(_index + 1)]->Select(_index + 2, _sel);
       break;
-    case EnvObjectName::Surfaces:
-      m_surfaces[*(_index + 1)]->Select(_index + 2, _sel);
-      break;
+    //case EnvObjectName::Surfaces:
+    //  m_surfaces[*(_index + 1)]->Select(_index + 2, _sel);
+    //  break;
     case EnvObjectName::AttractRegions:
       m_attractRegions[*(_index + 1)]->Select(_index + 2, _sel);
       break;
@@ -572,8 +595,8 @@ DrawRender() {
   }
   for(auto& o : m_obstacles)
     o->DrawRender();
-  for(auto& s : m_surfaces)
-    s->DrawRender();
+  //for(auto& s : m_surfaces)
+  //  s->DrawRender();
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
@@ -629,13 +652,13 @@ DrawSelect() {
   glPopName();
 
   nameIndx = 0;
-  glPushName(EnvObjectName::Surfaces);
-  for(auto& s : m_surfaces) {
-    glPushName(nameIndx++);
-    s->DrawSelect();
-    glPopName();
-  }
-  glPopName();
+  //glPushName(EnvObjectName::Surfaces);
+  //for(auto& s : m_surfaces) {
+  //  glPushName(nameIndx++);
+  //  s->DrawSelect();
+  //  glPopName();
+  //}
+  //glPopName();
 
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
@@ -707,8 +730,8 @@ Print(ostream& _os) const {
     << "\t" << m_robotModels.size() << " robots" << endl;
   if(!m_obstacles.empty())
     _os << "\t" << m_obstacles.size() << " obstacles" << endl;
-  if(!m_surfaces.empty())
-    _os << "\t" << m_surfaces.size() << " surfaces" << endl;
+  //if(!m_surfaces.empty())
+  //  _os << "\t" << m_surfaces.size() << " surfaces" << endl;
 }
 
 
@@ -719,8 +742,8 @@ ChangeColor() {
     r->SetColor(Color4(DRand(), DRand(), DRand(), 1));
   for(const auto& o : m_obstacles)
     o->SetColor(Color4(DRand(), DRand(), DRand(), 1));
-  for(const auto& s : m_surfaces)
-    s->SetColor(Color4(DRand(), DRand(), DRand(), 1));
+  //for(const auto& s : m_surfaces)
+  //  s->SetColor(Color4(DRand(), DRand(), DRand(), 1));
 }
 
 
@@ -732,8 +755,8 @@ SetSelectable(bool _s) {
     r->SetSelectable(_s);
   for(const auto& o : m_obstacles)
     o->SetSelectable(_s);
-  for(const auto& s : m_surfaces)
-    s->SetSelectable(_s);
+  //for(const auto& s : m_surfaces)
+  //  s->SetSelectable(_s);
   if(m_decompositionModel)
     m_decompositionModel->SetSelectable(_s);
   if(m_graphModel)
@@ -749,8 +772,8 @@ GetChildren(list<Model*>& _models) {
     _models.push_back(r.get());
   for(const auto& o : m_obstacles)
     _models.push_back(o.get());
-  for(const auto& s : m_surfaces)
-    _models.push_back(s.get());
+  //for(const auto& s : m_surfaces)
+  //  _models.push_back(s.get());
   {
     QMutexLocker lock(&m_regionLock);
     for(const auto& r : m_attractRegions)

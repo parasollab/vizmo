@@ -364,8 +364,10 @@ AddStraightLineEdge() {
   if(visibility.first) {
     VID v0 = selNodes[0]->GetIndex();
     VID v1 = selNodes[1]->GetIndex();
-    graph->add_edge(v0, v1);
-    graph->add_edge(v1, v0);
+    //graph->add_edge(v0, v1);
+    //graph->add_edge(v1, v0);
+    graph->AddEdge(v0, v1);
+    graph->AddEdge(v1, v0);
 
     //Set edge weights in underlying graph
     VI viTemp, viTemp2;
@@ -417,13 +419,17 @@ DeleteSelectedItems() {
   else {
     //Remove selected vertices
     typedef vector<VID>::iterator VIT;
-    for(VIT it = nodesToDelete.begin(); it != nodesToDelete.end(); it++)
-      graph->delete_vertex(*it);
+    for(VIT it = nodesToDelete.begin(); it != nodesToDelete.end(); it++) {
+      graph->DeleteVertex(*it);
+      //graph->delete_vertex(*it);
+    }
     //Remove selected edges
     typedef vector<pair<VID, VID> >::iterator EIT;
     for(EIT it = edgesToDelete.begin(); it != edgesToDelete.end(); it++) {
-      graph->delete_edge(it->first, it->second);
-      graph->delete_edge(it->second, it->first);
+      //graph->delete_edge(it->first, it->second);
+      //graph->delete_edge(it->second, it->first);
+      graph->DeleteEdge(it->first, it->second);
+      graph->DeleteEdge(it->second, it->first);
     }
     map->RefreshMap();
     GetMainWindow()->GetModelSelectionWidget()->ResetLists();

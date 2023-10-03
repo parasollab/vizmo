@@ -26,7 +26,8 @@ class CCModel : public Model {
 
     // Local types
     typedef MapModel<CFG, WEIGHT> MM;
-    typedef typename MM::RGraph Graph;
+    //typedef typename MM::RGraph Graph;
+    typedef typename MM::Graph Graph;
     typedef typename MM::VID VID;
     typedef typename MM::VI VI;
     typedef typename MM::EID EID;

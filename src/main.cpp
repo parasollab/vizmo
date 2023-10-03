@@ -51,7 +51,7 @@ main(int _argc, char** _argv) {
   glutInit(&_argc, _argv);
 
   // Initialize application object.
-  QApplication::setColorSpec(QApplication::CustomColor);
+  // QApplication::setColorSpec(QApplication::CustomColor);
   QApplication app(_argc, _argv);
   qRegisterMetaType<mathtool::Vector3d>("Vector3d");
 

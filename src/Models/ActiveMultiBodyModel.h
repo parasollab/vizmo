@@ -9,7 +9,7 @@
 class ActiveMultiBodyModel : public MultiBodyModel {
   public:
 
-    ActiveMultiBodyModel(shared_ptr<MultiBody> _a);
+    ActiveMultiBodyModel(MultiBody* _a);
 
     size_t Dofs() const;
     bool IsPlanar() const;
@@ -32,7 +32,7 @@ class ActiveMultiBodyModel : public MultiBodyModel {
     const vector<DofInfo>& GetDOFInfo() const;
 
   private:
-    shared_ptr<MultiBody> m_activeMultiBody;
+    MultiBody* m_activeMultiBody;
 
     vector<double> m_initCfg, m_currCfg;
 

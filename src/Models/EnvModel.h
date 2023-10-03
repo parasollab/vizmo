@@ -19,7 +19,7 @@ class AvatarModel;
 class BoundaryModel;
 class CfgModel;
 class StaticMultiBodyModel;
-class SurfaceMultiBodyModel;
+//class SurfaceMultiBodyModel;
 class TempObjsModel;
 class WorkspaceDecomposition;
 class WorkspaceDecompositionModel;
@@ -50,13 +50,18 @@ class EnvModel : public Model {
 
     // Construction
     EnvModel(const string& _filename);
-    EnvModel(Environment* _env);
+    EnvModel(MPProblem* _prob);
+    //EnvModel(Environment* _env);
     ~EnvModel();
 
     // Access functions
     ////////////////////////////////////////////////////////////////////////////
+    /// \brief Get the PMPL problem.
+    MPProblem* GetProblem() {return m_problem;}
+    ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the PMPL environment.
-    Environment* GetEnvironment() {return m_environment;}
+    //Environment* GetEnvironment() {return m_environment;}
+    Environment* GetEnvironment() {return m_problem->GetEnvironment();}
     ////////////////////////////////////////////////////////////////////////////
     /// \brief Get the center of mass for all bodies in the environment.
     const Point3d& GetCOM() const {return m_centerOfMass;}
@@ -223,7 +228,7 @@ class EnvModel : public Model {
 
     vector<shared_ptr<ActiveMultiBodyModel>> m_robotModels;    ///< All robots.
     vector<shared_ptr<StaticMultiBodyModel>> m_obstacles; ///< All obstacles.
-    vector<shared_ptr<SurfaceMultiBodyModel>> m_surfaces; ///< All surfaces.
+    //vector<shared_ptr<SurfaceMultiBodyModel>> m_surfaces; ///< All surfaces.
 
     double m_radius{0};     ///< Stores an approximate environment radius.
     Point3d m_centerOfMass; ///< Stores the COM for all loaded multibodies.

@@ -12,19 +12,23 @@
 #include "Geometry/Boundaries/WorkspaceBoundingBox.h"
 
 BoundingBoxModel::
-BoundingBoxModel(shared_ptr<WorkspaceBoundingBox> _b) :
+BoundingBoxModel(WorkspaceBoundingBox* _b) :
   BoundaryModel("Bounding Box", _b),
   m_boundingBox(_b) {
     Build();
   }
 
+// This constructor leads to memory leaks, but the above constructor 
+// requires this class to not own the boundingbox.
+// All of this is a result of PPL no longer using shared_ptr for env boundaries.
 BoundingBoxModel::
 BoundingBoxModel(const pair<double, double>& _x, const pair<double, double>& _y,
     const pair<double, double>& _z) :
   BoundaryModel("Bounding Box", NULL) {
     std::vector<double> center = {0.0,0.0,0.0};
     std::vector<std::pair<double,double>> bbx = {_x,_y,_z};
-    m_boundingBox = shared_ptr<WorkspaceBoundingBox>(new WorkspaceBoundingBox(center));
+    //m_boundingBox = unique_ptr<WorkspaceBoundingBox>(new WorkspaceBoundingBox(center));
+    m_boundingBox = new WorkspaceBoundingBox(center);
     m_boundingBox->ResetBoundary(bbx,0.);
     m_boundary = m_boundingBox;
     Build();
@@ -130,7 +134,7 @@ void
 BoundingBoxModel::
 Print(ostream& _os) const {
   _os << Name() << endl
-    << *m_boundingBox << endl;
+    << *(m_boundingBox) << endl;
 }
 
 vector<pair<double, double> >

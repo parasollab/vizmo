@@ -6,7 +6,7 @@
 #include "Vizmo.h"
 
 ActiveMultiBodyModel::
-ActiveMultiBodyModel(shared_ptr<MultiBody> _a) :
+ActiveMultiBodyModel(MultiBody* _a) :
   MultiBodyModel("ActiveMultiBody", _a), m_activeMultiBody(_a),
   m_initCfg(m_activeMultiBody->DOF()) {
   }

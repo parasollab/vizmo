@@ -139,6 +139,7 @@ struct VizmoTraits {
 
 };
 
-typedef MPProblem<VizmoTraits> VizmoProblem; ///< Vizmo's MPProblem type.
+//typedef MPProblem<VizmoTraits> VizmoProblem; ///< Vizmo's MPProblem type.
+typedef MPProblem VizmoProblem; ///< Vizmo's MPProblem type.
 
 #endif

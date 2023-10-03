@@ -3,7 +3,8 @@
 #include <QtGui>
 #include <QApplication>
 
-#include "Environment/BoundingBox2D.h"
+//#include "Environment/BoundingBox2D.h"
+#include "Geometry/Boundaries/WorkspaceBoundingBox.h"
 
 #include "Utilities/GLUtils.h"
 #include "Utilities/Camera.h"
@@ -33,9 +34,13 @@ RegionBox2DModel(pair<double, double> _xRange, pair<double, double> _yRange) :
 shared_ptr<Boundary>
 RegionBox2DModel::
 GetBoundary() const {
-  return shared_ptr<Boundary>(new BoundingBox2D(
-        make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
-        make_pair(m_boxVertices[1][1], m_boxVertices[0][1]) ));
+  auto bbx = shared_ptr<Boundary>(new WorkspaceBoundingBox(2));
+  std::vector<std::pair<double,double>> boundary = {
+    make_pair(m_boxVertices[0][0], m_boxVertices[3][0]),
+    make_pair(m_boxVertices[1][1], m_boxVertices[0][1])
+  };
+  bbx->ResetBoundary(boundary,0);
+  return bbx;
 }
 
 

@@ -13,7 +13,7 @@ class BoundingBox2DModel : public BoundaryModel {
   public:
 
     // Construction
-    BoundingBox2DModel(shared_ptr<WorkspaceBoundingBox> _b);
+    BoundingBox2DModel(WorkspaceBoundingBox* _b);
     BoundingBox2DModel(const pair<double, double>& _x,
         const pair<double, double>& _y);
 
@@ -27,7 +27,7 @@ class BoundingBox2DModel : public BoundaryModel {
     virtual double GetMaxDist();
 
   private:
-    shared_ptr<WorkspaceBoundingBox> m_boundingBox; ///< PMPL's BoundingBox
+    WorkspaceBoundingBox* m_boundingBox; ///< PMPL's BoundingBox
 };
 
 #endif

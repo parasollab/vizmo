@@ -5,8 +5,10 @@
 #include <QAction>
 #include <QMenu>
 
-#include "Environment/FixedBody.h"
-#include "Environment/StaticMultiBody.h"
+//#include "Environment/FixedBody.h"
+//#include "Environment/StaticMultiBody.h"
+#include "Geometry/Bodies/Body.h"
+#include "Geometry/Bodies/MultiBody.h"
 
 #include "ChangeBoundaryDialog.h"
 #include "EditRobotDialog.h"
@@ -308,7 +310,7 @@ DuplicateObstacles() {
   else {
     vector<StaticMultiBodyModel*> copies;
     for(auto& o : toCopy) {
-      auto body = o->GetStaticMultiBody()->GetFixedBody(0);
+      auto body = o->GetStaticMultiBody()->GetBody(0);
       cout << "Filename: " << body->GetFileName() << endl;
       shared_ptr<StaticMultiBodyModel> newo = GetVizmo().GetEnv()->AddObstacle(
           "", body->GetFileName(), body->GetWorldTransformation()

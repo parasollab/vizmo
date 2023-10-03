@@ -1,8 +1,8 @@
 #include "SurfaceMultiBodyModel.h"
 
-#include "Environment/SurfaceMultiBody.h"
+#include "Geometry/Bodies/MultiBody.h"
 
 SurfaceMultiBodyModel::
-SurfaceMultiBodyModel(shared_ptr<SurfaceMultiBody> _s) :
+SurfaceMultiBodyModel(MultiBody* _s) :
   StaticMultiBodyModel("SurfaceMultiBody", _s), m_surfaceMultiBody(_s) {
   }

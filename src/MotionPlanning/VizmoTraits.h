@@ -1,8 +1,8 @@
 #ifndef VIZMO_TRAITS_H_
 #define VIZMO_TRAITS_H_
 
-#include "Cfg/Cfg.h"
-#include "MPProblem/Weight.h"
+#include "ConfigurationSpace/Cfg.h"
+#include "ConfigurationSpace/Weight.h"
 
 /*
 //distance metric includes
@@ -140,6 +140,20 @@
 */
 
 #include "MPProblem/MPProblem.h"
+#include "MPLibrary/GoalTracker.h"
+#include "MPLibrary/MPLibrary.h"
+#include "MPLibrary/MPSolution.h"
+#include "MPLibrary/MPTools/MPTools.h"
+
+#include "ConfigurationSpace/LocalObstacleMap.h"
+#include "ConfigurationSpace/GenericStateGraph.h"
+#include "ConfigurationSpace/GroupCfg.h"
+#include "ConfigurationSpace/GroupLocalPlan.h"
+#include "ConfigurationSpace/GroupPath.h"
+#include "ConfigurationSpace/GroupRoadmap.h"
+#include "ConfigurationSpace/Path.h"
+#include "ConfigurationSpace/Weight.h"
+#include "ConfigurationSpace/GenericStateGraph.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Defines the motion planning objects available in Vizmo.
@@ -150,7 +164,20 @@ struct VizmoTraits {
   typedef CfgModel  CfgType;                    ///< Configuration type.
   typedef EdgeModel WeightType;                 ///< Edge type.
   typedef CfgModel& CfgRef;                     ///< Configuration reference type.
-  typedef MPProblem<VizmoTraits> MPProblemType; ///< MPProblem type.
+  typedef MPProblem MPProblemType; ///< MPProblem type.
+
+  typedef GenericStateGraph<CfgType, WeightType>         RoadmapType;
+  typedef PathType<VizmoTraits>              Path;
+  typedef MPLibraryType<VizmoTraits>         MPLibrary;
+  typedef MPSolutionType<VizmoTraits>        MPSolution;
+  typedef MPToolsType<VizmoTraits>           MPTools;
+  typedef LocalObstacleMapType<VizmoTraits>  LocalObstacleMap;
+  typedef GoalTrackerType<VizmoTraits>       GoalTracker;
+
+  typedef GroupCfg<RoadmapType>                          GroupCfgType;
+  typedef GroupLocalPlan<RoadmapType>                    GroupWeightType;
+  typedef GroupRoadmap<GroupCfgType, GroupWeightType>    GroupRoadmapType;
+  typedef GroupPath<VizmoTraits>                            GroupPathType;
 
   //types of distance metrics available in our world
   typedef boost::mpl::list<
@@ -178,6 +205,7 @@ struct VizmoTraits {
     NegateValidity<VizmoTraits>,
     NodeClearanceValidity<VizmoTraits>,
     ObstacleClearanceValidity<VizmoTraits>
+    */
       > ValidityCheckerMethodList;
 
   //types of neighborhood finders available in our world
@@ -267,7 +295,7 @@ struct VizmoTraits {
     */
       > ConnectorMethodList;
 
-  typedef ConnectivityMetric<VizmoTraits, RoadmapSet<VizmoTraits>>
+  /*typedef ConnectivityMetric<VizmoTraits, RoadmapSet<VizmoTraits>>
       ConnectivityMetricRoadmapSet;
   typedef CoverageDistanceMetric<VizmoTraits, RoadmapSet<VizmoTraits>>
       CoverageDistanceMetricRoadmapSet;
@@ -280,6 +308,7 @@ struct VizmoTraits {
       CoverageDistanceMetricVectorSet;
   typedef CoverageMetric<VizmoTraits, VectorSet<VizmoTraits>>
       CoverageMetricVectorSet;
+  */
 
   //types of metrics available in our world
   typedef boost::mpl::list<
@@ -346,8 +375,10 @@ struct VizmoTraits {
     */
     > MPStrategyMethodList;
 
+  typedef boost::mpl::list<
+      > EdgeValidityCheckerMethodList;
 };
 
-typedef MPProblem<VizmoTraits> VizmoProblem; ///< Vizmo's MPProblem type.
+typedef MPProblem VizmoProblem; ///< Vizmo's MPProblem type.
 
 #endif
