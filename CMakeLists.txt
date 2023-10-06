@@ -16,6 +16,9 @@ set(CMAKE_AUTOUIC ON)
 set(STAPL_PATH lib/stapl)
 find_library(STAPL ${STAPL_PATH})
 
+#find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
+
 # Add Packages (needs to be installed)
 find_package(Qt6 CONFIG COMPONENTS Core Gui Widgets OpenGL OpenGLWidgets REQUIRED)
 find_package(Eigen3 CONFIG REQUIRED)
@@ -28,6 +31,8 @@ find_package(gl_visualizer CONFIG COMPONENTS nonstd glutils sandbox REQUIRED)
 find_package(PPL CONFIG REQUIRED)
 
 set(CMAKE_PREFIX_PATH ${QT_ROOT})
+
+add_definitions(${GLUT_DEFINITIONS})
 
 include_directories(lib/stapl)
 include_directories(lib/stapl/stapl)
@@ -54,8 +59,7 @@ add_executable(${EXEC} src/main.cpp ${VIZMO_SRCS})
 
 target_link_libraries(${EXEC} PRIVATE Qt6::Core Qt6::Gui Qt6::OpenGL Qt6::Widgets Qt6::OpenGLWidgets)
 target_link_libraries(${EXEC} PRIVATE ppl::ppl_mp_library gcov)
-target_link_libraries(${EXEC} PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
-target_link_libraries(${EXEC} PRIVATE nonstd)
+target_link_libraries(${EXEC} PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
 target_include_directories(${EXEC}
         PUBLIC
