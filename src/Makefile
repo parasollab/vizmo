@@ -16,8 +16,8 @@ spacemouse ?= 0
 # Directory Layout ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 VIZMO_DIR := .
-PMPL_DIR  := $(VIZMO_DIR)/../pmpl/src
-UTILS_DIR := $(VIZMO_DIR)/../pmpl/pmpl_utils
+PMPL_DIR  := $(VIZMO_DIR)/../ppl/src
+UTILS_DIR := $(VIZMO_DIR)/../ppl/pmpl_utils
 STAPL_DIR := $(UTILS_DIR)/stapl_release
 
 # The OBJ_DIR is the landing zone for our object files. Create it with a
