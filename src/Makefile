@@ -32,8 +32,10 @@ SRC_DIRS  := $(patsubst ./%,%, $(shell find . -type d \
 # You might need to rebuild the build directory to catch newly added dirs.
 $(OBJ_DIR):
 	@mkdir -p $@ $(patsubst %,$(OBJ_DIR)/%,$(SRC_DIRS))
+	@echo "obj dir"
 $(MOC_DIR): | $(OBJ_DIR)
 	@mkdir $@
+	@echo "moc dir"
 
 # Look for files in the source directories.
 vpath %.h       $(SRC_DIRS)
@@ -85,8 +87,7 @@ VIZMO_EXEC    := vizmo++
 .DEFAULT_GOAL := $(VIZMO_EXEC)
 $(VIZMO_EXEC): $(MAIN) $(VIZMO_LIBFILE)
 	@echo Linking $@...
-	@echo $(CXX) $(CXXFLAGS) $(OPTS) $^ $(LIBS) -o $@
-	@$(CXX) $(CXXFLAGS) $(OPTS) $^ $(LIBS) -o $@
+
 
 
 # Object File Recipes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -109,6 +110,7 @@ $(MOC_DIR)/moc_%.o: $(MOC_DIR)/moc_%.cpp %.h | $(MOC_DIR)
 # This recipe is for regular objects.
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	@$(MAKE) -s check_platform
+	@echo "TEST TEST"
 	@echo Compiling $<...
 	@echo $(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) $< -o $@
 	@$(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) $< -o $@

@@ -4,10 +4,13 @@ using namespace std;
 #ifdef __APPLE__
   #include <GLUT/glut.h>
 #else
-  #include <glut.h>
+//  #include <glut.h>
 #endif
 
 #include <QApplication>
+#include <QMainWindow>
+//#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 
 #include "GUI/MainWindow.h"
 #include "Models/Vizmo.h"
@@ -47,11 +50,12 @@ main(int _argc, char** _argv) {
 
   GetVizmo().SetSeed(seed);
 
+  ///
   // Initialize glut.
-  glutInit(&_argc, _argv);
+  //glutInit(&_argc, _argv);
 
   // Initialize application object.
-  QApplication::setColorSpec(QApplication::CustomColor);
+ // QApplication::setColorSpec(QApplication::CustomColor);
   QApplication app(_argc, _argv);
   qRegisterMetaType<mathtool::Vector3d>("Vector3d");
 

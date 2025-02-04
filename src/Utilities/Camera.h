@@ -7,7 +7,7 @@ using namespace mathtool;
 #include <string>
 using namespace std;
 
-#include <qgl.h>
+#include <QOpenGLFunctions>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A gluLookAt camera that is controllable with Qt input events.
