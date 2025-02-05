@@ -5,7 +5,8 @@
 #include <string>
 using namespace std;
 
-#include <QTime>
+#include <QElapsedTimer>
+#include <QDateTime>
 
 #include "Models/CfgModel.h"
 #include "Models/EdgeModel.h"
@@ -228,6 +229,11 @@ class Vizmo {
     ///                 object will be stored in the hit buffer.
     void SearchSelectedItems(int _hit, void* _buffer, bool _all);
 
+
+
+    // Replacement for deprecated gluPickMatrix()
+    void pickMatrix(GLfloat x, GLfloat y, GLfloat width, GLfloat height, const GLint* viewport);
+
     ///\name Loaded File Names
     ///@{
 
@@ -267,7 +273,7 @@ class Vizmo {
     ///@{
 
     long m_seed;                               ///< The program's random seed.
-    map<string, pair<QTime, double>> m_timers; ///< Timers.
+    map<string, pair<QElapsedTimer, double>> m_timers; ///< Timers.
 
     ///@}
 };

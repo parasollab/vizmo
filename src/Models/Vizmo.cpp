@@ -188,7 +188,7 @@ Select(const Box& _box) {
   double w = fabs(_box.m_right - _box.m_left); if(w<5) w=5;
   double h = fabs(_box.m_top - _box.m_bottom); if(h<5) h=5;
 
-  gluPickMatrix(x, y, w, h, viewport);
+  pickMatrix(x, y, w, h, viewport);
   glMultMatrixd(pm); //apply current proj matrix
 
   //draw
@@ -211,6 +211,35 @@ Select(const Box& _box) {
   if(hits > 0)
     SearchSelectedItems(hits, hitBuffer, (w*h) > 100);
 }
+
+
+// This function brought to you by AI tools 
+// Replacement for deprecated gluPickMatrix()
+void 
+Vizmo::
+pickMatrix(GLfloat x, GLfloat y, GLfloat width, GLfloat height, const GLint* viewport) {
+    // Calculate the pick matrix
+    GLfloat m[16];
+    glGetFloatv(GL_PROJECTION_MATRIX, m);  // Get the current projection matrix
+
+    // Set up the pick matrix manually:
+    // Translate to the region where the selection happens
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef((2.0f * (x - viewport[0])) / viewport[2], 
+                 (2.0f * (y - viewport[1])) / viewport[3], 
+                 0.0f);
+    
+    // Scale the region to the selection size
+    glScalef(2.0f * width / viewport[2], 2.0f * height / viewport[3], 1.0f);
+    
+    // Multiply the current projection matrix with the pick matrix
+    glMultMatrixf(m);
+
+    // Return to the original matrix stack
+    glPopMatrix();
+}
+
 
 
 void
@@ -508,7 +537,7 @@ Solve(const string& _strategy) {
 void
 Vizmo::
 StartClock(const string& _c) {
-  m_timers[_c].first.restart();
+  m_timers[_c].first.start();
 }
 
 
@@ -529,19 +558,19 @@ PrintClock(const string& _c, ostream& _os) {
 }
 
 
-void
-Vizmo::
-AdjustClock(const string& _c1, const string& _c2, const string& _op) {
-  /// Adjusts clock \c _c1 by \c +/- \c _c2.second.
-  if(_op == "-")
-    m_timers[_c1].first =
-      m_timers[_c1].first.addMSecs( m_timers[_c2].second * 1000);
-  else if (_op == "+")
-    m_timers[_c1].first =
-      m_timers[_c1].first.addMSecs(-m_timers[_c2].second * 1000);
-  else
-    throw PMPLException("ClockError", WHERE,
-        "unknown clock adjustment operation.");
-}
+// void
+// Vizmo::
+// AdjustClock(const string& _c1, const string& _c2, const string& _op) {
+//   /// Adjusts clock \c _c1 by \c +/- \c _c2.second.
+//   if(_op == "-")
+//     m_timers[_c1].first =
+//       m_timers[_c1].first.addMSecs( m_timers[_c2].second * 1000);
+//   else if (_op == "+")
+//     m_timers[_c1].first =
+//       m_timers[_c1].first.addMSecs(-m_timers[_c2].second * 1000);
+//   else
+//     throw PMPLException("ClockError", WHERE,
+//         "unknown clock adjustment operation.");
+// }
 
 /*----------------------------------------------------------------------------*/
