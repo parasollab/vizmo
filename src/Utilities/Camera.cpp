@@ -1,12 +1,14 @@
 #include "Camera.h"
 
-#ifdef __APPLE__
-  #include <OpenGL/glu.h>
-#else
-  #include <GL/glu.h>
-#endif
+//#ifdef __APPLE__
+//  #include <OpenGL/glu.h>
+//#else
+//  #include <GL/glu.h>
+//#endif
 
 #include <QMouseEvent>
+#include <QMatrix4x4>
+
 
 #include "Models/EnvModel.h"
 #include "Models/Vizmo.h"
@@ -44,11 +46,20 @@ Draw() {
   /// If haptics are in use, also informs the haptics manager that the viewing
   /// perspective has changed.
   Vector3d c = m_eye + m_dir;
-  gluLookAt(
-      m_eye[0], m_eye[1], m_eye[2],
-      c[0], c[1], c[2],
-      m_up[0], m_up[1], m_up[2]
-      );
+  
+  QVector3D eye(m_eye[0], m_eye[1], m_eye[2]);
+  QVector3D scee(c[0], c[1], c[2]);
+  QVector3D up(m_up[0], m_up[1], m_up[2]);
+  
+  QMatrix4x4 viewMatrix;
+  viewMatrix.lookAt(eye, scee, up);
+  m_eye = Point3d(eye.x(), eye.y(), eye.z());
+  m_up = Vector3d(up.x(), up.y(), up.z());
+  //gluLookAt(
+  //    m_eye[0], m_eye[1], m_eye[2],
+  //    c[0], c[1], c[2],
+  //    m_up[0], m_up[1], m_up[2]
+  //    );
 
   if(Haptics::UsingPhantom())
     GetVizmo().GetPhantomManager()->UpdateWorkspace();

@@ -108,7 +108,6 @@ class Camera : public QObject {
     Point3d m_eye;       ///< The camera position.
     Vector3d m_dir;      ///< The viewing direction.
     Vector3d m_up;       ///< The screen-up direction.
-
     // Speed.
     double m_speed;      ///< Speed of camera movement in relation to pixels.
 
