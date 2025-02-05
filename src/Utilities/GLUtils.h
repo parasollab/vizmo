@@ -4,14 +4,15 @@
 #include "Vector.h"
 using namespace mathtool;
 
-#ifdef __APPLE__
-  #include <OpenGL/gl.h>
-  #include <OpenGL/glu.h>
-#else
-  #include <gl.h>
-  #include <glu.h>
-#endif
+//#ifdef __APPLE__
+//  #include <OpenGL/gl.h>
+//  #include <OpenGL/glu.h>
+//#else
+//  #include <gl.h>
+//  #include <glu.h>
+//#endif
 
+#include <QOpenGLFunctions>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Provides utility functions for working with the OpenGL scene.

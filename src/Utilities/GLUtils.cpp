@@ -2,11 +2,94 @@
 
 #include "VizmoExceptions.h"
 
+#include <QMatrix4x4>
+#include <QVector3D>
+#include <QVector4D>
+#include <QRect>
+
+
 
 namespace GLUtils {
 
   int windowWidth  = 0;
   int windowHeight = 0;
+
+
+
+	// Make QMatrix from 4x4 double array. 
+	QMatrix4x4 makeQMatrix(double* values){
+			float vals[16];
+			for (int i = 0; i < 16; i++) {
+					vals[i] = static_cast<float>(values[i]);
+			}
+			return QMatrix4x4(vals);
+	}
+
+	QRect makeQRect(int* values) {
+			return QRect(values[0], values[1], values[2], values[3]);
+	}
+
+
+  // Replacement for OpenGL's gluproject.
+  // This function written mostly by AI assistants. 
+bool projectPoint(GLdouble objX, GLdouble objY, GLdouble objZ,
+                  const QMatrix4x4& modelMatrix,
+                  const QMatrix4x4& projMatrix,
+                  const QRect& viewport,
+                  GLdouble* winX, GLdouble* winY, GLdouble* winZ) 
+{
+    QVector4D inVec(objX, objY, objZ, 1.0);  
+
+    // Apply model-view and projection transformations
+    QVector4D clipSpacePos = projMatrix * modelMatrix * inVec;
+
+    // Check for invalid transformation
+    if (clipSpacePos.w() == 0.0) 
+        return false;  // Projection failed
+
+    // Convert to normalized device coordinates (NDC)
+    QVector3D ndcSpacePos = clipSpacePos.toVector3D() / clipSpacePos.w();
+
+    // Map NDC (-1 to 1) to window coordinates
+    *winX = viewport.x() + (ndcSpacePos.x() + 1.0) * viewport.width() / 2.0;
+    *winY = viewport.y() + (1.0 - ndcSpacePos.y()) * viewport.height() / 2.0;  // Flip Y
+    *winZ = (ndcSpacePos.z() + 1.0) / 2.0;  // Depth range [0,1]
+
+    return true;  // Success
+	}
+
+// Replacement for OpenGL's gluInProject... same as above. 
+bool unprojectPoint(GLdouble winX, GLdouble winY, GLdouble winZ,
+                    const QMatrix4x4& modelMatrix,
+                    const QMatrix4x4& projMatrix,
+                    const QRect& viewport,
+                    GLdouble* objX, GLdouble* objY, GLdouble* objZ)
+{
+    // Compute the inverse of (Projection * ModelView) matrix
+    QMatrix4x4 inverseMatrix = (projMatrix * modelMatrix).inverted();
+
+    // Convert window coordinates to normalized device coordinates (NDC)
+    QVector4D inVec(
+        (winX - viewport.x()) * 2.0 / viewport.width() - 1.0,
+        1.0 - (winY - viewport.y()) * 2.0 / viewport.height(), // Flip Y
+        2.0 * winZ - 1.0, // Depth range mapping
+        1.0
+    );
+
+    // Apply the inverse transformation
+    QVector4D worldPos = inverseMatrix * inVec;
+
+    // Normalize if w is not 1 (homogeneous coordinate system)
+    if (worldPos.w() == 0.0)
+        return false;  // Unprojection failed
+
+    *objX = worldPos.x() / worldPos.w();
+    *objY = worldPos.y() / worldPos.w();
+    *objZ = worldPos.z() / worldPos.w();
+
+    return true;  // Success
+}
+
 
 
   Point3d
@@ -19,9 +102,15 @@ namespace GLUtils {
     glGetDoublev(GL_MODELVIEW_MATRIX, modelViewM);
     glGetDoublev(GL_PROJECTION_MATRIX, projM);
 
+	// fix typing
+	QMatrix4x4 modelViewMatrix = makeQMatrix(modelViewM);
+	QMatrix4x4 projectionMatrix = makeQMatrix(projM);
+	QRect vp = makeQRect(viewPort);
+
+
     Point3d proj;
-    gluProject(_pt[0], _pt[1], _pt[2],
-        modelViewM, projM, viewPort,
+    projectPoint(_pt[0], _pt[1], _pt[2],
+        modelViewMatrix, projectionMatrix, vp,
         &proj[0], &proj[1], &proj[2]);
     return proj;
   }
@@ -37,10 +126,15 @@ namespace GLUtils {
     glGetDoublev(GL_MODELVIEW_MATRIX, modelViewM);
     glGetDoublev(GL_PROJECTION_MATRIX, projM);
 
+	// fix typing
+	QMatrix4x4 modelViewMatrix = makeQMatrix(modelViewM);
+	QMatrix4x4 projectionMatrix = makeQMatrix(projM);
+	QRect vp = makeQRect(viewPort);
+	
     for(size_t i=0; i < _size; ++i) {
       Point3d proj;
-      gluProject(_pts[i][0], _pts[i][1], _pts[i][2],
-          modelViewM, projM, viewPort,
+      projectPoint(_pts[i][0], _pts[i][1], _pts[i][2],
+          modelViewMatrix, projectionMatrix, vp,
           &proj[0], &proj[1], &proj[2]);
       _pts[i] = proj;
     }
@@ -59,12 +153,17 @@ namespace GLUtils {
 
     Vector3d s,e; //start and end of ray
 
+	QMatrix4x4 mvm = makeQMatrix(modelViewM);
+	QMatrix4x4 pm = makeQMatrix(projM);
+	QRect vp = makeQRect(viewPort);
+
+
     //unproject to plane defined by current x and y direction
-    gluUnProject(_x, _y, 0,
-        modelViewM, projM, viewPort,
+    unprojectPoint(_x, _y, 0,
+        mvm, pm, vp,
         &s[0], &s[1], &s[2]);
-    gluUnProject(_x, _y, 1.0,
-        modelViewM, projM, viewPort,
+    unprojectPoint(_x, _y, 1.0,
+        mvm, pm, vp,
         &e[0], &e[1], &e[2]);
 
     Vector3d ray = (e - s).normalize();
