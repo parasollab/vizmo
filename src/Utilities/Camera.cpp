@@ -155,7 +155,7 @@ MouseMotion(QMouseEvent* _e) {
     //ctrl+middle
     //  Y - moves camera up/down of at direction
     //  X - moves camera right/left of at direction
-    else if(_e->buttons() == Qt::MidButton)
+    else if(_e->buttons() == Qt::MiddleButton)
       Translate(xHat * dx * trSpeed + yHat * dy * trSpeed);
 
     //not handled by camera

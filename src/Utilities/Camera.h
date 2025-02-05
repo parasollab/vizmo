@@ -8,6 +8,7 @@ using namespace mathtool;
 using namespace std;
 
 #include <QOpenGLFunctions>
+#include <QMouseEvent>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A gluLookAt camera that is controllable with Qt input events.
