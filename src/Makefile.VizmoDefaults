@@ -29,8 +29,8 @@ ifeq ($(platform), MACOS_gcc)
 endif
 ifeq ($(platform), Ubuntu)
   QT_INCL := -I$(QT_BASE) -I$(QT_BASE)/Qt -I$(QT_BASE)/QtCore -I$(QT_BASE)/QtGui \
-             -I$(QT_BASE)/QtOpenGL -I$(QT_BASE)/QtWidgets
-  QT_LIBS := -lQtGui -lQtOpenGL -lQtCore -lQtWidgets
+             -I$(QT_BASE)/QtOpenGL -I$(QT_BASE)/QtWidgets -I$(QT_BASE)/QtOpenGLWidgets
+  QT_LIBS := -lQtGui -lQtOpenGL -lQtCore -lQtWidgets -lQtOpenGLWidgets
 endif
 
 # Ensure the moc (metaobject compiler) is found.
@@ -178,6 +178,6 @@ endif
 # Aggregated
 ################################################################################
 DEFS += -DVIZMO
-INCL  = -I$(VIZMO_DIR) $(GL_INCL) $(QT_INCL) $(MP_INCL)
-LIBS  = -L$(VIZMO_DIR) -lvizmo $(MP_LIBS) $(QT_LIBS) $(GL_LIBS) \
+INCL  = -I$(VIZMO_DIR) $(QT_INCL) $(MP_INCL)
+LIBS  = -L$(VIZMO_DIR) -lvizmo $(MP_LIBS) $(QT_LIBS) \
 	$(PHANTOM_LIBS) $(SPACEMOUSE_LIBS)

@@ -12,11 +12,12 @@ using namespace mathtool;
 #include <QMouseEvent>
 #include <QKeyEvent>
 
-#ifdef __APPLE__
-  #include <OpenGL/gl.h>
-#else
-  #include <gl.h>
-#endif
+//#ifdef __APPLE__
+//  #include <OpenGL/gl.h>
+//#else
+//  #include <gl.h>
+//#endif
+#include <QOpenGLFunctions>
 
 #include "Utilities/Color.h"
 #include "Utilities/Camera.h"

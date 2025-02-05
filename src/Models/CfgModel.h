@@ -6,11 +6,12 @@
 #include <mutex>
 using namespace std;
 
-#ifdef __APPLE__
-  #include <OpenGL/gl.h>
-#else
-  #include <GL/gl.h>
-#endif
+//#ifdef __APPLE__
+//  #include <OpenGL/gl.h>
+//#else
+//  #include <GL/gl.h>
+//#endif
+#include <QOpenGLFunctions>
 
 #ifdef PMPCfg
 #include "Cfg/Cfg.h"

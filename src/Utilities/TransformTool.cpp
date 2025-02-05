@@ -1,10 +1,10 @@
 #include "TransformTool.h"
 
-#ifdef __APPLE__
-  #include <OpenGL/glu.h>
-#else
-  #include <glu.h>
-#endif
+//#ifdef __APPLE__
+//  #include <OpenGL/glu.h>
+//#else
+//  #include <glu.h>
+//#endif
 
 #include <QMouseEvent>
 #include <QKeyEvent>

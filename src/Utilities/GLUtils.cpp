@@ -14,8 +14,6 @@ namespace GLUtils {
   int windowWidth  = 0;
   int windowHeight = 0;
 
-
-
 	// Make QMatrix from 4x4 double array. 
 	QMatrix4x4 makeQMatrix(double* values){
 			float vals[16];

@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "GLUtils.h"
-
+#include <QMatrix4x4>
 #include <QApplication>
 
 void
@@ -19,7 +19,16 @@ Draw() {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0, GLUtils::windowWidth, 0, GLUtils::windowHeight);
+    //gluOrtho2D(0, GLUtils::windowWidth, 0, GLUtils::windowHeight);
+    // The below was written by AI tools to replace the above line. 
+    // Assuming windowWidth and windowHeight are defined somewhere in GLUtils:
+    QMatrix4x4 orthoMatrix;
+    // Set up an orthogonal projection matrix (replaces gluOrtho2D)
+    orthoMatrix.ortho(0, GLUtils::windowWidth, 0, GLUtils::windowHeight, -1, 1);
+    // Apply the matrix to the current OpenGL context
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    f->glLoadMatrixf(orthoMatrix.constData());
+
 
     glMatrixMode(GL_MODELVIEW);
 

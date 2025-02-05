@@ -1,10 +1,10 @@
 #include "BodyModel.h"
 
-#ifdef __APPLE__
-  #include <OpenGL/glu.h>
-#else
-  #include <GL/glu.h>
-#endif
+//#ifdef __APPLE__
+//  #include <OpenGL/glu.h>
+//#else
+//  #include <GL/glu.h>
+//#endif
 
 #include "Environment/Body.h"
 #include "MPProblem/MPProblemBase.h"

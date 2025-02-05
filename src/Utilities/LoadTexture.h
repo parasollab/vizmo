@@ -3,7 +3,8 @@
 
 #include <string>
 
-#include <qgl.h>
+//#include <qgl.h>
+#include <QOpenGLFunctions>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Load texture from file into open GL context

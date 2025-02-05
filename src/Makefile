@@ -13,6 +13,10 @@ phantom ?= 0
 spacemouse ?= 0
 
 
+# QT5 related cxx flags:
+CXXFLAGS += -fPIC
+
+
 # Directory Layout ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 VIZMO_DIR := .
