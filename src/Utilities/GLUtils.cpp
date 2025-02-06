@@ -271,8 +271,9 @@ bool unprojectPoint(GLdouble winX, GLdouble winY, GLdouble winZ,
   }
 
 
+  // UNTESTED!! 
   void
-  DrawSphere(const double _radius, const unsigned short _segments) {
+  DrawSphere(const Vector3d& _center, const double _radius, const unsigned short _segments) {
     GLfloat oIncr = 2 * PI / _segments; // Angle increment for x,y coords.
     GLfloat zIncr = PI / _segments;     // Angle increment for z coords.
     GLfloat x, y, z, r;
@@ -300,8 +301,8 @@ bool unprojectPoint(GLdouble winX, GLdouble winY, GLdouble winZ,
       for(short i = 0; i <= _segments; ++i) {
         x = cos(oIncr * i);
         y = sin(oIncr * i);
-        glVertex3f(x * r , y * r ,  z);
-        glVertex3f(x * r2, y * r2, z2);
+        glVertex3f(x * r  + _center[0], y * r  + _center[1],  z + _center[2]);
+        glVertex3f(x * r2 + _center[0], y * r2 + _center[1], z2 + _center[2]);
       }
       glEnd();
     }
@@ -314,10 +315,17 @@ bool unprojectPoint(GLdouble winX, GLdouble winY, GLdouble winZ,
     for(short i = _segments; i >= 0; --i) {
       x = r * cos(oIncr * i);
       y = r * sin(oIncr * i);
-      glVertex3f(x, y, z);
+      glVertex3f(x + _center[0], y + _center[1], z + _center[2]);
     }
     glEnd();
   }
+
+  void
+  DrawSphere(const double _radius, const unsigned short _segments) {
+    Vector3d center(0, 0, 0);
+    DrawSphere(center, _radius, _segments);
+  }
+
 
 
   void

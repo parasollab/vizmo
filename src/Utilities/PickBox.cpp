@@ -22,12 +22,12 @@ Draw() {
     //gluOrtho2D(0, GLUtils::windowWidth, 0, GLUtils::windowHeight);
     // The below was written by AI tools to replace the above line. 
     // Assuming windowWidth and windowHeight are defined somewhere in GLUtils:
-    QMatrix4x4 orthoMatrix;
+//    QMatrix4x4 orthoMatrix;
     // Set up an orthogonal projection matrix (replaces gluOrtho2D)
-    orthoMatrix.ortho(0, GLUtils::windowWidth, 0, GLUtils::windowHeight, -1, 1);
+//    orthoMatrix.ortho(0, GLUtils::windowWidth, 0, GLUtils::windowHeight, -1, 1);
     // Apply the matrix to the current OpenGL context
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    f->glLoadMatrixf(orthoMatrix.constData());
+//    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+//    f->glLoadMatrixf(orthoMatrix.constData());
 
 
     glMatrixMode(GL_MODELVIEW);

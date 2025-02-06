@@ -60,9 +60,9 @@ CreateItem(ListViewItem* _p, Model* _model) {
   if(_model->IsSelectable() == false)
     item->setDisabled(true);
 
-  QMutexLocker* locker = NULL;
+  // QMutexLocker* locker = NULL;
   if(_model->Name() == "Map")
-    locker = new QMutexLocker(&((MapModel<CfgModel, EdgeModel>*)_model)->AcquireMutex());
+    QMutexLocker locker(&((MapModel<CfgModel, EdgeModel>*)_model)->AcquireMutex());
   QString qstr = QString::fromStdString(_model->Name());
   item->setText(0, qstr); //Set the text to column 0, which is the only column in this tree widget
   m_items.push_back(item);
@@ -70,8 +70,8 @@ CreateItem(ListViewItem* _p, Model* _model) {
   list<Model*> objlist;
   _model->GetChildren(objlist);
   if(objlist.empty()) {
-    if(_model->Name() == "Map")
-      delete locker;
+    // if(_model->Name() == "Map")
+    //   delete locker;
     return item;
   }
 
@@ -79,8 +79,8 @@ CreateItem(ListViewItem* _p, Model* _model) {
   for(OIT i = objlist.begin(); i != objlist.end(); i++)
     CreateItem(item, *i);
 
-  if(_model->Name() == "Map")
-    delete locker;
+  // if(_model->Name() == "Map")
+  //   delete locker;
 
   return item;
 }

@@ -160,26 +160,22 @@ IsNonCommitRegion(RegionModelPtr _r) const {
 void
 EnvModel::
 AddAttractRegion(RegionModelPtr _r, bool _lock) {
-  QMutexLocker* lock = NULL;
-  if(_lock)
-    lock = new QMutexLocker(&m_regionLock);
+  if(_lock) 
+    QMutexLocker lock (&m_regionLock);
   _r->SetColor(Color4(0, 1, 0, 0.5));
   m_attractRegions.push_back(_r);
   VDAddRegion(_r.get());
-  delete lock;
 }
 
 
 void
 EnvModel::
 AddAvoidRegion(RegionModelPtr _r, bool _lock) {
-  QMutexLocker* lock = NULL;
   if(_lock)
-    lock = new QMutexLocker(&m_regionLock);
+    QMutexLocker lock(&m_regionLock);
   _r->SetColor(Color4(0, 0, 0, 0.5));
   m_avoidRegions.push_back(_r);
   VDAddRegion(_r.get());
-  delete lock;
 }
 
 

@@ -8,7 +8,7 @@ using namespace mathtool;
 
 //#include <qgl.h>
 #include <QOpenGLFunctions>
-
+#include <QMouseEvent>
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Transform tool to set a transformation by moving click-and-drag
 ///        object in GL scene

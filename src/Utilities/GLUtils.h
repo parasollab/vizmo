@@ -87,6 +87,13 @@ namespace GLUtils {
   void DrawSphere(const double _radius, const unsigned short _segments = 20);
 
   //////////////////////////////////////////////////////////////////////////////
+  /// \brief Draw a solid sphere in the OpenGL scene at the current origin.
+  /// \param[in] _center The center of the sphere
+  /// \param[in] _radius The sphere radius.
+  /// \param[in] _segments The number of latitude/longitude segments to use.
+  void DrawSphere(const Vector3d& center, const double _radius, const unsigned short _segments = 20);
+
+  //////////////////////////////////////////////////////////////////////////////
   /// \brief Draw a wire sphere in the OpenGL scene at the current origin.
   /// \param[in] _radius The sphere radius.
   /// \param[in] _segments The number of latitude/longitude segments to use.

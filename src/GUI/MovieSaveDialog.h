@@ -20,7 +20,7 @@ class MovieSaveDialog : public QDialog {
 
   public:
 
-    MovieSaveDialog(MainWindow* _mainWindow, Qt::WindowFlags _f = 0);
+    MovieSaveDialog(MainWindow* _mainWindow, Qt::WindowFlags _f = Qt::WindowFlags());
 
     size_t m_startFrame;      ///< The start frame.
     size_t m_endFrame;        ///< The end frame.

@@ -45,6 +45,7 @@ Build() {
   const Vector3d& center = m_boundingSphere->GetCenter();
   double radius = m_boundingSphere->GetRadius();
 
+  /*
   GLUquadricObj* quad = gluNewQuadric();
 
   m_displayID = glGenLists(1);
@@ -70,6 +71,9 @@ Build() {
   glEndList();
 
   gluDeleteQuadric(quad);
+  */
+
+  GLUtils::DrawSphere(center, radius, 50);
 }
 
 void

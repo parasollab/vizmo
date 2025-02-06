@@ -3,9 +3,11 @@
 //#ifdef __APPLE__
 //  #include <OpenGL/glu.h>
 //#else
-//  #include <glu.h>
+#include <glu.h>
 //#endif
 
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 #include <QMouseEvent>
 #include <QKeyEvent>
 

@@ -279,11 +279,9 @@ template <class CFG, class WEIGHT>
 void
 MapModel<CFG, WEIGHT>::
 RefreshMap(bool lock) {
-  QMutexLocker* locker = NULL;
-  if(lock)
-    locker = new QMutexLocker(&m_lock);
+  if(lock) 
+    QMutexLocker locker(&m_lock);
   Build();
-  delete locker;
 }
 
 #endif

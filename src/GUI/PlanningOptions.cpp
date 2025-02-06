@@ -780,7 +780,7 @@ MapEnvironment() {
 
     if(!cpDialog.exec()) {
       GetVizmo().StopClock("StrategySelection");
-      GetVizmo().AdjustClock("Pre-input", "StrategySelection", "-");
+      // GetVizmo().AdjustClock("Pre-input", "StrategySelection", "-");
       return;
     }
 
