@@ -90,9 +90,9 @@ $(VIZMO_LIBFILE): $(VIZMO_OBJS) $(MOC_OBJS) \
 VIZMO_EXEC    := vizmo++
 .DEFAULT_GOAL := $(VIZMO_EXEC)
 $(VIZMO_EXEC): $(MAIN) $(VIZMO_LIBFILE)
+	@echo $(VIZMO_OBJS)
+	# $(CXX) -o $(VIZMO_EXEC) -no-pie $(VIZMO_LIBFILE) -Wl,--no-as-needed $(LIBS)
 	@echo Linking $@...
-
-
 
 # Object File Recipes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
@@ -114,7 +114,6 @@ $(MOC_DIR)/moc_%.o: $(MOC_DIR)/moc_%.cpp %.h | $(MOC_DIR)
 # This recipe is for regular objects.
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	@$(MAKE) -s check_platform
-	@echo "TEST TEST"
 	@echo Compiling $<...
 	@echo $(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) $< -o $@
 	@$(CXX) -c $(CXXFLAGS) $(OPTS) $(DEFS) $(INCL) $(DEPS) $< -o $@

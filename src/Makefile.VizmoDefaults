@@ -30,7 +30,7 @@ endif
 ifeq ($(platform), Ubuntu)
   QT_INCL := -I$(QT_BASE) -I$(QT_BASE)/Qt -I$(QT_BASE)/QtCore -I$(QT_BASE)/QtGui \
              -I$(QT_BASE)/QtOpenGL -I$(QT_BASE)/QtWidgets -I$(QT_BASE)/QtOpenGLWidgets
-  QT_LIBS := -lQtGui -lQtOpenGL -lQtCore -lQtWidgets -lQtOpenGLWidgets
+  QT_LIBS := -lQt6Gui -lQt6OpenGL -lQt6Core -lQt6Widgets -lQt6OpenGLWidgets
 endif
 
 # Ensure the moc (metaobject compiler) is found.
@@ -179,5 +179,8 @@ endif
 ################################################################################
 DEFS += -DVIZMO
 INCL  = -I$(VIZMO_DIR) $(QT_INCL) $(MP_INCL)
-LIBS  = -L$(VIZMO_DIR) -lvizmo $(MP_LIBS) $(QT_LIBS) \
-	$(PHANTOM_LIBS) $(SPACEMOUSE_LIBS)
+
+# Add openGL stuff separately just incase it's just easier to take it all out again
+INCL += $(GL_INCL)
+
+LIBS = $(QT_LIBS) $(GL_LIBS) $(shell find $(VIZMO_DIR) -name "*.o") $(PMPL_LIBFILE) $(UTILS_LIBFILE) -lmpfr -lgmp 
