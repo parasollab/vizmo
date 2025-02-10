@@ -1,23 +1,23 @@
-TEMPLATE = app
-TARGET = vizmo++
-CONFIG += qt gui 
 
-
-# Directory Layout variables
+# include other .defaults makefiles. 
 VIZMO_DIR = .
 PMPL_DIR  = $${VIZMO_DIR}/../ppl/src
 UTILS_DIR = $${VIZMO_DIR}/../ppl/pmpl_utils
 STAPL_DIR = $${UTILS_DIR}/stapl_release
 
+# import the PPL lib variable NAMES
+include($${PMPL_DIR}/vizmoincludes.pri)
 
-SOURCES += $$files(src/**/*.cpp)
-HEADERS += $$files(src/**/*.h)
+TEMPLATE = app
+TARGET = vizmo++
+QMAKE_CXXFLAGS += -std=c++17
+QMAKE_CXXFLAGS += $${CXXFLAGS}
+
+QT += gui widgets 
+SOURCES += main.cpp
 
 
-# includes
-GL_INCL = /usr/include/GL
 
-
-INCLUDES += $${VIZMO_DIR} $${GL_INCL} $${MP_INCL}
-
-
+# includes from pmpl UTILS
+INCLUDEPATH += $${MATHTOOL_DIR}
+INCLUDEPATH += $${PMPL_DIR}
