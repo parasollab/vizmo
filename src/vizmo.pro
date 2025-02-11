@@ -13,10 +13,9 @@ TEMPLATE = app
 TARGET = vizmo++
 QMAKE_CXXFLAGS += -std=c++17
 QMAKE_CXXFLAGS += $${CXXFLAGS}
-QT += core widgets gui
+QT += core widgets gui opengl openglwidgets
 
 SOURCES += main.cpp 
-# SOURCES += $${PMPL_SRCS}
 
 # defines
 DEFINES += $${PMPL_DEF}
@@ -26,5 +25,10 @@ INCLUDEPATH += $${MATHTOOL_INCL}
 INCLUDEPATH += $${PMPL_INCL}
 INCLUDEPATH += $${STAPL_INCL}
 INCLUDEPATH += $${TINYXML_INCL}
+INCLUDEPATH += $${CGAL_INC}
+# INCLUDEPATH += $${VIZMO_DIR}
 
+SOURCES += $${VIZMO_DIR}/GUI/MainWindow.cpp
+HEADERS += $${VIZMO_DIR}/GUI/MainWindow.h
 
+message("$${CGAL_INC}")
