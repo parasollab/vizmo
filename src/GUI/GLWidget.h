@@ -33,6 +33,7 @@ class GLWidget : public QOpenGLWidget {
   public:
 
     GLWidget(QWidget* _parent);
+    ~GLWidget();
 
     bool GetDoubleClickStatus() const {return m_doubleClick;}
     void SetDoubleClickStatus(bool _b) {m_doubleClick = _b;}

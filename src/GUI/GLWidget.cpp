@@ -49,6 +49,9 @@ GLWidget(QWidget* _parent) : QOpenGLWidget(_parent),
       this, SLOT(SetMousePosImpl(Point3d)));
 }
 
+GLWidget::
+~GLWidget(){}
+
 void
 GLWidget::
 ToggleSelectionSlot() {
