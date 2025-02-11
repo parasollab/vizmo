@@ -1,6 +1,6 @@
 # Set platform and debug mode if not already set.
 platform = Ubuntu
-debug    = 0
+debug    = 1
 asan     = 0
 
 # Define robot type if it isn't already set.
@@ -13,3 +13,5 @@ spacemouse = 0
 # Define robot type if it isn't already set.
 ROBOT_DEF = PMPCfg
 PARALLEL = 0
+
+CONFIG += $${debug}

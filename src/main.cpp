@@ -1,24 +1,30 @@
-#include <iostream>
-using namespace std;
+// #include <iostream>
+// using namespace std;
 
-#ifdef __APPLE__
-  #include <GLUT/glut.h>
-#else
-//  #include <glut.h>
-#endif
+// // #ifdef __APPLE__
+// //   #include <GLUT/glut.h>
+// // #else
+// //  #include <glut.h>
+// // #endif
 
 #include <QApplication>
-#include <QMainWindow>
+// #include <QMainWindow>
 //#include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 
 #include "GUI/MainWindow.h"
 #include "Models/Vizmo.h"
-#include "Vector.h"
+// #include "Vector.h" // from pmpl_utils's mathtool! 
+
+#include <QApplication>
+#include <QLabel>
+
+
+
 
 int
 main(int _argc, char** _argv) {
-  //parse command line args
+//   parse command line args
   long seed = 0;
   vector<string> filename;
   char arg;
@@ -52,7 +58,7 @@ main(int _argc, char** _argv) {
 
   ///
   // Initialize glut.
-  //glutInit(&_argc, _argv);
+  // glutInit(&_argc, _argv);
 
   // Initialize application object.
  // QApplication::setColorSpec(QApplication::CustomColor);
