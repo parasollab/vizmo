@@ -9,3 +9,5 @@ libvizmo.a
 *.map
 *.path
 *.stat
+src/moc/*
+src/Makefile
