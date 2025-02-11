@@ -1,11 +1,11 @@
 // #include <iostream>
 // using namespace std;
 
-// // #ifdef __APPLE__
-// //   #include <GLUT/glut.h>
-// // #else
-// //  #include <glut.h>
-// // #endif
+#ifdef __APPLE__
+  #include <GLUT/glut.h>
+#else
+ #include <glut.h>
+#endif
 
 #include <QApplication>
 // #include <QMainWindow>
@@ -58,7 +58,7 @@ main(int _argc, char** _argv) {
 
   ///
   // Initialize glut.
-  // glutInit(&_argc, _argv);
+  glutInit(&_argc, _argv);
 
   // Initialize application object.
  // QApplication::setColorSpec(QApplication::CustomColor);
