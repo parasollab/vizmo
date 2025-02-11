@@ -11,3 +11,4 @@ libvizmo.a
 *.stat
 src/moc/*
 src/Makefile
+**/,qmake.stash
