@@ -12,7 +12,6 @@ After cloning this repo AND CHECKING OUT THIS BRANCH:
 - Make the smallest possible clone of PMPL's vizmo branch: `git clone git@github.com:parasollab/ppl.git --depth 1 --branch ubuntu-24-04-vizmo`.
 - Switch to the PMPL root directory `cd ppl`.
 - Soft-link to your pmpl\_utils copy `ln -s ../../pmpl_utils`.
-- Switch back to the small clone of PMPL's vizmo branch: `cd ../../vizmo/ppl`
 - Switch to ppl's src directory: `cd src`
 - Make ppl and pmpl_utils: `make` (with -j4 for more speed)
 - Switch to vizmo now: `cd ../../`
