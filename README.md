@@ -9,7 +9,13 @@ This code requires a copy of PMPL's vizmo branch in the top-level directory to f
 After cloning this repo:
 - Also clone PMPL Utils in your PPL root directory: `git clone git@github.com:parasollab/pmpl_utils.git`.
 - Switch to the repo's root directory `cd vizmo`.
-- Make the smallest possible clone of PMPL's vizmo branch: `git clone git@github.com:parasollab/ppl.git --depth 1 --branch ubuntu-20-04-vizmo`.
+- Make the smallest possible clone of PMPL's vizmo branch: `git clone git@github.com:parasollab/ppl.git --depth 1 --branch ubuntu-24-04-vizmo`.
 - Switch to the PMPL root directory `cd ppl`.
 - Soft-link to your pmpl\_utils copy `ln -s ../../pmpl_utils`.
-- Go to `vizmo/src` and build everything with `make`.
+- Switch back to the small clone of PMPL's vizmo branch: `cd ../../vizmo/ppl`
+- Switch to ppl's src directory: `cd src`
+- Make ppl and pmpl_utils: `make` (with -j4 for more speed)
+- Switch to vizmo now: `cd ../../`
+- Switch to vizmo's src directory: `cd src`
+- QMake, and force qt6: `QT_SELECT=qt6 qmake`
+- Make. `make`
