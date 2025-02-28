@@ -107,7 +107,7 @@ CreateGUI() {
 
   // Set up timer to redraw and refresh GUI
   m_timer = new QTimer(this);
-  connect(m_timer, SIGNAL(timeout()), m_gl, SLOT(updateGL()));
+  connect(m_timer, SIGNAL(timeout()), m_gl, SLOT(update()));
   m_timer->start(33);
 
   connect(m_modelSelectionWidget, SIGNAL(UpdateTextWidget()),
