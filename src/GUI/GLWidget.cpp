@@ -3,11 +3,11 @@
 #include <numeric>
 #include <ctime>
 
-//#ifdef __APPLE__
-//  #include <OpenGL/glu.h>
-//#else
-//  #include <GL/glu.h>
-//#endif
+#ifdef __APPLE__
+  #include <OpenGL/glu.h>
+#else
+  #include <GL/glu.h>
+#endif
 
 #include "MainWindow.h"
 
@@ -94,9 +94,9 @@ resizeGL(int _w, int _h) {
   glViewport(0, 0, _w, _h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  // gluPerspective(60, ((GLfloat)_w)/((GLfloat)_h), 1, 10000);
-  QMatrix4x4 projection;
-  projection.perspective(60.0f, static_cast<float>(_w) / static_cast<float>(_h), 1.0f, 10000.0f);
+  gluPerspective(60, ((GLfloat)_w)/((GLfloat)_h), 1, 10000);
+  //QMatrix4x4 projection;
+  //projection.perspective(60.0f, static_cast<float>(_w) / static_cast<float>(_h), 1.0f, 10000.0f);
 }
 
 void
