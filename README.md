@@ -18,3 +18,8 @@ After cloning this repo AND CHECKING OUT THIS BRANCH:
 - Switch to vizmo's src directory: `cd src`
 - QMake, and force qt6: `QT_SELECT=qt6 qmake`
 - Make. `make`
+
+### Error: libCGAL.so.13: Cannot open shared object file: Permission denied
+
+- Find the libCGAL.so.13 file and get the FULL FILE PATH. (It is most likely in `pmpl_utils/CGAL/install/lib64`)
+- Add the following to the end of your `~/.bashrc`: `export LD_LIBRARY_PATH=[FULL FILE PATH of libCGAL.so.13]:$LD_LIBRARY_PATH`
