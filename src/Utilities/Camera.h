@@ -9,6 +9,7 @@ using namespace std;
 
 #include <QOpenGLFunctions>
 #include <QMouseEvent>
+#include <GL/glu.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief A gluLookAt camera that is controllable with Qt input events.

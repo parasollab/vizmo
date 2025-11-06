@@ -55,11 +55,11 @@ Draw() {
   viewMatrix.lookAt(eye, scee, up);
   m_eye = Point3d(eye.x(), eye.y(), eye.z());
   m_up = Vector3d(up.x(), up.y(), up.z());
-  //gluLookAt(
-  //    m_eye[0], m_eye[1], m_eye[2],
-  //    c[0], c[1], c[2],
-  //    m_up[0], m_up[1], m_up[2]
-  //    );
+  gluLookAt(
+     m_eye[0], m_eye[1], m_eye[2],
+     c[0], c[1], c[2],
+     m_up[0], m_up[1], m_up[2]
+     );
 
   if(Haptics::UsingPhantom())
     GetVizmo().GetPhantomManager()->UpdateWorkspace();
